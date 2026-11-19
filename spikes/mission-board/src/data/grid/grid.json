@@ -1,0 +1,3135 @@
+{
+  "$schema-ts": "design/grid/types.ts (Grid)",
+  "asOf": "m1@6419d4b7",
+  "record": "design/decisions/K14-the-grid.md",
+  "goal": {
+    "title": "Everything falls out of the blueprint, for every building block in every output",
+    "summary": "Thirteen building blocks by nine outputs, 117 cards, each an eval with a stated green and stated evidence. Done is every card green or agreed not needed, then one story proves it whole: a fresh folder, the real ortho command, a new project, and the Plugged In app grown through its four stages.",
+    "writeUp": [
+      "**What Orthograph promises.** You write a blueprint: the things your app keeps, the operations that change them, the steps each operation takes, the machine each thing moves through, the events a move emits, the errors a call can be refused with, the roles allowed to call, which fields are private or secret, the environments and stores it runs in, the plugins it mounts, where an operation runs, and the journeys that prove it works. Everything else falls out of that one declaration for free: the model, the HTTP API, the server, the SDK, the CLI, the MCP tools, the docs, the portal and the telemetry. Nothing is configured twice, and nothing an output shows is written by hand.",
+      "**Why a grid measures it.** \"Falls out for free\" is a claim about every pair of building block and output. The coverage audit of 19 November (K12) drew that as a grid of 13 building blocks by 9 outputs, 117 cells, and found the claim fully true only for operations. A promise that holds for one row is not yet the promise. So the grid is the goal: each row is a lane, each cell in it is a card, and each card is an eval. A card says, in one or two sentences, what green means for that building block in that output, and names the evidence that proves it: an e2e check, a journey run through that output, or a view in the portal. A card is green only when its evidence runs in CI and passes. A card that exists in code but has no evidence is not green; it is \"built, unproved\", and the board shows it amber.",
+      "**What \"done\" looks like.** Every card is green, or Aaron has agreed it is not needed by design. A \"not needed\" card is not deleted: it stays on the board, greyed, with the one-line reason, so nobody reopens it by accident and anyone can see the grid is whole. Where an absence is itself a safety property (no secret field leaves through any output, no step leaks into a client's contract), the card stays live and its evidence proves the absence. When the last card turns green, the end-to-end story below runs from a fresh folder through all four stages of the Plugged In app, and the grid stays green after it.",
+      "**How it relates to the gates.** The grid does not replace the milestones; it is how we see them. Gate M1 (M1.15) is the first band: the basics of things, operations, steps, machines, events and errors in every output (K13's 5 by 5, M1.41 and M1.42), one visibility rule (M1.35), telemetry that carries the model (M1.36), and the portal as a viewer (M1.13). Gate M2, \"workable\" (M2.12, also the stage 1 gate), is the second: roles and principals (M2.01 to M2.07), secrets by declaration (M2.04), journeys run through the SDK, CLI and MCP (M2.08) so those three columns are proved by journeys rather than by hand-picked calls, `ortho new` (M2.09) so the story can start from nothing, and `ortho add` for the blocks that edit files in place (M2.14 to M2.16). The v1.0 stages fill the rest: stage 2 (ST2.06) the device lane and the adapter half of the mount lane, stage 3 (ST3.08) stores on a chain and workflows, stage 4 (ST4.08) the visibility lane at its hardest, a club whose members never show. The lanes this grid does not have yet (workflows, views, agents, chains as stores) join it as rows when their milestone's decision slice names their outputs; until then they are listed under \"Rows still to come\".",
+      "**How we use it.** The board shows one lane per row, its cards left to right in the column order below, each card green, amber (built, unproved), red (missing) or grey (not needed, agreed). Work is picked by lane, not by cell: a lane is climbed until it is fully green, so at each step we know exactly which building block is whole. The order is under \"Hill-climb order\"."
+    ],
+    "doneWhen": "Every cell is green, or not-needed with Aaron's reason; then the story check runs from a fresh folder through all four stages of the Plugged In app and the grid stays green."
+  },
+  "blocks": [
+    {
+      "id": "operation",
+      "name": "Operation & read",
+      "summary": "An operation changes things; a read returns them. Each declares its payload, answer, who may call, idempotency and budget.",
+      "order": 1,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The operation's page and the operations matrix",
+        "description": "Every operation and read is one endpoint, one SDK function, one CLI command, one MCP tool, one docs page and one portal page, with its description, who may call, its idempotency and its budget, and every call is counted and traced.",
+        "ref": null
+      },
+      "proof": "The operation's page in the portal (the in-and-out band, the spine, the proof tab with its journeys' verdicts) and the operations matrix on home (calls, refused, defects, p95 against budget); journeys through each client (M2.08).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The caller's whole contract, the builder's handler, the operator's calls and budget."
+    },
+    {
+      "id": "error",
+      "name": "Error & refusal code",
+      "summary": "A refusal a call can end in: a declared error, the wrong-state refusal, NotAllowed, each with a code and an exit.",
+      "order": 2,
+      "endState": {
+        "kind": "portal-view",
+        "title": "Refusals on the arrows, in the band, counted by code",
+        "description": "Every refusal a caller can get, declared or the runtime's own, has a name, a code and an exit, and the same three reach the SDK as a typed class, the CLI as `[code] Name` and its exit, MCP as an error with its code, the docs' refusals table, the portal's arrows and counts, and the span.",
+        "ref": null
+      },
+      "proof": "Refusals on the arrow they guard and in the in-and-out band, counted by code (portal.md); M1.41's refused claim prints `HN-001`; `refusal.code` on the span (M1.36).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Refusals are the caller's contract: name, code and exit."
+    },
+    {
+      "id": "thing",
+      "name": "Thing & fields",
+      "summary": "A thing the app keeps, with its fields: their types, references, optionality, visibility and description.",
+      "order": 3,
+      "endState": {
+        "kind": "portal-view",
+        "title": "Home's thing cards and each thing's page",
+        "description": "Every thing the blueprint declares, with every field's type, reference, optionality, visibility and description, is the same in every output: typed in the SDK, a typed and described flag in the CLI, an input and output schema in MCP, a reference page in the docs, and a card and page in the portal.",
+        "ref": null
+      },
+      "proof": "The portal's home (one card per thing, grouped by `from`) and each thing's page, with the in-and-out band showing every field and its visibility; M1.41 reads every output for each thing's type and fields; the stage 1 journeys run through the SDK, CLI and MCP (M2.08).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A thing's fields are every payload and answer: callers type against them, builders declare them, operators see them on spans."
+    },
+    {
+      "id": "step",
+      "name": "Step",
+      "summary": "A step an operation takes in order: database, wait or call, with the stores it writes and whether it is optional.",
+      "order": 4,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The operation's spine",
+        "description": "Every declared step (its kind, the stores it writes, whether it is optional, and the adapter it calls) is in the model, run in order by the server, documented, drawn on the operation's spine and traced as its own span, and never part of a client's contract.",
+        "ref": null
+      },
+      "proof": "The operation's spine in the portal: each declared step in its place, a finished call's spans down it, a running call's step signals as they arrive (M1.21); `ortho prove --empty` shows one red step per blank.",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [
+        "caller"
+      ],
+      "audiencesBecause": "How the handler works, not what the caller asked for: a step renamed or split must never change a caller's contract. Leaving its audience is a leak, so its caller cards are absence checks."
+    },
+    {
+      "id": "machine",
+      "name": "Machine, states, move",
+      "summary": "A thing's lifecycle: its states, the moves between them, what each move emits.",
+      "order": 5,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The lifecycle strip on a thing's card and page",
+        "description": "A thing's lifecycle (its states, its moves, what each move emits and the refusal for a wrong state) is typed in every client, documented, drawn as the lifecycle strip in the portal, and every move is traced from and to.",
+        "ref": null
+      },
+      "proof": "The lifecycle strip on a thing's card and page, with move counts on each arrow and refusals on the arrow they guard (portal.md, \"A thing's page\"), lit by `move.name`, `move.from` and `move.to`.",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A thing's state is in its answers, and the wrong-state refusal is the first thing a caller meets; the moves are the builder's, the transitions on spans the operator's."
+    },
+    {
+      "id": "event",
+      "name": "Event",
+      "summary": "A fact a move emits, with its fields, committed to the journal with the move.",
+      "order": 6,
+      "endState": {
+        "kind": "portal-view",
+        "title": "Events on a thing's page and on the spine's commit",
+        "description": "Every event a move emits is typed in the SDK, documented with its fields, shown on the thing's page with its fields, named on the commit span, and its committed occurrences show in the portal with the commit that wrote them.",
+        "ref": null
+      },
+      "proof": "The thing's page lists its events with their fields; an operation's spine shows the event its commit emitted and the `on:` handlers it set off (M1.21's committed events from the journal).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The runtime's record of a move, read by the builder and the operator. A caller reads state, not the journal, until views make events followable (M5.05, Q3)."
+    },
+    {
+      "id": "visibility",
+      "name": "Field visibility (secret, private)",
+      "summary": "Who may see a field: public by default, private to roles, or secret.",
+      "order": 7,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The band's secret and private marks, and the no-leak check",
+        "description": "One rule decides, per audience, what each field shows: a secret leaves only in the answer of the call that issued it, a private field only to the roles it names, and every output (HTTP answers and refusals, SDK, CLI, MCP, docs, portal, spans, journal, logs) calls the same rule and fails closed.",
+        "ref": null
+      },
+      "proof": "Check 16 renders every output for every audience over a fixture with a public, a private and a secret field (M1.35); the portal's \"no leak\" check (M1.13); stage 4's club, whose portal shows nothing that names a member (ST4.07).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The rule over what each audience sees: its caller cards are where a secret must not leave."
+    },
+    {
+      "id": "journey",
+      "name": "Journey & starting world",
+      "summary": "A scripted story with a cast, run against a starting world, that proves the operations work.",
+      "order": 8,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The proof tab on each operation",
+        "description": "Every journey and starting world is in the model, runs through each client (SDK, CLI, MCP), is listed in the docs as the worked example of the operations it covers, and shows in the portal as the proof on each operation, its runs lighting up what it touched.",
+        "ref": null
+      },
+      "proof": "The proof tab on each operation (the journeys that cover it and their verdicts, M1.04) and the proof matrix per environment (portal.md); `ortho prove` passing `--through sdk|cli|mcp` (M2.08).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Journeys prove the app: they run through the clients (M2.08), never in them. The server's part is the starting world, gated to environments with a lifetime."
+    },
+    {
+      "id": "roles",
+      "name": "Roles",
+      "summary": "Who may call an operation: anyone, signed in, or a role of the thing, with its rule.",
+      "order": 9,
+      "endState": {
+        "kind": "portal-view",
+        "title": "Roles on a thing's page and `allowed` in each band",
+        "description": "Who may call each operation is declared once and is true everywhere: enforced by the server, said in the SDK's doc comment, the CLI's help and the MCP tool's description, MCP lists only the tools the caller's roles allow, the docs and portal show each role rule, and each span says which role let the call through.",
+        "ref": null
+      },
+      "proof": "Roles on a thing's page and `allowed` in each operation's band (portal.md); the stage 1 journeys \"a stranger can't edit\" run through every client (ST1.02 with M2.08); M2.02's principal journeys.",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A caller needs to know who may call before calling (M2.03); a refusal says NotAllowed."
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "summary": "Where the app runs: local, test, staging, production, each with its identity, stores, secrets, sink and domains.",
+      "order": 10,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The environment switcher and the proof matrix",
+        "description": "Each declared environment (where it runs, its identity, its stores' bindings, its secrets by name, its telemetry sink, its domains) is served as declared, named on every call's span, documented, and is the portal's switcher; whether the clients know environments by name is Q4.",
+        "ref": null
+      },
+      "proof": "The portal's environment switcher in the top bar and the proof matrix (every operation against every environment, portal.md \"Environments\"); `environment` on every span (M1.36).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Where the app runs and what it binds is the builder's and the operator's; a caller is handed a URL. Q4 decides whether the caller gets the environments' names and public domains."
+    },
+    {
+      "id": "store",
+      "name": "Store",
+      "summary": "Where things live: a database or actor store, bound per environment, one per commit.",
+      "order": 11,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The data page and a thing's store in its header",
+        "description": "Each store the blueprint declares (or a mounted plugin brings) has its own binding and migrations, says what lives in it in the docs and the portal's data page, and is named on every call's span; callers never see where a thing lives.",
+        "ref": null
+      },
+      "proof": "The portal's data page (every store, its kind, binding and migrations, M5.06) and a thing's header naming its store; `store` on every span (M1.36); K3's check that a call writing two stores is refused (Gate M1 item 5).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Where things live: a store renamed or rebound must never change a caller's contract."
+    },
+    {
+      "id": "mount",
+      "name": "Mount, adapter, plugin origin",
+      "summary": "A plugin mounted with one file: a feature, adapter or projection, with its package and version.",
+      "order": 12,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The tree grouped by plugin, and call steps naming their adapter",
+        "description": "A plugin mounted with one file brings its things, operations, stores and adapters into every output as if they were the app's own, honouring the mount's narrowing, while the docs, the portal and the spans say where each came from (plugin, package, version) and which adapter a call step called.",
+        "ref": null
+      },
+      "proof": "The portal's tree, one folded group per mounted plugin with its version in the page header (portal.md, \"The frame\"); a call step on the spine naming its adapter; check 01 mounts a plugin with one command (Gate M1 item 1).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A mounted plugin's operations reach callers through the operation lane, as the app's own; which plugin they came from is the builder's and the operator's."
+    },
+    {
+      "id": "device",
+      "name": "Runs on the device (runs: \"client\")",
+      "summary": "An operation declared `runs: \"client\"`: it runs in the caller's process, never on the server.",
+      "order": 13,
+      "endState": {
+        "kind": "portal-view",
+        "title": "The operation's page marked on your device",
+        "description": "An operation declared `runs: \"client\"` runs in the caller's process from the SDK and the CLI with no server request, never on the server, is documented as running on the device, marked in the portal, and its spans reach the environment's sink like any call.",
+        "ref": null
+      },
+      "proof": "Check 11 (a client operation through the SDK and CLI with no server call); stage 2's wallet created on the device (ST2.06); the operation's page in the portal marked \"on your device\", lit by its spans (portal.md gap 4).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The caller runs a device operation in its own process; the builder declares it, the operator sees its spans (ST2.07)."
+    }
+  ],
+  "outputs": [
+    {
+      "id": "model",
+      "name": "Model",
+      "provedBy": "check",
+      "order": 1,
+      "tier": "source",
+      "dependsOn": [],
+      "audiences": [
+        "builder"
+      ]
+    },
+    {
+      "id": "api",
+      "name": "API",
+      "provedBy": "check",
+      "order": 2,
+      "tier": "surface",
+      "dependsOn": [
+        "model"
+      ],
+      "audiences": [
+        "caller"
+      ]
+    },
+    {
+      "id": "server",
+      "name": "Server",
+      "provedBy": "check",
+      "order": 3,
+      "tier": "surface",
+      "dependsOn": [
+        "model",
+        "api"
+      ],
+      "audiences": [
+        "operator"
+      ]
+    },
+    {
+      "id": "sdk",
+      "name": "SDK",
+      "provedBy": "journey",
+      "order": 4,
+      "tier": "surface",
+      "dependsOn": [
+        "api"
+      ],
+      "audiences": [
+        "caller"
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "CLI",
+      "provedBy": "journey",
+      "order": 5,
+      "tier": "surface",
+      "dependsOn": [
+        "api",
+        "sdk"
+      ],
+      "audiences": [
+        "caller"
+      ]
+    },
+    {
+      "id": "mcp",
+      "name": "MCP",
+      "provedBy": "journey",
+      "order": 6,
+      "tier": "surface",
+      "dependsOn": [
+        "api"
+      ],
+      "audiences": [
+        "caller"
+      ]
+    },
+    {
+      "id": "docs",
+      "name": "Docs",
+      "provedBy": "portal",
+      "order": 7,
+      "tier": "evidence",
+      "dependsOn": [
+        "model"
+      ],
+      "audiences": [
+        "builder"
+      ]
+    },
+    {
+      "id": "portal",
+      "name": "Portal",
+      "provedBy": "portal",
+      "order": 8,
+      "tier": "evidence",
+      "dependsOn": [
+        "model",
+        "docs",
+        "telemetry"
+      ],
+      "audiences": [
+        "builder",
+        "operator"
+      ]
+    },
+    {
+      "id": "telemetry",
+      "name": "Telemetry",
+      "provedBy": "check",
+      "order": 9,
+      "tier": "evidence",
+      "dependsOn": [
+        "server"
+      ],
+      "audiences": [
+        "operator"
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "id": "operation.model",
+      "block": "operation",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:73",
+      "todayNote": "OperationModel carries kind operation|read, name, description, payload, answer, allowed, budget, idempotent, list, via, runs.",
+      "greenMeans": "Each operation and read is in the model with its kind, description, payload, answer, allowed, idempotency, budget, list options, `via` and `runs`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.03 (done)",
+      "question": null
+    },
+    {
+      "id": "operation.api",
+      "block": "operation",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:73",
+      "todayNote": "One HttpApiEndpoint per operation and per read (POST /thing/verb), payload/success schemas from the declaration, plus declaration re-exported.",
+      "greenMeans": "One endpoint per operation and read, its schemas from the declaration.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.11 (done)",
+      "question": null
+    },
+    {
+      "id": "operation.server",
+      "block": "operation",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/read.ts:42",
+      "todayNote": "Handlers.serve per operation, Reads.serve generically per read (role check, span, no handler); both wired in the server main.",
+      "greenMeans": "Each operation is served through its handler and each read generically, with the role check and a span.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/layer2",
+          "ref": "e2e/layer2",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.11 (done)",
+      "question": null
+    },
+    {
+      "id": "operation.sdk",
+      "block": "operation",
+      "output": "sdk",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:23",
+      "todayNote": "One function per operation including reads (examples/acme/generated/sdk/src/organization/get.ts), with the description as doc comment.",
+      "greenMeans": "One function per operation and read, with the description as its doc comment, calling the API.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 calls every operation once through the SDK",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "M2.08 runs journeys `--through sdk`",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "M1.12 (contract); M2.08 (journeys)",
+      "question": null
+    },
+    {
+      "id": "operation.cli",
+      "block": "operation",
+      "output": "cli",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:6",
+      "todayNote": "One command per operation and read, a flag per payload field. The operation's description is only a doc comment in the generated source, never the command's `--help`, so a person at the terminal can't read it. Regraded from the reader's ✓ against this card's green.",
+      "greenMeans": "One command per operation and read whose `--help` is the operation's description; a refusal exits with its declared code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 calls every operation through the CLI",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "M2.08 runs journeys `--through cli`",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (help text); M2.08 (journeys)",
+      "question": null
+    },
+    {
+      "id": "operation.mcp",
+      "block": "operation",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:21",
+      "todayNote": "One tool per operation and read (allowance.get etc.) with description and the declaration's payload; narrowed by via.agent.",
+      "greenMeans": "One tool per operation and read, described from the model, reads marked read-only, operations closed to agents left out.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/mcp/mcp.test.ts",
+          "ref": "packages/language-effect/src/modules/mcp/mcp.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "M2.08 runs journeys `--through mcp`",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "M2.08 (journeys); M1.37 adds hints (M3)",
+      "question": null
+    },
+    {
+      "id": "operation.docs",
+      "block": "operation",
+      "output": "docs",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:34",
+      "todayNote": "A page per operation and read: description, who may call, 'A read' line with list paging, idempotency, budget, payload, answer.",
+      "greenMeans": "One page per operation and read: description, who may call, read paging, idempotency, budget, payload, answer, refusals.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "built; evidence M1.41",
+      "question": null
+    },
+    {
+      "id": "operation.portal",
+      "block": "operation",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:49",
+      "todayNote": "Wire Operation has kind, description, payload, answer, allowed, idempotent, budget.p95Ms and detail.ts renders them. Missing from the wire: list (where/order/page), runs, via.",
+      "greenMeans": "Each operation has its page (the in-and-out band and the spine), and home's operations matrix counts its calls, refusals, defects and p95 against its budget; a read's list options, `runs` and `via` are decoded too.",
+      "evidence": [
+        {
+          "kind": "journey",
+          "label": "M1.13's screenshot of `handle.claim`'s page and the matrix lit by a journey's run",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13",
+      "question": null
+    },
+    {
+      "id": "operation.telemetry",
+      "block": "operation",
+      "output": "telemetry",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:102",
+      "todayNote": "Operation span named after the operation with operation, attempt, principal attrs; reads get the same span (read.ts:68); ortho.calls and ortho.call.duration per operation (call-metrics.ts:4).",
+      "greenMeans": "Each call has the operation's span (`operation`, `attempt`, principal) and is counted in `ortho.calls` and `ortho.call.duration`, reads included.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/call-metrics.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/call-metrics.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts",
+          "ref": "e2e/m1/17-telemetry-model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.18, M1.20 (done)",
+      "question": null
+    },
+    {
+      "id": "error.model",
+      "block": "error",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:50",
+      "todayNote": "Declared errors carry fields, exit and code; machine notFrom has error, exit, code; Model.refusals maps every refusal to its code (types.ts:190).",
+      "greenMeans": "Every declared error and wrong-state refusal has its fields, exit and code, and the model maps every refusal to its code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "error.api",
+      "block": "error",
+      "output": "api",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:56",
+      "todayNote": "Each declared refusal is a tagged error with its code, exit and the fields shown. The runtime's own `InvalidPayload` has no code in the model, so one refusal a caller can get has none. Regraded from the reader's ✓ (who noted the gap) against this card's green.",
+      "greenMeans": "Every refusal is a typed error with its code and exit, the runtime's own `InvalidPayload` included.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads every refusal's code",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed addition: a code for `InvalidPayload`)",
+      "question": null
+    },
+    {
+      "id": "error.server",
+      "block": "error",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:100",
+      "todayNote": "Refusals are typed failures from the handler, NotAllowed from the role check, machine NotFrom, mapped to HTTP status by the wire class; InvalidPayload has no model code.",
+      "greenMeans": "Each refusal leaves the server typed with its code: declared ones from the handler, `NotAllowed` from the role check, the wrong-state one from the machine check.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/layer2",
+          "ref": "e2e/layer2",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "error.sdk",
+      "block": "error",
+      "output": "sdk",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:133",
+      "todayNote": "SDK re-exports Errors; each refusal is a typed class in the effect error channel with its code field and static code.",
+      "greenMeans": "Each refusal is a typed class in the call's error channel, with its code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts:181",
+          "ref": "e2e/m1/14-clients.test.ts:181",
+          "passing": null
+        }
+      ],
+      "owner": "M1.12",
+      "question": null
+    },
+    {
+      "id": "error.cli",
+      "block": "error",
+      "output": "cli",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:55",
+      "todayNote": "Refusal prints '[AL-002] Name { public fields }' to stderr and exits with the declared exit code; private fields are left out.",
+      "greenMeans": "A refusal prints `[code] Name { public fields }` and exits with its declared code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/14-clients.test.ts",
+          "ref": "e2e/m1/14-clients.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41's refused claim prints its code",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "built; evidence M1.41",
+      "question": null
+    },
+    {
+      "id": "error.mcp",
+      "block": "error",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:36",
+      "todayNote": "A refusal is an isError tool result '[AL-001] Name { field: value }' with the model's code, fields cut by role; a defect is '[AR-500] InternalError'. The code is in text, not a structured field.",
+      "greenMeans": "A refusal is an error result carrying its code and name, its fields cut to what the agent may see.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/mcp/mcp.test.ts:70",
+          "ref": "packages/language-effect/src/modules/mcp/mcp.test.ts:70",
+          "passing": null
+        }
+      ],
+      "owner": "built; M1.37 makes it structured (M3)",
+      "question": null
+    },
+    {
+      "id": "error.docs",
+      "block": "error",
+      "output": "docs",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:17",
+      "todayNote": "Each operation page has a refusals table: refusal, exit, code, when (declared, machine NotFrom, NotAllowed).",
+      "greenMeans": "Each operation's page has a refusals table: name, exit, code and when.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "error.portal",
+      "block": "error",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:44",
+      "todayNote": "Wire Operation errors and refusals are name arrays; no codes or exits in the structured model, and detail.ts:43 lists names only. Codes appear only inside the embedded docs markdown the page also renders.",
+      "greenMeans": "Errors are decoded with their codes and exits and shown on the thing's page, on the arrow they guard and in the band, counted by code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads errors with codes in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (wire), M1.13 (pages)",
+      "question": null
+    },
+    {
+      "id": "error.telemetry",
+      "block": "error",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:100",
+      "todayNote": "Operation span gets refusal: <name> (and refusal.log) but no refusal.code; reads do the same (read.ts:67). The ortho.calls counter carries the refusal name only.",
+      "greenMeans": "The span carries `refusal` and `refusal.code`, and `ortho.calls` counts by code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts:251 (written ahead, red)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts:251",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36",
+      "question": null
+    },
+    {
+      "id": "thing.model",
+      "block": "thing",
+      "output": "model",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:18-26",
+      "todayNote": "Things, fields, types, references, optionality and visibility are all in the model. No field has a description: `FieldModel` has no such key, and the blueprint has nowhere to write one (`Blueprint.thing` takes a description for the thing only, `packages/orthograph/src/modules/things/types.ts:27`). M1.41 asks for each field's description in every output, so M1.42 must add one to the blueprint and the model first.",
+      "greenMeans": "Each thing is in the model with its description and every field's type, named value, reference, optionality, visibility and description.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `generated/model/model.json` for every field's description",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (it needs a way to declare a field's description first: see note)",
+      "question": null
+    },
+    {
+      "id": "thing.api",
+      "block": "thing",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:80-81",
+      "todayNote": "Each endpoint uses the declaration's own payloadSchema and answerSchema, so every field is typed on the wire.",
+      "greenMeans": "Every endpoint's payload and answer schemas are the declaration's own fields, so each field is typed on the wire.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41's generated-API read",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.11 (done); evidence in M1.41",
+      "question": null
+    },
+    {
+      "id": "thing.server",
+      "block": "thing",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:60",
+      "todayNote": "Handler decodes the declaration's payload and answer; fields flow through unchanged.",
+      "greenMeans": "The server decodes every payload and answer against the declaration's fields and refuses a bad one.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/layer1/05-the-generated-surfaces.test.ts",
+          "ref": "e2e/layer1/05-the-generated-surfaces.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41's calls",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.11 (done)",
+      "question": null
+    },
+    {
+      "id": "thing.sdk",
+      "block": "thing",
+      "output": "sdk",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:132-134",
+      "todayNote": "Operation functions take PayloadOf<typeof declaration> and return the answer, so fields are typed per call; but index.ts exports no type for a thing or its fields, only one function per operation.",
+      "greenMeans": "The SDK exports a type for each thing (and its fields), not only one function per operation, so a caller can name a `Link` or a `Profile`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41: the generated SDK exports each thing's type",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "ST1.02's journeys through the SDK (M2.08)",
+          "ref": "ST1.02",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42",
+      "question": null
+    },
+    {
+      "id": "thing.cli",
+      "block": "thing",
+      "output": "cli",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:9",
+      "todayNote": "One Flag.String per payload field, decoded by the declaration; flags have no help text (and the model has no field description to draw on); a single-field answer prints its bare value, otherwise whole JSON (cli.ts:77-78).",
+      "greenMeans": "Each payload field is a flag typed from its value (number, enum, id), whose help is the field's description; an answer prints by field, not as one blob.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41: `plugged-in link add --help` shows each field's description",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "a mistyped flag is refused before the call",
+          "ref": "a mistyped flag is refused before the call",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42",
+      "question": null
+    },
+    {
+      "id": "thing.mcp",
+      "block": "thing",
+      "output": "mcp",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:24",
+      "todayNote": "Catalog entry has only the operation description and declaration; input schema is made at runtime from the payload (mcp/internal/tool.ts:86); no output schema is offered.",
+      "greenMeans": "Each tool's input schema describes every public field, and it offers an output schema from the answer, so an agent knows the shape it gets back.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 for described inputs",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.37's check (an MCP client lists output schemas) for the output schema",
+          "ref": "M1.37",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (inputs described); M1.37 (output schema, in M3 since K13)",
+      "question": null
+    },
+    {
+      "id": "thing.docs",
+      "block": "thing",
+      "output": "docs",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:12",
+      "todayNote": "Thing and operation pages have a field table with type, reference or named value, optional and visibility. No field has a description to show, because the model has none. Regraded from the reader's ✓ against this card's green.",
+      "greenMeans": "Each thing has a reference page with a field table: type, reference or named value, optional, visibility and description.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads the docs for each field",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (descriptions); the rest is built",
+      "question": null
+    },
+    {
+      "id": "thing.portal",
+      "block": "thing",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:12-17",
+      "todayNote": "Wire Field decodes only value/named/ref/optional; visibility is in the data file (model embedded) but dropped on decode; no description.",
+      "greenMeans": "Home shows one card per thing, and the thing's page shows every field with its type, visibility and description, decoded from the data file (not only the embedded docs).",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot of Plugged In's home and `profile`'s page at a fixed `now`",
+          "ref": "M1.13",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads the data file",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (the wire), M1.13 (the pages)",
+      "question": null
+    },
+    {
+      "id": "thing.telemetry",
+      "block": "thing",
+      "output": "telemetry",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/attributes.ts:10-23",
+      "todayNote": "Payload and answer fields become `payload.<f>` and `answer.<f>` attributes when public and non-text, or marked traced (O2, M1.19). That limit is the rule, not a gap, so the card is green by its own definition; the reader graded it ~ against \"every field\".",
+      "greenMeans": "A thing's public, non-text fields (and text fields marked `traced`) appear as `payload.*` and `answer.*` attributes on the operation's span; nothing else does.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/attributes.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/attributes.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "eval",
+          "label": "M1.19's \"leaks nothing\" eval",
+          "ref": "M1.19",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts for the telemetry audience",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.19 (done); M1.35 moves it onto the one rule",
+      "question": null
+    },
+    {
+      "id": "step.model",
+      "block": "step",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:64",
+      "todayNote": "StepModel carries name, type, writes, optional and the call (mount, call, mode).",
+      "greenMeans": "Each step's name, kind, writes, optional and call are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.03, M1.14 (done)",
+      "question": null
+    },
+    {
+      "id": "step.api",
+      "block": "step",
+      "output": "api",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:84",
+      "todayNote": "The endpoint's schemas name no step, but each generated `api/src/<thing>/<op>.ts` exports `steps` (api.ts:84), and the SDK, CLI and MCP import from that package. Regraded from ✓: the old green, \"the endpoint carries the declared steps\", is under the rule the leak itself.",
+      "greenMeans": "No part of the caller's contract names a step: the endpoint's schemas don't, and the API package every client imports exports no step list.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: the absence check (Q1) over generated/api's exports",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server)",
+      "question": "Q1"
+    },
+    {
+      "id": "step.server",
+      "block": "step",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:43",
+      "todayNote": "Handlers.serve builds one wrapper per step: a call step through Calls.runner with wiring, others in a span with step.kind; the handler is given them.",
+      "greenMeans": "The handler is given one wrapper per declared step, run in a span; a call step goes through the adapter's runner.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/04-adapter-calls.test.ts",
+          "ref": "e2e/m1/04-adapter-calls.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/13-live-steps.test.ts",
+          "ref": "e2e/m1/13-live-steps.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/10-empty-and-scaffold.test.ts",
+          "ref": "e2e/m1/10-empty-and-scaffold.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.14, M1.26 (done)",
+      "question": null
+    },
+    {
+      "id": "step.sdk",
+      "block": "step",
+      "output": "sdk",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:23",
+      "todayNote": "The SDK imports the declaration as a type only (`import type { declaration }`, generated `sdk/src/allowance/spend.ts:4`) and exports `PayloadOf<typeof declaration>`, so no step name reaches its surface. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "The SDK's exported types and doc comments name no step: a caller sees the payload, the answer and the refusals.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: the absence check (Q1) over the SDK's exported types",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "built; the absence check proposed for M1.41",
+      "question": "Q1"
+    },
+    {
+      "id": "step.cli",
+      "block": "step",
+      "output": "cli",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:6",
+      "todayNote": "No help text or output names a step. Each command does import the whole declaration as a value, to decode its flags (generated `cli/src/allowance/spend.ts:4`), so step declarations ship inside the CLI, unseen. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "No command, help text or output names a step.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: the absence check (Q1) over `--help` and output",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "built; the absence check proposed for M1.41",
+      "question": "Q1"
+    },
+    {
+      "id": "step.mcp",
+      "block": "step",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:21",
+      "todayNote": "A tool is the declaration's description and schemas; no step is described. The generated MCP does import the whole declaration as a value (generated `mcp/src/index.ts:6`), so step declarations sit in the MCP server's process, unseen. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "No tool's name, description, input or output schema names a step.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: the absence check (Q1) over the tool list",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "built; the absence check proposed for M1.41",
+      "question": "Q1"
+    },
+    {
+      "id": "step.docs",
+      "block": "step",
+      "output": "docs",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:46",
+      "todayNote": "Operation page has a Steps section listing name and type per step. Missing: optional, the stores a step writes, and the adapter call of a call step.",
+      "greenMeans": "The operation's page lists each step with its kind, the stores it writes, whether it is optional and the adapter call it makes.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts extended",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads the docs for step details",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed: name the docs in its row beside the portal)",
+      "question": null
+    },
+    {
+      "id": "step.portal",
+      "block": "step",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:47",
+      "todayNote": "Wire step is only { name, type } and detail.ts:44 prints that; optional, writes and call are dropped. Live view joins step signals by span id (live/internal/join.ts) separately.",
+      "greenMeans": "The spine draws each declared step with its kind, writes, optional and call, and lights each from its span or step signal.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads step details in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot of the spine with a call down it",
+          "ref": "M1.13",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/13-live-steps.test.ts",
+          "ref": "e2e/m1/13-live-steps.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (wire), M1.13 (spine)",
+      "question": null
+    },
+    {
+      "id": "step.telemetry",
+      "block": "step",
+      "output": "telemetry",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:43-49",
+      "todayNote": "Span per step named op.step with step.kind (call, database, wait, commit) and start/end step signals as log records inside the step span (signal.ts:14).",
+      "greenMeans": "Each step is a span named `<op>.<step>` with `step.kind`, and sends a signal as it starts and ends.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/13-live-steps.test.ts",
+          "ref": "e2e/m1/13-live-steps.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/signal.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/signal.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.21 (done)",
+      "question": null
+    },
+    {
+      "id": "machine.model",
+      "block": "machine",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:48",
+      "todayNote": "Thing carries machine {states, moves{from,to,emits}, notFrom}; operation carries move.",
+      "greenMeans": "Each thing's machine (states, moves with from, to and emits, the wrong-state refusal) and each operation's move are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "machine.api",
+      "block": "machine",
+      "output": "api",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:35",
+      "todayNote": "The wrong-state refusal is declared on each guarded endpoint, carrying `state`. States are plain strings: no union type, so the SDK, CLI and MCP can't carry one either. Regraded from the reader's ✓ against this card's green.",
+      "greenMeans": "Each move-guarded endpoint declares the wrong-state refusal, and a thing's `state` is typed as the union of its states, not a string.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads the generated API for each machine's states",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed addition: `state` as a literal union in the answer schema)",
+      "question": null
+    },
+    {
+      "id": "machine.server",
+      "block": "machine",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/move.ts:39",
+      "todayNote": "checkFrom refuses a wrong from-state, applyMove sets state in the unit and commits it with the journal entry; reads return `state` (read.ts:21).",
+      "greenMeans": "A wrong-state call is refused before the handler; a move sets the state and commits it with its journal entry.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/commit.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/commit.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/layer2",
+          "ref": "e2e/layer2",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "machine.sdk",
+      "block": "machine",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "examples/acme/generated/sdk/src/organization/get.ts:8",
+      "todayNote": "SDK is a thin wrapper over the API client; no state union type, no allowed-moves listing. State is visible only as a string in a get answer and the refusal class's `state`.",
+      "greenMeans": "A thing's state is a typed union in the SDK, and the wrong-state refusal is a typed class.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads the SDK's types",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "ST1.02 through the SDK (M2.08)",
+          "ref": "ST1.02",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42",
+      "question": null
+    },
+    {
+      "id": "machine.cli",
+      "block": "machine",
+      "output": "cli",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
+      "todayNote": "No state types and no way to see allowed moves; `get --json` prints the state string with the answer, and a refusal prints `state`.",
+      "greenMeans": "A `get` prints the state, and a command's help says which states it moves from and to.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `--help`",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42",
+      "question": null
+    },
+    {
+      "id": "machine.mcp",
+      "block": "machine",
+      "output": "mcp",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:32",
+      "todayNote": "Reads keep `state` in list items and the machine refusal exposes `state` as public, but tool schemas carry no state enum and nothing lists allowed moves.",
+      "greenMeans": "A tool's description says which states it moves from and to, and its output schema types the state.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.37's output-schema check",
+          "ref": "M1.37",
+          "passing": null
+        }
+      ],
+      "owner": "M1.37 (M3)",
+      "question": null
+    },
+    {
+      "id": "machine.docs",
+      "block": "machine",
+      "output": "docs",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:66",
+      "todayNote": "Thing page lists States, the notFrom refusal and exit, and a move/from/to/emits table; each operation page has a Move section.",
+      "greenMeans": "The thing's page lists its states, the wrong-state refusal and a move table; each operation's page has its move.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "built; evidence M1.41",
+      "question": null
+    },
+    {
+      "id": "machine.portal",
+      "block": "machine",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/site/internal/detail.ts:58",
+      "todayNote": "The thing's page draws its states and a move, from, to and emits table from the wire. There is no lifecycle strip and no live count on a move, because no trace source reaches the portal yet (`packages/portal/src/modules/wire/service.ts:8`). Regraded from the reader's ✓ against this card's green.",
+      "greenMeans": "The lifecycle strip is drawn from the machine on the thing's card and page, with live move counts on each arrow.",
+      "evidence": [
+        {
+          "kind": "journey",
+          "label": "M1.13's screenshot of `handle`'s lifecycle lit by a journey's claim",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13",
+      "question": null
+    },
+    {
+      "id": "machine.telemetry",
+      "block": "machine",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/move.ts:48",
+      "todayNote": "Writes move.name and move.to on the operation span; move.from is not written, and the machine's refusal writes no state. Subject state at call time is not on any span.",
+      "greenMeans": "Every move writes `move.name`, `move.from` and `move.to` on the operation's span.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts (written ahead, red on `move.from`)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36",
+      "question": null
+    },
+    {
+      "id": "event.model",
+      "block": "event",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/internal/describe.ts:88",
+      "todayNote": "Each thing's events with their fields are in the model; moves name the event they emit (describe.ts:80).",
+      "greenMeans": "Each thing's events with their fields, and the event each move emits, are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/12-projections.test.ts",
+          "ref": "e2e/m1/12-projections.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "event.api",
+      "block": "event",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:133",
+      "todayNote": "generated/api/src/events.ts exports each event and names it (EventNames.name) plus a names list; event schemas are per-thing events.ts. No endpoint or payload carries them.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `generated/api/src/events.ts`",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "Q3 (the export stays: the server reads it; it is no caller's contract)",
+      "question": "Q3"
+    },
+    {
+      "id": "event.server",
+      "block": "event",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/move.ts:61",
+      "todayNote": "applyMove builds the journal entry (event name, public fields only, trace id) and it commits atomically with the move; the journal module reads entries back (journal/types.ts:16).",
+      "greenMeans": "A move's event is written to the journal in the same commit, without its secret or private fields.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/commit.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/commit.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/13-live-steps.test.ts",
+          "ref": "e2e/m1/13-live-steps.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built (M1.21 reads it)",
+      "question": null
+    },
+    {
+      "id": "event.sdk",
+      "block": "event",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:1",
+      "todayNote": "SDK exports operations and errors only; the API's Events namespace is not re-exported and no event types reach clients.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads the SDK's exports for `Events`",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "Q3 (A moves M1.42's \"the SDK exports the events\" to M5.05)",
+      "question": "Q3"
+    },
+    {
+      "id": "event.cli",
+      "block": "event",
+      "output": "cli",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
+      "todayNote": "No command or output names an event.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
+      "evidence": [],
+      "owner": "Q3 for Aaron",
+      "question": "Q3"
+    },
+    {
+      "id": "event.mcp",
+      "block": "event",
+      "output": "mcp",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:1",
+      "todayNote": "No tool, resource or description mentions events or the journal.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
+      "evidence": [],
+      "owner": "Q3 for Aaron",
+      "question": "Q3"
+    },
+    {
+      "id": "event.docs",
+      "block": "event",
+      "output": "docs",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:68",
+      "todayNote": "Machine table and operation Move section name the emitted event, but the event's fields are not documented and events have no page.",
+      "greenMeans": "Each event is documented with its fields and visibility, on its thing's page.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts extended",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads each event's fields in the docs",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed: name the docs in its row)",
+      "question": null
+    },
+    {
+      "id": "event.portal",
+      "block": "event",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:43",
+      "todayNote": "Event is a string in move.emits and the Machine table; the Thing wire has no events field, so event fields are not decoded or drawn.",
+      "greenMeans": "The thing's page lists its events with their fields, decoded from the data file; committed events show on the operation's spine with their commit.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads events with their fields in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (wire), M1.13 (pages)",
+      "question": null
+    },
+    {
+      "id": "event.telemetry",
+      "block": "event",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/move.ts:73",
+      "todayNote": "event.name is annotated on the current span inside applyMove, which runs before the commit span opens (service.ts:83-88), so it lands on the operation span; check 17 wants it on `<op>.commit`. Event fields are not traced; a refusal writes none.",
+      "greenMeans": "The commit span `<op>.commit` carries `event.name`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts (written ahead, red: today `event.name` lands on the operation's span, not the commit's)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36",
+      "question": null
+    },
+    {
+      "id": "visibility.model",
+      "block": "visibility",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/internal/describe.ts:31-41",
+      "todayNote": "visibilityModel emits 'secret' or {private:[thing.role]} on each field, payload/answer/events/errors alike; public is left out.",
+      "greenMeans": "Each field's visibility (public by default, private to roles, or secret) is in the model, on payloads, answers, events and errors alike.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "visibility.api",
+      "block": "visibility",
+      "output": "api",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:80-81",
+      "todayNote": "Answer and payload schemas are the declaration's whole schemas; visibility is used only to build the CLI 'shown' list of refusal fields (api.ts:21), nothing is cut from an HTTP body.",
+      "greenMeans": "The HTTP schemas a caller is served are cut by the one rule for that caller: a refusal never carries a field the caller may not see.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts (written ahead, red)",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.35",
+      "question": null
+    },
+    {
+      "id": "visibility.server",
+      "block": "visibility",
+      "output": "server",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/wire/service.ts:5-14",
+      "todayNote": "Refusals are rebuilt with every field but _tag, secret and private included; answers go out whole. No visibility module exists in language-effect (modules list has none); only mcp/internal/shown.ts redacts.",
+      "greenMeans": "The server redacts answers and refusals through the one rule before they leave.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts (red)",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.35",
+      "question": null
+    },
+    {
+      "id": "visibility.sdk",
+      "block": "visibility",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:132-134",
+      "todayNote": "SDK decodes the whole answer and typed failure; visibility is not read.",
+      "greenMeans": "The SDK's types and decoded values are the caller's audience's, so a secret never arrives where it wasn't issued.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts (red)",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.35, M1.12",
+      "question": null
+    },
+    {
+      "id": "visibility.cli",
+      "block": "visibility",
+      "output": "cli",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:55-58",
+      "todayNote": "Refusal print shows only public fields (Errors.shown); an answer prints whole (cli.ts:77-78) and --json prints the whole text(a).",
+      "greenMeans": "Answers and refusals print through the one rule; `Errors.shown` goes.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts (red)",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.35",
+      "question": null
+    },
+    {
+      "id": "visibility.mcp",
+      "block": "visibility",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/shown.ts:8-22",
+      "todayNote": "seenBy/shownOf redact answers and refusals by held role, hiddenInputs drops non-public inputs, fails closed on undeclared fields.",
+      "greenMeans": "The agent audience: public always, private to a role held, secret never, failing closed on an undeclared field.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/mcp/mcp.test.ts",
+          "ref": "packages/language-effect/src/modules/mcp/mcp.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built; M1.35 makes it the agent case of the one rule",
+      "question": null
+    },
+    {
+      "id": "visibility.docs",
+      "block": "visibility",
+      "output": "docs",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:12",
+      "todayNote": "Field tables mark '(secret)' or 'private to <roles>' on thing and operation pages; refusal fields in the errors table not checked, and no audience concept.",
+      "greenMeans": "Every field table (payload, answer, event, error) marks each field's visibility.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts extended",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads visibility in the docs",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (proposed: event and error fields)",
+      "question": null
+    },
+    {
+      "id": "visibility.portal",
+      "block": "visibility",
+      "output": "portal",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:12-17",
+      "todayNote": "Wire Field has no visibility; the model is embedded in the data file but the schema drops the key, so pages cannot show it.",
+      "greenMeans": "The data file's visibility is decoded and drawn (the in-and-out band marks secret and private), and the trace drawer shows only what the telemetry audience may see.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads visibility in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's \"no leak\" check",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (wire), M1.13 (no leak)",
+      "question": null
+    },
+    {
+      "id": "visibility.telemetry",
+      "block": "visibility",
+      "output": "telemetry",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/attributes.ts:39",
+      "todayNote": "Spans use traceable (public and traced/non-text) per field (orthograph/visibility/service.ts:20); journal writes only public fields; refusal logs use public fields.",
+      "greenMeans": "Spans, the journal and logs carry only fields the telemetry audience may see: public, and text only when marked traced.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/handler/internal/attributes.test.ts",
+          "ref": "packages/language-effect/src/modules/handler/internal/attributes.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/16-visibility.test.ts",
+          "ref": "e2e/m1/16-visibility.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built (M1.19); M1.35 moves it onto the one rule",
+      "question": null
+    },
+    {
+      "id": "journey.model",
+      "block": "journey",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:144",
+      "todayNote": "journeys (cast, starts, steps with checks) and startingWorlds (from, cast, makes, gives) are in the Model and in generated/model/model.json.",
+      "greenMeans": "Journeys (cast, start, steps with their checks) and starting worlds are in the model.",
+      "evidence": [
+        {
+          "kind": "journey",
+          "label": "packages/prove/src/modules/journeys/journeys.test.ts",
+          "ref": "packages/prove/src/modules/journeys/journeys.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "Gate M1 item 4",
+          "ref": "Gate M1 item 4",
+          "passing": null
+        }
+      ],
+      "owner": "M1.03 (done)",
+      "question": null
+    },
+    {
+      "id": "journey.api",
+      "block": "journey",
+      "output": "api",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
+      "todayNote": "Journeys are not part of the HTTP surface.",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
+      "evidence": [],
+      "owner": "none; journeys through this client are M2.08",
+      "question": "Q2"
+    },
+    {
+      "id": "journey.server",
+      "block": "journey",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/server/internal/server.ts:148",
+      "todayNote": "The server forms `WORLD_ENVIRONMENTS` from the environments that declare a lifetime (server.ts:148) and answers 404 on `/_world/*` anywhere else (server.ts:194). Regraded from ✗: it was proposed not needed, but under the audiences rule the server is the operator's output and journeys are the operator's, so the card is needed, and the world gate is its green.",
+      "greenMeans": "The deployed server serves no journey; `/_world/*` (the cast, the facts, the registry of worlds a journey starts from) answers only in an environment that declares a lifetime, and 404 everywhere else.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: a check that `/_world/*` answers 404 in an environment without a lifetime",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "built; its check proposed for M1.41",
+      "question": "Q2"
+    },
+    {
+      "id": "journey.sdk",
+      "block": "journey",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:62",
+      "todayNote": "SDK has no journey surface; journeys call operations through a cast (s.ada.run), not the SDK (examples/acme/journeys/README.md:64).",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M2.08",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "none; journeys through this client are M2.08",
+      "question": "Q2"
+    },
+    {
+      "id": "journey.cli",
+      "block": "journey",
+      "output": "cli",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
+      "todayNote": "The generated app CLI has no journey command; running journeys is the framework's `ortho prove`.",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M2.08",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "none; journeys through this client are M2.08",
+      "question": "Q2"
+    },
+    {
+      "id": "journey.mcp",
+      "block": "journey",
+      "output": "mcp",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:1",
+      "todayNote": "No journey tool or resource.",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M2.08",
+          "ref": "M2.08",
+          "passing": null
+        }
+      ],
+      "owner": "none; journeys through this client are M2.08",
+      "question": "Q2"
+    },
+    {
+      "id": "journey.docs",
+      "block": "journey",
+      "output": "docs",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:1",
+      "todayNote": "Docs render things and operations only; the journeys that exercise an operation are not rendered as examples or pages, though the model holds them.",
+      "greenMeans": "Each operation's page lists the journeys that cover it, as worked examples drawn from the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (proposed addition)",
+      "question": null
+    },
+    {
+      "id": "journey.portal",
+      "block": "journey",
+      "output": "portal",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/portal/src/modules/wire/service.ts:7",
+      "todayNote": "The portal wire marks journeys explicitly unavailable ('the compiler's model has no journey projection'); the reason is stale, the model has journeys, but ModelSchema (wire/types.ts:68) does not read them.",
+      "greenMeans": "The wire decodes journeys and starting worlds (today it says \"unavailable\", and the reason is stale), and each operation's proof tab shows its journeys and their verdicts.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.13's proof tab",
+          "ref": "M1.13",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "M1.41 reads journeys in the data file (proposed addition)",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (journeys, starting worlds, the proof tab)",
+      "question": null
+    },
+    {
+      "id": "journey.telemetry",
+      "block": "journey",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/prove/src/modules/journeys/internal/device.ts:62",
+      "todayNote": "A journey call runs under a trace and a parent span (prove prefix) and prove reads spans back through trace-trees to check present/absent spans (checks.ts:82). The runtime writes no journey.name attribute and no journey record is exported.",
+      "greenMeans": "A journey's calls are traced under the journey's name and step, so the portal lights what a run touched.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/layer1/02-acme-proves.test.ts (spans read back)",
+          "ref": "e2e/layer1/02-acme-proves.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "new for the names",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its \"a journey's run lights up its operation\" needs)",
+      "question": null
+    },
+    {
+      "id": "roles.model",
+      "block": "roles",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/internal/describe.ts:90-102",
+      "todayNote": "ThingModel.roles and roleRules (rule source text or null), and each operation's allowed as anyone / signed-in / role / role-of with path.",
+      "greenMeans": "Each thing's roles and role rules, and each operation's `allowed`, are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.03 (done)",
+      "question": null
+    },
+    {
+      "id": "roles.api",
+      "block": "roles",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:40-42",
+      "todayNote": "NotAllowed is a declared wire refusal with its code on every operation; the contract carries it. The role rule itself is not in the contract (it is the model's).",
+      "greenMeans": "Every operation declares `NotAllowed` with its code.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/layer1/05-the-generated-surfaces.test.ts",
+          "ref": "e2e/layer1/05-the-generated-surfaces.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "roles.server",
+      "block": "roles",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:60",
+      "todayNote": "`Access.check` runs before the handler, and role rules and role-of paths are decided in `access/service.ts`; acme's journeys prove refusals end to end. The reader graded ~ for want of an HTTP-level test; journeys are that test, so the card is green by its definition.",
+      "greenMeans": "The role check runs before the handler on every operation and read, and refuses with `NotAllowed`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/language-effect/src/modules/access/access.test.ts",
+          "ref": "packages/language-effect/src/modules/access/access.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "journey",
+          "label": "acme's journey \"an outsider can't revoke\"",
+          "ref": "acme's journey \"an outsider can't revoke\"",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "ST1.02 \"a stranger can't edit\"",
+          "ref": "ST1.02",
+          "passing": null
+        }
+      ],
+      "owner": "built; M2.03 adds the new principals",
+      "question": null
+    },
+    {
+      "id": "roles.sdk",
+      "block": "roles",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:132-134",
+      "todayNote": "SDK says nothing about who may call an operation or what roles exist; callers learn from a NotAllowed failure.",
+      "greenMeans": "Each function's doc comment says who may call it.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads the SDK's doc comments (proposed addition to M1.41)",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M2.03 (proposed addition)",
+      "question": null
+    },
+    {
+      "id": "roles.cli",
+      "block": "roles",
+      "output": "cli",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:9",
+      "todayNote": "No help line or command text says who may call; NotAllowed prints its code and exit 3.",
+      "greenMeans": "Each command's help says who may call it; `NotAllowed` prints its code and exits 3.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `--help` (proposed addition)",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M2.03 (proposed addition)",
+      "question": null
+    },
+    {
+      "id": "roles.mcp",
+      "block": "roles",
+      "output": "mcp",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:19-24",
+      "todayNote": "Roles the caller holds are computed (Access.holds) to redact private fields; every tool is listed regardless of the caller's roles and the description omits who may call. Via.agent narrows tools at generation (render/internal/mcp.ts:10); notVia is not in the code at all.",
+      "greenMeans": "Only the tools the caller's roles allow are listed, each description says who may call, and an operation closed to agents (`.notVia(Via.agent)`) has no tool.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M2.02's \"an agent passes the owner rule unless `.notVia(Via.agent)`\"",
+          "ref": "M2.02",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M3.22's tool exposure from `allowed` and `via`",
+          "ref": "M3.22",
+          "passing": null
+        }
+      ],
+      "owner": "M2.03 (`.via`, `.notVia`), M3.22 (exposure)",
+      "question": null
+    },
+    {
+      "id": "roles.docs",
+      "block": "roles",
+      "output": "docs",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:15",
+      "todayNote": "Operation page states who may call (anyone, signed-in, the <role> of the thing, or of its path); thing page lists role names. Role rule text is not shown.",
+      "greenMeans": "Each operation's page says who may call, and each thing's page shows its role rules.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (role rule text)",
+      "question": null
+    },
+    {
+      "id": "roles.portal",
+      "block": "roles",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:46",
+      "todayNote": "Wire has thing roles (names) and operation allowed with kind/role/path; detail.ts:15,60 draws them. roleRules and the 'private to' link are not decoded.",
+      "greenMeans": "The thing's page lists its roles with their rules, and each operation's band shows `allowed`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot",
+          "ref": "M1.13",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads role rules in the data file",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (role rules, K12 section 6)",
+      "question": null
+    },
+    {
+      "id": "roles.telemetry",
+      "block": "roles",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/attributes.ts:17-18",
+      "todayNote": "Spans carry principal.person or principal.kind, and ortho.calls has principal.kind; the role held in the call is not recorded.",
+      "greenMeans": "Each span says which kind of caller it was and which role let the call through, never which person.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts extended (proposed)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M2.03 (proposed addition: `principal.role`)",
+      "question": null
+    },
+    {
+      "id": "environment.model",
+      "block": "environment",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:116",
+      "todayNote": "EnvironmentModel carries runs, identity, lifetime, cloud/database, per-store binding, secrets (names only), promotesFrom, telemetry sinks, deploy, publish, hash.",
+      "greenMeans": "Each environment's runs, identity, lifetime, cloud and database, store bindings, secret names, sinks, deploy domains and publish targets are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/model.test.ts",
+          "ref": "packages/compiler/src/modules/model/model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "built",
+      "question": null
+    },
+    {
+      "id": "environment.api",
+      "block": "environment",
+      "output": "api",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
+      "todayNote": "No environment appears in the api projection or generated/api.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q4"
+    },
+    {
+      "id": "environment.server",
+      "block": "environment",
+      "output": "server",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/projections/src/modules/server/internal/server.ts:148",
+      "todayNote": "Server reads ORTHO_ENVIRONMENT, gates /_world/* by the environments that declare a lifetime, and passes the name to Telemetry. wrangler.jsonc (worker-config.ts:9) is one local file: no per-environment bindings, domains or database from the environment declarations (those are done by ortho env up / ship in packages/cli).",
+      "greenMeans": "The server reads which environment it is, binds each store as that environment declares, and gates test-world routes to environments with a lifetime.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/projections/src/modules/server/server.test.ts",
+          "ref": "packages/projections/src/modules/server/server.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M7.03's `ortho env up staging` plans per-environment bindings",
+          "ref": "M7.03",
+          "passing": null
+        }
+      ],
+      "owner": "M7.03 (bindings per environment)",
+      "question": null
+    },
+    {
+      "id": "environment.sdk",
+      "block": "environment",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:98",
+      "todayNote": "Sdk.layer(baseUrl, token) takes a URL; the SDK knows no environment names or per-environment URLs.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
+      "evidence": [],
+      "owner": "Q4 for Aaron",
+      "question": "Q4"
+    },
+    {
+      "id": "environment.cli",
+      "block": "environment",
+      "output": "cli",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/cli-session.ts:41",
+      "todayNote": "`session sign-in --env <env>` and `session show --env` keep one session per environment name, but the name is a free string (not checked against the model) and the server address is a single ACME_URL variable, defaulting to localhost; there is no environment-to-URL map and no --env on ordinary operation commands (cli.ts:112 uses ACME_URL/ACME_TOKEN).",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
+      "evidence": [],
+      "owner": "Q4 for Aaron",
+      "question": "Q4"
+    },
+    {
+      "id": "environment.mcp",
+      "block": "environment",
+      "output": "mcp",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:6",
+      "todayNote": "The MCP catalog has no environment; the worker only forwards ORTHO_ENVIRONMENT to telemetry (server.ts:209).",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q4"
+    },
+    {
+      "id": "environment.docs",
+      "block": "environment",
+      "output": "docs",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:1",
+      "todayNote": "Docs pages are per thing and operation; no environments page or mention (acme/generated/docs has no environment content).",
+      "greenMeans": "The docs have an environments page: each environment, where it is served, its sink, its stores' bindings and its secrets by name.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: packages/generators/src/modules/render/render.test.ts for the page",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (proposed addition: the environments page)",
+      "question": null
+    },
+    {
+      "id": "environment.portal",
+      "block": "environment",
+      "output": "portal",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:67",
+      "todayNote": "Wire has Environment {name, runs, promotesFrom, lifetimeMs} only. Identity, database, per-store binding, secrets, sinks, deploy domains and publish are dropped by the decoder.",
+      "greenMeans": "The top bar's switcher is built from the model's environments and their domains; each environment's portal reads only its own sink.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot of the switcher",
+          "ref": "M1.13",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads environments in the data file",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (environments, K12 section 6)",
+      "question": null
+    },
+    {
+      "id": "environment.telemetry",
+      "block": "environment",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/host-cloudflare/src/modules/telemetry/service.ts:9",
+      "todayNote": "Every span's resource already carries deployment.environment (host-cloudflare, prove tests). The per-call `environment` plain attribute on the operation span (check 17 item 5) is not written.",
+      "greenMeans": "Every call's span carries `environment` (the resource already carries `deployment.environment`).",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts:267",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36",
+      "question": null
+    },
+    {
+      "id": "store.model",
+      "block": "store",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:178",
+      "todayNote": "StoreModel (name, file, kind, from, hash), Model.stores, ThingModel.store, and per-environment store bindings; one-store-per-commit rule checked in internal/stores.ts.",
+      "greenMeans": "Each store (name, kind, from, hash), each thing's store and each environment's store bindings are in the model; a call writing two stores is refused.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/compiler/src/modules/model/packages/generators/src/modules/render/stores.test.ts",
+          "ref": "packages/compiler/src/modules/model/packages/generators/src/modules/render/stores.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "Gate M1 item 5",
+          "ref": "Gate M1 item 5",
+          "passing": null
+        }
+      ],
+      "owner": "M1.17 (done)",
+      "question": null
+    },
+    {
+      "id": "store.api",
+      "block": "store",
+      "output": "api",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
+      "todayNote": "api.ts does not mention stores.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "store.server",
+      "block": "store",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/server/internal/worker-config.ts:21",
+      "todayNote": "Each declared database store gets its own D1 binding, own migrations/<store> folder (renderStoreMigrations, :86) with its things, journal and request keys.",
+      "greenMeans": "Each store gets its own binding and migrations folder, with its things, journal and request keys.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/stores.test.ts",
+          "ref": "packages/generators/src/modules/render/stores.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.17 (done)",
+      "question": null
+    },
+    {
+      "id": "store.sdk",
+      "block": "store",
+      "output": "sdk",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:1",
+      "todayNote": "No store in the SDK.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "store.cli",
+      "block": "store",
+      "output": "cli",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
+      "todayNote": "No store in the CLI.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "store.mcp",
+      "block": "store",
+      "output": "mcp",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:1",
+      "todayNote": "No store in the MCP catalog.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
+      "evidence": [],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "store.docs",
+      "block": "store",
+      "output": "docs",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:64",
+      "todayNote": "Thing page says 'in the store <name>' (and database vs actor); there is no page for a store, no list of what lives in it, and no kind.",
+      "greenMeans": "Each store has a page (its kind, what lives in it, its migrations), and each thing's page links its store.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "packages/generators/src/modules/render/stores.test.ts extended",
+          "ref": "packages/generators/src/modules/render/stores.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M5.06's `generated/data/map.md`",
+          "ref": "M5.06",
+          "passing": null
+        }
+      ],
+      "owner": "M5.06 (the data map)",
+      "question": null
+    },
+    {
+      "id": "store.portal",
+      "block": "store",
+      "output": "portal",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:53",
+      "todayNote": "Wire Thing has `lives` but no `store`; Model has no stores key, so the portal cannot show stores.",
+      "greenMeans": "The data file and wire carry stores, the thing's header names its store, and the data page lists every store.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M5.06's data page",
+          "ref": "M5.06",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.41 reads stores in the data file",
+          "ref": "M1.41",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (stores in the wire, K12 section 6); M5.06 (the page)",
+      "question": null
+    },
+    {
+      "id": "store.telemetry",
+      "block": "store",
+      "output": "telemetry",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/attributes.ts:1",
+      "todayNote": "The operation span does not carry `store` (the kind of the store, check 17 item 5).",
+      "greenMeans": "Every call's span carries `store`.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red)",
+          "ref": "e2e/m1/17-telemetry-model.test.ts:267",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36",
+      "question": null
+    },
+    {
+      "id": "mount.model",
+      "block": "mount",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:12",
+      "todayNote": "FromModel {mount, package, version, thing} on things/operations/stores, Model.mounts, via (narrowing) and the call step {mount, call, mode} (:71).",
+      "greenMeans": "`from` (mount, package, version) on things, operations and stores, the mounts, `via` and each call step's adapter are in the model.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/01-mounting.test.ts",
+          "ref": "e2e/m1/01-mounting.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.03, M1.06 (done)",
+      "question": null
+    },
+    {
+      "id": "mount.api",
+      "block": "mount",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:73",
+      "todayNote": "A mounted plugin's operations are generated as the app's own, and an omitted one is gone (check 08). Under the rule this card is not needed; its old green (\"A mounted plugin's operations are served as the app's own, without the ones its mount omits\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/01-mounting.test.ts",
+          "ref": "e2e/m1/01-mounting.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/08-verbs.test.ts",
+          "ref": "e2e/m1/08-verbs.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "mount.server",
+      "block": "mount",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/server/internal/server.ts:25",
+      "todayNote": "Imports each mount once and serves its operations with Mount.serving; call steps wire adapter callables (calls module).",
+      "greenMeans": "Each mount is imported once and its operations served; call steps are wired to the adapter's callables.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/04-adapter-calls.test.ts",
+          "ref": "e2e/m1/04-adapter-calls.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.09, M1.14 (done)",
+      "question": null
+    },
+    {
+      "id": "mount.sdk",
+      "block": "mount",
+      "output": "sdk",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:65",
+      "todayNote": "Mounted operations are in the SDK as the app's own, and `from` is used to load a device operation's host entry. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are in the SDK as the app's own; a device operation runs from the plugin's host entry\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/03-adapter-mounting.test.ts",
+          "ref": "e2e/m1/03-adapter-mounting.test.ts",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "mount.cli",
+      "block": "mount",
+      "output": "cli",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:6",
+      "todayNote": "Commands are generated per thing and verb from the whole model, mounted operations included. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are commands as the app's own\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/01-mounting.test.ts (proposed addition: through the CLI)",
+          "ref": "e2e/m1/01-mounting.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "mount.mcp",
+      "block": "mount",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:10",
+      "todayNote": "Mounted operations are tools, and an operation narrowed without `Via.agent` has none. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/01-mounting.test.ts",
+          "ref": "e2e/m1/01-mounting.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "none",
+      "question": "Q2"
+    },
+    {
+      "id": "mount.docs",
+      "block": "mount",
+      "output": "docs",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:1",
+      "todayNote": "No `from`, mount, package or version in docs.",
+      "greenMeans": "Each page from a plugin names its plugin, package and version, and a call step names its adapter and call.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: packages/generators/src/modules/render/render.test.ts over a mounted fixture",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (proposed addition: `from` in the docs)",
+      "question": null
+    },
+    {
+      "id": "mount.portal",
+      "block": "mount",
+      "output": "portal",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:35",
+      "todayNote": "Operation and Thing wire carry no `from`, no mounts, no via; step has only {name,type}, so a call step shows no adapter.",
+      "greenMeans": "The tree groups things by plugin, each page's header names its plugin and version, and a call step names its adapter.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `from` and mounts in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot of Plugged In with handles mounted",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.42 (`from` in the wire), M1.13 (the tree)",
+      "question": null
+    },
+    {
+      "id": "mount.telemetry",
+      "block": "mount",
+      "output": "telemetry",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/language-effect/src/modules/handler/service.ts:28",
+      "todayNote": "A call step is a span `<op>.<step>` with step.kind=call; the adapter, mount, package or call name is not an attribute.",
+      "greenMeans": "An operation's span names its mount, and a call step's span names its adapter and call.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: e2e/m1/17-telemetry-model.test.ts extended",
+          "ref": "e2e/m1/17-telemetry-model.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.36 (proposed addition: `from.mount`, `call.mount`, `call.name`)",
+      "question": null
+    },
+    {
+      "id": "device.model",
+      "block": "device",
+      "output": "model",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/compiler/src/modules/model/types.ts:93",
+      "todayNote": "OperationModel.runs 'server'|'client'; describe.ts:132 accepts client only for a plugin's operation with a host entry and refuses a missing one.",
+      "greenMeans": "`runs` is in the model; a client operation is accepted only from a plugin with host entries, and refused without one.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done)",
+      "question": null
+    },
+    {
+      "id": "device.api",
+      "block": "device",
+      "output": "api",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/api/internal/api.ts:88",
+      "todayNote": "A client operation gets its declaration and no route (`declarationOnly`). That is this card's green; the reader graded ~ against a route.",
+      "greenMeans": "A client operation has its declaration in the API, for the clients' types, and no route.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done)",
+      "question": null
+    },
+    {
+      "id": "device.server",
+      "block": "device",
+      "output": "server",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/names/internal/names.ts:58",
+      "todayNote": "`serverModel` drops client operations, and check 11 proves the worker holds none. That absence is this card's green; the reader graded ✗ by design.",
+      "greenMeans": "The server holds no code for a client operation.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts (the worker holds none)",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done)",
+      "question": null
+    },
+    {
+      "id": "device.sdk",
+      "block": "device",
+      "output": "sdk",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:125",
+      "todayNote": "Each client op is served in-process via Device.serve with the plugin's host entry, under the app's mount; spans sent to the ambient OTLP endpoint.",
+      "greenMeans": "A client operation runs in-process from the SDK, under the app's mount, with its steps as spans.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done)",
+      "question": null
+    },
+    {
+      "id": "device.cli",
+      "block": "device",
+      "output": "cli",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/internal/cli.ts:28",
+      "todayNote": "Every CLI command calls the SDK function, so a client op runs in-process in the CLI with no server request; check 11 runs `receipt stamp` through the generated CLI against a recording server that must see nothing, with traces asserted.",
+      "greenMeans": "A client operation runs in-process from the CLI with no server request.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts:139-141",
+          "ref": "e2e/m1/11-client-operations.test.ts:139-141",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done)",
+      "question": null
+    },
+    {
+      "id": "device.mcp",
+      "block": "device",
+      "output": "mcp",
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/generators/src/modules/render/service.ts:19",
+      "todayNote": "`renderMcp` is given `serverModel`, which drops client operations, so a device operation has no tool. Regraded from ✗: it was proposed not needed, but the device block is the caller's, so the card is needed, and that absence is its green.",
+      "greenMeans": "No device operation is offered as a remote MCP tool: an agent reaches it through the SDK or the CLI on the device.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "check 11 extended: the generated MCP names no client operation",
+          "ref": "e2e/m1/11-client-operations.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.27 (done); its check proposed for M1.41",
+      "question": "Q2"
+    },
+    {
+      "id": "device.docs",
+      "block": "device",
+      "output": "docs",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/generators/src/modules/render/internal/docs.ts:40",
+      "todayNote": "Docs page for a client op is written like a server op's; no `runs` or 'runs on your device' text, no host entries.",
+      "greenMeans": "A client operation's page says it runs on the device and which hosts it supports.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: packages/generators/src/modules/render/render.test.ts",
+          "ref": "packages/generators/src/modules/render/render.test.ts",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (proposed addition)",
+      "question": null
+    },
+    {
+      "id": "device.portal",
+      "block": "device",
+      "output": "portal",
+      "state": "red",
+      "today": "✗",
+      "todayRef": "packages/portal/src/modules/wire/types.ts:35",
+      "todayNote": "Wire Operation has no `runs` field; the portal lists the client op's steps (check 11 item 6) but cannot say it runs on the device.",
+      "greenMeans": "The wire carries `runs`, and the operation's page marks it \"on your device\".",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "M1.41 reads `runs` in the data file",
+          "ref": "M1.41",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "M1.13's screenshot",
+          "ref": "M1.13",
+          "passing": null
+        }
+      ],
+      "owner": "M1.13 (`runs`, K12 section 6)",
+      "question": null
+    },
+    {
+      "id": "device.telemetry",
+      "block": "device",
+      "output": "telemetry",
+      "state": "partly",
+      "today": "~",
+      "todayRef": "packages/language-effect/src/modules/handler/internal/device.ts:36",
+      "todayNote": "Operation span plus a span per step (step.kind), payload/answer attributes and principal, exported over OTLP before return. No journal, commit span, move or refusal attributes (no store, 'no one to ask'), and the `environment`/`store` attributes of check 17 do not apply.",
+      "greenMeans": "A device operation's spans (operation, steps, refusal, `environment`) reach the environment's sink, so the portal lights it like any call.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "e2e/m1/11-client-operations.test.ts:214 (spans exported)",
+          "ref": "e2e/m1/11-client-operations.test.ts:214",
+          "passing": null
+        },
+        {
+          "kind": "check",
+          "label": "new for the sink",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "new slice needed: device spans to the environment's sink (portal.md gap 4, ledger `LAH-02`), proposed ST2.07 before ST2.03",
+      "question": null
+    }
+  ],
+  "story": {
+    "summary": "One run in a fresh folder: npm create orthograph plugged-in, ortho generate and prove, every operation through the SDK, CLI and MCP, the portal lit by a claim, then handles and auth mounted, then stages 2 to 4.",
+    "steps": [
+      {
+        "n": 1,
+        "step": "`npm create orthograph plugged-in` in an empty folder",
+        "proves": "the front door works with no checkout of this repository",
+        "lanes": "all, at the model",
+        "describedBy": "M2.09 (`ortho new` scaffolds Plugged In at stage 1, identical to `examples/plugged-in`)",
+        "gap": "none once M2.09 lands"
+      },
+      {
+        "n": 2,
+        "step": "`ortho generate`, then `ortho prove --env local`",
+        "proves": "every output is written and every journey passes on workerd",
+        "lanes": "thing, operation, step, machine, event, error, roles, journey",
+        "describedBy": "M1.41 (the loop through the real `ortho` binary), M2.12",
+        "gap": "M1.41 copies `examples/plugged-in` into the folder; the story starts from `ortho new` instead, so the two meet only at M2.09"
+      },
+      {
+        "n": 3,
+        "step": "the server runs; every operation is called once through the SDK, the CLI and MCP; a refused claim prints `HN-001` and exits 3",
+        "proves": "the surfaces tier, for every lane in stage 1",
+        "lanes": "the surfaces columns of every stage 1 lane",
+        "describedBy": "M1.41 (SDK and CLI), M2.08 (journeys `--through sdk|cli|mcp`)",
+        "gap": "M1.41 calls no MCP tool; M2.08 brings it"
+      },
+      {
+        "n": 4,
+        "step": "the portal opens on Plugged In's things; a claim lights `handle.claim` and its move, its event, its commit; the proof tab shows the journeys' verdicts",
+        "proves": "the evidence tier",
+        "lanes": "docs, portal, telemetry of every stage 1 lane",
+        "describedBy": "M1.13 (the portal opens on Plugged In's things, a journey's run lights its operation and move)",
+        "gap": "the portal wire still says traces and journeys are \"unavailable\" (`packages/portal/src/modules/wire/service.ts:6-9`)"
+      },
+      {
+        "n": 5,
+        "step": "`ortho add feature @orthograph/handles`, then auth (ST1.03, ST1.07); the grid stays green",
+        "proves": "mounting keeps the promise: a mounted plugin's blocks reach every output with their `from`",
+        "lanes": "mount",
+        "describedBy": "M1.10, ST1.03, ST1.07",
+        "gap": "no check reads every output for a mounted block's `from`"
+      },
+      {
+        "n": 6,
+        "step": "stage 2: `ortho add feature @orthograph/wallets`; create a wallet on the device; be paid by handle on Anvil; a reorg corrects it",
+        "proves": "device operations, adapters, chain events, environments with a chain",
+        "lanes": "device, mount (adapters), event (from the follower), environment",
+        "describedBy": "ST2.06",
+        "gap": "the device lane's CLI, MCP and portal cards have no slice (see that lane)"
+      },
+      {
+        "n": 7,
+        "step": "stage 3: a Safe with the budgets plugin, hats, owners sign above a budget",
+        "proves": "stores on a chain, workflows, agents under their own hat",
+        "lanes": "store, roles (hats), and the rows still to come",
+        "describedBy": "ST3.08",
+        "gap": "workflows and agents are not rows yet"
+      },
+      {
+        "n": 8,
+        "step": "stage 4: the same on Aztec; the portal shows the footprint and never a member",
+        "proves": "visibility at its hardest",
+        "lanes": "visibility",
+        "describedBy": "ST4.08 (`the portal shows nothing that names a member`, ST4.07)",
+        "gap": "none beyond the stage's own slices"
+      }
+    ],
+    "missing": "Nothing yet runs the stages in one folder from nothing, and nothing reads the grid at each step.",
+    "proposedSlice": "The story check (e2e/story), after Gate M2, written by an author who is not the builder: steps 1 to 5 through the real ortho binary, writing one verdict per card to the logbook (kind grid, keyed by card id and revision); steps 6 to 8 appended as each stage gate lands."
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "question": "Does a step's audience include the caller?",
+      "recommendation": "A: no; its four caller cards stay live as absence checks",
+      "cells": [
+        "step.api",
+        "step.sdk",
+        "step.cli",
+        "step.mcp"
+      ],
+      "answer": null
+    },
+    {
+      "id": "Q2",
+      "question": "Is a card not needed exactly when its output's audience is not among its block's audiences?",
+      "recommendation": "A: yes, with the table as written",
+      "cells": [
+        "journey.api",
+        "journey.sdk",
+        "journey.cli",
+        "journey.mcp",
+        "store.api",
+        "store.sdk",
+        "store.cli",
+        "store.mcp",
+        "mount.api",
+        "mount.sdk",
+        "mount.cli",
+        "mount.mcp",
+        "journey.server",
+        "device.mcp"
+      ],
+      "answer": null
+    },
+    {
+      "id": "Q3",
+      "question": "Does an event's audience include the caller?",
+      "recommendation": "A: not until views (M5.05); M1.42's SDK event types move there",
+      "cells": [
+        "event.api",
+        "event.sdk",
+        "event.cli",
+        "event.mcp"
+      ],
+      "answer": null
+    },
+    {
+      "id": "Q4",
+      "question": "Should the generated CLI and SDK know the environments by name?",
+      "recommendation": "A: by name from the model, local by default; environment's audience then includes the caller",
+      "cells": [
+        "environment.api",
+        "environment.sdk",
+        "environment.cli",
+        "environment.mcp"
+      ],
+      "answer": null
+    }
+  ]
+}
