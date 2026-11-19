@@ -43,11 +43,14 @@ export const outcomeChosen: Rule = {
         }
       },
       CallExpression: (node) => {
-        if (!moves.has(nameOf(node["callee"] as Node))) return;
+        const callee = node["callee"] as Node;
+        // `move(...)`, a renamed `move`, or `context.move(...)`.
+        const named = callee.type === "MemberExpression" && node["optional"] !== true ? nameOf(callee["property"] as Node) === "move" : moves.has(nameOf(callee));
+        if (!named) return;
         const arg = (node["arguments"] as ReadonlyArray<Node>)[0];
-        const named = arg ? literals(arg) : [];
-        if (named === undefined) judged = false;
-        else for (const outcome of named) missing.delete(outcome);
+        const outcomes = arg ? literals(arg) : [];
+        if (outcomes === undefined) judged = false;
+        else for (const outcome of outcomes) missing.delete(outcome);
       },
       "Program:exit": (node) => {
         if (!judged) return;
@@ -55,6 +58,13 @@ export const outcomeChosen: Rule = {
       },
     };
   },
+};
+
+/** An identifier that only names what is brought in: a destructured binding or an import specifier. */
+const bindingOnly = (node: Node) => {
+  const parent = node.parent;
+  if (parent?.type === "ImportSpecifier" || parent?.type === "ImportDefaultSpecifier") return true;
+  return parent?.type === "Property" && parent.parent?.type === "ObjectPattern";
 };
 
 export const declaredErrorNamed: Rule = {
@@ -65,7 +75,8 @@ export const declaredErrorNamed: Rule = {
     const missing = new Set(path === undefined ? [] : facts.handlers[path]);
     if (missing.size === 0) return {};
     return {
-      Identifier: (node) => { missing.delete(node["name"] as string); },
+      // A name brought in (`const { X } = Errors.declared`, `import { X }`) isn't a use: the refusal is where it's raised.
+      Identifier: (node) => { if (!bindingOnly(node)) missing.delete(node["name"] as string); },
       "Program:exit": (node) => {
         for (const error of missing) context.report({ node, message: `declared error ${error} is never refused` });
       },

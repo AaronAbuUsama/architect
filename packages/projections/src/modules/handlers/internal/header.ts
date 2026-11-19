@@ -121,5 +121,5 @@ export const header = (model: Model, op: OperationModel): ReadonlyArray<string> 
     runtimeLines(model, op),
   ].filter((p) => p.length > 0);
   const body = parts.flatMap((p, i) => (i === 0 ? p : ["", ...p]));
-  return ["/**", ...body.map((l) => (l === "" ? " *" : ` * ${l}`)), " */"];
+  return ["/**", ...body.flatMap((l) => l.split("\n")).map((l) => (l === "" ? " *" : ` * ${l.replaceAll("*/", "*\\/")}`)), " */"];
 };

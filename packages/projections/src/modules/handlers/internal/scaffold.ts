@@ -16,11 +16,13 @@ const alone = (op: OperationModel): Model => ({ refusals: {}, things: {}, operat
 
 /**
  * The answer field the runtime's minted id fills, once the model says the runtime mints it (M1.46 sets `mints` on a
- * creating operation). Before that the handler mints its own, and the scaffold leaves the field a blank.
+ * creating operation: the answer's field holding the thing's id, else the payload's). Before that the handler mints its
+ * own, and the scaffold leaves the field a blank.
  */
 const mintedField = (model: Model, op: OperationModel) => {
   const mints = (op as OperationModel & { readonly mints?: string }).mints;
-  return mints && handedIn(model, op).mints ? mints : undefined;
+  // Only an answer field takes the id; a payload field named by `mints` is the caller's to give, and nothing to write.
+  return mints && mints in op.answer && handedIn(model, op).mints ? mints : undefined;
 };
 
 /** What a handler of a calling operation is told about its operation, as comments. */

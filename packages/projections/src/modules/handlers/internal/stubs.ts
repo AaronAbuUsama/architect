@@ -6,17 +6,17 @@ import type { RenderedFile } from "#modules/names/types.js";
 import { camel, lines, local, scaffolded } from "#modules/names/service.js";
 import { whoLines } from "./header.ts";
 import { callsOf, machinePaths, type MachinePath } from "./paths.ts";
-import { allowedFile, an, callerOf, columns, refusalsOf, thingFile } from "./words.ts";
+import { allowedFile, an, callerOf, columns, refusalsOf, roleName, thingFile } from "./words.ts";
 
 /** A blueprint file as a journey in `blueprint/journeys/` imports it. */
 const rel = (file: string) => (file.startsWith("blueprint/") ? `../${file.slice("blueprint/".length)}` : file);
 const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const todo = (what: string) => `Blueprint.todo(${JSON.stringify(what)})`;
-const roleName = (a: AllowedModel) => (a.kind === "role" || a.kind === "role-of" ? a.role.split(".").pop()! : undefined);
+const roleOf = (a: AllowedModel) => (a.kind === "role" || a.kind === "role-of" ? roleName(a.role) : undefined);
 
 /** The cast for one `allowed` entry: the role itself (imported), or someone signed in, or anyone. */
 const castOf = (model: Model, op: OperationModel, a: AllowedModel | undefined) => {
-  const role = a ? roleName(a) : undefined;
+  const role = a ? roleOf(a) : undefined;
   if (a && role) return { actor: role, cast: `{ ${role} }`, imports: [`import { ${role} } from "${rel(allowedFile(model, op, a))}";`] };
   return { actor: "someone", cast: `{ someone: Blueprint.${a?.kind === "signed-in" ? "signedIn" : "anyone"} }`, imports: [] };
 };
@@ -104,7 +104,7 @@ const roleStubs = (model: Model, op: OperationModel, machined: boolean): Readonl
   const allowed = op.allowed.slice(machined ? 1 : 0).map((a) => {
     const cast = castOf(model, op, a);
     return render(op, {
-      name: `allowed-${roleName(a) ?? a.kind}`, from: allowedFile(model, op, a), cast, title: `allowed ${roleName(a) ? `the ${roleName(a)}` : callerOf(a)}`,
+      name: `allowed-${roleOf(a) ?? a.kind}`, from: allowedFile(model, op, a), cast, title: `allowed ${roleOf(a) ? `the ${roleOf(a)}` : callerOf(a)}`,
       imports: [`import { Blueprint } from "orthograph";`, ...cast.imports],
       doc: [...doc, `Allowed: ${callerOf(a)} calls ${op.name}, and it answers.`],
       starts: `a starting world where ${op.name} can run`, payload: payloadOf(op),
@@ -113,7 +113,7 @@ const roleStubs = (model: Model, op: OperationModel, machined: boolean): Readonl
   });
   if (op.allowed.some((a) => a.kind === "anyone") || op.allowed.length === 0) return allowed;
   const anonymous = op.allowed.some((a) => a.kind === "signed-in");
-  const roles = op.allowed.flatMap((a) => roleName(a) ?? []);
+  const roles = op.allowed.flatMap((a) => roleOf(a) ?? []);
   const refused = anonymous
     ? { name: "refused-anonymous", title: "refused a caller who isn't signed in", cast: { actor: "visitor", cast: "{ visitor: Blueprint.anyone }", imports: [] }, who: "someone not signed in" }
     : { name: `refused-not-${roles.join("-or-")}`, title: `refused a caller who isn't the ${roles.join(" or ")}`, cast: { actor: "stranger", cast: "{ stranger: Blueprint.signedIn }", imports: [] }, who: `someone signed in who isn't ${op.allowed.map(callerOf).join(" or ")}` };

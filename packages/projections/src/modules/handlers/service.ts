@@ -5,3 +5,5 @@ export { callImports, callSteps, handlerTypeAt, renderHandlerTypes, wired } from
 export { renderHandlerScaffold } from "./internal/scaffold.ts";
 export { machinePaths } from "./internal/paths.ts";
 export { renderJourneyStubs } from "./internal/stubs.ts";
+// The sentence the docs page shares with the scaffold's front matter (K16 a): who may call an operation.
+export { who } from "./internal/words.ts";

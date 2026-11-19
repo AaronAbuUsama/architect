@@ -30,9 +30,13 @@ something K16 didn't settle, or where two checks disagreed. None changes what a 
    scaffold with a `Match` imports it, and keeping it off single-outcome moves changes one generated file in acme
    (`spend.handler.ts`), not three. Computing it in the generated file keeps M1.44 out of the runtime's handler types,
    which M1.46 is changing in parallel.
-3. **The docs page keeps its own visibility words.** K16 a.3 moves the docs page to the header's
-   `(private: only <who> sees it)`. Check 16 (M1.35) pins the docs page's `(private to organization.owner)`, so the
-   docs page keeps them until an author changes check 16. The header uses K16's words; `who` is shared.
+3. **The docs page shares `who`, and keeps its own visibility words and refusal table.** K16 a.3 moves the docs page
+   to the header's `(private: only <who> sees it)`. But check 16 (M1.35) pins the docs page's
+   `(private to organization.owner)`, so those words stay until an author changes check 16. `docs.ts` now reads `who`
+   from `@orthograph/projections/shared`, the scaffold's own sentence, and regenerating every example changed no docs
+   page. The docs refusal table stays a markdown table of its own, and `ortho brief` keeps its two lines ("refuse
+   with …", "never refuse … yourself"). Neither repeats a header sentence word for word, so neither can disagree with
+   it yet. Moving them onto `refusalsOf` belongs with check 16's change.
 4. **The minted id is written into the body only once the model says the runtime mints it.** The header's lines about
    what is handed in (the subject, `refs.<field>`, the minted id) are read from the model's structure and are true
    once M1.46 lands. The body's `{ ..., id }` and `allowance: id` would not compile before M1.46 gives the context
@@ -51,3 +55,13 @@ something K16 didn't settle, or where two checks disagreed. None changes what a 
    They are green without it. A builder never edits a check, so the conductor has an author regenerate the baseline.
    M1.47's `refusals` table changes `api/src/errors.ts`, which the same baseline pins, so one regeneration after
    both covers them.
+8. **A declared error borrowed from another thing is the handler's to refuse.** `examples/work`'s `attention.raise`
+   declares the mission's `MissionNotRunning`. `refusalsOf` looks for the declaring thing among all things, the
+   operation's own first, so the header cites `mission/errors.ts` with exit 56. The body writes its refusal block,
+   and `add journeys` writes its stub (found by the 🔍 review).
+9. **The drift rules judge what is used, not what is brought in.** `declared-error-named` doesn't count a
+   destructured binding or an import specifier (`const { X } = Errors.declared`). So a handler that keeps the
+   destructure but drops the refusal is still warned. `outcome-chosen` also reads `context.move("…")`.
+10. **Blank detection in a journey looks one level deep**, the depth a stub's blanks sit at: the world, the payload or
+    one of its fields, a check, or a check's fields, id or value. A hand-written journey with a blank nested deeper is
+    not skipped by `prove`, and it reaches the blank when it runs.

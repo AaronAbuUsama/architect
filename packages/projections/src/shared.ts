@@ -4,4 +4,5 @@ export * from "#modules/names/service.js";
 export type { RenderedFile } from "#modules/names/types.js";
 export { machinePaths, renderHandlerScaffold, renderJourneyStubs } from "#modules/handlers/service.js";
 export type { MachinePath } from "#modules/handlers/types.js";
+export { who } from "#modules/handlers/service.js";
 export { emptyServer } from "#modules/server/service.js";

@@ -1,7 +1,7 @@
 // The sentences a handler's scaffold, its journey stubs and the docs page share (K16 a): who may call, what a field is,
 // where a declaration's file is, and every refusal with who gives it. Every word is a name from the model or a fixed
 // phrase about Orthograph itself; nothing names the domain unless the blueprint does.
-import type { AllowedModel, FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
+import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
 import { NOT_ALLOWED_EXIT } from "#modules/names/service.js";
 
 /** The exit of a generated `<Thing>NotFound` (K16 g, M1.46); a thing that declares one keeps its own. */
@@ -13,7 +13,7 @@ export const thingFile = (model: Model, thing: string, file: "thing" | "machine"
   return t && t.from.kind !== "app" ? `${t.from.package}/blueprint/things/${t.from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`;
 };
 
-const roleName = (role: string) => role.split(".").pop() ?? role;
+export const roleName = (role: string) => role.split(".").pop() ?? role;
 const roleThing = (role: string) => role.split(".")[0] ?? role;
 
 /** One `allowed` entry in words: the docs page's own phrase. */
@@ -70,30 +70,37 @@ export interface Refusal {
   readonly said: string;
   readonly file: string;
   readonly fields: ReadonlyArray<string>;
+  /** The fields as the model holds them, for a declared error's blanks. */
+  readonly fieldModels: FieldsModel;
 }
+
+/** The thing that declares an error: the operation's own first, else the one it borrows it from. */
+const ownerOf = (model: Model, op: OperationModel, error: string) =>
+  model.things[op.thing]?.errors[error] ? op.thing : Object.values(model.things).find((t) => t.errors[error])?.name;
 
 export const refusalsOf = (model: Model, op: OperationModel): ReadonlyArray<Refusal> => {
   const thing = model.things[op.thing];
   const code = (r: string) => model.refusals[r] ?? "?";
   return op.refusals.map((r): Refusal => {
-    const declared = thing?.errors[r];
-    if (declared && op.errors.includes(r)) {
+    const owner = op.errors.includes(r) ? ownerOf(model, op, r) : undefined;
+    const declared = owner ? model.things[owner]?.errors[r] : thing?.errors[r];
+    if (owner && declared) {
       const fields = Object.keys(declared.fields);
-      return { name: r, exit: declared.exit, code: code(r), giver: "yours", fields, file: thingFile(model, op.thing, "errors"), said: `yours to refuse below${fields.length ? `, carrying ${fields.join(", ")}` : ""}` };
+      return { name: r, exit: declared.exit, code: code(r), giver: "yours", fields, fieldModels: declared.fields, file: thingFile(model, owner, "errors"), said: `yours to refuse below${fields.length ? `, carrying ${fields.join(", ")}` : ""}` };
     }
     if (thing?.machine && r === thing.machine.notFrom.error) {
       const from = op.move?.from.length ? op.move.from : thing.machine.states;
-      return { name: r, exit: thing.machine.notFrom.exit, code: code(r), giver: "runtime", fields: ["state"], file: thingFile(model, op.thing, "machine"), said: `the runtime's, when the ${op.thing} isn't in ${from.join(" or ")}, carrying state` };
+      return { name: r, exit: thing.machine.notFrom.exit, code: code(r), giver: "runtime", fields: ["state"], fieldModels: {}, file: thingFile(model, op.thing, "machine"), said: `the runtime's, when the ${op.thing} isn't in ${from.join(" or ")}, carrying state` };
     }
     if (r === "NotAllowed") {
       const first = op.allowed[0];
-      return { name: r, exit: NOT_ALLOWED_EXIT, code: code(r), giver: "runtime", fields: [], file: first ? allowedFile(model, op, first) : op.file, said: `the runtime's, when the caller isn't ${who(op)}` };
+      return { name: r, exit: NOT_ALLOWED_EXIT, code: code(r), giver: "runtime", fields: [], fieldModels: {}, file: first ? allowedFile(model, op, first) : op.file, said: `the runtime's, when the caller isn't ${who(op)}` };
     }
     const missing = notFoundOf(model, r);
     if (missing) {
       const own = missing.errors[r];
-      return { name: r, exit: own?.exit ?? NOT_FOUND_EXIT, code: code(r), giver: "runtime", fields: ["id"], file: thingFile(model, missing.name, own ? "errors" : "thing"), said: `the runtime's, when no ${missing.name} has that id, carrying id` };
+      return { name: r, exit: own?.exit ?? NOT_FOUND_EXIT, code: code(r), giver: "runtime", fields: ["id"], fieldModels: {}, file: thingFile(model, missing.name, own ? "errors" : "thing"), said: `the runtime's, when no ${missing.name} has that id, carrying id` };
     }
-    return { name: r, exit: declared?.exit ?? "?", code: code(r), giver: "runtime", fields: Object.keys(declared?.fields ?? {}), file: thingFile(model, op.thing, "errors"), said: "the runtime's" };
+    return { name: r, exit: declared?.exit ?? "?", code: code(r), giver: "runtime", fields: Object.keys(declared?.fields ?? {}), fieldModels: declared?.fields ?? {}, file: thingFile(model, op.thing, "errors"), said: "the runtime's" };
   });
 };

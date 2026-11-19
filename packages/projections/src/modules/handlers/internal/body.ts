@@ -19,7 +19,7 @@ const stepBlock = (model: Model, op: OperationModel, key: string): ReadonlyArray
 
 const refusalBlocks = (model: Model, op: OperationModel): ReadonlyArray<ReadonlyArray<string>> =>
   refusalsOf(model, op).filter((r) => r.giver === "yours").map((r) => {
-    const fields = model.things[op.thing]?.errors[r.name]?.fields ?? {};
+    const fields = r.fieldModels;
     const made = Object.keys(fields).length === 0
       ? [`      return yield* new ${r.name}({});`]
       : [

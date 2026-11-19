@@ -1,4 +1,4 @@
-# M1.44 green at 0b0ed4f8 (19 Nov 2026)
+# M1.44 green at 9f83ee65 (built and run as 0b0ed4f8, before the evidence was amended in) (19 Nov 2026)
 
 ## packages/projections handlers.test.ts: grant's two wait on M1.46, the three path and stub tests on M1.45
      × lists the generated not-found refusal for a referenced id no role check reads, with its exit and code 2ms
