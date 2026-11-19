@@ -2,7 +2,7 @@
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
-import { GENERATED, camel, lines, opVar } from "./names.ts";
+import { GENERATED, camel, exportedAs, lines, local, opVar } from "./names.ts";
 
 const command = (op: OperationModel): RenderedFile => {
   const optional = Object.values(op.payload).some((f) => f.optional);
@@ -23,11 +23,12 @@ const command = (op: OperationModel): RenderedFile => {
       `import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash`,
       "",
       `/** ${op.description} Every flag is text${Object.values(op.payload).some((f) => f.value.type === "schema" && f.value.format === "ref-any") ? " (any-thing references are JSON objects)" : ""}; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
-      `export const ${camel(op.verb)} = Command.make(`,
+      `export const ${local(camel(op.verb))} = Command.make(`,
       `  "${op.verb}",`,
       `  { ${[...flags, `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
       `  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(${optional ? "Output.supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), Output.answer(json)),`,
       ");",
+      exportedAs(op.verb),
     ),
   };
 };

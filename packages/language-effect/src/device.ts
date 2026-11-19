@@ -2,4 +2,6 @@
 // rest of the runtime (no MCP server, no store) in a browser's bundle.
 export { Device } from "#modules/handler/service.js";
 export { Mount } from "#modules/mount/service.js";
-export type { DeviceWhere } from "#modules/handler/types.js";
+export { TimersLive } from "#modules/timers/service.js";
+export { DeviceWorld } from "#modules/handler/types.js";
+export type { DeviceWhere, DeviceWorldOf } from "#modules/handler/types.js";

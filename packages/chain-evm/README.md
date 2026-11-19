@@ -21,3 +21,5 @@ ORTHO_CHAIN_EVM_ANVIL=1 pnpm exec vitest run --root packages/chain-evm src/modul
 ```
 
 The test starts a silent Anvil on a free loopback port and stops it on scope exit.
+
+`@orthograph/chain-evm/device` is the same package without `Anvil` (no `node:` import, so a browser's or a Worker's closure can hold it): the port, faults, events and `Keys` (`modules/keys`: generate a secret, make a `Key` that signs EIP-191 messages and transactions, keccak-256, addresses). The wallet imports nothing else of viem: the lint rule keeps viem in this package.

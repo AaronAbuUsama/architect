@@ -4,6 +4,19 @@ import { Timers, type Timer } from "./types.ts";
 
 const timerOf = (t: Timer): Timer => ({ id: t.id, at: t.at, owner: t.owner, name: t.name });
 
+/**
+ * Timers for code that runs on a device or in a plain process, with no world to drive its clock: `sleep` waits on the
+ * real clock. A timer to fire later (`at`) needs a world and is refused as a defect, so a device entry can wait but never
+ * schedule.
+ */
+export const TimersLive = Layer.succeed(Timers, Timers.of({
+  at: () => Effect.die(new Error("a device has no world to fire a timer: it can wait, not schedule")),
+  sleep: (_owner, span) => Effect.flatMap(Clock.Clock, (clock) => clock.sleep(Duration.fromInputUnsafe(span))),
+  due: () => Effect.succeed(undefined),
+  fire: () => Effect.succeed([]),
+  pending: Effect.succeed([]),
+}));
+
 /** Timers kept in memory, fired by whoever drives the world's clock. A world's Durable Object keeps them in its table. */
 export const TimersMemory = Layer.effect(
   Timers,
