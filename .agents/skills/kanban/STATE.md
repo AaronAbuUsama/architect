@@ -58,7 +58,7 @@ agent may do are **off the critical path** (moved to M3, ids kept).
 None of this touches `m1` or `canon-minimal`. Each item ends in its own branch and PR from `main`.
 
 - **#56's teardown.** Write the step that destroys what `codex/links-staging` deploys, so nothing is left running (X-pr56). Stay under the $10 a day cap.
-- **The ledger's stale names.** Rows still say `forman`, `Forman` or `@formants/…` (FOR-01, FOR-02, CMD-01, KIT-01 and others). `design/naming.md` maps every name.
+- **The ledger's stale names.** Rows still use the names retired by K6 (FOR-01, FOR-02, CMD-01, KIT-01 and others). `design/naming.md` maps every name.
 - **X-jou13 and X-unowned.** Pick an owning slice for each, and record the call in `design/decisions/`.
 - **The M2 to M7 decision questions** on `M2-01`, `M3-01`, `M4-01`, `M5-01`, `M6-01` and `M7-01`. Draft their answers as decision records, grounded in the code. Don't build them.
 - **Rules for any of it:** follow `AGENTS.md`. No Docker. Pin versions exactly, at least three days old. Never print or commit a key. A builder never edits journeys or evals. Update the board as the skill says.
@@ -69,8 +69,8 @@ None of this touches `m1` or `canon-minimal`. Each item ends in its own branch a
 | Item | Owner | The issue (first sentence) |
 |---|---|---|
 | `FOR-01` | M1.14 | "Behaviour is the only freehand code" has an exception: an adapter's mapping blank is also hand-written, and M1.14 doesn't say whether it is a handler. |
-| `FOR-02` | M1.11, M2.05 | `forman.config.ts` still holds the project's name and sign-in choice and the compiler does not read it; both are meant to move into mounts, and the package map still says it also holds telemetry, which no longer lives there. |
-| `BLU-02` | M1.03 | Journeys live in two places: prove reads both `blueprint/journeys/` and the root `journeys/`, acme keeps its journeys at the root, while `forman add journey` and the canon use `blueprint/journeys/`. |
+| `FOR-02` | M1.11, M2.05 | The project config file (`ortho.config.ts` after K6) still holds the project's name and sign-in choice and the compiler does not read it; both are meant to move into mounts, and the package map still says it also holds telemetry, which no longer lives there. |
+| `BLU-02` | M1.03 | Journeys live in two places: prove reads both `blueprint/journeys/` and the root `journeys/`, acme keeps its journeys at the root, while `ortho add journey` and the canon use `blueprint/journeys/`. |
 | `BLU-04` | M1.03 | The model leaves out journeys, starting worlds and role rules, so agents and projections cannot see them; the frame's "where today falls short" list repeats this with several other gaps that have their own slices. |
 | `LAH-01` | later | Noir on Aztec is parked in milestones' `Later` with no slice, while N1, `later.md` and the private-membership example still say it comes "after Gate 5", which no longer exists; its private-core spike is merged but framework work is "later". |
 | `LAH-03` | later | The addendum still says "Revoke is instant and private" and "nobody outside can see anything"; spike 3 refutes both as stated, and generated docs and client guarantees must not promise them. |
@@ -103,7 +103,7 @@ None of this touches `m1` or `canon-minimal`. Each item ends in its own branch a
 | `AGE-02` | M4.01 | Where a run lives is contradictory: H1 makes the Run thing `lives: actor`, F5 says runs and missions are database rows because lists need a database while each run's loop is its own Durable Object; M4.01 must settle it. |
 | `FAC-01` | M3.09 | M3.09 names four task kinds (`write:journey`, `build`, `fix`, `improve`), but the factory's own example lists more (specify, machine, validate, prove, promote) and F4 had its own seven; the canon must say which kinds exist. |
 | `FAC-02` | M3.14 (parked) | The portal's Work side (board, progress, burn-down, KPIs, the manager's conversation) is still a mock in `spikes/portal-fumadocs`; M3.14 still says "portal" although F6 replaces the portal with one generated app. |
-| `KIT-01` | M3.12 (parked) | The agent kit's package is `@formants/agent-kit` (M0-build, packages.md), but `generators.md` still mounts the kit from `@formants/agents`; PR #37 corrects it and is unmerged. |
-| `CMD-01` | M1.16 | The design says `forman prove --unbuilt` but the slice builds `forman prove --empty`; the two names disagree. |
+| `KIT-01` | M3.12 (parked) | The agent kit's package is `@orthograph/agent-kit` (M0-build, packages.md), but `generators.md` still mounts the kit from `@orthograph/agents`; PR #37 corrects it and is unmerged. |
+| `CMD-01` | M1.16 | The design says `ortho prove --unbuilt` but the slice builds `ortho prove --empty`; the two names disagree. |
 
 The full list, with evidence and status, is `design/ledger.md`; the rest are unmarked or lower severity.

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Skills · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.warn{background:rgba(242,179,61,.14);color:#f5c15a}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:#a1a1aa}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:8px 0;border-bottom:1px solid #222225}
+.kv:last-child{border-bottom:0}
+.sw{width:40px;height:24px;border-radius:99px;background:#3584f5;position:relative;flex:none;border:0;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:19px;width:18px;height:18px;border-radius:50%;background:#fff}
+.sw-off{background:#3f3f46}
+.sw-off::after{left:3px}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="skills" hint-size="248px,1140px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <span class="muted">support-desk</span><span class="muted">/</span><span style="font-weight: 600">Skills</span>
+      </nav>
+      <button type="button" class="btn">Rescan locations</button>
+      <button type="button" class="btn btn-primary">Add skill</button>
+    </header>
+
+    <div style="padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 18px; width: 100%; box-sizing: border-box">
+      <div style="display: flex; flex-direction: column; gap: 6px; max-width: 780px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700">Skills</h1>
+        <p style="margin: 0; font-size: 14px; color: #a1a1aa">Instructions plus bundled files. The model sees each skill's name and description, and reads the full SKILL.md only when a task calls for it.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+        <section class="card" aria-label="Skill list" style="flex: 1 1 360px; min-width: 0; overflow: hidden">
+          <div style="display: flex; gap: 8px; padding: 12px 14px; border-bottom: 1px solid #29292d">
+            <label style="display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 10px; border-radius: 10px; background: #111114; border: 1px solid #29292d; color: #a1a1aa; font-size: 13px; flex: 1">
+              <span style="position: absolute; width: 1px; height: 1px; overflow: hidden">Search skills</span>
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+              <input type="search" placeholder="Search 12 skills" style="flex: 1; background: transparent; border: 0; color: #fcfcfc; font: inherit; outline: none; min-width: 0">
+            </label>
+          </div>
+          <ul style="list-style: none; margin: 0; padding: 6px">
+            <sc-for list="{{skills}}" as="s" hint-placeholder-count="7">
+              <li>
+                <a href="#" style="{{s.row}}">
+                  <span style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 13px; color: #fcfcfc; font-weight: 500">{{s.name}}</span><span class="{{s.flagClass}}">{{s.flag}}</span></span>
+                  <span class="muted" style="font-size: 12px; line-height: 1.45">{{s.desc}}</span>
+                  <span style="font-size: 11px; color: #8b8b94">{{s.where}}</span>
+                </a>
+              </li>
+            </sc-for>
+          </ul>
+        </section>
+
+        <section aria-label="Skill detail" style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+          <div class="card" style="padding: 18px; display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+              <h2 class="mono" style="margin: 0; font-size: 18px; font-weight: 500; flex: 1">refund-policy</h2>
+              <span class="chip ok">valid</span>
+              <button type="button" class="btn">Open SKILL.md</button>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px">
+              <div style="flex: 1 1 260px">
+                <div class="kv"><span class="muted">Location</span><span class="mono">.agents/skills/refund-policy</span></div>
+                <div class="kv"><span class="muted">Source</span><span>project · git</span></div>
+                <div class="kv"><span class="muted">allowed-tools</span><span class="mono">mcp__billing__refund, tickets.get</span></div>
+              </div>
+              <div style="flex: 1 1 260px">
+                <div class="kv"><span class="muted">License</span><span>internal</span></div>
+                <div class="kv"><span class="muted">Description</span><span>186 / 1024 chars</span></div>
+                <div class="kv" style="align-items: center"><span class="muted">Model may load it</span><button type="button" class="sw" role="switch" aria-checked="true" aria-label="Model may load refund-policy"></button></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 14px">
+            <article class="card" aria-label="SKILL.md preview" style="flex: 2 1 380px; min-width: 0; padding: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.6">
+              <span class="eyebrow">SKILL.md</span>
+              <pre class="mono" style="margin: 0; padding: 10px 12px; border-radius: 8px; background: #0f0f12; border: 1px solid #222225; color: #a1a1aa; white-space: pre-wrap">name: refund-policy
+description: Decide and issue refunds for billing tickets. Use for double charges, cancellations within 14 days, and plan downgrades.</pre>
+              <h3 style="margin: 4px 0 0; font-size: 16px; font-weight: 700">Refund policy</h3>
+              <p style="margin: 0; color: #d4d4d8">Read <span class="mono">references/policy-2026.md</span> before refunding. Check the charge in billing first; never refund a charge that is already disputed.</p>
+              <ul style="margin: 0; padding-left: 20px; color: #d4d4d8"><li>Duplicate charge: refund the newer one in full.</li><li>Cancel within 14 days: prorate with <span class="mono">scripts/prorate.ts</span>.</li><li>Over $25: request approval; say why in one line.</li></ul>
+            </article>
+            <div class="card" aria-label="Bundled files" style="flex: 1 1 240px; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+              <span class="eyebrow">Bundled files</span>
+              <ul role="tree" aria-label="Files" style="list-style: none; margin: 0; padding: 0; font-size: 13px; display: flex; flex-direction: column; gap: 2px">
+                <li role="treeitem" style="padding: 6px 4px">▾ refund-policy/</li>
+                <li role="treeitem" style="padding: 6px 4px 6px 22px; background: #1f2735; border-radius: 6px">SKILL.md</li>
+                <li role="treeitem" style="padding: 6px 4px 6px 22px">▾ references/</li>
+                <li role="treeitem" style="padding: 6px 4px 6px 40px" class="muted">policy-2026.md</li>
+                <li role="treeitem" style="padding: 6px 4px 6px 22px">▾ scripts/</li>
+                <li role="treeitem" style="padding: 6px 4px 6px 40px" class="muted">prorate.ts</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+            <span style="font-size: 14px; font-weight: 600">Presets that include it</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px">
+              <span class="chip info">Ticket resolver</span><span class="chip info">Desk lead</span>
+              <button type="button" class="btn btn-ghost" style="min-height: 30px">+ Add to a preset</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" aria-label="Add a skill" style="padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+        <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 14px; font-weight: 600">Add a skill</span><span class="muted" style="font-size: 12px">Drop a folder with SKILL.md, or install a pi package from npm or git. Review its scripts before trusting it.</span></div>
+        <div style="flex: 1 1 260px; min-height: 64px; border: 1.5px dashed #3a3a40; border-radius: 12px; display: grid; place-items: center; font-size: 13px; color: #c4c4cc">Drop a skill folder</div>
+        <button type="button" class="btn">Install package</button>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1140}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = [
+      ['refund-policy', 'Decide and issue refunds for billing tickets…', '.agents/skills · project', 'auto', true],
+      ['reply-tone', 'House style for customer replies: plain, warm, no promises.', '.agents/skills · project', 'auto'],
+      ['csv-export-debugging', 'Reproduce and narrow export timeouts with sample data.', '.agents/skills · project', 'auto'],
+      ['triage-rubric', 'How the desk lead ranks and merges tickets.', '.agents/skills · project', 'auto'],
+      ['release-notes', 'Write release notes from merged PRs.', '~/.agents/skills · user', 'command only'],
+      ['pdf-tools', 'Extract text and tables from PDF attachments.', '@pi/skills-pdf@1.4.0 · package', 'auto'],
+      ['okta-scim', 'Missing description: not loaded.', '.agents/skills · project', 'warning']
+    ];
+    return {
+      skills: S.map((r) => ({
+        name: r[0], desc: r[1], where: r[2], flag: r[3],
+        flagClass: r[3] === 'warning' ? 'chip warn' : r[3] === 'command only' ? 'chip' : 'chip ok',
+        row: 'display: flex; flex-direction: column; gap: 3px; padding: 10px 10px; border-radius: 10px; color: inherit; ' + (r[4] ? 'background: #1f2735; box-shadow: inset 2px 0 0 #3584f5' : '')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

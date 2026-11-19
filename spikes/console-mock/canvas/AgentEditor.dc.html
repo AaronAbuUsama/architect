@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Preset editor · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.warn{background:rgba(242,179,61,.14);color:#f5c15a}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.key{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;color:#8b8b94}
+.muted{color:#a1a1aa}
+.sec{display:flex;flex-direction:column;gap:12px;scroll-margin-top:24px}
+.sec h2{margin:0;font-size:18px;font-weight:700}
+.cell{display:flex;flex-wrap:wrap;align-items:center;gap:12px;min-height:56px;padding:10px 16px;border-bottom:1px solid #222225}
+.cell:last-child{border-bottom:0}
+.cell-label{flex:1 1 240px;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.cell-label small{font-size:12px;color:#a1a1aa}
+.field{font:inherit;font-size:13px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #303036;background:#111114;color:#fcfcfc;box-sizing:border-box}
+.sw{width:40px;height:24px;border-radius:99px;background:#3584f5;position:relative;flex:none;border:0;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:19px;width:18px;height:18px;border-radius:50%;background:#fff}
+.sw-off{background:#3f3f46}
+.sw-off::after{left:3px}
+.seg{display:inline-flex;flex-wrap:wrap;padding:3px;border-radius:10px;background:#111114;border:1px solid #29292d}
+.seg button{font:inherit;font-size:13px;font-weight:600;min-height:32px;padding:0 12px;border-radius:8px;border:0;background:transparent;color:#c4c4cc;cursor:pointer}
+.seg button[aria-checked="true"]{background:#4a4a52;color:#fff}
+.stepper{display:inline-flex;align-items:center;border:1px solid #303036;border-radius:10px;overflow:hidden}
+.stepper button{font:inherit;width:40px;height:38px;border:0;background:#27272a;color:#fcfcfc;cursor:pointer;font-size:16px}
+.stepper output{min-width:64px;text-align:center;font-size:14px;font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:12px;font-weight:600;color:#a1a1aa;padding:10px 16px;border-bottom:1px solid #29292d}
+.tbl td{padding:10px 16px;border-bottom:1px solid #222225}
+.tbl tr:last-child td{border-bottom:0}
+.cb{width:18px;height:18px;accent-color:#3584f5}
+.range{width:220px;accent-color:#3584f5}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="editor" hint-size="248px,2640px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <a href="Agents.dc.html" style="color: #a1a1aa">Presets</a><span class="muted">/</span><span style="font-weight: 600">Ticket resolver</span><span class="chip warn">3 unsaved</span>
+      </nav>
+      <button type="button" class="btn">Test in a sandbox thread</button>
+      <button type="button" class="btn">Export JSON</button>
+      <button type="button" class="btn btn-primary">Save preset</button>
+    </header>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 32px; padding: 24px 28px 48px; max-width: 1180px; width: 100%; box-sizing: border-box">
+      <nav aria-label="On this page" style="flex: 0 1 180px; display: flex; flex-direction: column; gap: 2px; font-size: 13px">
+        <span class="eyebrow" style="padding: 0 10px 8px">On this page</span>
+        <a href="#identity" style="padding: 8px 10px; border-radius: 8px; background: #1d1d21; color: #fcfcfc; font-weight: 600">Identity</a>
+        <a href="#model" style="padding: 8px 10px; color: #c4c4cc">Model</a>
+        <a href="#instructions" style="padding: 8px 10px; color: #c4c4cc">Instructions &amp; prompt</a>
+        <a href="#tools" style="padding: 8px 10px; color: #c4c4cc">Tools</a>
+        <a href="#extensions" style="padding: 8px 10px; color: #c4c4cc">Extensions</a>
+        <a href="#skills" style="padding: 8px 10px; color: #c4c4cc">Skills &amp; MCP</a>
+        <a href="#limits" style="padding: 8px 10px; color: #c4c4cc">Limits</a>
+        <a href="#compaction" style="padding: 8px 10px; color: #c4c4cc">Compaction</a>
+        <a href="#hooks" style="padding: 8px 10px; color: #c4c4cc">Hooks &amp; approvals</a>
+        <a href="#environment" style="padding: 8px 10px; color: #c4c4cc">Environment</a>
+      </nav>
+
+      <div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 36px">
+        <section id="identity" class="sec">
+          <h2>Identity</h2>
+          <div class="card" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Name<input class="field" value="Ticket resolver"></label>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600"><span id="role-l">Role</span>
+              <div class="seg" role="radiogroup" aria-labelledby="role-l"><button type="button" role="radio" aria-checked="false">Manager</button><button type="button" role="radio" aria-checked="true">Worker</button><button type="button" role="radio" aria-checked="false">Standalone</button></div>
+            </div>
+            <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Description, shown to managers choosing a preset<textarea class="field" rows="2" style="padding: 10px 12px; resize: vertical">Answers one ticket end to end: reads history, drafts the reply, issues refunds within policy.</textarea></label>
+          </div>
+        </section>
+
+        <section id="model" class="sec">
+          <h2>Model</h2>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Provider and model<small class="key">pi.agent.model</small></div>
+              <select class="field" aria-label="Provider"><option>anthropic</option><option>openai</option><option>google</option><option>openrouter</option><option>amazon-bedrock</option><option>groq</option><option>local (llama.cpp)</option></select>
+              <select class="field" aria-label="Model"><option>claude-sonnet-5-5</option><option>claude-opus-5-5</option><option>claude-haiku-5-5</option><option>claude-fable-5-2</option></select>
+            </div>
+            <div class="cell"><div class="cell-label">Thinking level<small class="key">pi.agent.thinkingLevel</small></div>
+              <div class="seg" role="radiogroup" aria-label="Thinking level"><button type="button" role="radio" aria-checked="false">off</button><button type="button" role="radio" aria-checked="false">minimal</button><button type="button" role="radio" aria-checked="false">low</button><button type="button" role="radio" aria-checked="true">medium</button><button type="button" role="radio" aria-checked="false">high</button><button type="button" role="radio" aria-checked="false">xhigh</button></div>
+            </div>
+            <div class="cell"><div class="cell-label">Context window<small>From the model catalog. Drives compaction thresholds.</small></div><span class="mono">200,000 tokens · images in</span></div>
+          </div>
+        </section>
+
+        <section id="instructions" class="sec">
+          <h2>Instructions &amp; prompt</h2>
+          <div class="card" style="overflow: hidden">
+            <div style="display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid #222225">
+              <button type="button" class="btn btn-ghost" aria-label="Bold" style="min-width: 36px; min-height: 36px; padding: 0; font-weight: 800">B</button>
+              <button type="button" class="btn btn-ghost" aria-label="Italic" style="min-width: 36px; min-height: 36px; padding: 0; font-style: italic">I</button>
+              <button type="button" class="btn btn-ghost" aria-label="Bulleted list" style="min-width: 36px; min-height: 36px; padding: 0">•≡</button>
+              <button type="button" class="btn btn-ghost" aria-label="Code" style="min-width: 36px; min-height: 36px; padding: 0; font-family: JetBrains Mono, monospace">&lt;/&gt;</button>
+              <span class="key" style="margin-left: auto; align-self: center">pi.agent.instructions · rendered last</span>
+            </div>
+            <label style="position: absolute; width: 1px; height: 1px; overflow: hidden" for="instr">Instructions</label>
+            <textarea id="instr" rows="7" style="width: 100%; box-sizing: border-box; padding: 14px 16px; background: transparent; border: 0; color: #e4e4e7; font: inherit; font-size: 14px; line-height: 1.6; resize: vertical">You own exactly one ticket. Read its full history and the customer's plan before replying.
+- Refunds up to $25: issue them. Over $25: ask, the guard will hold the call for a human.
+- Never promise a ship date.
+- When done, answer with: outcome, reply sent (yes/no), follow-ups for the desk lead.</textarea>
+          </div>
+          <div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 600">System prompt, in render order</span><button type="button" class="btn btn-ghost" style="min-height: 34px">Preview rendered</button></div>
+            <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px">
+              <li class="chip">1 · preamble <span class="muted">coding</span></li>
+              <li class="chip">2 · cwd</li>
+              <li class="chip">3 · codemode <span class="muted">14 tools</span></li>
+              <li class="chip">4 · skills <span class="muted">3</span></li>
+              <li class="chip">5 · ticket-policy <span class="muted">ticket-tools</span></li>
+              <li class="chip info">6 · instructions</li>
+            </ol>
+            <span class="muted" style="font-size: 12px">Only sections that change are sent again, so stable sections keep the provider's prompt cache warm.</span>
+          </div>
+        </section>
+
+        <section id="tools" class="sec">
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><h2 style="flex: 1">Tools</h2><a href="Tools.dc.html" style="font-size: 13px">Browse all 63 tools</a></div>
+          <div class="card" style="overflow-x: auto">
+            <table class="tbl" style="min-width: 700px">
+              <thead><tr><th scope="col">Tool</th><th scope="col">Source</th><th scope="col">Enabled<br><span class="key">tools</span></th><th scope="col">Offered to model<br><span class="key">modelTools</span></th><th scope="col">Notes</th></tr></thead>
+              <tbody>
+                <sc-for list="{{tools}}" as="t" hint-placeholder-count="8">
+                  <tr>
+                    <td class="mono" style="color: #fcfcfc">{{t.name}}</td>
+                    <td class="muted">{{t.src}}</td>
+                    <td><input type="checkbox" class="cb" aria-label="Enable {{t.name}}" checked="{{t.on}}"></td>
+                    <td><input type="checkbox" class="cb" aria-label="Offer {{t.name}} to the model" checked="{{t.model}}"></td>
+                    <td class="muted" style="font-size: 12px">{{t.note}}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <span class="muted" style="font-size: 12px">Enabled tools can always be called by other tools (code mode scripts, MCP bridges). Offered tools are the ones the model sees directly.</span>
+        </section>
+
+        <section id="extensions" class="sec">
+          <h2>Extensions</h2>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Selection<small class="key">pi.agent.extensions</small></div>
+              <div class="seg" role="radiogroup" aria-label="Extension selection"><button type="button" role="radio" aria-checked="false">Host default</button><button type="button" role="radio" aria-checked="true">Edit the default</button><button type="button" role="radio" aria-checked="false">Exactly these</button></div>
+            </div>
+            <sc-for list="{{exts}}" as="e" hint-placeholder-count="6">
+              <div class="cell">
+                <span aria-hidden="true" style="color: #5b5b63; cursor: grab">⋮⋮</span>
+                <div class="cell-label"><span class="mono" style="font-size: 13px; color: #fcfcfc">{{e.name}}</span><small>{{e.desc}}</small></div>
+                <button type="button" class="{{e.sw}}" role="switch" aria-checked="{{e.on}}" aria-label="Select {{e.name}}"></button>
+              </div>
+            </sc-for>
+          </div>
+          <span class="muted" style="font-size: 12px">Order matters: a later extension's same-name tool replaces an earlier one.</span>
+        </section>
+
+        <section id="skills" class="sec">
+          <h2>Skills &amp; MCP</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px">
+            <div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+              <span style="font-size: 14px; font-weight: 600">Skills</span>
+              <label style="display: flex; gap: 10px; align-items: center; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" checked>refund-policy</label>
+              <label style="display: flex; gap: 10px; align-items: center; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" checked>reply-tone</label>
+              <label style="display: flex; gap: 10px; align-items: center; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" checked>csv-export-debugging</label>
+              <label style="display: flex; gap: 10px; align-items: center; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb">release-notes</label>
+              <a href="Skills.dc.html" style="font-size: 13px">Manage skills</a>
+            </div>
+            <div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+              <span style="font-size: 14px; font-weight: 600">MCP servers</span>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" checked aria-label="helpdesk"><span style="flex: 1">helpdesk</span><span class="chip">offered</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" checked aria-label="billing"><span style="flex: 1">billing</span><span class="chip">scripts only</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; min-height: 32px"><input type="checkbox" class="cb" aria-label="github"><span style="flex: 1">github</span><span class="chip">deferred</span></div>
+              <a href="Mcp.dc.html" style="font-size: 13px">Manage MCP servers</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="limits" class="sec">
+          <h2>Limits</h2>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Max turns per run<small class="key">pi.agent.maxTurns · the run ends unanswered with turn_limit</small></div><div class="stepper"><button type="button" aria-label="Fewer turns">−</button><output>30</output><button type="button" aria-label="More turns">+</button></div></div>
+            <div class="cell"><div class="cell-label">Working directory<small class="key">pi.agent.cwd · empty follows the manager</small></div><input class="field" aria-label="Working directory" value="/srv/desk/tickets" style="min-width: 260px"></div>
+            <div class="cell"><div class="cell-label">Spend cap per thread<small>Enforced by the team's guard hook.</small></div><label style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #303036; border-radius: 10px; padding: 0 12px; min-height: 40px; background: #111114"><span class="muted">$</span><input aria-label="Spend cap" value="3.00" style="width: 60px; background: transparent; border: 0; color: #fcfcfc; font: inherit; outline: none"></label></div>
+          </div>
+        </section>
+
+        <section id="compaction" class="sec">
+          <h2>Compaction</h2>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Source<small class="key">pi.agent.compaction · null follows run policy</small></div>
+              <div class="seg" role="radiogroup" aria-label="Compaction source"><button type="button" role="radio" aria-checked="false">Run policy</button><button type="button" role="radio" aria-checked="true">Override here</button><button type="button" role="radio" aria-checked="false">Off</button></div>
+            </div>
+            <div class="cell"><div class="cell-label">Keep recent tokens verbatim<small class="key">keepRecentTokens</small></div><input type="range" class="range" min="4000" max="80000" value="24000" aria-label="Keep recent tokens"><output class="mono" style="min-width: 70px">24,000</output></div>
+            <div class="cell"><div class="cell-label">Reserve before blocking<small class="key">reserveTokens</small></div><input type="range" class="range" min="2000" max="40000" value="16384" aria-label="Reserve tokens"><output class="mono" style="min-width: 70px">16,384</output></div>
+            <div class="cell"><div class="cell-label">Start in background this far earlier<small class="key">backgroundTokens · 0 disables</small></div><input type="range" class="range" min="0" max="65536" value="32768" aria-label="Background tokens"><output class="mono" style="min-width: 70px">32,768</output></div>
+            <div class="cell"><div class="cell-label">Per-model overrides<small class="key">modelOverrides["provider/modelId"]</small></div><span class="chip">anthropic/claude-haiku-5-5 · keep 12k</span><button type="button" class="btn btn-ghost" style="min-height: 34px">Add</button></div>
+          </div>
+        </section>
+
+        <section id="hooks" class="sec">
+          <h2>Hooks &amp; approvals</h2>
+          <div class="card" style="overflow-x: auto">
+            <table class="tbl" style="min-width: 640px">
+              <thead><tr><th scope="col">When the tool is</th><th scope="col">And</th><th scope="col">Then</th><th scope="col">From</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">mcp__billing__refund</td><td class="muted">amount &gt; 2500</td><td><span class="chip warn">Hold for approval</span></td><td class="muted">guard · beforeTool</td></tr>
+                <tr><td class="mono">bash</td><td class="muted">command matches git push|rm -rf</td><td><span class="chip warn">Hold for approval</span></td><td class="muted">guard · beforeTool</td></tr>
+                <tr><td class="mono">write, edit</td><td class="muted">path outside cwd</td><td><span class="chip" style="background: rgba(229,72,77,.16); color: #ff8a8d">Block</span></td><td class="muted">guard · beforeTool</td></tr>
+                <tr><td class="mono">any</td><td class="muted">result has an email address</td><td><span class="chip info">Redact</span></td><td class="muted">pii · afterTool</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Run tests after a run that edited files<small class="key">tests-after-edits · afterRun → runEndTask</small></div><button type="button" class="sw sw-off" role="switch" aria-checked="false" aria-label="Run tests after edits"></button></div>
+            <div class="cell"><div class="cell-label">Keep going until the reply is sent<small class="key">onYield → { continue } · capped at 2 per run</small></div><button type="button" class="sw" role="switch" aria-checked="true" aria-label="Continue until reply sent"></button></div>
+          </div>
+        </section>
+
+        <section id="environment" class="sec">
+          <h2>Environment</h2>
+          <div class="card">
+            <div class="cell"><div class="cell-label">Where tools run<small>Built per call from the conversation's cwd.</small></div><select class="field" aria-label="Environment"><option>local · NodeExecutionEnv</option><option>gpu-box · SSH</option><option>Container per thread</option></select></div>
+            <div class="cell"><div class="cell-label">Code mode sandbox<small>Scripts call enabled tools as await tools.name(args).</small></div><span class="chip ok">256 MB · models.* on</span><a href="Extensions.dc.html" style="font-size: 13px">Configure</a></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const T = [
+      ['codemode', 'codemode', true, true, 'The model writes scripts; only output returns'],
+      ['tickets.get / reply / close', 'ticket-tools', true, true, 'replay safe'],
+      ['read', 'coding', true, false, 'scripts only'],
+      ['bash', 'coding', true, false, 'scripts only · held on git push'],
+      ['mcp__helpdesk__*', 'helpdesk MCP · 9', true, true, ''],
+      ['mcp__billing__refund', 'billing MCP', true, false, 'scripts only · held over $25'],
+      ['tool_search', 'tool-search', true, true, 'loads deferred tools on demand'],
+      ['subagent', 'subagent', false, false, 'workers cannot spawn']
+    ];
+    const E = [
+      ['coding', 'read, write, edit, bash', true],
+      ['codemode', 'codemode tool and section', true],
+      ['tool-search', 'tool_search over deferred tools', true],
+      ['ticket-tools', 'tickets.* tools, ticket-policy section, app.ticketSync task', true],
+      ['guard', 'beforeTool approvals', true],
+      ['subagent', 'removed for workers', false]
+    ];
+    return {
+      tools: T.map((r) => ({ name: r[0], src: r[1], on: r[2], model: r[3], note: r[4] })),
+      exts: E.map((r) => ({ name: r[0], desc: r[1], on: r[2] ? 'true' : 'false', sw: r[2] ? 'sw' : 'sw sw-off' }))
+    };
+  }
+}
+</script>
+</body>
+</html>
