@@ -57,7 +57,7 @@ describe("render", () => {
 
   it("gives every refusal its code beside its tag: on its wire class, in the SDK's codes, and in the CLI's line (L2.P)", () => {
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
-    expect(errors).toContain('{ code: Schema.Literal("AL-001"), ...Visibility.schema(Audience.principal(), Allowance.AllowanceExceeded.fields).fields }');
+    expect(errors).toContain('{ code: Schema.Literal("AL-001"), ...wireStruct(Allowance.AllowanceExceeded.fields).fields }');
     expect(errors).toContain('static readonly code = "AL-001" as const;');
     expect(errors).toContain('AllowanceNotActive: "AL-900",');
     expect(errors).toContain('NotAllowed: "AR-001",');

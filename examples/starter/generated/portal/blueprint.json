@@ -470,7 +470,8 @@
               "max": 512
             },
             "named": "Secret",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           }
         },
         "move": null,
@@ -501,7 +502,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "56de0903f4a0f20e"
+        "hash": "4e4930c28c53eb1b"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -1046,7 +1047,8 @@
               "prefix": "ses"
             },
             "ref": "session.id",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           },
           "token": {
             "value": {
@@ -1054,7 +1056,8 @@
               "max": 512
             },
             "named": "Secret",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           }
         },
         "move": null,
@@ -1081,7 +1084,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "64fc31973ed9c65e"
+        "hash": "5613fa720dc82a20"
       },
       "system.health": {
         "kind": "operation",
@@ -2406,7 +2409,7 @@
   },
   "dependsOnByOperation": {
     "api-key.create": {
-      "operation:api-key.create": "56de0903f4a0f20e",
+      "operation:api-key.create": "4e4930c28c53eb1b",
       "thing:api-key": "dec54cf75bd4acb9",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
@@ -2456,7 +2459,7 @@
       "thing:session": "455311c2adae1097"
     },
     "session.sign-in": {
-      "operation:session.sign-in": "64fc31973ed9c65e",
+      "operation:session.sign-in": "5613fa720dc82a20",
       "thing:person": "ad771ebabdfe3e0e",
       "thing:session": "455311c2adae1097"
     },
@@ -2499,5 +2502,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "0f65e6a24537230dd7196be804adde714267a15a9d28a94157ea437223fc812f"
+  "digest": "a653efc60b8f705a14933a6d2a88934f7aabbb2f7080bd88ec9f56b555ac161e"
 }

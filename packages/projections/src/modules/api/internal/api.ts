@@ -20,7 +20,7 @@ const errors = (model: Model): RenderedFile => {
   for (const t of declaring) {
     for (const [name, e] of Object.entries(t.errors)) {
       body.push(`ErrorNames.name(${t.identifier}.${name}, "${name}");`);
-      body.push(cls(name, e.code, `Visibility.schema(Audience.principal(), ${t.identifier}.${name}.fields).fields`, STATUS.declared));
+      body.push(cls(name, e.code, `wireStruct(${t.identifier}.${name}.fields).fields`, STATUS.declared));
       exits.push(`  ${name}: ${e.exit},`);
       codes.push(`  ${name}: "${e.code}",`);
       declared.push(`  ${name}: ${t.identifier}.${name},`);
@@ -40,8 +40,7 @@ const errors = (model: Model): RenderedFile => {
   return file(path, lines(
     GENERATED,
     `import { Schema } from "effect";`,
-    `import { ErrorNames } from "${Names.frontDoor}/server";`,
-    `import { Audience, Visibility } from "${Names.pkg("language-effect")}/visibility";`,
+    `import { ErrorNames, wireStruct } from "${Names.frontDoor}/server";`,
     declaring.map((t) => `import * as ${t.identifier} from "${thingFileAt(path, t, "errors")}";`),
     "",
     body,
@@ -65,8 +64,7 @@ const endpoint = (op: OperationModel): RenderedFile => {
   return file(path, lines(
     `// Generated from ${op.file}. Do not edit.`,
     `import { HttpApiEndpoint } from "effect/http-api";`,
-    op.list ? `import { listItemFields } from "${Names.frontDoor}/server";` : [],
-    `import { Audience, Visibility } from "${Names.pkg("language-effect")}/visibility";`,
+    `import { ${op.list ? "listItemFields, " : ""}wireStruct } from "${Names.frontDoor}/server";`,
     `import declaration from "${declarationAt(path, op.file)}";`,
     `import { ${op.refusals.join(", ")} } from "../errors.ts";`,
     "",
@@ -75,7 +73,7 @@ const endpoint = (op: OperationModel): RenderedFile => {
     "  payload: declaration.payloadSchema,",
     `  // What the wire carries: the declared answer, the fields not every caller is shown optional. The server cuts each answer by who is asking.`,
     `  // Typed as the declaration types it: the schema is built from fields known only at run time, which TypeScript cannot follow.`,
-    `  success: Visibility.schema(Audience.principal([], { issuing: true }), declaration.answer${op.list ? ", listItemFields(declaration.thing)" : ""}) as unknown as typeof declaration.answerSchema,`,
+    `  success: wireStruct(declaration.answer, { issuing: true${op.list ? ", items: listItemFields(declaration.thing)" : ""} }) as unknown as typeof declaration.answerSchema,`,
     `  error: [${op.refusals.join(", ")}],`,
     "});",
     `export const steps = [${Object.values(op.steps).map((s) => `"${s.name}"`).join(", ")}] as const;`,
