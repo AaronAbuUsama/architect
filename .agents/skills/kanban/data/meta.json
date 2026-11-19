@@ -53,8 +53,20 @@
     "title": "The whole loop, checked"
    },
    {
-    "note": "M1.43 writes links' handlers so the loop commits real calls; M1.42 makes every output carry types, events and error codes. M1.12 (the SDK contract, built with the plugin move) merges after M1.35.",
+    "note": "M1.43 writes links' handlers so the loop commits real calls; M1.42 makes every output carry types, events and error codes. M1.12 (the SDK contract, built with the plugin move) merges after M1.35. K16 puts M1.44 (the scaffold explains itself), M1.45 (journey stubs) and M1.46 (the runtime hands in what it read) first, so the handlers are written from the new scaffold against what the runtime hands in; M1.47 and M1.48 run beside them.",
     "tasks": [
+     {
+      "critical": true,
+      "id": "M1-44"
+     },
+     {
+      "critical": true,
+      "id": "M1-45"
+     },
+     {
+      "critical": true,
+      "id": "M1-46"
+     },
      {
       "critical": true,
       "id": "M1-43"
@@ -228,6 +240,6 @@
    }
   ],
   "summary": "Re-cut by K13 (you, 19 November): lock down what exists first, with one links app run end to end, then sign-in and organisations. The boxed task is the one the next step waits on; the small chips run beside it.",
-  "updatedAt": "2026-11-19T09:49:33Z"
+  "updatedAt": "2026-11-19T11:33:45Z"
  }
 }

@@ -69,7 +69,7 @@ once. An unsigned visitor sees any page.
 
   ```text
   links handle claim --name aaron
-  links handle claim --name aaron      # HandleTaken (HN-001), exit 3
+  links handle claim --name aaron      # HandleTaken (HN-001), exit 10
   links link add --title GitHub --url https://github.com/aaron
   links profile get --handle aaron
   ```

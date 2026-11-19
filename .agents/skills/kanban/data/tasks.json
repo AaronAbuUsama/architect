@@ -1567,11 +1567,20 @@
     "note": "Added after the 🔍 review of #69: M1.40 is declarations only, so the loop needs real handlers inside M1.",
     "stage": "backlog",
     "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "K16: needs M1.44 and M1.45, so its handlers are written from the scaffold that explains itself.",
+    "stage": "backlog",
+    "thread": "k16-author"
    }
   ],
   "lane": "M1",
   "needs": [
-   "M1.41"
+   "M1.41",
+   "M1.44",
+   "M1.45",
+   "M1.46"
   ],
   "plain": "Real handlers for the links app, so the end-to-end check can commit real calls.",
   "pr": 69,
@@ -1580,9 +1589,184 @@
   "stage": "backlog",
   "thread": "m1-lead",
   "title": "Links' handlers",
-  "updatedAt": "2026-11-19T09:47:54Z",
+  "updatedAt": "2026-11-19T11:33:45Z",
   "waiting": null,
-  "what": "examples/links' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with HandleTaken), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into @orthograph/handles and ST1.04 adds sign-in."
+  "what": "examples/links' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with HandleTaken), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into @orthograph/handles and ST1.04 adds sign-in.",
+  "needsText": "M1.41, M1.44, M1.45, M1.46"
+ },
+ "M1-44": {
+  "doneWhen": "check 19's M1.44 tests and handlers.test.ts's K16 scaffold tests pass, visibility included; check 10 still passes; \"the scaffold shows what the runtime hands in\" passes once M1.46 is in too",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T11:40:13Z",
+    "note": "Outcomes as Match with Match.exhaustive (Aaron: \"can't we use other effects things like match\"); check 19 gains the compile-time drift test.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Visibility labels and the runtime's hand-in lines added to the header (Aaron: \"make sure this is handled\").",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-44",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 48,
+  "plain": "A new handler opens by explaining itself: who may call, every refusal, the whole machine, what the runtime does; one branch per outcome.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.44",
+  "size": "M",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The scaffold explains itself",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "renderHandlerScaffold(op, path, model) opens with a doc block citing each part's blueprint file (who may call, payload and answer with each field's visibility, refusals with fields and exit codes, idempotency, budget, the thing's machine with this call's rows marked, what the runtime does and hands in); a section per step, a refusal block with a blank per field, one Match.when per outcome saying what can follow, closed by Match.exhaustive (Operation keeps the move's literal type; the handler type exports Outcome), the answer with a note where only it can give an event field; ortho check warns on an outcome or declared error the handler never names."
+ },
+ "M1-45": {
+  "doneWhen": "check 19's M1.45 tests and handlers.test.ts's path and stub tests pass: allowance's sixteen stubs, five byte for byte",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Stubs per declared error and per role folded in from M2.17 (scaffold only); sixteen stubs, five goldens.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-45",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.44"
+  ],
+  "needsText": "M1.44",
+  "order": 49,
+  "plain": "Every path through a thing's lifecycle, allowed and refused, gets a journey to fill in.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.45",
+  "size": "M",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "Journey stubs per path, role and declared error",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "machinePaths(model, thing) lists every allowed transition and every refused move; ortho add journeys <thing> writes one scaffold per path to blueprint/journeys/<thing>-<verb>-<path>.ts, then per operation and read one per allowed role not already cast, one refused, and one per declared error, each with world, payload and expected fields as Blueprint.todo, writing only the missing ones; the model lists a journey with blanks and prove skips it, named."
+ },
+ "M1-46": {
+  "doneWhen": "prehandle.test.ts passes (five, and its control); check 19's M1.46 test passes; existing refusal codes unchanged",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-46",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 50,
+  "plain": "A handler is given the thing it acts on, what the payload names and a new id; a missing one is refused before it runs.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.46",
+  "size": "L",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The runtime hands in what it read",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "The handler's context gains subject, refs.<field> and, for a creating move, a minted id; a missing one no role check reads is refused before the handler with a generated <Thing>NotFound (XX-901, exit 4, HTTP 404), or the thing's own declared error of that name (acme's AllowanceNotFound keeps AL-002); a role-gated miss stays NotAllowed; acme's spend and grant stop re-reading and minting by hand."
+ },
+ "M1-47": {
+  "doneWhen": "refusals-table.test.ts and check 19's M1.47 tests pass, the exit control included; check 08's MCP tests still pass",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T15:00:00Z",
+    "note": "Exit clashes refused by the compiler (the journey guide found HandleTaken at exit 3, NotAllowed's, on Plugged In). Red in check 19.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-47",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.46"
+  ],
+  "needsText": "M1.46",
+  "order": 51,
+  "plain": "Every refusal's code, exit and HTTP status come from one table, so the CLI, HTTP and MCP agree.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.47",
+  "size": "S",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "One refusals table",
+  "updatedAt": "2026-11-19T15:00:00Z",
+  "waiting": null,
+  "what": "Generated api/src/errors.ts exports refusals, { code, exit, status } per refusal; exits, codes and each class's status are read from it; an MCP refusal gains structured { refusal, code, exit, status, shown fields }. The compiler refuses a declared exit the runtime keeps (0 to 4), one outside 5 to 125, or one another refusal of the same thing has: \"HandleTaken's exit 3 is NotAllowed's; pick another\". Unique per thing, not per app."
+ },
+ "M1-48": {
+  "doneWhen": "check 19's M1.48 test passes, and its control (an answer without remaining fails tsc) still does",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-48",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 52,
+  "plain": "A blueprint whose event needs a field nothing in the call can supply is refused when you write it, not when someone calls it.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.48",
+  "size": "S",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The compiler refuses an event it can't fill",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "Each field of a move's event must be in the thing's fields, the payload or the answer of every operation making the move, or ortho model fails naming the event, the field and the operation."
  },
  "M2-01": {
   "doneWhen": "decisions/M2-auth.md written",
@@ -1735,7 +1919,7 @@
    "M2.04"
   ],
   "needsText": "M2.03, M2.04",
-  "order": 50,
+  "order": 53,
   "plain": "",
   "pr": null,
   "ref": "M2.05",
@@ -1757,7 +1941,7 @@
    "M2.05"
   ],
   "needsText": "M2.05",
-  "order": 51,
+  "order": 54,
   "plain": "",
   "pr": null,
   "ref": "M2.06",
@@ -1779,7 +1963,7 @@
    "M2.05"
   ],
   "needsText": "M2.05",
-  "order": 52,
+  "order": 55,
   "plain": "",
   "pr": null,
   "ref": "M2.07",
@@ -1799,7 +1983,7 @@
   "lane": "M2",
   "needs": [],
   "needsText": "mcp\\",
-  "order": 53,
+  "order": 56,
   "plain": "",
   "pr": null,
   "ref": "M2.08",
@@ -1821,7 +2005,7 @@
    "M2.07"
   ],
   "needsText": "M2.07, ST1.07",
-  "order": 54,
+  "order": 57,
   "plain": "The one command that makes a new app: links at stage 1, with sign-in and handles.",
   "pr": null,
   "ref": "M2.09",
@@ -1843,7 +2027,7 @@
    "M2.07"
   ],
   "needsText": "M2.07",
-  "order": 55,
+  "order": 58,
   "plain": "",
   "pr": null,
   "ref": "M2.10",
@@ -1865,7 +2049,7 @@
    "M2.07"
   ],
   "needsText": "M2.07",
-  "order": 56,
+  "order": 59,
   "plain": "",
   "pr": null,
   "ref": "M2.11",
@@ -1890,7 +2074,7 @@
    "M2.16"
   ],
   "needsText": "M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.08",
-  "order": 61,
+  "order": 64,
   "plain": "One command makes a new app with sign-in and organisations; the links example at stage 1.",
   "pr": null,
   "ref": "M2.12",
@@ -1913,7 +2097,7 @@
    "M1.29"
   ],
   "needsText": "M2.05, M1.29",
-  "order": 57,
+  "order": 60,
   "plain": "",
   "pr": null,
   "ref": "M2.13",
@@ -1933,7 +2117,7 @@
   "lane": "M2",
   "needs": [],
   "needsText": "Gate M1",
-  "order": 58,
+  "order": 61,
   "plain": "ortho add writes through Nx, like ortho generate already does.",
   "pr": null,
   "ref": "M2.14",
@@ -1955,7 +2139,7 @@
    "M2.14"
   ],
   "needsText": "M2.14",
-  "order": 59,
+  "order": 62,
   "plain": "The add kinds that edit files that already exist.",
   "pr": null,
   "ref": "M2.15",
@@ -1977,7 +2161,7 @@
    "M2.14"
   ],
   "needsText": "M2.14",
-  "order": 60,
+  "order": 63,
   "plain": "Upgrades a blueprint across a breaking API change.",
   "pr": null,
   "ref": "M2.16",
@@ -1997,7 +2181,7 @@
   "lane": "M3",
   "needs": [],
   "needsText": "Gate M2",
-  "order": 62,
+  "order": 65,
   "plain": "",
   "pr": null,
   "questions": [
@@ -2057,7 +2241,7 @@
    "M3.01"
   ],
   "needsText": "M3.01",
-  "order": 63,
+  "order": 66,
   "plain": "",
   "pr": null,
   "ref": "M3.02",
@@ -2079,7 +2263,7 @@
    "M3.02"
   ],
   "needsText": "M3.02",
-  "order": 64,
+  "order": 67,
   "plain": "",
   "pr": null,
   "ref": "M3.03",
@@ -2101,7 +2285,7 @@
    "M3.01"
   ],
   "needsText": "M3.01",
-  "order": 65,
+  "order": 68,
   "plain": "",
   "pr": null,
   "ref": "M3.04",
@@ -2123,7 +2307,7 @@
    "M3.04"
   ],
   "needsText": "M3.04",
-  "order": 66,
+  "order": 69,
   "plain": "",
   "pr": null,
   "ref": "M3.05",
@@ -2145,7 +2329,7 @@
    "M3.05"
   ],
   "needsText": "M3.05",
-  "order": 67,
+  "order": 70,
   "plain": "",
   "pr": null,
   "ref": "M3.06",
@@ -2167,7 +2351,7 @@
    "M3.06"
   ],
   "needsText": "M3.06",
-  "order": 68,
+  "order": 71,
   "plain": "",
   "pr": null,
   "ref": "M3.07",
@@ -2190,7 +2374,7 @@
    "M3.20"
   ],
   "needsText": "M3.07, M3.20",
-  "order": 69,
+  "order": 72,
   "plain": "",
   "pr": null,
   "ref": "M3.08",
@@ -2212,7 +2396,7 @@
    "M3.07"
   ],
   "needsText": "M3.07",
-  "order": 70,
+  "order": 73,
   "plain": "",
   "pr": null,
   "ref": "M3.09",
@@ -2236,7 +2420,7 @@
    "M3.09"
   ],
   "needsText": "M3.03, M3.08, M3.09",
-  "order": 71,
+  "order": 74,
   "plain": "",
   "pr": null,
   "ref": "M3.10",
@@ -2258,7 +2442,7 @@
    "M3.09"
   ],
   "needsText": "M3.09",
-  "order": 72,
+  "order": 75,
   "plain": "",
   "pr": null,
   "ref": "M3.11",
@@ -2280,7 +2464,7 @@
    "M3.05"
   ],
   "needsText": "M3.05",
-  "order": 73,
+  "order": 76,
   "plain": "",
   "pr": null,
   "ref": "M3.12",
@@ -2302,7 +2486,7 @@
    "M3.11"
   ],
   "needsText": "M3.11",
-  "order": 74,
+  "order": 77,
   "plain": "",
   "pr": null,
   "ref": "M3.13",
@@ -2324,7 +2508,7 @@
    "M3.09"
   ],
   "needsText": "M3.09",
-  "order": 75,
+  "order": 78,
   "plain": "",
   "pr": null,
   "ref": "M3.14",
@@ -2350,7 +2534,7 @@
    "M3.20"
   ],
   "needsText": "M3.02 to M3.11, M3.13, M3.16 to M3.20",
-  "order": 81,
+  "order": 84,
   "plain": "",
   "pr": null,
   "ref": "M3.15",
@@ -2372,7 +2556,7 @@
    "M3.01"
   ],
   "needsText": "M3.01",
-  "order": 76,
+  "order": 79,
   "plain": "",
   "pr": null,
   "ref": "M3.16",
@@ -2398,7 +2582,7 @@
    "M1.34"
   ],
   "needsText": "M3.06, M3.20, M1.13, M1.25, M1.34",
-  "order": 77,
+  "order": 80,
   "plain": "",
   "pr": null,
   "ref": "M3.17",
@@ -2421,7 +2605,7 @@
    "M3.11"
   ],
   "needsText": "M3.10, M3.11",
-  "order": 78,
+  "order": 81,
   "plain": "",
   "pr": null,
   "ref": "M3.18",
@@ -2444,7 +2628,7 @@
    "M3.10"
   ],
   "needsText": "M3.09, M3.10",
-  "order": 79,
+  "order": 82,
   "plain": "",
   "pr": null,
   "ref": "M3.19",
@@ -2466,7 +2650,7 @@
    "M3.07"
   ],
   "needsText": "M3.07",
-  "order": 80,
+  "order": 83,
   "plain": "",
   "pr": null,
   "ref": "M3.20",
@@ -2496,7 +2680,7 @@
    "M1.23"
   ],
   "needsText": "M1.13, M1.23",
-  "order": 121,
+  "order": 124,
   "plain": "Plugin pages inside the portal, and notes pinned to the model. Split out of the portal slice by K13.",
   "pr": 69,
   "questions": [],
@@ -2532,7 +2716,7 @@
    "M1.12"
   ],
   "needsText": "M1.12",
-  "order": 122,
+  "order": 125,
   "plain": "Where the code that writes the SDK, CLI and MCP lives: moved into packages you mount. Nothing you see changes. Moved out of M1 by K13.",
   "pr": 64,
   "questions": [],
@@ -2553,7 +2737,7 @@
   "lane": "M4",
   "needs": [],
   "needsText": "Gate M3",
-  "order": 82,
+  "order": 85,
   "plain": "",
   "pr": null,
   "questions": [
@@ -2604,7 +2788,7 @@
    "M4.01"
   ],
   "needsText": "M4.01",
-  "order": 83,
+  "order": 86,
   "plain": "",
   "pr": null,
   "ref": "M4.02",
@@ -2626,7 +2810,7 @@
    "M4.01"
   ],
   "needsText": "M4.01",
-  "order": 84,
+  "order": 87,
   "plain": "",
   "pr": null,
   "ref": "M4.03",
@@ -2648,7 +2832,7 @@
    "M4.03"
   ],
   "needsText": "M4.03",
-  "order": 85,
+  "order": 88,
   "plain": "",
   "pr": null,
   "ref": "M4.04",
@@ -2670,7 +2854,7 @@
    "M4.04"
   ],
   "needsText": "M4.04",
-  "order": 86,
+  "order": 89,
   "plain": "",
   "pr": null,
   "ref": "M4.05",
@@ -2692,7 +2876,7 @@
    "M4.05"
   ],
   "needsText": "M4.05",
-  "order": 87,
+  "order": 90,
   "plain": "",
   "pr": null,
   "ref": "M4.06",
@@ -2714,7 +2898,7 @@
    "M4.04"
   ],
   "needsText": "M4.04",
-  "order": 88,
+  "order": 91,
   "plain": "",
   "pr": null,
   "ref": "M4.07",
@@ -2736,7 +2920,7 @@
    "M4.04"
   ],
   "needsText": "M4.04",
-  "order": 89,
+  "order": 92,
   "plain": "",
   "pr": null,
   "ref": "M4.08",
@@ -2758,7 +2942,7 @@
    "M4.04"
   ],
   "needsText": "M4.04",
-  "order": 90,
+  "order": 93,
   "plain": "",
   "pr": null,
   "ref": "M4.09",
@@ -2781,7 +2965,7 @@
    "M4.09"
   ],
   "needsText": "M4.02, M4.09",
-  "order": 91,
+  "order": 94,
   "plain": "",
   "pr": null,
   "ref": "M4.10",
@@ -2803,7 +2987,7 @@
    "M4.10"
   ],
   "needsText": "M4.10",
-  "order": 92,
+  "order": 95,
   "plain": "",
   "pr": null,
   "ref": "M4.11",
@@ -2825,7 +3009,7 @@
    "M4.11"
   ],
   "needsText": "M4.11",
-  "order": 93,
+  "order": 96,
   "plain": "",
   "pr": null,
   "ref": "M4.12",
@@ -2848,7 +3032,7 @@
    "M4.11"
   ],
   "needsText": "M4.10, M4.11",
-  "order": 94,
+  "order": 97,
   "plain": "",
   "pr": null,
   "ref": "M4.13",
@@ -2870,7 +3054,7 @@
    "M4.04"
   ],
   "needsText": "M4.04",
-  "order": 95,
+  "order": 98,
   "plain": "",
   "pr": null,
   "ref": "M4.14",
@@ -2895,7 +3079,7 @@
    "M4.25"
   ],
   "needsText": "M4.02 to M4.13, M4.16 to M4.25",
-  "order": 106,
+  "order": 109,
   "plain": "",
   "pr": null,
   "ref": "M4.15",
@@ -2919,7 +3103,7 @@
    "M1.34"
   ],
   "needsText": "M4.10, M1.24, M1.34",
-  "order": 96,
+  "order": 99,
   "plain": "",
   "pr": null,
   "ref": "M4.16",
@@ -2941,7 +3125,7 @@
    "M3.20"
   ],
   "needsText": "Gate M2, M3.20",
-  "order": 97,
+  "order": 100,
   "plain": "",
   "pr": null,
   "ref": "M4.17",
@@ -2964,7 +3148,7 @@
    "M4.25"
   ],
   "needsText": "M4.17, M4.25",
-  "order": 98,
+  "order": 101,
   "plain": "",
   "pr": null,
   "ref": "M4.18",
@@ -2986,7 +3170,7 @@
    "M4.18"
   ],
   "needsText": "M4.18, spikes/workspace-e2b",
-  "order": 99,
+  "order": 102,
   "plain": "",
   "pr": null,
   "ref": "M4.19",
@@ -3006,7 +3190,7 @@
   "lane": "M4",
   "needs": [],
   "needsText": "discarded), the spike lane, factory.brief.of, factory.roster as data; usable by people and Claude Code before any Pi agent",
-  "order": 100,
+  "order": 103,
   "plain": "",
   "pr": null,
   "ref": "M4.20",
@@ -3031,7 +3215,7 @@
    "M3.20"
   ],
   "needsText": "M4.10, M4.13, M4.20, M3.20",
-  "order": 101,
+  "order": 104,
   "plain": "",
   "pr": null,
   "ref": "M4.21",
@@ -3054,7 +3238,7 @@
    "M4.16"
   ],
   "needsText": "M4.21, M4.16",
-  "order": 102,
+  "order": 105,
   "plain": "",
   "pr": null,
   "ref": "M4.22",
@@ -3080,7 +3264,7 @@
    "M1.34"
   ],
   "needsText": "M1.13, M1.25, M4.16, M4.20, M1.34",
-  "order": 103,
+  "order": 106,
   "plain": "",
   "pr": null,
   "ref": "M4.23",
@@ -3104,7 +3288,7 @@
    "M4.21"
   ],
   "needsText": "M3.13, M3.20, M4.21",
-  "order": 104,
+  "order": 107,
   "plain": "",
   "pr": null,
   "ref": "M4.24",
@@ -3124,7 +3308,7 @@
   "lane": "M4",
   "needs": [],
   "needsText": "Gate M2",
-  "order": 105,
+  "order": 108,
   "plain": "",
   "pr": null,
   "ref": "M4.25",
@@ -3144,7 +3328,7 @@
   "lane": "M5",
   "needs": [],
   "needsText": "Gate M4",
-  "order": 107,
+  "order": 110,
   "plain": "",
   "pr": null,
   "questions": [
@@ -3195,7 +3379,7 @@
    "M5.01"
   ],
   "needsText": "M5.01",
-  "order": 108,
+  "order": 111,
   "plain": "",
   "pr": null,
   "ref": "M5.02",
@@ -3217,7 +3401,7 @@
    "M5.01"
   ],
   "needsText": "M5.01",
-  "order": 109,
+  "order": 112,
   "plain": "",
   "pr": null,
   "ref": "M5.03",
@@ -3239,7 +3423,7 @@
    "M5.03"
   ],
   "needsText": "M5.03",
-  "order": 110,
+  "order": 113,
   "plain": "",
   "pr": null,
   "ref": "M5.04",
@@ -3261,7 +3445,7 @@
    "M5.04"
   ],
   "needsText": "M5.04",
-  "order": 111,
+  "order": 114,
   "plain": "",
   "pr": null,
   "ref": "M5.05",
@@ -3283,7 +3467,7 @@
    "M5.05"
   ],
   "needsText": "M5.05",
-  "order": 112,
+  "order": 115,
   "plain": "",
   "pr": null,
   "ref": "M5.06",
@@ -3305,7 +3489,7 @@
    "M5.03"
   ],
   "needsText": "M5.03",
-  "order": 113,
+  "order": 116,
   "plain": "",
   "pr": null,
   "ref": "M5.07",
@@ -3327,7 +3511,7 @@
    "M5.07"
   ],
   "needsText": "M5.07",
-  "order": 114,
+  "order": 117,
   "plain": "",
   "pr": null,
   "ref": "M5.08",
@@ -3349,7 +3533,7 @@
    "M5.07"
   ],
   "needsText": "M5.07",
-  "order": 115,
+  "order": 118,
   "plain": "",
   "pr": null,
   "ref": "M5.09",
@@ -3371,7 +3555,7 @@
    "M5.04"
   ],
   "needsText": "M5.04",
-  "order": 116,
+  "order": 119,
   "plain": "",
   "pr": null,
   "ref": "M5.10",
@@ -3393,7 +3577,7 @@
    "M5.07"
   ],
   "needsText": "M5.07",
-  "order": 118,
+  "order": 121,
   "plain": "",
   "pr": null,
   "ref": "M5.11",
@@ -3418,7 +3602,7 @@
    "M5.14"
   ],
   "needsText": "M5.02 to M5.11, M5.13, M5.14",
-  "order": 120,
+  "order": 123,
   "plain": "",
   "pr": null,
   "ref": "M5.12",
@@ -3440,7 +3624,7 @@
    "M5.07"
   ],
   "needsText": "M5.07",
-  "order": 117,
+  "order": 120,
   "plain": "",
   "pr": null,
   "ref": "M5.13",
@@ -3464,7 +3648,7 @@
    "M4.25"
   ],
   "needsText": "M5.03, M3.19, M4.25",
-  "order": 119,
+  "order": 122,
   "plain": "",
   "pr": null,
   "ref": "M5.14",
@@ -3484,7 +3668,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "Gate M5",
-  "order": 121,
+  "order": 124,
   "plain": "",
   "pr": null,
   "questions": [
@@ -3526,7 +3710,7 @@
    "M6.01"
   ],
   "needsText": "M6.01",
-  "order": 122,
+  "order": 125,
   "plain": "",
   "pr": null,
   "ref": "M6.02",
@@ -3546,7 +3730,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "",
-  "order": 123,
+  "order": 126,
   "plain": "",
   "pr": null,
   "ref": "M6.03",
@@ -3566,7 +3750,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "",
-  "order": 124,
+  "order": 127,
   "plain": "",
   "pr": null,
   "ref": "M6.04",
@@ -3586,7 +3770,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "",
-  "order": 125,
+  "order": 128,
   "plain": "",
   "pr": null,
   "ref": "M6.05",
@@ -3606,7 +3790,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "",
-  "order": 126,
+  "order": 129,
   "plain": "",
   "pr": null,
   "ref": "M6.06",
@@ -3628,7 +3812,7 @@
    "M1.31"
   ],
   "needsText": "M1.31",
-  "order": 127,
+  "order": 130,
   "plain": "",
   "pr": null,
   "ref": "M6.07",
@@ -3648,7 +3832,7 @@
   "lane": "M6",
   "needs": [],
   "needsText": "",
-  "order": 128,
+  "order": 131,
   "plain": "",
   "pr": null,
   "ref": "M6.08",
@@ -3670,7 +3854,7 @@
    "M6.07"
   ],
   "needsText": "M6.07",
-  "order": 129,
+  "order": 132,
   "plain": "",
   "pr": null,
   "ref": "M6.09",
@@ -3692,7 +3876,7 @@
    "M6.01"
   ],
   "needsText": "M6.01",
-  "order": 130,
+  "order": 133,
   "plain": "",
   "pr": null,
   "ref": "M6.10",
@@ -3714,7 +3898,7 @@
    "M6.10"
   ],
   "needsText": "M6.10",
-  "order": 131,
+  "order": 134,
   "plain": "",
   "pr": null,
   "ref": "M6.11",
@@ -3736,7 +3920,7 @@
    "M6.11"
   ],
   "needsText": "M6.11",
-  "order": 132,
+  "order": 135,
   "plain": "",
   "pr": null,
   "ref": "M6.12",
@@ -3758,7 +3942,7 @@
    "M6.12"
   ],
   "needsText": "M6.12",
-  "order": 133,
+  "order": 136,
   "plain": "",
   "pr": null,
   "ref": "M6.13",
@@ -3781,7 +3965,7 @@
    "M1.30"
   ],
   "needsText": "M6.13, M1.30",
-  "order": 134,
+  "order": 137,
   "plain": "",
   "pr": null,
   "ref": "M6.14",
@@ -3805,7 +3989,7 @@
    "M6.07"
   ],
   "needsText": "M6.14, M1.29, M6.07",
-  "order": 135,
+  "order": 138,
   "plain": "",
   "pr": null,
   "ref": "M6.15",
@@ -3829,7 +4013,7 @@
    "M6.09"
   ],
   "needsText": "M6.15, M1.31, M6.09",
-  "order": 136,
+  "order": 139,
   "plain": "",
   "pr": null,
   "ref": "M6.16",
@@ -3851,7 +4035,7 @@
    "M6.16"
   ],
   "needsText": "M6.16",
-  "order": 137,
+  "order": 140,
   "plain": "",
   "pr": null,
   "ref": "M6.17",
@@ -3873,7 +4057,7 @@
    "M6.16"
   ],
   "needsText": "M6.16",
-  "order": 138,
+  "order": 141,
   "plain": "",
   "pr": null,
   "ref": "M6.18",
@@ -3899,7 +4083,7 @@
    "M6.20"
   ],
   "needsText": "M6.02, M6.07, M6.09 to M6.18 (M6.20 dropped by K9)",
-  "order": 140,
+  "order": 143,
   "plain": "",
   "pr": null,
   "ref": "M6.19",
@@ -3922,7 +4106,7 @@
    "M3.10"
   ],
   "needsText": "M6.16, M3.10",
-  "order": 139,
+  "order": 142,
   "plain": "",
   "pr": null,
   "ref": "M6.20",
@@ -3942,7 +4126,7 @@
   "lane": "M7",
   "needs": [],
   "needsText": "Gate M2",
-  "order": 141,
+  "order": 144,
   "plain": "",
   "pr": null,
   "questions": [
@@ -3993,7 +4177,7 @@
    "M7.13"
   ],
   "needsText": "M7.13",
-  "order": 142,
+  "order": 145,
   "plain": "",
   "pr": null,
   "ref": "M7.02",
@@ -4015,7 +4199,7 @@
    "M7.01"
   ],
   "needsText": "M7.01",
-  "order": 143,
+  "order": 146,
   "plain": "",
   "pr": null,
   "ref": "M7.03",
@@ -4037,7 +4221,7 @@
    "M7.03"
   ],
   "needsText": "M7.03",
-  "order": 144,
+  "order": 147,
   "plain": "",
   "pr": null,
   "ref": "M7.04",
@@ -4060,7 +4244,7 @@
    "M7.13"
   ],
   "needsText": "M7.04, M7.13",
-  "order": 145,
+  "order": 148,
   "plain": "",
   "pr": null,
   "ref": "M7.05",
@@ -4082,7 +4266,7 @@
    "M7.02"
   ],
   "needsText": "M7.02",
-  "order": 146,
+  "order": 149,
   "plain": "",
   "pr": null,
   "ref": "M7.06",
@@ -4105,7 +4289,7 @@
    "M7.13"
   ],
   "needsText": "M7.04, M7.13",
-  "order": 147,
+  "order": 150,
   "plain": "",
   "pr": null,
   "ref": "M7.07",
@@ -4127,7 +4311,7 @@
    "M7.04"
   ],
   "needsText": "M7.04",
-  "order": 148,
+  "order": 151,
   "plain": "",
   "pr": null,
   "ref": "M7.08",
@@ -4150,7 +4334,7 @@
    "M7.13"
   ],
   "needsText": "M7.04, M7.13",
-  "order": 149,
+  "order": 152,
   "plain": "",
   "pr": null,
   "ref": "M7.09",
@@ -4172,7 +4356,7 @@
    "M7.13"
   ],
   "needsText": "M7.13",
-  "order": 150,
+  "order": 153,
   "plain": "",
   "pr": null,
   "ref": "M7.10",
@@ -4195,7 +4379,7 @@
    "M7.05"
   ],
   "needsText": "M7.10, M7.05",
-  "order": 151,
+  "order": 154,
   "plain": "",
   "pr": null,
   "ref": "M7.11",
@@ -4215,7 +4399,7 @@
   "lane": "M7",
   "needs": [],
   "needsText": "all of M7",
-  "order": 153,
+  "order": 156,
   "plain": "",
   "pr": null,
   "ref": "M7.12",
@@ -4237,7 +4421,7 @@
    "M7.01"
   ],
   "needsText": "ST4.08, M7.01",
-  "order": 152,
+  "order": 155,
   "plain": "",
   "pr": null,
   "questions": [
@@ -4270,7 +4454,7 @@
    "M1.12"
   ],
   "needsText": "M1.12",
-  "order": 501,
+  "order": 504,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4293,7 +4477,7 @@
    "M1.10"
   ],
   "needsText": "M1.10",
-  "order": 502,
+  "order": 505,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4316,7 +4500,7 @@
    "ST1.02"
   ],
   "needsText": "ST1.02",
-  "order": 503,
+  "order": 506,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4341,7 +4525,7 @@
    "M1.40"
   ],
   "needsText": "ST1.01, ST1.03, M1.40",
-  "order": 504,
+  "order": 507,
   "plain": "The links app itself at stage 1. Codex has built a first version in PR #56.",
   "pr": null,
   "questions": [],
@@ -4372,7 +4556,7 @@
    "M1.22"
   ],
   "needsText": "M2.03, M1.22",
-  "order": 505,
+  "order": 508,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4396,7 +4580,7 @@
    "M2.06"
   ],
   "needsText": "ST1.01, M2.06",
-  "order": 506,
+  "order": 509,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4420,7 +4604,7 @@
    "ST1.04"
   ],
   "needsText": "M2.05, ST1.04",
-  "order": 507,
+  "order": 510,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4443,7 +4627,7 @@
    "ST1.04"
   ],
   "needsText": "ST1.04",
-  "order": 508,
+  "order": 511,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4466,7 +4650,7 @@
    "M6.02"
   ],
   "needsText": "M6.02",
-  "order": 509,
+  "order": 512,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4490,7 +4674,7 @@
    "M1.31"
   ],
   "needsText": "M1.30, M1.31",
-  "order": 510,
+  "order": 513,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4515,7 +4699,7 @@
    "M6.15"
   ],
   "needsText": "ST1.01, M1.27, M6.15",
-  "order": 511,
+  "order": 514,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4542,7 +4726,7 @@
    "M5.03"
   ],
   "needsText": "ST2.01 to ST2.03, M2.13, M6.09, M5.03",
-  "order": 512,
+  "order": 515,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4565,7 +4749,7 @@
    "ST2.04"
   ],
   "needsText": "ST2.04",
-  "order": 513,
+  "order": 516,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4589,7 +4773,7 @@
    "ST2.04"
   ],
   "needsText": "ST2.01 to ST2.04, and the stage's milestone slices",
-  "order": 514,
+  "order": 517,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4612,7 +4796,7 @@
    "ST2.02"
   ],
   "needsText": "ST2.02",
-  "order": 515,
+  "order": 518,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4637,7 +4821,7 @@
    "M3.01"
   ],
   "needsText": "ST3.01, M6.01, M3.01",
-  "order": 516,
+  "order": 519,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4660,7 +4844,7 @@
    "ST3.02"
   ],
   "needsText": "ST3.02",
-  "order": 517,
+  "order": 520,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4684,7 +4868,7 @@
    "ST3.02"
   ],
   "needsText": "ST2.02, ST3.02",
-  "order": 518,
+  "order": 521,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4709,7 +4893,7 @@
    "M6.13"
   ],
   "needsText": "ST3.03, ST3.04, M6.13",
-  "order": 519,
+  "order": 522,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4734,7 +4918,7 @@
    "M6.15"
   ],
   "needsText": "ST3.05, M3.03, M6.15",
-  "order": 520,
+  "order": 523,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4760,7 +4944,7 @@
    "M2.07"
   ],
   "needsText": "ST3.06, M4.10, M4.16, M2.07",
-  "order": 521,
+  "order": 524,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4784,7 +4968,7 @@
    "ST3.07"
   ],
   "needsText": "ST3.01 to ST3.07, and the stage's milestone slices",
-  "order": 522,
+  "order": 525,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4807,7 +4991,7 @@
    "ST3.08"
   ],
   "needsText": "ST3.08",
-  "order": 523,
+  "order": 526,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4830,7 +5014,7 @@
    "ST4.01"
   ],
   "needsText": "ST4.01",
-  "order": 524,
+  "order": 527,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4853,7 +5037,7 @@
    "ST4.02"
   ],
   "needsText": "ST4.02",
-  "order": 525,
+  "order": 528,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4876,7 +5060,7 @@
    "ST4.02"
   ],
   "needsText": "ST4.02",
-  "order": 526,
+  "order": 529,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4899,7 +5083,7 @@
    "ST4.04"
   ],
   "needsText": "ST4.04",
-  "order": 527,
+  "order": 530,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4922,7 +5106,7 @@
    "ST4.05"
   ],
   "needsText": "ST4.05",
-  "order": 528,
+  "order": 531,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4946,7 +5130,7 @@
    "ST4.06"
   ],
   "needsText": "ST4.05, ST4.06",
-  "order": 529,
+  "order": 532,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -4970,7 +5154,7 @@
    "ST4.07"
   ],
   "needsText": "ST4.01 to ST4.07",
-  "order": 530,
+  "order": 533,
   "plain": "",
   "pr": null,
   "questions": [],
@@ -5004,7 +5188,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1001,
+  "order": 1004,
   "plain": "Rewrite the docs for someone using the package: as little prose as possible, the links app as the one example on every page, and the code shown where it exists. It also clears every \"waits on K7\" and writes the wallets page (most of M1.39).",
   "pr": null,
   "questions": [
@@ -5051,7 +5235,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1000,
+  "order": 1003,
   "plain": "It was shown in a tool log on 18 November. Make a new one and delete the old; update HEROUI_AUTH_TOKEN if it is the same token.",
   "pr": null,
   "ref": "—",
@@ -5078,7 +5262,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1100,
+  "order": 1103,
   "plain": "No journey can force two calls to race, so nothing proves a version conflict. It has no slice yet.",
   "pr": null,
   "questions": [
@@ -5128,7 +5312,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1005,
+  "order": 1008,
   "plain": "The decision behind M1.35 to M1.39 and M2.14 to M2.16.",
   "pr": 68,
   "ref": "#68",
@@ -5157,7 +5341,7 @@
    "M1.15"
   ],
   "needsText": "M1.15",
-  "order": 1002,
+  "order": 1005,
   "plain": "After Gate M1: npm login, then one publish under the next tag.",
   "pr": null,
   "questions": [
@@ -5195,7 +5379,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1003,
+  "order": 1006,
   "plain": "Codex built stage 1 of the links example. The staging workflow makes Cloudflare resources and destroys none, so it must not run until it does.",
   "pr": 56,
   "questions": [
@@ -5233,7 +5417,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1004,
+  "order": 1007,
   "plain": "The open-issues ledger catches up with K7 and K9.",
   "pr": 58,
   "ref": "#58",
@@ -5260,7 +5444,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1007,
+  "order": 1010,
   "plain": "Codex's portal ideas folded into the design.",
   "pr": 66,
   "ref": "#66",
@@ -5287,7 +5471,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1006,
+  "order": 1009,
   "plain": "START HERE brought up to date.",
   "pr": 67,
   "ref": "#67",
@@ -5314,7 +5498,7 @@
   "lane": "X",
   "needs": [],
   "needsText": "",
-  "order": 1101,
+  "order": 1104,
   "plain": "Each becomes a slice or a canon question as its layer comes up.",
   "pr": null,
   "questions": [

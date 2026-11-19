@@ -58,6 +58,13 @@ M1.41 turns each ✗ and ~ that matters red; M1.42 makes it pass.
 M1.24 keeps the chat, "Needs you" and screen context; its frame (tree, top bar, live rail, drawer) is now M1.13's.
 M3.17 and M4.23 now need M3.21 for faces.
 
+**Changed by K16, 19 November 2026** ([`K16-the-scaffold-explains-itself.md`](K16-the-scaffold-explains-itself.md)): the path is
+now M1.40 → M1.41 → M1.43 and M1.42, with M1.44 (the scaffold explains itself) → M1.45 (journey stubs) before M1.43, so
+Plugged In's handlers are written from the new scaffold and its journeys start from the stubs; M1.35, M1.36 and M1.34
+beside them, → M1.13. Aaron put it on the critical path that day.
+Later the same day, after Aaron's "make sure this is handled" on K16's pre-handle list, M1.46 (the runtime hands in
+what it read and refuses what is missing) joins them before M1.43, and M1.47 and M1.48 go beside, all in Gate M1.
+
 ## Reversible
 
 Every moved row keeps its id. M1.22, M1.23, M1.37 and ST1.05 keep their text too, so moving one back is one table edit.
