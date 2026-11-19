@@ -28,7 +28,7 @@ agent may do are **off the critical path** (moved to M3, ids kept).
    - The canon's minimal pass (X-canon).
 2. **M1.40**: `examples/links`, declarations and empty handlers. It waits on the canon thread's links blueprint.
 3. **M1.41**: the loop through the real `ortho` binary, every output read for the basics. Checks first, written by a different agent.
-4. **M1.44** (the scaffold explains itself) and **M1.45** (journey stubs), from K16, checks written first; then **M1.43** (links' handlers) and **M1.42** (the basics in every output). M1.12, the SDK contract, merges after M1.35.
+4. **M1.44** (the scaffold explains itself), **M1.45** (journey stubs per path, role and error) and **M1.46** (the runtime hands in what it read, and refuses what is missing), from K16, checks written first, with **M1.47** (one refusals table) and **M1.48** (the compiler refuses an event it can't fill) beside them; then **M1.43** (links' handlers) and **M1.42** (the basics in every output). M1.12, the SDK contract, merges after M1.35.
 5. **M1.13**: the portal as a viewer. M1.39 is the canon's chain page.
 6. **Gate M1 (M1.15)**, then the npm preview (X-npm).
 7. **M2**: principals and roles, every kind of caller, the identity plugin, organisations, `ortho new`, and **Gate M2: workable**.

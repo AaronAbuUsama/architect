@@ -50,7 +50,7 @@
   "kind": "claude",
   "name": "K16 author",
   "pr": null,
-  "role": "Wrote K16 (the scaffold explains itself), M1.44 and M1.45, and their checks: check 19 and handlers.test.ts, red ahead of the build.",
+  "role": "Wrote K16 (the scaffold explains itself), M1.44 to M1.48, and their checks: check 19, handlers.test.ts, prehandle.test.ts and refusals-table.test.ts, red ahead of the build.",
   "sessionId": null,
   "status": "idle"
  },

@@ -7,7 +7,10 @@ what we need to do now", and "I agree with points four and five… I just want t
 the scaffold reads the machine. Point 5: a machine is finite, so every path through it, allowed and refused, gets a
 journey stub. Later that day he added: "can't we use other effects things like match and stuff like that to make it
 easy to read?", called the header "front matter" and was happy with it verbose, and asked "what is the full scope of
-preloading and pre-handling… as long as this can all… fall out mechanically" (the last section answers it).
+preloading and pre-handling… as long as this can all… fall out mechanically" (the last section answers it). He
+reviewed that list and wrote "make sure this is handled": the seven items he asked for (the subject and what the payload
+names handed in, a generated not-found refusal, a minted id, events the types and compiler guarantee, one exit table for
+every surface, journey stubs per error and role, visibility in the header) are in M1, slices M1.44 to M1.48, not M2.
 
 ## What changes for someone using Orthograph
 
@@ -17,7 +20,14 @@ what Orthograph already does so you don't. The body is laid out for you: each st
 for each field it carries, one branch for each place the move can end (written with Effect's `Match`, so when the
 lifecycle gains an ending your handler stops compiling until it handles it), and a note where the answer has to
 supply something the event needs. And one command, `ortho add journeys <thing>`, writes a journey stub for every path through
-the thing's lifecycle, and `ortho check` tells you when the blueprint grows past a handler you already wrote.
+the thing's lifecycle, for every role that may or may not call, and for every refusal you declared; and `ortho check`
+tells you when the blueprint grows past a handler you already wrote.
+
+Your handler also gets more handed to it. The thing it's about arrives already read, and so does anything the payload
+names by id. A call that creates gets its new id. If an id names nothing, Orthograph refuses before your code runs, with
+a not-found refusal it made for you. Every refusal's exit code, code and HTTP status come from one table, so the
+command line, the HTTP API and an agent over MCP all say the same thing. And if an event needs a field that nothing in
+the call can supply, the compiler tells you when you write the blueprint, not when someone calls it.
 
 ## Where things stand today (`origin/m1` at `6419d4b7`)
 
@@ -61,12 +71,15 @@ part with the file it came from:
 2. **Who may call**, from the roles file: the docs page's own phrase (`docs.ts:14`), then the role's rule as the
    model holds it (`roleRules`, `types.ts:52`). `anyone` and `signed-in` cite the verb file.
 3. **Payload** and **Answer**, from the verb file: one line per field, `name  label`, where the label is
-   `ref ?? named ?? value.type` with the visibility after it, as the docs page writes it (`docs.ts:12`). When a field
+   `ref ?? named ?? value.type`, then its visibility: `(private: only <who> sees it)`, `<who>` in item 2's words for
+   the roles it names, or `(secret: no caller sees it)`; a public field has none. The same words go on the docs page
+   (`docs.ts:12` today marks visibility its own way; it moves to these). When a field
    gains a description (M1.42, K14's finding that `FieldModel` has none, `types.ts:18-26`), it follows the label. An
    empty payload is `Payload: none.`, an empty answer `Answer: nothing.`
 4. **Refusals**, in `op.refusals` order (declared, then the machine's, then `NotAllowed`): name, `exit`, code, and who
    gives it. A declared one is "yours to refuse below", with its fields; the machine's is "the runtime's, when the
-   <thing> isn't in <from>", carrying `state`; `NotAllowed` is "the runtime's, when the caller isn't <who>". Each
+   <thing> isn't in <from>", carrying `state`; `NotAllowed` is "the runtime's, when the caller isn't <who>". A `<Thing>NotFound` (M1.46, g) is "the
+   runtime's, when no <thing> has that id, carrying id", listed for each referenced id or subject no role check reads. Each
    cites its file (errors, machine, roles).
 5. **Idempotent by request** and **Budget**, each only when the verb declares it.
 6. **The thing's machine**, whenever the thing has one: a table of `from | move | to | emits`, one row per
@@ -76,7 +89,8 @@ part with the file it came from:
    (when anyone but `anyone` may call, `service.ts:40`); the machine's check (when the move has a `from`,
    `move.ts:33`); each step's span (`service.ts:48`); setting the state to the outcome given to `move`; writing the
    event, and from where each field comes (answer, else payload, else the instance as the call left it, as
-   `move.ts:63-64` merges them); the operation's span and its commit's (`service.ts:88`, `:102`).
+   `move.ts:63-64` merges them); what it hands in (M1.46, g): the subject it read, each thing the payload
+   references as `refs.<field>`, and the id it mints for a creating move; the operation's span and its commit's (`service.ts:88`, `:102`).
 
 **The rule:** every word in the scaffold is a name or a description from the model, or one of the generator's fixed
 phrases about Orthograph itself. Nothing names the domain unless the blueprint does: no "money left", no "the
@@ -177,8 +191,25 @@ slice, not this one.
 name): first every allowed path, one per `from` (or `(creates)`) and `to`, in declared order; then every refused path,
 one per state not in the move's `from`, in declared state order, refused with the machine's `notFrom`. A move with no
 `from` creates, and the runtime never checks it (`move.ts:33`), so it has no refused path. Declared errors and
-`NotAllowed` are not machine paths; eval 8's coverage already asks for them. `machinePaths(model, thing)` returns
-this list; allowance has eight: five allowed, three refused (golden list in `handlers.test.ts`).
+`NotAllowed` are not machine paths; they get stubs of their own, after the machine's (below). `machinePaths(model,
+thing)` returns the machine's list; allowance has eight: five allowed, three refused (golden list in `handlers.test.ts`).
+
+**Per role and per declared error** (what was M2.17, folded into M1.45 because only the scaffold changes). After the
+machine's paths, for each of the thing's operations and reads in name order:
+
+- **allowed**, one stub per `allowed` entry that no machine stub already casts (a machine stub casts the operation's
+  first entry): `<thing>-<verb>-allowed-<role>`, cast as that role, the call answering;
+- **refused**, one stub when anyone is turned away: for a role gate, `<thing>-<verb>-refused-not-<role>[-or-<role>…]`,
+  cast `stranger: Blueprint.signedIn`; for signed-in only, `<thing>-<verb>-refused-anonymous`, cast with no one; for
+  `anyone`, none. It `refuses(Blueprint.NotAllowed)` and `noEvents()`, and opens `Scaffolded from` the roles file;
+- **each declared error**, in declared order: `<thing>-<verb>-refused-<error in kebab case>`, cast as the first
+  allowed role, `refuses(<Error>, Blueprint.todo("<Error>'s fields: …"))` and `noEvents()`, opening `Scaffolded from`
+  the errors file.
+
+The runtime's own `<Thing>NotFound` gets no stub: it is the runtime's, proved once in `prehandle.test.ts`. Allowance
+gets sixteen in all: the eight paths, then `get` allowed as grantee and as owner and refused to anyone else, `grant`
+refused to a non-owner and on `AllowanceLimitTooHigh`, `revoke` refused to a non-owner, `spend` refused to a
+non-grantee and on `AllowanceExceeded`. Five are goldens.
 
 **Where and how they're named.** `ortho add journeys <thing>` writes one scaffold per path to
 `blueprint/journeys/<thing>-<verb>-<path>.ts`, where `<path>` is `<from>-to-<to>`, `created-in-<to>` or
@@ -187,7 +218,7 @@ this list; allowance has eight: five allowed, three refused (golden list in `han
 that is where `ortho add journey` writes (`packages/cli/src/modules/add/internal/templates.ts:95`) and where
 `check` looks for blanks. The title is `<operation>: <path in words>` (`"allowance.spend: refused from revoked"`).
 
-**Each stub** opens `// Scaffolded from blueprint/things/<thing>/machine.ts. Yours from now on.`, says which path it is
+**Each machine stub** opens `// Scaffolded from blueprint/things/<thing>/machine.ts. Yours from now on.`, says which path it is
 in a doc block, and has the cast (the first `allowed` role), one step calling the operation, and its checks: an allowed
 path `emits(<Event>, ...)` and `machine.isIn(..., "<to>")`; a refused one `refuses(machine.notFrom, { state })`,
 `noEvents()` and `machine.isIn(..., "<from>")`. The starting world, the payload, the event's fields and the
@@ -234,6 +265,58 @@ which is regenerated every time.
 | Correctness | ✅ prove still fails a wrong call | ✅ | ⚠️ |
 | Fit | ✅ same as the step rule | ⚠️ unlike the step rule | ❌ "Yours from now on" |
 
+## g. What the runtime hands in, refuses and carries (M1.46 to M1.48)
+
+**Handed in (M1.46).** A handler's context (`handler/types.ts:23-33`) gains three fields, typed from the declaration:
+
+```ts
+readonly subject: RowOf<T>;   // the instance the call is about, when its payload names the thing by id
+readonly refs: { readonly [F in RefFieldsOf<P>]: RowOf<RefOf<P[F]>> };   // each thing a payload field references
+readonly id: IdOf<T>;         // a creating move only: minted (`Ids.of`) before the handler runs
+```
+
+They are the reads the role check and the from-check already make (`access/service.ts:54`, `move.ts:36`), done once in
+the call's unit and handed in, so `src/allowance/spend.ts:13`'s second read and `src/allowance/grant.ts:20`'s hand
+minting go away. A handler that wants a fresher read still reads; the scaffold says what is handed in, and a creating
+move's answer is written `allowance: id`.
+
+**Not found (M1.46).** A missing subject or referenced thing that a role check reads stays `NotAllowed`
+(`access/service.ts:54-55`): a stranger learns nothing about what exists. Anything else missing is refused before the
+handler with `<Thing>NotFound { id }`. The model gives each thing that is referenced or is a subject a `<Thing>NotFound`
+at `<XX>-901`, exit 4, HTTP 404 (`STATUS.notFound`, beside `NOT_ALLOWED_EXIT` in `names/internal/names.ts:51-52`),
+and lists it in `op.refusals` (after the machine's, before `NotAllowed`) only on operations where it can happen. A
+thing that already declares an error by that name keeps it: acme's `AllowanceNotFound` stays at AL-002, exit 43,
+because "a number that has shipped does not move" (`compiler/…/model/internal/codes.ts:5`); acme's other codes, and
+the tests that pin them (`model.test.ts:164`, `compare/versions.test.ts:42`), are unchanged. `Handlers.serve` gains
+`notFound: { [payloadField]: tag }`, generated beside `notFrom`.
+
+**One refusals table (M1.47).** Today the CLI reads `exits` (generated `api/src/errors.ts`; `cli/…/output.ts:13-14`),
+HTTP reads each class's `httpApiStatus`, and an MCP refusal is only the text `[code] Tag { fields }`
+(`mcp/internal/tool.ts:36-45`): three readings, and MCP carries neither exit nor status. M1.47 generates one table,
+and every surface reads it:
+
+```ts
+export const refusals = {
+  AllowanceExceeded: { code: "AL-001", exit: 41, status: 422 },
+  AllowanceNotActive: { code: "AL-900", exit: 40, status: 409 },
+  AllowanceNotFound: { code: "AL-002", exit: 43, status: 404 },
+  PersonNotFound: { code: "PE-901", exit: 4, status: 404 },
+  NotAllowed: { code: "AR-001", exit: 3, status: 403 },
+  // …one row per refusal in the model
+} as const;
+```
+
+`exits`, `codes` and each class's status are read from it, not written again. An MCP refusal keeps its text line and
+gains `structured: { refusal, code, exit, status, …the fields the caller may see }`, so an agent tells a refusal from a
+defect without parsing; `McpRefusals` gains `table`.
+
+**Events (M1.48).** The type half holds already: spend declares `remaining` in its answer, and `AnswerOf`
+(`handler/types.ts:36`) won't compile an answer without it (check 19's control). The gap is an event field in none of
+the thing's fields, the payload or the answer, which dies at commit today (`move.ts:65-66`) while the compiler checks
+only that the event is exported (`compiler/…/describe.ts:80`). M1.48 refuses that blueprint, for each operation making
+the move: `blueprint/things/allowance/events.ts: AllowanceSpent.note is in none of allowance's fields, allowance.spend's
+payload or its answer, so nothing can fill it`.
+
 ## Everything the blueprint can pre-handle
 
 **The goal: a handler holds only decisions.** When to refuse, which ending, and what to compute. Everything else falls
@@ -254,23 +337,24 @@ against `origin/m1` at `6419d4b7`; the conductor's first cut is corrected where 
 | `idempotent` | the same request key from the same caller answered once, changing nothing | done: `service.ts:65-70`, the key `:109` |
 | steps | a span per call and per step; a blank reached dies `BlankReached` naming it | done: `service.ts:48`, `:102`, `:88`; `handler/types.ts:53` |
 | call steps | wired from the payload's fields, one blank left for the failure mapping | done: `scaffold.ts:25-56` |
-| errors | exit code and HTTP status per refusal, from the declaration | done: `api/internal/api.ts:25-40`, `STATUS` at `names/internal/names.ts:51` |
+| errors | exit code and HTTP status per refusal, from the declaration | done for the CLI and HTTP: `api/internal/api.ts:25-40`, `STATUS` at `names/internal/names.ts:51`; one table read by the CLI, HTTP and MCP, MCP gaining exit and status, in **M1.47** |
 | errors | a refusal block per declared error, one typed blank per field | M1.44 |
 | everything above | the header ("front matter"): who, what, every refusal, the machine, what the runtime does | M1.44 |
-| visibility | the header marks each secret or private field and who sees it; filtering stays in the runtime | M1.44 (the field label, K16 a.3); filtering M1.35 |
+| visibility | the header marks each secret or private field and who sees it; filtering stays in the runtime | **M1.44** (`(private: only <who> sees it)`, `(secret: no caller sees it)`, a.3); filtering M1.35 |
 | stores | a database step's comment names the store, when the thing declares one or the step names `writes` | M1.44 (acme declares none, so its golden says nothing) |
 | machine | a journey stub per path, allowed and refused | M1.45 |
 | drift | a new outcome, error or step named by `check`; a new outcome won't compile under `Match` | M1.44 |
-| errors, `allowed` | a journey stub per declared error (the call that triggers it, its fields as blanks) and per role (one allowed caller, one refused) | **M2.17**, new |
-| the subject | ⚑ the role check and the from-check already read it (`access/service.ts:54`, `move.ts:36`), and handlers read it again (`src/allowance/spend.ts:13`, `src/allowance/grant.ts:13` re-reads the organisation the role check loaded): hand it in as `subject`, and each thing a payload id field references | **M2.18**, new |
-| not found | ⚑ a missing subject of a role-gated call is refused `NotAllowed` today (`access/service.ts:54-55`), which keeps a stranger from learning what exists; that stays. Where no role check reads it (an `anyone` or `signed-in` call, `move.ts:37` lets it through) and for a referenced id, refuse before the handler with a generated `<Thing>NotFound`; acme declares `AllowanceNotFound` by hand (`blueprint/things/allowance/errors.ts:6`) and uses it nowhere | **M2.18**, new |
-| a creating move | the new id minted and handed in, as grant does by hand (`src/allowance/grant.ts:20`, `Ids.of`) | **M2.18**, new |
-| events | ⚑ the answer's type already forces `remaining`, because spend declares it. The real gap: an event field found in none of the thing, the payload and the answer is caught only at commit (`move.ts:65-66`); the compiler checks only that the event is exported (`compiler/…/describe.ts:80`). Refuse that blueprint at compile time | **M2.19**, new |
+| errors, `allowed` | a journey stub per declared error (the call that triggers it, its fields as blanks) and per role (one allowed caller, one refused) | **M1.45** (e) |
+| the subject | ⚑ the role check and the from-check already read it (`access/service.ts:54`, `move.ts:36`), and handlers read it again (`src/allowance/spend.ts:13`, `src/allowance/grant.ts:13` re-reads the organisation the role check loaded): hand it in as `subject`, and each thing a payload id field references | **M1.46** (g) |
+| not found | ⚑ a missing subject of a role-gated call is refused `NotAllowed` today (`access/service.ts:54-55`), which keeps a stranger from learning what exists; that stays. Where no role check reads it (an `anyone` or `signed-in` call, `move.ts:37` lets it through) and for a referenced id, refuse before the handler with a generated `<Thing>NotFound`; acme declares `AllowanceNotFound` by hand (`blueprint/things/allowance/errors.ts:6`) and uses it nowhere, so it is adopted, keeping AL-002 | **M1.46** (g) |
+| a creating move | the new id minted and handed in, as grant does by hand (`src/allowance/grant.ts:20`, `Ids.of`) | **M1.46** (g) |
+| events | ⚑ the answer's type already forces `remaining`, because spend declares it. The real gap: an event field found in none of the thing, the payload and the answer is caught only at commit (`move.ts:65-66`); the compiler checks only that the event is exported (`compiler/…/describe.ts:80`). Refuse that blueprint at compile time | **M1.48** (g) |
 | a call's failure | `Match.tags` over the callable's failure union, in place of the one mapping blank | later, new: needs callables to declare their failures |
 
-**Why M2, not M1.** K13 keeps M1 to locking down what exists; M1.44 and M1.45 are there because Aaron put them on the
-path. M2.17 to M2.19 change what the runtime hands a handler and what the compiler refuses, which is "workable", and
-Gate M2 needs them. The rows say what their checks must prove; an author writes those checks first.
+**Why M1, not M2.** The first cut put the runtime items in M2.17 to M2.19. Aaron read the list and wrote "make sure
+this is handled", so they move before the builder starts: what changes only the scaffold folds into M1.44 and M1.45,
+and what changes the runtime or compiler is a new slice, M1.46 to M1.48. M1.43 needs M1.46, so Plugged In's handlers
+are the first written against `subject`, `refs` and `id`. Each item has a red check (below).
 
 ## The worked example: `allowance.spend`
 
@@ -319,6 +403,7 @@ const { AllowanceExceeded } = Errors.declared;
  * What the runtime does, so this handler doesn't:
  *   before it runs, it refuses NotAllowed unless the caller is the grantee of the allowance;
  *   before it runs, it refuses AllowanceNotActive unless the allowance is in active;
+ *   before it runs, it hands in the allowance it read as subject, so this handler never reads it again;
  *   each step is its own span: allowance.spend.load, allowance.spend.record;
  *   once it answers, it sets the allowance's state to the outcome given to move;
  *   once it answers, it writes AllowanceSpent: allowance, amount and memo from the payload, remaining from the answer;
@@ -362,6 +447,28 @@ export default spend;
 Today's scaffold for the same operation is a short file: the description, two step blanks, one refusal with one
 blank for all its fields, `move(yield* Handlers.blank("the move’s outcome"))` and one blank answer
 (`design/evidence/M1.44/check-19-red.txt` shows the diff).
+
+### What M1.46 adds to `allowance.grant`'s scaffold
+
+grant names a member no role check reads (only the organisation's owner is checked), and creates. So its header gains
+a refusal row and two runtime lines, and its answer uses the minted id (`handlers.test.ts`, "the scaffold shows what
+the runtime hands in"):
+
+```ts
+ * Refusals:
+ *   AllowanceLimitTooHigh  exit 44  AL-003  yours to refuse below, carrying cap; from blueprint/things/allowance/errors.ts
+ *   PersonNotFound         exit 4   PE-901  the runtime's, when no person has that id, carrying id; from blueprint/things/person/thing.ts
+ *   NotAllowed             exit 3   AR-001  the runtime's, when the caller isn't the owner of the organization; from blueprint/things/organization/roles.ts
+ …
+ *   before it runs, it reads the member and hands it in as refs.member, refusing PersonNotFound if there is none;
+ *   before it runs, it mints the allowance's new id and hands it in as id;
+ …
+const grant: Handler = (_payload, { steps, move, id }) =>
+  …
+    return {
+      allowance: id,
+    };
+```
 
 ### allowance's journey stubs
 
@@ -410,28 +517,45 @@ Acme's own journeys already walk paths 3, 4, 5 and 6 (`journeys/spend-within-all
 
 ## The checks (written first, red on `origin/m1`)
 
-On `claude/k16-checks`, into `m1`, ahead of their build, like checks 16 to 18:
+On `claude/k16-checks`, into `m1`, ahead of their build, like checks 16 to 18. Every one of the seven items Aaron asked
+to have handled has a red check:
 
-- `packages/projections/src/modules/handlers/handlers.test.ts`: the golden scaffold; the header's citations; no
-  undeclared names in the header; allowance's eight paths; no paths for a thing without a machine and no refused path
-  for a creating move; the stubs' paths, headers and three goldens. Six red, one existing test passing.
-- `e2e/m1/19-scaffold-explains.test.ts`: `ortho generate` writes the golden and it compiles; the golden stops
-  compiling, only in `src/allowance/spend.ts`, when the machine gains `frozen`; `ortho add journeys allowance` writes
-  the eight stubs, compiling, never overwriting; the model and `check` count their blanks; `check` warns on a new
-  outcome and a new error, naming `src/allowance/spend.ts`. Seven red; one control (a new step, already warned about)
-  passes.
+| Item | Slice | Red check |
+|---|---|---|
+| the header explains itself; Match; drift | M1.44 | `handlers.test.ts`: the golden, citations, no undeclared names; check 19: generate writes the golden and it compiles, the Match stops compiling on `frozen`, `check` warns on a new outcome and a new error |
+| 7 · visibility in the header | M1.44 | `handlers.test.ts`: `memo  Memo (private: only the grantee of the allowance sees it)`, `remaining  Amount (secret: no caller sees it)` |
+| 6 · stubs per path, role and declared error | M1.45 | `handlers.test.ts`: eight paths, sixteen stubs, five goldens; check 19: `add journeys` writes sixteen, compiling, never overwriting, blanks counted |
+| 1 · the subject and what the payload names, handed in | M1.46 | `prehandle.test.ts`: `subject`, `refs.member`; `handlers.test.ts`: grant's header names `refs.member` |
+| 2 · a generated not-found refusal | M1.46 | `prehandle.test.ts`: `PurseNotFound` and `PersonNotFound` before the handler, a role-gated miss staying `NotAllowed` (control); `handlers.test.ts`: grant's `PersonNotFound  exit 4  PE-901` row, spend has none; check 19: the model's `PersonNotFound` PE-901, `AllowanceNotFound` kept at AL-002 |
+| 3 · a creating move's id minted | M1.46 | `prehandle.test.ts`: `id` handed in and committed; `handlers.test.ts`: grant's answer is `allowance: id` |
+| 5 · one exit table for the CLI, HTTP and MCP | M1.47 | `refusals-table.test.ts`: an MCP refusal's `structured` carries refusal, code, exit, status; check 19: generated `errors.ts` exports `refusals`, with `exits` and `codes` read from it |
+| 4 · event fields enforced | M1.48 | check 19: `ortho model` refuses `AllowanceSpent.note`, naming the event and `allowance.spend`; control: an answer without `remaining` fails `tsc` (passes today) |
 
-They fail on the unbuilt surface: the scaffold differs from the golden, the handler type exports no `Outcome`,
-`machinePaths` and `renderJourneyStubs` are not exported, `add` has no `journeys` (USAGE), and `check` prints
-`check ✔` with no warning. The red run is
-`design/evidence/M1.44/check-19-red.txt`.
+Counts: `handlers.test.ts` nine red, one existing passing; `prehandle.test.ts` five red, one control passing;
+`refusals-table.test.ts` two red; check 19 ten red, two controls passing. Each fails on the unbuilt surface, not on a
+typo: the scaffold differs from the golden, the handler type exports no `Outcome`, `machinePaths` and
+`renderJourneyStubs` aren't exported, `add` has no `journeys` (USAGE), `check` prints `check ✔` with no warning, the
+context has no `subject`, `refs` or `id`, a missing id reaches the handler, the model has no `PersonNotFound`,
+`errors.ts` has no `refusals`, MCP's result has no `structured`, and `ortho model` accepts the unfillable event. The
+red run is `design/evidence/M1.44/check-19-red.txt`.
 
 ## Slices
 
-M1.44 (the scaffold explains itself, with drift and the literal outcome union) and M1.45 (journey stubs), on K13's path
-before M1.43, so Plugged In's handlers are written from the new scaffold and its journeys start from the stubs. M2.17
-(stubs per error and role), M2.18 (the subject, not found and minted ids, handed in) and M2.19 (the compiler refuses an
-event it can't fill) from the pre-handle section, beside M2's path. `design/milestones.md` holds them.
+All five before M1.43, so Plugged In's handlers are written from the new scaffold, against what the runtime hands in,
+and its journeys start from the stubs. `design/milestones.md` holds them, each with its done-when.
+
+| Slice | What | Needs | Size | Builder effort (honest) |
+|---|---|---|---|---|
+| M1.44 | the scaffold explains itself: header with visibility and the runtime's lines, Match over a literal `Outcome`, drift warnings | M1.26 | M | about a day: the renderer and header sentences shared with docs and `brief`, `Operation`'s move type parameter, two lint rules |
+| M1.45 | journey stubs per path, role and declared error; `ortho add journeys`; journeys with blanks in `model.blanks`, skipped by prove | M1.44 | M | half a day to a day: `machinePaths`, three stub kinds, a new `add` kind, the compiler and prove handling blanks |
+| M1.46 | the runtime hands in `subject`, `refs`, `id`; `<Thing>NotFound` generated, adopted where declared, refused before the handler | M1.26 | L | a day to a day and a half: compiler (refusals, codes, `op.refusals`), generator (`notFound`, error classes), runtime (one read shared by role check, from-check and handler), acme's spend and grant simplified |
+| M1.47 | one `refusals` table read by the CLI, HTTP and MCP | M1.46 | S | two to three hours |
+| M1.48 | the compiler refuses an event field nothing can fill | M1.26 | S | about two hours |
+
+M1.44 and M1.46 run in parallel (different packages); M1.48 beside either. The grant header test ("the scaffold shows
+what the runtime hands in") turns green with the later of M1.44 and M1.46. One builder in series: about four days. Two
+builders (one on M1.44 then M1.45, one on M1.46 then M1.47 and M1.48): about two and a half days to all five green on
+`m1`, plus review and CI. That is these five, not Gate M1, which also needs M1.38 to M1.43.
 
 ## Reversible
 

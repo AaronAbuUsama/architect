@@ -53,7 +53,7 @@
     "title": "The whole loop, checked"
    },
    {
-    "note": "M1.43 writes links' handlers so the loop commits real calls; M1.42 makes every output carry types, events and error codes. M1.12 (the SDK contract, built with the plugin move) merges after M1.35. K16 puts M1.44 (the scaffold explains itself) and M1.45 (journey stubs) first, so the handlers are written from the new scaffold.",
+    "note": "M1.43 writes links' handlers so the loop commits real calls; M1.42 makes every output carry types, events and error codes. M1.12 (the SDK contract, built with the plugin move) merges after M1.35. K16 puts M1.44 (the scaffold explains itself), M1.45 (journey stubs) and M1.46 (the runtime hands in what it read) first, so the handlers are written from the new scaffold against what the runtime hands in; M1.47 and M1.48 run beside them.",
     "tasks": [
      {
       "critical": true,
@@ -62,6 +62,10 @@
      {
       "critical": true,
       "id": "M1-45"
+     },
+     {
+      "critical": true,
+      "id": "M1-46"
      },
      {
       "critical": true,
