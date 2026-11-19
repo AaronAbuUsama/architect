@@ -60,10 +60,10 @@ const tools = Mcp.tools<Services>({
 
 The SDK is one function per operation, and the CLI is built on it:
 
-```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=7-9
+```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=6-8
 /** Take places on a sheet, for yourself and anyone with you. */
-export const join = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
+export const join = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: true }, payload, options, (client) => client.sheet.join({ payload }));
 ```
 
 ```ts file=examples/signup/generated/cli/src/sheet/join.ts lines=9-13
@@ -139,10 +139,10 @@ that is `.notVia(Via.agent)` is never one ([roles](roles.mdx)).
 
 ### The SDK contract
 
-Today the caller's token is set once, on the client's layer, and an SDK function takes only a payload. The Worker
-already keeps an answer under a request key, read from the `idempotency-key` header
-(`examples/signup/generated/server/main.ts:41-42`), but no generated client sends one yet. M1.12 makes the SDK the
-contract every other door builds on:
+The caller's token is set once, on the client's layer, and an SDK function takes a payload and, second, the call's
+options. The Worker keeps an answer under a request key, read from the `idempotency-key` header
+(`examples/signup/generated/server/main.ts:41-42`), and the generated client sends one (M1.12). The SDK is the contract
+every other door builds on:
 
 ```ts planned=M1.12 path=examples/signup/caller.ts
 // the caller is the client's, not the call's
@@ -226,9 +226,9 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 | MCP tools on the same Worker | `examples/signup/generated/server/main.ts:105` | built |
 | the request key, read on the Worker | `examples/signup/generated/server/main.ts:42` | built |
 | the HTTP endpoint | `examples/signup/generated/api/src/sheet/join.ts:7` | built |
-| the SDK and its client | `examples/signup/generated/sdk/src/client.ts:10` | built |
+| the SDK and its client | `examples/signup/generated/sdk/src/client.ts:9` | built |
 | the CLI, on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` | built |
-| the SDK contract | `@orthograph/language-effect` and the sdk projection | planned, M1.12 |
+| the SDK contract | `examples/signup/generated/sdk/src/client.ts:52` | built |
 | `defineAction`, ported | `orthograph`'s `actions` module | planned, M1.23 |
 | the actions projection | `generated/actions/` | planned, M1.22 |
 | a contract as the enforcer | `language-solidity` | waits on K7, then M6.10 |
@@ -241,7 +241,7 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 |---|---|---|---|
 | one enforcer per Effect operation, in the fixed order | proved | | `e2e/layer1/08-signup-proves.test.ts`: every operation's nine evals, among them who may call, machine path and steps |
 | HTTP, SDK, CLI and MCP from the model, all through it | proved | | acme's surfaces, `e2e/layer1/05-the-generated-surfaces.test.ts` |
-| the SDK contract: request key across retries, typed refusals | specified | M1.12 | K5 seam 5 |
+| the SDK contract: request key across retries, typed refusals | proved | M1.12 | `e2e/m1/14-clients.test.ts`: a retried call with one `requestKey` commits once, a refusal is typed, a defect is a die |
 | actions, in agent-native's field names, on the SDK | specified | M1.22, M1.23 | K5 seam 5 |
 | a contract as the enforcer for a chain operation | waits on K7 | M6.10 | |
 
@@ -255,8 +255,9 @@ the one Worker.</Note>
 <Note kind="decision" decision="K5">Nothing of agent-native runs. Its action shape is ported into our own Effect code
 (M1.23), compatible by field names only, and a change it makes reaches us only when we port it again.</Note>
 
-<Note kind="status" slice="M1.12">Today no generated client sends a request key, so a retry through the SDK or the
-CLI is a second call. The Worker already honours the `idempotency-key` header when one is sent. Ledger: PRJ-45.</Note>
+<Note kind="status" slice="M1.12">The SDK sends a request key as `idempotency-key` on every call and retries a lost answer with it for an
+operation declared `idempotent: "request"`, so a retry through the SDK or the CLI is the first call, not a second one.
+An operation that is not idempotent is never retried. Ledger: PRJ-45.</Note>
 
 <Note kind="status">Chain operations wait on K7. Q4 (how a declared operation maps to a contract's ABI, and which
 functions clients may reach) is confirmed or changed there, so this page says nothing more about a contract as an

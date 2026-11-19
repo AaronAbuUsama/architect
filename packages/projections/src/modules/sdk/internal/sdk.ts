@@ -1,7 +1,9 @@
 // generated/sdk: a typed client. One function per operation; refusals arrive as their own classes.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot, type RenderedFile } from "@orthograph/projections/shared";
+import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot } from "#modules/names/service.js";
+import type { RenderedFile } from "#modules/names/types.js";
+import { clientFile, credentialFile } from "./client.ts";
 
 /** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
 const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);
@@ -9,19 +11,18 @@ const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` :
 /** The plugin's entry for the host that imports this, found by the SDK's own `imports` (`generated/sdk/package.json`). */
 const hostEntry = (o: OperationModel) => `#host/${o.name}`;
 
-const server = (o: OperationModel, client: string): RenderedFile => ({
+const server = (o: OperationModel): RenderedFile => ({
   path: `generated/sdk/src/${o.thing}/${o.verb}.ts`,
   scaffold: false,
   content: lines(
     GENERATED,
-    `import { Effect } from "effect";`,
     `import type { PayloadOf } from "${Names.frontDoor}";`,
-    `import type { declaration } from "../../../api/src/${o.thing}/${o.verb}.ts";`,
-    `import { ${client} } from "../client.ts";`,
+    `import { declaration } from "../../../api/src/${o.thing}/${o.verb}.ts";`,
+    `import { call, type CallOptions } from "../client.ts";`,
     "",
     `/** ${o.description} */`,
-    `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>) =>`,
-    `  Effect.flatMap(${client}, (client) => client${member(o.thing)}${member(o.verb)}({ payload }));`,
+    `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>`,
+    `  call({ payload: declaration.payloadSchema, retry: ${o.idempotent === "request"} }, payload, options, (client) => client${member(o.thing)}${member(o.verb)}({ payload }));`,
     exportedAs(o.verb),
   ),
 });
@@ -74,62 +75,20 @@ const sdkPackage = (ops: ReadonlyArray<OperationModel>): RenderedFile => {
   };
 };
 
-const clientFile = (name: string, client: string, hasDevice: boolean): RenderedFile => ({
-  path: "generated/sdk/src/client.ts",
-  scaffold: false,
-  content: lines(
-    GENERATED,
-    `import { Context, Layer } from "effect";`,
-    `import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";`,
-    `import { HttpApiClient } from "effect/http-api";`,
-    hasDevice ? `import type { DeviceWhere } from "${Names.pkg("language-effect")}/device";` : [],
-    `import { Api } from "../../api/src/index.ts";`,
-    "",
-    `export class ${client} extends Context.Service<${client}, HttpApiClient.ForApi<typeof Api>>()("${name}/Client") {}`,
-    "",
-    hasDevice ? [
-      "/** Where the spans of an operation that runs on this device go, and the service they say they are from. */",
-      `export class ${client}Spans extends Context.Service<${client}Spans, DeviceWhere>()("${name}/Spans") {}`,
-      "",
-      "/** The standard variable, read where the SDK is made: a program that names no collector gets the one its environment does. */",
-      `const ambient = () => (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.["OTEL_EXPORTER_OTLP_ENDPOINT"];`,
-      "",
-      "/** A client for the server at `baseUrl`, signed in with `token` when there is one; the spans of operations that run here go to `otlp`. */",
-      `export const layer = (baseUrl: string, token?: string, otlp: string | undefined = ambient()) =>`,
-      "  Layer.mergeAll(",
-      `    Layer.effect(${client}, HttpApiClient.make(Api, {`,
-      "      transformClient: HttpClient.mapRequest((request) => {",
-      "        const at = HttpClientRequest.prependUrl(request, baseUrl);",
-      "        return token ? HttpClientRequest.bearerToken(at, token) : at;",
-      "      }),",
-      "    })).pipe(Layer.provide(FetchHttpClient.layer)),",
-      `    Layer.succeed(${client}Spans, { otlp, service: "${name}" }),`,
-      "  );",
-    ] : [
-      "/** A client for the server at `baseUrl`, signed in with `token` when there is one. */",
-      `export const layer = (baseUrl: string, token?: string) =>`,
-      `  Layer.effect(${client}, HttpApiClient.make(Api, {`,
-      "    transformClient: HttpClient.mapRequest((request) => {",
-      "      const at = HttpClientRequest.prependUrl(request, baseUrl);",
-      "      return token ? HttpClientRequest.bearerToken(at, token) : at;",
-      "    }),",
-      "  })).pipe(Layer.provide(FetchHttpClient.layer));",
-    ],
-  ),
-});
-
 export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFile> => {
   const ops = Object.values(model.operations);
   const things = [...new Set(ops.map((o) => o.thing))];
   const client = pascal(name);
   const devices = ops.filter((o) => onDevice(o) && o.from.kind !== "app");
-  const perOp = ops.map((o) => (devices.includes(o) ? device(model, o, client) : server(o, client)));
+  const perOp = ops.map((o) => (devices.includes(o) ? device(model, o, client) : server(o)));
   const index: RenderedFile = {
     path: "generated/sdk/src/index.ts",
     scaffold: false,
     content: lines(
       GENERATED,
-      `export { ${client}, layer } from "./client.ts";`,
+      `export { ${client}, InvalidPayload, layer } from "./client.ts";`,
+      `export type { CallOptions, LayerOptions } from "./client.ts";`,
+      `export * as Credential from "./credential.ts";`,
       `export { Errors } from "../../api/src/index.ts";`,
       things.map((t) => `export * as ${camel(t)} from "./${t}/index.ts";`),
     ),
@@ -139,5 +98,5 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
     scaffold: false,
     content: lines(GENERATED, ops.filter((o) => o.thing === t).map((o) => `export { ${camel(o.verb)} } from "./${o.verb}.ts";`)),
   }));
-  return [clientFile(name, client, devices.length > 0), index, ...thingIndexes, ...perOp, ...(devices.length > 0 ? [sdkPackage(devices)] : [])];
+  return [clientFile(name, client, devices.length > 0), credentialFile(), index, ...thingIndexes, ...perOp, ...(devices.length > 0 ? [sdkPackage(devices)] : [])];
 };

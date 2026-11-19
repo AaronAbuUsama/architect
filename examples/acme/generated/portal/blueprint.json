@@ -3790,9 +3790,36 @@
         "chosen": {},
         "hash": "b12620c3b456db98"
       },
+      "cli": {
+        "kind": "projection",
+        "file": "blueprint/projections/cli.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
+      "mcp": {
+        "kind": "projection",
+        "file": "blueprint/projections/mcp.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
       "model": {
         "kind": "projection",
         "file": "blueprint/projections/model.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
+      "sdk": {
+        "kind": "projection",
+        "file": "blueprint/projections/sdk.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
         "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
@@ -3934,5 +3961,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "18c5bbc2d7e21d5df689f24d6ad5a7156bf23e297e25e3e33acba17104208cb1"
+  "digest": "93c27eda47c54a4fdaaa5d613c2afd776407e25f7212886f08844d04c006261e"
 }

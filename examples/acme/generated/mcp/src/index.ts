@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/mcp.ts. Do not edit.
 import type { McpEntry } from "@orthograph/language-effect";
 import { declaration as allowanceGet } from "../../api/src/allowance/get.ts";
 import { declaration as allowanceGrant } from "../../api/src/allowance/grant.ts";

@@ -596,3 +596,48 @@ Built to check 12. Where the design was silent the builder decided, and records 
   reports it as drift.
 - **`ortho add projection`** is not part of this slice: a projection package has several exports, so the command needs to
   be told which. Acme's three mounts are written by hand, as scaffolds say they may be.
+
+## M1.12: what its builder settled (19 November 2026)
+
+Built to check 14. Where the design was silent the builder decided, and records it here; evidence in
+[`../evidence/M1.12/`](../evidence/M1.12/).
+
+- **`sdk`, `cli` and `mcp` are projections of `@orthograph/projections`**, moved out of `generators`' fixed list the way M1.11
+  moved `model`, `api` and `server` (modules `sdk`, `cli`, `mcp`, each with its README, types, service, `internal/` and test).
+  Acme mounts each as `blueprint/projections/<name>.ts`. A mount is what makes the output, so without `cli.ts` nothing writes
+  `generated/cli/`, and the sdk and mcp stay. Like the first three they are refused under another mount name
+  (`MountedElsewhere`): `generated/sdk/` is read by name by the cli, `prove`'s publish and the portal. A project that mounts
+  no projection gets the six as if it had mounted them, headers as they were, so `signup`, `starter`, `work` and the starter
+  the preset copies keep generating on their own. The header the generators write for a mount is on line 1, or line 2 under
+  the CLI entry's shebang.
+- **The SDK contract is generated into `sdk/src/client.ts`** (and `sdk/src/credential.ts`), not a runtime package: generated
+  code imports only the language's runtime and `orthograph`. `Sdk.layer({ url, credential })` takes a
+  `Sdk.Credential.session(token)` (a session is the bearer token in a world; none is anonymous), the old
+  `Sdk.layer(url, token?, otlp?)` stays, so the CLI is byte for byte. An operation is
+  `Sdk.<thing>.<verb>(payload, { requestKey? })`, and the options hold nothing else: who is calling is never a call's.
+- **The key is the `idempotency-key` header, for every operation.** The call makes one (`crypto.randomUUID()`) when it starts
+  and keeps it across its retries; it is read from a `Context.Reference` by the layer's request transform, so it reaches the
+  one HTTP request without changing `HttpApiClient`. The Worker only honours it for `idempotent: "request"`, so a key sent
+  for another operation is ignored.
+- **A lost answer is retried only when the Worker keeps an answer.** `TransportError` for an operation declared
+  `idempotent: "request"` is retried with the same key up to three times, 100 ms apart and doubling; never for another
+  (K9: a lost answer may have committed). Exhausted, the failure is the `HttpClientError`, so the caller knows the call may
+  have landed.
+- **Refusals and defects.** A payload the declaration's schema refuses is `InvalidPayload` (a tagged error of the SDK),
+  raised before anything is sent. A response with a 5xx status, or one that does not decode, is a die. Everything the
+  operation declares, with the generated `NotAllowed` and the machine's refusals, is in the error channel as it was.
+- **Tool exposure** stays as M1.11 built it: a tool for each operation that reaches `agent` (no `via`, or a narrow that keeps
+  `Via.agent`) and does not run on the device. The `allowed` half of K2's rule has nothing to say before M2.01 (`.via` and
+  `.notVia` on roles).
+- **What a client operation does not take.** An operation that runs on the device (M1.27) has no request, so its SDK function
+  keeps `(payload)` and takes no `requestKey`.
+- **Snapshots.** Acme's three new mounts add three entries to `mounts` in `generated/model/model.json`,
+  `generated/portal/blueprint.json` and the compiler's `acme.model.json`, and the generated SDK of the four examples gains
+  the new client and options.
+- **Places an output decides what a field shows, for M1.35 (K12 section 1).** M1.12 added no field-visibility logic and
+  left these as they were: `packages/projections/src/modules/cli/internal/cli.ts` (the generated `output.ts` reads
+  `Errors.shown` to print a refusal's public fields, the only filtering the CLI does); `packages/projections/src/modules/sdk/internal/sdk.ts`
+  (the SDK re-exports the API's `Errors` and types every answer from the endpoint's whole success schema, so nothing is
+  filtered); `packages/projections/src/modules/sdk/internal/client.ts` (`InvalidPayload` carries the schema's own message,
+  which may name a field and its value); `packages/projections/src/modules/mcp/internal/mcp.ts` (lists operations only; the
+  runtime's `mcp/internal/shown.ts` decides, and is untouched).

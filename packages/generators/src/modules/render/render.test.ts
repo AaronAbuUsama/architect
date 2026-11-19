@@ -114,14 +114,16 @@ describe("render", () => {
     expect(onlyApi.some((f) => f.path.startsWith("generated/server/")), "no server mount").toBe(false);
     expect(onlyApi.some((f) => f.path.startsWith("generated/model/")), "no model mount").toBe(false);
     expect(onlyApi.some((f) => f.path === "generated/api/src/index.ts")).toBe(true);
-    // What the fixed list still makes, not yet mounted (M1.12, M1.13).
-    expect(onlyApi.some((f) => f.path === "generated/sdk/src/index.ts" || f.path.startsWith("generated/sdk/"))).toBe(true);
+    for (const folder of ["sdk", "cli", "mcp"]) expect(onlyApi.some((f) => f.path.startsWith(`generated/${folder}/`)), `no ${folder} mount`).toBe(false);
+    // What the fixed list still makes, not yet mounted (M1.13).
+    expect(onlyApi.some((f) => f.path.startsWith("generated/docs/")) && onlyApi.some((f) => f.path.startsWith("generated/portal/"))).toBe(true);
   });
 
-  it("gives a project that mounts no projection the model, the api and the server as they were, headers and all", async () => {
+  it("gives a project that mounts no projection the model, the api, the server, the sdk, the cli and the mcp as they were, headers and all", async () => {
     const bare = await render({ name: "acme", model: Object.fromEntries(Object.entries(model).filter(([key]) => key !== "mounts")) as Model });
     expect(bare.find((f) => f.path === "generated/server/main.ts")!.content.split("\n")[0]).toBe("// Generated from the blueprint. Do not edit.");
-    expect(bare.map((f) => f.path)).toEqual(expect.arrayContaining(["generated/model/model.json", "generated/model/edges.json", "generated/api/src/index.ts"]));
+    expect(bare.map((f) => f.path)).toEqual(expect.arrayContaining(["generated/model/model.json", "generated/model/edges.json", "generated/api/src/index.ts", "generated/sdk/src/index.ts", "generated/cli/src/main.ts", "generated/mcp/src/index.ts"]));
+    expect(bare.find((f) => f.path === "generated/cli/src/main.ts")!.content.split("\n").slice(0, 2)).toEqual(["#!/usr/bin/env node", "// Generated from the blueprint. Do not edit."]);
   });
 
   it("refuses a mounted projection it can't load, naming the mount's file", async () => {

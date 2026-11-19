@@ -1,9 +1,8 @@
-// Generated from the blueprint. Do not edit.
-import { Effect } from "effect";
+// Generated from blueprint/projections/sdk.ts. Do not edit.
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/allowance/get.ts";
-import { Acme } from "../client.ts";
+import { declaration } from "../../../api/src/allowance/get.ts";
+import { call, type CallOptions } from "../client.ts";
 
 /** Read one allowance by its id: organization, member, limit, spent, state. */
-export const get = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Acme, (client) => client.allowance.get({ payload }));
+export const get = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: false }, payload, options, (client) => client.allowance.get({ payload }));

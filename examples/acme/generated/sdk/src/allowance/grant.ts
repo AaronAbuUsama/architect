@@ -1,9 +1,8 @@
-// Generated from the blueprint. Do not edit.
-import { Effect } from "effect";
+// Generated from blueprint/projections/sdk.ts. Do not edit.
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/allowance/grant.ts";
-import { Acme } from "../client.ts";
+import { declaration } from "../../../api/src/allowance/grant.ts";
+import { call, type CallOptions } from "../client.ts";
 
 /** Let a member spend from the organisation, up to a limit each month. */
-export const grant = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Acme, (client) => client.allowance.grant({ payload }));
+export const grant = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: true }, payload, options, (client) => client.allowance.grant({ payload }));

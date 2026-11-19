@@ -1,9 +1,8 @@
 // Generated from the blueprint. Do not edit.
-import { Effect } from "effect";
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/attention/decline.ts";
-import { Work } from "../client.ts";
+import { declaration } from "../../../api/src/attention/decline.ts";
+import { call, type CallOptions } from "../client.ts";
 
 /** Say not yet, and why. The task stays where its facts put it. */
-export const decline = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Work, (client) => client.attention.decline({ payload }));
+export const decline = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: false }, payload, options, (client) => client.attention.decline({ payload }));

@@ -68,7 +68,7 @@ One of those refusals was never written: `SheetNotOpen` comes from the machine. 
 | Projection | What it makes for `join` | Where |
 |---|---|---|
 | server | the served operation: the one wrapper that enforces `sheet.join` | `examples/signup/generated/server/main.ts:28` |
-| SDK | `join(payload)` | `examples/signup/generated/sdk/src/sheet/join.ts:8` |
+| SDK | `join(payload, options?)` | `examples/signup/generated/sdk/src/sheet/join.ts:7` |
 | CLI | the command `sheet join --sheet … --people …`, built on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` |
 | MCP | the tool `sheet.join`, described by the declaration | `examples/signup/generated/mcp/src/index.ts:12` |
 | docs | its page: who may call, budget, payload, refusals with their codes | `examples/signup/generated/docs/sheet/join.md:38` |

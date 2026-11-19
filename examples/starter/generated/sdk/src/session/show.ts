@@ -1,9 +1,8 @@
 // Generated from the blueprint. Do not edit.
-import { Effect } from "effect";
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/session/show.ts";
-import { Starter } from "../client.ts";
+import { declaration } from "../../../api/src/session/show.ts";
+import { call, type CallOptions } from "../client.ts";
 
 /** Who is signed in. */
-export const show = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Starter, (client) => client.session.show({ payload }));
+export const show = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: false }, payload, options, (client) => client.session.show({ payload }));

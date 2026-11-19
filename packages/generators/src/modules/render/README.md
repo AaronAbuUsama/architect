@@ -2,14 +2,14 @@
 
 `Render.files({ name, model, root })`: an Effect of every file of `generated/` from the model, plus one handler scaffold
 per operation. No file system is written, so it is tested without one. What a project mounts in `blueprint/projections/`
-makes its folder: the model, the api and the server are `@orthograph/projections` (M1.11), loaded from the mount files at
-`root` (`internal/mounted.ts`), each file under `generated/<mount>/` with its first line naming the mount. A model that
-mounts no projection gets those three as if mounted, headers as they were. Still fixed here, until M1.12 and M1.13: `generated/sdk`
-(the typed client), `generated/cli`, `generated/mcp`, `generated/docs`, `generated/portal` and the handler scaffolds. Generated files start with the do-not-edit line; scaffolds say where they came from
+makes its folder: the model, api, server, sdk, cli and mcp are `@orthograph/projections` (M1.11, M1.12), loaded from the mount files at
+`root` (`internal/mounted.ts`), each file under `generated/<mount>/` with its first line (below the CLI entry's shebang) naming the
+mount. A model that mounts no projection gets those six as if mounted, headers as they were. Still fixed here, until M1.13:
+`generated/docs`, `generated/portal` and the handler scaffolds. Generated files start with the do-not-edit line; scaffolds say where they came from
 and are the project's from then on.
 
 The CLI's session commands are special when the model has the starter's `session.sign-in` and `session.show`
-(`internal/cli-session.ts`): `--env <env>` signs in by device code and shows the person that environment's kept session
+(`packages/projections`, `cli/internal/cli-session.ts`): `--env <env>` signs in by device code and shows the person that environment's kept session
 belongs to; without it they are the operations' own commands. The device flow and the kept session are
 `generated/cli/src/session/device.ts`, self-contained, so the CLI needs no package beyond Effect and the SDK.
 

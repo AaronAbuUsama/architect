@@ -1,5 +1,7 @@
-// Generated from the blueprint. Do not edit.
-export { Acme, layer } from "./client.ts";
+// Generated from blueprint/projections/sdk.ts. Do not edit.
+export { Acme, InvalidPayload, layer } from "./client.ts";
+export type { CallOptions, LayerOptions } from "./client.ts";
+export * as Credential from "./credential.ts";
 export { Errors } from "../../api/src/index.ts";
 export * as allowance from "./allowance/index.ts";
 export * as apiKey from "./api-key/index.ts";

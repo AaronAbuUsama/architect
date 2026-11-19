@@ -3,7 +3,8 @@
 // runtime's `Mcp`, which leaves out whatever is not public). The server wires each entry to its served operation.
 import { Names } from "orthograph/server";
 import type { Model } from "@orthograph/compiler";
-import { GENERATED, lines, opVar, type RenderedFile } from "@orthograph/projections/shared";
+import { GENERATED, lines, opVar } from "#modules/names/service.js";
+import type { RenderedFile } from "#modules/names/types.js";
 
 export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
   // MCP is the agent's way in: an operation a mount narrowed without Via.agent has no tool (M1-plugins section 3).

@@ -1,9 +1,8 @@
 // Generated from the blueprint. Do not edit.
-import { Effect } from "effect";
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/invitation/send.ts";
-import { Starter } from "../client.ts";
+import { declaration } from "../../../api/src/invitation/send.ts";
+import { call, type CallOptions } from "../client.ts";
 
 /** Invite someone to an organisation by email. */
-export const send = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Starter, (client) => client.invitation.send({ payload }));
+export const send = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call({ payload: declaration.payloadSchema, retry: false }, payload, options, (client) => client.invitation.send({ payload }));

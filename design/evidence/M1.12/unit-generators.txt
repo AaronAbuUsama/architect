@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/generators
+# commit fa14f734 · 2026-11-19T08:38:20Z · exit 0 (expected 0) · 6.3s
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  5 passed (5)
+      Tests  27 passed (27)
+   Start at  08:38:14
+   Duration  5.56s (transform 7.12s, setup 0ms, import 9.73s, tests 11.12s, environment 0ms)
