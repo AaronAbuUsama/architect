@@ -16,6 +16,8 @@ import { ThingPage } from "./pages/thing.tsx";
 import { EnvPage, Options, PluginsAndStores, StillBlank } from "./pages/options.tsx";
 import { WithOpt, type Opt } from "./opt.tsx";
 import { Components } from "./pages/components.tsx";
+import { Graphs } from "./pages/graphs.tsx";
+import { allGraphs } from "../../react-flow-graphs/src/views/all.ts";
 
 const opt = (o: Partial<Opt>, title: string, el: ReactElement): Route => ({ title, el: <WithOpt opt={o}>{el}</WithOpt> });
 const optionPages = (): Record<string, Route> => ({
@@ -57,6 +59,7 @@ export const routes = async (): Promise<Record<string, Route>> => {
   };
   Object.assign(r, optionPages());
   r["components.html"] = { title: "Components", el: <Components /> };
+  r["graphs.html"] = { title: "Graphs", el: <Graphs g={await allGraphs()} /> };
   for (const t of things) r[page.thing(t.name)] = { title: t.name, el: <ThingPage name={t.name} /> };
   for (const m of Object.keys(mounts) as (keyof typeof mounts)[]) r[`plugin-${m}.html`] = { title: m, el: <Plugin name={m} /> };
   for (const j of journeys) r[`journey-${j.slug}.html`] = { title: j.name, el: <JourneyPage j={j} /> };

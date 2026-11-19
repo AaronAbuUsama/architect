@@ -32,6 +32,7 @@ export const inventory: [string, string, string, "pro" | "ours"][] = [
   ["Navigation", "custom rail", "Sidebar (Icon Only, Pages, GroupLabel, MenuChip)", "pro"],
   ["Search the model", "static markup", "Command", "pro"],
   ["A journey step's preview", "an SVG title", "HoverCard + StepCard", "pro"],
+  ["A machine, the blueprint map, the worlds chain (spike)", "a hand-drawn SVG strip", "Graph (React Flow, laid out by elk) with our nodes", "ours"],
   ["Steps in order", "a list", "Timeline", "pro"],
   ["A list of records", "a table", "DataGrid, ItemCard", "pro"],
   ["A section of a page", "a div", "Widget", "pro"],
