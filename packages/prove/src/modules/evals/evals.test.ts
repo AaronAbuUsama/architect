@@ -265,3 +265,27 @@ describe("independent author: public evaluator response boundaries", () => {
     }
   });
 });
+
+describe("answer shape: a list read whose items are cut for the caller (M1.35)", () => {
+  const Org = Blueprint.thing({ description: "A group.", fields: { id: Blueprint.id("org") } });
+  const owner = Blueprint.role(Org, { rule: () => true });
+  const Account = Blueprint.thing({ description: "A ledger account.", fields: {
+    id: Blueprint.id("acc"), label: Blueprint.traced(Blueprint.text()), memo: Blueprint.visibility.private(Blueprint.text(), owner),
+  } });
+  const list = Blueprint.read(Account, { where: ["state"], order: "oldest", page: 2, allowed: [Blueprint.anyone] });
+  const operation = { ...schemaAnswer, name: "account.list", payload: { state: { value: { type: "text", max: 64 } } },
+    answer: { items: { value: { type: "schema" } }, next: { value: { type: "schema" } } } } as unknown as OperationModel;
+  const answered = (items: ReadonlyArray<object>) => observed(operation, list.answer, { items, next: null }, 200,
+    { "answer.items": JSON.stringify(items), "answer.next": "null" }, list, { state: "published" });
+  const item = { id: "acc_1", label: "expenses", state: "published" };
+
+  it("passes items that lost a private field for this caller, and items that kept it", () => {
+    expect(shapeOf(answered([item])), "the stranger is not shown memo: the items arrive without it").toEqual([]);
+    expect(shapeOf(answered([{ ...item, memo: "for the owner" }])), "the owner is shown it").toEqual([]);
+  });
+
+  it("still fails an item that is missing a public field, or whose private field is present but malformed", () => {
+    expect(shapeOf(answered([{ id: "acc_1", state: "published" }]))[0]).toContain("answer.items");
+    expect(shapeOf(answered([{ ...item, memo: 42 }]))[0]).toContain("answer.items");
+  });
+});
