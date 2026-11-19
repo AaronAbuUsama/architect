@@ -1,0 +1,86 @@
+// What the climbability check shares: acme copied into a temp folder, one planted handler laid over it, and `ortho prove`
+// run on it as an agent runs it. Read-only use of the earlier gates' helpers; nothing here touches a handler or a journey
+// of the repository (the planted ones are in `e2e/fixtures/climb`).
+import { cpSync } from "node:fs";
+import { join } from "node:path";
+import { acme, copyOf, nothingRunning, ortho, repo } from "../layer1/support.ts";
+
+export { nothingRunning };
+
+/** This check's ports: 19400 to 19419, and nothing outside them (m1 uses 19260 to 19279). */
+export const PORTS = { control: 19400, first: 19401, second: 19411 } as const;
+
+const fixture = join(repo, "e2e/fixtures/climb");
+
+/** One kind of failure: the journey that a correct handler passes, the variant that plants the fault, and where it lives. */
+export interface Kind {
+  readonly id: "wrong-answer" | "missing-refusal" | "missing-event" | "wrong-state" | "missing-span";
+  readonly label: string;
+  readonly journey: string;
+  readonly step: string;
+  /** What prove must say on the failing step's line: the thing expected and the thing that came back. */
+  readonly expected: RegExp;
+  /** The handler file the agent has to change, and the declaration it answers to. */
+  readonly handler: string;
+  readonly declaration: string;
+}
+
+const handler = "src/allowance/spend.ts";
+const declaration = "blueprint/things/allowance/verbs/spend.ts";
+export const KINDS: ReadonlyArray<Kind> = [
+  { id: "wrong-answer", label: "a wrong answer", journey: "climb: a wrong answer", step: "olga spends some and is told what is left", expected: /answer "500", expected "380"/, handler, declaration },
+  { id: "missing-refusal", label: "a missing refusal", journey: "climb: a missing refusal", step: "olga can't spend more than the allowance", expected: /expected refused with AllowanceExceeded, answered/, handler, declaration },
+  { id: "missing-event", label: "a missing event", journey: "climb: a missing event", step: "olga spends some and the spend is announced", expected: /expected AllowanceSpent, journal has nothing/, handler, declaration },
+  { id: "wrong-state", label: "the wrong state", journey: "climb: the wrong state", step: "olga spends all of it and the allowance is exhausted", expected: /is in "active", expected "exhausted"/, handler, declaration },
+  { id: "missing-span", label: "a missing span", journey: "climb: a missing span", step: "olga spends some and the record step is traced", expected: /span allowance\.spend\.record/, handler, declaration },
+];
+
+export interface Planted {
+  readonly root: string;
+  readonly remove: () => void;
+}
+
+/** A copy of acme with the climb journeys beside its own, and, for a planted kind, that kind's handler over `spend.ts`. */
+export const planted = (kind?: Kind["id"]): Planted => {
+  const copy = copyOf(acme);
+  cpSync(join(fixture, "journeys"), join(copy.root, "journeys"), { recursive: true });
+  if (kind !== undefined) cpSync(join(fixture, "variants", kind), copy.root, { recursive: true });
+  return copy;
+};
+
+export interface Proved {
+  readonly status: number | null;
+  readonly out: string;
+  readonly lines: ReadonlyArray<string>;
+  /** Wall-clock seconds for the whole `ortho prove` process, world start included. */
+  readonly seconds: number;
+}
+
+/** `ortho prove [--only <journey>] --port <port>` in `root`, as the agent runs it, timed. */
+export const prove = (root: string, port: number, only?: string): Proved => {
+  const start = performance.now();
+  const result = ortho(root, "prove", ...(only === undefined ? [] : ["--only", only]), "--port", String(port));
+  const out = `${result.stdout}${result.stderr}`;
+  return { status: result.status, out, lines: out.split("\n"), seconds: (performance.now() - start) / 1000 };
+};
+
+/** What prove says about the journeys, before its per-operation evals: what an agent reads first, and what a failure message shows. */
+export const head = (proved: Proved) => {
+  const end = proved.lines.findIndex((line) => /^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]* /.test(line));
+  return (end < 0 ? proved.lines : proved.lines.slice(0, end)).join("\n");
+};
+
+/** The line prove gives a journey: `journey <name> ✔|✘ <n>/<m> steps`. */
+export const journeyLine = (proved: Proved, journey: string) => proved.lines.find((line) => line.startsWith(`journey ${journey} `));
+
+/** The failing lines of a step: `  ✘ "<step>": <what happened>`. */
+export const stepLines = (proved: Proved, step: string) => proved.lines.filter((line) => line.startsWith(`  ✘ "${step}"`));
+
+/**
+ * What a result is, with the things that differ between two honest runs taken out: an id the world made, and a measured
+ * time. Whatever remains must be the same on the next run.
+ */
+export const essence = (proved: Proved) =>
+  proved.lines
+    .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>"))
+    .filter((line) => line.trim() !== "");
