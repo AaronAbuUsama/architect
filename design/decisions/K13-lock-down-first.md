@@ -10,7 +10,7 @@ should dog food that." He agreed the plan below ("that looks solid").
 ## The answer
 
 The critical path to Gate M1 becomes: one links app (M1.40), a check that runs the whole loop through the real `ortho`
-command and reads every output for the basics (M1.41, written first by a different agent), the fixes it turns red
+command and reads every output for the basics (M1.41, written first by a different agent), links' handlers (M1.43) and the fixes it turns red
 (M1.42), with M1.35 and M1.36 beside them, and then the portal as a viewer (M1.13). The actions, approvals, the
 agent's chat and the agent's way in move to M3, ids unchanged, and leave both M1's gate and the path to workable.
 

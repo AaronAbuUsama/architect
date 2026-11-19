@@ -158,7 +158,7 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 Re-cut by [`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md) (Aaron, 19 November): lock down what
 exists first. M1.40 (the links app, from the canon's blueprint) → M1.41 (the loop through the real `ortho`, every
-output read for the basics; checks first, by another agent) → M1.42 (the basics in every output), with M1.35 (one
+output read for the basics; checks first, by another agent) → M1.43 (links' handlers) and M1.42 (the basics in every output), with M1.35 (one
 visibility rule), M1.36 (telemetry carries the model) and M1.34 (portal-ui) beside them → M1.13 (the portal as a
 viewer) → Gate M1.15 → the npm preview → M2. Beside it: M1.33, M1.12 (the SDK contract only), M1.38, M1.39. The
 actions, approvals, the chat and MCP from the whole model (M1.22 to M1.24, M1.37) and ST1.05 moved to M3.
