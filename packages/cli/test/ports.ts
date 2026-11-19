@@ -4,6 +4,7 @@
 // is below the one the operating system hands out to wrangler's own sockets and to outgoing connections (32768 up on
 // Linux, 49152 up on macOS), so a port asked for early is not taken by them before it is used. Start the server that
 // uses a port soon after asking all the same.
+import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 
 const finder = `
@@ -27,7 +28,7 @@ const free = (port) => new Promise((ok) => {
 /** `freePorts("logbook", "issuer")` is `{ logbook: 24873, issuer: 27114 }`: distinct, free on 127.0.0.1 when asked. */
 export const freePorts = <const K extends string>(...names: ReadonlyArray<K>): Readonly<Record<K, number>> => {
   const run = spawnSync(process.execPath, ["-e", finder, String(names.length)], { encoding: "utf8" });
-  if (run.status !== 0) throw new Error(`no free ports: ${run.stderr}`);
+  assert.equal(run.status, 0, `no free ports: ${run.stderr}`);
   const ports = JSON.parse(run.stdout) as ReadonlyArray<number>;
   return Object.fromEntries(names.map((name, i) => [name, ports[i]!])) as Record<K, number>;
 };
