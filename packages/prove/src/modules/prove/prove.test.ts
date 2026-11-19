@@ -21,7 +21,9 @@ const install = (from: string, root: string, to: string) => {
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const fixtures = join(acme, "test/fixtures/evals");
-const scratch = join(acme, "test/tmp");
+// Its own folder: other files keep scratch copies under test/tmp at the same time (impact, reads, releases), and the
+// afterAll below must not remove theirs from under their running worlds.
+const scratch = join(acme, "test/tmp/prove");
 
 const prove = (root: string, port: number) => Effect.runPromise(Effect.scoped(Prove.run({ root, port })));
 
