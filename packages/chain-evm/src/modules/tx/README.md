@@ -5,7 +5,9 @@ signs replacement bytes with the same sender and nonce and a caller-capped fee b
 Pass those bytes to `submit` so they can be retried if the send outcome is uncertain. The receipt tracker
 follows same-call repricing and reports a different call consuming the nonce.
 
-Receipt-only tracking ends when it sees a receipt or a different call using the nonce.
+Receipt-only tracking ends when it sees a receipt or a different call using the nonce. At `{ depth }` it goes on until
+the transfer is that many blocks deep, the including block as 1, and emits `Deepened` with the count each time it
+changes (a mined revert ends it at once). A tag level is not counted.
 Pass an intent's event source and matcher to also get `Confirmed` and `Corrected`.
 Confirmation is about the event even if a competing transaction emitted it.
 An optional contract deadline is measured in chain block timestamps. A tracking

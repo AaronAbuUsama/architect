@@ -100,6 +100,8 @@ export interface DeviceWorldOf {
     readonly chainId: number;
     /** The funded key the world made for each host, redacted: it prints as `<redacted>`. */
     readonly keys: Readonly<Record<string, Redacted.Redacted<string>>>;
+    /** How many blocks count before a send is `confirmed`, the including block as 1 (M1.38). Absent: the local chain's 1. */
+    readonly depth?: number;
   };
   /** A fresh folder the world made and will remove: for state an entry keeps on disk (a keystore file). */
   readonly directory: string;

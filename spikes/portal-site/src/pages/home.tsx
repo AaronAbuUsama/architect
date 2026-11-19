@@ -43,7 +43,7 @@ export const Home = () => (
       <header className="page-title"><h1>Plugged In</h1><p>A link-in-bio app: claim a name, put your links on a public page. Stage 1 of the growing example, read from its model.</p></header>
       {groups.map((g) => (
         <section key={g.name} className="group">
-          <h2 className="group-title">{g.mount ? <><a href={`plugin-${g.mount}.html`}>{g.label}</a><Chip size="sm" variant="soft" className="tag">PLUGIN</Chip><Chip size="sm" variant="soft" className="mono">{mounts[g.mount].package}@{mounts[g.mount].version}</Chip></> : g.label}</h2>
+          <h2 className="group-title">{g.mount ? <><a href="plugins.html">{g.label}</a><Chip size="sm" variant="soft" className="tag">PLUGIN</Chip><Chip size="sm" variant="soft" className="mono">{mounts[g.mount].package}@{mounts[g.mount].version}</Chip></> : g.label}</h2>
           <div className="cards">{g.things.map((n) => <ThingCard key={n} name={n} />)}</div>
         </section>))}
       <section className="group">

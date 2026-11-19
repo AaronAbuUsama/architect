@@ -1,12 +1,13 @@
-// An operation's other tabs: Metrics, Spans (the trace waterfall), Proof (the nine evals by environment), Docs, Notes.
+// An operation's other tabs: Metrics (with the calls table, each call opening its trace), Proof (the nine evals by environment), Docs, Notes.
 import { Chip } from "@heroui/react";
 import { journeysCalling } from "../journeys.ts";
-import { lastCalls, p95Series, perMinute, statOf } from "../live.ts";
+import { p95Series, perMinute, statOf } from "../live.ts";
 import { model, type Operation } from "../model.ts";
 import { notes } from "../overlay.ts";
 import { Foot } from "../shell.tsx";
-import { traceOf } from "../trace.ts";
-import { Bars, Block, Outcome, Spark, Tiles } from "../ui.tsx";
+import { CallsTable } from "../kit/calls-table.tsx";
+import { Island } from "../kit/island.tsx";
+import { Bars, Block, Spark, Tiles } from "../ui.tsx";
 import { ProgressBar } from "@heroui/react";
 import { CallsBars } from "../kit/calls-bars.tsx";
 import { VerdictMatrix, VerdictTile, type V } from "../kit/verdict-matrix.tsx";
@@ -31,7 +32,7 @@ export const Metrics = ({ o }: { o: Operation }) => {
         <Block title="Refusals by code" desc="Declared answers, not failures. Amber, never red.">
           {Object.keys(s.refused).length ? <Bars label={`${o.name} refusals by code`} rows={Object.entries(s.refused).map(([k, n]) => ({ name: `${model.refusals[k]} ${k}`, n }))} /> : <p className="muted small">No refusals in the window.</p>}
         </Block>
-        <Block title="Latency objective" action={<Chip size="sm" variant="soft" color="accent">proposed in K18</Chip>} desc="Falls out of the budget: 95% of calls within it over 28 days, with burn alerts at the standard windows">
+        <Block title="Latency objective" action={<Chip size="sm" variant="soft" color="accent">K18 · M1.49</Chip>} desc="Falls out of the budget: 95% of calls within it over 28 days, with burn alerts at the standard windows">
           {within === null ? <p className="muted small">No budget, so no objective.</p> : (<>
             <div className="slo"><span className={`kpi-text${within < 95 ? " tone-danger" : ""}`}>{within}%</span><span className="chips"><Chip size="sm" variant="soft">within {s.budget} ms</Chip><Chip size="sm" variant="soft">target 95%</Chip><Chip size="sm" variant="soft">28 days</Chip></span></div>
             <ProgressBar aria-label="Calls within budget against the 95% target" value={within} minValue={80} maxValue={100} color={within < 95 ? "danger" : "success"} size="sm"><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar>
@@ -39,34 +40,10 @@ export const Metrics = ({ o }: { o: Operation }) => {
           </>)}
         </Block>
       </div>
-      <Foot>Every panel here is generated from `operations.{o.name}` (its refusals, its budget) over `ortho.calls` and `ortho.call.duration`. Nothing is configured.</Foot>
-    </OpShell>
-  );
-};
-
-export const Spans = ({ o }: { o: Operation }) => {
-  const t = traceOf(o), calls = lastCalls.filter((c) => c.op === o.name);
-  return (
-    <OpShell o={o} tab="spans">
-      <Block title={`Call ${t.id}`} desc={t.summary} action={<span className="chips"><Chip size="sm" variant="secondary">{t.who}</Chip><Chip size="sm" variant="soft" className="mono">{t.at}</Chip><Outcome o={t.outcome} /></span>} flush>
-        <ol className="spine waterfall">{t.rows.map((r) => (
-          <li key={r.key} className={r.depth ? "sub" : undefined}><span className="mono muted">{r.depth ? "└" : "├"}</span><span className="mono">{r.name}</span>
-            <span className="mono muted">{r.attr}</span>
-            <span className="wf-track"><span className={`bar${r.tone ? ` ${r.tone}` : ""}`} style={{ marginLeft: `${(r.start / t.total) * 100}%`, width: `${Math.max(0.6, (r.ms / t.total) * 100)}%` }} /></span>
-            <span className="mono ms">{r.ms ? `${r.ms} ms` : ""}</span></li>))}</ol>
+      <Block title="Calls" desc="Every call in the window, newest first. Filter by environment, caller kind, outcome or refusal code, duration over budget, request key and time. Click a call to open its trace." flush>
+        <Island name="CallsTable" props={{ op: o.name }}><CallsTable op={o.name} /></Island>
       </Block>
-      <div className="two">
-        <Block title="What a span may show" desc="Structure, timing, outcome, the declared refusal, how many logs, the caller's kind">
-          <ul className="plain small"><li>caller: <strong>{t.callerKind}</strong> (locally named by the journey's cast)</li><li>attempts: {t.attempts}</li><li>logs: {t.logs}</li></ul>
-        </Block>
-        <Block title="Never shown, in any environment" desc="M1.19 and the no-leak check: a planted one fails M1.13">
-          <ul className="plain small"><li>raw statements</li><li>which person called (principal.person)</li><li>log bodies</li><li>secret or private field values</li></ul>
-        </Block>
-      </div>
-      <Block title="Recent calls" desc="This operation's last calls in the window" flush>
-        <table className="tbl"><tbody>{(calls.length ? calls : [{ at: "12:03:12", op: o.name, who: "anyone", outcome: "answered", ms: 3 }]).map((c) => (
-          <tr key={c.at}><td className="mono muted">{c.at}</td><td className="small">{c.who}</td><td><Outcome o={c.outcome} /></td><td className="num mono">{c.ms} ms</td></tr>))}</tbody></table>
-      </Block>
+      <Foot>Every panel here is generated from `operations.{o.name}` (its refusals, its budget) over `ortho.calls` and `ortho.call.duration`; the calls table joins each call to its root span. Nothing is configured.</Foot>
     </OpShell>
   );
 };

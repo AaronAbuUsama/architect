@@ -29,9 +29,9 @@ export const ThingPage = ({ name }: { name: string }) => {
             {labelsOnly ? <>
               {m ? <><Chip size="sm" variant="soft">{g.label}</Chip><Chip size="sm" variant="soft" className="tag">PLUGIN</Chip><Chip size="sm" variant="soft" className="mono">{m.version}</Chip></> : <Chip size="sm" variant="soft">the app's own</Chip>}
               <Chip size="sm" variant="soft">lives in: {t.store ?? stores[0]!.name} (database)</Chip></> : <>
-              {m ? <Chip size="sm" variant="soft"><a href={`plugin-${g.mount}.html`}>{m.package} {m.version}</a></Chip> : <Chip size="sm" variant="soft">the app's own</Chip>}
+              {m ? <Chip size="sm" variant="soft"><a href="plugins.html">{m.package} {m.version}</a></Chip> : <Chip size="sm" variant="soft">the app's own</Chip>}
               <Chip size="sm" variant="soft">lives in {t.lives} rows</Chip>
-              <Chip size="sm" variant="soft"><a href="stores.html">store: {t.store ?? stores[0]!.name}</a></Chip></>}
+              <Chip size="sm" variant="soft"><a href="plugins.html">store: {t.store ?? stores[0]!.name}</a></Chip></>}
             <Chip size="sm" variant="soft" className="mono">thing:{name}@{short(t.hash)}</Chip>
           </div>
         </header>

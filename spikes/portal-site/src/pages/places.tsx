@@ -1,77 +1,77 @@
-// Where the app runs and what it is made of: environments side by side (Q2 A), plugins and stores (Q3 A).
+// Where the app runs and what it is made of (round 4, Aaron's picks): a page per environment (Q2 B) with its summary
+// card and the proof matrix, a compare page reached from it, and one page for plugins and stores (Q3 B).
+import { ItemCard } from "@heroui-pro/react";
 import { Chip, Tabs } from "@heroui/react";
-import { Fragment, type ReactNode } from "react";
-import { splitOf, sum, thingStat } from "../live.ts";
+import { ArrowsLeftRightIcon, PlugsIcon } from "@phosphor-icons/react/ssr";
+import { splitOf, sum } from "../live.ts";
 import { CallsMeter } from "../kit/calls-meter.tsx";
-import { environments, model, operations, page, opsOf } from "../model.ts";
+import { EnvironmentPill } from "../kit/environment-pill.tsx";
+import { Island } from "../kit/island.tsx";
+import { VerdictMatrix } from "../kit/verdict-matrix.tsx";
+import { environments, opsOf } from "../model.ts";
 import { mounts, stores, type MountName } from "../overlay.ts";
 import { Foot, Shell } from "../shell.tsx";
 import { Block } from "../ui.tsx";
-import { Island } from "../kit/island.tsx";
-import { EnvCompare } from "./env-compare.tsx";
+import { envFields, EnvCompare, FocusCard, journeyRows, opRows } from "./env-compare.tsx";
 
-const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><h1>{h}</h1><p>{p}</p></header>;
-export const Environments = ({ focus = "staging" }: { focus?: string }) => (
-  <Shell here={{ id: "environments" }} crumbs={["Plugged In", "Blueprint", "Environments"]} rail={false}>
-    <div className="page">
-      <Title h="Environments" p="Where Plugged In runs, read from blueprint/environments. Only bindings change between them, never a shape, a name or a code." />
-      <Island name="EnvCompare" props={{ focus }}><EnvCompare focus={focus} /></Island>
-      <Foot>Generated from `Model.environments` (EnvironmentModel). Domains are not declared yet in Plugged In (`Deploy.worker()` with no domain).</Foot>
-    </div>
-  </Shell>
-);
-export const EnvProof = () => <Environments focus="staging" />;
+export const envPage = (name: string) => `env-${name}.html`;
+const names = environments.map((e) => e.name);
 
-export const Plugins = () => (
-  <Shell here={{ id: "plugins" }} crumbs={["Plugged In", "Blueprint", "Plugins"]}>
-    <div className="page">
-      <Title h="Plugins" p="Each plugin Plugged In mounts, with one file each. Deleting that file removes its things, its pages and its tables." />
-      <Block title="Mounted" desc="From blueprint/features" flush>
-        <table className="tbl"><thead><tr><th>plugin</th><th>kind</th><th>package</th><th>things</th><th>needs</th><th>calls, last 30 min</th></tr></thead>
-          <tbody>{(Object.keys(mounts) as MountName[]).map((k) => { const m = mounts[k]; return (
-            <tr key={k}><td><a href={`plugin-${k}.html`}>{k}</a></td><td>{m.kind}</td><td><span className="chips"><Chip size="sm" variant="soft" className="mono">{m.package}</Chip><Chip size="sm" variant="soft" className="mono">{m.version}</Chip></span></td><td><span className="chips">{m.things.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}</span></td><td><span className="chips">{m.needs.length ? m.needs.map((n) => <Chip key={n} size="sm" variant="soft">{n}</Chip>) : <span className="muted small">nothing</span>}</span></td>
-              <td style={{ width: 280 }}><CallsMeter split={splitOf(sum(m.things.flatMap(opsOf)))} size="sm" label={k} /></td></tr>); })}</tbody></table>
-      </Block>
-      <Foot>From `Model.mounts` (on m1). The model on links/stage-1 has no mounts yet: these two are round 2's stage-1 plan.</Foot>
-    </div>
-  </Shell>
-);
-
-export const Plugin = ({ name }: { name: MountName }) => {
-  const m = mounts[name];
+/** Q2 B: one page per environment. Its summary card, what its file declares, and the proof with a tally per column. */
+export const EnvPage = ({ name }: { name: string }) => {
+  const e = environments.find((x) => x.name === name)!;
   return (
-    <Shell here={{ id: "plugins", scope: { label: name, ops: m.things.flatMap((t) => opsOf(t).map((o) => o.name)) } }} crumbs={["Plugged In", "Plugins", name]}>
+    <Shell here={{ id: `env:${name}` }} crumbs={["Plugged In", "Environments", name]} rail={false}>
       <div className="page">
-        <header className="page-title"><div className="title-row"><h1>{name}</h1><span className="chips"><Chip size="sm" variant="soft" color="accent">{m.kind}</Chip><Chip size="sm" variant="soft" className="mono">{m.package}</Chip><Chip size="sm" variant="soft" className="mono">{m.version}</Chip></span></div>
-          <div className="props"><Chip size="sm" variant="soft" className="mono">{m.file}</Chip><Chip size="sm" variant="soft" className="mono">integrity {m.integrity}</Chip></div></header>
-        <div className="two">
-          <Block title="Choices" desc="Each choice the plugin offers, and the one made"><dl className="kv">{Object.entries(m.chosen).map(([k, v]) => <Fragment key={k}><dt>{k}</dt><dd>{v}</dd></Fragment>)}</dl></Block>
-          <Block title="Left out and narrowed" desc="What the mount took away">
-            <dl className="kv"><dt>left out</dt><dd className="mono">{m.omitted.join(", ") || "nothing"}</dd>
-              {Object.entries(m.narrowed).map(([op, via]) => <Fragment key={op}><dt className="mono">{op}</dt><dd>only through {via.join(", ")}</dd></Fragment>)}
-              <dt>needs</dt><dd>{m.needs.join(", ") || "nothing"}</dd></dl>
-          </Block>
-        </div>
-        <Block title="Its things" desc="Each with its operations' numbers in the window" flush>
-          <table className="tbl"><tbody>{m.things.map((t) => { const s = thingStat(t); return (
-            <tr key={t}><td><a href={page.thing(t)}>{t}</a></td><td className="small">{model.things[t]!.description}</td><td style={{ width: 300 }}><CallsMeter split={splitOf(s)} size="sm" label={t} /></td></tr>); })}</tbody></table>
-        </Block>
-        <Foot>From `Model.mounts.{name}`: kind, package, version, integrity, chosen, omitted, narrowed, needs. An adapter would add its calls and what stands in for it in a world.</Foot>
+        <header className="page-title"><div className="title-row"><h1>{name}</h1><a className="small compare-link" href="environments.html"><ArrowsLeftRightIcon size={14} aria-hidden="true" />Compare environments</a></div>
+          <p>Read from <span className="mono">{e.file}</span>. Only bindings change between environments, never a shape, a name or a code.</p></header>
+        <Tabs selectedKey={name} className="page-tabs"><Tabs.ListContainer><Tabs.List aria-label="Environments">
+          {environments.map((x) => <Tabs.Tab key={x.name} id={x.name} href={envPage(x.name)}>{x.name}<Tabs.Indicator /></Tabs.Tab>)}
+        </Tabs.List></Tabs.ListContainer></Tabs>
+        <FocusCard e={e} />
+        <section className="panel"><header className="panel__head"><h2>Proof</h2><span className="muted small">{name} highlighted; every column tallied</span></header>
+          <VerdictMatrix rows={opRows()} envs={names} focus={name} of="operations" rowHead="operation" />
+          <VerdictMatrix rows={journeyRows()} envs={names} focus={name} of="journeys" rowHead="journey" />
+        </section>
+        <section className="panel"><header className="panel__head"><h2>Declared</h2><span className="muted small">EnvironmentModel, field by field</span></header>
+          <table className="tbl env-tbl"><tbody>{envFields.map((r) => <tr key={r.key}><th scope="row"><span className="field-label">{r.label}</span><code className="field-key">{r.key}</code></th><td>{r.show(e)}</td></tr>)}</tbody></table>
+        </section>
+        <Foot>Generated from `Model.environments.{name}` (EnvironmentModel) and the logbook's verdicts (M1.04).</Foot>
       </div>
     </Shell>
   );
 };
 
-export const Stores = () => (
-  <Shell here={{ id: "stores" }} crumbs={["Plugged In", "Blueprint", "Stores"]}>
+/** Reached from each environment's page: two or more side by side, differing cells tinted. */
+export const Environments = ({ focus = "staging" }: { focus?: string }) => (
+  <Shell here={{ id: "environments" }} crumbs={["Plugged In", "Environments", "Compare"]} rail={false}>
     <div className="page">
-      <Title h="Stores" p="Where things live, and what each environment binds the store to. Rebinding a store never changes a caller's contract." />
-      <Block title="Stores" desc="Stage 1 declares none, so everything is in the project's default store" flush>
-        <table className="tbl"><thead><tr><th>store</th><th>kind</th><th>from</th><th>things</th>{environments.map((e) => <th key={e.name}>{e.name}</th>)}</tr></thead>
-          <tbody>{stores.map((s) => <tr key={s.name}><td className="mono">{s.name}</td><td>{s.kind}</td><td>{s.from}</td><td>{s.things.map((t) => <a key={t} href={page.thing(t)}>{t} </a>)}</td>
-            {environments.map((e) => <td key={e.name} className="small">{e.database ?? e.cloud?.database ?? "—"}</td>)}</tr>)}</tbody></table>
+      <header className="page-title"><h1>Compare environments</h1><p>Pick one; every other column shows where it differs from it.</p></header>
+      <Island name="EnvCompare" props={{ focus }}><EnvCompare focus={focus} /></Island>
+      <Foot>Generated from `Model.environments` (EnvironmentModel). Domains are not declared yet in Plugged In (`Deploy.worker()` with no domain).</Foot>
+    </div>
+  </Shell>
+);
+
+/** Q3 B: one list page for plugins and stores, no page per plugin. */
+export const PluginsAndStores = () => (
+  <Shell here={{ id: "plugins" }} crumbs={["Plugged In", "Plugins and stores"]}>
+    <div className="page">
+      <header className="page-title"><h1>Plugins and stores</h1><p>What Plugged In mounts and where its things live, on one page.</p></header>
+      <Block title="Plugins" desc="One file each in blueprint/features. Deleting the file removes its things, its pages and its tables.">
+        <div className="item-cards">{(Object.keys(mounts) as MountName[]).map((k) => { const m = mounts[k]; return (
+          <ItemCard key={k} variant="secondary">
+            <ItemCard.Icon><PlugsIcon size={18} /></ItemCard.Icon>
+            <ItemCard.Content><ItemCard.Title>{k}<Chip size="sm" variant="soft" className="mono">{m.package}@{m.version}</Chip></ItemCard.Title>
+              <ItemCard.Description><span className="chips">{m.things.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}{m.needs.map((n) => <Chip key={n} size="sm" variant="soft">needs {n}</Chip>)}{m.omitted.map((n) => <Chip key={n} size="sm" variant="soft" color="warning">left out {n}</Chip>)}{Object.entries(m.chosen).map(([c, v]) => <Chip key={c} size="sm" variant="soft">{c}: {v}</Chip>)}</span></ItemCard.Description></ItemCard.Content>
+            <ItemCard.Action><div style={{ width: 260 }}><CallsMeter split={splitOf(sum(m.things.flatMap(opsOf)))} size="sm" label={k} /></div></ItemCard.Action>
+          </ItemCard>); })}</div>
       </Block>
-      <Foot>From `Model.stores` and each environment's `stores` bindings. Never a count of rows: that is stored data.</Foot>
+      <Block title="Stores" desc="Stage 1 declares none, so everything is in the project's default store. Never a count of rows: that is stored data." flush>
+        <table className="tbl"><thead><tr><th>store</th><th>kind</th><th>things</th>{environments.map((e) => <th key={e.name}>{e.name}</th>)}</tr></thead>
+          <tbody>{stores.map((s) => <tr key={s.name}><td className="mono">{s.name}</td><td>{s.kind}</td><td><span className="chips">{s.things.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}</span></td>{environments.map((e) => <td key={e.name}><EnvironmentPill env={e} size="sm" showRuns /></td>)}</tr>)}</tbody></table>
+      </Block>
+      <Foot>From `Model.mounts` and `Model.stores` (on m1). The choices a mount made, what it narrowed and its integrity are in the docs.</Foot>
     </div>
   </Shell>
 );
