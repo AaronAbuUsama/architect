@@ -11,6 +11,22 @@
       },
       "cache": false
     },
+    "fix": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node docs/canon/check.mjs --fix",
+        "cwd": "{workspaceRoot}"
+      },
+      "cache": false
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --test docs/canon/quotes.test.mjs",
+        "cwd": "{workspaceRoot}"
+      },
+      "cache": false
+    },
     "preview": {
       "executor": "nx:run-commands",
       "options": {

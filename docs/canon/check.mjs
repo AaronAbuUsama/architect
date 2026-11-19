@@ -1,13 +1,15 @@
 // Checks the canon, docs/canon/*.mdx, against the repository, so a page can't drift from the code it explains:
 //   1. every page has its frontmatter, and the template's eight sections in order;
-//   2. a fence that quotes a file (file=… lines=a-b) matches those lines; a planned fence names a real slice;
+//   2. a fence that quotes code (file=… name=<declaration>) matches that declaration, whole or in part (--fix rewrites it
+//      from the source); one that quotes a non-code file (lines=a-b) matches those lines; a planned fence names a real slice;
 //   3. every inline `path:line` reference opens, and has that line;
 //   4. every <Note>, <Scenario>, <Model> and <Scene> points at something that exists;
 //   5. no glossary word is owned by two pages, and every page is in the outline;
 //   6. no retired word or old name, in the pages, the outline or the READMEs.
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { CODE, locate, repair, sliceLines } from "./quotes.mjs";
 
 const canon = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(canon, "../..");
@@ -26,6 +28,8 @@ const RETIRED = [
   ["the command before `ortho`, in prose", new RegExp(`\`${"for"}${"man"} (check|prove|dev|watch|telemetry|add|describe|model|generate|promote|new|build)\\b`), "prose"],
 ];
 
+const fix = process.argv.includes("--fix");
+const fixes = [];
 const problems = [];
 const fail = (file, line, what) => problems.push(`${relative(repo, file)}${line ? `:${line}` : ""}: ${what}`);
 const read = (p) => readFileSync(p, "utf8");
@@ -83,26 +87,51 @@ const checkFrontmatter = (file, fm) => {
   for (const l of fm.links ?? []) if (!outlined.has(l)) fail(file, 1, `links to ${l}, which is not a page in outline.md`);
 };
 
-const checkFences = (file, text) => {
-  for (const m of text.matchAll(/^( *)```(\w*)([^\n]*)\n([\s\S]*?)^\1```$/gm)) {
-    const [, indent, , metaRaw, body] = m;
-    const line = lineOf(text, m.index);
+/** Checks every fence; with `fix`, also returns the edits that rewrite a name-anchored quote from its source. */
+const checkFences = (file, text, fix) => {
+  const edits = [];
+  text.replace(/^( *)```(\w*)([^\n]*)\n([\s\S]*?)^\1```$/gm, (whole, indent, lang, metaRaw, body, index) => {
+    const line = lineOf(text, index);
     const meta = attrsOf(metaRaw);
     if (meta.planned) {
       if (!slices.has(meta.planned)) fail(file, line, `planned=${meta.planned} is not a slice in design/milestones.md`);
-      continue;
+      return whole;
     }
-    if (!meta.file || !meta.lines) { fail(file, line, "a fence must quote a file (file=… lines=a-b) or be planned=<slice>"); continue; }
+    if (!meta.file || !(meta.name || meta.lines)) { fail(file, line, "a fence must quote a file (file=… name=<declaration>; non-code files file=… lines=a-b) or be planned=<slice>"); return whole; }
     const source = at(meta.file);
-    if (!existsSync(source)) { fail(file, line, `quotes ${meta.file}, which doesn't exist`); continue; }
-    const [a, b = a] = meta.lines.split("-").map(Number);
-    const want = read(source).split("\n").slice(a - 1, b).map((l) => l.trim());
+    if (!existsSync(source)) { fail(file, line, `quotes ${meta.file}, which doesn't exist`); return whole; }
+    const code = read(source);
     const got = body.replace(/\n$/, "").split("\n").map((l) => (l.startsWith(indent) ? l.slice(indent.length) : l).trim());
-    if (want.length !== got.length || want.some((l, i) => l !== got[i])) {
-      const i = want.findIndex((l, k) => l !== got[k]);
-      fail(file, line + 1 + Math.max(i, 0), `the quote differs from ${meta.file}:${a + Math.max(i, 0)}: "${(want[i] ?? "").slice(0, 70)}"`);
+    if (!meta.name) {
+      if (CODE.test(meta.file)) { fail(file, line, `${meta.file} is code: quote a declaration (name=…), not lines`); return whole; }
+      const [a, b = a] = meta.lines.split("-").map(Number);
+      const want = code.split("\n").slice(a - 1, b).map((l) => l.trim());
+      if (want.length !== got.length || want.some((l, i) => l !== got[i])) {
+        const i = Math.max(want.findIndex((l, k) => l !== got[k]), 0);
+        fail(file, line + 1 + i, `the quote differs from ${meta.file}:${a + i}: "${(want[i] ?? "").slice(0, 70)}"`);
+      }
+      return whole;
     }
-  }
+    if (!CODE.test(meta.file)) { fail(file, line, `${meta.file} is not code, so it has no names: quote it with lines=a-b`); return whole; }
+    let found = locate(code, meta.name, got);
+    let rewritten = whole;
+    if (found.at === undefined) {
+      const fixed = fix ? repair(code, meta.name, got) : undefined;
+      if (!fixed) { fail(file, line + 1, `the quote differs from ${meta.file} ${meta.name}: ${found.reason}${fix ? " (nothing in it resembles the quote)" : "; run node docs/canon/check.mjs --fix"}`); return whole; }
+      const fresh = sliceLines(code, fixed.from, fixed.to).split("\n").map((l) => (l ? indent + l : l)).join("\n");
+      rewritten = `${indent}\`\`\`${lang}${metaRaw}\n${fresh}\n${indent}\`\`\``;
+      found = { at: fixed.from, to: fixed.to };
+    }
+    // The hint, for readers: where the quote sits today. Only --fix writes it.
+    const hint = `lines=${found.at}${found.to > found.at ? `-${found.to}` : ""}`;
+    if (fix && !new RegExp(` ${hint}(?: |$)`).test(metaRaw)) {
+      const head = rewritten.indexOf("\n");
+      rewritten = rewritten.slice(0, head).replace(/ lines=\S+/, "") + ` ${hint}` + rewritten.slice(head);
+    }
+    if (rewritten !== whole) { fixes.push(`${relative(repo, file)}:${line}`); edits.push({ start: index, end: index + whole.length, rewritten }); }
+    return whole;
+  });
+  return edits;
 };
 
 const PATH = /^(?:\.{0,2}[\w@.-]+\/)+[\w@.-]*(?::(\d+)(?:-(\d+))?)?$/;
@@ -186,7 +215,9 @@ for (const name of pages) {
   if (!outlined.has(name.replace(/\.mdx$/, ""))) fail(file, 0, "this page is not in outline.md");
   checkFrontmatter(file, fm);
   checkSections(file, text);
-  checkFences(file, text);
+  const edits = checkFences(file, text, fix);
+  // The edits were found in the text without its comments, which has the same length as the page: apply them to the page.
+  if (edits.length) writeFileSync(file, edits.reduceRight((page, e) => page.slice(0, e.start) + e.rewritten + page.slice(e.end), read(file)));
   checkReferences(file, text);
   checkComponents(file, text);
   if (!/^## Status\n\n<Status \/>/m.test(text)) fail(file, 0, "the Status section must open with <Status />");
@@ -200,6 +231,7 @@ const prose = ["README.md", "outline.md", "components/README.md", "_template.mdx
 for (const n of prose) checkWords(join(canon, n));
 for (const n of ["README.md", "outline.md", "components/README.md"]) checkLinks(join(canon, n));
 
+if (fixes.length) console.log(`canon check --fix rewrote ${fixes.length} quote${fixes.length === 1 ? "" : "s"}:\n${fixes.map((f) => `  ${f}`).join("\n")}`);
 if (problems.length) {
   console.error(`canon check failed (${problems.length}):\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);

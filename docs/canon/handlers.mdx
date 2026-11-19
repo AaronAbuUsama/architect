@@ -29,7 +29,7 @@ and `ortho check` names it, so a project can be honest about what is left.
 
 `ortho generate` makes two files for signup's `join`. The frame, regenerated every time:
 
-```ts file=examples/signup/generated/api/src/sheet/join.handler.ts lines=1-7
+```ts file=examples/signup/generated/api/src/sheet/join.handler.ts name=imports,Handler lines=1-7
 // Generated from the blueprint. Do not edit.
 // What the handler is given: its payload and steps; what it may return: its answer or a declared error.
 import type { SqlClient } from "effect/sql";
@@ -42,7 +42,7 @@ export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declar
 And the handler, `examples/signup/src/sheet/join.ts`, scaffolded once and then written. This is all the freehand
 code the operation has:
 
-```ts file=examples/signup/src/sheet/join.ts lines=9-25
+```ts file=examples/signup/src/sheet/join.ts name=join lines=9-25
 const join: Handler = ({ sheet, people }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
@@ -71,7 +71,7 @@ Three kinds of line carry the declaration: the declared steps (`steps.load`, `st
 
 The frame is one type, made from the operation:
 
-```ts file=packages/language-effect/src/modules/handler/types.ts lines=29-30
+```ts file=packages/language-effect/src/modules/handler/types.ts name=Handler lines=29-30
 /** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
 export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerContext<O>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
 ```
@@ -79,7 +79,7 @@ export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerCont
 - **The payload**, already decoded against the declaration. `people` is a `bigint` here, never a string.
 - **The context**: the caller as a `principal`, one runner per declared step, and `move`:
 
-  ```ts file=packages/language-effect/src/modules/handler/types.ts lines=17-25
+  ```ts file=packages/language-effect/src/modules/handler/types.ts name=HandlerContext lines=17-25
   export interface HandlerContext<O> {
     readonly principal: Principal;
     readonly steps: StepRunners<StepsOf<O>>;
@@ -98,7 +98,7 @@ refuses a handler that fails with an error its operation doesn't list
 (`packages/generators/src/modules/render/handler-type.test.ts:40`). At run time, an answer outside its declaration
 is never sent. It dies as the handler's bug:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=63-67
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=63-67
 // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
 const wire = yield* check(answer).pipe(
   Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
@@ -144,7 +144,7 @@ Three habits the frame can't enforce, which `ortho brief` asks for:
 
 `ortho generate` writes two kinds of file, and their first line says which:
 
-```ts file=packages/generators/src/modules/render/internal/names.ts lines=3-4
+```ts file=packages/generators/src/modules/render/internal/names.ts name=GENERATED,scaffolded lines=3-4
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
 ```
@@ -158,7 +158,7 @@ export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours f
 
 A scaffold is never overwritten, because the sync skips any scaffold that already exists:
 
-```ts file=packages/generators/src/modules/sync/service.ts lines=15-19
+```ts file=packages/generators/src/modules/sync/service.ts name=Sync lines=15-19
 for (const f of files) {
   const path = `${root}/${f.path}`;
   if (f.scaffold && tree.exists(path)) continue;
@@ -173,7 +173,7 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 
 **Today** the scaffold is one blank with the declaration repeated as comments:
 
-```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=24-29
+```ts file=packages/generators/src/modules/render/internal/scaffold.ts name=renderHandlerScaffold lines=24-29
 `/** ${op.description} */`,
 `const ${camel(op.verb)}: Handler = (_payload, _context) =>`,
 "  Effect.gen(function* () {",
@@ -221,7 +221,7 @@ A blank is a part that isn't written yet. There are two kinds, and both compile.
 
 **A blank in a declaration** is `Blueprint.todo("…")`, which fits anywhere a declaration needs a value:
 
-```ts file=packages/orthograph/src/modules/blanks/types.ts lines=7-11
+```ts file=packages/orthograph/src/modules/blanks/types.ts name=BlanksApi lines=7-11
 export interface BlanksApi {
   /** `Blueprint.todo("who may call")` fits wherever a declaration needs something, until it is filled. */
   readonly todo: <T = never>(what: string) => T;
@@ -237,7 +237,7 @@ roles a `roles.ts` exports (F5). Signup has no blank left, so this example is wo
 **A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold holds. It type-checks as anything, and
 reaching it at run time is a defect that names what is missing:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=113-116
+```ts file=packages/language-effect/src/modules/handler/service.ts name=Handlers lines=113-116
 export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
   blank: (what) => Effect.die(new BlankReached({ what })),
@@ -270,7 +270,7 @@ A declared step the handler never calls compiles: the frame's type can't tell. T
 Whoever the brief names. `ortho brief <thing>.<verb>` prints everything needed to write one handler: the files to
 read, the one file to write, the files never to touch, and the checks that must pass:
 
-```ts file=packages/cli/src/modules/brief/service.ts lines=3-5
+```ts file=packages/cli/src/modules/brief/service.ts name=forbidden lines=3-5
 const forbidden = [
   "blueprint/**", "blueprint/journeys/**", "blueprint/starting-worlds/**", "journeys/**", "generated/**", "test/**",
 ] as const;

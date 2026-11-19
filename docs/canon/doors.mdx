@@ -30,7 +30,7 @@ caller is set once on the client, one request key holds across retries, and ever
 `sheet.join` is declared once. Its served operation is the wrapper around the handler you wrote, built in the
 generated Worker:
 
-```ts file=examples/signup/generated/server/main.ts lines=26-29
+```ts file=examples/signup/generated/server/main.ts name=sheetCloseServed,sheetOpenServed lines=26-29
 const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen" });
 const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
 const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
@@ -39,7 +39,7 @@ const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpe
 
 The HTTP door is the endpoint, made from the declaration's payload, answer and refusals:
 
-```ts file=examples/signup/generated/api/src/sheet/join.ts lines=7-11
+```ts file=examples/signup/generated/api/src/sheet/join.ts name=endpoint lines=7-11
 export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   payload: declaration.payloadSchema,
   success: declaration.answerSchema,
@@ -49,7 +49,7 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
 
 The MCP door is on the same Worker, and calls the same served operations:
 
-```ts file=examples/signup/generated/server/main.ts lines=104-109
+```ts file=examples/signup/generated/server/main.ts name=tools lines=104-109
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
@@ -60,13 +60,13 @@ const tools = Mcp.tools<Services>({
 
 The SDK is one function per operation, and the CLI is built on it:
 
-```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=7-9
+```ts file=examples/signup/generated/sdk/src/sheet/join.ts name=join lines=7-9
 /** Take places on a sheet, for yourself and anyone with you. */
 export const join = (payload: PayloadOf<typeof declaration>) =>
   Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
 ```
 
-```ts file=examples/signup/generated/cli/src/sheet/join.ts lines=9-13
+```ts file=examples/signup/generated/cli/src/sheet/join.ts name=join lines=9-13
 export const join = Command.make(
   "join",
   { sheet: Flag.String("sheet"), people: Flag.String("people"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
@@ -94,7 +94,7 @@ The wrapper runs every call to an Effect operation through the same order (`pack
 
 The last four, as code:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=57-73
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=57-73
         yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));

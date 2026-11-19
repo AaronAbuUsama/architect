@@ -28,14 +28,14 @@ host that serve it: Effect, on Cloudflare.
 The sign-up sheet's generated Worker is where the two meet. Everything that gives a call its meaning comes from the
 language, `language-effect`. Everything that is about the place comes from the host, `host-cloudflare`:
 
-```ts file=examples/signup/generated/server/main.ts lines=9-10
+```ts file=examples/signup/generated/server/main.ts name=imports lines=9-10
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
 import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 ```
 
 `Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:
 
-```ts file=examples/signup/generated/server/main.ts lines=26-29
+```ts file=examples/signup/generated/server/main.ts name=sheetCloseServed,sheetOpenServed lines=26-29
 const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen" });
 const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
 const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
@@ -45,7 +45,7 @@ const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpe
 And the handler someone wrote is in the language, with nothing of the host in it. It never names D1, a Worker or a
 binding:
 
-```ts file=examples/signup/src/sheet/close.ts lines=1-12
+```ts file=examples/signup/src/sheet/close.ts name=imports,default lines=1-12
 // Scaffolded from blueprint/things/sheet/verbs/close.ts. Yours from now on.
 import { Effect } from "effect";
 import type { Handler } from "../../generated/api/src/sheet/close.handler.ts";
@@ -73,7 +73,7 @@ The compiled model records the operation's place, `runs: "server"`, the only one
 2. **The language names what it needs from a host, as services.** The store is one of them. The language declares the
    port and says what a store must do; it never says how:
 
-```ts file=packages/language-effect/src/modules/records/types.ts lines=61-70
+```ts file=packages/language-effect/src/modules/records/types.ts name=Store lines=61-70
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
@@ -92,18 +92,18 @@ export class Store extends Context.Service<Store, {
    (`examples/signup/generated/server/wrangler.jsonc:8-11`).
 4. **`runs` says where an operation runs.** The declaration can say three places. Only one is accepted:
 
-```ts file=packages/orthograph/src/modules/operations/types.ts lines=21-22
+```ts file=packages/orthograph/src/modules/operations/types.ts name=Runs lines=21-22
 /** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
 ```
 
    The compiler refuses the other two, and says what a project would need to run them:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=108
+```ts file=packages/compiler/src/modules/model/internal/describe.ts name=describe lines=108
 if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
 ```
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=167-171
+```ts file=packages/compiler/src/modules/model/internal/describe.ts name=RUNS_NEEDS lines=167-171
 /** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
@@ -134,7 +134,7 @@ A language never chooses where it runs, and a host never gives an operation mean
 
 Only the first of each is built. `language-solidity` is a placeholder today:
 
-```ts file=packages/language-solidity/src/index.ts lines=1-2
+```ts file=packages/language-solidity/src/index.ts name=file lines=1-2
 // @orthograph/language-solidity: the Solidity target.
 export {};
 ```
@@ -154,7 +154,7 @@ operation. A chain or client language becomes a choice when K7 and M6 build one.
 **Which host runs it?** You don't choose per operation. An environment picks the host's place (this machine, or
 Cloudflare), and the language's enforcer runs there unchanged:
 
-```ts file=examples/signup/blueprint/environments/local.ts lines=3-8
+```ts file=examples/signup/blueprint/environments/local.ts name=default lines=3-8
 export default Blueprint.environment({
   runs: "on this machine",
   identity: Identity.testPrincipals, // fixed test people, no sign-in
