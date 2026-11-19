@@ -4,6 +4,9 @@ import { Records } from "#modules/records/types.js";
 import { NotAllowed, type AccessApi } from "./types.ts";
 import { referencedThing } from "./internal/path.ts";
 
+/** The thing whose id a field holds, followed back to the `id` it was taken from: what a payload field names. */
+export { referencedThing };
+
 type Person = Extract<Principal, { kind: "person" }>;
 type Fields = { readonly [key: string]: unknown };
 

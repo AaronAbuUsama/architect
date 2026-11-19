@@ -23,6 +23,8 @@ export interface FieldModel {
   readonly optional?: true;
   /** Absent means public, the default. Only a public field's value may be a span attribute, a log line or a journal field. */
   readonly visibility?: VisibilityModel;
+  /** A secret answer field handed to its caller once, by `Blueprint.issued`: it leaves in the answer of the call that issued it, and nowhere else. */
+  readonly issued?: true;
 }
 export type FieldsModel = Readonly<Record<string, FieldModel>>;
 
@@ -44,7 +46,14 @@ export interface ThingModel {
   readonly lives: "database" | "actor";
   /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
   readonly store?: string;
+  /** Its unique fields (G4), by field: no two instances hold one value within `while`'s states, or in any state without it. Absent when none. */
+  readonly unique?: Readonly<Record<string, { readonly while?: ReadonlyArray<string> }>>;
   readonly machine: MachineModel | null;
+  /**
+   * Its not-found refusal, present only when some operation can refuse it (K16): the one it declares under the name
+   * `<Thing>NotFound`, else generated at `<XX>-901`, exit 4, HTTP 404.
+   */
+  readonly notFound?: { readonly error: string; readonly exit: number; readonly code: string };
   readonly events: Readonly<Record<string, FieldsModel>>;
   /** Each with its code, which never moves once released. */
   readonly errors: Readonly<Record<string, { readonly fields: FieldsModel; readonly exit: number; readonly code: string }>>;
@@ -83,9 +92,15 @@ export interface OperationModel {
   readonly payload: FieldsModel;
   readonly answer: FieldsModel;
   readonly move: { readonly key: string; readonly from: ReadonlyArray<string>; readonly to: ReadonlyArray<string>; readonly emits: string } | null;
-  /** Declared errors, then the generated ones the runtime can refuse with: the machine's, and NotAllowed. */
+  /** Declared errors, then the generated ones the runtime can refuse with: the machine's, `<Thing>NotFound`, and NotAllowed. */
   readonly errors: ReadonlyArray<string>;
   readonly refusals: ReadonlyArray<string>;
+  /** Each payload field holding some thing's id, and that thing: read before the handler and handed in as `refs.<field>`. */
+  readonly refs?: Readonly<Record<string, string>>;
+  /** The payload fields no role check reads, and the `<Thing>NotFound` a missing one is refused with before the handler. */
+  readonly notFound?: Readonly<Record<string, string>>;
+  /** A creating move's field (the answer's, else the payload's) that carries the id the runtime mints and hands in as `id`. */
+  readonly mints?: string;
   readonly allowed: ReadonlyArray<AllowedModel>;
   readonly steps: Readonly<Record<string, StepModel>>;
   readonly idempotent: "request" | null;
@@ -147,6 +162,8 @@ export interface JourneyModel {
   readonly name: string;
   readonly cast: Readonly<Record<string, AllowedModel>>;
   readonly starts: string | null;
+  /** What isn't written yet: a stub from `ortho add journeys` until it is filled. `prove` skips it, naming it (K16 e). */
+  readonly blanks?: ReadonlyArray<string>;
   readonly steps: ReadonlyArray<{ readonly title: string } & (
     | { readonly call: JourneyCallModel; readonly checks: ReadonlyArray<{ readonly kind: string }> }
     | { readonly skipped: string }

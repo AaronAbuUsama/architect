@@ -1,6 +1,6 @@
 import { Names } from "orthograph/server";
 import { resolve } from "node:path";
-import { Effect } from "effect";
+import { Duration, Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Sinks } from "#modules/sinks/service.js";
@@ -13,6 +13,7 @@ import { closing, exercise } from "./internal/exercise.ts";
 import { deviceHost, needsDevice, standChain } from "./internal/device-host.ts";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
+import { proveReport } from "./internal/structured.ts";
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
@@ -27,6 +28,10 @@ const load = (root: string, empty = false) =>
     if (project.journeys.length === 0 && !empty) return yield* new ProveFailed({ message: `no journeys in ${resolve(root, "journeys")}` });
     return { model, project };
   });
+
+/** One line per journey skipped for its blanks, so a stub is never silently counted as proved. */
+const unfinishedIn = (project: { readonly unfinished?: ReadonlyArray<string> }) =>
+  (project.unfinished ?? []).map((file) => `journey ${file} skipped: it still has blanks (ortho check names them)`);
 
 export const Prove: ProveApi = {
   run: ({ root, port, empty = false, only, env }) =>
@@ -44,11 +49,13 @@ export const Prove: ProveApi = {
       const stood = yield* standChain(model);
       const { url, chain } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv, ...(stood.chain ? { chain: Effect.succeed(stood.chain) } : {}) }).pipe(Effect.mapError(failed));
       const device = needsDevice(model) ? yield* deviceHost(world, collector.url, chain).pipe(Effect.mapError(failed)) : undefined;
-      const done = yield* exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device);
+      const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device));
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
       if (!empty && only === undefined) yield* Impact.record(root, model, done.judged, done.results);
       const verdict = closing(done);
-      return { lines: [...sinks.notes, ...stood.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
+      const lines = [...sinks.notes, ...stood.notes, ...unfinishedIn(project), ...done.journeys.lines, ...done.evals.lines, verdict.line];
+      const seconds = Math.round(Duration.toMillis(took)) / 1000;
+      return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed) };
     }),
   dev: ({ root, port, env }) =>
     Effect.gen(function* () {
@@ -63,7 +70,7 @@ export const Prove: ProveApi = {
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
       const done = yield* exercise(model, project, url, Collectors.read(telemetry), "sign-up", undefined, state === undefined ? undefined : Journeys.databaseFacts(state));
-      for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
+      for (const line of [...unfinishedIn(project), ...done.journeys.lines, ...done.evals.lines]) yield* say(line);
       const verdict = closing(done);
       yield* say(verdict.line);
       return { passed: verdict.passed, results: done.results };

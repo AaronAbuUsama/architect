@@ -1,7 +1,8 @@
 // generated/docs: a page per thing (its fields, machine and roles) and per operation (who may call, what goes in and
 // out, its move, every refusal with its exit code, and how to call it). Markdown, read by people and by agents.
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
-import { NOT_ALLOWED_EXIT, lines, type RenderedFile } from "@orthograph/projections/shared";
+// `who` is the scaffold's own sentence (K16 a), so the docs page and the handler's front matter never disagree.
+import { NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
@@ -11,8 +12,6 @@ const fieldRows = (fields: FieldsModel) =>
     ? ["(none)"]
     : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
 
-const who = (op: OperationModel) =>
-  op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");
 
 /** Every refusal the operation can give, with its exit code and what it means. */
 const refusals = (model: Model, op: OperationModel) => {
@@ -21,6 +20,8 @@ const refusals = (model: Model, op: OperationModel) => {
     const declared = thing?.errors[r];
     const code = model.refusals[r] ?? "?";
     if (declared) return `| ${r} | ${declared.exit} | ${code} | declared in errors.ts${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
+    const missing = Object.entries(op.notFound ?? {}).filter(([, e]) => e === r).map(([k]) => k);
+    if (missing.length > 0) return `| ${r} | ${Object.values(model.things).find((t) => t.notFound?.error === r)?.notFound?.exit ?? "?"} | ${code} | nothing has the id in ${missing.join(", ")}; the handler never runs; carries \`id\` |`;
     if (r === "NotAllowed") return `| NotAllowed | ${NOT_ALLOWED_EXIT} | ${code} | the caller isn't ${who(op)}; the handler never runs |`;
     return `| ${r} | ${thing?.machine?.notFrom.exit ?? "?"} | ${code} | the ${op.thing} is in a state ${op.move?.key ?? "this"} can't start from; carries \`state\` |`;
   });
@@ -66,6 +67,7 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
       t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. A move from the wrong state is refused ${t.machine.notFrom.error} (exit ${t.machine.notFrom.exit}).`, "",
         "| move | from | to | emits |", "|---|---|---|---|",
         ...Object.entries(t.machine.moves).map(([k, m]) => `| ${k} | ${m.from.join(", ") || "(creates)"} | ${m.to.join(", ")} | ${m.emits} |`)] : [],
+      Object.keys(t.unique ?? {}).length ? ["", "## Unique", "", ...Object.entries(t.unique ?? {}).map(([k, u]) => `- ${k}: unique ${u.while ? `while ${u.while.join(", ")}` : "in every state"}`)] : [],
       t.roles.length ? ["", "## Roles", "", ...t.roles.map((r) => `- ${r}`)] : [],
       "", "## Operations", "", ops.length ? ops.map((o) => `- [${o.name}](${o.verb}.md): ${o.description}`) : ["(none yet)"],
     ),

@@ -1,5 +1,6 @@
 import { Blueprint } from "orthograph";
 import { Link } from "../thing.ts";
+import { linkOwner } from "../roles.ts";
 import { machine } from "../machine.ts";
 
 export default Blueprint.operation(Link, {
@@ -8,7 +9,7 @@ export default Blueprint.operation(Link, {
   answer: {},
   move: machine.moves.remove,
   errors: [],
-  allowed: [Blueprint.anyone],
+  allowed: [linkOwner],
   steps: { record: Blueprint.step.database() },
   budget: { p95: "150 millis" },
 });

@@ -1,13 +1,15 @@
 // The handler wrapper: what every generated operation runs through. Decode, check who may call, run the handler as
 // counted work inside the operation's span, check the answer, give it back.
 import { Context, Data, type Effect, type Redacted, type Schema } from "effect";
-import type { AnswerOf, ErrorOf, PayloadOf, Principal, Read, StepsOf } from "orthograph";
+import type { AnswerOf, ErrorOf, Field, InstanceOf, Operation, PayloadOf, Principal, Read, StepsOf, Thing } from "orthograph";
 import type { NotAllowed } from "#modules/access/types.js";
 import type { CallRunner, CallWiring, Callable } from "#modules/calls/types.js";
-import type { Records, Store } from "#modules/records/types.js";
+import type { Instance, Records, Store } from "#modules/records/types.js";
 import type { Busy } from "#modules/work/types.js";
 
 /** The payload didn't match the operation's declaration. Refused before the handler runs. */
+/** A request key used again with a payload other than the one it was first used with: refused, never answered with the kept answer. */
+export class IdempotencyConflict extends Data.TaggedError("IdempotencyConflict")<{ readonly key: string }> {}
 export class InvalidPayload extends Data.TaggedError("InvalidPayload")<{ readonly issues: string }> {}
 
 /**
@@ -28,7 +30,35 @@ export interface HandlerContext<O, C = {}> {
    * state is set and the move's event journalled. A handler that never calls it makes no move and emits nothing.
    */
   readonly move: (to?: MoveTo<O>) => Effect.Effect<void>;
+  /**
+   * The instance this call is about, read before the handler ran (the from-check and the commit's version guard read the
+   * same one), so a handler never reads it again. Undefined when the payload names none, and for a creating move.
+   */
+  readonly subject: InstanceOf<ThingOf<O>> | undefined;
+  /**
+   * Each thing a payload field names by its id, read before the handler ran and keyed by that field (`refs.member`). A
+   * missing one never reaches the handler: it is refused `<Thing>NotFound`, or `NotAllowed` when a role check reads it.
+   */
+  readonly refs: { readonly [K in RefKeys<O>]?: Instance };
+  /** A creating move's new id, minted before the handler ran: answer with it (`allowance: id`). Undefined otherwise. */
+  readonly id: CreatedId<O>;
 }
+
+type ThingOf<O> = O extends { readonly thing: infer T extends Thing } ? T : Thing;
+/** The value a thing's own id holds. */
+type IdOf<T extends Thing> = T["fields"] extends { readonly id: Field<infer V> } ? V["schema"]["Type"] : string;
+/** Payload fields taken from some thing's field: those that may name an instance by its id. */
+type RefKeys<O> = O extends Operation<any, infer P, any, any, any> ? { [K in keyof P]: P[K] extends Field ? K : never }[keyof P] & string : never;
+/**
+ * A move from no state makes its instance and has an id minted; a move from a state is given none. A machine keeps each
+ * move's `from` as the literal tuple it was written as, so `[]` is told apart from `["active"]` in the type.
+ */
+type CreatedId<O> = O extends { readonly move: infer M }
+  ? [NonNullable<M>] extends [never] ? undefined
+  : NonNullable<M> extends { readonly from: infer F extends ReadonlyArray<string> }
+    ? F extends readonly [] ? IdOf<ThingOf<O>> : undefined
+    : undefined
+  : undefined;
 
 type MoveTo<O> = O extends { readonly move: infer M } ? (NonNullable<M> extends { readonly to: ReadonlyArray<infer S> } ? S : never) : never;
 
@@ -37,6 +67,9 @@ export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: Han
 
 export interface Served<O, R> {
   readonly name: string;
+  /** The declaration this serves: what the visibility rule reads to cut an outcome for its caller. */
+  readonly operation: O;
+  // A `<Thing>NotFound` (M1.46) is refused by tag like `NotFrom`; the generated wire classes carry it to every surface.
   /** From the outside: decode first, refusing with `InvalidPayload`. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed | NotFrom, Exclude<R, Records> | Busy | Store>;
   /**
@@ -45,6 +78,9 @@ export interface Served<O, R> {
    */
   readonly run: (payload: PayloadOf<O>, principal: Principal, request?: string) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | NotAllowed | NotFrom, Exclude<R, Records> | Busy | Store>;
 }
+
+/** Nothing has the id a payload field names, and no role check read it. Named `<Thing>NotFound`; refused before the handler. */
+export class NotFound extends Data.Error<{ readonly _tag: string; readonly id: string }> {}
 
 /** The machine's own refusal: the instance is in a state the move can't start from. Named `<Thing>Not<State>`. */
 export class NotFrom extends Data.Error<{ readonly _tag: string; readonly state: string }> {}
@@ -103,6 +139,8 @@ export interface HandlerApi {
     readonly calls?: Readonly<Record<string, CallWiring>>;
     /** The machine's refusal for this operation's move, `<Thing>Not<State>`, named by the generated code. */
     readonly notFrom?: string;
+    /** Each payload field whose missing instance is refused before the handler, and its `<Thing>NotFound`, named by the generated code. */
+    readonly notFound?: Readonly<Record<string, string>>;
     /** Each refusal's code by tag (`Errors.codes`), so a refused call's span says `refusal.code`. */
     readonly codes?: Readonly<Record<string, string>>;
   }) => Served<O, R>;
@@ -124,6 +162,8 @@ export type ReadPayload = { readonly [field: string]: unknown };
 
 export interface ServedRead {
   readonly name: string;
+  /** The declaration this serves. */
+  readonly operation: Read<any, any, any>;
   /** From the outside: the payload decoded first. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed | Schema.SchemaError, Store>;
   /** From a server that already decoded the payload. */

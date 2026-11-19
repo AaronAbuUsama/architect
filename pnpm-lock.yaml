@@ -77,6 +77,9 @@ importers:
       '@orthograph/generators':
         specifier: workspace:*
         version: link:../packages/generators
+      '@orthograph/language-effect':
+        specifier: workspace:*
+        version: link:../packages/language-effect
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../packages/portal
@@ -275,6 +278,9 @@ importers:
       '@orthograph/lint':
         specifier: workspace:*
         version: link:../lint
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../projections
       '@orthograph/prove':
         specifier: workspace:*
         version: link:../prove

@@ -7,18 +7,20 @@ import type { CallRunner, CallWiring } from "#modules/calls/types.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
-import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
+import { BlankReached, IdempotencyConflict, InvalidPayload, type HandlerApi } from "./types.ts";
+import { canonical, sha256 } from "./internal/digest.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { measureCall } from "./internal/call-metrics.ts";
 import { Environment } from "./internal/environment.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
+import { prehandle, type Prehandled } from "./internal/prehandle.ts";
 import { recordingLogs } from "./internal/decided.ts";
 import { signalled, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 export { Environment } from "./internal/environment.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
-type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
+type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> } & Prehandled) => Effect.Effect<object, unknown, unknown>;
 
 /** An update's version had moved on, so this attempt committed nothing. Never leaves the wrapper. */
 class Conflict extends Data.TaggedError("Conflict")<{}> {}
@@ -33,14 +35,26 @@ const callStep = (span: string, run: CallRunner) => (args: ReadonlyArray<unknown
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
 
-const serve = ({ name, operation, handler, notFrom, calls, codes }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string; readonly calls?: Readonly<Record<string, CallWiring>>; readonly codes?: Readonly<Record<string, string>> }) => {
+interface Spec {
+  readonly name: string;
+  readonly operation: unknown;
+  readonly handler: AnyHandler;
+  readonly notFrom?: string;
+  readonly notFound?: Readonly<Record<string, string>>;
+  readonly calls?: Readonly<Record<string, CallWiring>>;
+  readonly codes?: Readonly<Record<string, string>>;
+}
+
+const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes }: Spec) => {
   const op = operation as Operation;
   const budgetMs = op.budget === undefined ? undefined : Duration.toMillis(op.budget.p95);
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
   const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
   if (notFrom !== undefined) refusals.add(notFrom);
+  for (const tag of Object.values(notFound)) refusals.add(tag);
   if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
+  refusals.add("IdempotencyConflict");
   const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
@@ -70,13 +84,18 @@ const serve = ({ name, operation, handler, notFrom, calls, codes }: { readonly n
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
+          // The kept answer is bound to the payload it was made for: the same key with another payload is another request.
+          const { payload: madeFor, answer } = JSON.parse(kept) as { readonly payload: string; readonly answer: unknown };
+          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict({ key: key! });
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
-          return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
+          return yield* decodeAnswer(answer).pipe(Effect.orDie);
         }
-        const from = yield* checkFrom(op, notFrom, payload, unit);
+        // What the payload names, read once and handed in; a missing one is refused before the handler, then the from-check.
+        const handed = yield* prehandle(op, notFound, payload, unit);
+        const from = yield* checkFrom(op, notFrom, handed.subject);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(Effect.provideService(Records, logs.watching(unit.records)), logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
@@ -85,10 +104,10 @@ const serve = ({ name, operation, handler, notFrom, calls, codes }: { readonly n
           Effect.orDie,
         );
         const outcome = yield* Ref.get(chosen);
-        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
+        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit, handed.id)];
         // The state the subject was in, written once the move is made: a refused call made no move.
         if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
-        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify({ payload: sha256(canonical(payload)), answer: wire }) } };
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(
           Effect.tap((outcome) => Effect.annotateCurrentSpan({
@@ -132,6 +151,7 @@ const serve = ({ name, operation, handler, notFrom, calls, codes }: { readonly n
   };
   return {
     name,
+    operation,
     call: (raw: unknown, principal: Principal) =>
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),

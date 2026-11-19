@@ -4,10 +4,15 @@ import type { AnyErrorClass, Allowed, CallStep, Field, FieldsInput, Operation, R
 import type { AllowedModel, BlankOperationModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
+import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
+import { exitClashes, notFoundShapes, operationExitClashes } from "./exits.ts";
+import { unfillable } from "./fillable.ts";
+import { RUNS_NEEDS, deviceProblems } from "./device.ts";
 import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
+import { uniqueOf } from "./unique.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
 /** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
@@ -16,6 +21,7 @@ const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => (a < 
 export const describe = (layout: Layout): { model: Model; problems: Array<string> } => {
   const problems = [...layout.problems];
   const valueNames = new Map<Value, string>([...layout.values].map(([n, v]) => [v, n]));
+  const schemaNames = new Map([...layout.values].map(([n, v]) => [v.schema, n]));
   const thingNames = new Map([...layout.things].flatMap(([n, t]) => (t.thing ? [[t.thing, n] as const] : [])));
   const eventNames = new Map([...layout.things.values()].flatMap((t) => [...t.events].map(([n, e]) => [e, n] as const)));
   const errorNames = new Map([...layout.things.values()].flatMap((t) => [...t.errors].map(([n, e]) => [e, n] as const)));
@@ -32,16 +38,25 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     v === "public" ? undefined
     : v === "secret" ? "secret"
     : { private: v.to.map((r) => roleNames.get(r) ?? problem(problems, `${where}: is private to a role not exported from a roles.ts`)) };
-  const fieldModel = (input: Field | Value, where: string): FieldModel => {
+  /** `Blueprint.issued` is allowed in one place: a secret value in an operation's answer. Anywhere else it is refused, naming the field. */
+  const issuedIn = (input: Field | Value, where: string, place: Place): boolean => {
+    if (input.issued !== true) return false;
+    if (place !== "answer") problems.push(`${where}: is marked Blueprint.issued in ${place}: only a secret value in an operation's answer is issued`);
+    else if (input.visibility !== "secret") problems.push(`${where}: is marked Blueprint.issued but is ${input.visibility === "public" ? "public" : "private"}: only a secret value is issued`);
+    return place === "answer" && input.visibility === "secret";
+  };
+  const fieldModel = (input: Field | Value, where: string, place: Place = "a thing's field"): FieldModel => {
     const value = input.kind === "field" ? input.value : input;
-    const named = valueNames.get(value);
+    // `Blueprint.issued(Secret)` is a copy of the named value, so it is found by the schema it shares with it.
+    const named = valueNames.get(value) ?? (input.issued === true ? schemaNames.get(value.schema) : undefined);
     const ref = input.kind === "field" ? fieldRef(input) : undefined;
     if (input.kind === "field" && !ref) problems.push(`${where}: uses a field of a thing that isn't in the blueprint`);
     const visibility = visibilityModel(input.visibility, where);
-    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}) };
+    const issued = issuedIn(input, where, place);
+    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
   };
-  const fieldsModel = (fields: FieldsInput, where: string): FieldsModel =>
-    Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`)]));
+  const fieldsModel = (fields: FieldsInput, where: string, place: Place): FieldsModel =>
+    Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`, place)]));
 
   // What isn't written yet, by declaration and part.
   const blanks: Record<string, Array<string>> = {};
@@ -60,12 +75,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     writes ? { writes: writes.map((w) => thingNames.get(w) ?? problem(problems, `${where}: a step writes a thing that isn't in the blueprint`)) } : {};
 
   const prefix = prefixes(layout.things, problems);
+  // A thing some operation's payload names where no role check reads it gets a `<Thing>NotFound` (K16, M1.46).
+  const missable = new Set([...layout.things.values()].flatMap((t) => [...t.verbs.values()].flatMap(({ declaration: d }) => missedBy(d, Blanks.isBlank))));
   const things: Record<string, ThingModel> = {};
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     if (!t.thing) continue;
     const where = t.base;
     const fields = Object.fromEntries(
-      Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
+      Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.issued === true ? f : f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
     );
     const m = t.machine;
     blankIn(name, {
@@ -83,10 +100,12 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
+    const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
+    const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), machine,
-      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
-      errors: Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }])),
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), machine,
+      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
+      errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),
       roleRules: Object.fromEntries(byName(t.roles).map(([role, { rule }]) => [role, Blanks.isBlank(rule) ? null : rule.toString()])),
       from: t.from,
@@ -136,22 +155,27 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
       : null;
     if (op.move && op.move.machine !== layout.things.get(thing)?.machine) problems.push(`${file}: moves another thing's machine`);
+    problems.push(...unfillable(op, `${thing}.${verb}`, thing, move?.emits ?? "?", `${layout.things.get(thing)?.base ?? `blueprint/things/${thing}`}/events.ts`));
     const errors = op.errors.map((e) => errorNames.get(e) ?? problem(problems, `${file}: declares an error not exported from an errors.ts`));
     // Each refusal goes on the wire by its name: two classes of one name in one union can't be told apart.
     for (const tag of new Set(errors.filter((n, i) => errors.indexOf(n) !== i && n !== "?"))) {
       problems.push(`${file}: ${thing}.${verb}'s errors are a union with two classes tagged ${tag}, so the refusal is ambiguous on the wire: rename one`);
     }
     const allowed = op.allowed.map((a) => allowedModel(a, file));
+    const found = foundModel(op, (x) => thingNames.get(x), (x) => things[x]?.notFound?.error);
     const refusals = [
       ...errors,
       ...(move && move.from.length > 0 && machine ? [machine.notFrom.error] : []),
+      ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
     ];
+    const payload = fieldsModel(op.payload, `${file} payload`, "a payload");
+    const answer = fieldsModel(op.answer, `${file} answer`, "answer");
+    const mints = mintsOf(move?.from.length === 0, thing, answer, payload);
     const entry = {
       kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from, description: op.description,
-      payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
-      move, errors, refusals, allowed,
+      payload, answer, move, errors, refusals, allowed, ...found, ...(mints !== undefined ? { mints } : {}),
       steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k,
         Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)])),
       ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
@@ -196,14 +220,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
     if (list && read.where.includes("state") && !t?.machine) problems.push(`${file}: where "state" needs ${thing} to have a machine`);
     if (list && (!Number.isInteger(read.page) || (read.page ?? 0) < 1 || (read.page ?? 0) > 1000)) problems.push(`${file}: page must be a whole number from 1 to 1000`);
-    const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`)).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
+    const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`, "a payload")).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
     const entry = {
       kind: "read" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from,
       description: list
         ? `List ${thing}s, ${read.order === "newest" ? "newest first" : "oldest first"}, ${read.page} to a page${read.where.length > 0 ? `, filtered by ${read.where.join(", ")}` : ""}.`
         : `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
-      payload, answer: fieldsModel(read.answer, `${file} answer`),
+      payload, answer: fieldsModel(read.answer, `${file} answer`, "a read answer"),
       move: null, errors: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed,
       steps: {}, idempotent: null, runs: "server" as const, test: "unit" as const,
       budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
@@ -213,29 +237,21 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   }
 
   const refusals = refusalsOf(things, problems);
+  problems.push(...exitClashes(things), ...operationExitClashes(things, operations), ...notFoundShapes(things));
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
   const environments = environmentsOf(layout, problems);
   const stores = storesOf(layout, problems);
+  const { journeyBlanks, ...stories } = storiesOf(layout, operations, allowedModel);
+  const allBlanks = { ...blanks, ...journeyBlanks };
   return {
-    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...storiesOf(layout, operations, allowedModel), ...(Object.keys(blankOperations).length > 0 ? { blankOperations } : {}), ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
+    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...stories, ...(Object.keys(blankOperations).length > 0 ? { blankOperations } : {}), ...(Object.keys(allBlanks).length > 0 ? { blanks: allBlanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
     problems,
   };
 };
 
-/** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
-const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "an operation runs on the caller's own device only when a mounted plugin supplies it, with a code entry for each of node, browser and world; this app's own operations all run on the server",
-  chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
-};
 
-/** What an operation on the device can't have: there is no server there to know who calls, store anything, or move a machine. */
-const deviceProblems = (file: string, op: Operation): ReadonlyArray<string> => [
-  ...(op.allowed.every((a) => a.kind === "anyone") ? [] : [`${file}: a client operation runs on the caller's device, where no server knows who is calling: it must be allowed to Blueprint.anyone`]),
-  ...(op.move ? [`${file}: a client operation has no store, so it can't move a machine`] : []),
-  ...(Object.values(op.steps).some((s) => s.type === "call") ? [`${file}: a client operation can't have a call step yet (the wallet reaches the chain through the chain port as a library, M1-plugins section 8.2; a call step on the device waits for an adapter that needs one)`] : []),
-  ...(op.idempotent ? [`${file}: a client operation has no server to keep an idempotency key`] : []),
-];
-
+/** Where a field is declared: `Blueprint.issued` is allowed in one of these. */
+type Place = "answer" | "a payload" | "an error" | "an event" | "a thing's field" | "a read answer";
 
 const problem = (problems: Array<string>, p: string): string => {
   problems.push(p);

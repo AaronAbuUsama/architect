@@ -109,7 +109,7 @@ describe("00 controls: a project that mounts nothing is untouched by an installe
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(11);
     expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(15);
     expect(lines.some((l) => l.includes("echo"))).toBe(false);
-    expect(lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16");
+    expect(lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17");
     expect(lines.at(-1)).toBe("prove ✔");
     nothingRunning(root);
   });

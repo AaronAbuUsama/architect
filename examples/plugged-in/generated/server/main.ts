@@ -8,16 +8,20 @@ import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
 import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
-import { Mcp, type McpResult } from "@orthograph/language-effect";
+import { Mcp, type McpResult, type ShownOperation } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
 import { catalog } from "../mcp/src/index.ts";
 import * as handleClaim from "../api/src/handle/claim.ts";
+import * as handleRelease from "../api/src/handle/release.ts";
+import * as handleResolve from "../api/src/handle/resolve.ts";
 import * as linkAdd from "../api/src/link/add.ts";
 import * as linkOrder from "../api/src/link/order.ts";
 import * as linkRemove from "../api/src/link/remove.ts";
 import * as profileGet from "../api/src/profile/get.ts";
 import handleClaimHandler from "../../src/handle/claim.ts";
+import handleReleaseHandler from "../../src/handle/release.ts";
+import handleResolveHandler from "../../src/handle/resolve.ts";
 import linkAddHandler from "../../src/link/add.ts";
 import linkOrderHandler from "../../src/link/order.ts";
 import linkRemoveHandler from "../../src/link/remove.ts";
@@ -29,6 +33,8 @@ import * as profileThing from "../../blueprint/things/profile/thing.ts";
 export { World } from "@orthograph/host-cloudflare";
 
 const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, codes: Errors.codes });
+const handleReleaseServed = Handlers.serve({ name: "handle.release", operation: handleRelease.declaration, handler: handleReleaseHandler, notFrom: "HandleNotClaimed", codes: Errors.codes });
+const handleResolveServed = Handlers.serve({ name: "handle.resolve", operation: handleResolve.declaration, handler: handleResolveHandler, codes: Errors.codes });
 const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler, codes: Errors.codes });
 const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, codes: Errors.codes });
 const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", codes: Errors.codes });
@@ -43,11 +49,13 @@ type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth
 
 /** Who is calling, then the operation or read, its refusals sent as their wire classes. */
 type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
-const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
+/** Every answer and every refusal is cut by the visibility rule for this caller before it is sent. */
+const shown = Wire.shown(Errors.declared);
+const call = <P extends object>(served: { readonly run: Run; readonly operation: ShownOperation }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
   Effect.flatMap(Principals, (principals) => principals.of(headers["authorization"])).pipe(
     Effect.withTracerEnabled(false),
     // The caller's idempotency key: for an operation declared `idempotent: "request"`, the same key is one call.
-    Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"])),
+    Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"]).pipe(shown(served, payload, principal))),
     refusals,
   ) as Effect.Effect<never, never, Services>;
 
@@ -55,7 +63,9 @@ const HandleLive = HttpApiBuilder.group(CallApi, "handle", Effect.fn(function* (
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
-      .handle("claim", ({ payload, request }) => call(handleClaimServed, payload, request.headers).pipe(Effect.provideContext(services)));
+      .handle("claim", ({ payload, request }) => call(handleClaimServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("release", ({ payload, request }) => call(handleReleaseServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("resolve", ({ payload, request }) => call(handleResolveServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
 const LinkLive = HttpApiBuilder.group(CallApi, "link", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
@@ -124,8 +134,8 @@ const hostsWorlds = (env: Env) =>
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
-  served: { "handle.claim": handleClaimServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "profile.get": profileGetServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  served: { "handle.claim": handleClaimServed, "handle.release": handleReleaseServed, "handle.resolve": handleResolveServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "profile.get": profileGetServed },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.

@@ -12,6 +12,7 @@
       "NotAllowed": "AR-001",
       "OrganizationNotActive": "OR-900",
       "PersonEmailTaken": "PE-001",
+      "PersonNotFound": "PE-901",
       "SessionCredentialsWrong": "SE-001"
     },
     "values": {
@@ -562,12 +563,17 @@
             "code": "PE-001"
           }
         },
+        "notFound": {
+          "error": "PersonNotFound",
+          "exit": 4,
+          "code": "PE-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "ad771ebabdfe3e0e"
+        "hash": "b9ea3faa6d8c2cff"
       },
       "session": {
         "name": "session",
@@ -772,6 +778,7 @@
         ],
         "refusals": [
           "AllowanceLimitTooHigh",
+          "PersonNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -781,6 +788,14 @@
             "path": "organization"
           }
         ],
+        "refs": {
+          "organization": "organization",
+          "member": "person"
+        },
+        "notFound": {
+          "member": "PersonNotFound"
+        },
+        "mints": "allowance",
         "steps": {
           "insert": {
             "name": "allowance.grant.insert",
@@ -793,7 +808,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "f883070ae1800cf3"
+        "hash": "d2f210c83b7094aa"
       },
       "allowance.revoke": {
         "kind": "operation",
@@ -839,6 +854,9 @@
             "path": "allowance.organization"
           }
         ],
+        "refs": {
+          "allowance": "allowance"
+        },
         "steps": {
           "update": {
             "name": "allowance.revoke.update",
@@ -851,7 +869,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "a145b0ab143dcc8a"
+        "hash": "ff4138cdaf06af2e"
       },
       "allowance.spend": {
         "kind": "operation",
@@ -921,6 +939,9 @@
             "role": "allowance.grantee"
           }
         ],
+        "refs": {
+          "allowance": "allowance"
+        },
         "steps": {
           "load": {
             "name": "allowance.spend.load",
@@ -937,7 +958,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "fe130df24265eeb2"
+        "hash": "39c4ea1843aba087"
       },
       "api-key.create": {
         "kind": "operation",
@@ -980,7 +1001,8 @@
               "max": 512
             },
             "named": "Secret",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           }
         },
         "move": null,
@@ -995,6 +1017,9 @@
             "path": "organization"
           }
         ],
+        "refs": {
+          "organization": "organization"
+        },
         "steps": {
           "issue": {
             "name": "api-key.create.issue",
@@ -1011,7 +1036,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "56de0903f4a0f20e"
+        "hash": "69f515f7088b2d8e"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -1070,6 +1095,9 @@
             "role": "invitation.invitee"
           }
         ],
+        "refs": {
+          "invitation": "invitation"
+        },
         "steps": {
           "join": {
             "name": "invitation.accept.join",
@@ -1082,7 +1110,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "937e15a8f2c9b98a"
+        "hash": "2a36a93997c71f99"
       },
       "invitation.revoke": {
         "kind": "operation",
@@ -1127,6 +1155,9 @@
             "path": "invitation.organization"
           }
         ],
+        "refs": {
+          "invitation": "invitation"
+        },
         "steps": {
           "update": {
             "name": "invitation.revoke.update",
@@ -1139,7 +1170,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "a527002466da0300"
+        "hash": "aacefd8778f73cb5"
       },
       "invitation.send": {
         "kind": "operation",
@@ -1196,6 +1227,10 @@
             "path": "organization"
           }
         ],
+        "refs": {
+          "organization": "organization"
+        },
+        "mints": "invitation",
         "steps": {
           "insert": {
             "name": "invitation.send.insert",
@@ -1208,7 +1243,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "2f3b2483d2c752f7"
+        "hash": "65b4785dba83b560"
       },
       "membership.get": {
         "kind": "read",
@@ -1332,6 +1367,7 @@
             "kind": "signed-in"
           }
         ],
+        "mints": "organization",
         "steps": {
           "insert": {
             "name": "organization.create.insert",
@@ -1348,7 +1384,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "431b6d1d45006435"
+        "hash": "519d37f5d362cc26"
       },
       "organization.get": {
         "kind": "read",
@@ -1564,7 +1600,8 @@
               "prefix": "ses"
             },
             "ref": "session.id",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           },
           "token": {
             "value": {
@@ -1572,7 +1609,8 @@
               "max": 512
             },
             "named": "Secret",
-            "visibility": "secret"
+            "visibility": "secret",
+            "issued": true
           }
         },
         "move": null,
@@ -1599,7 +1637,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "64fc31973ed9c65e"
+        "hash": "5613fa720dc82a20"
       },
       "system.health": {
         "kind": "operation",
@@ -2163,9 +2201,45 @@
                 ]
               }
             ]
+          },
+          {
+            "title": "a member who is no one is refused PersonNotFound and the handler never runs",
+            "call": {
+              "actor": "ada",
+              "operation": "allowance.grant",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "member": "per_nobody",
+                "limit": "500"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "person.notFound",
+                "fields": {
+                  "id": "per_nobody"
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "allowance.grant.insert"
+                ]
+              }
+            ]
           }
         ],
-        "sourceHash": "714190d2303a8acc5f362ff99cabb4cbab5a793b1df41dda27617fbdacef2ecf"
+        "sourceHash": "65838fe1228ced1d334395945cbd13d0a067af8ddd5b17d58efa59722c63fcce"
       },
       "journeys/health-is-up.ts": {
         "name": "health is up",
@@ -3815,79 +3889,79 @@
       "operation:allowance.get": "6bed21e0ae22d8a8",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.grant": {
-      "operation:allowance.grant": "f883070ae1800cf3",
+      "operation:allowance.grant": "d2f210c83b7094aa",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.revoke": {
-      "operation:allowance.revoke": "a145b0ab143dcc8a",
+      "operation:allowance.revoke": "ff4138cdaf06af2e",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.spend": {
-      "operation:allowance.spend": "fe130df24265eeb2",
+      "operation:allowance.spend": "39c4ea1843aba087",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "api-key.create": {
-      "operation:api-key.create": "56de0903f4a0f20e",
+      "operation:api-key.create": "69f515f7088b2d8e",
       "thing:api-key": "dec54cf75bd4acb9",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.accept": {
-      "operation:invitation.accept": "937e15a8f2c9b98a",
+      "operation:invitation.accept": "2a36a93997c71f99",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.revoke": {
-      "operation:invitation.revoke": "a527002466da0300",
+      "operation:invitation.revoke": "aacefd8778f73cb5",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.send": {
-      "operation:invitation.send": "2f3b2483d2c752f7",
+      "operation:invitation.send": "65b4785dba83b560",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "membership.get": {
       "operation:membership.get": "681858c8967f5976",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "organization.create": {
-      "operation:organization.create": "431b6d1d45006435",
+      "operation:organization.create": "519d37f5d362cc26",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "organization.get": {
       "operation:organization.get": "fa554aa19547e5b1",
       "thing:organization": "561078515c5ea01e",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "person.sign-up": {
       "operation:person.sign-up": "e11e9d899807519a",
-      "thing:person": "ad771ebabdfe3e0e"
+      "thing:person": "b9ea3faa6d8c2cff"
     },
     "session.show": {
       "operation:session.show": "4c1f11c0f00cc6e0",
-      "thing:person": "ad771ebabdfe3e0e",
+      "thing:person": "b9ea3faa6d8c2cff",
       "thing:session": "455311c2adae1097"
     },
     "session.sign-in": {
-      "operation:session.sign-in": "64fc31973ed9c65e",
-      "thing:person": "ad771ebabdfe3e0e",
+      "operation:session.sign-in": "5613fa720dc82a20",
+      "thing:person": "b9ea3faa6d8c2cff",
       "thing:session": "455311c2adae1097"
     },
     "system.health": {
@@ -3897,7 +3971,7 @@
   },
   "docs": {
     "allowance/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance.get\n\nRead one allowance by its id: organization, member, limit, spent, state.\n\n**Who may call:** the grantee of the allowance, or the owner of its organization.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | allowance.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| organization | allowance.organization |\n| member | allowance.member |\n| limit | allowance.limit |\n| spent | allowance.spent |\n| state | text |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the grantee of the allowance, or the owner of its organization; the handler never runs |\n\n## How to call\n\n```sh\nacme allowance get --id <id>\n```\n\nHTTP: `POST /allowance/get` with the payload as JSON. SDK: `Sdk.allowance.get(payload)`.\n",
-    "allowance/grant.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance.grant\n\nLet a member spend from the organisation, up to a limit each month.\n\n**Who may call:** the owner of its organization.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| organization | allowance.organization |\n| member | allowance.member |\n| limit | allowance.limit |\n\n## Answer\n\n| field | value |\n|---|---|\n| allowance | allowance.id |\n\n## Move\n\n`grant`: from nothing (it creates) to active, emitting AllowanceGranted.\n\n## Steps\n\n- `allowance.grant.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AllowanceLimitTooHigh | 44 | AL-003 | declared in errors.ts, carrying cap |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |\n\n## How to call\n\n```sh\nacme allowance grant --organization <organization> --member <member> --limit <limit>\n```\n\nHTTP: `POST /allowance/grant` with the payload as JSON. SDK: `Sdk.allowance.grant(payload)`.\n",
+    "allowance/grant.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance.grant\n\nLet a member spend from the organisation, up to a limit each month.\n\n**Who may call:** the owner of its organization.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| organization | allowance.organization |\n| member | allowance.member |\n| limit | allowance.limit |\n\n## Answer\n\n| field | value |\n|---|---|\n| allowance | allowance.id |\n\n## Move\n\n`grant`: from nothing (it creates) to active, emitting AllowanceGranted.\n\n## Steps\n\n- `allowance.grant.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AllowanceLimitTooHigh | 44 | AL-003 | declared in errors.ts, carrying cap |\n| PersonNotFound | 4 | PE-901 | nothing has the id in member; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |\n\n## How to call\n\n```sh\nacme allowance grant --organization <organization> --member <member> --limit <limit>\n```\n\nHTTP: `POST /allowance/grant` with the payload as JSON. SDK: `Sdk.allowance.grant(payload)`.\n",
     "allowance/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance\n\nMoney a member may spend from their organisation, up to a limit each month.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| organization | organization.id |\n| member | person.id |\n| limit | Amount |\n| spent | Amount |\n\n## Machine\n\nStates: active, exhausted, revoked. A move from the wrong state is refused AllowanceNotActive (exit 40).\n\n| move | from | to | emits |\n|---|---|---|---|\n| grant | (creates) | active | AllowanceGranted |\n| spend | active | active, exhausted | AllowanceSpent |\n| revoke | active, exhausted | revoked | AllowanceRevoked |\n\n## Roles\n\n- grantee\n\n## Operations\n\n- [allowance.get](get.md): Read one allowance by its id: organization, member, limit, spent, state.\n- [allowance.grant](grant.md): Let a member spend from the organisation, up to a limit each month.\n- [allowance.revoke](revoke.md): Stop an allowance. Nothing more can be spent from it.\n- [allowance.spend](spend.md): Spend from what is left of this month's allowance.\n",
     "allowance/revoke.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance.revoke\n\nStop an allowance. Nothing more can be spent from it.\n\n**Who may call:** the owner of its allowance.organization.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| allowance | allowance.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`revoke`: from active or exhausted to revoked, emitting AllowanceRevoked.\n\n## Steps\n\n- `allowance.revoke.update` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AllowanceNotActive | 40 | AL-900 | the allowance is in a state revoke can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its allowance.organization; the handler never runs |\n\n## How to call\n\n```sh\nacme allowance revoke --allowance <allowance>\n```\n\nHTTP: `POST /allowance/revoke` with the payload as JSON. SDK: `Sdk.allowance.revoke(payload)`.\n",
     "allowance/spend.md": "<!-- Generated from the blueprint. Do not edit. -->\n# allowance.spend\n\nSpend from what is left of this month's allowance.\n\n**Who may call:** the grantee of the allowance.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| allowance | allowance.id |\n| amount | Amount |\n| memo | Memo |\n\n## Answer\n\n| field | value |\n|---|---|\n| remaining | Amount |\n\n## Move\n\n`spend`: from active to active or exhausted, emitting AllowanceSpent.\n\n## Steps\n\n- `allowance.spend.load` (database)\n- `allowance.spend.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AllowanceExceeded | 41 | AL-001 | declared in errors.ts, carrying remaining |\n| AllowanceNotActive | 40 | AL-900 | the allowance is in a state spend can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the grantee of the allowance; the handler never runs |\n\n## How to call\n\n```sh\nacme allowance spend --allowance <allowance> --amount <amount> --memo <memo>\n```\n\nHTTP: `POST /allowance/spend` with the payload as JSON. SDK: `Sdk.allowance.spend(payload)`.\n",
@@ -3934,5 +4008,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "18c5bbc2d7e21d5df689f24d6ad5a7156bf23e297e25e3e33acba17104208cb1"
+  "digest": "ce22dc24721b836bec18323843a2cce09f5714f6888fbece71157b0102459e90"
 }

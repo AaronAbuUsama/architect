@@ -39,6 +39,8 @@ export interface StepResult {
   readonly trace: string;
   /** Empty when the step passed (span checks are added once telemetry is in). */
   readonly failures: ReadonlyArray<string>;
+  /** The same failures with what was expected and what came back, for the structured report. */
+  readonly findings?: ReadonlyArray<{ readonly message: string; readonly expected?: string; readonly got?: string }>;
   /** Span names the step expects present or absent in its trace. */
   readonly spans: { readonly present: ReadonlyArray<string>; readonly absent: ReadonlyArray<string> };
 }
@@ -78,6 +80,8 @@ export interface Project {
   readonly startingWorlds: ReadonlyMap<string, StartingWorld>;
   /** Each operation a mount omits, by its declaration: a journey's step that runs one is skipped. */
   readonly omitted?: ReadonlyMap<unknown, { readonly operation: string; readonly file: string }>;
+  /** The journeys skipped because they still hold blanks (stubs from `ortho add journeys`), by file (K16 e). */
+  readonly unfinished?: ReadonlyArray<string>;
 }
 
 export class ProjectFailed extends Data.TaggedError("ProjectFailed")<{ readonly message: string }> {}

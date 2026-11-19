@@ -13,6 +13,8 @@ export interface ProjectFacts {
   readonly handlers: Readonly<Record<string, ReadonlyArray<string>>>;
   /** Required runner keys per handler file. */
   readonly requiredSteps?: Readonly<Record<string, ReadonlyArray<string>>>;
+  /** Per handler file, the outcomes of its move when it has more than one: each should be named in a `move("…")`. */
+  readonly outcomes?: Readonly<Record<string, ReadonlyArray<string>>>;
 }
 
 /** The subset of oxlint's (ESLint's) rule context the rules use. */

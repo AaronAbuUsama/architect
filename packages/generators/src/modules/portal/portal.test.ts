@@ -76,6 +76,37 @@ describe("the portal's dependency adapter is the compiler's Compare.dependsOn", 
   });
 });
 
+describe("the portal's data holds no secret a journey step passes to a blank operation", () => {
+  const scratch = join(acme, "test/tmp/portal-blank-journey");
+  const secret = "hunter2-DISTINCTIVE-4f9a1c";
+
+  it("a journey step calling an operation with a blank part leaves its secret payload literal out of generated/portal/blueprint.json", async () => {
+    rmSync(scratch, { recursive: true, force: true });
+    mkdirSync(join(scratch, "journeys"), { recursive: true });
+    try {
+      for (const part of ["blueprint", "package.json"]) cpSync(join(acme, part), join(scratch, part), { recursive: true, filter: (f) => !basename(f).startsWith(".") });
+      writeFileSync(join(scratch, "tsconfig.json"), JSON.stringify({ extends: relative(scratch, join(acme, "tsconfig.json")), include: ["blueprint/**/*.ts", "journeys/**/*.ts"] }));
+      const signUp = join(scratch, "blueprint/things/person/verbs/sign-up.ts");
+      writeFileSync(signUp, readFileSync(signUp, "utf8").replace("steps: { create: Blueprint.step.database() },", 'steps: Blueprint.todo("the steps"),'));
+      writeFileSync(join(scratch, "journeys/leak.ts"), [
+        'import { Blueprint } from "orthograph";',
+        'import signUp from "../blueprint/things/person/verbs/sign-up.ts";',
+        'export default Blueprint.journey("a newcomer signs up", {',
+        "  cast: { newcomer: Blueprint.anyone },",
+        `  steps: (s) => [s.step("the newcomer signs up", s.newcomer.run(signUp, { email: "n@example.test", password: "${secret}", name: "Newcomer" }))],`,
+        "});",
+        "",
+      ].join("\n"));
+      const model = compile(scratch);
+      expect(Object.keys(model.blankOperations ?? {})).toContain("person.sign-up");
+      const portal = (await filesOf("acme", model)).get("generated/portal/blueprint.json")!;
+      expect(portal.includes(secret) ? "the secret literal is in the portal's blueprint.json" : "the portal data is clean").toBe("the portal data is clean");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("the portal stays out of the project's own code", () => {
   const tsFiles = (dir: string): ReadonlyArray<string> =>
     readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.name === "node_modules" || d.name === "generated" || d.name === "tmp" ? [] : d.isDirectory() ? tsFiles(join(dir, d.name)) : d.name.endsWith(".ts") ? [join(dir, d.name)] : []));

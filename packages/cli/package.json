@@ -6,6 +6,7 @@
     "@orthograph/compiler": "workspace:*",
     "@orthograph/generators": "workspace:*",
     "@orthograph/lint": "workspace:*",
+    "@orthograph/projections": "workspace:*",
     "@orthograph/prove": "workspace:*",
     "orthograph": "workspace:*",
     "@effect/platform-node": "4.1.1",

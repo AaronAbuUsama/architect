@@ -6,17 +6,60 @@ import type { Handler } from "../../generated/api/src/link/add.handler.ts";
 
 const { LinkNeedsHandle } = Errors.declared;
 
-/** Append a link to the public page of a claimed name. */
-const add: Handler = (_payload, { steps, move }) =>
+/**
+ * link.add: Append a link to your own public page. You need a claimed name first.
+ *
+ * Who may call, from blueprint/things/link/verbs/add.ts:
+ *   anyone signed in
+ *
+ * Payload, from blueprint/things/link/verbs/add.ts:
+ *   title  link.title
+ *   url    link.url
+ *
+ * Answer, from blueprint/things/link/verbs/add.ts:
+ *   link  link.id
+ *
+ * Refusals:
+ *   LinkNeedsHandle  exit 30  LN-001  yours to refuse below; from blueprint/things/link/errors.ts
+ *   NotAllowed       exit 3   AR-001  the runtime's, when the caller isn't anyone signed in; from blueprint/things/link/verbs/add.ts
+ *
+ * Idempotent by request, from blueprint/things/link/verbs/add.ts: the same request key from the same caller is one call.
+ * Budget, from blueprint/things/link/verbs/add.ts: p95 150ms.
+ *
+ * The link's machine, from blueprint/things/link/machine.ts (▶ marks this call):
+ *     from       move    to       emits
+ *   ▶ (creates)  add     listed   LinkAdded
+ *     listed     remove  removed  LinkRemoved
+ *
+ * What the runtime does, so this handler doesn't:
+ *   before it runs, it refuses NotAllowed unless the caller is signed in;
+ *   before it runs, it mints the link's new id and hands it in as id;
+ *   each step is its own span: link.add.load, link.add.record;
+ *   once it answers, it sets the link's state to listed;
+ *   once it answers, it writes LinkAdded: link from the answer;
+ *   the call is the span link.add, and its commit link.add.commit.
+ */
+const add: Handler = (_payload, { steps, move, id }) =>
   Effect.gen(function* () {
+    // Step load: database, span link.add.load.
     yield* steps.load(Handlers.blank("load: the work this step does"));
-    yield* steps.record(Handlers.blank("record: the work this step does"));
+
+    // LinkNeedsHandle: exit 30, LN-001.
     if (yield* Handlers.blank<boolean>("refuse LinkNeedsHandle when?")) {
       yield* Effect.logInfo(yield* Handlers.blank("why LinkNeedsHandle was refused"));
-      return yield* new LinkNeedsHandle(yield* Handlers.blank("LinkNeedsHandle's fields"));
+      return yield* new LinkNeedsHandle({});
     }
+
+    // Step record: database, span link.add.record.
+    yield* steps.record(Handlers.blank("record: the work this step does"));
+
+    // The move add, to listed.
     yield* move();
-    return yield* Handlers.blank("the answer");
+
+    return {
+      // LinkAdded needs link, and only the answer can give it.
+      link: id,
+    };
   });
 
 export default add;
