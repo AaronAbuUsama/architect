@@ -78,8 +78,8 @@ const Views = (() => {
       if (e.f === e.t) {
         const cx = x(e.f) + W / 2;
         const h = 58 + nth * 22;
-        paths += `<path class="${cls}" d="M ${cx - 30} ${midY - 22} C ${cx - 50} ${midY - 22 - h}, ${cx + 50} ${midY - 22 - h}, ${cx + 30} ${midY - 22}" marker-end="url(#arrow-${cls})"/>`;
-        labels += `<text class="ml ${cls}" x="${cx}" y="${midY - 22 - h * 0.78}" text-anchor="middle">${esc(e.key)}</text>`;
+        paths += `<path class="${cls}" data-k="${esc(e.key)}" data-f="${esc(e.f)}" data-t="${esc(e.t)}" d="M ${cx - 30} ${midY - 22} C ${cx - 50} ${midY - 22 - h}, ${cx + 50} ${midY - 22 - h}, ${cx + 30} ${midY - 22}" marker-end="url(#arrow-${cls})"/>`;
+        labels += `<text class="ml ${cls}" data-k="${esc(e.key)}" x="${cx}" y="${midY - 22 - h * 0.78}" text-anchor="middle">${esc(e.key)}</text>`;
         continue;
       }
       const forward = nodes.indexOf(e.t) > nodes.indexOf(e.f);
@@ -88,13 +88,13 @@ const Views = (() => {
       const y = forward ? midY - 8 - nth * 10 : midY + 8 + nth * 10;
       const bend = (forward ? -1 : 1) * (26 + Math.abs(x2 - x1) * 0.18 + nth * 16);
       const mx = (x1 + x2) / 2;
-      paths += `<path class="${cls}" d="M ${x1} ${y} Q ${mx} ${y + bend * 2} ${x2} ${y}" marker-end="url(#arrow-${cls})"/>`;
-      labels += `<text class="ml ${cls}" x="${mx}" y="${y + bend + (forward ? -4 : 14)}" text-anchor="middle">${esc(e.key)}</text>`;
+      paths += `<path class="${cls}" data-k="${esc(e.key)}" data-f="${esc(e.f)}" data-t="${esc(e.t)}" d="M ${x1} ${y} Q ${mx} ${y + bend * 2} ${x2} ${y}" marker-end="url(#arrow-${cls})"/>`;
+      labels += `<text class="ml ${cls}" data-k="${esc(e.key)}" x="${mx}" y="${y + bend + (forward ? -4 : 14)}" text-anchor="middle">${esc(e.key)}</text>`;
     }
     const boxes = nodes
       .map((n) => {
         const touched = edges.some((e) => e.key === m.lit && (e.f === n || e.t === n));
-        return `<rect class="st ${touched ? "lit" : ""} ${n === "(new)" ? "new" : ""}" x="${x(n)}" y="${midY - 20}" width="${W}" height="40" rx="8"/><text class="sl" x="${x(n) + W / 2}" y="${midY + 5}" text-anchor="middle">${esc(n === "(new)" ? "not yet made" : n)}</text>`;
+        return `<rect class="st ${touched ? "lit" : ""} ${n === "(new)" ? "new" : ""}" data-s="${esc(n)}" x="${x(n)}" y="${midY - 20}" width="${W}" height="40" rx="8"/><text class="sl" x="${x(n) + W / 2}" y="${midY + 5}" text-anchor="middle">${esc(n === "(new)" ? "not yet made" : n)}</text>`;
       })
       .join("");
     const below = edges.some((e) => e.f !== e.t && nodes.indexOf(e.t) < nodes.indexOf(e.f));
@@ -116,7 +116,7 @@ const Views = (() => {
         <marker id="arrow-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--muted); stroke: none; opacity: .6"/></marker>
         <marker id="arrow-lit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--hit-edge); stroke: none"/></marker>
       </defs>
-      <g transform="translate(0 ${below ? 0 : -10})">${paths}${boxes}${labels}</g>
+      <g transform="translate(0 ${below ? 0 : -10})">${paths}${boxes}${labels}<g class="fx"></g></g>
     </svg>`;
   };
 

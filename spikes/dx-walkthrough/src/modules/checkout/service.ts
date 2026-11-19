@@ -29,6 +29,7 @@ const textFiles = (dir: string): ReadonlyArray<string> =>
 const K15: ReadonlyArray<{ readonly file: RegExp; readonly from: RegExp; readonly to: string; readonly why: string }> = [
   { file: /^package\.json$/, from: /"@links\/source"/g, to: '"@plugged-in/source"', why: "its packages are @plugged-in/*" },
   { file: /^package\.json$/, from: /"links": "\.\/generated/g, to: '"plugged-in": "./generated', why: "the app's command is plugged-in" },
+  { file: /^project\.json$/, from: /"name": "links"/g, to: '"name": "plugged-in"', why: "the Nx project is plugged-in" },
   { file: /./, from: /examples\/links\b/g, to: "examples/plugged-in", why: "the folder is examples/plugged-in" },
 ];
 
