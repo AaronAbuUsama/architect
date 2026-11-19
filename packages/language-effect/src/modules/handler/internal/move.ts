@@ -1,6 +1,6 @@
 // The operation's move: the machine's check before the handler, the outcome the handler chose, and the state and
 // journal entry the commit carries.
-import { Effect, Schema } from "effect";
+import { Effect, Schema, type Tracer } from "effect";
 import type { Operation } from "orthograph";
 import { EventNames } from "orthograph/server";
 import type { Entry } from "#modules/journal/types.js";
@@ -37,13 +37,17 @@ export const checkFrom = (op: Operation, refusal: string | undefined, subject: I
     return state;
   });
 
-/** The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. */
-export const chooseOutcome = (name: string, op: Operation, to: string | undefined) =>
+/**
+ * The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. The move is written on
+ * the operation's span, not on the step span the handler may be inside when it moves.
+ */
+export const chooseOutcome = (name: string, op: Operation, to: string | undefined, span: Tracer.Span) =>
   Effect.gen(function* () {
     if (!op.move) return yield* Effect.die(new Error(`${name} has no move, so its handler cannot make one`));
     const outcome = to ?? (op.move.to.length === 1 ? op.move.to[0] : undefined);
     // Written before the check, so a wrong outcome is evidence too, not just a crash.
-    yield* Effect.annotateCurrentSpan({ "move.name": op.move.key, "move.to": String(outcome) });
+    span.attribute("move.name", op.move.key);
+    span.attribute("move.to", String(outcome));
     if (outcome === undefined || !op.move.to.includes(outcome)) {
       return yield* Effect.die(new Error(`${name} moved to ${outcome}, which ${op.move.key} does not declare (${op.move.to.join(", ")})`));
     }
