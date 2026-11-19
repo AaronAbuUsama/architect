@@ -1127,6 +1127,8 @@ This replaces round 1's "clean-room the components we need" with one place to do
 - **M1.24** keeps the shell, screen context and the approval cards' contract, all through `portal-ui`. The chat's surface is M4.16 on Pro's AI
   components over a Pi Durable run, and conversations are Runs, not things in the portal's store. Its row is reworded
   in `milestones.md` in the same change as this file.
+- **M1.50** (19 November 2026, from `spikes/react-flow-graphs`) replaces M1.13's lifecycle strip with one `Graph`
+  over React Flow and elk: each machine, the blueprint map and the worlds chain. The journey sequence stays its own view.
 - **M1.34** (new, before M1.13) builds `@orthograph/portal-ui`, its lint rule and the CI install (F7).
 - **M1.13** builds these pages on `portal-ui`, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
   row in `milestones.md` says so, in the same change as this file. With F8 it also builds the notes, the operations
