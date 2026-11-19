@@ -7,12 +7,12 @@ import { describe, it } from "node:test";
 import { entries } from "./parse.mjs";
 
 const report = JSON.parse(readFileSync(join(import.meta.dirname, "fixtures/prove-report.json"), "utf8"));
-const run = { report, at: "2026-11-19T17:00:00.000Z", commit: "abc", exit: 1 };
+const run = { report, at: "2026-11-19T17:00:00.000Z", commit: "abc", exit: 1, runSeconds: 7.3 };
 
 describe("the climb recorder's reader", () => {
   it("makes one entry per journey with its steps green and total, its own time and the run's", () => {
     assert.deepEqual(entries(run), { ok: true, lines: [{
-      at: "2026-11-19T17:00:00.000Z", commit: "abc", journey: "climb: a wrong answer", green: 0, total: 1, seconds: 0.005, run_seconds: 1.049, exit: 1,
+      at: "2026-11-19T17:00:00.000Z", commit: "abc", journey: "climb: a wrong answer", green: 0, total: 1, seconds: 0.005, run_seconds: 7.3, prove_seconds: 1.049, exit: 1,
     }] });
   });
   it("counts passing steps as green", () => {

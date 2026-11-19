@@ -45,6 +45,6 @@ Ports 19400 to 19419. CI job `e2e-climb` is required.
 
 `node tools/climb/record.mjs <ortho prove args>` (or `nx run e2e:climb-record -- …`) runs `ortho prove --report <tmp>`, streams its
 output unchanged, and appends one line per journey to `design/evidence/climb/runs.jsonl`:
-`{ at, commit, journey, green, total, seconds, run_seconds, exit }`, read from prove's `ProveReport` (`seconds` is the journey's own
-time, `run_seconds` the whole run). The reader, `tools/climb/parse.mjs`, is tested on a real report with `node --test tools/climb/*.test.mjs`
+`{ at, commit, journey, green, total, seconds, run_seconds, prove_seconds, exit }`, read from prove's `ProveReport` (`seconds` is the journey's own
+time, `run_seconds` the whole run timed by the recorder, `prove_seconds` prove's own timer). The reader, `tools/climb/parse.mjs`, is tested on a real report with `node --test tools/climb/*.test.mjs`
 (part of `nx run e2e:grid`). `--runs <file>` sends the lines elsewhere.

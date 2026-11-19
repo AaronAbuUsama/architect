@@ -3,8 +3,9 @@
 // `parse.mjs` never touches. Runs `ortho prove` with the arguments given, streams its output unchanged, and appends one JSON
 // line per journey to design/evidence/climb/runs.jsonl, taken from prove's own report (`--report`, a `ProveReport` with
 // schemaVersion 1) and never retyped:
-//   { at, commit, journey, green, total, seconds, run_seconds, exit }
-// `seconds` is the journey's own time as prove measured it; `run_seconds` the whole prove run, world start included.
+//   { at, commit, journey, green, total, seconds, run_seconds, prove_seconds, exit }
+// `seconds` is the journey's own time as prove measured it; `run_seconds` is measured here, from spawn to close, so it holds the
+// world's start and stop; `prove_seconds` is prove's own timer for the run (after the world is up, before cleanup).
 //   node tools/climb/record.mjs --root examples/plugged-in --only "claim a free handle" [--runs <file>]
 // `--runs` is this tool's own option (default design/evidence/climb/runs.jsonl); everything else goes to `ortho prove`.
 // A report it cannot read records nothing and exits 3 (prove's own exit code is kept when it is not 0 or 1).
@@ -23,6 +24,7 @@ const prove = at < 0 ? args : args.filter((_, i) => i !== at && i !== at + 1);
 const folder = mkdtempSync(join(tmpdir(), "ortho-climb-"));
 const reportFile = join(folder, "report.json");
 const started = new Date().toISOString();
+const t0 = performance.now();
 const commit = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).stdout.trim();
 const child = spawn(process.execPath, [resolve(repo, "packages/cli/src/main.ts"), "prove", ...prove, "--report", reportFile], { stdio: ["inherit", "inherit", "inherit"] });
 // An interrupted climb must stop prove too, so its workerd and collector are released by prove's own cleanup.
@@ -46,7 +48,7 @@ const readReport = () => {
 
 child.on("close", (exit) => {
   const { report, problem } = readReport();
-  const made = problem === undefined ? entries({ report, at: started, commit, exit }) : { ok: false, problem };
+  const made = problem === undefined ? entries({ report, at: started, commit, exit, runSeconds: Math.round((performance.now() - t0) / 100) / 10 }) : { ok: false, problem };
   if (!made.ok) {
     process.stderr.write(`climb recorder: nothing recorded: ${made.problem}\n`);
     process.exit(exit === 0 || exit === 1 || exit === null ? 3 : exit);

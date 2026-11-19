@@ -12,7 +12,8 @@ const doc = (operation: string) => readFileSync(join(acme, "generated/docs", `${
 
 const judge = (cell: string, subject: string, evidence: Partial<RefusalEvidence>) => {
   const found = RefusalEvals.evals.find((e) => e.cell === cell);
-  if (found === undefined) throw new Error(`no eval for ${cell}`);
+  // A missing eval is a value, not a throw: a red finding that names it, which every test asserting ok or why then fails on.
+  if (found === undefined) return { ok: false, why: [`no eval for ${cell}`] };
   return found.judge(subject, { model, docs: {}, portal: {}, spans: undefined, held: [], cli: undefined, mcp: undefined, ...evidence });
 };
 
