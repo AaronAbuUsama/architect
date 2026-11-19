@@ -1,7 +1,8 @@
 # The portal's design (M1.25)
 
 Agreed with Aaron on 19 November 2026, over two grill rounds (answers below, with their dates). This is the spec that
-M1.13 (the portal's pages), M1.24 (the shell), M4.16 (the chat), M4.23 (the Factory face) and M3.17 (the board)
+M1.13 (the portal's pages and the shell's frame), M1.24 (the shell's chat and screen context, in M3 since K13), M3.21
+(faces and notes), M4.16 (the chat), M4.23 (the Factory face) and M3.17 (the board)
 build to. The drawing is in [`../spikes/portal-mock/`](../spikes/portal-mock/README.md). What it takes from Codex's
 portal (`experimental/portal-pro`) is in [`decisions/F8-portal-from-codex.md`](decisions/F8-portal-from-codex.md).
 
@@ -137,7 +138,7 @@ Operations
   release  person   Give the name back.                               5 calls ·  2 refused · p95 5 ms
   resolve  anyone   Find a handle by its name. (read)               1,904 calls · 0 refused · p95 2 ms
 Events     HandleClaimed { handle, name, owner } · HandleReleased { handle }
-Errors     HandleTaken HN-001 exit 3 · HandleNotClaimed HN-002 exit 3
+Errors     HandleTaken HN-001 exit 10 · HandleNotClaimed HN-002 exit 11
 Roles      person · anyone
 Notes (2)  "claim retries once on a version race; that's by design" (pinned to thing:handle@4e1c…, current)
 Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov
@@ -192,7 +193,7 @@ Claim a free name. A name is claimed once.
 | A finished call down the spine | L | the call's spans: one operation span per attempt, keyed by `attempt`; one per step, its kind from `step.kind`; `<op>.commit` with `commit.outcome` and `commit.writes` (M1.18); `move.name` and `move.to` on the move |
 | A running call down the spine | L | step signals as each step starts and ends (M1.21) |
 | What the commit set off | L | committed events read from the journal (M1.21) and the spans of their `on:` handlers |
-| Try it | G | the operation's generated action (M1.22), called as the signed-in builder |
+| Try it | G | the operation's generated action (M1.22), called as the signed-in builder; arrives with M1.22 in M3 (K13), so M1.13's portal shows no button |
 | Docs prose | G | the operation's `description`; the canon page it belongs to is linked, never copied |
 | The proof tab | L | M1.04's verdicts from the logbook, keyed by the model's hash and the handler body's hash: each eval's verdict, the journeys that cover the operation, and what is unproven; latency is the live p95 beside it, not an eval's printed note (F8) |
 
@@ -469,6 +470,9 @@ This replaces round 1's "clean-room the components we need" with one place to do
 
 ## What this changes elsewhere
 
+- **K13** (19 November) splits this further: M1.13 builds the shell's frame (tree, top bar, live rail, drawer) and the
+  pages as a viewer; M1.24 keeps the chat, "Needs you" and screen context, in M3; the face contract, its lint rule,
+  notes and sandboxed faces are M3.21. The bullets below are the F8 split, kept for the record.
 - **M1.24** keeps the shell, screen context and the approval cards' contract, all through `portal-ui`. The chat's surface is M4.16 on Pro's AI
   components over a Pi Durable run, and conversations are Runs, not things in the portal's store. Its row is reworded
   in `milestones.md` in the same change as this file.

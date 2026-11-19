@@ -1,5 +1,10 @@
 # K9: one growing example, in four stages, to v1.0
 
+> **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Below, `links`, `examples/links`, `@links/*`,
+> the `links` command and the tags `links/stage-<n>` keep their old spelling as the record of 18 November; read each as
+> Plugged In, `examples/plugged-in`, `@plugged-in/*`, `plugged-in` and `plugged-in/stage-<n>`. See
+> [`K15-plugged-in.md`](K15-plugged-in.md).
+
 Decided 18 November 2026, by the building agent with Aaron's answers. The conductor's brief called this record K8, but
 the canon's first review already holds that id (`K8-canon-review-one.md`, on `claude/docs-canon-cf2c38`), so this one
 is K9.
@@ -64,7 +69,7 @@ once. An unsigned visitor sees any page.
 
   ```text
   links handle claim --name aaron
-  links handle claim --name aaron      # HandleTaken (HN-001), exit 3
+  links handle claim --name aaron      # HandleTaken (HN-001), exit 10
   links link add --title GitHub --url https://github.com/aaron
   links profile get --handle aaron
   ```
