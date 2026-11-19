@@ -8,7 +8,7 @@ const acme = await evidenceOf("acme");
 const eventsOf = (e: typeof pluggedIn) => Object.values(e.model.things).flatMap((t) => Object.keys(t.events ?? {}));
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(EventEvals.evals, `event.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("declares four events", () => {
     expect(eventsOf(pluggedIn)).toEqual(["HandleClaimed", "HandleReleased", "LinkAdded", "LinkRemoved"]);
   });

@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { Portal, Wire } from "@orthograph/portal";
 import { FileSource } from "@orthograph/prove";
 import type { ProjectPorts } from "../project-evidence/types.ts";
+import { proveFresh } from "./internal/prove.ts";
 import { toolsList } from "./internal/mcp.ts";
 import type { WorldApi } from "./types.ts";
 
@@ -13,6 +14,7 @@ const json = <A>(text: string | undefined): A | undefined => {
 };
 
 export const World: WorldApi = {
+  proveFresh,
   ports: ({ project, report, telemetry, node }): ProjectPorts => ({
     model: Effect.sync(() => json(node.read(join(project, "generated/model/model.json")))),
     generated: Effect.sync(() => {

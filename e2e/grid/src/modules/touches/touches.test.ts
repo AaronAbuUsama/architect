@@ -1,4 +1,4 @@
-// Which rows a journey touches, read from acme's own compiled model (real) and a prove report line.
+// Which rows a journey touches, read from acme's own compiled model (captured) and a prove report line.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -6,7 +6,7 @@ import { Grid } from "../grid/service.ts";
 import { Touches } from "./service.ts";
 import type { TouchModel } from "./types.ts";
 
-const model = JSON.parse(readFileSync(join(import.meta.dirname, "../../../../../examples/acme/generated/model/model.json"), "utf8")) as TouchModel;
+const model = JSON.parse((JSON.parse(readFileSync(join(import.meta.dirname, "../../../fixtures/acme/files.json"), "utf8")) as Record<string, string>)["generated/model/model.json"]!) as TouchModel;
 const ok = (journey: string, steps = 3) => [`journey ${journey} ✔ ${steps}/${steps} steps`, "allowance.get answer shape ✔"];
 
 describe("a green journey", () => {
