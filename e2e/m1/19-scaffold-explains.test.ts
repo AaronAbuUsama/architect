@@ -1,6 +1,7 @@
-// Check 19 (M1.44, M1.45; design/decisions/K16-the-scaffold-explains-itself.md): the scaffold reads the machine and
-// explains itself, every path through a machine gets a journey stub, and `ortho check` says when the blueprint grew
-// past a handler that is already yours. Written by the ✍️ author before the build; a builder never edits it, nor
+// Check 19 (M1.44 to M1.48; design/decisions/K16-the-scaffold-explains-itself.md): the scaffold reads the machine and
+// explains itself, every path, role and declared error gets a journey stub, `ortho check` says when the blueprint grew
+// past a handler that is already yours, and what the runtime can do for a handler (find, refuse, mint, carry an exit
+// to every surface, fill an event) it does, from the declaration. Written by the ✍️ author before the build; a builder never edits it, nor
 // e2e/fixtures/m1/scaffold-explains/.
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -31,6 +32,11 @@ const STUBS = [
   "allowance-grant-created-in-active", "allowance-spend-active-to-active", "allowance-spend-active-to-exhausted",
   "allowance-spend-refused-from-exhausted", "allowance-spend-refused-from-revoked", "allowance-revoke-active-to-revoked",
   "allowance-revoke-exhausted-to-revoked", "allowance-revoke-refused-from-revoked",
+  // Then per operation and read, in name order: who may call (allowed, then refused), then each declared error.
+  "allowance-get-allowed-grantee", "allowance-get-allowed-owner", "allowance-get-refused-not-grantee-or-owner",
+  "allowance-grant-refused-not-owner", "allowance-grant-refused-allowance-limit-too-high",
+  "allowance-revoke-refused-not-owner",
+  "allowance-spend-refused-not-grantee", "allowance-spend-refused-allowance-exceeded",
 ].map((name) => `blueprint/journeys/${name}.ts`);
 
 describe("M1.44: the scaffold explains itself", () => {
@@ -61,11 +67,12 @@ describe("M1.44: the scaffold explains itself", () => {
   });
 });
 
-describe("M1.45: one journey stub per path through the allowance's machine", () => {
-  it("ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile", () => {
+describe("M1.45: one journey stub per path through the allowance's machine, per role and per declared error", () => {
+  it("ortho add journeys allowance writes the sixteen stubs, five exactly as their goldens, and they compile", () => {
     const root = fresh();
     const added = succeeds(root, "add", "journeys", "allowance").out;
     for (const path of STUBS) expect(added, path).toContain(path);
+    expect(added.split("\n").filter((l) => l.includes("blueprint/journeys/")), added).toHaveLength(STUBS.length);
     for (const file of readdirSync(join(golden, "journeys"))) {
       expect(textAt(root, `blueprint/journeys/${file.replace(/\.golden$/, "")}`), file).toBe(readFileSync(join(golden, "journeys", file), "utf8"));
     }
@@ -126,5 +133,61 @@ describe("M1.44: ortho check says when the blueprint grew past a handler that is
     const out = succeeds(root, "check").out;
     expect(warnings(out).filter((l) => l.includes(spend) && l.includes("AllowanceFrozen")), out).toHaveLength(1);
     expect(warnings(out).filter((l) => l.includes("AllowanceExceeded")), out).toEqual([]);
+  });
+});
+
+const model = (root: string) => JSON.parse(succeeds(root, "model", "--json").stdout) as {
+  refusals: Record<string, string>;
+  operations: Record<string, { refusals: ReadonlyArray<string> }>;
+};
+
+describe("M1.46: the runtime finds what the payload names, and refuses what is missing with a generated <Thing>NotFound", () => {
+  it("the model gives person a PersonNotFound at PE-901, adopts allowance's declared AllowanceNotFound at AL-002, and lists them where they apply", () => {
+    const m = model(fresh());
+    expect(m.refusals).toMatchObject({ PersonNotFound: "PE-901", AllowanceNotFound: "AL-002", AllowanceExceeded: "AL-001", AllowanceLimitTooHigh: "AL-003" });
+    // grant names a member no role check reads: a missing one is PersonNotFound. spend's allowance is read by the grantee's
+    // role check, so a missing one stays NotAllowed and a stranger learns nothing.
+    expect(m.operations["allowance.grant"]!.refusals).toContain("PersonNotFound");
+    expect(m.operations["allowance.spend"]!.refusals).not.toContain("AllowanceNotFound");
+    expect(m.operations["allowance.spend"]!.refusals).toContain("NotAllowed");
+  });
+});
+
+describe("M1.47: one refusals table carries code, exit and HTTP status to the CLI, HTTP and MCP", () => {
+  it("generated errors.ts exports the table, one row per refusal, and the old exits and codes are read from it", () => {
+    const root = fresh();
+    succeeds(root, "generate");
+    const errors = textAt(root, "generated/api/src/errors.ts");
+    expect(errors).toMatch(/^export const refusals = \{$/m);
+    for (const row of [
+      'AllowanceExceeded: { code: "AL-001", exit: 41, status: 422 },',
+      'AllowanceNotActive: { code: "AL-900", exit: 40, status: 409 },',
+      'AllowanceNotFound: { code: "AL-002", exit: 43, status: 404 },',
+      'PersonNotFound: { code: "PE-901", exit: 4, status: 404 },',
+      'NotAllowed: { code: "AR-001", exit: 3, status: 403 },',
+    ]) expect(errors, row).toContain(`  ${row}\n`);
+    expect(errors).not.toMatch(/^export const exits = \{$/m);
+    expect(errors).not.toMatch(/^export const codes = \{$/m);
+  });
+});
+
+describe("M1.48: an event the runtime can't fill is refused by the compiler, not found at run time", () => {
+  it("a field of AllowanceSpent that is in neither the allowance, spend's payload nor its answer is named, with the event and the operation", () => {
+    const root = fresh();
+    edit(root, "blueprint/things/allowance/events.ts", "memo: Memo, remaining: Amount }", "memo: Memo, remaining: Amount, note: Memo }");
+    const out = run(root, "model");
+    expect(out.status, out.out).not.toBe(0);
+    expect(out.out).toMatch(/AllowanceSpent/);
+    expect(out.out).toMatch(/\bnote\b/);
+    expect(out.out).toMatch(/allowance\.spend/);
+  });
+
+  it("control: a handler whose answer leaves out remaining, which AllowanceSpent needs, does not compile", () => {
+    const root = fresh();
+    succeeds(root, "generate");
+    edit(root, spend, "return { remaining: remaining - amount };", "return {};");
+    const tsc = typed(root);
+    expect(tsc.status, tsc.stdout).not.toBe(0);
+    expect(tsc.stdout).toMatch(/remaining/);
   });
 });

@@ -39,6 +39,7 @@ const { AllowanceExceeded } = Errors.declared;
  * What the runtime does, so this handler doesn't:
  *   before it runs, it refuses NotAllowed unless the caller is the grantee of the allowance;
  *   before it runs, it refuses AllowanceNotActive unless the allowance is in active;
+ *   before it runs, it hands in the allowance it read as subject, so this handler never reads it again;
  *   each step is its own span: allowance.spend.load, allowance.spend.record;
  *   once it answers, it sets the allowance's state to the outcome given to move;
  *   once it answers, it writes AllowanceSpent: allowance, amount and memo from the payload, remaining from the answer;

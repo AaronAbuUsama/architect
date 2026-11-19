@@ -75,6 +75,36 @@ describe("K16: the scaffold explains itself (M1.44)", () => {
     expect(names.length).toBeGreaterThan(0);
     expect(names.filter((w) => !declared.has(w))).toEqual([]);
   });
+
+  it("marks each secret or private payload and answer field in the header, and says who sees it (M1.35's rule)", () => {
+    const spend = model.operations["allowance.spend"]!;
+    const memo = { ...spend.payload["memo"]!, visibility: { private: ["allowance.grantee"] } };
+    const remaining = { ...spend.answer["remaining"]!, visibility: "secret" as const };
+    const op = { ...spend, payload: { ...spend.payload, memo }, answer: { remaining } };
+    const header = headerOf((renderHandlerScaffold as unknown as K16["renderHandlerScaffold"])(op, "src/allowance/spend.ts", model).content);
+    expect(header).toMatch(/\n \*   memo +Memo \(private: only the grantee of the allowance sees it\)\n/);
+    expect(header).toMatch(/\n \*   remaining +Amount \(secret: no caller sees it\)\n/);
+    expect(header).toMatch(/\n \*   amount +Amount\n/);
+  });
+});
+
+describe("K16: the scaffold shows what the runtime hands in (M1.46, through M1.44's scaffold)", () => {
+  const grant = () => (renderHandlerScaffold as unknown as K16["renderHandlerScaffold"])(model.operations["allowance.grant"]!, "src/allowance/grant.ts", model).content;
+
+  it("lists the generated not-found refusal for a referenced id no role check reads, with its exit and code", () => {
+    // grant's member names a person; the role check reads the organisation, never the person.
+    expect(model.operations["allowance.grant"]!.refusals).toContain("PersonNotFound");
+    expect(headerOf(grant())).toMatch(/PersonNotFound +exit 4 +PE-901 +the runtime's/);
+    expect(model.operations["allowance.spend"]!.refusals).not.toContain("AllowanceNotFound");
+  });
+
+  it("says the runtime mints a creating move's id and hands in what the payload references, and answers with the minted id", () => {
+    const content = grant();
+    expect(headerOf(content)).toMatch(/mints the allowance's new id and hands it in as id/);
+    expect(headerOf(content)).toMatch(/refs\.member/);
+    expect(content).toMatch(/\{ [^}]*\bid\b[^}]* \}\) =>/);
+    expect(content).toMatch(/\n +allowance: id,\n/);
+  });
 });
 
 describe("K16: one journey stub per path through a thing's machine (M1.45)", () => {
@@ -99,7 +129,7 @@ describe("K16: one journey stub per path through a thing's machine (M1.45)", () 
     expect(k16.machinePaths!(model, "allowance").filter((p) => p.move === "grant" && p.kind === "refused")).toEqual([]);
   });
 
-  it("scaffolds one journey per path in blueprint/journeys/, each a scaffold, three of them exactly as their goldens", () => {
+  it("scaffolds one journey per path in blueprint/journeys/, then per role and per declared error, five of them exactly as their goldens", () => {
     expect(typeof k16.renderJourneyStubs, "renderJourneyStubs is not exported from the handlers module yet").toBe("function");
     const stubs = k16.renderJourneyStubs!(model, "allowance");
     expect(stubs.map((s) => s.path)).toEqual([
@@ -111,9 +141,22 @@ describe("K16: one journey stub per path through a thing's machine (M1.45)", () 
       "blueprint/journeys/allowance-revoke-active-to-revoked.ts",
       "blueprint/journeys/allowance-revoke-exhausted-to-revoked.ts",
       "blueprint/journeys/allowance-revoke-refused-from-revoked.ts",
+      // Then each operation and read by name: an allowed caller per role a machine stub doesn't already cast, one caller
+      // holding none of its roles, and one per declared error.
+      "blueprint/journeys/allowance-get-allowed-grantee.ts",
+      "blueprint/journeys/allowance-get-allowed-owner.ts",
+      "blueprint/journeys/allowance-get-refused-not-grantee-or-owner.ts",
+      "blueprint/journeys/allowance-grant-refused-not-owner.ts",
+      "blueprint/journeys/allowance-grant-refused-allowance-limit-too-high.ts",
+      "blueprint/journeys/allowance-revoke-refused-not-owner.ts",
+      "blueprint/journeys/allowance-spend-refused-not-grantee.ts",
+      "blueprint/journeys/allowance-spend-refused-allowance-exceeded.ts",
     ]);
     expect(stubs.every((s) => s.scaffold)).toBe(true);
-    expect(stubs.map((s) => s.content.split("\n")[0])).toEqual(stubs.map(() => "// Scaffolded from blueprint/things/allowance/machine.ts. Yours from now on."));
+    const from = (file: string) => `// Scaffolded from blueprint/things/allowance/${file}.ts. Yours from now on.`;
+    expect(stubs.slice(0, 8).map((s) => s.content.split("\n")[0])).toEqual(stubs.slice(0, 8).map(() => from("machine")));
+    expect(stubs.find((s) => s.path.endsWith("spend-refused-allowance-exceeded.ts"))?.content.split("\n")[0]).toBe(from("errors"));
+    expect(stubs.find((s) => s.path.endsWith("spend-refused-not-grantee.ts"))?.content.split("\n")[0]).toBe(from("roles"));
     for (const file of readdirSync(join(golden, "journeys"))) {
       const path = `blueprint/journeys/${file.replace(/\.golden$/, "")}`;
       expect(stubs.find((s) => s.path === path)?.content, path).toBe(read(join("journeys", file)));
