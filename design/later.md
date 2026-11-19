@@ -19,6 +19,11 @@ belongs to, and why it waits.
   `machine.moves` with its `from`, `to` and `emits`, scaffold the operation that makes it, and regenerate. The graph
   stays a view of the file, never a second source. It waits because the portal is read-only until the editor exists,
   and because an editor needs elk in the browser (a worker), where `Graph` today gets positions from the generator.
+- **A machine's `from` kept as a tuple** (K16, #76 commit 27f64555, ledger `MAC-08`). A machine move's `from` reaches the
+  handler types as an array, so `CreatedId` reads every machine move as "may mint" and types `context.id` as an id even
+  on a move from a state, where it is `undefined` at runtime (`prehandle.ts` mints only from `[]`). Keeping `from` a
+  tuple through `Blueprint.machine` restores the exact type. It waits because the runtime is right and nothing reads
+  that `id` today; a type test pinning a non-creating machine move's `id` to `undefined` comes with it.
 
 ## From stage two (layer one)
 
