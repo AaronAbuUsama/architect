@@ -132,3 +132,22 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Call (Goal 3 lead): park HAN-11 behind the climb. #113 and #114 stay open, unmerged; the slice is taken when a builder
   is free of S-04 and S-01 to S-03. No stub chain, no unreachable RPC, no coverage exemption.
 - Status: open
+
+## S-19 · records · a unique value moved between holders in one call passes in memory, fails on D1 (ledger HAN-18)
+- Hit: Codex's review of #118 (G4, S-04).
+- What: a call that renames holder A `x`→`y`, then holder B `y`→`z`. The memory store checks uniqueness on the final
+  values (`packages/language-effect/src/modules/records/internal/unique.ts`) and commits; D1's partial unique index checks
+  each statement in write order and refuses the first, so the handler retries the same doomed batch 64 times.
+- Needs: both stores check in write order, and a unique conflict a call makes with its own writes fails fast as a defect
+  naming the field rather than retrying.
+- Owner: Goal 3 lead. A framework slice, check first (a checks author plants the swap in both stores), then a builder;
+  taken after the starting curve, behind the climb. No stage 1 journey moves a unique value between holders.
+- Status: open
+
+## S-04 note · the spelling of unique fields is open with Aaron (conductor, 19 November 2026)
+- The conductor's recommendation to Aaron: `blueprint/things/<thing>/invariants.ts`, one named export per rule, e.g.
+  `Blueprint.invariant.unique(Handle.fields.name, { while: [machine.states.claimed], refuse: HandleTaken })`, where the
+  runtime refuses for the handler and states and fields are typed references.
+- Until Aaron answers: Plugged In may declare today's `unique: { name: { while: ["claimed"] } }` as one line, and the
+  climb goes on. Today's spelling is not written into docs, the scaffold or the skills beyond what G4 and #118 already
+  hold; when the answer comes, G4 is amended and the spelling changes in one slice.
