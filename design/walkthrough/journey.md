@@ -1196,9 +1196,11 @@ That's the generated Worker on workerd, with a fresh local database.
 
 🟢 **Works today.** The app's own command is `plugged-in`. It talks to `PLUGGED_IN_URL` and signs in with
 `PLUGGED_IN_TOKEN`. Plugged In still carries sign-up and sign-in copied from the starter, so I signed up first. The
-token is never printed.
+token is never printed. Without `PLUGGED_IN_URL` the CLI calls the default port, 8787, so point it at the dev server
+first.
 
 ```text
+$ export PLUGGED_IN_URL=http://127.0.0.1:8797
 $ plugged-in system health
 ok
 $ plugged-in person sign-up --email aaron@example.test --password … --name Aaron
