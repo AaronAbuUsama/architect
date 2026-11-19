@@ -1,6 +1,6 @@
 # The whole journey: building the Plugged In app with Orthograph
 
-Written 19 November 2026 for Aaron, by the walkthrough thread. Every command below was run on `origin/m1` at
+Written 19 November 2026 for Aaron, by the walkthrough thread. The same page, readable: https://claude.ai/artifact/KqnRPLA3jPbTaVJNAq6jDe. Every command below was run on `origin/m1` at
 `6419d4b7`, unless its badge says otherwise.
 
 ## Before we start
