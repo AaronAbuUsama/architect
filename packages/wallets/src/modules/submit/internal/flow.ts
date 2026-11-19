@@ -1,9 +1,10 @@
 // The lifecycle of one transfer: simulated, then submitted, then included (K7 Q3). Simulation is not an option here: the
 // chain port itself refuses to sign or submit what has not passed it (M1.32).
-import { Effect, Stream } from "effect";
+import { Effect, Ref, Stream } from "effect";
 import type { Timers } from "@orthograph/language-effect";
-import type { ChainError, ChainPort, Submission, Unsigned } from "@orthograph/chain-evm/device";
-import { KeyLocked, SimulationReverted } from "../../../../blueprint/things/wallet/errors.js";
+import type { ChainError, ChainPort, Submission, TxState, Unsigned } from "@orthograph/chain-evm/device";
+import { KeyLocked, SendNotConfirmed, SendNotIncluded, SimulationReverted } from "../../../../blueprint/things/wallet/errors.js";
+import "./names.ts";
 import type { ChainSetting } from "../../chain/types.ts";
 import type { Sent } from "../types.ts";
 
@@ -39,14 +40,18 @@ const levelSpan = (depth: number, blocks: number) =>
  * `wallet.send.level` span says what it is, from 0 (submitted, in no block) to the depth (confirmed); the send answers
  * only at the last. A transfer mined and reverted is refused whatever the depth.
  */
-export const follow = (port: ChainPort, submission: Submission, depth: number): Effect.Effect<Sent, SimulationReverted | KeyLocked, Timers> =>
+export const follow = (port: ChainPort, submission: Submission, depth: number): Effect.Effect<Sent, SimulationReverted | KeyLocked | SendNotIncluded | SendNotConfirmed, Timers> =>
   Effect.gen(function* () {
     yield* levelSpan(depth, 0);
-    const states = yield* port.track(submission, { depth }).pipe(
+    // What `track` gave is kept as it comes: when its budget runs out (a timeout fault) the send is judged by what was seen.
+    const seen = yield* Ref.make<ReadonlyArray<TxState>>([]);
+    yield* port.track(submission, { depth }).pipe(
+      Stream.tap((state) => Ref.update(seen, (all) => [...all, state])),
       Stream.tap((state) => (state._tag === "Deepened" ? levelSpan(depth, state.blocks) : Effect.void)),
-      Stream.runCollect,
-      Effect.catch(refused),
+      Stream.runDrain,
+      Effect.catch((error) => (error._tag === "ChainFault" && error.kind === "timeout" ? Effect.logInfo("the follow's budget ran out before the send reached its depth") : refused(error))),
     );
+    const states = yield* Ref.get(seen);
     if (states.some((s) => s._tag === "Reverted")) {
       return yield* Effect.logInfo("the transfer was mined and reverted").pipe(Effect.andThen(Effect.fail(new SimulationReverted({}))));
     }
@@ -56,8 +61,12 @@ export const follow = (port: ChainPort, submission: Submission, depth: number): 
         : s._tag === "Dropped" ? { included: false, blocks: 0 }
         : s._tag === "Deepened" && now.included ? { included: true, blocks: s.blocks }
         : now, { included: false, blocks: 0 });
-    if (!standing.included) return yield* Effect.die(new Error("the transfer was never included: it was replaced or dropped"));
-    if (standing.blocks < depth) return yield* Effect.die(new Error(`the transfer was included but never ${depth} blocks deep`));
+    if (!standing.included) return yield* Effect.logInfo("the transfer was never included: it was replaced, dropped or out of time").pipe(Effect.andThen(Effect.fail(new SendNotIncluded({}))));
+    if (standing.blocks < depth) {
+      return yield* Effect.logInfo(`the transfer was included but only ${standing.blocks} of ${depth} blocks count`).pipe(
+        Effect.andThen(Effect.fail(new SendNotConfirmed({ blocks: BigInt(standing.blocks), depth: BigInt(depth) }))),
+      );
+    }
     return { transaction: submission.hash, level: "confirmed", nonce: BigInt(submission.nonce) } satisfies Sent;
   });
 

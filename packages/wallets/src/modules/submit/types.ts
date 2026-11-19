@@ -1,7 +1,7 @@
 import type { Effect } from "effect";
 import type { Timers } from "@orthograph/language-effect";
 import type { Address, Hash, Signer } from "@orthograph/chain-evm/device";
-import type { KeyLocked, SimulationReverted } from "../../../blueprint/things/wallet/errors.js";
+import type { KeyLocked, SendNotConfirmed, SendNotIncluded, SimulationReverted } from "../../../blueprint/things/wallet/errors.js";
 import type { ChainSetting } from "../chain/types.ts";
 
 /** What a send answers: the transaction, where it got to, and the sender's nonce it used. */
@@ -15,7 +15,7 @@ export interface Sent {
   readonly nonce: bigint;
 }
 
-export type SendRefused = SimulationReverted | KeyLocked;
+export type SendRefused = SimulationReverted | KeyLocked | SendNotIncluded | SendNotConfirmed;
 
 /** A transaction a provider sent for itself: its hash, the nonce it used, and the block the chain was at just before. */
 export interface Handed {

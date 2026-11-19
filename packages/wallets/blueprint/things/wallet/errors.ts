@@ -6,3 +6,7 @@ export class KeyLocked extends Blueprint.error({}, { exit: 61 }) {}
 export class NoSuchKey extends Blueprint.error({}, { exit: 62 }) {}
 /** The chain's simulation of the send reverted (or could not pay), so nothing was signed or sent. */
 export class SimulationReverted extends Blueprint.error({}, { exit: 63 }) {}
+/** The send was submitted but never included in a block: replaced or dropped, its inclusion voided by a reorg, or the follow's budget ran out first. */
+export class SendNotIncluded extends Blueprint.error({}, { exit: 64 }) {}
+/** The send is in a block but fewer than `depth` blocks count when the follow ended. */
+export class SendNotConfirmed extends Blueprint.error({ blocks: Blueprint.uint(64), depth: Blueprint.uint(64) }, { exit: 65 }) {}
