@@ -2,9 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "test/**/*.ts"
   ],
   "exclude": [
     "test/fixtures/**"
-  ]
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
 }

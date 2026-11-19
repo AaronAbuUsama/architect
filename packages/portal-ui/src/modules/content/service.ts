@@ -1,5 +1,7 @@
 // What the portal shows and edits content with: cards, the peek, the command palette, code, markdown and the editor. Each is
 // HeroUI Pro's component under our name (F7 decision 2).
+// `Chip` is free HeroUI 3, not Pro: the pages take their chips from here too, so they import one package.
+export { Chip } from "@heroui/react";
 export { CodeBlock as Code } from "@heroui-pro/react/code-block";
 export { Command } from "@heroui-pro/react/command";
 export { HoverCard as Peek } from "@heroui-pro/react/hover-card";

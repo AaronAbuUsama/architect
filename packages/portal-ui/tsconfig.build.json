@@ -6,10 +6,12 @@
     "rootDir": "src",
     "outDir": "dist",
     "isolatedDeclarations": true,
-    "noCheck": true
+    "noCheck": true,
+    "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
     "src/**/*.test.ts"

@@ -30,7 +30,14 @@
             "onlyDependOnLibsWithTags": [],
             "allowedExternalImports": [
               "@heroui-pro/react",
-              "@heroui-pro/react/*"
+              "@heroui-pro/react/*",
+              "@heroui/react",
+              "effect",
+              "effect/*",
+              "react",
+              "react/*",
+              "react-dom",
+              "react-dom/*"
             ]
           },
           {

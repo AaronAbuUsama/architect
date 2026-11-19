@@ -2,6 +2,7 @@
 import type { Effect } from "effect";
 import type { LogbookReader } from "#modules/reader/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
+import type { LiveContext } from "#modules/window/types.js";
 
 /** The Worker's variables the portal reads. Every one is optional: a portal without a logbook shows nothing green. */
 export interface PortalEnv {
@@ -19,6 +20,13 @@ export interface PortalContext {
   readonly bundleRevision: string | null;
   /** Default `refs/heads/main`. */
   readonly ref?: string;
+  /**
+   * The environment's live view: its name, a source of traces and a source of `ortho.calls`, the moment (`now`) and how far back
+   * (`windowMs`). The portal reads only through `source.window(windowMs, now)` and never a clock. Without it the pages show no numbers.
+   */
+  readonly live?: LiveContext;
+  /** The stylesheet's text, for a host that cannot read it from the installed packages (a Worker). Default: read from them. */
+  readonly css?: string;
 }
 
 export interface SiteApi {

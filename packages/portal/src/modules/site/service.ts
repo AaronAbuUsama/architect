@@ -4,23 +4,15 @@ import { Snapshot } from "#modules/snapshot/service.js";
 import { Wire } from "#modules/wire/service.js";
 import type { BlueprintRejected, BlueprintWire } from "#modules/wire/types.js";
 import type { PortalContext, PortalEnv, SiteApi } from "./types.ts";
-import { operationPage, thingPage } from "./internal/detail.ts";
-import { home } from "./internal/home.ts";
+import { CSS_PATH, shell } from "./internal/shell.ts";
 import { esc, html, page } from "./internal/html.ts";
 
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
   Response.json(body, { status, headers: { "cache-control": "no-store", ...headers } });
 
-/** A name in a path: declared names are lowercase words with dots and dashes, so anything else cannot name one. */
-const NAME = /^[a-z0-9][a-z0-9.-]*$/;
-const nameIn = (segment: string): string | undefined => {
-  const decoded = Effect.runSync(Effect.try({ try: () => decodeURIComponent(segment), catch: () => "" }).pipe(Effect.catch(() => Effect.succeed(""))));
-  return NAME.test(decoded) ? decoded : undefined;
-};
-
 const owns = (path: string) => path === "/portal" || path.startsWith("/portal/") || path === "/_portal" || path.startsWith("/_portal/");
 
-const notFound = (data: boolean) => (data ? json({ _tag: "NotFound" }, 404) : html(page("portal", "<h1>Not found</h1>"), 404));
+const notFound = () => json({ _tag: "NotFound" }, 404);
 
 const data = (context: PortalContext, url: URL, request: Request): Effect.Effect<Response> => {
   const { blueprint } = context;
@@ -36,20 +28,14 @@ const data = (context: PortalContext, url: URL, request: Request): Effect.Effect
     if (asked !== blueprint.digest) return Effect.succeed(json({ _tag: "BlueprintChanged", digest: blueprint.digest }, 409));
     return Snapshot.take({ blueprint, reader: context.reader, bundleRevision: context.bundleRevision, ...(context.ref === undefined ? {} : { ref: context.ref }) }).pipe(Effect.map((s) => json(s)));
   }
-  return Effect.succeed(notFound(true));
-};
-
-const shell = (context: PortalContext, url: URL): Effect.Effect<Response> => {
-  const { blueprint } = context;
-  const parts = url.pathname.replace(/\/+$/, "").split("/").slice(1);
-  const snapshot = Snapshot.take({ blueprint, reader: context.reader, bundleRevision: context.bundleRevision, ...(context.ref === undefined ? {} : { ref: context.ref }) });
-  if (parts.length === 1) return snapshot.pipe(Effect.map((s) => html(home(blueprint, s))));
-  const name = parts.length === 3 ? nameIn(parts[2]!) : undefined;
-  if (parts[1] === "operations" && name !== undefined && blueprint.model.operations[name]) {
-    return snapshot.pipe(Effect.map((s) => html(operationPage(blueprint, s, blueprint.model.operations[name]!))));
+  if (url.pathname === CSS_PATH) {
+    const css = context.css !== undefined ? Effect.succeed(context.css) : Effect.promise(() => import("@orthograph/portal-ui")).pipe(Effect.flatMap((m) => m.Styles.css));
+    return css.pipe(
+      Effect.map((css) => new Response(css, { headers: { "content-type": "text/css; charset=utf-8", "cache-control": "no-cache" } })),
+      Effect.catch((error) => Effect.succeed(json({ _tag: "StylesUnavailable", reason: error.reason }, 503))),
+    );
   }
-  if (parts[1] === "things" && name !== undefined && blueprint.model.things[name]) return Effect.succeed(html(thingPage(blueprint, blueprint.model.things[name]!)));
-  return Effect.succeed(notFound(false));
+  return Effect.succeed(notFound());
 };
 
 const handle: SiteApi["handle"] = (context, request) => {
