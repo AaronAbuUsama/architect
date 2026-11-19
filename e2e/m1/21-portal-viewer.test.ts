@@ -42,8 +42,33 @@
 //     (`data-attempts` is how many `attempt`s its operation spans make), so a retry is one call and one row. A move counts once, when
 //     the span of the attempt that committed has `move.name`. `data-lit` is true when the window holds at least one call of the
 //     operation (or, for a move, one that took it). A trace's rows carry `data-attempt`, so the waterfall can group by attempt.
-//  6. The pages exercised are `/portal` and `/portal/things/<name>`; operation pages, environment pages, the plugins and stores
-//     page, the command palette and an operation's tabs are held until portal.md's update lands, and are only SCANNED for leaks.
+//  6. The pages G to L below (portal.md round 4, "The frame", "The calls table", the delta audit) are specified here, where the
+//     design draws content and not markup. Routes: `/portal/environments/<name>` (one per declared environment),
+//     `/portal/plugins` (plugins and stores, one page), `/portal/reference/<access|refusals|events|values|machines>`,
+//     `/portal/operations/<op>?tab=<contract|metrics|proof|docs|notes>` (default contract; a server-rendered page per tab, the
+//     calls table in `metrics`; there is no `spans` tab), `/portal/monitor*` (M1.49's, only listed). More hooks:
+//       env-picker > env-option[data-environment][data-href][data-current]   env-page[data-environment][data-live]
+//       env-summary[data-runs]   env-field[data-field][data-value]   proof-column[data-environment][data-focus]
+//       plugin-card[data-plugin][data-kind][data-package][data-version]   store-row[data-store][data-kind]
+//       store-binding[data-store][data-environment][data-runs-on]   rail-icon[data-panel]   panel-page[data-panel][data-title][data-href]
+//       search-trigger[data-shortcut]   <script type="application/json" data-portal="search-index"> of
+//       [{ kind: thing|operation|journey|refusal|environment|monitor, name, href, code? }]
+//       op-tab[data-tab]   op-panel[data-tab]   tile[data-stat][data-value]   refusal-code[data-refusal][data-code][data-count]
+//       calls-filter[data-filter][data-available]   calls-col[data-col]   call-row[data-trace][data-operation][data-outcome]
+//       [data-refusal][data-caller-kind][data-attempts][data-duration-ms][data-over-budget][data-environment][data-start]
+//       [data-request-key][data-role-held]   calls-footer[data-shown][data-total][data-door-refusals]
+//       ref-row[data-name][data-code][data-count][data-span][data-trace]   not-yet[data-hole]   eval-verdicts[data-state]
+//       proof-cell[data-environment][data-state]   journeys-empty
+//     A call's duration is the extent of its attempt spans (portal.md, "Calls table vs spans"). A door refusal is a refusal
+//     counted by `ortho.calls` that no span in the window accounts for; it is counted and never a row.
+//  7. Every hole of portal.md's list that M1.13 cannot fill says "not yet" (an element `not-yet[data-hole]` and the value
+//     `not yet` in the attribute), and no made-up value: request key (hole 1), role held (hole 8), per-eval verdicts (3).
+//     The aggregate verdict per environment is not a hole; its states are `ProofState`'s (recorded-pass, failed, stale,
+//     unproven, unavailable), and `unavailable` only where no logbook is configured, as here.
+//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In declares no journey (ST1.02) and the wire carries none
+//     until M1.42, so `/portal/journeys` shows the declared-none state (`journeys-empty`) and draws no step, whatever the
+//     window's traces hold. The step-verdict hole (PRJ-47) is asserted once M1.42 brings journeys: not in this file yet.
+//  9. The reference panel is pinned to portal.md's order: Access, Refusal codes, Events, Values, Machines (not sorted).
 //
 // Red today on the missing surface: no `live` on the context, none of the hooks, no trace page, Plugged In's docs and generated
 // files absent until M1.40, and `@orthograph/portal` not drawn with `@orthograph/portal-ui`. The controls pass today.
@@ -160,7 +185,7 @@ const stage = (wire: BlueprintWire): Fixture => {
   traces.set(c, { spans: [span(30, 3, "link.add", at(3), { operation: "link.add", attempt: 1, "principal.kind": "anonymous", "move.name": add!.move!.key, "move.to": "listed" })], logs: [] });
   // 4. a defect on link.add
   const d = id(4);
-  traces.set(d, { spans: [span(40, 4, "link.add", at(2), { operation: "link.add", attempt: 1, "principal.kind": "anonymous" }, { status: 2 })], logs: [] });
+  traces.set(d, { spans: [span(40, 4, "link.add", at(2), { operation: "link.add", attempt: 1, "principal.kind": "anonymous" }, { status: 2, ms: 300 })], logs: [] });
   // 5. a claim from before the window
   const o = id(5);
   traces.set(o, { spans: [span(50, 5, "handle.claim", at(90), { operation: "handle.claim", attempt: 1, "principal.person": PLANTED.person, "move.name": move })], logs: [] });
@@ -424,5 +449,259 @@ describe("21 F: the portal's pages are drawn from `@orthograph/portal-ui`", () =
   it("`@orthograph/portal` depends on portal-ui and its site imports it", () => {
     const manifest = JSON.parse(readFileSync(join(repo, "packages/portal/package.json"), "utf8")) as { dependencies?: Record<string, string> };
     expect(Object.keys(manifest.dependencies ?? {}), "portal depends on portal-ui").toContain("@orthograph/portal-ui");
+  });
+});
+
+// ---- round 4: the pages that were held (portal.md, "Round 4", "The frame", "The calls table", the delta audit) ----
+
+type Model = BlueprintWire["model"] & { readonly environments?: Record<string, { runs: string; promotesFrom: string | null; lifetimeMs: number | null; cloud?: { database: string } | null; database?: string | null }>; readonly mounts?: Record<string, { kind: string; package: string; version: string }>; readonly refusals?: Record<string, string>; readonly journeys?: Record<string, unknown> };
+const rawOf = (): Model => (pluggedInWire() as { model: Model }).model;
+
+/** The `test` environment's own window: its own sink holds one call (each environment's portal reads only its own sink). */
+const stageOther = (): Pick<Fixture, "traces" | "doorRefusals" | "claim"> => ({
+  traces: new Map([[id(60), { spans: [span(60, 60, "link.add", at(1), { operation: "link.add", attempt: 1, "principal.kind": "anonymous", "move.name": "add" })], logs: [] }]]),
+  doorRefusals: 0, claim: "link.add",
+});
+
+const json = (html: string, part: string): unknown => {
+  const found = html.match(new RegExp(`<script[^>]*data-portal="${part}"[^>]*>([\\s\\S]*?)</script>`));
+  if (found === null) return undefined;
+  try { return JSON.parse(unescape(found[1]!)); } catch { return undefined; }
+};
+const withoutFragment = (href: string) => href.split("#")[0]!;
+
+describe("21 G: one page per declared environment, and the environment is part of every page", () => {
+  it("each declared environment has a page with its summary, its declared fields and a proof column for every environment, this one in focus", async () => {
+    const wire = await decode(pluggedInWire());
+    const declared = Object.keys(rawOf().environments ?? {});
+    expect(declared.sort(), "Plugged In declares local and test").toEqual(["local", "test"]);
+    const ctx = context(wire, stage(wire));
+    for (const name of declared) {
+      const { status, text } = await get(ctx, `/portal/environments/${name}`);
+      expect(status, `/portal/environments/${name}`).toBe(200);
+      expect(parts(text, "env-page")[0], "the page names its environment").toMatchObject({ "data-environment": name });
+      const env = rawOf().environments![name]!;
+      expect(parts(text, "env-summary")[0]?.["data-runs"], "the summary card's `runs`").toBe(env.runs);
+      const fields = Object.fromEntries(parts(text, "env-field").map((f) => [f["data-field"], f["data-value"]]));
+      expect(fields["runs"]).toBe(env.runs);
+      expect(Object.keys(fields), "the fields the wire carries today").toEqual(expect.arrayContaining(["runs", "promotesFrom", "lifetimeMs"]));
+      const columns = parts(text, "proof-column");
+      expect(columns.map((c) => c["data-environment"]).sort(), "every environment's column").toEqual(declared);
+      expect(columns.filter((c) => c["data-focus"] === "true").map((c) => c["data-environment"]), "this page's one in focus").toEqual([name]);
+    }
+    expect((await get(ctx, "/portal/environments/nowhere")).status, "an undeclared environment is not a page").toBe(404);
+  });
+
+  it("the picker lists the declared environments and marks the current one; each page is the environment's own portal", async () => {
+    const wire = await decode(pluggedInWire());
+    const local = context(wire, stage(wire), NOW, "local");
+    const test = context(wire, stageOther(), NOW, "test");
+    const homeLocal = (await get(local, "/portal")).text;
+    const options = parts(homeLocal, "env-option");
+    expect(options.map((o) => o["data-environment"]).sort(), "the picker").toEqual(["local", "test"]);
+    expect(options.find((o) => o["data-environment"] === "local")?.["data-current"], "local is where this portal runs").toBe("true");
+    expect(options.find((o) => o["data-environment"] === "test")).toMatchObject({ "data-current": "false", "data-href": "/portal/environments/test" });
+    const homeTest = (await get(test, "/portal")).text;
+    expect(parts(homeLocal, "top-bar")[0]).toMatchObject({ "data-environment": "local" });
+    expect(parts(homeTest, "top-bar")[0]).toMatchObject({ "data-environment": "test" });
+    expect([stat(homeLocal, "calls"), stat(homeTest, "calls")], "each environment's rail reads its own sink").toEqual(["7", "1"]);
+    expect(parts((await get(local, "/portal/environments/local")).text, "env-page")[0]?.["data-live"], "the environment you are in is live").toBe("true");
+    const other = await get(local, "/portal/environments/test");
+    expect(parts(other.text, "env-page")[0]?.["data-live"], "another environment is read in its own portal").toBe("false");
+    expect(other.text, "and says whose portal reads it").toMatch(/own portal/i);
+  });
+
+  it("every kind of page carries the environment in its top bar", async () => {
+    const wire = await decode(pluggedInWire());
+    const ctx = context(wire, stage(wire), NOW, "local");
+    for (const path of ["/portal", "/portal/things/handle", "/portal/operations/handle.claim", "/portal/operations/handle.claim?tab=metrics", "/portal/environments/test", "/portal/plugins", "/portal/journeys", "/portal/reference/refusals", `/portal/traces/${stage(wire).ids.answered}`]) {
+      const { status, text } = await get(ctx, path);
+      expect(status, path).toBe(200);
+      expect(parts(text, "top-bar")[0], path).toMatchObject({ "data-environment": "local", "data-window-ms": String(WINDOW) });
+    }
+  });
+});
+
+describe("21 H: plugins and stores, one page", () => {
+  it("a card per mount with its kind and package, then the stores table with what each store runs on in each environment", async () => {
+    const wire = await decode(pluggedInWire());
+    const { status, text } = await get(context(wire, stage(wire)), "/portal/plugins");
+    expect(status).toBe(200);
+    const mounts = rawOf().mounts!;
+    const cards = parts(text, "plugin-card");
+    expect(cards.map((c) => c["data-plugin"]).sort(), "Plugged In mounts three projections").toEqual(Object.keys(mounts).sort());
+    for (const card of cards) expect(card, card["data-plugin"]).toMatchObject({ "data-kind": mounts[card["data-plugin"]!]!.kind, "data-package": mounts[card["data-plugin"]!]!.package, "data-version": mounts[card["data-plugin"]!]!.version });
+    // Plugged In declares no store: the drawing's convention is one `default` row, bound per environment to the database it runs on.
+    expect(rawOf()).not.toHaveProperty("stores");
+    expect(parts(text, "store-row").map((r) => r["data-store"]), "one default store").toEqual(["default"]);
+    const environments = rawOf().environments!;
+    const bindings = Object.fromEntries(parts(text, "store-binding").map((b) => [b["data-environment"], b["data-runs-on"]]));
+    expect(bindings).toEqual(Object.fromEntries(Object.entries(environments).map(([name, e]) => [name, e.database ?? e.cloud?.database])));
+    expect(parts(text, "store-row")[0]!["data-kind"], "its kind").toBe("database");
+    expect(text, "never a count of rows (portal.md Q4)").not.toMatch(/data-rows=/);
+  });
+});
+
+describe("21 I: the icon rail and the command palette", () => {
+  it("five icons, in order, on every page, each opening a short panel of pages", async () => {
+    const wire = await decode(pluggedInWire());
+    const ctx = context(wire, stage(wire));
+    for (const path of ["/portal", "/portal/operations/link.add", "/portal/plugins"]) {
+      const { text } = await get(ctx, path);
+      expect(parts(text, "rail-icon").map((i) => i["data-panel"]), `${path}: the icon rail`).toEqual(["things", "proof", "reference", "plugins", "monitor"]);
+    }
+    const { text } = await get(ctx, "/portal");
+    const panel = (name: string) => parts(text, "panel-page").filter((p) => p["data-panel"] === name);
+    expect(panel("things").map((p) => p["data-title"]).sort(), "things: the things tree").toEqual(["handle", "link", "profile"]);
+    expect(panel("proof").map((p) => p["data-title"]), "proof: each environment, compare, journeys, starting worlds").toEqual(expect.arrayContaining(["local", "test", "Compare environments", "Journeys", "Starting worlds"]));
+    expect(panel("reference").map((p) => p["data-title"]), "reference: five pages, and no list of every code").toEqual(["Access", "Refusal codes", "Events", "Values", "Machines"]);
+    expect(panel("plugins").map((p) => p["data-title"])).toEqual(["Plugins and stores"]);
+    expect(panel("monitor").length, "monitor lists one or two pages").toBeGreaterThanOrEqual(1);
+    expect(panel("monitor").length).toBeLessThanOrEqual(2);
+    // Listed only where another slice builds the page: values (M1.42's wire), compare and starting worlds, monitor (M1.49).
+    const fetched = [...panel("things"), ...panel("proof").filter((p) => /\/environments\/[a-z]+$/.test(p["data-href"]!) || p["data-title"] === "Journeys"), ...panel("reference").filter((p) => p["data-title"] !== "Values"), ...panel("plugins")];
+    expect(fetched.length).toBeGreaterThan(0);
+    for (const p of fetched) expect((await get(ctx, p["data-href"]!)).status, `${p["data-panel"]} > ${p["data-title"]} at ${p["data-href"]}`).toBe(200);
+  });
+
+  it("⌘K searches things, operations, journeys, refusal codes, environments and monitor pages, from one index in the page", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const ctx = context(wire, run);
+    const { text } = await get(ctx, "/portal");
+    expect(parts(text, "search-trigger")[0], "the top bar's widest control").toMatchObject({ "data-shortcut": "⌘K" });
+    const index = json(text, "search-index") as Array<{ kind: string; name: string; href: string; code?: string }> | undefined;
+    expect(Array.isArray(index), "the index is data in the page").toBe(true);
+    const of = (kind: string) => (index ?? []).filter((e) => e.kind === kind);
+    const raw = rawOf();
+    expect(of("thing").map((e) => e.name).sort()).toEqual(["handle", "link", "profile"]);
+    expect(of("operation").map((e) => e.name).sort()).toEqual(Object.keys(raw.operations).sort());
+    expect(of("journey").map((e) => e.name).sort(), "the model's journeys (none yet in Plugged In)").toEqual(Object.values(raw.journeys ?? {}).map((j) => (j as { name: string }).name).sort());
+    expect(Object.fromEntries(of("refusal").map((e) => [e.name, e.code])), "refusal codes, from the model").toEqual(raw.refusals);
+    expect(of("environment").map((e) => e.name).sort()).toEqual(["local", "test"]);
+    expect(of("monitor").length, "monitor pages are searchable").toBeGreaterThanOrEqual(1);
+    for (const entry of (index ?? []).filter((e) => e.kind !== "monitor")) {
+      expect(entry.href.startsWith("/portal/"), `${entry.kind} ${entry.name}`).toBe(true);
+      if (entry.kind === "refusal") continue;
+      expect((await get(ctx, withoutFragment(entry.href))).status, `${entry.kind} ${entry.name} at ${entry.href}`).toBe(200);
+    }
+    expect(leaked(text), "the index is a model, never a trace").toEqual([]);
+  });
+});
+
+describe("21 J: the operation page's tabs and its calls table", () => {
+  it("the tabs are Contract, Metrics, Proof, Docs and Notes; there is no Spans tab", async () => {
+    const wire = await decode(pluggedInWire());
+    const ctx = context(wire, stage(wire));
+    const { text } = await get(ctx, "/portal/operations/handle.claim");
+    expect(parts(text, "op-tab").map((t) => t["data-tab"])).toEqual(["contract", "metrics", "proof", "docs", "notes"]);
+    for (const tab of ["contract", "metrics", "proof", "docs", "notes"]) expect(parts((await get(ctx, `/portal/operations/handle.claim?tab=${tab}`)).text, "op-panel")[0], tab).toMatchObject({ "data-tab": tab });
+    const spans = await get(ctx, "/portal/operations/handle.claim?tab=spans");
+    expect(parts(spans.text, "op-panel").map((p) => p["data-tab"]), "an unknown tab shows no panel of its own name").not.toContain("spans");
+  });
+
+  it("Metrics ends with the calls table: its filters and columns as drawn, one row per call, newest first, each opening its trace", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const { text } = await get(context(wire, run), "/portal/operations/handle.claim?tab=metrics");
+    expect(parts(text, "calls-filter").map((f) => f["data-filter"]), "the filters").toEqual(["environment", "caller", "outcome", "request-key", "over-budget", "window"]);
+    expect(parts(text, "calls-col").map((c) => c["data-col"]), "the columns").toEqual(["time", "environment", "caller", "outcome", "duration", "request-key", "attempts"]);
+    const rows = parts(text, "call-row");
+    expect(rows.map((r) => r["data-trace"]), "a retry is one call: the refused claim and the retried one, newest first").toEqual([run.ids.refused, run.ids.answered]);
+    expect(rows[1], "the retried claim").toMatchObject({ "data-operation": "handle.claim", "data-outcome": "answered", "data-caller-kind": "person", "data-attempts": "2", "data-environment": "staging", "data-over-budget": "false" });
+    expect(rows[1]!["data-duration-ms"], "the extent of its two attempt spans: the first's start to the second's end").toBe("11");
+    expect(rows[0], "the refused one: the declared refusal").toMatchObject({ "data-outcome": "refused", "data-refusal": "HandleTaken", "data-caller-kind": "agent", "data-attempts": "1", "data-duration-ms": "9" });
+    expect(rows[0]!["data-start"], "the span's start").toBe(String(at(4)));
+    for (const trace of [run.ids.refused, run.ids.answered]) expect(text, `a link to ${trace}`).toContain(`href="/portal/traces/${trace}"`);
+    expect(text, "the person is never named").not.toContain(PLANTED.person);
+  });
+
+  it("over budget is derived from the model's budget: link.add's slow defect is over, its quick answer is not", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const budget = wire.model.operations["link.add"]!.budget!.p95Ms;
+    expect(budget, "a budget between the fixture's 9 ms and 300 ms").toBeGreaterThan(9);
+    expect(budget).toBeLessThan(300);
+    const rows = parts((await get(context(wire, run), "/portal/operations/link.add?tab=metrics")).text, "call-row");
+    expect(rows.map((r) => [r["data-trace"], r["data-outcome"], r["data-caller-kind"], r["data-over-budget"]])).toEqual([
+      [run.ids.defect, "defect", "anyone", "true"], [run.ids.added, "answered", "anyone", "false"],
+    ]);
+  });
+});
+
+describe("21 K: the metrics reader: door refusals are counted, named, and never a row", () => {
+  it("the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const model = rawOf();
+    const { text } = await get(context(wire, run), "/portal/operations/handle.claim?tab=metrics");
+    const tiles = Object.fromEntries(parts(text, "tile").map((t) => [t["data-stat"], t["data-value"]]));
+    expect(tiles, "five calls: one answered, one refused with a span, three refused at the door").toMatchObject({ calls: "5", answered: "1", refused: "4", defects: "0" });
+    const byCode = Object.fromEntries(parts(text, "refusal-code").map((r) => [r["data-refusal"], [r["data-code"], r["data-count"]]]));
+    expect(byCode, "by name, mapped to the model's code").toEqual({ HandleTaken: [model.refusals!["HandleTaken"], "1"], NotAllowed: [model.refusals!["NotAllowed"], "3"] });
+    const rows = parts(text, "call-row");
+    expect(rows.length, "two spans, two rows").toBe(2);
+    expect(rows.filter((r) => r["data-refusal"] === "NotAllowed"), "no row for a door refusal").toEqual([]);
+    expect(parts(text, "calls-footer")[0], "the footer says what is counted and not listed").toMatchObject({ "data-shown": "2", "data-total": "5", "data-door-refusals": "3" });
+    const home = (await get(context(wire, run), "/portal")).text;
+    expect(parts(home, "last-call").length, "the rail does list the calls that have spans").toBe(2);
+    expect(home, "and none of them is a door refusal").not.toContain('data-refusal="NotAllowed"');
+    expect(parts(text, "call-row").length, "the hook exists in the table where a row would be").toBe(2);
+  });
+
+  it("the refusal-codes page counts every refusal by name and code, and says `no span` for the door's", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const model = rawOf();
+    const { status, text } = await get(context(wire, run), "/portal/reference/refusals");
+    expect(status).toBe(200);
+    const rows = Object.fromEntries(parts(text, "ref-row").map((r) => [r["data-name"], r]));
+    expect(Object.keys(rows).sort(), "every declared refusal has a row").toEqual(Object.keys(model.refusals!).sort());
+    expect(rows["HandleTaken"], "refused once, with a span: its row opens the trace").toMatchObject({ "data-code": model.refusals!["HandleTaken"], "data-count": "1", "data-span": "trace", "data-trace": run.ids.refused });
+    expect(rows["NotAllowed"], "refused three times at the door: counted, no span").toMatchObject({ "data-code": model.refusals!["NotAllowed"], "data-count": "3", "data-span": "none" });
+    expect(rows["LinkNotListed"]!["data-count"], "never refused in the window").toBe("0");
+  });
+
+  it("a metrics source that fails gives a page with no numbers and no guess", async () => {
+    const wire = await decode(pluggedInWire());
+    const ctx = context(wire, stage(wire));
+    const broken = { ...ctx, live: { ...(ctx as unknown as { live: object }).live, metrics: { window: () => Effect.fail(new SourceFailed({ message: "the reader is down" })) } } } as unknown as PortalContext;
+    const { status, text } = await get(broken, "/portal/operations/handle.claim?tab=metrics");
+    expect(status, "a failed read is not a failed page").toBe(200);
+    expect(parts(text, "tile"), "no tile with a made-up zero").toEqual([]);
+    expect(parts(text, "not-yet").map((n) => n["data-hole"]), "it says so").toContain("metrics");
+  });
+});
+
+describe("21 L: what the portal cannot fill yet says `not yet`", () => {
+  it("the request key and the role held, in every row of the calls table and in the filters", async () => {
+    const wire = await decode(pluggedInWire());
+    const { text } = await get(context(wire, stage(wire)), "/portal/operations/handle.claim?tab=metrics");
+    const rows = parts(text, "call-row");
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect([row["data-request-key"], row["data-role-held"]], `row ${row["data-trace"]}`).toEqual(["not yet", "not yet"]);
+    expect(parts(text, "calls-filter").find((f) => f["data-filter"] === "request-key"), "no request key to filter on").toMatchObject({ "data-available": "false" });
+    expect(parts(text, "not-yet").map((n) => n["data-hole"]).sort()).toEqual(expect.arrayContaining(["request-key", "role-held"]));
+  });
+
+  it("per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be", async () => {
+    const wire = await decode(pluggedInWire());
+    const { text } = await get(context(wire, stage(wire)), "/portal/operations/handle.claim?tab=proof");
+    expect(parts(text, "proof-cell").map((c) => c["data-environment"]).sort(), "the aggregate, per environment").toEqual(["local", "test"]);
+    for (const cell of parts(text, "proof-cell")) expect(cell["data-state"], "no logbook is configured in this fixture: nothing is recorded").toBe("unavailable");
+    const evals = parts(text, "eval-verdicts");
+    expect(evals.length, "a per-eval block for each environment").toBe(2);
+    for (const e of evals) expect(e["data-state"]).toBe("not yet");
+    expect(parts(text, "not-yet").map((n) => n["data-hole"])).toContain("per-eval");
+  });
+
+  it("journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold", async () => {
+    const wire = await decode(pluggedInWire());
+    expect(Object.keys(rawOf().journeys ?? {}), "Plugged In declares no journey").toEqual([]);
+    const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
+    expect(status).toBe(200);
+    expect(parts(text, "journeys-empty").length, "the declared-none state").toBe(1);
+    expect(parts(text, "journey-step"), "the staged trace's `journey.*` span is not a journey").toEqual([]);
+    expect(parts(text, "journey"), "nor is it drawn as one").toEqual([]);
   });
 });

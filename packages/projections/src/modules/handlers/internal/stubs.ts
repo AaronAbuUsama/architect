@@ -101,10 +101,14 @@ const pathStub = (model: Model, op: OperationModel, p: MachinePath): RenderedFil
 /** Who may call: one stub per allowed entry no machine stub casts, then one caller turned away (none for anyone). */
 const roleStubs = (model: Model, op: OperationModel, machined: boolean): ReadonlyArray<RenderedFile> => {
   const doc = whoLines(model, op, `Who may call ${op.name}`);
-  const allowed = op.allowed.slice(machined ? 1 : 0).map((a) => {
+  const entries = op.allowed.slice(machined ? 1 : 0);
+  const taken = (a: AllowedModel) => entries.filter((b) => (roleOf(b) ?? b.kind) === (roleOf(a) ?? a.kind)).length > 1;
+  // Two entries of one role (`owner.of("source")`, `owner.of("destination")`) are told apart by the field they follow.
+  const named = (a: AllowedModel) => `allowed-${roleOf(a) ?? a.kind}${taken(a) && a.kind === "role-of" ? `-${kebab(a.path)}` : ""}`;
+  const allowed = entries.map((a) => {
     const cast = castOf(model, op, a);
     return render(op, {
-      name: `allowed-${roleOf(a) ?? a.kind}`, from: allowedFile(model, op, a), cast, title: `allowed ${roleOf(a) ? `the ${roleOf(a)}` : callerOf(a)}`,
+      name: named(a), from: allowedFile(model, op, a), cast, title: `allowed ${roleOf(a) ? `the ${roleOf(a)}` : callerOf(a)}`,
       imports: [`import { Blueprint } from "orthograph";`, ...cast.imports],
       doc: [...doc, `Allowed: ${callerOf(a)} calls ${op.name}, and it answers.`],
       starts: `a starting world where ${op.name} can run`, payload: payloadOf(op),
