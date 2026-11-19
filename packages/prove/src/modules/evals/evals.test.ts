@@ -133,6 +133,19 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
     expect(judge(signedIn({ trace: { spans: [], logs: [log("ok", { who: "ses_abc123" })] } }))).toEqual(['grant-an-allowance "s": answer.session (not public) appears in a log attribute']);
   });
 
+  it("lets a caller who is not shown a hidden answer field not receive it, but still requires every public field", () => {
+    const open = {
+      ...signIn, name: "locker.get",
+      answer: { label: { value: { type: "text", max: 60 } }, note: { value: { type: "text", max: 60 }, visibility: { private: ["locker.owner"] } }, code: { value: { type: "text", max: 60 }, visibility: "secret" } },
+    } as unknown as OperationModel;
+    const project = { operations: new Map([["locker.get", { answer: { label: Blueprint.text({ max: 60 }), note: Blueprint.text({ max: 60 }), code: Blueprint.text({ max: 60 }) } }]]) };
+    const run = (body: object) => answerShape(open, [{ ...evidence(1), call: call({ operation: "locker.get", body }) }], { project: project as never, all: [] }).failures;
+    expect(run({ label: "tools" })).toEqual([]);                                      // private and secret left out for a stranger
+    expect(run({ label: "tools", note: "mine", code: "c-1" })).toEqual([]);            // shown to the owner: present and fits
+    expect(run({ label: "tools", note: "x".repeat(61) })[0]).toContain("answer.note"); // present, so still checked
+    expect(run({ note: "mine" })[0]).toContain("answer.label");                        // a public field may never be missing
+  });
+
   it("fails a secret value in a journal entry", () => {
     const journal = [{ event: "SignedIn", move: "m", subject: "s", fields: { token: "tok_0123456789abcdef" } }];
     expect(judge(signedIn({ call: call({ operation: "session.sign-in", payload: { password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" }, journal }) }))).toEqual([

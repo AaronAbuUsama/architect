@@ -44,6 +44,9 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
     const leaks = secretsIn(op, operation, e);
     if (!answer) return leaks;
     return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
+      // A field with a declared visibility is cut from the answer of a caller who is not shown it (M1.35): absent is right.
+      // Present, it is still checked below. A public field has no visibility, so a public field that is missing still fails.
+      if (hasResponse && op.answer[k]?.visibility !== undefined && !Object.hasOwn(answer, k)) return [];
       // Live telemetry has no response and an external sink also drops email (D3 #120).
       if (!hasResponse && (!shown(k) || k === "email")) return [];
       if (!hasResponse && k === "items" && traceItems !== undefined) {
