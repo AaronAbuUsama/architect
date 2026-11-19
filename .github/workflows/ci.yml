@@ -33,6 +33,23 @@ jobs:
       - run: pnpm nx run-many -t lint,typecheck,test --outputStyle=static
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
+      # The CI guards' own scripts (builder-paths, supersedes, codex-state), each case on a throwaway repository.
+      - run: bash tools/ci/ci.test.sh
+
+  # A builder never edits journeys, evals or the runner's checks (AGENTS.md; proposal 6 in design/process/proposals.md).
+  # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
+  # Any other pull request or push skips it, and a skipped job counts as passed where it is required.
+  builder-paths:
+    if: github.event_name == 'pull_request' && endsWith(github.head_ref, '-build')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - run: tools/ci/builder-paths.sh "origin/$BASE_REF" HEAD
+        env:
+          BASE_REF: ${{ github.base_ref }}
 
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
@@ -96,3 +113,5 @@ jobs:
       - run: pnpm nx run e2e:m0-names --outputStyle=static
       - run: pnpm nx run docs:check --outputStyle=static
       - run: pnpm nx run canon:check --outputStyle=static
+      # A decision's `## Supersedes` phrases are gone from everything but the records (proposal 8; AGENTS.md, "Who decides").
+      - run: tools/ci/supersedes.sh
