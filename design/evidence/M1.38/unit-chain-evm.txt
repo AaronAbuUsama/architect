@@ -1,11 +1,11 @@
-$ pnpm exec vitest run --root packages/chain-evm
-# commit 6419d4b7 · 2026-11-19T09:50:17Z · exit 0 (expected 0) · 9.6s
+$ pnpm exec vitest run --root packages/chain-evm --testTimeout=120000
+# commit 52e71b99+wip · 2026-11-19T14:13:04Z · exit 0 (expected 0) · 9s
 
 
- RUN  v4.1.12 ./packages/chain-evm
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-ad7329bce2064c746/packages/chain-evm
 
 
- Test Files  8 passed (8)
-      Tests  19 passed (19)
-   Start at  09:50:09
-   Duration  7.35s (transform 5.40s, setup 0ms, import 32.85s, tests 2.13s, environment 1ms)
+ Test Files  7 passed | 1 skipped (8)
+      Tests  17 passed | 2 skipped (19)
+   Start at  14:12:59
+   Duration  4.14s (transform 4.90s, setup 0ms, import 18.85s, tests 827ms, environment 2ms)
