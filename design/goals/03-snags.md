@@ -104,3 +104,18 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Fix: framework, `Blueprint.error` (or the runtime) derives `_tag` from the declaring export, check first; then
   `names.ts` goes.
 - Status: open
+
+## S-16 · MCP · a tool call carries no request key (ledger HAN-16)
+- Hit: HAN-10's checks author (#116): an idempotent operation called over MCP can't be replayed, so
+  `IdempotencyConflict` can't be reached there.
+- Fix: framework, with M1.12's request key, check first.
+- Status: open
+
+## S-17 · Codex on #95's code (ledger HAN-13, HAN-14, HAN-15)
+- Hit: Codex's review of #116 (the code is #95's, M1.35).
+- HAN-13: a request answer stored before the envelope change refuses its own retry after an upgrade. Parked to M7.03:
+  no world outlives an upgrade before M7.
+- HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
+  framework, check first.
+- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
+- Status: open (HAN-13 parked, M7.03)
