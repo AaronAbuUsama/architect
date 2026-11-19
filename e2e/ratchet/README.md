@@ -12,6 +12,7 @@ writing a JSON report to `tmp/m1-report.json`, then `check.ts`, which compares t
 | a test fails and is not on the list | the job fails; each one is printed as an error |
 | a listed test passes now | a `::warning::` ("newly passing, take it off the list"); the job does not fail |
 | a listed entry is not in the report (renamed, deleted) | a warning; the job does not fail |
+| a hook throws (beforeAll, afterAll, ...) or a file errors, even in a file whose failing tests are all listed | the job fails, unless that exact key is listed: `m1/NN.test.ts > describe > [suite error]`, or `m1/NN.test.ts > [file error]` |
 | a listed test was skipped | a warning; the job does not fail |
 | there is no report, or it is not a vitest report, or it has no files (vitest crashed) | the job fails |
 
@@ -19,8 +20,9 @@ writing a JSON report to `tmp/m1-report.json`, then `check.ts`, which compares t
 
 One line per entry, `m1/NN-file.test.ts > describe > ... > test`: the file's path from `e2e/`, then the describe titles
 and the test's title, joined with ` > `, as vitest's own `FAIL` lines print them. No durations, no colours. A file that
-fails with no failing test under it (it does not load, or a hook throws) is keyed by the file alone:
-`m1/NN-file.test.ts`. Lines starting with `#` and blank lines are ignored; keep the entries sorted (`LC_ALL=C sort`).
+fails with no failing test under it and no hook error (it does not load) is keyed by the file alone: `m1/NN-file.test.ts`.
+A hook that throws is its own key, because vitest's JSON report leaves hook errors out: `reporter.ts` (a vitest reporter,
+writing `tmp/m1-errors.json`) records them, and no failing test in the same file covers them. Lines starting with `#` and blank lines are ignored; keep the entries sorted (`LC_ALL=C sort`).
 
 ## Taking a test off the list
 

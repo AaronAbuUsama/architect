@@ -1,5 +1,5 @@
 # Expected-failing M1 checks: the ratchet's list (see e2e/ratchet/README.md).
-# One key per line, `m1/NN-file.test.ts > describe > test` (a file that fails to load, or whose hook throws, is the file alone).
+# One key per line, `m1/NN-file.test.ts > describe > test` (a file that fails to load is the file alone; a hook that throws is `file > describe > [suite error]` or `file > [file error]`).
 # Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
 # Seeded from goal/stage-1 at 32388caf (run 44568720200): 63 failing, the same 63 as m1 at 9076a69b (run 44561147237).

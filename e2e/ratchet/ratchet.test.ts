@@ -29,6 +29,33 @@ describe("keys", () => {
   });
 });
 
+describe("hook and suite errors", () => {
+  const listed = ["m1/16-v.test.ts > a > listed test"];
+  const hooked = (suiteErrors: NonNullable<Report["suiteErrors"]>): Report => ({
+    testResults: [{ name: "/work/e2e/m1/16-v.test.ts", status: "failed", assertionResults: [test(["a"], "listed test", "failed")] }],
+    suiteErrors,
+  });
+  it("fails when an afterAll throws in a file that has a listed failing test", () => {
+    const verdict = compare(hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: ["a"] }]), listed, root);
+    expect(ok(verdict)).toBe(false);
+    expect(verdict.unexpected).toEqual(["m1/16-v.test.ts > a > [suite error]"]);
+  });
+  it("fails when a file-level hook throws in a file that has a listed failing test", () => {
+    expect(compare(hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: [] }]), listed, root).unexpected).toEqual(["m1/16-v.test.ts > [file error]"]);
+  });
+  it("passes when that exact suite error is itself listed", () => {
+    const verdict = compare(hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: ["a"] }]), [...listed, "m1/16-v.test.ts > a > [suite error]"], root);
+    expect(ok(verdict)).toBe(true);
+  });
+  it("fails on an unhandled error outside any file", () => {
+    expect(ok(compare({ testResults: base.testResults, unhandled: ["boom"] }, ["m1/01-a.test.ts > mounting > wires", "m1/02-b.test.ts"], root))).toBe(false);
+  });
+  it("does not also key the file when a suite error already explains its failure", () => {
+    const only: Report = { testResults: [{ name: "/work/e2e/m1/17.test.ts", status: "failed", assertionResults: [test(["e"], "t", "skipped")] }], suiteErrors: [{ name: "/work/e2e/m1/17.test.ts", path: ["e"] }] };
+    expect(compare(only, [], root).unexpected).toEqual(["m1/17.test.ts > e > [suite error]"]);
+  });
+});
+
 describe("parseList", () => {
   it("drops comments and blank lines", () => {
     expect(parseList("# header\n\nm1/a.test.ts > t\n  m1/b.test.ts  \n")).toEqual(["m1/a.test.ts > t", "m1/b.test.ts"]);
