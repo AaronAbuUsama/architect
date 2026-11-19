@@ -101,6 +101,8 @@ export interface HandlerApi {
     readonly calls?: Readonly<Record<string, CallWiring>>;
     /** The machine's refusal for this operation's move, `<Thing>Not<State>`, named by the generated code. */
     readonly notFrom?: string;
+    /** Each refusal's code by tag (`Errors.codes`), so a refused call's span says `refusal.code`. */
+    readonly codes?: Readonly<Record<string, string>>;
   }) => Served<O, R>;
   readonly blank: {
     /** What a scaffold returns until it is written: dies with `BlankReached`, typed as anything. */
