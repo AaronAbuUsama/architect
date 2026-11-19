@@ -47,7 +47,15 @@ skills or the process.
 >
 > - **Branch:** `goal/stage-1`, cut from `m1` once every m1 pull request has landed. Every change reaches it through a
 >   pull request into `goal/stage-1`, which you merge when CI is green and a 🔍 reviewer that wrote none of it passed
->   it. Merge `main` in whenever `main` moves.
+>   it. Merge `main` in whenever `main` moves. **Started early (Aaron, 19 November 2026: "Start them now"):** the
+>   branch was cut at `32388caf` (m1 at `5e66bc91` with main at `a002dab4` merged in) before three m1 pull requests
+>   landed: #76 (K16, the scaffold explains itself), #95 (M1.35, visibility) and #104 (the Codex fixes). Each time one
+>   lands on `m1`, `origin/m1` is merged into `goal/stage-1` through a pull request (CI green, and a 🔍 that wrote none
+>   of it); #104 landed first, at `c63da4b5`. Until #76 lands, Goal 3 stays off the files it changes (the list on the
+>   pull request: `packages/cli/src/main.ts` and `packages/cli/src/modules/{add,check,model}`, `e2e/m1/` checks 00, 19
+>   and 22 with `loop.ts`, the canon docs, and the generated output it refreshes) and the code its builds work in:
+>   `packages/language-effect/src/modules/handler/**`, `packages/generators/` and `packages/compiler/`. Plugged In's
+>   `generated/` is regenerated after each m1 merge rather than hand-merged.
 > - **Roles:** keep the five roles below apart. No agent plays two of them on the same journey.
 > - **Ownership:** you own the architecture. Where code, design, journeys and grid disagree, decide, fix the other in
 >   the same change, and record it in `design/decisions/`.
