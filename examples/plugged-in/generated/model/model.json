@@ -53,6 +53,13 @@
         }
       },
       "lives": "database",
+      "unique": {
+        "name": {
+          "while": [
+            "claimed"
+          ]
+        }
+      },
       "machine": {
         "states": [
           "claimed",
@@ -142,7 +149,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "56bf560c43d39dd6"
+      "hash": "e72ce54a5f1534f8"
     },
     "link": {
       "name": "link",

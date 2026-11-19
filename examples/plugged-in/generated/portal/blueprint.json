@@ -57,6 +57,13 @@
           }
         },
         "lives": "database",
+        "unique": {
+          "name": {
+            "while": [
+              "claimed"
+            ]
+          }
+        },
         "machine": {
           "states": [
             "claimed",
@@ -146,7 +153,7 @@
         "from": {
           "kind": "app"
         },
-        "hash": "56bf560c43d39dd6"
+        "hash": "e72ce54a5f1534f8"
       },
       "link": {
         "name": "link",
@@ -2950,43 +2957,43 @@
   "dependsOnByOperation": {
     "handle.claim": {
       "operation:handle.claim": "5cb41d59b1703f19",
-      "thing:handle": "56bf560c43d39dd6"
+      "thing:handle": "e72ce54a5f1534f8"
     },
     "handle.release": {
       "operation:handle.release": "94a513d256283355",
-      "thing:handle": "56bf560c43d39dd6"
+      "thing:handle": "e72ce54a5f1534f8"
     },
     "handle.resolve": {
       "operation:handle.resolve": "8e923d24a0e4f5d2",
-      "thing:handle": "56bf560c43d39dd6"
+      "thing:handle": "e72ce54a5f1534f8"
     },
     "link.add": {
       "operation:link.add": "561bf4ad1db7e369",
-      "thing:handle": "56bf560c43d39dd6",
+      "thing:handle": "e72ce54a5f1534f8",
       "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.order": {
       "operation:link.order": "8fda9f06f6165b50",
-      "thing:handle": "56bf560c43d39dd6",
+      "thing:handle": "e72ce54a5f1534f8",
       "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.remove": {
       "operation:link.remove": "f319a63a9f1bd796",
-      "thing:handle": "56bf560c43d39dd6",
+      "thing:handle": "e72ce54a5f1534f8",
       "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "profile.get": {
       "operation:profile.get": "ee1eb946c4673c40",
-      "thing:handle": "56bf560c43d39dd6",
+      "thing:handle": "e72ce54a5f1534f8",
       "thing:profile": "987faea48c27e6d4"
     }
   },
   "docs": {
     "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of your public page, with its profile.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n| HandleAlreadyOwned | 12 | HN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
-    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name that belongs to one person until they release it, and is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n| owner | id |\n\n## Machine\n\nStates: claimed, released. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n| release | claimed | released | HandleReleased |\n\n## Roles\n\n- handleOwner\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of your public page, with its profile.\n- [handle.release](release.md): Free your name and take its public page offline. Anyone may claim the name afterwards.\n- [handle.resolve](resolve.md): Find the handle that holds a claimed name. A released or unclaimed name has none.\n",
+    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name that belongs to one person until they release it, and is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n| owner | id |\n\n## Machine\n\nStates: claimed, released. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n| release | claimed | released | HandleReleased |\n\n## Unique\n\n- name: unique while claimed\n\n## Roles\n\n- handleOwner\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of your public page, with its profile.\n- [handle.release](release.md): Free your name and take its public page offline. Anyone may claim the name afterwards.\n- [handle.resolve](resolve.md): Find the handle that holds a claimed name. A released or unclaimed name has none.\n",
     "handle/release.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.release\n\nFree your name and take its public page offline. Anyone may claim the name afterwards.\n\n**Who may call:** the handleOwner of the handle.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`release`: from claimed to released, emitting HandleReleased.\n\n## Steps\n\n- `handle.release.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotClaimed | 11 | HN-900 | the handle is in a state release can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the handleOwner of the handle; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in handle release --handle <handle>\n```\n\nHTTP: `POST /handle/release` with the payload as JSON. SDK: `Sdk.handle.release(payload)`.\n",
     "handle/resolve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.resolve\n\nFind the handle that holds a claimed name. A released or unclaimed name has none.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Steps\n\n- `handle.resolve.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotFound | 13 | HN-003 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in handle resolve --name <name>\n```\n\nHTTP: `POST /handle/resolve` with the payload as JSON. SDK: `Sdk.handle.resolve(payload)`.\n",
     "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to your own public page. You need a claimed name first.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in link add --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
@@ -3010,5 +3017,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "97c77eea6109d25534ea652bd3fbad6f8aff47eb8621f84588d142d30f72cb7e"
+  "digest": "34a177bf09a7921720db079ae0a54d0d33c6f683800320f1fb3e25f9d0dcddbd"
 }

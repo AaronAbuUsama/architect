@@ -22,6 +22,10 @@ States: claimed, released. A move from the wrong state is refused HandleNotClaim
 | claim | (creates) | claimed | HandleClaimed |
 | release | claimed | released | HandleReleased |
 
+## Unique
+
+- name: unique while claimed
+
 ## Roles
 
 - handleOwner
