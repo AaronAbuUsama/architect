@@ -34,13 +34,10 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
   for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
     if (Object.hasOwn(fields, key) && !Visibility.sees(Audience.telemetry, fields[key]!) && typeof value === "string") hide(value, 1);
   }
-  /**
-   * What a handler loads or stores of a thing, so far as the declaration does not make it public, is hidden by value. A public
-   * text that is merely not opted into spans stays readable here: it is no secret, and a handler's own line may say it.
-   */
+  /** What a handler loads or stores of a thing, so far as the declaration keeps it out of telemetry, is hidden by value. */
   const learn = (thing: Thing, values: object) => {
     for (const [key, value] of Object.entries(values)) {
-      if (Object.hasOwn(thing.fields, key) && !Visibility.sees(Audience.public, thing.fields[key]!)) hide(value, SHORTEST_STORED);
+      if (Object.hasOwn(thing.fields, key) && !Visibility.sees(Audience.telemetry, thing.fields[key]!)) hide(value, SHORTEST_STORED);
     }
   };
   const watching = (records: Records["Service"]): Records["Service"] => ({
