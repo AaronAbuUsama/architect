@@ -1,7 +1,7 @@
 # Grill round 1: the mission board's information architecture
 
-Drafted 19 November 2026 by 📐 Designer: the mission board. **Not sent yet.** It goes to Aaron once the Mobbin and
-HeroUI MCPs are connected, after the Mobbin look, which may change the options. Five questions.
+Drafted 19 November 2026 by 📐 Designer: the mission board. **Not sent yet.** HeroUI's docs are read through its MCP.
+It goes to Aaron after the Mobbin look (that MCP needs his sign-in), which may change the options. Five questions.
 
 **Shared terms**
 
