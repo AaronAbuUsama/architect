@@ -11,7 +11,7 @@ export const supplied = (flags: Readonly<Record<string, unknown>>) =>
 
 const text = (x: unknown) => JSON.stringify(x, (_, v: unknown) => (typeof v === "bigint" ? v.toString() : v));
 const exitOf = (tag: unknown): number =>
-  typeof tag === "string" && tag in Errors.exits ? Errors.exits[tag as keyof typeof Errors.exits] : tag === "SchemaError" ? 2 : 1;
+  typeof tag === "string" && tag in Errors.refusals ? Errors.refusals[tag as keyof typeof Errors.refusals].exit : tag === "SchemaError" ? 2 : 1;
 
 /** `AL-002 Name { a: 1, b: x }`: a refusal's code, its name, and the values of its declared fields that the server sent (it cut them for this caller). */
 const said = (tag: unknown, code: unknown, fields: Readonly<Record<string, unknown>>) => {

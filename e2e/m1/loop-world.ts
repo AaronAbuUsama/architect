@@ -24,7 +24,11 @@ export const openLoop = async (root: string): Promise<Loop> => {
     const collector = yield* Collectors.local(dir, []);
     const world = yield* Worlds.start({ root, port: yield* Effect.promise(freePort), name: "m1-plugged-in-loop", otlp: collector.url });
     return { collector, world };
-  }).pipe(Scope.provide(scope)));
+  }).pipe(
+    // A start that fails has already opened the collector and the temp folder: close the scope on failure too, not only in `close`.
+    Effect.onError(() => Scope.close(scope, Exit.void)),
+    Scope.provide(scope),
+  ));
   const px = await proxy(world.url);
   return {
     url: px.url, proxy: px,

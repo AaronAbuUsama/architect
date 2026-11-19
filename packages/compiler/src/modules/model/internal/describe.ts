@@ -4,6 +4,10 @@ import type { AnyErrorClass, Allowed, CallStep, Field, FieldsInput, Operation, R
 import type { AllowedModel, BlankOperationModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
+import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
+import { exitClashes, notFoundShapes, operationExitClashes } from "./exits.ts";
+import { unfillable } from "./fillable.ts";
+import { RUNS_NEEDS, deviceProblems } from "./device.ts";
 import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
@@ -70,6 +74,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     writes ? { writes: writes.map((w) => thingNames.get(w) ?? problem(problems, `${where}: a step writes a thing that isn't in the blueprint`)) } : {};
 
   const prefix = prefixes(layout.things, problems);
+  // A thing some operation's payload names where no role check reads it gets a `<Thing>NotFound` (K16, M1.46).
+  const missable = new Set([...layout.things.values()].flatMap((t) => [...t.verbs.values()].flatMap(({ declaration: d }) => missedBy(d, Blanks.isBlank))));
   const things: Record<string, ThingModel> = {};
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     if (!t.thing) continue;
@@ -93,10 +99,11 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
+    const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
       name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
-      errors: Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }])),
+      errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),
       roleRules: Object.fromEntries(byName(t.roles).map(([role, { rule }]) => [role, Blanks.isBlank(rule) ? null : rule.toString()])),
       from: t.from,
@@ -146,22 +153,27 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
       : null;
     if (op.move && op.move.machine !== layout.things.get(thing)?.machine) problems.push(`${file}: moves another thing's machine`);
+    problems.push(...unfillable(op, `${thing}.${verb}`, thing, move?.emits ?? "?", `${layout.things.get(thing)?.base ?? `blueprint/things/${thing}`}/events.ts`));
     const errors = op.errors.map((e) => errorNames.get(e) ?? problem(problems, `${file}: declares an error not exported from an errors.ts`));
     // Each refusal goes on the wire by its name: two classes of one name in one union can't be told apart.
     for (const tag of new Set(errors.filter((n, i) => errors.indexOf(n) !== i && n !== "?"))) {
       problems.push(`${file}: ${thing}.${verb}'s errors are a union with two classes tagged ${tag}, so the refusal is ambiguous on the wire: rename one`);
     }
     const allowed = op.allowed.map((a) => allowedModel(a, file));
+    const found = foundModel(op, (x) => thingNames.get(x), (x) => things[x]?.notFound?.error);
     const refusals = [
       ...errors,
       ...(move && move.from.length > 0 && machine ? [machine.notFrom.error] : []),
+      ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
     ];
+    const payload = fieldsModel(op.payload, `${file} payload`, "a payload");
+    const answer = fieldsModel(op.answer, `${file} answer`, "answer");
+    const mints = mintsOf(move?.from.length === 0, thing, answer, payload);
     const entry = {
       kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from, description: op.description,
-      payload: fieldsModel(op.payload, `${file} payload`, "a payload"), answer: fieldsModel(op.answer, `${file} answer`, "answer"),
-      move, errors, refusals, allowed,
+      payload, answer, move, errors, refusals, allowed, ...found, ...(mints !== undefined ? { mints } : {}),
       steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k,
         Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)])),
       ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
@@ -223,28 +235,17 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   }
 
   const refusals = refusalsOf(things, problems);
+  problems.push(...exitClashes(things), ...operationExitClashes(things, operations), ...notFoundShapes(things));
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
   const environments = environmentsOf(layout, problems);
   const stores = storesOf(layout, problems);
+  const { journeyBlanks, ...stories } = storiesOf(layout, operations, allowedModel);
+  const allBlanks = { ...blanks, ...journeyBlanks };
   return {
-    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...storiesOf(layout, operations, allowedModel), ...(Object.keys(blankOperations).length > 0 ? { blankOperations } : {}), ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
+    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...stories, ...(Object.keys(blankOperations).length > 0 ? { blankOperations } : {}), ...(Object.keys(allBlanks).length > 0 ? { blanks: allBlanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
     problems,
   };
 };
-
-/** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
-const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "an operation runs on the caller's own device only when a mounted plugin supplies it, with a code entry for each of node, browser and world; this app's own operations all run on the server",
-  chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
-};
-
-/** What an operation on the device can't have: there is no server there to know who calls, store anything, or move a machine. */
-const deviceProblems = (file: string, op: Operation): ReadonlyArray<string> => [
-  ...(op.allowed.every((a) => a.kind === "anyone") ? [] : [`${file}: a client operation runs on the caller's device, where no server knows who is calling: it must be allowed to Blueprint.anyone`]),
-  ...(op.move ? [`${file}: a client operation has no store, so it can't move a machine`] : []),
-  ...(Object.values(op.steps).some((s) => s.type === "call") ? [`${file}: a client operation can't have a call step yet (the wallet reaches the chain through the chain port as a library, M1-plugins section 8.2; a call step on the device waits for an adapter that needs one)`] : []),
-  ...(op.idempotent ? [`${file}: a client operation has no server to keep an idempotency key`] : []),
-];
 
 
 /** Where a field is declared: `Blueprint.issued` is allowed in one of these. */

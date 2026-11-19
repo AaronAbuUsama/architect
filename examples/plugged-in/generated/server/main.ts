@@ -30,8 +30,8 @@ export { World } from "@orthograph/host-cloudflare";
 
 const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, codes: Errors.codes });
 const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler, codes: Errors.codes });
-const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, codes: Errors.codes });
-const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", codes: Errors.codes });
+const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, notFound: { link: "LinkNotFound" }, codes: Errors.codes });
+const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", notFound: { link: "LinkNotFound" }, codes: Errors.codes });
 const profileGetServed = Handlers.serve({ name: "profile.get", operation: profileGet.declaration, handler: profileGetHandler, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
@@ -127,7 +127,7 @@ const hostsWorlds = (env: Env) =>
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "handle.claim": handleClaimServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "profile.get": profileGetServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.

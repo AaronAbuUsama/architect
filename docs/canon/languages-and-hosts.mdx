@@ -36,9 +36,9 @@ import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Pr
 `Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:
 
 ```ts file=examples/signup/generated/server/main.ts lines=26-29
-const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
-const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler, codes: Errors.codes });
 ```
 
@@ -99,14 +99,14 @@ export type Runs = "client" | "server" | "chain";
 
    The compiler refuses the other two, and says what a project would need to run them:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=142-143
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=149-150
 const onDevice = op.runs === "client" && (layout.things.get(thing)?.from.kind ?? "app") !== "app"; // a plugin's, with its code for each host
 if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
 ```
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=235-239
+```ts file=packages/compiler/src/modules/model/internal/device.ts lines=5-9
 /** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
-const RUNS_NEEDS: Readonly<Record<string, string>> = {
+export const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "an operation runs on the caller's own device only when a mounted plugin supplies it, with a code entry for each of node, browser and world; this app's own operations all run on the server",
   chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
 };

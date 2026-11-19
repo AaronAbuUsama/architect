@@ -48,19 +48,22 @@ describe("render", () => {
   });
 
   it("declares each operation's refusals on its endpoint, with their exit codes", () => {
-    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, NotAllowed]");
+    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, PersonNotFound, NotAllowed]");
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
-    expect(errors).toContain("AllowanceLimitTooHigh: 44,");
-    expect(errors).toContain("AllowanceNotActive: 40,");
-    expect(errors).toContain("NotAllowed: 3,");
+    // K16 (M1.47): one refusals table holds each exit, beside its code and HTTP status.
+    expect(errors).toContain('AllowanceLimitTooHigh: { code: "AL-003", exit: 44, status: 422 },');
+    expect(errors).toContain('AllowanceNotActive: { code: "AL-900", exit: 40, status: 409 },');
+    expect(errors).toContain('NotAllowed: { code: "AR-001", exit: 3, status: 403 },');
   });
 
   it("gives every refusal its code beside its tag: on its wire class, in the SDK's codes, and in the CLI's line (L2.P)", () => {
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
-    expect(errors).toContain('{ code: Schema.Literal("AL-001"), ...wireStruct(Allowance.AllowanceExceeded.fields).fields }');
-    expect(errors).toContain('static readonly code = "AL-001" as const;');
-    expect(errors).toContain('AllowanceNotActive: "AL-900",');
-    expect(errors).toContain('NotAllowed: "AR-001",');
+    // K16 (M1.47): the class reads its code from the refusals table, which holds it once.
+    expect(errors).toContain('AllowanceExceeded: { code: "AL-001", exit: 41, status: 422 },');
+    expect(errors).toContain("{ code: Schema.Literal(refusals.AllowanceExceeded.code), ...wireStruct(Allowance.AllowanceExceeded.fields).fields }");
+    expect(errors).toContain("static readonly code = refusals.AllowanceExceeded.code;");
+    expect(errors).toContain('AllowanceNotActive: { code: "AL-900",');
+    expect(errors).toContain('NotAllowed: { code: "AR-001",');
     // What a caller is shown of a refusal is the visibility rule's, not a list in the generated errors.
     expect(errors).not.toContain("shown");
     const output = byPath.get("generated/cli/src/output.ts")!.content;

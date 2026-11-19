@@ -11,7 +11,7 @@ import { spanned } from "./span.ts";
 import { cutAnswer } from "#modules/visibility/service.js";
 
 type AnyCodec = Schema.Codec<object, unknown>;
-type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
+type AnyHandler = (payload: object, context: { principal: Principal; steps: object; refs: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
 
 /** On a device nobody can say who is calling, so every caller is anonymous and an operation is open to anyone. */
 const principal: Principal = { kind: "anonymous" };
@@ -45,7 +45,7 @@ const device = ({ name, operation, handler }: { readonly name: string; readonly 
     run: (payload: object, where: DeviceWhere) =>
       Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
-        const answer = yield* handler(payload, { principal, steps, move });
+        const answer = yield* handler(payload, { principal, steps, refs: {}, move });
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug: it dies, loudly.
         yield* check(answer).pipe(Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)), Effect.orDie);

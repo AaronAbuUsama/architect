@@ -1,7 +1,7 @@
 import type { FromModel } from "../types.ts";
 // Refusal codes, stable across targets: `[AL-002] AllowanceExceeded { limit: 500 }`. A code is its thing's prefix and a
 // number. Declared errors are numbered 1, 2, 3 in the order they are declared in the thing's `errors.ts`; the machine's own
-// refusal is always 900; the runtime's refusals belong to no thing and take the prefix `AR`. The model records every code,
+// refusal is always 900, and its generated `<Thing>NotFound` 901; the runtime's refusals belong to no thing and take the prefix `AR`. The model records every code,
 // so a generator reads it and never works one out, and a number that has shipped does not move when an error is added.
 import type { AnyErrorClass, Thing } from "orthograph";
 
@@ -44,7 +44,7 @@ export const inDeclarationOrder = (errors: ReadonlyMap<string, AnyErrorClass>): 
 
 /** Every refusal's name and code in the project: the declared ones, each machine's, and the runtime's. */
 export const refusalsOf = (
-  things: Readonly<Record<string, { readonly errors: Readonly<Record<string, { readonly code: string }>>; readonly machine: { readonly notFrom: { readonly error: string; readonly code: string } } | null; readonly from: FromModel }>>,
+  things: Readonly<Record<string, { readonly errors: Readonly<Record<string, { readonly code: string }>>; readonly machine: { readonly notFrom: { readonly error: string; readonly code: string } } | null; readonly notFound?: { readonly error: string; readonly code: string }; readonly from: FromModel }>>,
   problems: Array<string>,
 ): Readonly<Record<string, string>> => {
   const out: Record<string, string> = { ...RUNTIME_CODES };
@@ -62,6 +62,8 @@ export const refusalsOf = (
     const at = (file: string) => (t.from.kind !== "app" ? `${t.from.package}/blueprint/things/${t.from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`);
     for (const [name, e] of Object.entries(t.errors)) add(name, e.code, at("errors"));
     if (t.machine) add(t.machine.notFrom.error, t.machine.notFrom.code, at("machine"));
+    // A generated not-found refusal; one the thing declares under that name is already added, with its own code.
+    if (t.notFound && !(t.notFound.error in t.errors)) add(t.notFound.error, t.notFound.code, at("thing"));
   }
   return Object.fromEntries(Object.entries(out).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 };

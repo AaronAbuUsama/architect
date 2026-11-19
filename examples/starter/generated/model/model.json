@@ -482,6 +482,9 @@
           "path": "organization"
         }
       ],
+      "refs": {
+        "organization": "organization"
+      },
       "steps": {
         "issue": {
           "name": "api-key.create.issue",
@@ -498,7 +501,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "4e4930c28c53eb1b"
+      "hash": "69f515f7088b2d8e"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -557,6 +560,9 @@
           "role": "invitation.invitee"
         }
       ],
+      "refs": {
+        "invitation": "invitation"
+      },
       "steps": {
         "join": {
           "name": "invitation.accept.join",
@@ -569,7 +575,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "937e15a8f2c9b98a"
+      "hash": "2a36a93997c71f99"
     },
     "invitation.revoke": {
       "kind": "operation",
@@ -614,6 +620,9 @@
           "path": "invitation.organization"
         }
       ],
+      "refs": {
+        "invitation": "invitation"
+      },
       "steps": {
         "update": {
           "name": "invitation.revoke.update",
@@ -626,7 +635,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "a527002466da0300"
+      "hash": "aacefd8778f73cb5"
     },
     "invitation.send": {
       "kind": "operation",
@@ -683,6 +692,10 @@
           "path": "organization"
         }
       ],
+      "refs": {
+        "organization": "organization"
+      },
+      "mints": "invitation",
       "steps": {
         "insert": {
           "name": "invitation.send.insert",
@@ -695,7 +708,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "2f3b2483d2c752f7"
+      "hash": "65b4785dba83b560"
     },
     "membership.get": {
       "kind": "read",
@@ -811,6 +824,7 @@
           "kind": "signed-in"
         }
       ],
+      "mints": "organization",
       "steps": {
         "insert": {
           "name": "organization.create.insert",
@@ -827,7 +841,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "c85baf957d5baae5"
+      "hash": "3d7ad3207f653955"
     },
     "organization.get": {
       "kind": "read",

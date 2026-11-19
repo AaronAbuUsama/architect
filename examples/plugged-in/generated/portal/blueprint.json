@@ -8,6 +8,7 @@
       "HandleTaken": "HN-001",
       "LinkAlreadyRemoved": "LN-002",
       "LinkNeedsHandle": "LN-001",
+      "LinkNotFound": "LN-901",
       "LinkNotListed": "LN-900",
       "NotAllowed": "AR-001",
       "ProfileNotFound": "PR-001"
@@ -195,12 +196,17 @@
             "code": "LN-002"
           }
         },
+        "notFound": {
+          "error": "LinkNotFound",
+          "exit": 4,
+          "code": "LN-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "5857524d8a3d0255"
+        "hash": "e675c91ad9f832bd"
       },
       "profile": {
         "name": "profile",
@@ -294,6 +300,7 @@
             "kind": "anyone"
           }
         ],
+        "mints": "handle",
         "steps": {
           "load": {
             "name": "handle.claim.load",
@@ -310,7 +317,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "9968f77abac9c487"
+        "hash": "526cb81e4a741645"
       },
       "link.add": {
         "kind": "operation",
@@ -375,6 +382,7 @@
             "kind": "anyone"
           }
         ],
+        "mints": "link",
         "steps": {
           "load": {
             "name": "link.add.load",
@@ -391,7 +399,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "9188ccf111bbc19c"
+        "hash": "d2947cac3422faf7"
       },
       "link.order": {
         "kind": "operation",
@@ -426,13 +434,20 @@
           "LinkAlreadyRemoved"
         ],
         "refusals": [
-          "LinkAlreadyRemoved"
+          "LinkAlreadyRemoved",
+          "LinkNotFound"
         ],
         "allowed": [
           {
             "kind": "anyone"
           }
         ],
+        "refs": {
+          "link": "link"
+        },
+        "notFound": {
+          "link": "LinkNotFound"
+        },
         "steps": {
           "load": {
             "name": "link.order.load",
@@ -449,7 +464,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "6617593628d349a3"
+        "hash": "85733bc7c727ac3a"
       },
       "link.remove": {
         "kind": "operation",
@@ -484,13 +499,20 @@
         },
         "errors": [],
         "refusals": [
-          "LinkNotListed"
+          "LinkNotListed",
+          "LinkNotFound"
         ],
         "allowed": [
           {
             "kind": "anyone"
           }
         ],
+        "refs": {
+          "link": "link"
+        },
+        "notFound": {
+          "link": "LinkNotFound"
+        },
         "steps": {
           "record": {
             "name": "link.remove.record",
@@ -503,7 +525,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "4a092ee981078c51"
+        "hash": "378b9aae41e861b1"
       },
       "profile.get": {
         "kind": "operation",
@@ -638,23 +660,23 @@
   },
   "dependsOnByOperation": {
     "handle.claim": {
-      "operation:handle.claim": "9968f77abac9c487",
+      "operation:handle.claim": "526cb81e4a741645",
       "thing:handle": "1cc2bec683ed6952"
     },
     "link.add": {
-      "operation:link.add": "9188ccf111bbc19c",
+      "operation:link.add": "d2947cac3422faf7",
       "thing:handle": "1cc2bec683ed6952",
-      "thing:link": "5857524d8a3d0255",
+      "thing:link": "e675c91ad9f832bd",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.order": {
-      "operation:link.order": "6617593628d349a3",
-      "thing:link": "5857524d8a3d0255",
+      "operation:link.order": "85733bc7c727ac3a",
+      "thing:link": "e675c91ad9f832bd",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.remove": {
-      "operation:link.remove": "4a092ee981078c51",
-      "thing:link": "5857524d8a3d0255",
+      "operation:link.remove": "378b9aae41e861b1",
+      "thing:link": "e675c91ad9f832bd",
       "thing:profile": "987faea48c27e6d4"
     },
     "profile.get": {
@@ -668,8 +690,8 @@
     "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name, claimed once, that is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n\n## Machine\n\nStates: claimed. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of a public page, with its profile.\n",
     "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to the public page of a claimed name.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in link add --handle <handle> --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
     "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| profile | profile.id |\n| title | LinkTitle |\n| url | LinkUrl |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Operations\n\n- [link.add](add.md): Append a link to the public page of a claimed name.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
-    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
-    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
+    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
+    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
     "profile/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile.get\n\nRead a claimed name's public page and its links in display order.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| links | schema |\n\n## Steps\n\n- `profile.get.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| ProfileNotFound | 20 | PR-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in profile get --handle <handle>\n```\n\nHTTP: `POST /profile/get` with the payload as JSON. SDK: `Sdk.profile.get(payload)`.\n",
     "profile/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile\n\nA claimed name's public page, with its links in the order they were put.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| handle | handle.id |\n| links | schema |\n\n## Operations\n\n- [profile.get](get.md): Read a claimed name's public page and its links in display order.\n"
   },
@@ -687,5 +709,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "d8ab98c9579a8c4ed000da008cd810da9e9bf9e9c32c5218486b06dc44fb6e90"
+  "digest": "1c864ff12c00cf1adc9ca81a12cd804e0d4620d1de8ba9ddfe6a2357d01ab58a"
 }

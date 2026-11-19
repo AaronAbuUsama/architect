@@ -154,20 +154,23 @@ export const portalErrorDiffs = (portal: Model, m: Model) => things(m).flatMap((
   ...(t.machine && (portal.things[t.name]?.machine?.notFrom as { code?: string } | undefined)?.code !== t.machine.notFrom.code ? [`portal ${t.name} machine refusal ${t.machine.notFrom.error} lacks its code`] : []),
 ]);
 
-/** ✓ events and errors × the API: the names and codes the server speaks are the model's. */
+/**
+ * ✓ events and errors × the API: the names and codes the server speaks are the model's. Each error's code and exit are read
+ * from its row of the generated `refusals` table (K16, M1.47), which replaced the separate `exits` table.
+ */
 export const apiDiffs = (root: string, m: Model) => {
   const events = textAt(root, "generated/api/src/events.ts");
   const errors = textAt(root, "generated/api/src/errors.ts");
   return [
     ...things(m).flatMap((t) => Object.keys(t.events).filter((e) => !events.includes(`"${e}"`)).map((e) => `API events omit ${e}`)),
-    ...things(m).flatMap((t) => Object.entries(t.errors).filter(([e, v]) => !errors.includes(`class ${e} `) || !errors.includes(`"${v.code}"`) || !new RegExp(`\\b${e}: ${v.exit},`).test(errors)).map(([e]) => `API errors omit ${e}, its code or its exit`)),
-    ...things(m).flatMap((t) => (t.machine ? [t.machine.notFrom] : []).filter((n) => !errors.includes(`"${n.code}"`) || !new RegExp(`\\b${n.error}: ${n.exit},`).test(errors)).map((n) => `API errors omit ${n.error}`)),
+    ...things(m).flatMap((t) => Object.entries(t.errors).filter(([e, v]) => !errors.includes(`class ${e} `) || !errors.includes(`"${v.code}"`) || !new RegExp(`\\b${e}: \\{ code: "${v.code}", exit: ${v.exit},`).test(errors)).map(([e]) => `API errors omit ${e}, its code or its exit`)),
+    ...things(m).flatMap((t) => (t.machine ? [t.machine.notFrom] : []).filter((n) => !errors.includes(`"${n.code}"`) || !new RegExp(`\\b${n.error}: \\{ code: "${n.code}", exit: ${n.exit},`).test(errors)).map((n) => `API errors omit ${n.error}`)),
   ];
 };
 
 // ---- what a type-check of the SDK's exports says ----
 
-/** Names the SDK must export as types: each thing's, each of its fields' by index, each event's. Missing ones, by name, from one `tsc` run. */
+/** Names the SDK must export as types: each thing's, each of its fields' by index, each event's. Missing ones, by name, from one `tsc` run; `failure` says when tsc itself did not run cleanly and gave no verdict. */
 export const sdkTypesMissing = (root: string, m: Model) => {
   const lines: Array<{ readonly label: string; readonly text: string }> = [
     ...things(m).flatMap((t) => [{ label: `type ${t.identifier}`, text: `export type T${t.identifier} = Sdk.${t.identifier};` },
@@ -182,5 +185,9 @@ export const sdkTypesMissing = (root: string, m: Model) => {
   const result = spawnSync(join(root, "node_modules/.bin/tsc"), ["-p", join(dir, "tsconfig.json"), "--pretty", "false"], { cwd: root, encoding: "utf8", timeout: 180_000 });
   const out = `${result.stdout}${result.stderr}`;
   const bad = new Set([...out.matchAll(/types\.ts\((\d+),\d+\): error/g)].map((x) => Number(x[1]) - head.length - 1));
-  return { missing: lines.filter((_, i) => bad.has(i)).map((l) => l.label), out, checked: lines.length };
+  // With no diagnostic on a probe line, a tsc that did not exit cleanly (no spawn, killed or timed out, or a non-zero exit) proved
+  // nothing: that is a failure of its own, never an empty `missing`.
+  const failure = bad.size > 0 || (result.error === undefined && result.status === 0) ? undefined
+    : `tsc did not run cleanly: ${result.error?.message ?? (result.status === null ? `ended by ${result.signal}` : `exit ${result.status}`)}`;
+  return { missing: lines.filter((_, i) => bad.has(i)).map((l) => l.label), out, checked: lines.length, failure };
 };
