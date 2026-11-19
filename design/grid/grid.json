@@ -4,15 +4,15 @@
   "record": "design/decisions/K14-the-grid.md",
   "goal": {
     "title": "Everything falls out of the blueprint, for every building block in every output",
-    "summary": "Thirteen building blocks by nine outputs, 117 cards, each an eval with a stated green and stated evidence. Done is every card green or agreed not needed, then one story proves it whole: a fresh folder, the real ortho command, a new project, and the links app grown through its four stages.",
+    "summary": "Thirteen building blocks by nine outputs, 117 cards, each an eval with a stated green and stated evidence. Done is every card green or agreed not needed, then one story proves it whole: a fresh folder, the real ortho command, a new project, and the Plugged In app grown through its four stages.",
     "writeUp": [
       "**What Orthograph promises.** You write a blueprint: the things your app keeps, the operations that change them, the steps each operation takes, the machine each thing moves through, the events a move emits, the errors a call can be refused with, the roles allowed to call, which fields are private or secret, the environments and stores it runs in, the plugins it mounts, where an operation runs, and the journeys that prove it works. Everything else falls out of that one declaration for free: the model, the HTTP API, the server, the SDK, the CLI, the MCP tools, the docs, the portal and the telemetry. Nothing is configured twice, and nothing an output shows is written by hand.",
       "**Why a grid measures it.** \"Falls out for free\" is a claim about every pair of building block and output. The coverage audit of 19 November (K12) drew that as a grid of 13 building blocks by 9 outputs, 117 cells, and found the claim fully true only for operations. A promise that holds for one row is not yet the promise. So the grid is the goal: each row is a lane, each cell in it is a card, and each card is an eval. A card says, in one or two sentences, what green means for that building block in that output, and names the evidence that proves it: an e2e check, a journey run through that output, or a view in the portal. A card is green only when its evidence runs in CI and passes. A card that exists in code but has no evidence is not green; it is \"built, unproved\", and the board shows it amber.",
-      "**What \"done\" looks like.** Every card is green, or Aaron has agreed it is not needed by design. A \"not needed\" card is not deleted: it stays on the board, greyed, with the one-line reason, so nobody reopens it by accident and anyone can see the grid is whole. Where an absence is itself a safety property (no secret field leaves through any output, no step leaks into a client's contract), the card stays live and its evidence proves the absence. When the last card turns green, the end-to-end story below runs from a fresh folder through all four stages of the links app, and the grid stays green after it.",
+      "**What \"done\" looks like.** Every card is green, or Aaron has agreed it is not needed by design. A \"not needed\" card is not deleted: it stays on the board, greyed, with the one-line reason, so nobody reopens it by accident and anyone can see the grid is whole. Where an absence is itself a safety property (no secret field leaves through any output, no step leaks into a client's contract), the card stays live and its evidence proves the absence. When the last card turns green, the end-to-end story below runs from a fresh folder through all four stages of the Plugged In app, and the grid stays green after it.",
       "**How it relates to the gates.** The grid does not replace the milestones; it is how we see them. Gate M1 (M1.15) is the first band: the basics of things, operations, steps, machines, events and errors in every output (K13's 5 by 5, M1.41 and M1.42), one visibility rule (M1.35), telemetry that carries the model (M1.36), and the portal as a viewer (M1.13). Gate M2, \"workable\" (M2.12, also the stage 1 gate), is the second: roles and principals (M2.01 to M2.07), secrets by declaration (M2.04), journeys run through the SDK, CLI and MCP (M2.08) so those three columns are proved by journeys rather than by hand-picked calls, `ortho new` (M2.09) so the story can start from nothing, and `ortho add` for the blocks that edit files in place (M2.14 to M2.16). The v1.0 stages fill the rest: stage 2 (ST2.06) the device lane and the adapter half of the mount lane, stage 3 (ST3.08) stores on a chain and workflows, stage 4 (ST4.08) the visibility lane at its hardest, a club whose members never show. The lanes this grid does not have yet (workflows, views, agents, chains as stores) join it as rows when their milestone's decision slice names their outputs; until then they are listed under \"Rows still to come\".",
       "**How we use it.** The board shows one lane per row, its cards left to right in the column order below, each card green, amber (built, unproved), red (missing) or grey (not needed, agreed). Work is picked by lane, not by cell: a lane is climbed until it is fully green, so at each step we know exactly which building block is whole. The order is under \"Hill-climb order\"."
     ],
-    "doneWhen": "Every cell is green, or not-needed with Aaron's reason; then the story check runs from a fresh folder through all four stages of the links app and the grid stays green."
+    "doneWhen": "Every cell is green, or not-needed with Aaron's reason; then the story check runs from a fresh folder through all four stages of the Plugged In app and the grid stays green."
   },
   "blocks": [
     {
@@ -884,7 +884,7 @@
       "evidence": [
         {
           "kind": "check",
-          "label": "M1.41: `links link add --help` shows each field's description",
+          "label": "M1.41: `plugged-in link add --help` shows each field's description",
           "ref": "M1.41",
           "passing": null
         },
@@ -968,7 +968,7 @@
       "evidence": [
         {
           "kind": "check",
-          "label": "M1.13's screenshot of links' home and `profile`'s page at a fixed `now`",
+          "label": "M1.13's screenshot of Plugged In's home and `profile`'s page at a fixed `now`",
           "ref": "M1.13",
           "passing": null
         },
@@ -2870,7 +2870,7 @@
         },
         {
           "kind": "check",
-          "label": "M1.13's screenshot of links with handles mounted",
+          "label": "M1.13's screenshot of Plugged In with handles mounted",
           "ref": "M1.13",
           "passing": null
         }
@@ -3114,14 +3114,14 @@
     }
   ],
   "story": {
-    "summary": "One run in a fresh folder: npm create orthograph links, ortho generate and prove, every operation through the SDK, CLI and MCP, the portal lit by a claim, then handles and auth mounted, then stages 2 to 4.",
+    "summary": "One run in a fresh folder: npm create orthograph plugged-in, ortho generate and prove, every operation through the SDK, CLI and MCP, the portal lit by a claim, then handles and auth mounted, then stages 2 to 4.",
     "steps": [
       {
         "n": 1,
-        "step": "`npm create orthograph links` in an empty folder",
+        "step": "`npm create orthograph plugged-in` in an empty folder",
         "proves": "the front door works with no checkout of this repository",
         "lanes": "all, at the model",
-        "describedBy": "M2.09 (`ortho new` scaffolds `links` at stage 1, identical to `examples/links`)",
+        "describedBy": "M2.09 (`ortho new` scaffolds Plugged In at stage 1, identical to `examples/plugged-in`)",
         "gap": "none once M2.09 lands"
       },
       {
@@ -3130,7 +3130,7 @@
         "proves": "every output is written and every journey passes on workerd",
         "lanes": "thing, operation, step, machine, event, error, roles, journey",
         "describedBy": "M1.41 (the loop through the real `ortho` binary), M2.12",
-        "gap": "M1.41 copies `examples/links` into the folder; the story starts from `ortho new` instead, so the two meet only at M2.09"
+        "gap": "M1.41 copies `examples/plugged-in` into the folder; the story starts from `ortho new` instead, so the two meet only at M2.09"
       },
       {
         "n": 3,
@@ -3142,10 +3142,10 @@
       },
       {
         "n": 4,
-        "step": "the portal opens on links' things; a claim lights `handle.claim` and its move, its event, its commit; the proof tab shows the journeys' verdicts",
+        "step": "the portal opens on Plugged In's things; a claim lights `handle.claim` and its move, its event, its commit; the proof tab shows the journeys' verdicts",
         "proves": "the evidence tier",
         "lanes": "docs, portal, telemetry of every stage 1 lane",
-        "describedBy": "M1.13 (the portal opens on links' things, a journey's run lights its operation and move)",
+        "describedBy": "M1.13 (the portal opens on Plugged In's things, a journey's run lights its operation and move)",
         "gap": "the portal wire still says traces and journeys are \"unavailable\" (`packages/portal/src/modules/wire/service.ts:6-9`)"
       },
       {

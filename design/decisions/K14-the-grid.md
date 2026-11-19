@@ -43,7 +43,7 @@ amber.
 is not deleted: it stays on the board, greyed, with the one-line reason, so nobody reopens it by accident and anyone
 can see the grid is whole. Where an absence is itself a safety property (no secret field leaves through any output,
 no step leaks into a client's contract), the card stays live and its evidence proves the absence. When the last card
-turns green, the end-to-end story below runs from a fresh folder through all four stages of the links app, and the
+turns green, the end-to-end story below runs from a fresh folder through all four stages of the Plugged In app, and the
 grid stays green after it.
 
 **How it relates to the gates.** The grid does not replace the milestones; it is how we see them. Gate M1 (M1.15) is
@@ -77,8 +77,8 @@ is climbed until it is fully green, so at each step we know exactly which buildi
 The grades were first read by four reviewers in parallel, one per group of lanes, each reading the code itself; where
 this record regrades a card against the card's own green, its note says so and why. Every reference below is to
 `origin/m1` at `6419d4b7` unless it says otherwise. On that commit checks 16 (M1.35), 17
-(M1.36) and 18 (M1.38) are written ahead of their builds and red, and `examples/links` is not yet on `m1` (it is
-M1.40; Codex's draft is on `links/stage-1`, #56).
+(M1.36) and 18 (M1.38) are written ahead of their builds and red, and `examples/plugged-in` is not yet on `m1` (it is
+M1.40; Codex's draft is on `links/stage-1`, #56, a branch named before K15).
 
 ## The columns
 
@@ -188,10 +188,10 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 | api | ✓ `packages/projections/src/modules/api/internal/api.ts:80-81` | Every endpoint's payload and answer schemas are the declaration's own fields, so each field is typed on the wire. | e2e/m1/12-projections.test.ts; M1.41's generated-API read. | M1.11 (done); evidence in M1.41 |  |
 | server | ✓ `packages/language-effect/src/modules/handler/service.ts:60` | The server decodes every payload and answer against the declaration's fields and refuses a bad one. | e2e/layer1/05-the-generated-surfaces.test.ts; M1.41's calls. | M1.11 (done) |  |
 | sdk | ~ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | The SDK exports a type for each thing (and its fields), not only one function per operation, so a caller can name a `Link` or a `Profile`. | M1.41: the generated SDK exports each thing's type; ST1.02's journeys through the SDK (M2.08). | M1.42 |  |
-| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:9` | Each payload field is a flag typed from its value (number, enum, id), whose help is the field's description; an answer prints by field, not as one blob. | M1.41: `links link add --help` shows each field's description; a mistyped flag is refused before the call. | M1.42 |  |
+| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:9` | Each payload field is a flag typed from its value (number, enum, id), whose help is the field's description; an answer prints by field, not as one blob. | M1.41: `plugged-in link add --help` shows each field's description; a mistyped flag is refused before the call. | M1.42 |  |
 | mcp | ~ `packages/generators/src/modules/render/internal/mcp.ts:24` | Each tool's input schema describes every public field, and it offers an output schema from the answer, so an agent knows the shape it gets back. | M1.41 for described inputs; M1.37's check (an MCP client lists output schemas) for the output schema. | M1.42 (inputs described); M1.37 (output schema, in M3 since K13) |  |
 | docs | ~ `packages/generators/src/modules/render/internal/docs.ts:12` | Each thing has a reference page with a field table: type, reference or named value, optional, visibility and description. | packages/generators/src/modules/render/render.test.ts; M1.41 reads the docs for each field. | M1.42 (descriptions); the rest is built |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:12-17` | Home shows one card per thing, and the thing's page shows every field with its type, visibility and description, decoded from the data file (not only the embedded docs). | M1.13's screenshot of links' home and `profile`'s page at a fixed `now`; M1.41 reads the data file. | M1.42 (the wire), M1.13 (the pages) |  |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:12-17` | Home shows one card per thing, and the thing's page shows every field with its type, visibility and description, decoded from the data file (not only the embedded docs). | M1.13's screenshot of Plugged In's home and `profile`'s page at a fixed `now`; M1.41 reads the data file. | M1.42 (the wire), M1.13 (the pages) |  |
 | telemetry | ✓ `packages/language-effect/src/modules/handler/internal/attributes.ts:10-23` | A thing's public, non-text fields (and text fields marked `traced`) appear as `payload.*` and `answer.*` attributes on the operation's span; nothing else does. | packages/language-effect/src/modules/handler/internal/attributes.test.ts; M1.19's "leaks nothing" eval; e2e/m1/16-visibility.test.ts for the telemetry audience. | M1.19 (done); M1.35 moves it onto the one rule |  |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
@@ -439,7 +439,7 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 | cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:6` | A mounted plugin's operations are commands as the app's own. | e2e/m1/01-mounting.test.ts (proposed addition: through the CLI). | built; evidence M1.41 | Proposed not needed (Q2): origin in the CLI. |
 | mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:10` | A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool. | e2e/m1/01-mounting.test.ts. | built; M3.22 (exposure from `via`) | Proposed not needed (Q2): origin in a tool. |
 | docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | Each page from a plugin names its plugin, package and version, and a call step names its adapter and call. | new: render.test.ts over a mounted fixture. | M1.13 (proposed addition: `from` in the docs) |  |
-| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The tree groups things by plugin, each page's header names its plugin and version, and a call step names its adapter. | M1.41 reads `from` and mounts in the data file; M1.13's screenshot of links with handles mounted. | M1.42 (`from` in the wire), M1.13 (the tree) |  |
+| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The tree groups things by plugin, each page's header names its plugin and version, and a call step names its adapter. | M1.41 reads `from` and mounts in the data file; M1.13's screenshot of Plugged In with handles mounted. | M1.42 (`from` in the wire), M1.13 (the tree) |  |
 | telemetry | ✗ `packages/language-effect/src/modules/handler/service.ts:28` | An operation's span names its mount, and a call step's span names its adapter and call. | new: e2e/m1/17-telemetry-model.test.ts extended. | M1.36 (proposed addition: `from.mount`, `call.mount`, `call.name`) |  |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
@@ -535,10 +535,10 @@ fresh folder with nothing but Node and the published packages (Verdaccio locally
 
 | # | Step | What it proves | Lanes it lights | Already described by | Gap |
 |---|---|---|---|---|---|
-| 1 | `npm create orthograph links` in an empty folder | the front door works with no checkout of this repository | all, at the model | M2.09 (`ortho new` scaffolds `links` at stage 1, identical to `examples/links`) | none once M2.09 lands |
-| 2 | `ortho generate`, then `ortho prove --env local` | every output is written and every journey passes on workerd | thing, operation, step, machine, event, error, roles, journey | M1.41 (the loop through the real `ortho` binary), M2.12 | M1.41 copies `examples/links` into the folder; the story starts from `ortho new` instead, so the two meet only at M2.09 |
+| 1 | `npm create orthograph plugged-in` in an empty folder | the front door works with no checkout of this repository | all, at the model | M2.09 (`ortho new` scaffolds Plugged In at stage 1, identical to `examples/plugged-in`) | none once M2.09 lands |
+| 2 | `ortho generate`, then `ortho prove --env local` | every output is written and every journey passes on workerd | thing, operation, step, machine, event, error, roles, journey | M1.41 (the loop through the real `ortho` binary), M2.12 | M1.41 copies `examples/plugged-in` into the folder; the story starts from `ortho new` instead, so the two meet only at M2.09 |
 | 3 | the server runs; every operation is called once through the SDK, the CLI and MCP; a refused claim prints `HN-001` and exits 3 | the surfaces tier, for every lane in stage 1 | the surfaces columns of every stage 1 lane | M1.41 (SDK and CLI), M2.08 (journeys `--through sdk|cli|mcp`) | M1.41 calls no MCP tool; M2.08 brings it |
-| 4 | the portal opens on links' things; a claim lights `handle.claim` and its move, its event, its commit; the proof tab shows the journeys' verdicts | the evidence tier | docs, portal, telemetry of every stage 1 lane | M1.13 (the portal opens on links' things, a journey's run lights its operation and move) | the portal wire still says traces and journeys are "unavailable" (`packages/portal/src/modules/wire/service.ts:6-9`) |
+| 4 | the portal opens on Plugged In's things; a claim lights `handle.claim` and its move, its event, its commit; the proof tab shows the journeys' verdicts | the evidence tier | docs, portal, telemetry of every stage 1 lane | M1.13 (the portal opens on Plugged In's things, a journey's run lights its operation and move) | the portal wire still says traces and journeys are "unavailable" (`packages/portal/src/modules/wire/service.ts:6-9`) |
 | 5 | `ortho add feature @orthograph/handles`, then auth (ST1.03, ST1.07); the grid stays green | mounting keeps the promise: a mounted plugin's blocks reach every output with their `from` | mount | M1.10, ST1.03, ST1.07 | no check reads every output for a mounted block's `from` |
 | 6 | stage 2: `ortho add feature @orthograph/wallets`; create a wallet on the device; be paid by handle on Anvil; a reorg corrects it | device operations, adapters, chain events, environments with a chain | device, mount (adapters), event (from the follower), environment | ST2.06 | the device lane's CLI, MCP and portal cards have no slice (see that lane) |
 | 7 | stage 3: a Safe with the budgets plugin, hats, owners sign above a budget | stores on a chain, workflows, agents under their own hat | store, roles (hats), and the rows still to come | ST3.08 | workflows and agents are not rows yet |
@@ -561,7 +561,7 @@ needs least besides it, then let every lane after reuse it.
 
 | Order | Lane | Why here | What turns it green |
 |---|---|---|---|
-| 1 | Operation & read | Seven of nine cards are ✓ already. Climbing it builds the whole evidence path (M1.41's loop through the real binary, M1.13's portal opening on links, journeys' verdicts on the proof tab) with almost no new model work, so it is the first fully green lane and the template for the rest | M1.42 (the CLI's `--help`), M1.13 (the operation page, the matrix) |
+| 1 | Operation & read | Seven of nine cards are ✓ already. Climbing it builds the whole evidence path (M1.41's loop through the real binary, M1.13's portal opening on Plugged In, journeys' verdicts on the proof tab) with almost no new model work, so it is the first fully green lane and the template for the rest | M1.42 (the CLI's `--help`), M1.13 (the operation page, the matrix) |
 | 2 | Error & refusal code | Six ✓; refusals are what a person meets first when something goes wrong, and `HN-001` is in M1.41's done-when | M1.42 (codes in the wire, a code for `InvalidPayload`), M1.36 (`refusal.code`), M1.13 |
 | 3 | Thing & fields | The model card is ~ because no field can be described; that is a blueprint change, small but upstream of every other output's help and schema text, so it lands early | M1.42 (a field description in the blueprint and model, thing types in the SDK, typed and described flags, the wire), M1.13 |
 | 4 | Step | Only docs and the portal are left, and Q1 settles the three client cards | M1.42 (step details in the docs and the wire), M1.13 (the spine) |
@@ -826,13 +826,13 @@ export { Events } from "../../api/src/index.ts";
 
 **B · Readable now: a journal read in every client**
 ```bash
-links events list --thing handle --since 10m
+plugged-in events list --thing handle --since 10m
 # 12:04:31 HandleClaimed { handle: hdl_7f3a, name: aaron }
 ```
 
 **C · Followable now: subscribe**
 ```bash
-links events follow --event HandleClaimed
+plugged-in events follow --event HandleClaimed
 ```
 
 **You do X → what happens**
