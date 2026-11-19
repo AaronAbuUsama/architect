@@ -25,6 +25,7 @@ States: claimed, released. A move from the wrong state is refused HandleNotClaim
 ## Unique
 
 - name: unique while claimed
+- owner: unique while claimed
 
 ## Roles
 

@@ -58,6 +58,11 @@
           "while": [
             "claimed"
           ]
+        },
+        "owner": {
+          "while": [
+            "claimed"
+          ]
         }
       },
       "machine": {
@@ -149,7 +154,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "e72ce54a5f1534f8"
+      "hash": "d4373dffabc64321"
     },
     "link": {
       "name": "link",
@@ -290,6 +295,9 @@
         }
       },
       "lives": "database",
+      "unique": {
+        "handle": {}
+      },
       "machine": null,
       "events": {},
       "errors": {
@@ -304,7 +312,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "987faea48c27e6d4"
+      "hash": "b89674ece8f1cbdc"
     }
   },
   "operations": {
