@@ -23,7 +23,8 @@ jq -r '
       "pending\t-\tCodex has not reviewed this pull request; comment @codex review"
     elif finished(.state.code_review) and finished(.state.security_review)
       and (.state.code_review.status == "completed" or .state.security_review.status == "completed") then
-      "success\t\(.state.code_review.commit_sha // "-")\tCodex finished its review of \((.state.code_review.commit_sha // "?")[0:7])"
+      (if .state.code_review.status == "completed" then .state.code_review.commit_sha else .state.security_review.commit_sha end) as $sha
+      | "success\t\($sha // "-")\tCodex finished its review of \(($sha // "?")[0:7])"
     else
       "pending\t-\tCodex is reviewing (code review: \(.state.code_review.status // "none"), security review: \(.state.security_review.status // "none"))"
     end
