@@ -306,6 +306,10 @@ everywhere. `spikes/workspace-e2b` now also checks that the process forms run in
 in M7: `spikes/staging-pass` any time, then M7.01, M7.03 and M7.04 for staging alone after Gate M2. npm, Homebrew
 and the rest of M7 still wait on the stage 4 gate.
 
+**Built (M1.33, 19 November):** the Collector, Verdaccio and the OIDC issuer are processes, owned by PID and swept by PID, and
+the Grafana viewer is gone; the calls and their evidence are in [`M1-processes.md`](M1-processes.md). Where the table above says a
+service needs Docker, that is how it was before M1.33.
+
 ## 7. The order: floor, spikes, later
 
 **Spikes, any time, off every gate:**

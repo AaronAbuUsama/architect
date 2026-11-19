@@ -38,6 +38,10 @@ describe("the OIDC issuer", () => {
       expect((verified.payload.exp ?? 0) - (verified.payload.iat ?? 0)).toBe(600);
       expect(decodeProtectedHeader(token)).toMatchObject({ alg: "RS256", typ: "JWT" });
 
+      // It never holds a connection open: a client whose event loop is blocked for a while (a test running a command) must not find
+      // its pooled socket reset when it asks again.
+      expect((await fetch(`${issuer.url}/jwks`)).headers.get("connection")).toBe("close");
+
       // A scenario is a client id: the other one's claims are its own.
       expect(decodeJwt((await mint(issuer.url, "ci-pr")).access_token)).toMatchObject({ ref: "refs/pull/7/merge" });
       // An unknown client still gets a token, with no scenario's claims.

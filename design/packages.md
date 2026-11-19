@@ -33,6 +33,8 @@ packages/
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
+  services/          @orthograph/services          private: the stand-ins tests and gates start as processes, never containers (the OIDC
+                                                   issuer over jose, Verdaccio under Node, and the process owner); tag env:support
 examples/
   acme/              the worked example: the allowance
   work/              the work app (F5)

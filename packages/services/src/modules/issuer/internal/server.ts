@@ -80,7 +80,7 @@ export const serve = (config: IssuerConfig, port: number) =>
       Effect.callback<Server, IssuerFailed>((resume) => {
         const s = createServer((request, response) => {
           void Effect.runPromise(handle(config, keys, request)).then((reply) => {
-            response.writeHead(reply.status, { "content-type": "application/json", "cache-control": "no-store" }).end(JSON.stringify(reply.json));
+            response.writeHead(reply.status, { "content-type": "application/json", "cache-control": "no-store", connection: "close" }).end(JSON.stringify(reply.json));
           });
         });
         s.once("error", () => resume(Effect.fail(new IssuerFailed({ message: `couldn't listen on 127.0.0.1:${port}` }))));
