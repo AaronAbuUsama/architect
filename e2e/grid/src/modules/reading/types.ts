@@ -10,6 +10,10 @@ export interface ReadingApi {
   readonly mdSection: (page: string, heading: string) => string | undefined;
   /** The body rows of the first markdown table in a section, each as its trimmed cells. */
   readonly mdRows: (section: string) => ReadonlyArray<ReadonlyArray<string>>;
+  /** The body rows of the first markdown table, each by its header (lower-cased): columns are found by name, never by position. */
+  readonly mdRecords: (section: string) => ReadonlyArray<Readonly<Record<string, string>>>;
+  /** The same for the first HTML table of a fragment, by its `<th>` headers. */
+  readonly htmlRecords: (html: string) => ReadonlyArray<Readonly<Record<string, string>>>;
   /** The `- ` bullets of a section, without the dash. */
   readonly mdBullets: (section: string) => ReadonlyArray<string>;
   /** A portal page's own part: everything before the `<h2>Docs</h2>` block, which only embeds the docs page and proves nothing about the portal. */

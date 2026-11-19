@@ -24,7 +24,7 @@ describe("Plugged In, as it is today", () => {
   });
 
   it("machine.sdk, machine.cli and machine.mcp are red: nothing a caller sees says the states", () => {
-    expect(check("sdk", "link").why).toEqual(['the SDK never names the state "listed": a caller\'s state is not a typed union', 'the SDK never names the state "removed": a caller\'s state is not a typed union']);
+    expect(check("sdk", "link").why).toEqual(["the SDK exports no type for link's states (listed | removed): a caller's state is not a typed union"]);
     expect(check("cli", "link").why).toEqual(["`link add --help` does not name the states it moves between (listed missing)", "`link remove --help` does not name the states it moves between (listed, removed missing)"]);
     expect(check("mcp", "link").why).toEqual(["link.add's description does not name the states it moves between (listed missing)", "link.remove's description does not name the states it moves between (listed, removed missing)"]);
   });
@@ -76,8 +76,8 @@ describe("a wrong output is red, and says what", () => {
 
   it("docs: a machine section that lost a state, the refusal or a move's row", () => {
     const path = "generated/docs/link/index.md";
-    expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace("States: listed, removed.", "States: listed."))).why).toEqual(['the Machine section does not list the states "listed, removed"']);
-    expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace("LinkNotListed (exit 31)", "LinkNotListed"))).why[0]).toMatch(/does not name the wrong-state refusal LinkNotListed \(exit 31\)/);
+    expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace(/removed/g, "gone"))).why).toContain("the Machine section does not name the states removed");
+    expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace("LinkNotListed (exit 31)", "LinkNotListed"))).why[0]).toMatch(/does not name the wrong-state refusal LinkNotListed with its exit 31/);
     expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace("| remove | listed | removed | LinkRemoved |\n", ""))).why).toEqual(["the move table has no correct row for remove"]);
     expect(check("docs", "link", editFile(pluggedIn, "generated/docs/link/remove.md", (t) => t.replace("## Move", "## Moved"))).why).toEqual(["link.remove's page has no Move section with remove, its states and LinkRemoved"]);
   });

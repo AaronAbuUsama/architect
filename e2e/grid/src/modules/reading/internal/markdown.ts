@@ -18,3 +18,9 @@ export const mdRows = (section: string): ReadonlyArray<ReadonlyArray<string>> =>
 
 export const mdBullets = (section: string): ReadonlyArray<string> =>
   section.split("\n").filter((l) => l.startsWith("- ")).map((l) => l.slice(2).trim());
+
+export const mdRecords = (section: string): ReadonlyArray<Readonly<Record<string, string>>> => {
+  const rows = section.split("\n").filter((l) => l.trim().startsWith("|"));
+  const head = (rows[0] === undefined ? [] : cells(rows[0])).map((h) => h.toLowerCase());
+  return rows.slice(2).map((row) => Object.fromEntries(cells(row).map((c, i) => [head[i] ?? String(i), c])));
+};

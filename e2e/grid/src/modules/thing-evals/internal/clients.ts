@@ -1,33 +1,39 @@
 import type { FieldModel } from "../../project-evidence/types.ts";
 import { operationsOf, over, publicFields } from "./over.ts";
 
-/** What the generated CLI's `--help` prints for a flag (`  --position string    …`): its type word and the description after it. */
-const flags = (help: string): ReadonlyMap<string, { readonly type: string; readonly description: string }> =>
-  new Map(help.split("\n").flatMap((line) => {
-    const found = /^\s{2}--([A-Za-z0-9-]+)\s+(\S+)?\s*(.*)$/.exec(line);
-    return found === null ? [] : [[found[1]!, { type: found[2] ?? "", description: (found[3] ?? "").trim() }] as const];
-  }));
+const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** The word the CLI should print for a field's value: a number is `integer` or `float` (or `number`), never `string`. */
+/**
+ * What a `--help` says of one flag, in any layout: the text from where the flag is named (`--position`, alone or after `-p,`) up to where
+ * the next flag is named, or the next blank line or section heading. `undefined` when the flag is not named.
+ */
+const flagBlock = (help: string, name: string): string | undefined => {
+  const start = new RegExp(`(?:^|[\\s,=])--${escaped(name)}(?![A-Za-z0-9-])`).exec(help);
+  if (start === null) return undefined;
+  const rest = help.slice(start.index + start[0].length);
+  const next = /(?:^|[\s,])--[A-Za-z]|\n\s*\n|\n[A-Z][A-Z ]+\n/.exec(rest);
+  return next === null ? rest : rest.slice(0, next.index);
+};
+
+/** A number is shown as a number (`integer`, `float`, `number`, in `<integer>` or any other form), never only as `string`. */
 const numeric = new Set(["uint", "int", "integer", "number", "float"]);
-const wrongType = (field: FieldModel, shown: string): string | undefined =>
-  numeric.has(field.value.type) && !/^(integer|float|number)$/.test(shown) ? `a ${field.value.type} is shown as "${shown}", expected a number`
-  : field.value.type === "enum" && !/^(choice|\|)/.test(shown) && shown === "string" ? `an enum is shown as "string", expected its choices`
+const wrongType = (field: FieldModel, block: string): string | undefined =>
+  numeric.has(field.value.type) && !/\b(integer|int|float|number|uint)\b/i.test(block) ? `a ${field.value.type} is not shown as a number${/\bstring\b/.test(block) ? ' (it says "string")' : ""}`
+  : field.value.type === "enum" && !/\b(choice|one of)\b|\|/i.test(block) ? "an enum does not list its choices"
   : undefined;
 
-/** thing.cli: each public payload field is a flag typed from its value (a number is a number) whose help is the field's description. */
+/** thing.cli: each public payload field is a flag the help names, typed from its value (a number is a number) and carrying the field's description. */
 export const cli = over("thing.cli", (thing, e) => operationsOf(e, thing.name).flatMap((op) => {
   const command = `${op.thing} ${op.verb}`;
   const help = e.cli[command];
   if (help === undefined) return [`\`${command} --help\` could not be run through the generated CLI`];
-  const shown = flags(help);
   return publicFields(op.payload).flatMap(([name, field]) => {
-    const flag = shown.get(name);
-    if (flag === undefined) return [`${command} has no --${name} flag`];
-    const typed = wrongType(field, flag.type);
+    const block = flagBlock(help, name);
+    if (block === undefined) return [`${command} has no --${name} flag`];
+    const typed = wrongType(field, block);
     return [
       ...(typed === undefined ? [] : [`${command} --${name}: ${typed}`]),
-      ...(field.description === undefined || flag.description.includes(field.description) ? [] : [`${command} --${name} does not carry the field's description "${field.description}"`]),
+      ...(field.description === undefined || block.replace(/\s+/g, " ").includes(field.description) ? [] : [`${command} --${name} does not carry the field's description "${field.description}"`]),
     ];
   });
 }));

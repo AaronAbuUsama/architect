@@ -19,29 +19,37 @@ export const server = over("event.server", ({ name, fields, emitters }, e) => [
   ...Object.entries(fields).filter(([, f]) => f.visibility !== undefined).map(([field]) => `${name}.${field} is not public, and nothing reads the journal to show it is left out`),
 ]);
 
-const lists = (text: string, name: string, fields: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const at = text.indexOf(name);
+/**
+ * The event is documented with each of its fields: from where the text names it up to where it names another event (or the section's end), in
+ * any layout (a bullet, a table row, a nested list), each field is named.
+ */
+const lists = (text: string, name: string, fields: ReadonlyArray<string>, others: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const at = text.search(new RegExp(`\\b${name}\\b`));
   if (at < 0) return [`does not list ${name}`];
-  const near = text.slice(at, at + 400);
+  const rest = text.slice(at + name.length);
+  const next = others.map((o) => rest.search(new RegExp(`\\b${o}\\b`))).filter((i) => i >= 0);
+  const near = next.length === 0 ? rest : rest.slice(0, Math.min(...next));
   return fields.filter((f) => !new RegExp(`\\b${f}\\b`).test(near)).map((f) => `lists ${name} without its field ${f}`);
 };
 
 /** event.docs: the thing's page documents the event with its fields (an Events section; a move table naming it does not document it). */
 export const docs = over("event.docs", ({ name, thing, fields }, e) => {
+  const siblings = Object.keys(thing.events ?? {}).filter((x) => x !== name);
   const path = `generated/docs/${thing.name}/index.md`;
   const page = e.files[path];
   if (page === undefined) return [`${path} was not generated`];
   const section = Reading.mdSection(page, "Events");
-  return section === undefined ? [`${path} has no Events section documenting ${name} with its fields`] : lists(section, name, Object.keys(fields)).map((p) => `${path}'s Events ${p}`);
+  return section === undefined ? [`${path} has no Events section documenting ${name} with its fields`] : lists(section, name, Object.keys(fields), siblings).map((p) => `${path}'s Events ${p}`);
 });
 
 /** event.portal: the thing's page lists the event with its fields, in the portal's own part. */
 export const portal = over("event.portal", ({ name, thing, fields }, e) => {
+  const siblings = Object.keys(thing.events ?? {}).filter((x) => x !== name);
   const route = `/portal/things/${thing.name}`;
   const page = e.portal[route];
   if (page === undefined) return [`${route} could not be rendered`];
   const section = Reading.htmlSection(Reading.portalOwn(page), 2, "Events");
-  return section === undefined ? [`${route} has no Events section listing ${name} with its fields`] : lists(Reading.htmlText(section), name, Object.keys(fields)).map((p) => `${route}'s Events ${p}`);
+  return section === undefined ? [`${route} has no Events section listing ${name} with its fields`] : lists(Reading.htmlText(section), name, Object.keys(fields), siblings).map((p) => `${route}'s Events ${p}`);
 });
 
 /** event.telemetry: the commit span of each operation that emits it carries `event.name`. */

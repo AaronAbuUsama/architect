@@ -26,7 +26,7 @@ export const api = over("operation.api", (op, e) => {
   const listed = endpointErrors(source);
   const want = [...(op.refusals ?? [])].sort();
   return [
-    ...(new RegExp(`HttpApiEndpoint\\.(?:post|get)\\("${op.verb}", "/${op.thing}/${op.verb}"`).test(source) ? [] : [`${path} has no endpoint "${op.verb}" at /${op.thing}/${op.verb}`]),
+    ...(new RegExp(`HttpApiEndpoint\\s*\\.\\s*(?:post|get|put|patch|delete)\\s*\\(\\s*["'\`]${op.verb}["'\`]\\s*,\\s*["'\`]/${op.thing}/${op.verb}["'\`]`).test(source) ? [] : [`${path} has no endpoint "${op.verb}" at /${op.thing}/${op.verb}`]),
     ...(source.includes("declaration.payloadSchema") ? [] : [`${path}'s payload is not the declaration's own schema`]),
     ...(source.includes("declaration.answer") ? [] : [`${path}'s answer is not the declaration's own answer`]),
     ...(listed === undefined ? [`${path} lists no error classes`] : JSON.stringify([...listed].sort()) === JSON.stringify(want) ? [] : [`${path} lists errors [${[...listed].sort().join(", ")}], the model gives [${want.join(", ")}]`]),

@@ -24,7 +24,7 @@ describe("Plugged In, as it is today", () => {
   });
 
   it("thing.cli is red where a flag is typed wrongly: link order's position is a uint shown as a string", () => {
-    expect(check("cli", "link").why).toEqual(['link order --position: a uint is shown as "string", expected a number']);
+    expect(check("cli", "link").why).toEqual(['link order --position: a uint is not shown as a number (it says "string")']);
     expect(check("cli", "handle").ok).toBe(true);
   });
 });

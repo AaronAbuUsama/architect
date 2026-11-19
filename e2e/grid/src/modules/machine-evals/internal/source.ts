@@ -1,5 +1,6 @@
 import { Reading } from "../../reading/service.ts";
 import { over } from "./over.ts";
+import { moveProblems, refusalProblems, stateProblems } from "./rows.ts";
 
 /** The classes of a generated errors file, by name: `export class LinkNotListed extends … { code…, ...{ state: Schema.String } }`. */
 const classOf = (errors: string, name: string): string | undefined => errors.split("\n").find((line) => line.startsWith(`export class ${name} `));
@@ -31,17 +32,24 @@ export const api = over("machine.api", ({ machine, moves }, e) => {
       return new RegExp(`\\berror: \\[[^\\]]*\\b${machine.notFrom.error}\\b`).test(source) ? [] : [`${op.name}'s endpoint does not declare ${machine.notFrom.error}`];
     }),
     ...(refusal === undefined ? [`generated/api/src/errors.ts has no class ${machine.notFrom.error}`]
-      : machine.states.every((s) => refusal.includes(`"${s}"`)) ? [] : [`${machine.notFrom.error}'s state is not typed as the union of ${machine.states.join(" | ")}: ${refusal.slice(refusal.indexOf("state"), refusal.indexOf("state") + 30).trim()}`]),
+      : machine.states.every((s) => quoted(refusal, s)) ? [] : [`${machine.notFrom.error}'s state is not typed as the union of ${machine.states.join(" | ")}: ${refusal.slice(refusal.indexOf("state"), refusal.indexOf("state") + 30).trim()}`]),
   ];
 });
 
 /** machine.server: prove's `machine path` and `events` checks pass for each operation that moves the thing. */
 export const server = over("machine.server", ({ moves }, e) => moves.flatMap((op) => [...Reading.proved(e.prove, `${op.name} machine path`), ...Reading.proved(e.prove, `${op.name} events`)]));
 
-/** machine.sdk: the SDK names the thing's states as a type a caller can write. */
-export const sdk = over("machine.sdk", ({ machine }, e) => {
-  const sdkText = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).map(([, text]) => text).join("\n");
-  return machine.states.filter((s) => !sdkText.includes(`"${s}"`)).map((s) => `the SDK never names the state "${s}": a caller's state is not a typed union`);
+const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]`).test(text);
+
+/**
+ * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, declared in the thing's own
+ * folder or named for the thing, whose body names every state. A state named anywhere else in the SDK does not make a type a caller can write.
+ */
+export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
+  const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
+    [...text.matchAll(/export\s+type\s+([A-Za-z0-9_]+)(?:<[^>]*>)?\s*=([^;]*);/g)].map((m) => ({ path, name: m[1]!, body: m[2]! })));
+  const ofThing = exported.filter((t) => t.path.startsWith(`generated/sdk/src/${thing.name}/`) || t.name.startsWith(thing.identifier));
+  return ofThing.some((t) => machine.states.every((s) => quoted(t.body, s))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */
@@ -50,15 +58,14 @@ export const docs = over("machine.docs", ({ thing, machine, moves }, e) => {
   if (index === undefined) return [`generated/docs/${thing.name}/index.md was not generated`];
   const section = Reading.mdSection(index, "Machine");
   if (section === undefined) return [`the ${thing.name} page has no Machine section`];
-  const rows = Reading.mdRows(section);
   return [
-    ...(section.includes(`States: ${machine.states.join(", ")}`) ? [] : [`the Machine section does not list the states "${machine.states.join(", ")}"`]),
-    ...(section.includes(`${machine.notFrom.error} (exit ${machine.notFrom.exit})`) ? [] : [`the Machine section does not name the wrong-state refusal ${machine.notFrom.error} (exit ${machine.notFrom.exit})`]),
-    ...Object.entries(machine.moves).filter(([key, m]) => !rows.some((r) => r[0] === key && r[2] === m.to.join(", ") && r[3] === m.emits)).map(([key]) => `the move table has no correct row for ${key}`),
+    ...[...stateProblems(section, machine), ...refusalProblems(section, machine)].map((p) => `the Machine section ${p}`),
+    ...moveProblems("the move table", machine, Reading.mdRecords(section)),
     ...moves.flatMap((op) => {
       const page = e.files[`generated/docs/${op.thing}/${op.verb}.md`] ?? "";
       const move = Reading.mdSection(page, "Move");
-      return move?.includes(`\`${op.move.key}\``) === true && move.includes(op.move.emits) && op.move.to.every((s) => move.includes(s)) ? [] : [`${op.name}'s page has no Move section with ${op.move.key}, its states and ${op.move.emits}`];
+      const named = (w: string) => move !== undefined && new RegExp(`\\b${w}\\b`).test(move);
+      return named(op.move.key) && named(op.move.emits) && op.move.to.every(named) ? [] : [`${op.name}'s page has no Move section with ${op.move.key}, its states and ${op.move.emits}`];
     }),
   ];
 });
@@ -70,10 +77,9 @@ export const portal = over("machine.portal", ({ thing, machine }, e) => {
   if (page === undefined) return [`${route} could not be rendered`];
   const section = Reading.htmlSection(Reading.portalOwn(page), 2, "Machine");
   if (section === undefined) return [`${route} has no Machine section`];
-  const rows = Reading.htmlRows(section);
   return [
-    ...(Reading.htmlText(section).includes(`States: ${machine.states.join(", ")}`) ? [] : [`${route}'s Machine does not list the states "${machine.states.join(", ")}"`]),
-    ...Object.entries(machine.moves).filter(([key, m]) => !rows.some((r) => r[0] === key && r[2] === m.to.join(", ") && r[3] === m.emits)).map(([key]) => `${route}'s move table has no correct row for ${key}`),
+    ...stateProblems(Reading.htmlText(section), machine).map((p) => `${route}'s Machine ${p}`),
+    ...moveProblems(`${route}'s move table`, machine, Reading.htmlRecords(section)),
     ...(/\b(count|moves made|times)\b/i.test(Reading.htmlText(section)) ? [] : [`${route}'s lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)`]),
   ];
 });

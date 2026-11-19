@@ -1,5 +1,5 @@
-import { htmlItems, htmlRows, htmlSection, htmlText, portalOwn } from "./internal/html.ts";
-import { mdBullets, mdRows, mdSection } from "./internal/markdown.ts";
+import { htmlItems, htmlRecords, htmlRows, htmlSection, htmlText, portalOwn } from "./internal/html.ts";
+import { mdBullets, mdRecords, mdRows, mdSection } from "./internal/markdown.ts";
 import type { ReadingApi } from "./types.ts";
 
 const finding = (problems: ReadonlyArray<string>) => ({ ok: problems.length === 0, why: problems });
@@ -13,7 +13,7 @@ export const Reading: ReadingApi = {
       return found === undefined ? finding([`the model has no ${noun} ${subject}`]) : finding(problems(found, evidence, subject));
     },
   }),
-  mdSection, mdRows, mdBullets,
+  mdSection, mdRows, mdRecords, mdBullets, htmlRecords,
   portalOwn, htmlSection, htmlRows, htmlItems, htmlText,
   proved: (prove, line) =>
     prove === undefined ? [`no prove run was read, so "${line}" is not known`]

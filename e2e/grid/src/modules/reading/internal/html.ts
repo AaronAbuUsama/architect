@@ -23,3 +23,9 @@ export const htmlRows = (html: string): ReadonlyArray<ReadonlyArray<string>> =>
     .filter((cellsOfRow) => cellsOfRow.length > 0);
 
 export const htmlItems = (html: string): ReadonlyArray<string> => [...html.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => htmlText(m[1]!));
+
+export const htmlRecords = (html: string): ReadonlyArray<Readonly<Record<string, string>>> => {
+  const table = /<table[^>]*>([\s\S]*?)<\/table>/.exec(html)?.[1] ?? "";
+  const head = [...(/<tr>([\s\S]*?)<\/tr>/.exec(table)?.[1] ?? "").matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) => htmlText(m[1]!).toLowerCase());
+  return htmlRows(table).map((row) => Object.fromEntries(row.map((c, i) => [head[i] ?? String(i), c])));
+};
