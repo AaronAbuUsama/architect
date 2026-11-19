@@ -162,6 +162,10 @@ takes each, check first, and the climber comes back to that step once it is fixe
   grid's error.cli and error.mcp evals parse that text and can be fooled either way.
 - Needs: structured evidence for those cells (prove `--through` capturing the refusal as data, M2.08 with S-11), or a
   CLI rendering that quotes strings. The cells are off until `--through` exists; switching them on waits on this.
+- Also (Codex on #110, 6c10efc8): the grid's refusal facts treat every field of a not-found refusal as undeclared, but the
+  runtime's prehandle sends `NotFound({ _tag, id })` and the generated wire schema declares `id`
+  (`e2e/grid/src/modules/refusal-evals/internal/facts.ts:48`). When these cells switch on, their facts come from the
+  runtime's real refusal shapes, not the model's declared fields alone, and a test exercises a real not-found refusal.
 - Owner: Goal 3 lead, with S-11 (`prove --through`).
 - Status: open
 
