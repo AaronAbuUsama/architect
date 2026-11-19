@@ -7,7 +7,7 @@ import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 import { Mcp, type McpResult, type ShownOperation } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
@@ -51,20 +51,20 @@ import * as systemThing from "../../blueprint/things/system/thing.ts";
 export { World } from "@orthograph/host-cloudflare";
 
 const allowanceGetServed = Reads.serve({ name: "allowance.get", read: allowanceGet.declaration });
-const allowanceGrantServed = Handlers.serve({ name: "allowance.grant", operation: allowanceGrant.declaration, handler: allowanceGrantHandler });
-const allowanceRevokeServed = Handlers.serve({ name: "allowance.revoke", operation: allowanceRevoke.declaration, handler: allowanceRevokeHandler, notFrom: "AllowanceNotActive" });
-const allowanceSpendServed = Handlers.serve({ name: "allowance.spend", operation: allowanceSpend.declaration, handler: allowanceSpendHandler, notFrom: "AllowanceNotActive" });
-const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler });
-const invitationAcceptServed = Handlers.serve({ name: "invitation.accept", operation: invitationAccept.declaration, handler: invitationAcceptHandler, notFrom: "InvitationNotPending" });
-const invitationRevokeServed = Handlers.serve({ name: "invitation.revoke", operation: invitationRevoke.declaration, handler: invitationRevokeHandler, notFrom: "InvitationNotPending" });
-const invitationSendServed = Handlers.serve({ name: "invitation.send", operation: invitationSend.declaration, handler: invitationSendHandler });
+const allowanceGrantServed = Handlers.serve({ name: "allowance.grant", operation: allowanceGrant.declaration, handler: allowanceGrantHandler, codes: Errors.codes });
+const allowanceRevokeServed = Handlers.serve({ name: "allowance.revoke", operation: allowanceRevoke.declaration, handler: allowanceRevokeHandler, notFrom: "AllowanceNotActive", codes: Errors.codes });
+const allowanceSpendServed = Handlers.serve({ name: "allowance.spend", operation: allowanceSpend.declaration, handler: allowanceSpendHandler, notFrom: "AllowanceNotActive", codes: Errors.codes });
+const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler, codes: Errors.codes });
+const invitationAcceptServed = Handlers.serve({ name: "invitation.accept", operation: invitationAccept.declaration, handler: invitationAcceptHandler, notFrom: "InvitationNotPending", codes: Errors.codes });
+const invitationRevokeServed = Handlers.serve({ name: "invitation.revoke", operation: invitationRevoke.declaration, handler: invitationRevokeHandler, notFrom: "InvitationNotPending", codes: Errors.codes });
+const invitationSendServed = Handlers.serve({ name: "invitation.send", operation: invitationSend.declaration, handler: invitationSendHandler, codes: Errors.codes });
 const membershipGetServed = Reads.serve({ name: "membership.get", read: membershipGet.declaration });
-const organizationCreateServed = Handlers.serve({ name: "organization.create", operation: organizationCreate.declaration, handler: organizationCreateHandler });
+const organizationCreateServed = Handlers.serve({ name: "organization.create", operation: organizationCreate.declaration, handler: organizationCreateHandler, codes: Errors.codes });
 const organizationGetServed = Reads.serve({ name: "organization.get", read: organizationGet.declaration });
-const personSignUpServed = Handlers.serve({ name: "person.sign-up", operation: personSignUp.declaration, handler: personSignUpHandler });
-const sessionShowServed = Handlers.serve({ name: "session.show", operation: sessionShow.declaration, handler: sessionShowHandler });
-const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler });
-const systemHealthServed = Handlers.serve({ name: "system.health", operation: systemHealth.declaration, handler: systemHealthHandler });
+const personSignUpServed = Handlers.serve({ name: "person.sign-up", operation: personSignUp.declaration, handler: personSignUpHandler, codes: Errors.codes });
+const sessionShowServed = Handlers.serve({ name: "session.show", operation: sessionShow.declaration, handler: sessionShowHandler, codes: Errors.codes });
+const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler, codes: Errors.codes });
+const systemHealthServed = Handlers.serve({ name: "system.health", operation: systemHealth.declaration, handler: systemHealthHandler, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
 const tables = [[thingIn(allowanceThing), "allowance"], [thingIn(apiKeyThing), "api-key"], [thingIn(invitationThing), "invitation"], [thingIn(membershipThing), "membership"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"], [thingIn(sessionThing), "session"], [thingIn(systemThing), "system"]] as const;
@@ -170,7 +170,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([AllowanceLive, ApiKeyLive, InvitationLive, MembershipLive, OrganizationLive, PersonLive, SessionLive, SystemLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -201,7 +201,7 @@ const tools = Mcp.tools<Services>({
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;

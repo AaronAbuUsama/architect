@@ -1,4 +1,4 @@
-import { Cause, Data, Effect, Ref, Schema } from "effect";
+import { Cause, Data, Duration, Effect, Ref, Schema } from "effect";
 import type { CallStep, Operation, Principal } from "orthograph";
 import { ErrorNames } from "orthograph/server";
 import { Access } from "#modules/access/service.js";
@@ -10,10 +10,12 @@ import { Busy } from "#modules/work/types.js";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { measureCall } from "./internal/call-metrics.ts";
+import { Environment } from "./internal/environment.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
 import { signalled, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
+export { Environment } from "./internal/environment.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
 type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
@@ -31,8 +33,9 @@ const callStep = (span: string, run: CallRunner) => (args: ReadonlyArray<unknown
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
 
-const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string; readonly calls?: Readonly<Record<string, CallWiring>> }) => {
+const serve = ({ name, operation, handler, notFrom, calls, codes }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string; readonly calls?: Readonly<Record<string, CallWiring>>; readonly codes?: Readonly<Record<string, string>> }) => {
   const op = operation as Operation;
+  const budgetMs = op.budget === undefined ? undefined : Duration.toMillis(op.budget.p95);
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
   const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
@@ -62,13 +65,15 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
+        // Where the call ran: the world's environment, and the kind of store its thing lives in.
+        yield* Effect.annotateCurrentSpan({ environment: yield* Environment, store: op.thing.lives });
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
           return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
         }
-        yield* checkFrom(op, notFrom, payload, unit);
+        const from = yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
         const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(Effect.provideService(Records, logs.watching(unit.records)), logs.around);
@@ -81,10 +86,16 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
         );
         const outcome = yield* Ref.get(chosen);
         const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
+        // The state the subject was in, written once the move is made: a refused call made no move.
+        if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
         const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(
-          Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+          Effect.tap((outcome) => Effect.annotateCurrentSpan({
+            "commit.outcome": outcome,
+            // The event the move emitted, named only on the commit that journalled it: a conflicted attempt emitted nothing.
+            ...(outcome === "committed" && entries[0] !== undefined ? { "event.name": entries[0].event } : {}),
+          })),
           spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
         );
         if (committed === "conflict") return yield* new Conflict();
@@ -96,8 +107,10 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
           if (Cause.hasDies(cause)) return Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" });
           const refusal = Cause.squash(cause);
           if (refusal instanceof Conflict) return Effect.void;
+          const tag = tagOf(refusal);
+          const code = codes?.[tag];
           return logs.last.pipe(Effect.flatMap((log) =>
-            Effect.annotateCurrentSpan({ refusal: tagOf(refusal), ...(log === undefined ? {} : { "refusal.log": log }) })));
+            Effect.annotateCurrentSpan({ refusal: tag, ...(code === undefined ? {} : { "refusal.code": code }), ...(log === undefined ? {} : { "refusal.log": log }) })));
         }),
         spanned(name, { operation: name, attempt: number, ...principalAttributes(principal) }),
       );
@@ -124,9 +137,9 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),
         Effect.flatMap((payload) => run(payload, principal)),
-        measureCall(name, principal, callRefusals),
+        measureCall(name, principal, callRefusals, budgetMs),
       ),
-    run: (payload: object, principal: Principal, request?: string) => run(payload, principal, request).pipe(measureCall(name, principal, refusals)),
+    run: (payload: object, principal: Principal, request?: string) => run(payload, principal, request).pipe(measureCall(name, principal, refusals, budgetMs)),
   };
 };
 
