@@ -1,5 +1,5 @@
 // L2.04: a read that lists, on a real world (workerd, D1, the generated server). `where`, `order` and `page` work, roles are
-// enforced as for any read, and every eval covers it. Port 9000 is this file's.
+// enforced as for any read, and every eval covers it.
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
@@ -14,7 +14,7 @@ const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const fixtures = join(acme, "test/fixtures/layer2/list-read");
 const scratch = join(acme, "test/tmp/reads");
-const PORT = 9000;
+const PORT = 0;
 
 /** A copy of acme with `list.ts` and the journeys written, generated/ synced from them. */
 const project = (name: string, list: { readonly from: string } | { readonly text: string }, journeys: Readonly<Record<string, string>>) =>

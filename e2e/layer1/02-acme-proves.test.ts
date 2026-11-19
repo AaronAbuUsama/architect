@@ -7,7 +7,7 @@ afterAll(project.remove);
 
 describe("check 2: ortho prove --env local on acme", () => {
   it("passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running", () => {
-    const run = ortho(project.root, "prove", "--env", "local", "--port", "8870");
+    const run = ortho(project.root, "prove", "--env", "local", "--port", "0");
     expect(run.status, run.stdout + run.stderr).toBe(0);
     const lines = run.stdout.trimEnd().split("\n");
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(11);

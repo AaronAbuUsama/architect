@@ -1,14 +1,17 @@
 // L2.07 (D3 #10): the generated CLI signs in by device code against a real local world. Ada claims and approves the code
 // with her own session and no browser; then `session show` prints her. Bob can't approve what ada claimed.
+import { acmeCopy } from "../../../test/acme.ts";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Effect, Schedule } from "effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Worlds } from "./service.ts";
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 const cli = join(acme, "generated/cli/src/main.ts");
 const GRANT = "urn:ietf:params:oauth:grant-type:device_code";
 
@@ -44,7 +47,7 @@ const until = <A>(what: string, look: () => A | undefined) =>
 describe("device sign-in", () => {
   it("signs the generated CLI in as ada, who approves with her own session; bob's approval is a 403; session show prints ada", { timeout: 120_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8960, name: "device-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "device-test" });
       const cast = (yield* send(`${url}/_world/cast`, "POST", { names: ["ada", "bob"] })).body as unknown as Cast;
       const [ada, bob] = [cast["ada"]!, cast["bob"]!];
       const config = mkdtempSync(join(tmpdir(), "ortho-device-"));
@@ -85,7 +88,7 @@ describe("device sign-in", () => {
 
   it("answers a poll sooner than its interval with slow_down, and a used code only once", { timeout: 60_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8961, name: "device-polling" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "device-polling" });
       const cast = (yield* send(`${url}/_world/cast`, "POST", { names: ["ada"] })).body as unknown as Cast;
       const ada = cast["ada"]!;
       const started = (yield* send(`${url}/api/auth/device/code`, "POST", { client_id: "acme-cli" })).body;

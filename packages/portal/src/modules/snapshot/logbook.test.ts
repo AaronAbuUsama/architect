@@ -1,7 +1,8 @@
 // L2.10b's done-when, against the real logbook (workerd, behind wrangler) holding real verdicts signed by a real OIDC
 // server (mock-oauth2-server, pinned by digest) in Docker, over models the real compiler wrote: a recorded pass shows on
 // spend, a budget edit makes spend stale and nothing else, the latest failure wins, and a logbook that stops or a model
-// that is missing never shows green. Ports 9090 and 9091 are this file's.
+// that is missing never shows green.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +18,7 @@ import { Snapshot } from "./service.ts";
 import type { PortalSnapshot } from "./types.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9090, issuer: 9091 };
+const PORTS = freePorts("logbook", "issuer");
 const REPO = "acme/acme";
 const container = `ortho-l210-issuer-${process.pid}`;
 

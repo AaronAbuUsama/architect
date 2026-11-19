@@ -13,20 +13,19 @@
 // - `ortho env up <env> --port <n>` picks the port; every later command finds a running environment through its
 //   pidfile under `.ortho/environments/<env>/`. `env up` runs the latest built bundle, building the current
 //   revision first when there is none. `env down` on an environment that isn't running is not an error.
-// - Ports: check N owns 8900 + 10N .. 8909 + 10N (layer 1 owns 8810..8899); registries are on 4890 + N.
+// - Ports: `ports()` hands out free ones, so two runs on one machine never meet on a port (layer 1 proves on port 0).
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect } from "vitest";
+import { freePorts } from "../ports.ts";
 import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
 
 export { acme, cli, copyOf, nothingRunning, repo };
 
-export const ports = (n: number) => {
-  const base = 8900 + 10 * n;
-  return { test: base, staging: base + 1, production: base + 2, logbook: base + 3, issuer: base + 4, rogue: base + 5, local: base + 6, registry: 4890 + n };
-};
+/** Every port a check uses, free when asked for: no check owns a fixed one, so nothing meets another run's. */
+export const ports = () => freePorts("test", "staging", "production", "logbook", "issuer", "rogue", "local", "registry");
 export type Ports = ReturnType<typeof ports>;
 
 export type Said = { status: number | null; stdout: string; stderr: string; out: string; lines: ReadonlyArray<string> };

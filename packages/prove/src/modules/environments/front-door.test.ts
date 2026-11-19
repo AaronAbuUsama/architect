@@ -1,6 +1,6 @@
 // L2.08 (D3 #126): `/_world/*` (the cast, the facts, the registry of worlds) answers only in an environment that hosts worlds.
 // Staging and production answer 404 before any handler runs, and their API and MCP route carry on. Real wrangler and workerd
-// on a copy of acme under git, ports 9072 to 9074 (staging and the test environment each start a collector: Docker).
+// on a copy of acme under git, on free ports (staging and the test environment each start a collector: Docker).
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -41,9 +41,9 @@ describe("the world's front door", () => {
   it("is closed in staging and production before any handler runs, and open where worlds live", { timeout: 600_000 }, async () => {
     const { root } = project;
     await run(Build.build(root));
-    const staging = await run(Environments.up({ root, name: "staging", port: 9072 }));
-    const production = await run(Environments.up({ root, name: "production", port: 9073 }));
-    const test = await run(Environments.up({ root, name: "test", port: 9074 }));
+    const staging = await run(Environments.up({ root, name: "staging" }));
+    const production = await run(Environments.up({ root, name: "production" }));
+    const test = await run(Environments.up({ root, name: "test" }));
 
     const door = [["/_world/cast", "POST", JSON.stringify({ names: ["ada"] })], ["/_world/facts/journal?trace=x", "GET"], ["/_world/facts/record?table=allowance&id=x", "GET"], ["/_world/health", "GET"], ["/_world/worlds", "GET"], ["/_world/worlds", "POST", JSON.stringify({ id: "w", lifetimeMs: 1000 })]] as const;
     for (const env of [staging, production]) {
