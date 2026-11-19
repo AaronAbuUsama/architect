@@ -1,7 +1,8 @@
 # K17: everything falls out, in every output, on every target, in every environment
 
-A proposal written 19 November 2026 by the conductor with Aaron. It is not decided yet: his calls are batched under
-"Questions for Aaron" at the end. It widens K14's grid (PR #72) with the two axes it leaves out. The first is where the
+Written 19 November 2026 by the conductor with Aaron. **Decided the same day:** the conductor took all four
+recommendations (1A 2A 3A 4A) under "Who decides" in `AGENTS.md`, when Aaron cleared every open pull request to start
+Goal 3. The questions stay below as the record, and Aaron can still overturn any of them. It widens K14's grid (PR #72) with the two axes it leaves out. The first is where the
 code runs and in which language. The second is which environment it runs in. It builds on K16 (the scaffold explains
 itself, PR #75) and K7 (chain languages).
 
@@ -566,4 +567,5 @@ wallets: { chains: Setting.perEnvironment({ local: [31337], production: [8453] }
 | Q3 | A private field on a public chain | A · refused at compile time |
 | Q4 | Chains and adapters per environment | A · declared in the environment file |
 
-**Answer key.** One letter per question, for example "1A 2A 3A 4B", or "agreed to all".
+**Decided:** 1A 2A 3A 4A, by the conductor on 19 November 2026. PR #72 merged first, so the target prefix from Q1 is
+added when Goal 3 grades the grid again.
