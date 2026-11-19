@@ -459,3 +459,25 @@ M1.03's builder (PR #64, commit 9f8cebb) edited four checks: `e2e/m1/01-mounting
 Both edited tests in `01` fail on the code before M1.03 (`c75bbb6^`, with these check files laid over it) and pass on #64's head. In `01` all 16 tests pass on the head. In `03`, 7 of 8 fail on the head at an earlier line (`can't load blueprint/things/probe/verbs/quote.ts`, M1.14's code), none at an edited assertion.
 
 The author found no weakened assertion, removed case or expectation fitted to the builder's code. Verdict: accept as authored; no check was rewritten. One note outside the checks: the same commit range reworded section 7 above ("keeps its model and its generated/ byte for byte" became "adds no mount metadata"). `00-controls` still asserts the narrower claim, that installing fixtures changes nothing for a project that mounts nothing, and it passes. Gate item 2 in `milestones.md` (acme's `generated/` the same as before, byte for byte) cannot hold for `generated/model/model.json` once M1.03 adds `from` and the journeys; no check compares against pre-M1 bytes. The lead should reword that gate item.
+
+## Checks 12 and 13: what their author settled (lead, 19 November 2026)
+
+The design was silent on these, the ✍️ author of checks 12 (M1.11) and 13 (M1.21) decided them in each file's assumptions,
+and the lead accepts them as the contract for the builders. Evidence: `design/evidence/M1.11/check-12-red.txt` and
+`design/evidence/M1.21/check-13-red.txt`, each red on the missing surface only.
+
+- **The model is a projection too.** Section 15's list gains `model`: `@orthograph/projections` exports `model`, `api`,
+  `server` (part one), then `sdk`, `cli`, `mcp`, `docs`, `portal`. Acme mounts each as `blueprint/projections/<name>.ts`,
+  `export default Blueprint.use(<name>, …)`; the mount's name is its file's and its output folder follows it.
+- **Unchanged means byte for byte except line 1**, which may name the mount (`// Generated from
+  blueprint/projections/<name>.ts. Do not edit.`). The model differs only by its new `mounts` key, recorded as
+  `mounts.<name>` with `kind: "projection"`, `file`, `package` and `hash`.
+- **A mount is what makes the output.** With no `blueprint/projections/server.ts`, nothing writes `generated/server/`: the
+  fixed renderer list is gone (M0.03).
+- **A step signal is an OTLP log record** at each step's start and end (`step`, `phase`, and `outcome` on `end`), whose
+  `spanId` is the step span's own, so the portal joins signals and spans by id (K5 seam 10). "Under `waitUntil`, not at
+  dispose" is judged as: the signal is in the Collector's file while the request is still held.
+- **The portal's live view is data first.** `Live.call({ source, journal }, trace)` in `@orthograph/portal` is a pure
+  Effect over the trace source and the world's journal: steps running or ended, the commit once its span has ended, and
+  each event only with a committed commit. Its screens stay M1.13's, on M1.25's design with Aaron; this shape does not
+  decide them.
