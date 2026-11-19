@@ -171,6 +171,34 @@ describe("M1.47: one refusals table carries code, exit and HTTP status to the CL
   });
 });
 
+describe("M1.47: an exit means one thing, so the compiler refuses a clash", () => {
+  const errors = "blueprint/things/allowance/errors.ts";
+  const exceeded = "{ remaining: Amount }, { exit: 41 }";
+  const tooHigh = "{ cap: Amount }, { exit: 44 }";
+  // Reserved by the runtime: 0 success, 1 a failure that isn't a refusal, 2 a payload that doesn't decode, 3 NotAllowed,
+  // 4 the generated <Thing>NotFound (M1.46). Past 125 is the shell's. Within a thing, its errors and its machine's notFrom.
+  it.each([
+    ["2, a payload that doesn't decode", exceeded, "{ remaining: Amount }, { exit: 2 }", /AllowanceExceeded's exit 2 is (?:SchemaError|InvalidPayload)'s; pick another/],
+    ["3, NotAllowed's", exceeded, "{ remaining: Amount }, { exit: 3 }", /AllowanceExceeded's exit 3 is NotAllowed's; pick another/],
+    ["4, the generated not-found's", exceeded, "{ remaining: Amount }, { exit: 4 }", /AllowanceExceeded's exit 4 is \w*NotFound's; pick another/],
+    ["130, the shell's", exceeded, "{ remaining: Amount }, { exit: 130 }", /AllowanceExceeded's exit 130 is outside 5 to 125/],
+    ["41, another error of the same thing", tooHigh, "{ cap: Amount }, { exit: 41 }", /AllowanceLimitTooHigh's exit 41 is AllowanceExceeded's; pick another/],
+    ["40, the thing's machine's", exceeded, "{ remaining: Amount }, { exit: 40 }", /AllowanceExceeded's exit 40 is AllowanceNotActive's; pick another/],
+  ])("ortho model refuses a declared exit of %s, naming the error and its file", (_, from, to, message) => {
+    const root = fresh();
+    edit(root, errors, from, to);
+    const out = run(root, "model");
+    expect(out.status, out.out).not.toBe(0);
+    expect(out.out).toMatch(message);
+    expect(out.out).toContain(errors);
+  });
+
+  it("control: exits are unique per thing, not per app, so acme's two machines both at 40 compile", () => {
+    const m = model(fresh());
+    expect(m.refusals).toMatchObject({ AllowanceNotActive: "AL-900", InvitationNotPending: "IN-900" });
+  });
+});
+
 describe("M1.48: an event the runtime can't fill is refused by the compiler, not found at run time", () => {
   it("a field of AllowanceSpent that is in neither the allowance, spend's payload nor its answer is named, with the event and the operation", () => {
     const root = fresh();

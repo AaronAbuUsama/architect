@@ -949,3 +949,235 @@ operation system.health  refuses nothing  7e17e7bd40ff6ca9
    Start at  11:48:32
    Duration  25.30s (transform 37ms, setup 0ms, import 52ms, tests 25.14s, environment 0ms)
 
+
+## e2e/m1/19-scaffold-explains.test.ts, M1.47's exit clashes (added later the same day; the other tests as above)
+
+
+ RUN  v4.1.12 <repo>/e2e
+
+ ❯ m1/19-scaffold-explains.test.ts (19 tests | 6 failed | 12 skipped) 9787ms
+     × ortho model refuses a declared exit of 2, a payload that doesn't decode, naming the error and its file 1643ms
+     × ortho model refuses a declared exit of 3, NotAllowed's, naming the error and its file 2120ms
+     × ortho model refuses a declared exit of 4, the generated not-found's, naming the error and its file 1842ms
+     × ortho model refuses a declared exit of 130, the shell's, naming the error and its file 1176ms
+     × ortho model refuses a declared exit of 41, another error of the same thing, naming the error and its file 1072ms
+     × ortho model refuses a declared exit of 40, the thing's machine's, naming the error and its file 944ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 2, a payload that doesn't decode, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  e13237d929917892
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 3, NotAllowed's, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  3dbbe8fec0239e9e
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 4, the generated not-found's, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  8f66fffdb6086aa4
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  703353db748df2e5
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 41, another error of the same thing, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  84382d63d21e22b1
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 40, the thing's machine's, naming the error and its file
+AssertionError: thing allowance (active, exhausted, revoked)  912695d41c500e4e
+thing api-key  dec54cf75bd4acb9
+thing invitation (pending, accepted, revoked)  7c1d13c393ddaa62
+thing membership  e6505be81a7030e4
+thing organization (active)  561078515c5ea01e
+thing person  ad771ebabdfe3e0e
+thing session  455311c2adae1097
+thing system  357767c64efceced
+operation allowance.get  refuses NotAllowed  6bed21e0ae22d8a8
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  f883070ae1800cf3
+operation allowance.revoke  refuses AllowanceNotActive, NotAllowed  a145b0ab143dcc8a
+operation allowance.spend  refuses AllowanceExceeded, AllowanceNotActive, NotAllowed  fe130df24265eeb2
+operation api-key.create  refuses NotAllowed  56de0903f4a0f20e
+operation invitation.accept  refuses InvitationNotPending, NotAllowed  937e15a8f2c9b98a
+operation invitation.revoke  refuses InvitationNotPending, NotAllowed  a527002466da0300
+operation invitation.send  refuses NotAllowed  2f3b2483d2c752f7
+operation membership.get  refuses NotAllowed  681858c8967f5976
+operation organization.create  refuses NotAllowed  431b6d1d45006435
+operation organization.get  refuses NotAllowed  fa554aa19547e5b1
+operation person.sign-up  refuses PersonEmailTaken  e11e9d899807519a
+operation session.show  refuses NotAllowed  4c1f11c0f00cc6e0
+operation session.sign-in  refuses SessionCredentialsWrong  64fc31973ed9c65e
+operation system.health  refuses nothing  7e17e7bd40ff6ca9
+: expected +0 not to be +0 // Object.is equality
+ ❯ m1/19-scaffold-explains.test.ts:191:37
+    189|     edit(root, errors, from, to);
+    190|     const out = run(root, "model");
+    191|     expect(out.status, out.out).not.toBe(0);
+       |                                     ^
+    192|     expect(out.out).toMatch(message);
+    193|     expect(out.out).toContain(errors);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed | 12 skipped (19)
+   Start at  12:04:09
+   Duration  9.96s (transform 44ms, setup 0ms, import 61ms, tests 9.79s, environment 0ms)
+
