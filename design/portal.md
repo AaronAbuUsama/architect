@@ -211,7 +211,8 @@ waterfall's groups fold (from Codex's portal, F8): each attempt, then its steps,
 to the selected span open. Private fields and untraced free text are never shown, in any environment (M1.19 traces a
 field only when it is public, and free text only when marked). The portal also keeps out what M1.19 does not cover:
 raw statements, which person called (`principal.person`) and log bodies; it shows a span's structure, timing, outcome,
-declared refusal, how many logs it has, and the caller's kind (a person, an agent for a person, anyone). Locally the
+declared refusal, how many logs it has, and the caller's kind (a person, an agent for a person, anyone), derived by the portal, since a person's span carries
+`principal.person` and not `principal.kind`. Locally the
 caller may be named by the journey's cast (`ada`, `bob`), which are fixtures, not people. A "no leak" check (M1.13)
 plants each hidden item in a staging trace and fails if any renders. The example trace is always one worth
 seeing: the claim above, with its commit conflict on attempt 1, the retry, the commit on attempt 2, and the profile
@@ -336,8 +337,8 @@ feature package's `./portal` subpath, so the feature itself never depends on the
 rule, `orthograph/face-actions-only`, fails a face that imports a store, calls `fetch`, or writes through anything but
 its own feature's generated actions; reads go through its declared reads only. It lands with M1.13, the first slice
 that renders a face. At run time the same line holds (from Codex's portal, F8): every face renders in a sandboxed frame
-(`sandbox="allow-scripts"`, CSP `default-src 'none'; connect-src 'none'`), and its bridge calls only the actions
-its slots declare. The face's typed slots are its manifest; there is no `extension.json`.
+(`sandbox="allow-scripts"`, CSP `default-src 'none'; connect-src 'none'`): all its traffic crosses one bridge,
+and it writes only through the actions its slots declare. The face's typed slots are its manifest; there is no `extension.json`.
 
 **What runs in a frame, and how it reaches the portal.** The slots that draw something (`views.list`, `views.one`,
 `sections.thing`, `sections.operation`, and each `rail.on` card) render in the face's frame. The slots that are data
