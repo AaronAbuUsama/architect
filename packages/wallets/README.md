@@ -56,7 +56,7 @@ reverted at depth one, a local chain's level; it has no event of its own to wait
 
 ## Layout
 
-`feature.ts` (the descriptor), `blueprint/` (the declarations, and the four journeys, which belong to their author and are
+`feature.ts` (the descriptor), `blueprint/` (the declarations, and the nine journeys, which belong to their author and are
 byte for byte the author's), `src/wallet/` (the host entries), `src/modules/` (`account`, `chain`, `keystore`, `keyfile`, `signer`,
 `submit`, `operations`, `node-host`, `browser-host`, `world`, `server`; each with a README), `src/main.ts` (the library).
 
