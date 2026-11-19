@@ -75,7 +75,8 @@ thread thing of its own (K5:475 and M1.24's "threads as things in the portal's s
   note 2). The portal's own things sit last, under `portal`.
 - **The top bar.** The environment and window control (Q12), search over the model (`⌘K`), the "Needs you" count
   (K11's attention, from any mounted feature) and the chat.
-- **Built on HeroUI Pro's app shell** (Aaron, Q8): its sidebar, navbar, drawer, KPI and chat components. No free kit.
+- **Built on HeroUI Pro's app shell** (Aaron, Q8), always through `@orthograph/portal-ui` (F7): its sidebar, navbar,
+  drawer, KPI and chat components. No free kit.
 
 **Where each piece comes from.** Every table below marks its pieces:
 
@@ -411,22 +412,32 @@ Each hand-written or missing piece, with the slice that owns it.
 
 Nothing else on these pages is hand-written: every label, list and diagram is generated, and every number is live.
 
-## Open for Aaron
+## HeroUI Pro behind one package (F7)
 
-**HeroUI Pro in a public repository.** Aaron's Q8 answer rests on using Pro privately. The repository is public, and
-Pro's licence (section 3) forbids publishing any part of its package, so Pro's code can't be committed here, and
-`@orthograph/portal` can't carry it to npm. The work-board thread found the same (`spikes/kanban-components/README.md`).
-The mock follows the kanban spike's way: Pro installs from Aaron's `heroui-pro login` in the spike's own workspace, only
-screenshots and our own code are committed. Before M1.13 builds, Aaron chooses one of: the repository goes private;
-a `HEROUI_AUTH_TOKEN` CI secret he creates, with Pro installed at build time and never committed; or the clean-room
-fallback now. Each is his (a credential, or something outward-facing), so this design doesn't choose.
+Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md),
+with the licence clauses. In short:
+
+- **`@orthograph/portal-ui`** (`packages/portal-ui`, private, never published) is the only importer of
+  `@heroui-pro/react`. It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
+  `Grid`, `Chart`, `Stat`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor` and thin `Chat` parts. Every page in this
+  file, M1.24's shell and chat parts, and every extension face import from it, never from Pro.
+- **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included. Spikes are exempt.
+- **Pro installs at build time** from a `HEROUI_AUTH_TOKEN` CI secret Aaron creates, never committed, never run on
+  pull requests from forks. Locally it installs from his `heroui-pro login`, as the mock does.
+- **The fallback**, if Orthograph goes to other people or the licence lapses, rebuilds `portal-ui`'s exports on open
+  libraries; the pages don't change. It is later work (`later.md`), and publishing `@orthograph/portal` to npm waits
+  for it.
+
+This replaces round 1's "clean-room the components we need" with one place to do it, and settles the question this
+file left open for Aaron.
 
 ## What this changes elsewhere
 
-- **M1.24** keeps the shell, screen context and the approval cards' contract. The chat's surface is M4.16 on Pro's AI
+- **M1.24** keeps the shell, screen context and the approval cards' contract, all through `portal-ui`. The chat's surface is M4.16 on Pro's AI
   components over a Pi Durable run, and conversations are Runs, not things in the portal's store. Its row is reworded
   in `milestones.md` in the same change as this file.
-- **M1.13** builds these pages, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
+- **M1.34** (new, before M1.13) builds `@orthograph/portal-ui`, its lint rule and the CI install (F7).
+- **M1.13** builds these pages on `portal-ui`, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
   row in `milestones.md` says so, in the same change as this file.
 - **M4.23** takes `Portal.face` at the `./portal` subpath and the lint rule as settled here.
 - **M3.17** takes `views.list` with `Portal.view.board`, the live feed's `hold()`, and the `attention` slot.
