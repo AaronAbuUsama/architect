@@ -51,7 +51,7 @@ it("a step whose call died names the defect its span recorded", () => {
   expect(answered.join("\n")).not.toContain("the server died");
 });
 
-const spend = { operations: { "allowance.spend": { name: "allowance.spend", thing: "allowance", verb: "spend", file: "blueprint/things/allowance/verbs/spend.ts" } } } as never;
+const spend = { operations: { "allowance.spend": { kind: "operation", name: "allowance.spend", thing: "allowance", verb: "spend", runs: "server", from: { kind: "app" }, file: "blueprint/things/allowance/verbs/spend.ts" } } } as never;
 const spanned = (spans: ReadonlyArray<string>): Trace => ({
   ...missing,
   spans: spans.map((name, i) => ({ traceId: step.trace, spanId: `s${i}`, parentSpanId: "journey", name, attrs: {}, status: 0, ms: 4, start: i })),
@@ -71,4 +71,20 @@ it("a failing step names its handler and its declaration, and the report carries
   expect(out.details[0]?.steps[0]).toMatchObject({
     verdict: "fail", expected: `"380"`, got: `"500"`, handlerFile: "src/allowance/spend.ts", declarationFile: "blueprint/things/allowance/verbs/spend.ts", ms: 4,
   });
+});
+
+it("a read has no handler: its line names the declaration only, and the report has no handlerFile", () => {
+  const read = { operations: { "allowance.get": { kind: "read", name: "allowance.get", thing: "allowance", verb: "get", runs: "server", from: { kind: "app" }, file: "blueprint/things/allowance/verbs/get.ts" } } } as never;
+  const wrong = { ...step, failures: ["x"], spans: { present: [], absent: [] } };
+  const out = journeyLines([{ name: step.journey, stopped: undefined, steps: [wrong], calls: [{ ...answered, operation: "allowance.get" }] }], new Map([[step.trace, spanned(["allowance.get"])]]), false, read);
+  expect(out.lines).toContain(`  ✘ "${step.title}": declared in blueprint/things/allowance/verbs/get.ts (allowance.get, a read: no handler)`);
+  expect(out.details[0]?.steps[0]?.handlerFile).toBeUndefined();
+});
+
+it("a plugin's operation names the handler in its package; a call with no operation span says ms null", () => {
+  const mounted = { operations: { "wallet.send": { kind: "operation", name: "wallet.send", thing: "wallet", verb: "send", runs: "server", file: "@acme/wallet/blueprint/send", from: { kind: "feature", mount: "wallet", package: "@acme/wallet", version: "1", thing: "wallet" } } } } as never;
+  const wrong = { ...step, failures: ["x"], spans: { present: [], absent: [] } };
+  const out = journeyLines([{ name: step.journey, stopped: undefined, steps: [wrong], calls: [{ ...answered, operation: "wallet.send" }] }], new Map([[step.trace, spanned(["other"])]]), false, mounted);
+  expect(out.lines).toContain(`  ✘ "${step.title}": handler @acme/wallet/src/wallet/send.js, declared in @acme/wallet/blueprint/send (wallet.send)`);
+  expect(out.details[0]?.steps[0]?.ms).toBeNull();
 });

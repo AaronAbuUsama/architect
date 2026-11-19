@@ -57,7 +57,10 @@ const diedOf = (trace: Trace | undefined, call: CallRecord | undefined): Readonl
  */
 export const whereLine = (model: Model | undefined, call: CallRecord | undefined): string | undefined => {
   const files = filesOf(model, call);
-  return files === undefined ? undefined : `handler ${files.handler}, declared in ${files.declaration} (${files.operation})`;
+  if (files === undefined) return undefined;
+  return files.handler === undefined
+    ? `declared in ${files.declaration} (${files.operation}, a read: no handler)`
+    : `handler ${files.handler}, declared in ${files.declaration} (${files.operation})`;
 };
 
 export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>, empty = false, model?: Model) => {

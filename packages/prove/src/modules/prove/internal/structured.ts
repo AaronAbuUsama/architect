@@ -1,6 +1,6 @@
 // What `ortho prove --json` and `--report <file>` carry: the journeys, step by step, as data. Built from the same
 // facts as prove's lines; the lines stay the text an agent reads, this is what a tool reads.
-import type { Model } from "@orthograph/compiler";
+import { handlerFiles, type Model } from "@orthograph/compiler";
 import type { CallRecord, JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";
 
@@ -20,10 +20,11 @@ export interface StepDetail {
   readonly failures: ReadonlyArray<FailureDetail>;
   /** The operation the step ran, the handler that answers it and the declaration it answers to (relative to the project root). */
   readonly operation?: string;
+  /** Absent for a read (answered from the records, no handler). A plugin's client operation has one entry per host: the first is named here. */
   readonly handlerFile?: string;
   readonly declarationFile?: string;
-  /** Milliseconds the call's own span took, as the collector heard it. */
-  readonly ms?: number;
+  /** Milliseconds the call's own span took, as the collector heard it; `null` when no span named for the operation reached the collector; absent when the step made no call. */
+  readonly ms?: number | null;
 }
 
 export interface JourneyDetail {
@@ -38,6 +39,8 @@ export interface JourneyDetail {
 
 /** The structured report: per journey, per step, totals and timings. */
 export interface ProveReport {
+  /** Bumped when a field is renamed or removed; adding one does not. */
+  readonly schemaVersion: 1;
   readonly passed: boolean;
   readonly totals: {
     readonly journeys: number;
@@ -57,7 +60,7 @@ export interface ProveReport {
 /** Where an operation's handler and declaration live; both relative to the project root. */
 export const filesOf = (model: Model | undefined, call: CallRecord | undefined) => {
   const op = call === undefined ? undefined : model?.operations[call.operation];
-  return op === undefined ? undefined : { operation: op.name, handler: `src/${op.thing}/${op.verb}.ts`, declaration: op.file };
+  return op === undefined ? undefined : { operation: op.name, handler: handlerFiles(op)[0]?.file, declaration: op.file };
 };
 
 /** A step as data: its failures matched to the halves checks recorded, then the files and time of the call it ran. */
@@ -68,7 +71,7 @@ export const stepDetail = (
   const known = [...(step.findings ?? []), ...extra];
   const details = failures.map((message): FailureDetail => known.find((f) => f.message === message) ?? { message });
   const files = filesOf(model, call);
-  const ms = call === undefined ? undefined : trace?.spans.find((s) => s.name === call.operation)?.ms;
+  const ms = call === undefined ? undefined : trace?.spans.find((s) => s.name === call.operation)?.ms ?? null;
   const first = details[0];
   return {
     name: step.title,
@@ -76,7 +79,7 @@ export const stepDetail = (
     ...(first?.expected === undefined ? {} : { expected: first.expected }),
     ...(first?.got === undefined ? {} : { got: first.got }),
     failures: details,
-    ...(files === undefined ? {} : { operation: files.operation, handlerFile: files.handler, declarationFile: files.declaration }),
+    ...(files === undefined ? {} : { operation: files.operation, ...(files.handler === undefined ? {} : { handlerFile: files.handler }), declarationFile: files.declaration }),
     ...(ms === undefined ? {} : { ms }),
   };
 };
@@ -98,6 +101,7 @@ export const proveReport = (
   const journeysFailing = details.filter((j) => j.verdict === "fail" && j.stopped !== undefined).length;
   const stepsFailing = steps.filter((s) => s.verdict === "fail").length;
   return {
+    schemaVersion: 1,
     passed,
     totals: {
       journeys: details.length,
