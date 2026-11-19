@@ -6,7 +6,7 @@ import { listItemFields } from "orthograph/server";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
-import { Audience, Visibility } from "#modules/visibility/service.js";
+import { Audience, cutAnswer, Visibility } from "#modules/visibility/service.js";
 import type { ShownOperation, WireApi } from "../types.ts";
 
 /** The roles the caller holds in this call: asked only when some field in `groups` is private to roles. */
@@ -31,7 +31,7 @@ export const shown: WireApi["shown"] = (declared) => (served, payload, principal
     // An operation's answer is the call that issued whatever it marks `issued`, to its own caller; a read issues nothing.
     Effect.flatMap((answer) =>
       held(op, payload, principal, op.answer, ...(items ? [items] : [])).pipe(
-        Effect.map((roles) => Visibility.redact(Audience.principal(roles, { issuing: op.kind === "operation" }), op.answer, answer as object, items)),
+        Effect.map((roles) => cutAnswer(op, answer as object, roles, items)),
       )),
     Effect.catch((failure: unknown) => {
       const tag = tagOf(failure);

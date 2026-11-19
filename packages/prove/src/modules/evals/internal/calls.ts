@@ -1,6 +1,6 @@
 // Evals 1 to 6 and 9: each looks at every call of one operation.
 import { Schema } from "effect";
-import { listItemFields, structOf, traceable } from "orthograph/server";
+import { listItemFields, structOf, traceable, wireStruct } from "orthograph/server";
 import type { FieldModel } from "@orthograph/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
 import { answered, attr, replayed, subtree, where } from "./evidence.ts";
@@ -53,7 +53,8 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
         const decoded = Schema.decodeUnknownExit(traceItems as never)(fromJson(answer[k]), { onExcessProperty: "error" });
         return decoded._tag === "Success" ? [] : [`${where(e)}: answer.items: expected traceable item fields and state`];
       }
-      const schema = structOf({ [k]: declared[k]! }) as never;
+      // The wire's codec: a private or secret field the server cut for this caller may be absent, a public one never is.
+      const schema = wireStruct({ [k]: declared[k]! }, { issuing: operation?.kind === "operation", ...(operation?.kind === "read" && operation.by === "list" ? { items: listItemFields(operation.thing) } : {}) }) as never;
       const schemaValued = op.answer[k]?.value.type === "schema";
       // An observed response disambiguates a schema-valued field only after the existing answer selection found it:
       // a valid body cannot bless a public field missing from partial answer telemetry (D3 #82).

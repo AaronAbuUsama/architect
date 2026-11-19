@@ -1,4 +1,4 @@
-import type { FieldsInput } from "orthograph";
+import type { FieldsInput, Role } from "orthograph";
 import type { Audience as Seen, AudienceApi, ItemFields, VisibilityApi } from "./types.ts";
 import { sees } from "./internal/rule.ts";
 import { schemaFor } from "./internal/schema.ts";
@@ -27,3 +27,11 @@ export const Visibility: VisibilityApi = {
   schema: ((audience: Seen, fields: FieldsInput, items?: ItemFields) => schemaFor(audience, fields, items)) as unknown as VisibilityApi["schema"],
   needsRoles: (...groups) => groups.some((fields) => Object.values(fields).some((f) => typeof f.visibility === "object")),
 };
+
+/**
+ * What a caller is answered with, cut by the one rule: `answer` as the audience of a caller holding `held` is shown it.
+ * An operation's answer is the one call that issued whatever it marks `issued`; a read issues nothing. The server and the
+ * device both call this, so no path has a rule of its own.
+ */
+export const cutAnswer = (op: { readonly kind: string; readonly answer: FieldsInput }, answer: object, held: ReadonlyArray<Role<any>>, items?: ItemFields): Record<string, unknown> =>
+  Visibility.redact(Audience.principal(held, { issuing: op.kind === "operation" }), op.answer, answer, items);

@@ -96,7 +96,7 @@ The wrapper runs every call to an Effect operation through the same order (`pack
 
 The last four, as code:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=76-102
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=81-107
         const from = yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
@@ -112,7 +112,7 @@ The last four, as code:
         const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
         // The state the subject was in, written once the move is made: a refused call made no move.
         if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
-        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify({ payload: sha256(canonical(payload)), answer: wire }) } };
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(
           Effect.tap((outcome) => Effect.annotateCurrentSpan({

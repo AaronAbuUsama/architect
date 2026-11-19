@@ -8,6 +8,7 @@ import type { Operation, Principal } from "orthograph";
 import type { DeviceApi, DeviceWhere } from "../types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
 import { spanned } from "./span.ts";
+import { cutAnswer } from "#modules/visibility/service.js";
 
 type AnyCodec = Schema.Codec<object, unknown>;
 type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
@@ -48,7 +49,8 @@ const device = ({ name, operation, handler }: { readonly name: string; readonly 
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug: it dies, loudly.
         yield* check(answer).pipe(Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)), Effect.orDie);
-        return answer;
+        // A device has no roles to hold: its caller is shown what the one rule shows a caller with none.
+        return cutAnswer(op, answer, []);
       }).pipe(
         Effect.tapCause((cause) => Cause.hasDies(cause)
           ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })

@@ -4,6 +4,17 @@ import type { Field, FieldInput, FieldsInput } from "#modules/things/types.js";
 import type { Value } from "#modules/values/types.js";
 import type { Visibility, VisibilityApi } from "./types.ts";
 
+/** `T` with the keys `K` made optional. */
+type Partly<T, K extends PropertyKey> = Omit<T, K> & { readonly [P in K]?: P extends keyof T ? T[P] : unknown };
+/** What a client decodes of `T`: `K` may be missing, and so may `I` in each of the `items` of a list. */
+export type WireType<T, K extends PropertyKey, I extends PropertyKey> =
+  T extends { readonly items: ReadonlyArray<infer E> } ? Partly<Omit<T, "items"> & { readonly items: ReadonlyArray<Partly<E, I>> }, K> : Partly<T, K>;
+/**
+ * `S` typed as the wire carries it. The server cuts every answer by who is asking, so a field private to roles, or secret
+ * and not issued, may be missing from what a client decodes: its type says so.
+ */
+export type Wired<S extends Schema.Top, K extends PropertyKey, I extends PropertyKey = never> = Schema.Codec<WireType<S["Type"], K, I>, S["Encoded"]>;
+
 /** A copy of the value or field, marked. The original is untouched, so a value shared elsewhere keeps its own. */
 const marked = <X extends Value | Field>(x: X, mark: { visibility: Visibility } | { traced: true } | { issued: true }): X =>
   Object.freeze({ ...x, ...mark }) as unknown as X;
