@@ -172,3 +172,8 @@ once evidence has a result.
 | Q2 | Eval card | A · Project-board card, only true slots, bar hidden until evals run |
 
 **Answer key:** reply "A A" to take both, or name the letter per question.
+
+## Answer
+
+Aaron, 19 November 2026: **A A.** The grid is the main surface (a row opens its lane, a square its eval page), and the
+eval card is Pro's project-board card with every slot bound to a field. Versions 4 and 5 already build on these.
