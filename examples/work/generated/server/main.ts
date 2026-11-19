@@ -67,12 +67,12 @@ import * as runThing from "../../blueprint/things/run/thing.ts";
 
 export { World } from "@orthograph/host-cloudflare";
 
-const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen", codes: Errors.codes });
-const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen", codes: Errors.codes });
+const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen", notFound: { attention: "AttentionNotFound" }, codes: Errors.codes });
+const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen", notFound: { attention: "AttentionNotFound" }, codes: Errors.codes });
 const attentionListServed = Reads.serve({ name: "attention.list", read: attentionList.declaration });
 const attentionRaiseServed = Handlers.serve({ name: "attention.raise", operation: attentionRaise.declaration, handler: attentionRaiseHandler, codes: Errors.codes });
 const milestoneAddServed = Handlers.serve({ name: "milestone.add", operation: milestoneAdd.declaration, handler: milestoneAddHandler, codes: Errors.codes });
-const milestoneDropServed = Handlers.serve({ name: "milestone.drop", operation: milestoneDrop.declaration, handler: milestoneDropHandler, notFrom: "MilestoneNotActive", codes: Errors.codes });
+const milestoneDropServed = Handlers.serve({ name: "milestone.drop", operation: milestoneDrop.declaration, handler: milestoneDropHandler, notFrom: "MilestoneNotActive", notFound: { milestone: "MilestoneNotFound" }, codes: Errors.codes });
 const milestoneListServed = Reads.serve({ name: "milestone.list", read: milestoneList.declaration });
 const missionFinishServed = Handlers.serve({ name: "mission.finish", operation: missionFinish.declaration, handler: missionFinishHandler, notFrom: "MissionNotIntake", codes: Errors.codes });
 const missionGetServed = Reads.serve({ name: "mission.get", read: missionGet.declaration });
@@ -83,16 +83,16 @@ const missionResumeServed = Handlers.serve({ name: "mission.resume", operation: 
 const missionStartServed = Handlers.serve({ name: "mission.start", operation: missionStart.declaration, handler: missionStartHandler, notFrom: "MissionNotIntake", codes: Errors.codes });
 const missionStopServed = Handlers.serve({ name: "mission.stop", operation: missionStop.declaration, handler: missionStopHandler, notFrom: "MissionNotIntake", codes: Errors.codes });
 const missionTasksServed = Handlers.serve({ name: "mission.tasks", operation: missionTasks.declaration, handler: missionTasksHandler, codes: Errors.codes });
-const questionAnswerServed = Handlers.serve({ name: "question.answer", operation: questionAnswer.declaration, handler: questionAnswerHandler, notFrom: "QuestionNotAsked", codes: Errors.codes });
+const questionAnswerServed = Handlers.serve({ name: "question.answer", operation: questionAnswer.declaration, handler: questionAnswerHandler, notFrom: "QuestionNotAsked", notFound: { question: "QuestionNotFound" }, codes: Errors.codes });
 const questionAskServed = Handlers.serve({ name: "question.ask", operation: questionAsk.declaration, handler: questionAskHandler, codes: Errors.codes });
 const questionListServed = Reads.serve({ name: "question.list", read: questionList.declaration });
-const questionSpikeServed = Handlers.serve({ name: "question.spike", operation: questionSpike.declaration, handler: questionSpikeHandler, notFrom: "QuestionNotAsked", codes: Errors.codes });
-const runFailServed = Handlers.serve({ name: "run.fail", operation: runFail.declaration, handler: runFailHandler, notFrom: "RunNotRunning", codes: Errors.codes });
-const runFinishServed = Handlers.serve({ name: "run.finish", operation: runFinish.declaration, handler: runFinishHandler, notFrom: "RunNotRunning", codes: Errors.codes });
+const questionSpikeServed = Handlers.serve({ name: "question.spike", operation: questionSpike.declaration, handler: questionSpikeHandler, notFrom: "QuestionNotAsked", notFound: { question: "QuestionNotFound" }, codes: Errors.codes });
+const runFailServed = Handlers.serve({ name: "run.fail", operation: runFail.declaration, handler: runFailHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" }, codes: Errors.codes });
+const runFinishServed = Handlers.serve({ name: "run.finish", operation: runFinish.declaration, handler: runFinishHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" }, codes: Errors.codes });
 const runListServed = Reads.serve({ name: "run.list", read: runList.declaration });
-const runReportServed = Handlers.serve({ name: "run.report", operation: runReport.declaration, handler: runReportHandler, notFrom: "RunNotRunning", codes: Errors.codes });
+const runReportServed = Handlers.serve({ name: "run.report", operation: runReport.declaration, handler: runReportHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" }, codes: Errors.codes });
 const runStartServed = Handlers.serve({ name: "run.start", operation: runStart.declaration, handler: runStartHandler, codes: Errors.codes });
-const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning", codes: Errors.codes });
+const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" }, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
 const tables = [[thingIn(attentionThing), "attention"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"]] as const;
@@ -192,7 +192,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([AttentionLive, MilestoneLive, MissionLive, QuestionLive, RunLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables, people: { thing: thingIn(personThing), table: "auth_user" } }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -216,14 +216,14 @@ const hostsWorlds = (env: Env) =>
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "attention.approve": attentionApproveServed, "attention.decline": attentionDeclineServed, "attention.list": attentionListServed, "attention.raise": attentionRaiseServed, "milestone.add": milestoneAddServed, "milestone.drop": milestoneDropServed, "milestone.list": milestoneListServed, "mission.finish": missionFinishServed, "mission.get": missionGetServed, "mission.list": missionListServed, "mission.open": missionOpenServed, "mission.pause": missionPauseServed, "mission.resume": missionResumeServed, "mission.start": missionStartServed, "mission.stop": missionStopServed, "mission.tasks": missionTasksServed, "question.answer": questionAnswerServed, "question.ask": questionAskServed, "question.list": questionListServed, "question.spike": questionSpikeServed, "run.fail": runFailServed, "run.finish": runFinishServed, "run.list": runListServed, "run.report": runReportServed, "run.start": runStartServed, "run.stop": runStopServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables, people: { thing: thingIn(personThing), table: "auth_user" } }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;

@@ -4,6 +4,7 @@
     "HandleTaken": "HN-001",
     "LinkAlreadyRemoved": "LN-002",
     "LinkNeedsHandle": "LN-001",
+    "LinkNotFound": "LN-901",
     "LinkNotListed": "LN-900",
     "NotAllowed": "AR-001",
     "ProfileNotFound": "PR-001"
@@ -191,12 +192,17 @@
           "code": "LN-002"
         }
       },
+      "notFound": {
+        "error": "LinkNotFound",
+        "exit": 4,
+        "code": "LN-901"
+      },
       "roles": [],
       "roleRules": {},
       "from": {
         "kind": "app"
       },
-      "hash": "5857524d8a3d0255"
+      "hash": "e675c91ad9f832bd"
     },
     "profile": {
       "name": "profile",
@@ -290,6 +296,7 @@
           "kind": "anyone"
         }
       ],
+      "mints": "handle",
       "steps": {
         "load": {
           "name": "handle.claim.load",
@@ -306,7 +313,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "9968f77abac9c487"
+      "hash": "526cb81e4a741645"
     },
     "link.add": {
       "kind": "operation",
@@ -371,6 +378,7 @@
           "kind": "anyone"
         }
       ],
+      "mints": "link",
       "steps": {
         "load": {
           "name": "link.add.load",
@@ -387,7 +395,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "9188ccf111bbc19c"
+      "hash": "d2947cac3422faf7"
     },
     "link.order": {
       "kind": "operation",
@@ -422,13 +430,20 @@
         "LinkAlreadyRemoved"
       ],
       "refusals": [
-        "LinkAlreadyRemoved"
+        "LinkAlreadyRemoved",
+        "LinkNotFound"
       ],
       "allowed": [
         {
           "kind": "anyone"
         }
       ],
+      "refs": {
+        "link": "link"
+      },
+      "notFound": {
+        "link": "LinkNotFound"
+      },
       "steps": {
         "load": {
           "name": "link.order.load",
@@ -445,7 +460,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "6617593628d349a3"
+      "hash": "85733bc7c727ac3a"
     },
     "link.remove": {
       "kind": "operation",
@@ -480,13 +495,20 @@
       },
       "errors": [],
       "refusals": [
-        "LinkNotListed"
+        "LinkNotListed",
+        "LinkNotFound"
       ],
       "allowed": [
         {
           "kind": "anyone"
         }
       ],
+      "refs": {
+        "link": "link"
+      },
+      "notFound": {
+        "link": "LinkNotFound"
+      },
       "steps": {
         "record": {
           "name": "link.remove.record",
@@ -499,7 +521,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "4a092ee981078c51"
+      "hash": "378b9aae41e861b1"
     },
     "profile.get": {
       "kind": "operation",

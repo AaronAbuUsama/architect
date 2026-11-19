@@ -35,9 +35,8 @@ acme is the starter's things (system, person, session, organization, membership,
 | 1 | ada `allowance.grant` olga, 500 | answers an `alw_` id; `AllowanceGranted { allowance, limit: 500n }`; allowance in `active`; spans `allowance.grant` and `allowance.grant.insert` |
 | 2 | bob `allowance.grant` (own id, 500) | refused `NotAllowed`; no events; spans `allowance.grant` and `.insert` both absent (handler never ran) |
 | 3 | ada `allowance.grant` olga, 1001 | refused `AllowanceLimitTooHigh { cap: 1000n }` (exit 44); no events; span `allowance.grant` present, `.insert` absent |
-| 4 | ada `allowance.grant` to `per_nobody`, 500 | refused `Person.notFound`, the runtime's generated `PersonNotFound { id: "per_nobody" }` (PE-901, exit 4, K16 M1.46); no events; span `allowance.grant.insert` absent (handler never ran) |
 
-Coverage this gives for the allowance: grant move 1/1, outcome `active` 1/1, refusals `AllowanceLimitTooHigh` and `NotAllowed`, and the runtime's `PersonNotFound`. The starter's five journeys cover the other eleven operations (see the starter's README).
+Coverage this gives for the allowance: grant move 1/1, outcome `active` 1/1, refusals `AllowanceLimitTooHigh` and `NotAllowed`. The starter's five journeys cover the other eleven operations (see the starter's README).
 
 ## Fixtures
 

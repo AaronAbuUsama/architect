@@ -9,10 +9,24 @@ import { renderMigration, renderStoreMigrations, renderWrangler } from "./worker
 
 const emptyPath = (o: OperationModel) => `empty/${o.thing}/${o.verb}.ts`;
 
-/** The machine's refusal, passed to the wrapper when the operation's move starts from a state (D2 #37). */
+/** The runtime's refusals the generated code names: the machine's, when the move starts from a state (D2 #37), and each not-found. */
 const notFromOf = (model: Model, o: OperationModel) => {
   const machine = model.things[o.thing]?.machine;
-  return o.move && o.move.from.length > 0 && machine ? `, notFrom: "${machine.notFrom.error}"` : "";
+  const notFrom = o.move && o.move.from.length > 0 && machine ? `, notFrom: "${machine.notFrom.error}"` : "";
+  // Each payload field no role check reads, and the `<Thing>NotFound` a missing one is refused with (K16, M1.46).
+  const missing = Object.entries(o.notFound ?? {});
+  return `${notFrom}${missing.length > 0 ? `, notFound: { ${missing.map(([k, e]) => `${k}: "${e}"`).join(", ")} }` : ""}`;
+};
+
+/**
+ * Where the identity keeps its users: Better Auth's table, today the identity behind `AuthD1`. Named here, in what the
+ * generated server says, never in host code; the identity plugin (M2.05) will own it.
+ */
+const IDENTITY_USERS = "auth_user";
+/** The thing the identity keeps: its ids are `per_` ids, the identity's users (`Auth`'s contract). The store reads it from them. */
+const peopleOf = (model: Model) => {
+  const people = Object.values(model.things).find((t) => { const id = t.fields["id"]?.value; return id?.type === "id" && id.prefix === "per"; });
+  return people ? `, people: { thing: thingIn(${camel(people.name)}Thing), table: "${IDENTITY_USERS}" }` : "";
 };
 
 const main = (model: Model, name: string, empty: boolean): RenderedFile => {
@@ -135,7 +149,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "    HttpApiBuilder.layer(CallApi).pipe(",
       `      Layer.provide([${groups.map((t) => `${pascal(t)}Live`).join(", ")}]),`,
       "      Layer.provideMerge(CallTelemetry.layer),",
-      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
+      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
       "      Layer.provideMerge(Database.d1(env.DB)),",
       "      Layer.provide(HttpServer.layerServices),",
       "    ),",
@@ -159,14 +173,14 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "const tools = Mcp.tools<Services>({",
       "  catalog,",
       `  served: { ${ops.map((o) => `"${o.name}": ${opVar(o)}Served`).join(", ")} },`,
-      "  refusals: { codes: Errors.codes, declared: Errors.declared },",
+      "  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },",
       "});",
       "",
       "// The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.",
       "let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;",
       "const runtimeOf = (env: Env) =>",
       "  (mcpRuntime ??= ManagedRuntime.make(",
-      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
+      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
       "  ));",
       "",
       "const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;",

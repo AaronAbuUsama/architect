@@ -9,6 +9,13 @@ declared step its own span `<name>.<key>` (a call step runs the adapter's callab
 the answer against its declaration (an answer outside it dies, as the handler's bug). Machines and events join it in
 stage one's later steps.
 
+What the runtime hands in (K16, M1.46; `internal/prehandle.ts`): after the role check and before the from-check, every
+payload field holding some thing's id is read once in the call's unit and handed in as `refs.<field>`, the operation's own
+instance as `subject` (the same read the from-check and the commit's version guard use), and a creating move's new id,
+minted, as `id`. A field in `notFound` (generated from the model) that names nothing is refused with its
+`<Thing>NotFound { id }` before the handler runs; a role-gated miss is already `NotAllowed`. A creating move whose handler
+stored nothing gets its instance stored from the id, the payload and the answer. Test: `prehandle.test.ts`.
+
 `Reads.serve` serves two kinds of read: by id (one instance, a missing one refused `NotAllowed`) and a list (`where`, `order`,
 `page`; L2.04). A list reads a page from `Store.list`: instances matching every filter the caller gave, in the order the rows were
 made (never a clock), `page` of them, answered `{ items, next }`; `next` is a cursor to send back as `cursor`, and null on the
