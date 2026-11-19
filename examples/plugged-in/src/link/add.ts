@@ -1,8 +1,9 @@
 // Scaffolded from blueprint/things/link/verbs/add.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Handlers, Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/link/add.handler.ts";
+import { Handle } from "../../blueprint/things/handle/thing.ts";
 
 const { LinkNeedsHandle } = Errors.declared;
 
@@ -39,14 +40,16 @@ const { LinkNeedsHandle } = Errors.declared;
  *   once it answers, it writes LinkAdded: link from the answer;
  *   the call is the span link.add, and its commit link.add.commit.
  */
-const add: Handler = (_payload, { steps, move, id }) =>
+const add: Handler = (_payload, { principal, steps, move, id }) =>
   Effect.gen(function* () {
+    if (principal.kind !== "person") return yield* Effect.die(new Error("reached without a signed-in person"));
+    const records = yield* Records;
     // Step load: database, span link.add.load.
-    yield* steps.load(Handlers.blank("load: the work this step does"));
+    const page = yield* steps.load(records.findBy(Handle, "owner", principal.person as never));
 
-    // LinkNeedsHandle: exit 30, LN-001.
-    if (yield* Handlers.blank<boolean>("refuse LinkNeedsHandle when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why LinkNeedsHandle was refused"));
+    // LinkNeedsHandle: exit 30, LN-001. The caller holds no claimed name.
+    if (!page) {
+      yield* Effect.logInfo("the caller holds no claimed handle");
       return yield* new LinkNeedsHandle({});
     }
 

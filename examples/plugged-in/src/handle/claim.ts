@@ -1,8 +1,10 @@
 // Scaffolded from blueprint/things/handle/verbs/claim.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/handle/claim.handler.ts";
+import { Handle } from "../../blueprint/things/handle/thing.ts";
+import { Profile } from "../../blueprint/things/profile/thing.ts";
 
 const { HandleTaken, HandleAlreadyOwned } = Errors.declared;
 
@@ -39,33 +41,37 @@ const { HandleTaken, HandleAlreadyOwned } = Errors.declared;
  *   once it answers, it writes HandleClaimed: handle from the answer, name from the payload;
  *   the call is the span handle.claim, and its commit handle.claim.commit.
  */
-const claim: Handler = (_payload, { steps, move, id }) =>
+const claim: Handler = ({ name }, { principal, steps, move, id }) =>
   Effect.gen(function* () {
-    // Step load: database, span handle.claim.load.
-    yield* steps.load(Handlers.blank("load: the work this step does"));
+    if (principal.kind !== "person") return yield* Effect.die(new Error("reached without a signed-in person"));
+    const records = yield* Records;
+    const holder = yield* steps.load(records.findBy(Handle, "name", name));
 
-    // HandleTaken: exit 10, HN-001.
-    if (yield* Handlers.blank<boolean>("refuse HandleTaken when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why HandleTaken was refused"));
+    // HandleTaken: exit 10, HN-001. The store also refuses a second holder at commit, and the retry lands here.
+    if (holder) {
+      yield* Effect.logInfo("a claimed handle already holds this name");
       return yield* new HandleTaken({});
     }
 
-    // HandleAlreadyOwned: exit 12, HN-002.
-    if (yield* Handlers.blank<boolean>("refuse HandleAlreadyOwned when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why HandleAlreadyOwned was refused"));
+    // HandleAlreadyOwned: exit 12, HN-002. One person holds one claimed name.
+    if (yield* steps.load(records.findBy(Handle, "owner", principal.person as never))) {
+      yield* Effect.logInfo("the caller already holds a claimed handle");
       return yield* new HandleAlreadyOwned({});
     }
 
-    // Step record: database, span handle.claim.record.
-    yield* steps.record(Handlers.blank("record: the work this step does"));
+    // Step record: database, span handle.claim.record. The handle and its public page are made together.
+    const profile = yield* Ids.of(Profile.fields.id);
+    yield* steps.record(
+      Effect.gen(function* () {
+        yield* records.insert(Handle, { id, name, owner: principal.person as never });
+        yield* records.insert(Profile, { id: profile, handle: id, links: [] });
+      }),
+    );
 
     // The move claim, to claimed.
     yield* move();
 
-    return {
-      // HandleClaimed needs handle, and only the answer can give it.
-      handle: id,
-    };
+    return { handle: id };
   });
 
 export default claim;
