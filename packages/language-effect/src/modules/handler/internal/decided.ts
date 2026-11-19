@@ -32,7 +32,7 @@ const appearances = (value: unknown, nested = false): ReadonlyArray<Hidden> => {
 
 /**
  * Run `work` with a logger that remembers the last message, redacting what the telemetry audience is not shown before it
- * becomes an attribute: hidden payload text, and the value of any field the handler loads or writes that the declaration
+ * becomes an attribute: every payload field the declaration does not let out, and the value of any field the handler loads or writes that the declaration
  * does not let out, of any type and length (found by value in the message, and by the field's name or value in its
  * annotations). `last` reads it afterwards. One per attempt, so a retried attempt never sees an earlier attempt's log.
  */
@@ -44,7 +44,10 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
     hidden.sort((a, b) => b.text.length - a.text.length);
   };
   for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
-    if (Object.hasOwn(fields, key) && !traceable(fields[key]!) && typeof value === "string") hide(appearances(value).map((h) => ({ ...h, whole: false })));
+    if (!Object.hasOwn(fields, key) || traceable(fields[key]!)) continue;
+    hiddenKeys.add(key);
+    // Text is found as a substring; anything else follows `appearances`' own rules.
+    hide(appearances(value).map((h) => (typeof value === "string" ? { ...h, whole: false } : h)));
   }
   /** What a handler loads or stores of a thing, so far as the declaration keeps it out of telemetry, is hidden. */
   const learn = (thing: Thing, values: object) => {
