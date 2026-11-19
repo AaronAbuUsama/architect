@@ -77,6 +77,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 Every thread is one type, titled with its emoji; the skills are in `.agents/skills/`: `threads` (the types and each agent's
 word for starting, messaging, reading and archiving a thread), `conductor` (the loop), `spike` (running a spike),
-`reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`) and `portal-design` (designing portal and
-console screens: the process and the style guide). `.claude/skills` and `.claude/agents/reviewer.md`
+`reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
+the process and the style guide) and `kanban` (the board Aaron and the conductor track every slice on, its data saved
+in the repo, and `STATE.md`, where the project stands). `.claude/skills` and `.claude/agents/reviewer.md`
 are links to it; edit them only in `.agents/skills/`.
