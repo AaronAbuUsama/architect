@@ -570,7 +570,7 @@ These are the building agent's calls, with the evidence above. Aaron can overrul
 4. Nothing of agent-native runs. Its action shape, approvals, shell, chat, screen context and layouts are ported into
    our packages under our rules (M1.23, M1.24). Its database, auth, MCP, tables and deploy are not ported.
 5. The portal is a projection plus a small feature, designed by us (M1.25) on the ported pieces. Its notes and chat state are
-   things in the portal's own store. Its live data comes from the Collector, the journal and the chain follower.
+   things in the portal's own store. Its live data comes from the Collector, the journal and the chain follower. (Chat state superseded by M1.25, `design/portal.md`: conversations are `@orthograph/agents` Runs; the store keeps notes and grants.)
 6. Step signals are OTLP log records sent as each step starts and ends (M1.21), so work in flight is visible.
 7. A workflow activity is keyed by run id and activity name, and a wait wakes on `on:` or `Timers`. The rest belongs to
    M3.01.

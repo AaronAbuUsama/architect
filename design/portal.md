@@ -45,7 +45,7 @@ HeroUI Pro's AI components over a Pi Durable run; round 1's wording said "Pi's s
 together: Pi Durable is the agent and the source of truth for the transcript (K10, H1.9), and what draws it is Pro's
 `ChatConversation`, `ChatMessage` and `ChatTool`. Q7's "threads kept under their thing" becomes "Runs kept under the
 thing they touch": a chat conversation is one `@orthograph/agents` Run (K10 section 1), so the portal feature owns no
-thread thing of its own (K5:474 and M1.24's "threads as things in the portal's store" are superseded by this).
+thread thing of its own (K5:475 and M1.24's "threads as things in the portal's store" are superseded by this).
 
 ## The frame
 
@@ -108,8 +108,8 @@ handles · feature
 |---|---|---|
 | Groups and their order | G | `ThingModel.from: { kind, mount }` (gap 1) |
 | Description, lifecycle strip | G | `ThingModel.description`, `MachineModel.states` and `moves` |
-| calls, refused, defects | L | `orthograph.calls` by operation and outcome (M1.20), summed per thing |
-| p95 against budget | L, G | `orthograph.call.duration` (M1.20); the budget from the operation's declared latency, if any (gap 2) |
+| calls, refused, defects | L | `ortho.calls` by operation and outcome (M1.20), summed per thing |
+| p95 against budget | L, G | `ortho.call.duration` (M1.20); the budget from the operation's declared latency, if any (gap 2) |
 | "Needs you" above the cards | L | each mounted feature's `attention` slot (Q11) |
 
 ## A thing's page
@@ -122,12 +122,12 @@ handle                                                         handles · featur
 A name, claimed once.
 
 Lifecycle                                           (window: local · last 30 min)
-          claim  412                  release  3
+          claim  375                  release  3
   ( · ) ─────────────────► (claimed) ─────────────────► (released)
           ▲ HandleTaken ×31             ▲ HandleNotClaimed ×2
 Operations
   claim    person   Claim a free name. A name is claimed once.      412 calls · 37 refused · p95 6 ms
-  release  person   Give the name back.                               3 calls ·  2 refused · p95 5 ms
+  release  person   Give the name back.                               5 calls ·  2 refused · p95 5 ms
   resolve  anyone   Find a handle by its name. (read)               1,904 calls · 0 refused · p95 2 ms
 Events     HandleClaimed { handle, name, owner } · HandleReleased { handle }
 Errors     HandleTaken HN-001 exit 3 · HandleNotClaimed HN-002 exit 3
@@ -140,7 +140,7 @@ Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov
 |---|---|---|
 | Header, plugin and version | G | `ThingModel`, `from`, the mount's package version |
 | Lifecycle diagram | G | `MachineModel` |
-| Move counts on each arrow | L | spans' `move.name` (the operation's span, M1.18) |
+| Move counts on each arrow | L | answered calls whose span carries `move.name` (the operation's span, M1.18); the operations list counts every call |
 | Refusals on the arrow they guard | L, G | span outcome and error tag; the arrow from the operation's `move` |
 | Operations list | G, L | `OperationModel` (description, `allowed`, read or write), with its window's stat |
 | Events, errors, roles | G | `ThingModel.events`, `errors`, `roles` |
@@ -180,7 +180,7 @@ Claim a free name. A name is claimed once.
 | Piece | Source | From |
 |---|---|---|
 | In and out band | G | `OperationModel.payload`, `answer`, `errors`, `allowed`, `idempotent`, `emits` |
-| Refusal counts | L | `orthograph.calls` by error tag (M1.20), so refusals that open no span (`NotAllowed`, a bad payload) still count |
+| Refusal counts | L | `ortho.calls` by error tag (M1.20), so refusals that open no span (`NotAllowed`, a bad payload) still count |
 | The spine's rows | G | the spine's fixed order plus the operation's declared steps and their kinds (M1.03 puts steps in the model) |
 | A finished call down the spine | L | the call's spans: the operation span, one per step, the commit span with `attempt` (M1.18) |
 | A running call down the spine | L | step signals as each step starts and ends (M1.21) |
@@ -195,7 +195,8 @@ declared refusal, any row for a defect.
 ### The trace drawer
 
 "Open the full trace" slides a drawer over the rail with the waterfall and every attribute that may be shown. Private
-fields and untraced free text are never shown, in any environment (M1.19). The example trace is always one worth
+fields and untraced free text are never shown, in any environment (M1.19 traces a field only when it is public, and free
+text only when marked). The example trace is always one worth
 seeing: the claim above, with its commit conflict on attempt 1, the retry, the commit on attempt 2, and the profile
 created through `on:`.
 
@@ -218,7 +219,7 @@ Scoped to the page, the same shape everywhere. On home it covers everything; on 
 
 | Piece | Source | From |
 |---|---|---|
-| Stat blocks and sparkline | L | `orthograph.calls` and `orthograph.call.duration` (M1.20) in the window |
+| Stat blocks and sparkline | L | `ortho.calls` and `ortho.call.duration` (M1.20) in the window |
 | Last calls | L | `TraceSource.window` over the environment's sink: the Collector's files locally, about 50 ms a poll |
 | Runs touching the thing | L | `rail.on(thing, …)` from `@orthograph/agents` (Q11, gap 3) |
 
@@ -401,7 +402,7 @@ Each hand-written or missing piece, with the slice that owns it.
 
 | # | Gap | Owner |
 |---|---|---|
-| 1 | `from: { kind, mount }` on each thing and operation in the model | M1.03 (in `m1`'s model since #64; K10 records the conductor's call) |
+| 1 | `from: { kind, mount }` on each thing and operation in the model | M1.03 (on the `m1` branch since #64: `FromModel` on things and operations, `types.ts:53` and `:100` there; not yet on `main`) |
 | 2 | A declared latency budget per operation, for "p95 of 150" | none yet; until then the stat shows p95 alone (ledger, by the conductor) |
 | 3 | A field that can point to any thing (a declaration name plus an id), for Run's `touches` and Note's `on` | M1.03, beside gap 1 (K10 section 1) |
 | 4 | Spans from operations that run on the person's device (stage 2's wallet, stage 4's proofs) | LAH-02, no slice yet |
@@ -425,6 +426,7 @@ fallback now. Each is his (a credential, or something outward-facing), so this d
 - **M1.24** keeps the shell, screen context and the approval cards' contract. The chat's surface is M4.16 on Pro's AI
   components over a Pi Durable run, and conversations are Runs, not things in the portal's store. Its row is reworded
   in `milestones.md` in the same change as this file.
-- **M1.13** builds these pages, the face contract and the lint rule.
+- **M1.13** builds these pages, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
+  row in `milestones.md` says so, in the same change as this file.
 - **M4.23** takes `Portal.face` at the `./portal` subpath and the lint rule as settled here.
 - **M3.17** takes `views.list` with `Portal.view.board`, the live feed's `hold()`, and the `attention` slot.
