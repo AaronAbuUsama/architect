@@ -85,6 +85,26 @@ is still the blueprint, and a project's own names stay its own.
 | lint plugin `forman`, its rule `forman/no-old-names`, and the boundary tag `scope:forman` | plugin `ortho`, `ortho/no-old-names`, `scope:orthograph` | `.oxlintrc.json`, `packages/lint` | 6 lines |
 | Worker name `forman-logbook` | `ortho-logbook` | `packages/logbook/wrangler.jsonc` | 1 |
 
+### The example app (K15, 19 November 2026)
+
+Aaron renamed the one growing example ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)). It is a
+project, so rule 5 applies: its names are its own, formed from the slug `plugged-in`.
+
+| Was (K9) | Is | Where it lives |
+|---|---|---|
+| `links` (prose) | **Plugged In**, always both words, capitalised | docs, the canon, the portal's title, `milestones.md` |
+| the folder `examples/links` | **`examples/plugged-in`** | M1.40 creates it; the gates move onto it (ST2.05) |
+| the app's command `links` | **`plugged-in`** (`plugged-in handle claim --name aaron`) | the generated CLI's `bin` |
+| `npm create orthograph links` | **`npm create orthograph plugged-in`** | M2.09, the story check |
+| packages `@links/*` | **`@plugged-in/*`** | the app's generated SDK and CLI |
+| tags `links/stage-<n>` | **`plugged-in/stage-<n>`** | each passing stage gate |
+| `LINKS_URL`, `LINKS_TOKEN` | **`PLUGGED_IN_URL`**, **`PLUGGED_IN_TOKEN`** | formed by the CLI generator (`render/internal/cli.ts:85` on `m1`: upper case, `-` to `_`) |
+| the SDK's client `Links` | **`PluggedIn`** | formed by the SDK generator (`pascal(name)`, `render/internal/sdk.ts:124` on `m1`) |
+| the branch `links/stage-1` (#56), `codex/links-staging` | unchanged | Codex's branches: renaming them would orphan the open pull request |
+
+The thing `link` (one link on a profile) and its operations (`link.add`, `link.remove`) keep their names: they are
+what the app keeps, not the app.
+
 ### Outside the repository (Aaron's)
 
 | Today | Becomes | Who |
