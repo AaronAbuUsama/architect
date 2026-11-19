@@ -2,7 +2,8 @@
 
 Agreed with Aaron on 19 November 2026, over two grill rounds (answers below, with their dates). This is the spec that
 M1.13 (the portal's pages), M1.24 (the shell), M4.16 (the chat), M4.23 (the Factory face) and M3.17 (the board)
-build to. The drawing is in [`../spikes/portal-mock/`](../spikes/portal-mock/README.md).
+build to. The drawing is in [`../spikes/portal-mock/`](../spikes/portal-mock/README.md). What it takes from Codex's
+portal (`experimental/portal-pro`) is in [`decisions/F8-portal-from-codex.md`](decisions/F8-portal-from-codex.md).
 
 **The idea in one line.** The portal shows a blueprint's declared behaviour, generated from the model, and lets live
 evidence light up that same structure. It starts from things and their lifecycles, then operations, machines, events,
@@ -110,8 +111,13 @@ handles · feature
 | Groups and their order | G | `ThingModel.from: { kind, mount }` (gap 1) |
 | Description, lifecycle strip | G | `ThingModel.description`, `MachineModel.states` and `moves` |
 | calls, refused, defects | L | `ortho.calls` by operation and outcome (M1.20), summed per thing |
-| p95 against budget | L, G | `ortho.call.duration` (M1.20); the budget from the operation's declared latency, if any (gap 2) |
+| p95 against budget | L, G | `ortho.call.duration` (M1.20); the budget is the operation's declared `budget.p95` (F8) |
 | "Needs you" above the cards | L | each mounted feature's `attention` slot (Q11) |
+| The operations matrix under the cards | G, L | one row per operation: calls, refused, defects, p95 against budget, sortable (F8) |
+
+**The operations matrix** (from Codex's portal, F8) sits under the cards, never in place of them: one row per
+operation, grouped like the cards, each count a link to those calls. A thing's page shows the same grid for its own
+operations.
 
 ## A thing's page
 
@@ -133,7 +139,7 @@ Operations
 Events     HandleClaimed { handle, name, owner } · HandleReleased { handle }
 Errors     HandleTaken HN-001 exit 3 · HandleNotClaimed HN-002 exit 3
 Roles      person · anyone
-Notes (2)  "claim retries once on a version race; that's by design" (pinned to model 4e1c…, still current)
+Notes (2)  "claim retries once on a version race; that's by design" (pinned to thing:handle@4e1c…, current)
 Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov
 ```
 
@@ -143,9 +149,9 @@ Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov
 | Lifecycle diagram | G | `MachineModel` |
 | Move counts on each arrow | L | answered calls whose span carries `move.name` (the operation's span, M1.18); the operations list counts every call |
 | Refusals on the arrow they guard | L, G | span outcome and error tag; the arrow from the operation's `move` |
-| Operations list | G, L | `OperationModel` (description, `allowed`, read or write), with its window's stat |
+| Operations grid | G, L | `OperationModel` (description, `allowed`, read or write), with its window's stat: the operations matrix, filtered to this thing (F8) |
 | Events, errors, roles | G | `ThingModel.events`, `errors`, `roles` |
-| Notes | L | the portal's `note` thing, kept in its own store (Q9), pinned to the model's hash; "stale" once the hash moves |
+| Notes | L | the portal's `note` thing, kept in its own store (Q9): Markdown pinned to `kind:name@hash`, the declaration's own hash; "stale" once that hash moves (F8) |
 | Conversations | L | `@orthograph/agents` Runs whose `touches` is this thing (gap 3) |
 | Extension sections | per slot | `sections.thing` (Q11) |
 
@@ -183,11 +189,16 @@ Claim a free name. A name is claimed once.
 | In and out band | G | `OperationModel.payload`, `answer`, `errors`, `allowed`, `idempotent`, `emits` |
 | Refusal counts | L | `ortho.calls` by error tag (M1.20), so refusals that open no span (`NotAllowed`, a bad payload) still count |
 | The spine's rows | G | the spine's fixed order plus the operation's declared steps and their kinds (M1.03 puts steps in the model) |
-| A finished call down the spine | L | the call's spans: the operation span, one per step, the commit span with `attempt` (M1.18) |
+| A finished call down the spine | L | the call's spans: one operation span per attempt, keyed by `attempt`; one per step, its kind from `step.kind`; `<op>.commit` with `commit.outcome` and `commit.writes` (M1.18); `move.name` and `move.to` on the move |
 | A running call down the spine | L | step signals as each step starts and ends (M1.21) |
 | What the commit set off | L | committed events read from the journal (M1.21) and the spans of their `on:` handlers |
 | Try it | G | the operation's generated action (M1.22), called as the signed-in builder |
 | Docs prose | G | the operation's `description`; the canon page it belongs to is linked, never copied |
+| The proof tab | L | M1.04's verdicts from the logbook, keyed by the model's hash and the handler body's hash: each eval's verdict, the journeys that cover the operation, and what is unproven; latency is the live p95 beside it, not an eval's printed note (F8) |
+
+The rows come from span attributes, never from names: a database step is `step.kind: "database"`, not a span whose
+name looks like SQL, and a retry is a second `attempt`, not a second child of an HTTP span. There is no HTTP span to
+group under (the wire turns it off, F8), so a call refused at the door shows in the counts and never as a trace.
 
 **Reads** draw a shorter spine: role check, then the read. **A call that stopped** is marked on the row where it
 stopped: the role check for `NotAllowed`, the machine check for a move from the wrong state, the handler for a
@@ -195,9 +206,15 @@ declared refusal, any row for a defect.
 
 ### The trace drawer
 
-"Open the full trace" slides a drawer over the rail with the waterfall and every attribute that may be shown. Private
-fields and untraced free text are never shown, in any environment (M1.19 traces a field only when it is public, and free
-text only when marked). The example trace is always one worth
+"Open the full trace" slides a drawer over the rail with the waterfall and every attribute that may be shown. The
+waterfall's groups fold (from Codex's portal, F8): each attempt, then its steps, then each `on:` handler, with the path
+to the selected span open. Private fields and untraced free text are never shown, in any environment (M1.19 traces a
+field only when it is public, and free text only when marked). The portal also keeps out what M1.19 does not cover:
+raw statements, which person called (`principal.person`) and log bodies; it shows a span's structure, timing, outcome,
+declared refusal, how many logs it has, and the caller's kind (a person, an agent for a person, anyone), derived by the portal, since a person's span carries
+`principal.person` and not `principal.kind`. Locally the
+caller may be named by the journey's cast (`ada`, `bob`), which are fixtures, not people. A "no leak" check (M1.13)
+plants each hidden item in a staging trace and fails if any renders. The example trace is always one worth
 seeing: the claim above, with its commit conflict on attempt 1, the retry, the commit on attempt 2, and the profile
 created through `on:`.
 
@@ -221,7 +238,7 @@ Scoped to the page, the same shape everywhere. On home it covers everything; on 
 | Piece | Source | From |
 |---|---|---|
 | Stat blocks and sparkline | L | `ortho.calls` and `ortho.call.duration` (M1.20) in the window |
-| Last calls | L | `TraceSource.window` over the environment's sink: the Collector's files locally, about 50 ms a poll |
+| Last calls | L | `TraceSource.window(since, now)` over the environment's sink: the Collector's files locally, about 50 ms a poll; tests and screenshots pass a fixed `now` (F8) |
 | Runs touching the thing | L | `rail.on(thing, …)` from `@orthograph/agents` (Q11, gap 3) |
 
 Numbers are shown as data, in stat blocks, never as sentences (UX.md note 5). There is no status sentence.
@@ -255,6 +272,10 @@ feature lists (`chat.addressees`, filled by the factory's roster). A conversatio
 | The agent picker | G | `chat.addressees`, from the model's `Blueprint.agent` declarations (K10, M4.10) |
 | Screen context | L | the page, the window, the open trace; extensions add to it with `context` (Q11) |
 
+An agent drives the portal the way a person does (from Codex's portal, F8). `list` gives every action with its input
+schema (M1.23). `view-screen` returns the screen context of one tab, and `navigate { tab, to }` moves that tab; each tab
+keeps its own (M1.24). The portal's `AGENTS.md` is generated from the model and says to read the screen first.
+
 ## Every action (Q9 A)
 
 The portal is a feature written in Orthograph, `@orthograph/portal`'s own blueprint, kept in the portal's own store
@@ -264,13 +285,13 @@ calls light up its own spine.
 
 | Thing | Operations | Allowed |
 |---|---|---|
-| `note` (`kept → removed`) | `note.write { on, body }`, `note.remove`, `note.list { on }` (read) | builder |
+| `note` (`kept → removed`) | `note.write { on, body }`, `note.edit { note, body, revision }`, `note.remove`, `note.list { on }` (read) | builder |
 | `grant` (`given → revoked`) | `grant.give { person, role }`, `grant.revoke`, `grant.list` (read) | owner |
 
 ```ts
 // packages/portal/blueprint/things/note/verbs/write.ts
 export default Blueprint.operation(Note, {
-  description: "Write a note on a thing, pinned to the model's hash.",
+  description: "Write a note on a thing or an operation, pinned to its declaration's hash.",
   payload: { on: Note.fields.on, body: NoteBody },
   answer: { note: Note.fields.id },
   move: machine.moves.write,
@@ -278,7 +299,10 @@ export default Blueprint.operation(Note, {
 });
 ```
 
-`Note.fields.on` points at any thing (gap 3). "Try it" is not a portal verb: it calls the app's own action as the
+`Note.fields.on` names a declaration, a thing or an operation (its kind and name, from the model), not an instance; the
+note keeps that declaration's hash it was written against and a Markdown body. `note.edit` has no move (the note stays
+`kept`), and the `note` thing declares `NoteChanged`. `note.edit` takes the revision the page opened and refuses `NoteChanged` if another edit landed first
+(from Codex's portal, F8), so two builders never overwrite each other silently. "Try it" is not a portal verb: it calls the app's own action as the
 signed-in builder, so the app's roles decide what it may do.
 
 ## Sign-in and roles (Q10 A)
@@ -312,7 +336,19 @@ a slot is only for what a thing's generated page cannot show. There is no fourth
 feature package's `./portal` subpath, so the feature itself never depends on the portal and runs without it. A lint
 rule, `orthograph/face-actions-only`, fails a face that imports a store, calls `fetch`, or writes through anything but
 its own feature's generated actions; reads go through its declared reads only. It lands with M1.13, the first slice
-that renders a face.
+that renders a face. At run time the same line holds (from Codex's portal, F8): every face renders in a sandboxed frame
+(`sandbox="allow-scripts"`, CSP `default-src 'none'; connect-src 'none'`): all its traffic crosses one bridge,
+and it writes only through the actions its slots declare. The face's typed slots are its manifest; there is no `extension.json`.
+
+**What runs in a frame, and how it reaches the portal.** The slots that draw something (`views.list`, `views.one`,
+`sections.thing`, `sections.operation`, and each `rail.on` card) render in the face's frame. The slots that are data
+(`sidebar`, `attention`, `chat.addressees`) are declarations the shell reads and draws itself; `context` runs in the
+frame of a face on the page and posts what it adds. The frame is a portal route (`/face/<feature>/<slot>`), never a
+`srcdoc`, served with the CSP above and `script-src` limited to the portal's own built assets, so `portal-ui` and Pro
+load from the deployed portal's build, not from a bundle inside each face (F7: Pro is never bundled into a published
+package, a face included). With the network closed, everything crosses one bridge: the face's declared reads, its
+declared actions, the live feed of committed events (with `hold()` and `release()`), a Run's stream for a face that
+shows one, and the screen context. Drag and drop stay inside the frame; only the drop's action crosses.
 
 ```ts
 // @orthograph/work: package.json "exports": { "./portal": "./portal/face.js" }
@@ -394,7 +430,7 @@ a data-dependent refusal (`HandleTaken`) and idempotency by request. A claim lig
 | Stage | What it adds to the portal | What it needs |
 |---|---|---|
 | 2 · wallets | `wallets` and `chain-evm` groups, an `adapters` group (`erc20`). `payment`'s lifecycle (simulated, submitted, included, confirmed, dropped, reverted, corrected) lights up from the follower's events. Adapter calls show as `step.call` rows on the spine, with their declared errors. Staging becomes real | client operations' spans from the device (gap 4); chain submissions as spans |
-| 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by `agent for <person>` shown as such; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
+| 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by an agent for a person shown as such, never which person; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
 | 4 · the club | private members and ballots. The public tally and footprint show; nothing that names a member shows (ST4.07). Proof generation as a step on the device | private fields never traced (M1.19); on-device spans (gap 4) |
 
 ## Gaps
@@ -404,11 +440,12 @@ Each hand-written or missing piece, with the slice that owns it.
 | # | Gap | Owner |
 |---|---|---|
 | 1 | `from: { kind, mount }` on each thing and operation in the model | M1.03 (on the `m1` branch since #64: `FromModel` on things and operations, `types.ts:53` and `:100` there; not yet on `main`) |
-| 2 | A declared latency budget per operation, for "p95 of 150" | none yet; until then the stat shows p95 alone (ledger, by the conductor) |
-| 3 | A field that can point to any thing (a declaration name plus an id), for Run's `touches` and Note's `on` | M1.03, beside gap 1 (K10 section 1) |
+| 2 | ~~A declared latency budget per operation~~ | closed: operations may declare `budget: { p95 }` (on `main`), and on `m1` it reaches the portal wire as `budget.p95Ms` (F8); an operation without one shows p95 alone |
+| 3 | A field that can point to any thing (a declaration name plus an id), for Run's `touches` | M1.03, beside gap 1 (K10 section 1) |
 | 4 | Spans from operations that run on the person's device (stage 2's wallet, stage 4's proofs) | LAH-02, no slice yet |
 | 5 | The `orthograph/face-actions-only` lint rule | M1.13 |
 | 6 | `Portal.face`, its slots and `Portal.view.board` | M1.13 (the contract), M3.17 and M4.23 (the first faces) |
+| 7 | The portal wire decodes only things, operations, environments and blanks; the pages also need `from`, each thing's events and errors with their codes and exits, journeys, starting worlds, stores and mounts | M1.13 (F8) |
 
 Nothing else on these pages is hand-written: every label, list and diagram is generated, and every number is live.
 
@@ -437,6 +474,10 @@ This replaces round 1's "clean-room the components we need" with one place to do
   in `milestones.md` in the same change as this file.
 - **M1.34** (new, before M1.13) builds `@orthograph/portal-ui`, its lint rule and the CI install (F7).
 - **M1.13** builds these pages on `portal-ui`, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
-  row in `milestones.md` says so, in the same change as this file.
+  row in `milestones.md` says so, in the same change as this file. With F8 it also builds the notes, the operations
+  matrix, the folding waterfall, the "no leak" check, the fixed window, sandboxed faces, the proof tab on M1.04's
+  verdicts and the wire's missing parts, and needs M1.04.
+- **M1.23** lists every action with its input schema (`list`); **M1.24** adds `view-screen`, `navigate`, per-tab
+  screen context and the generated `AGENTS.md` (F8).
 - **M4.23** takes `Portal.face` at the `./portal` subpath and the lint rule as settled here.
 - **M3.17** takes `views.list` with `Portal.view.board`, the live feed's `hold()`, and the `attention` slot.
