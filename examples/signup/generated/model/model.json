@@ -2,6 +2,7 @@
   "refusals": {
     "NotAllowed": "AR-001",
     "SheetFull": "SH-001",
+    "SheetNotFound": "SH-901",
     "SheetNotOpen": "SH-900"
   },
   "values": {
@@ -149,12 +150,17 @@
           "code": "SH-001"
         }
       },
+      "notFound": {
+        "error": "SheetNotFound",
+        "exit": 4,
+        "code": "SH-901"
+      },
       "roles": [],
       "roleRules": {},
       "from": {
         "kind": "app"
       },
-      "hash": "287de3ccf8b2a6fd"
+      "hash": "320a7ee2e246a009"
     }
   },
   "operations": {
@@ -192,13 +198,20 @@
       },
       "errors": [],
       "refusals": [
-        "SheetNotOpen"
+        "SheetNotOpen",
+        "SheetNotFound"
       ],
       "allowed": [
         {
           "kind": "anyone"
         }
       ],
+      "refs": {
+        "sheet": "sheet"
+      },
+      "notFound": {
+        "sheet": "SheetNotFound"
+      },
       "steps": {
         "record": {
           "name": "sheet.close.record",
@@ -211,7 +224,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "f4e63e6654ff176a"
+      "hash": "f9b5ec5bc01ce4b1"
     },
     "sheet.get": {
       "kind": "read",
@@ -334,13 +347,20 @@
       ],
       "refusals": [
         "SheetFull",
-        "SheetNotOpen"
+        "SheetNotOpen",
+        "SheetNotFound"
       ],
       "allowed": [
         {
           "kind": "anyone"
         }
       ],
+      "refs": {
+        "sheet": "sheet"
+      },
+      "notFound": {
+        "sheet": "SheetNotFound"
+      },
       "steps": {
         "load": {
           "name": "sheet.join.load",
@@ -357,7 +377,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "4a16fef4df43ddf1"
+      "hash": "548a4873dc4d0516"
     },
     "sheet.open": {
       "kind": "operation",
@@ -412,6 +432,7 @@
           "kind": "anyone"
         }
       ],
+      "mints": "sheet",
       "steps": {
         "insert": {
           "name": "sheet.open.insert",
@@ -424,7 +445,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "64c1bc7e08015c79"
+      "hash": "8735e6d4a2f9f971"
     }
   },
   "journeys": {

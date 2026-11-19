@@ -11,11 +11,12 @@ export interface MoveSpec<S extends string> {
   readonly emits: Event;
 }
 
-export interface Move<S extends string = string, To extends S = S> {
+export interface Move<S extends string = string, To extends S = S, From extends ReadonlyArray<S> = ReadonlyArray<S>> {
   readonly kind: "move";
   readonly machine: Machine;
   readonly key: string;
-  readonly from: ReadonlyArray<S>;
+  /** The literal tuple the machine declared (`[]`, `["active"]`), so a handler's types can tell a creating move from the rest. */
+  readonly from: From;
   readonly to: ReadonlyArray<To>;
   readonly emits: Event;
 }
@@ -34,7 +35,7 @@ export interface Machine<
   readonly kind: "machine";
   readonly thing: Thing;
   readonly states: ReadonlyArray<S>;
-  readonly moves: { readonly [K in keyof Mv]: Move<S, ToOf<Mv[K]["to"]> & S> };
+  readonly moves: { readonly [K in keyof Mv]: Move<S, ToOf<Mv[K]["to"]> & S, Mv[K]["from"]> };
   readonly notFrom: NotFrom;
   /** A journey check: the instance with this id is in `state` once the step's call has come back. */
   readonly isIn: (id: unknown, state: S) => Assertion;

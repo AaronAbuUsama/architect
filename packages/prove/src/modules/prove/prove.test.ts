@@ -61,7 +61,7 @@ afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, re
 describe("ortho prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
     const report = await prove(acme, 8800);
-    expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");
+    expect(report.lines).toContain("journey grant an allowance ✔ 4/4 steps");
     // acme is the starter plus the allowance (L1.51): the starter's five journeys run beside acme's own six.
     for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance",
       "an invitation is used once", "an owner makes an api key", "health is up", "invite and accept", "sign up and sign in"]) {
@@ -73,7 +73,7 @@ describe("ortho prove --env local", () => {
       expect(report.lines.some((l) => l.startsWith(`${op} 9 evals ✔ p50 `))).toBe(true);
     }
     expect(report.lines.some((l) => l.startsWith("allowance.grant performance ✔ p50 "))).toBe(true);
-    expect(report.lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16");
+    expect(report.lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17");
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();
@@ -90,7 +90,7 @@ describe("ortho prove --env local", () => {
 
   const cases: ReadonlyArray<{ readonly fixture: string; readonly installs: ReadonlyArray<readonly [string, string]>; readonly line: string; readonly says: string; readonly sync?: boolean }> = [
     { fixture: "answer-shape", installs: [["grant.ts", GRANT]], line: "allowance.grant answer shape ✘", says: 'grant-an-allowance "ada grants olga 500": answer.allowance: expected alw_<id>, got 500' },
-    { fixture: "declared-errors", installs: [["grant.ts", GRANT]], line: "allowance.grant declared errors ✘", says: "refused with AllowanceMemberUnknown, not one of AllowanceLimitTooHigh, NotAllowed" },
+    { fixture: "declared-errors", installs: [["grant.ts", GRANT]], line: "allowance.grant declared errors ✘", says: "refused with AllowanceMemberUnknown, not one of AllowanceLimitTooHigh, PersonNotFound, NotAllowed" },
     { fixture: "machine-path", installs: [["grant.ts", GRANT]], line: "allowance.grant machine path ✘", says: 'grant ended in "paused", not one of active' },
     { fixture: "events", installs: [["grant.ts", GRANT]], line: "allowance.grant events ✘", says: "move grant emitted no AllowanceGranted" },
     { fixture: "who-may-call", installs: [["main.ts", "generated/server/main.ts"]], line: "allowance.grant who may call ✘", says: "and was answered, not refused" },

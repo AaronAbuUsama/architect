@@ -28,6 +28,7 @@ Move a link to a zero-based position. A position past the end puts it last.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |
+| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |
 
 ## How to call
 

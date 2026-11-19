@@ -5,6 +5,7 @@ import type { AnyErrorClass, NotAllowed } from "#modules/errors/types.js";
 import type { Event } from "#modules/events/types.js";
 import type { NotFrom } from "#modules/machines/types.js";
 import type { Operation, PayloadOf, Read } from "#modules/operations/types.js";
+import type { NotFound } from "#modules/things/types.js";
 
 /**
  * A value known only once the world runs: `s.world.organization`, `s.olga.person`, `s.last.allowance`. Its path is
@@ -24,8 +25,11 @@ export interface Call {
   readonly request: string | undefined;
 }
 
-/** What a refusal check names: a declared error class, a machine's own refusal (`machine.notFrom`), or `NotAllowed`. */
-export type Refusal = AnyErrorClass | NotFrom | typeof NotAllowed;
+/**
+ * What a refusal check names: a declared error class, a machine's own refusal (`machine.notFrom`), a thing's missing
+ * instance (`Thing.notFound`), or `NotAllowed`.
+ */
+export type Refusal = AnyErrorClass | NotFrom | NotFound | typeof NotAllowed;
 
 /** What a step checks once its call has come back. */
 export type Assertion =
