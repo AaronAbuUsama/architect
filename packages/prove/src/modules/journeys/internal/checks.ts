@@ -1,6 +1,6 @@
 // A step's checks against what its call got back and what the world now holds. Span checks wait for telemetry.
 import { Effect } from "effect";
-import type { Assertion, NotFound, NotFrom, Refusal, Thing } from "orthograph";
+import type { Assertion, NotFrom, Refusal, Thing } from "orthograph";
 import { ErrorNames, EventNames, Scripting } from "orthograph/server";
 import type { CallRecord, Facts } from "../types.ts";
 import { stateOf } from "./world.ts";
@@ -18,12 +18,8 @@ export const tagOfClass = (cls: unknown): string =>
 
 const pascal = (name: string) => name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
 
-/**
- * A refusal check's tag: a declared error's class name, `<Thing>Not<FirstState>` for a machine's own refusal, or
- * `<Thing>NotFound` for a missing instance (a thing's declared error of that name is the same tag, K16 M1.46).
- */
+/** A refusal check's tag: a declared error's class name, or `<Thing>Not<FirstState>` for a machine's own refusal. */
 const tagOfRefusal = (error: Refusal, tableOf: (thing: Thing) => string | undefined): string => {
-  if ((error as NotFound).kind === "not-found") return `${pascal(tableOf((error as NotFound).thing) ?? "?")}NotFound`;
   if ((error as NotFrom).kind !== "not-from") return tagOfClass(error);
   const machine = (error as NotFrom).machine;
   return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(machine.states[0] ?? "")}`;
