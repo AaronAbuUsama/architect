@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Models and run policy · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.key{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;color:#8b8b94}
+.muted{color:#a1a1aa}
+.cell{display:flex;flex-wrap:wrap;align-items:center;gap:12px;min-height:56px;padding:10px 16px;border-bottom:1px solid #222225}
+.cell:last-child{border-bottom:0}
+.cell-label{flex:1 1 260px;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.cell-label small{font-size:12px;color:#a1a1aa}
+.field{font:inherit;font-size:13px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #303036;background:#111114;color:#fcfcfc;box-sizing:border-box}
+.seg{display:inline-flex;flex-wrap:wrap;padding:3px;border-radius:10px;background:#111114;border:1px solid #29292d}
+.seg button{font:inherit;font-size:13px;font-weight:600;min-height:32px;padding:0 12px;border-radius:8px;border:0;background:transparent;color:#c4c4cc;cursor:pointer}
+.seg button[aria-checked="true"]{background:#4a4a52;color:#fff}
+.sw{width:40px;height:24px;border-radius:99px;background:#3584f5;position:relative;flex:none;border:0;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:19px;width:18px;height:18px;border-radius:50%;background:#fff}
+.sw-off{background:#3f3f46}
+.sw-off::after{left:3px}
+.unit{display:inline-flex;align-items:center;border:1px solid #303036;border-radius:10px;background:#111114;min-height:40px;padding:0 12px;gap:6px}
+.unit input{width:72px;background:transparent;border:0;color:#fcfcfc;font:inherit;font-size:13px;outline:none;text-align:right}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec h2{margin:0;font-size:18px;font-weight:700}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="settings" hint-size="248px,1760px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <span class="muted">support-desk</span><span class="muted">/</span><span style="font-weight: 600">Models &amp; policy</span>
+      </nav>
+      <span class="muted" style="font-size: 12px">Read at every use · applies to new work at once</span>
+      <button type="button" class="btn btn-primary">Save</button>
+    </header>
+
+    <div style="padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 30px; max-width: 980px; width: 100%; box-sizing: border-box">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700">Models &amp; run policy</h1>
+        <p style="margin: 0; font-size: 14px; color: #a1a1aa">Providers and keys, then the policy every conversation shares. Presets and threads can override model, limits and compaction; nothing else here is per-conversation.</p>
+      </div>
+
+      <section class="sec" aria-label="Providers">
+        <div style="display: flex; align-items: baseline; gap: 8px"><h2 style="flex: 1">Providers</h2><button type="button" class="btn btn-ghost">+ Add provider</button></div>
+        <div class="card">
+          <sc-for list="{{providers}}" as="p" hint-placeholder-count="5">
+            <div class="cell">
+              <div class="cell-label"><span style="font-weight: 600">{{p.name}}</span><small>{{p.models}}</small></div>
+              <span class="{{p.stateClass}}"><span class="dot"></span>{{p.state}}</span>
+              <span class="mono muted" style="min-width: 120px">{{p.key}}</span>
+              <button type="button" class="btn" style="min-height: 34px">{{p.action}}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Attribution sent to providers<small class="key">identity.attribution · null sends none</small></div><input class="field" aria-label="Attribution name" value="acme-support-desk" style="width: 200px"><input class="field mono" aria-label="Attribution URL" value="https://support.acme.example" style="width: 240px"></div>
+        </div>
+      </section>
+
+      <section class="sec" aria-label="Requests">
+        <h2>Requests</h2>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Stream idle timeout<small class="key">stream.timeoutMs</small></div><label class="unit"><input aria-label="Stream timeout seconds" value="120"><span class="muted">s</span></label></div>
+          <div class="cell"><div class="cell-label">Retries per request<small class="key">retry.maxRetries · a request the host died during counts as one</small></div><label class="unit"><input aria-label="Max retries" value="3"></label></div>
+          <div class="cell"><div class="cell-label">Backoff base<small class="key">retry.baseDelayMs</small></div><label class="unit"><input aria-label="Backoff base milliseconds" value="2000"><span class="muted">ms</span></label></div>
+          <div class="cell"><div class="cell-label">Tool calls in one round<small class="key">toolExecution · one sequential tool makes the round sequential</small></div><div class="seg" role="radiogroup" aria-label="Tool execution"><button type="button" role="radio" aria-checked="true">parallel</button><button type="button" role="radio" aria-checked="false">sequential</button></div></div>
+        </div>
+      </section>
+
+      <section class="sec" aria-label="Queues and failures">
+        <h2>Queues &amp; failures</h2>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Steers placed per turn<small class="key">steeringMode</small></div><div class="seg" role="radiogroup" aria-label="Steering mode"><button type="button" role="radio" aria-checked="true">one at a time</button><button type="button" role="radio" aria-checked="false">all</button></div></div>
+          <div class="cell"><div class="cell-label">Follow-ups placed per run<small class="key">followUpMode</small></div><div class="seg" role="radiogroup" aria-label="Follow-up mode"><button type="button" role="radio" aria-checked="false">one at a time</button><button type="button" role="radio" aria-checked="true">all</button></div></div>
+          <div class="cell"><div class="cell-label">After a failed run, queued inputs<small class="key">afterFailedRun</small></div><div class="seg" role="radiogroup" aria-label="After failed run"><button type="button" role="radio" aria-checked="false">wait</button><button type="button" role="radio" aria-checked="true">continue</button><button type="button" role="radio" aria-checked="false">withdraw</button></div></div>
+          <div class="cell"><div class="cell-label">Restarts before a task gives up<small class="key">restartLimit · stops crash loops</small></div><label class="unit"><input aria-label="Restart limit" value="5"></label></div>
+        </div>
+      </section>
+
+      <section class="sec" aria-label="Compaction">
+        <h2>Compaction</h2>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Automatic compaction<small class="key">compaction.enabled · manual compact() always works</small></div><button type="button" class="sw" role="switch" aria-checked="true" aria-label="Automatic compaction"></button></div>
+          <div class="cell"><div class="cell-label">Reserve before blocking<small class="key">compaction.reserveTokens</small></div><label class="unit"><input aria-label="Reserve tokens" value="16384"><span class="muted">tok</span></label></div>
+          <div class="cell"><div class="cell-label">Keep recent verbatim<small class="key">compaction.keepRecentTokens</small></div><label class="unit"><input aria-label="Keep recent tokens" value="20000"><span class="muted">tok</span></label></div>
+          <div class="cell"><div class="cell-label">Start in background<small class="key">compaction.backgroundTokens · 0 disables</small></div><label class="unit"><input aria-label="Background tokens" value="32768"><span class="muted">tok</span></label></div>
+        </div>
+        <div class="card" style="overflow-x: auto">
+          <table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px">
+            <caption style="text-align: left; padding: 12px 16px; font-size: 14px; font-weight: 600; border-bottom: 1px solid #29292d">Per-model overrides <span class="key">compaction.modelOverrides</span></caption>
+            <thead><tr style="color: #a1a1aa; font-size: 12px; text-align: left"><th scope="col" style="padding: 10px 16px; font-weight: 600">provider/modelId</th><th scope="col" style="padding: 10px 16px; font-weight: 600">reserve</th><th scope="col" style="padding: 10px 16px; font-weight: 600">keep recent</th><th scope="col" style="padding: 10px 16px; font-weight: 600">background</th><th scope="col" style="padding: 10px 16px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">Actions</span></th></tr></thead>
+            <tbody>
+              <tr><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">anthropic/claude-haiku-5-5</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">8,192</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">12,000</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">8,192</td><td style="padding: 10px 16px; border-top: 1px solid #222225; text-align: right"><button type="button" class="btn btn-ghost" style="min-height: 32px">Edit</button></td></tr>
+              <tr><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">local/small-32k</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">4,096</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">8,000</td><td class="mono" style="padding: 10px 16px; border-top: 1px solid #222225">4,096</td><td style="padding: 10px 16px; border-top: 1px solid #222225; text-align: right"><button type="button" class="btn btn-ghost" style="min-height: 32px">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec" aria-label="Progress and memory">
+        <h2>Progress &amp; memory</h2>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Commit partial answers every<small class="key">progress.partialIntervalMs</small></div><label class="unit"><input aria-label="Partial interval" value="100"><span class="muted">ms</span></label></div>
+          <div class="cell"><div class="cell-label">Commit tool output every<small class="key">progress.outputIntervalMs</small></div><label class="unit"><input aria-label="Output interval" value="100"><span class="muted">ms</span></label></div>
+          <div class="cell"><div class="cell-label">Store deferred progress within<small class="key">progress.persistWithinMs · a crash loses at most this much</small></div><label class="unit"><input aria-label="Persist within" value="1000"><span class="muted">ms</span></label></div>
+          <div class="cell"><div class="cell-label">Keep idle context in memory<small class="key">contextRetentionMs</small></div><label class="unit"><input aria-label="Context retention" value="10"><span class="muted">min</span></label></div>
+          <div class="cell"><div class="cell-label">Keep unobserved documents<small class="key">documentRetentionMs</small></div><label class="unit"><input aria-label="Document retention" value="10"><span class="muted">min</span></label></div>
+        </div>
+      </section>
+
+      <section class="sec" aria-label="Telemetry">
+        <h2>Telemetry</h2>
+        <div class="card">
+          <div class="cell"><div class="cell-label">Export spans and metrics<small>pi.durable.phase, .submit, .report, phase.duration, tasks.active. IDs only, never message content.</small></div><button type="button" class="sw" role="switch" aria-checked="true" aria-label="Export telemetry"></button></div>
+          <div class="cell"><div class="cell-label">OTLP endpoint<small>Trace context is stored with submissions and tasks.</small></div><input class="field mono" aria-label="OTLP endpoint" value="https://otel.acme.internal:4318" style="width: 300px"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      ['Anthropic', 'claude-opus-5-5, claude-sonnet-5-5, claude-haiku-5-5, claude-fable-5-2', 'Key set', 'ok', '•••• stored', 'Replace'],
+      ['OpenAI', 'gpt-6-sol and 14 more', 'Key set', 'ok', '•••• stored', 'Replace'],
+      ['OpenRouter', '300+ models', 'Not set', '', '—', 'Add key'],
+      ['Google Vertex', 'gemini family', 'Not set', '', '—', 'Connect'],
+      ['Local (llama.cpp)', 'small-32k on gpu-box', 'Reachable', 'ok', 'no key', 'Edit']
+    ];
+    return {
+      providers: P.map((r) => ({ name: r[0], models: r[1], state: r[2], stateClass: r[3] ? 'chip ' + r[3] : 'chip', key: r[4], action: r[5] }))
+    };
+  }
+}
+</script>
+</body>
+</html>
