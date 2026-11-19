@@ -54,11 +54,14 @@ export const render = ({ rows, stale, hasList }) => {
   ].join("\n");
 };
 
+/** Where `marker` stands on a line of its own: a marker named in prose (`totals:start` in backticks) is not one. */
+export const markersIn = (text, marker) => [...text.matchAll(new RegExp(`^${marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "gm"))].map((m) => m.index);
+
 /** The README with its block replaced; throws when the markers are not one start, then one end. */
 export const replaceBlock = (readme, block) => {
-  const a = readme.indexOf(START);
-  const b = readme.indexOf(END);
-  if (a === -1 || b < a || readme.indexOf(START, a + 1) !== -1) throw new Error(`needs one ${START} followed by one ${END}`);
+  const [a, ...more] = markersIn(readme, START);
+  const [b] = markersIn(readme, END);
+  if (a === undefined || b === undefined || b < a || more.length > 0) throw new Error(`needs one ${START} followed by one ${END}, each on a line of its own`);
   return readme.slice(0, a) + block + readme.slice(b + END.length);
 };
 
@@ -76,7 +79,7 @@ export const run = (argv) => {
   const root = resolve(argv.includes("--root") ? argv[argv.indexOf("--root") + 1] : join(repo, "e2e"));
   const readmes = readdirSync(root)
     .filter((n) => statSync(join(root, n)).isDirectory() && existsSync(join(root, n, "README.md")))
-    .filter((n) => readFileSync(join(root, n, "README.md"), "utf8").includes(START));
+    .filter((n) => markersIn(readFileSync(join(root, n, "README.md"), "utf8"), START).length > 0);
   let stale = 0;
   for (const suite of readmes) {
     const path = join(root, suite, "README.md");

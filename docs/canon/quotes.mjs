@@ -54,10 +54,13 @@ export const regionsOf = (source, spec) => {
   return [{ from: Math.min(...each.map((r) => r.from)), to: Math.max(...each.map((r) => r.to)), head: Math.min(...each.map((r) => r.head)) }];
 };
 
-const runAt = (lines, got) => {
-  for (let i = 0; i + got.length <= lines.length; i++) if (got.every((l, k) => l === lines[i + k])) return i;
-  return -1;
+/** Every line (0-based) where the run `got` starts in `lines`. */
+const runsAt = (lines, got) => {
+  const at = [];
+  for (let i = 0; i + got.length <= lines.length; i++) if (got.every((l, k) => l === lines[i + k])) at.push(i);
+  return at;
 };
+const runAt = (lines, got) => runsAt(lines, got)[0] ?? -1;
 
 /**
  * Where the quote is in the declaration. { at } is the first line (1-based) when it matches; otherwise { reason }.
@@ -68,8 +71,10 @@ export const locate = (source, name, body) => {
   if (!regions.length) return { reason: `no top-level declaration named ${name}` };
   const all = source.split("\n");
   for (const r of regions) {
-    const i = runAt(trimmed(all.slice(r.from - 1, r.to).join("\n")), body);
-    if (i !== -1) return { at: r.from + i, to: r.from + i + body.length - 1 };
+    const at = runsAt(trimmed(all.slice(r.from - 1, r.to).join("\n")), body);
+    // A part that occurs twice (a lone `});`) could be either: it must be quoted with enough lines to be one place.
+    if (at.length > 1) return { reason: `the quote occurs ${at.length} times in ${name}: quote enough lines to be one place`, region: r };
+    if (at.length === 1) return { at: r.from + at[0], to: r.from + at[0] + body.length - 1 };
   }
   return { reason: `the quote is not in ${name}`, region: regions[0] };
 };

@@ -71,6 +71,8 @@ Docs drift when nothing checks them. `check.mjs` reads every page and refuses it
   everything from `a` to `b`). The quote must be that declaration, or a run of its lines, line for line. Change the
   code, and the page that quotes it fails until `node docs/canon/check.mjs --fix` (`nx run canon:fix`) rewrites it
   from the source; a quote that no longer resembles anything in the declaration is reported, for a person to redo.
+  `--fix` keeps the quote true to the code, not the prose around it: read its diff against the paragraph above each
+  quote it rewrote. A part of a declaration must be one place in it: a run that occurs twice (a lone `});`) fails.
   `lines=a-b` after the name is only a hint for readers, which `--fix` keeps fresh. A file that isn't code (JSON, SQL,
   markdown) has no names, so its fence says `lines=a-b` and is compared with those lines. `quotes.mjs` holds the
   resolver and `quotes.test.mjs` its test (`nx run canon:test`).

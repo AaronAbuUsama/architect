@@ -5,7 +5,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { dirname, join } from "node:path";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { END, START, facts, parseList, render, replaceBlock } from "./totals.mjs";
+import { END, START, facts, markersIn, parseList, render, replaceBlock } from "./totals.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // A copy of the fixture under this folder (so `vitest` and the fixture's imports resolve), thrown away afterwards.
@@ -65,4 +65,11 @@ test("render and replaceBlock, without vitest", () => {
   assert.equal(replaceBlock(`a\n${START}\nold\n${END}\nb`, "NEW"), "a\nNEW\nb");
   assert.throws(() => replaceBlock(`${END}\n${START}`, "x"));
   assert.throws(() => replaceBlock("no markers", "x"));
+});
+
+test("a marker named in prose is not a marker: only one on a line of its own counts", () => {
+  const readme = `Put \`${START}\` and \`${END}\` in your README.\n\n${START}\nold\n${END}\n`;
+  assert.equal(markersIn(readme, START).length, 1);
+  assert.equal(replaceBlock(readme, `${START}\nnew\n${END}`), `Put \`${START}\` and \`${END}\` in your README.\n\n${START}\nnew\n${END}\n`);
+  assert.equal(markersIn(`only \`${START}\` in prose`, START).length, 0);
 });

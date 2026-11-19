@@ -64,3 +64,9 @@ test("--fix: the rewritten quote then passes the check", () => {
   assert.ok(fixed);
   assert.ok(locate(source, "Box", lines(sliceLines(source, fixed.from, fixed.to))).at !== undefined);
 });
+
+test("a part that occurs twice in its declaration is refused: it could be either place", () => {
+  const twice = ["export const pair = () => {", "  const a = 1;", "  return a;", "  const b = 1;", "  return b;", "};"].join("\n");
+  assert.match(locate(twice, "pair", ["const a = 1;"]).reason, /occurs 2 times/);
+  assert.deepEqual(locate(twice, "pair", ["const a = 1;", "return a;"]), { at: 2, to: 3 });
+});
