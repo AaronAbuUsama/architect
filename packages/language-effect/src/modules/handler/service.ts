@@ -73,7 +73,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
     const tag = tagOf(e);
     const code = codes?.[tag];
     return Effect.annotateCurrentSpan({ refusal: tag, ...(code === undefined ? {} : { "refusal.code": code }) }).pipe(
-      spanned(`${name}.refused`, { operation: name, attempt: number, ...principalAttributes(principal) }),
+      spanned(`${name}.refused`, { operation: name, attempt: number, "principal.kind": principal.kind }),
     );
   };
   const decodeAnswer = Schema.decodeUnknownEffect(op.answerSchema as unknown as AnyCodec);

@@ -50,7 +50,7 @@ const post = (url: string, route: string, body: object, token: string) => {
   })).pipe(Effect.map((response) => ({ response, trace, parent })));
 };
 
-it("exports two pre-span refusals and their durations from a real world", { timeout: 120_000 }, () =>
+it("exports two pre-handler refusals and their durations from a real world", { timeout: 120_000 }, () =>
   Effect.runPromise(Effect.scoped(Effect.gen(function* () {
     const dir = yield* Effect.acquireRelease(Effect.sync(() => mkdtempSync(join(tmpdir(), "ortho-call-metrics-"))), (path) =>
       Effect.sync(() => {
@@ -91,5 +91,6 @@ it("exports two pre-span refusals and their durations from a real world", { time
       expect(point.sum ?? 0).toBeGreaterThanOrEqual(0);
     }
     expect(traces.get(bad.trace)?.spans).toEqual([]);
-    expect(traces.get(stranger.trace)?.spans).toEqual([]);
+    // A refusal by the role check opens no operation span, only `<operation>.refused`, which names the refusal (M1.36).
+    expect(traces.get(stranger.trace)?.spans.map((span) => [span.name, span.attrs["refusal"]])).toEqual([["allowance.spend.refused", "NotAllowed"]]);
   }))));
