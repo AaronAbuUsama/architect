@@ -14,7 +14,8 @@
     "wrangler": "4.156.1"
   },
   "devDependencies": {
-    "@orthograph/logbook": "workspace:*"
+    "@orthograph/logbook": "workspace:*",
+    "@orthograph/services": "workspace:*"
   },
   "bin": {
     "ortho": "./src/main.ts"

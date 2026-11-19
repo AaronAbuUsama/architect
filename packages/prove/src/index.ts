@@ -13,8 +13,6 @@ export { AxiomSource, Collectors, FileSource, PROVE_SPAN_PREFIX } from "#modules
 export { Watch } from "#modules/watch/service.js";
 export { WatchFailed, type SourceName as WatchSource, type Watched } from "#modules/watch/types.js";
 export { CollectorFailed, SourceFailed, type Collector, type Log, type Span, type Trace, type TraceSource, type Wanted } from "#modules/telemetry/types.js";
-export { Viewer } from "#modules/viewer/service.js";
-export { ViewerFailed, type Viewing } from "#modules/viewer/types.js";
 export { Sinks } from "#modules/sinks/service.js";
 export { SinksFailed, type Resolved as ResolvedSinks } from "#modules/sinks/types.js";
 export { TraceTrees } from "#modules/trace-trees/service.js";

@@ -1,24 +1,23 @@
 // L2.10b/c's done-when, as a user meets it: `/portal` on an environment's own workerd, from the revision's one bundle, reading the real
-// logbook that holds real verdicts signed by a real OIDC server (mock-oauth2-server, pinned by digest) in Docker. Spend shows
+// logbook that holds real verdicts signed by a real OIDC issuer (an @orthograph/services process). Spend shows
 // `test ✔ staging ✔`; after a budget edit it is stale and nothing else is; a logbook that stops shows nothing green; the data routes
 // refuse what they should; and `env down` leaves nothing running. Ports 9094 to 9099 are this file's.
 import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { Effect } from "effect";
+import { Effect, Exit, Scope } from "effect";
+import { Issuer } from "@orthograph/services";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
 
-const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const PORTS = { logbook: 9094, issuer: 9095, staging: 9096, production: 9097 };
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
 const trusted = { repository: "acme/acme", workflow: "ortho" };
-const container = `ortho-l210-env-issuer-${process.pid}`;
+const services = Effect.runSync(Scope.make());
 const visible = (from: string) => !basename(from).startsWith(".");
-const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -66,21 +65,15 @@ const row = (rows: ReadonlyArray<string>, op: string) => rows.find((r) => new Re
 beforeAll(async () => {
   const dir = join(parent, "issuer");
   mkdirSync(dir);
-  const config = join(dir, "issuer.json");
   const claims = { sub: `repo:acme/acme:ref:refs/heads/main`, aud: ["ortho-logbook"], repository: trusted.repository, ref: "refs/heads/main", workflow: trusted.workflow };
-  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims }] }] }));
-  chmodSync(config, 0o644);
-  docker("rm", "-f", container);
-  const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, ISSUER_IMAGE);
-  expect(started.status, started.stderr).toBe(0);
-  for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await sleep(200);
+  await run(Issuer.start({ port: PORTS.issuer, dir, config: { tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims }] }] } }).pipe(Scope.provide(services)));
   const policy = { issuer, repository: trusted.repository, refs: ["refs/heads/main"], workflows: [trusted.workflow] };
   expect((await run(Environments.up({ root, name: "logbook", port: PORTS.logbook, policy }))).url).toBe(logbook);
 }, 600_000);
 
 afterAll(async () => {
   for (const name of ["production", "staging", "logbook"]) await run(Environments.down({ root, name }));
-  docker("rm", "-f", container);
+  await run(Scope.close(services, Exit.void));
   rmSync(parent, { recursive: true, force: true });
 }, 120_000);
 

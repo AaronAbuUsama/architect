@@ -7,7 +7,6 @@ import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@orthograph/prove";
-import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { Mounting } from "#modules/mounting/service.js";
@@ -69,11 +68,10 @@ const prove = Command.make(
     env: Flag.Literals("env", ["local", "test"]).pipe(Flag.withDefault("local")),
     root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
     port: Flag.Int("port").pipe(Flag.withDefault(8799)),
-    view: Flag.Boolean("view").pipe(Flag.withDefault(false)),
     empty: Flag.Boolean("empty").pipe(Flag.withDefault(false)),
     only: Flag.String("only").pipe(Flag.optional),
   },
-  ({ env, root, port, view, empty, only }) => {
+  ({ env, root, port, empty, only }) => {
     if (env === "test" && (empty || Option.isSome(only))) return fail("--empty and --only require --env local", 2);
     const proved = env === "test"
       ? attestation(root).pipe(
@@ -84,7 +82,7 @@ const prove = Command.make(
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
-      : Effect.scoped(Prove.run({ root, port, view, empty, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
+      : Effect.scoped(Prove.run({ root, port, empty, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
           Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
         );
@@ -201,30 +199,13 @@ const version = Command.make(
   ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: ortho version --next", 2)),
 );
 
-// `ortho telemetry view | stop | trace <id> | open <id>`: the local viewer, and a trace read from the files (O1).
-const open = (url: string) =>
-  Effect.sync(() => {
-    const [cmd, ...args] = process.platform === "darwin" ? ["open", url] : process.platform === "win32" ? ["cmd", "/c", "start", "", url] : ["xdg-open", url];
-    spawn(cmd!, args, { stdio: "ignore", detached: true }).on("error", () => undefined).unref();
-  });
+// `ortho telemetry trace <id>`: a trace read from the files a Collector wrote (O1); the portal's trace view is the page for it.
 const telemetryEnv = Flag.optional(Flag.String("env"));
 const telemetry = Command.make("telemetry").pipe(Command.withSubcommands([
-  Command.make("view", {}, () =>
-    Console.log("starting the viewer (the first start pulls its image once; it is large)").pipe(Effect.andThen(TelemetryCommand.view()), Effect.flatMap(print))),
-  Command.make("stop", {}, () => TelemetryCommand.stop().pipe(Effect.flatMap(print))),
   Command.make(
     "trace",
     { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
     ({ id, env, root }) => TelemetryCommand.trace({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(Effect.flatMap(print)),
-  ),
-  Command.make(
-    "open",
-    { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
-    ({ id, env, root }) =>
-      TelemetryCommand.open({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(
-        Effect.tap((said) => (said.open ? open(said.open) : Effect.void)),
-        Effect.flatMap(print),
-      ),
   ),
 ]));
 

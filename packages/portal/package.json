@@ -12,7 +12,8 @@
     "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
-    "@orthograph/logbook": "workspace:*"
+    "@orthograph/logbook": "workspace:*",
+    "@orthograph/services": "workspace:*"
   },
   "files": [
     "dist"

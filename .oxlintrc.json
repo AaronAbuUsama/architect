@@ -47,6 +47,12 @@
               "scope:language",
               "scope:host"
             ]
+          },
+          {
+            "sourceTag": "env:support",
+            "onlyDependOnLibsWithTags": [
+              "env:support"
+            ]
           }
         ],
         "allowCircularSelfDependency": true
@@ -79,14 +85,16 @@
               {
                 "sourceTag": "env:runtime",
                 "onlyDependOnLibsWithTags": [
-                  "env:runtime"
+                  "env:runtime",
+                  "env:support"
                 ]
               },
               {
                 "sourceTag": "env:build",
                 "onlyDependOnLibsWithTags": [
                   "env:build",
-                  "env:runtime"
+                  "env:runtime",
+                  "env:support"
                 ]
               },
               {
@@ -95,6 +103,12 @@
                   "scope:orthograph",
                   "scope:language",
                   "scope:host"
+                ]
+              },
+              {
+                "sourceTag": "env:support",
+                "onlyDependOnLibsWithTags": [
+                  "env:support"
                 ]
               }
             ],

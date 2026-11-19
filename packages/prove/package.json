@@ -24,6 +24,7 @@
     "@orthograph/chain-evm": "workspace:*",
     "@orthograph/generators": "workspace:*",
     "@orthograph/logbook": "workspace:*",
+    "@orthograph/services": "workspace:*",
     "nx": "24.0.3"
   },
   "files": [

@@ -24,15 +24,13 @@ export interface ProveApi {
     readonly empty?: boolean;
     /** Run one journey by its declared name, without recording proof verdicts. */
     readonly only?: string;
-    /** Start the local viewer first (it stays up: `telemetry stop` ends it) and, for every failure, print its trace id and link. */
-    readonly view?: boolean;
     /** The process environment, for the sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */
     readonly env?: Readonly<Record<string, string | undefined>>;
   }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;
 
   /**
-   * `ortho dev`: a local world on `port` that stays up while the scope is open. While the viewer runs it also has a
-   * collector, so its traces are in the viewer; the local environment's other sinks get what they are named for.
+   * `ortho dev`: a local world on `port` that stays up while the scope is open; the local environment's sinks get
+   * what they are named for.
    */
   readonly dev: (options: {
     readonly root: string;
