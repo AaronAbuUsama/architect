@@ -74,12 +74,24 @@ export const oneNamePerPerson = Blueprint.invariant.unique(Handle.fields.owner, 
 });
 ```
 
+```ts
+// blueprint/things/profile/invariants.ts
+import { Blueprint } from "orthograph";
+import { Profile } from "./thing.ts";
+
+// A handle has one page. No caller can break it (only `handle.claim` makes a profile), so it names no refusal:
+// a break is the app's own bug, and `profile.get` can find the page by its handle.
+export const onePagePerHandle = Blueprint.invariant.unique(Profile.fields.handle);
+```
+
 - **The key** is one field, or a non-empty tuple of fields for a composite key
   (`Blueprint.invariant.unique([Run.fields.mission, Run.fields.task], …)`). A tuple costs nothing more: D1 builds the
   same partial index over two columns, and work's `RunTaskClaimed` needs it.
 - **`while`** lists states of the thing's own machine. Left out, the rule holds in every state (and a thing with no
   machine can only leave it out).
-- **`refuse`** is an error declared in the same thing's `errors.ts`.
+- **`refuse`** is an error declared in the same thing's `errors.ts`. It is optional: a rule no caller can break (a
+  record only the app's own steps make, like a handle's page) names none, and a break is a defect naming the rule.
+  Such a rule still gets its index and its `findBy`, which is what Plugged In's `profile.get` needs (snag S-23).
 - **Typed references, no strings.** `Handle.fields.name` already exists. `machine.states.claimed` is new: a machine's
   `states` becomes a record of state references, the way `machine.moves.claim` is already a record of move references
   (`examples/plugged-in/blueprint/things/handle/verbs/claim.ts:10`). The declaring site keeps its array,
@@ -101,7 +113,7 @@ thing whose records it constrains (`needsAClaimedName` in `link/invariants.ts`).
 
 ### 3. How a refusal is linked
 
-The rule owns its refusal, once.
+The rule owns its refusal, once. (A rule with no `refuse` attaches nothing: a break is a defect, as in 5.)
 
 - **One owner.** An error is refused by at most one invariant, and an invariant's error may not also be listed in a
   verb's `errors:`. The compiler refuses both, naming the invariant: "HandleTaken is refused by the runtime for
@@ -152,8 +164,8 @@ const held = yield* steps.look(records.findBy(oneHolderPerName, name));
 
 It returns the one holder within the rule's scope or `undefined`, sees this call's own writes first (as G4's does,
 `language-effect/.../records/internal/unit.ts:34-50`), and takes the key's value (an object of the fields for a
-composite key). Plugged In needs it for reads, not refusals: `handle.resolve` (name to id) and `profile.get` (by
-`Handle.fields.name`).
+composite key). Plugged In needs it for reads, not refusals: `handle.resolve` (name to id, through
+`oneHolderPerName`) and `profile.get` (name to handle, then handle to page, through `onePagePerHandle`).
 
 ### 5. Where the runtime holds the rule
 
@@ -215,7 +227,7 @@ After this, every unique conflict at commit is another call's, and retrying is r
 
 | Now (Stage 1) | Later, each with its own decision step |
 |---|---|
-| `Blueprint.invariant.unique`, one field or a tuple, `while`, `refuse` | **`requires`**: across things (`LinkNeedsHandle`, work's four `Mission*`). Open: a key from the caller rather than a field (`link.add` carries no owner), and whether it holds only when a record is made or always, in which case `handle.release` breaks it and must refuse or cascade (`journeys/release-a-handle.ts:60-78`) |
+| `Blueprint.invariant.unique`, one field or a tuple, `while` and `refuse` optional | **`requires`**: across things (`LinkNeedsHandle`, work's four `Mission*`). Open: a key from the caller rather than a field (`link.add` carries no owner), and whether it holds only when a record is made or always, in which case `handle.release` breaks it and must refuse or cascade (`journeys/release-a-handle.ts:60-78`) |
 | `machine.states.<state>` references | **a bound on one record** (`taken + people ≤ places`): `SheetFull`, `AllowanceExceeded`, `SoldOut`. Open: these refusals carry a computed `left` |
 | `records.findBy(rule, value)` | an early refusal before the handler, for a creating move whose payload carries the key, so side-effecting steps don't run first |
 | the HAN-18 write order | field-level `writes` on database steps, so breakers are exact rather than conservative |
@@ -250,7 +262,7 @@ through the model. A refusal now comes from one of four places, not three (`docs
 | Runtime and stores | the invariants stop; the refusal set; the filled refusal; `refusal.invariant` and the deciding log; a missed breaker dies naming the rule; indexes named per rule from the model; `lostUnique` from the model; `findBy(rule, value)` | ST1.16 | 4 |
 | Outputs | docs: an `## Invariants` section and a "why" cell for each refusal (`render/internal/docs.ts:20-24,70`); MCP: the same sentence in the tool's description; the scaffold: the blank gone, the header says the runtime refuses it, by which rule (`projections/.../handlers/internal/words.ts:84-89`, `body.ts:21`, `header.ts:90-103`); `ortho add thing` writes `invariants.ts`; the portal's wire carries `invariants` on things and operations, and their hashes (`portal/.../wire/types.ts:27-67`) | ST1.17 | 4 ∥ |
 | Prove | coverage asks for each rule's refusal once, from any journey on any breaker, not once per operation; eval 9 takes the runtime's deciding log; prove's world holds the rules (today `findBy` dies there, `prove/.../journeys/internal/world.ts:112`) | ST1.18 | 5 |
-| Plugged In | `handle/invariants.ts` with both rules, replacing the one-line `unique:`; `HandleTaken` and `HandleAlreadyOwned` leave `claim`'s `errors:` and its handler | ST1.19 | 6 |
+| Plugged In | `handle/invariants.ts` (`oneHolderPerName`, `oneNamePerPerson`) and `profile/invariants.ts` (`onePagePerHandle`), replacing the three one-line `unique:` entries; `HandleTaken` and `HandleAlreadyOwned` leave `claim`'s `errors:` and its handler | ST1.19 | 6 |
 | G4's spelling retired | `unique` leaves `Blueprint.thing`, the compiler's `unique.ts`, the model's `unique` view and `Records`' `T["unique"]` typing | ST1.20 | 7 |
 | The canon | a new `invariants` page in layer 2 beside `machines`, owning the words invariant and unique; `blueprint.mdx`'s file list and placement table; "four places a refusal comes from" in `operations.mdx` and `machines.mdx`; `stores.mdx` and `data.mdx` re-quoted; the glossary; `docs/canon/check.mjs:35` accepts `ST` ids in `planned=` fences | ST1.21 | 8 |
 | The portal's pages | where a rule shows and how a refusal links to it, after Aaron answers the grill | ST1.22 | after M1.13 |
@@ -259,11 +271,23 @@ The slices are rows ST1.09 to ST1.22 of Stage 1 in [`../milestones.md`](../miles
 
 ### What Plugged In needs, and when
 
-**No G5 slice blocks the climb's first journey.** "Claim a handle" needs a handle's name unique while claimed, and
-G4's one-line `unique: { name: { while: ["claimed"] } }` on `handle/thing.ts` gives exactly that, with the runtime G5
-keeps. The Goal 3 lead adds that one line now, for `name` only, and spreads it nowhere else; `HandleAlreadyOwned` stays
-a hand-written check until then. ST1.19 swaps both for `invariants.ts` once ST1.16 to ST1.18 have landed, and only
-then does ST1.20 retire G4's spelling.
+**No G5 slice blocks the climb, but only because Plugged In carries three of G4's one-liners until ST1.19.** A
+handler finds records only by id or by a unique field, so every rule a handler must check or look up through has to be
+declared unique somewhere, and G4's spelling is the one that exists today. The first climb proved it: "claim a handle"
+stopped at 5 of 8 because `HandleAlreadyOwned` can't be hand-written while `Handle.owner` isn't unique (snag S-22), and
+`profile.get` can't find a page by its handle (S-23). So Plugged In declares, in Plugged In only (the Goal 3 lead's
+#139):
+
+```ts
+// examples/plugged-in/blueprint/things/handle/thing.ts
+  unique: { name: { while: ["claimed"] }, owner: { while: ["claimed"] } },
+// examples/plugged-in/blueprint/things/profile/thing.ts
+  unique: { handle: {} },
+```
+
+The handler still refuses `HandleTaken` and `HandleAlreadyOwned` itself, through G4's `findBy`, until ST1.19 swaps all
+three for the `invariants.ts` files in 1 once ST1.16 to ST1.18 have landed. Only then does ST1.20 retire G4's spelling.
+The spelling spreads nowhere else meanwhile.
 
 ### Who does what
 
