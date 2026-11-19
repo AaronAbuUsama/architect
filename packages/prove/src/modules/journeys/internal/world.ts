@@ -108,6 +108,8 @@ export const factsRecords = (facts: Facts, tableOf: (thing: Thing) => string | u
         const fields = yield* Schema.decodeUnknownEffect(structOf(thing.fields) as unknown as Codec)(row).pipe(Effect.orDie);
         return (typeof row["state"] === "string" ? { ...fields, state: row["state"] } : fields) as Instance;
       }),
+    // A role's rule reads by id only; a lookup by a unique field is a handler's (G4).
+    findBy: () => Effect.die(new Error("prove reads the world's rows by id; a lookup by a unique field is a handler's")),
     insert: () => Effect.die(new Error("prove reads the world; it never writes to it")),
     update: () => Effect.die(new Error("prove reads the world; it never writes to it")),
   }));

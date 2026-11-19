@@ -73,6 +73,11 @@ export class Store extends Context.Service<Store, {
 export class Records extends Context.Service<Records, {
   /** The instance of `thing` with this id, or undefined: what this call's own writes left it as, else the store's. */
   readonly find: (thing: Thing, id: string) => Effect.Effect<Instance | undefined>;
+  /**
+   * The one instance of `thing` holding `value` in a field it declares unique, within that field's scope, or undefined:
+   * what this call's own writes left it as, else the store's (G4). The store enforces the same rule at commit.
+   */
+  readonly findBy: <T extends Thing, K extends keyof T["unique"] & keyof FieldsOf<T>>(thing: T, field: K, value: FieldsOf<T>[K]) => Effect.Effect<Instance | undefined>;
   /** A new instance, in `state` when the thing has a machine (a move sets it otherwise). */
   readonly insert: <T extends Thing>(thing: T, fields: FieldsOf<T>, state?: string) => Effect.Effect<void>;
   /** Change some fields of an instance. Guarded by the version this call read it at. */
