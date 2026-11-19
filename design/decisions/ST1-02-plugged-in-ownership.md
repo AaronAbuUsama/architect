@@ -35,6 +35,12 @@ The scratch handlers looked a handle up by its name with `Store.list`, which a h
 `find`, `insert` and `update` by id. So the spec is satisfiable, but a climber who has only `src/` will stop at the first
 lookup by name (snag S-f in `examples/plugged-in/journeys/README.md`) until the framework gives handlers that lookup.
 
+## A released name's links (the lead, 19 November 2026)
+
+They stay the person's and stay editable: `linkOwner` is `link.owner === caller`, and a release gives up the address,
+not the links. No page shows them once the name stops resolving. Freezing them, or moving them with the name, would be
+a new declaration with its own journey; stage 1 needs neither.
+
 ## Rows this amends
 
 `design/milestones.md` M1.40 and M1.43 say "without sign-in" and "no sign-in": on `goal/stage-1` they now read with

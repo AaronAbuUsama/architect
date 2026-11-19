@@ -96,5 +96,8 @@ claim `aaron`, add three links, anyone reads the page. The rest, for the lead:
 
 - **Old links after a release.** `linkOwner` is `link.owner === caller`, so after aaron releases his name he can still
   `order` or `remove` the links he had on it (they stay `listed`, and no declaration says otherwise). Whether a released
-  name's links should freeze, go with the name, or stay editable is not in the declarations, so no step pins it. The
-  lead decides; the journey follows.
+  name's links should freeze, go with the name, or stay editable is not in the declarations, so no step pins it.
+  **Decided by the lead (19 November 2026):** they stay aaron's and stay editable, as the declarations already say. A
+  link belongs to the person who added it; a release gives up the address, not the person's links, and no page shows
+  them once the name stops resolving. Nothing new is declared, so no step is added for stage 1. Recorded in
+  `design/decisions/ST1-02-plugged-in-ownership.md`.
