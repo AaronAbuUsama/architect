@@ -177,3 +177,44 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Owner: Goal 3 lead; a small prove slice, check first. It doesn't block the climb: "claim a handle" (8 steps) runs
   from no world, and climbing it makes the worlds that the other journeys start from.
 - Status: open
+
+## S-22 · handle · "aaron cannot add a link before he has a page" and "aaron cannot claim a second name while he holds one": a handler can't find the caller's own handle
+- Hit: the climb of "claim a handle" (steps 3 and 7; 5 of 8 green with everything else written). `link.add` must refuse
+  `LinkNeedsHandle` when the caller holds no claimed name, and `handle.claim` must refuse `HandleAlreadyOwned` when the
+  caller holds one. Both need "the claimed handle whose `owner` is this person".
+- What: `Records` gives a handler `find` (by id) and `findBy` (by a declared unique field, G4), nothing else
+  (`packages/language-effect/src/modules/records/types.ts:73`). `owner` is not unique on `Handle`
+  (`examples/plugged-in/blueprint/things/handle/thing.ts:9` declares only `name`), so `findBy(Handle, "owner", person)` does
+  not type-check, and `Store.list` is not a handler's. Prove's output was clear (it named the step, the file and the
+  `BlankReached` death); the gap is in the spec and framework, not the report.
+- Needs: either (a) the declaration `unique: { name: ..., owner: { while: ["claimed"] } }` on `Handle`, which is the very
+  rule `HandleAlreadyOwned` states ("one person holds one name"), so both handlers use `findBy` and the store enforces it
+  at commit (the journey author's file; the spelling moves to `invariants.ts` under G5); or (b) a handler-side lookup on
+  any field (G4's option B, rejected there for the race). (a) fits G4 and is what the climber would write.
+- Owner: Goal 3 lead (declaration by the journey author, check first). The climber has left `HandleAlreadyOwned` out of
+  `src/handle/claim.ts` and `LinkNeedsHandle` blank in `src/link/add.ts` until it lands.
+- Status: open
+
+## S-23 · profile · a handler can't find a handle's page, so `profile.get` can't list its links
+- Hit: the climb of "claim a handle", step 6 ("the claim made a public page, with no links yet"). It is green only because
+  `profile.get` answers `links: []` without reading the page: the page is found by `Profile.handle` (the handle's id), and
+  `handle` is not a unique field, so no lookup reaches it. Nothing in this journey shows it; "add, order and remove a link"
+  and "anyone reads a public page" will.
+- What: the same gap as S-22, on `Profile.handle` (`examples/plugged-in/blueprint/things/profile/thing.ts`). `claim`
+  inserts the profile but no later handler can ask for it from the handle.
+- Needs: `unique: { handle: {} }` on `Profile` (one page per handle, in every state), so `findBy(Profile, "handle", id)` works.
+  Same owner and route as S-22. Until then `src/profile/get.ts` has a hard-coded empty list that the link journeys will
+  turn red.
+- Owner: Goal 3 lead.
+- Status: open
+
+## S-24 · climb · friction while climbing "claim a handle" (no framework fix needed to proceed)
+- A fresh worktree runs nothing until `pnpm install` (the first `ortho` call dies with `ERR_MODULE_NOT_FOUND` for
+  `orthograph`); the goal's prompt says nothing of it. A user's `ortho new` would not have this, a climber in a worktree does.
+- Prove prints about 400 lines and the journey's red steps come before the per-operation eval lists; the first screen is
+  the right one, but a climber filtering the output has to know to look for `journey … ✘`. Coverage lines ("reached by no
+  journey") fail the run too whenever `--only` runs one journey of seven, so "10 failing" stays after every step is green.
+- The scaffold's `Handlers.blank` placeholders gave the shape (step wrapping, refusal ifs) well; what it does not say is
+  which `Records` call to use for "is this name taken", so the climber read `records/types.ts` and `examples/acme`.
+- Status: open (for the lessons step: scaffold comment naming `Records.findBy` for unique fields; `--only` should not count
+  coverage against the journeys it excluded)
