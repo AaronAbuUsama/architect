@@ -177,7 +177,7 @@ The one allocator for `design/decisions/` off a goal branch (the `conductor` and
 the same list in its goal file. Taken from every file in `design/decisions/` on `main`, `m1`, `goal/stage-1` and every
 open remote branch, 20 November 2026. An ID is the part before the first `-` (`K16a` in `K16a-scaffold-build.md`).
 
-**On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines · D1, D2, D3 · E1 · F1, F2,
+**On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines, CI-speed · D1, D2, D3 · E1 · F1, F2,
 F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K19 · M0 · N1 · O1, O2 · P1 · R1 · S1.
 
 **Only on other branches:**
