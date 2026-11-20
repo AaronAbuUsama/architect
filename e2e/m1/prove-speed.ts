@@ -175,6 +175,10 @@ export interface Expected {
   readonly passes: boolean;
   /** When it does not: exactly the journeys that fail (default, all it ran). */
   readonly fails?: ReadonlyArray<string>;
+  /** Names skipped, when two journeys share a name and only one of them reruns (default: every name not rerun). */
+  readonly skipped?: ReadonlyArray<string>;
+  /** Step titles a rerun journey must be reported with, by name, where two journeys share it and the model alone cannot say which ran. */
+  readonly titles?: Readonly<Record<string, ReadonlyArray<string>>>;
   /** The operations whose evals it must judge again (an eval summary line for each, in the text). */
   readonly judges?: ReadonlyArray<string>;
   /** Lines, as `<operation> <eval> ✘`, that the text must hold: an eval that fails where no journey does. */
@@ -192,7 +196,7 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
   const found: Array<string> = [];
   const { report, out } = run;
   if (report === undefined) return ["no report was written: prove did not run"];
-  const skipped = sorted(want.all.filter((name) => !want.ran.includes(name)));
+  const skipped = sorted(want.skipped ?? want.all.filter((name) => !want.ran.includes(name)));
   const ran = report.journeys.map((j) => j.name);
   if (!same(ran, want.ran) || new Set(ran).size !== ran.length) found.push(`ran ${JSON.stringify(sorted(ran))}, expected exactly ${JSON.stringify(sorted(want.ran))}`);
   const changed = report.changed;
@@ -231,7 +235,7 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
   for (const line of want.evalFails ?? []) if (!new RegExp(`^${line.replace(/\./g, "\\.")}`, "m").test(out)) found.push(`the text has no line "${line}"`);
   // Each journey it ran is reported step by step, as the model declares them, and the ones that fail are the ones that must.
   for (const j of report.journeys) {
-    const titles = Object.values(want.map.journeys).find((m) => m.name === j.name)?.steps.map((s) => s.title);
+    const titles = want.titles?.[j.name] ?? Object.values(want.map.journeys).find((m) => m.name === j.name)?.steps.map((s) => s.title);
     if (titles === undefined || JSON.stringify(titles) !== JSON.stringify(j.steps.map((s) => s.name))) found.push(`journey ${j.name} is reported with steps ${JSON.stringify(j.steps.map((s) => s.name))}, the model declares ${JSON.stringify(titles)}`);
   }
   // A step's verdict agrees with its journey's: a journey passes when every step does, and fails when one does not.
@@ -247,7 +251,7 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
 
 /** A report and its text that `problems` accepts, for the controls to plant a wrong output into. */
 export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report" | "called" | "counts"> & { readonly report: Report & { readonly changed: Changed } } => {
-  const skipped = want.all.filter((name) => !want.ran.includes(name));
+  const skipped = want.skipped ?? want.all.filter((name) => !want.ran.includes(name));
   const why = want.fellBackOn !== null && want.fellBackOn.length === 0 ? "no record of an earlier prove" : `cannot place ${(want.fellBackOn ?? []).join(", ")}`;
   const fell = want.fellBackOn === null ? null : { reason: why, files: [...want.fellBackOn] };
   const headline = fell ? `prove --changed: proving all ${want.all.length} journeys: ${fell.reason}` : `prove --changed: proving ${want.ran.length} of ${want.all.length} journeys`;

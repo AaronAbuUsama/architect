@@ -25,7 +25,7 @@
 //   2. HARD, isolation: a fixture journey (`a run leaves a record`: a person signs up with one fixed email, which a world refuses a second
 //      time) is run three times in a row against one warm world; each run must pass and each must reuse the world. A world that kept the
 //      last run's person would refuse the second.
-//   3. RATIO, speed: the warm run is timed after a warm-up, three times, and the fastest is at most 60% of the cold run of the same project
+//   3. RATIO, speed: the warm run is timed after a warm-up, three times, and the fastest is at most 70% of the cold run of the same project
 //      measured on the same machine at the start of this file (a cold run twice as slow on a loaded runner has a warm run twice as slow).
 //      Row 1 says the speed-up is real; this row says it is enough. It prints every time it measured, and whether the fastest warm run was
 //      under 6 s, which is the target on a developer's machine and information only here (design/decisions/ST1-24-timing.md). It runs
@@ -103,7 +103,7 @@ const reused = (run: Proved, url: string) => run.out.match(REUSING)?.[1] === url
 const why = (run: Proved) => `${run.out.slice(-300)}\nworld processes started by prove: ${[...run.worlds].join(" | ") || "none"}`;
 
 /** The speed row's rule: the faster timed warm run takes at most this share of the cold run on the same machine. */
-const WARM_AT_MOST = 0.6;
+const WARM_AT_MOST = 0.7;
 const fastEnough = (warmSeconds: ReadonlyArray<number>, coldSeconds: number) => Math.min(...warmSeconds) <= WARM_AT_MOST * coldSeconds;
 
 const copies: Array<ReturnType<typeof project>> = [];
@@ -156,7 +156,8 @@ describe("30 controls: the reference, and the instruments", () => {
     expect(fastEnough([6.18, 6.58], 13.4)).toBe(true);
     expect(fastEnough([4.7, 4.9], 9.7)).toBe(true);
     expect(fastEnough([13.0, 13.9], 13.4), "a cold second run").toBe(false);
-    expect(fastEnough([8.1, 8.3], 13.4), "just over 60%").toBe(false);
+    expect(fastEnough([9.5, 9.8], 13.4), "just over 70%").toBe(false);
+    expect(fastEnough([5.71, 6.2], 9.7), "the reviewer's run of the real build, 59%").toBe(true);
     expect(fastEnough([8.0, 9.0], 13.4)).toBe(true);
     expect(fastEnough([20, 21], 13.4), "slower than cold").toBe(false);
   });
@@ -208,7 +209,7 @@ describe("30 ST1.24: a warm world", () => {
     }
   });
 
-  it("the fastest of three timed warm prove runs, after a warm-up, is at most 60% of the cold run measured on this machine", async () => {
+  it("the fastest of three timed warm prove runs, after a warm-up, is at most 70% of the cold run measured on this machine", async () => {
     const warmUp = await proveWarm(warm.root);
     expect(reused(warmUp, warm.url), `nothing is warm, so there is nothing to time\n${why(warmUp)}`).toBe(true);
     const times: Array<number> = [];

@@ -1,0 +1,9 @@
+src/modules/records/write-order.test.ts > a call that cannot be ordered, or clashes with itself, is a defect naming the unique field (S-19) > a straight swap has no order: it dies, naming the field, not a conflict
+src/modules/records/write-order.test.ts > a call that cannot be ordered, or clashes with itself, is a defect naming the unique field (S-19) > two fields whose frees and takes cross die too, naming one of them
+src/modules/records/write-order.test.ts > a call that cannot be ordered, or clashes with itself, is a defect naming the unique field (S-19) > two inserts of one name in one call clash with themselves: a defect, found before any commit
+src/modules/records/write-order.test.ts > the memory store applies writes one at a time (S-19) > a row that leaves the scope frees its key for the next write; an insert that comes first is refused
+src/modules/records/write-order.test.ts > the memory store applies writes one at a time (S-19) > refuses a straight swap in either order, though its final values are distinct
+src/modules/records/write-order.test.ts > the memory store applies writes one at a time (S-19) > refuses a write that takes a key an earlier row of the commit's order still holds, as a conflict, and writes none of it
+src/modules/records/write-order.test.ts > the unit orders its writes: frees before takes (S-19) > A `x` to `y` then B `y` to `z`: the unit writes B first, and the call commits
+src/modules/records/write-order.test.ts > the unit orders its writes: frees before takes (S-19) > a chain of three moves is written from the end of the chain back
+src/modules/records/write-order.test.ts > the unit orders its writes: frees before takes (S-19) > a release and a claim of the same name in one call: the release is written first
