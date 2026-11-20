@@ -36,10 +36,16 @@ one entry for each journey that calls the operation, titled with the journey's n
 from. Under it, every step of that journey that calls this operation, in order:
 
 - the step's title;
-- who calls, by cast name and kind (`aaron`, signed in);
-- the payload, field by field, with the journey's own values;
+- who calls, by cast name and kind (`aaron`, signed in); when the kind is a role, the role it names
+  (`owner`, as organization.owner);
+- the payload, field by field, with the journey's own values, and the request key when the step gives one;
 - what comes back: the refusal by name and code when the step checks a refusal (`refused with HandleTaken, HN-001`),
   otherwise the answer the step checks.
+
+An answer is shown by its content, not its JSON. A structured answer (a list, an object) is shown by its values: every
+literal in it appears in the step's text, and every reference in it, at any depth, is named in words from its path. A
+check against a pattern (an id shape) is shown as the pattern, in code. No value the model does not hold appears: a
+reference is never written as an id.
 
 From `examples/plugged-in/journeys/a-name-is-claimed-once.ts`, the `handle.claim` page reads, in substance:
 
@@ -52,10 +58,15 @@ Starts from the world `claimed`.
 
 - **the same request again answers the same handle and claims nothing.** `aaron` (signed in) calls with
   name `claimedname` and request key `first-claim`, and gets back the world's handle.
-- **a taken name is refused.** `bob` (signed in) calls with name `claimedname`, and is refused with HandleTaken, HN-001.
+- **a taken name is refused.** `bob` (signed in) calls with name `claimedname` and request key `bobs-claim`, and is
+  refused with HandleTaken, HN-001.
 - **another person's request key is not aaron's: still refused.** `bob` (signed in) calls with name `claimedname` and
   request key `first-claim`, and is refused with HandleTaken, HN-001.
+- **the refusal left bob free to claim a name of his own.** `bob` (signed in) calls with name `bobspage`, and is answered.
 ```
+
+The journey's fourth step calls `handle.resolve`, so it is on that page, not this one. A step that checks no particular
+answer is shown as answered, with no value.
 
 A value the journey takes from its starting world is held in the model as a reference (`{ "ref": ["world", "handle"] }`),
 not a value. The page names it in words from the reference's path ("the world's handle"), never as an invented value.
@@ -84,10 +95,8 @@ from a prove run's output.
 
 ## Supersedes
 
-- `design/grid/grid.json` (`journey.docs` greenMeans): "Each operation's page lists the journeys that cover it, as worked
-  examples drawn from the model." → "Each operation's page shows each journey that calls it as a worked example: every
-  step that calls the operation, with who calls, the payload and the answer or refusal, drawn from the model's journeys
-  (W2)."
+- design/grid/grid.json: "Each operation's page lists the journeys that cover it, as worked examples drawn from the model." → "Each operation's page shows each journey that calls it as a worked example: every step that calls the operation, with who calls, the payload and the answer or refusal, drawn from the model's journeys (W2)."
 
-The dated record `design/decisions/K14-the-grid.md:329` keeps its words with a "Superseded by W2" note. The copy in
-`spikes/mission-board/src/data/grid/grid.json` is a spike's snapshot and keeps its words.
+The dated record `design/decisions/K14-the-grid.md:329` keeps its words with a "Superseded by W2" note. The
+mission-board spike's copy of the grid (`spikes/mission-board/src/data/grid/grid.json`) is rewritten too, so the old
+words are left only in the dated records.
