@@ -10,6 +10,85 @@ gave was checked against its source; where the seed was wrong, the entry says so
 
 ---
 
+### 2026-11-20 · The author skill reached the goal branch eight hours after it merged, after both checks were written
+- **Kind:** failure.
+- **What happened:** The `author` skill, with its five proofs and "it can't be passed hollow", merged on `main` at
+  22:57 on 19 November, and the Scribe logged proposal 7 as applied. Goal 3's authors work from `goal/stage-1`. A
+  session reads its skills from its own checkout, and `goal/stage-1` didn't have the skill until the next merge of
+  `main`, at 06:47 on 20 November. Both checks pull requests that looped through Codex were cut from `goal/stage-1`
+  before then: PR 154 from 32166979 (01:18) and PR 166 from 852a6eab (06:23). No commit Codex reviewed on either had
+  the skill, and neither description shows the five proofs. Whether their authors read the skill some other way isn't known.
+- **Evidence:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129) merged as 84882931 (19 November 22:57); `goal/stage-1` first contains it at 18227b4f,
+  [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) (20 November 06:47); `git cat-file -e <commit>:.agents/skills/author/SKILL.md` fails on every commit
+  Codex reviewed: 743a5136 to 4ab11ac2 on PR 154, 4cb6dc19 to 3f921a19 on PR 166.
+- **Cost:** not measurable on its own; it overlaps the two entries below.
+- **Found by:** the Scribe, checking why proof 5 didn't bite before Codex.
+- **Recovery:** [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) merged `main` into `goal/stage-1`. `goal-3/st1-22-check` took it in at 06:52 (d7c225b1);
+  `goal-3/grid-evals-mcp-schema` hadn't when this was written.
+- **What changed:** nothing yet. The Scribe's "applied" meant "merged on `main`", not "in force where the work runs".
+  The same gap held for `builder-paths` and `cancel-closed`, which reached `goal/stage-1` two hours after `main` and
+  haven't reached `m1`.
+- **Pattern:** fixes that don't reach the working branch.
+- **Update, 20 November:** proposal 15 applied to the conductor skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+
+### 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again
+- **Kind:** failure.
+- **What happened:** ST1.22's check (check 28) reads the portal's rules section in Chromium. Its author planted three
+  controls before Codex: a reference page, one with Plugged In's words written in, and a broken page. Codex then found
+  four ways a wrong page still passed. A page with no Rules section skipped the ordering checks. A refusal dropped from
+  one operation passed while it showed on another. A rule rendered twice passed, because a `Map` kept the last row. Two
+  rows sharing one fragment id passed, so a refusal linked to the wrong rule. The last two are the same hole: the check
+  trusted an element existed, not that it was unique and pointed to its own target. None was a product bug.
+- **Evidence:** [PR 166](https://github.com/AaronAbuUsama/architect/pull/166): Codex at 06:32 (two findings, on 4cb6dc19), 06:39 (on 3363aa75) and 06:43 (on 3f921a19);
+  fixes 3363aa75 and 3f921a19, each with planted controls. The third was fixed in 30f923d0 (06:50), which asks for
+  exactly one wherever the contract says one: a fix of the whole family. Codex's next review, of d7c225b1, was clean.
+- **Cost:** three rounds with findings and three fix commits, on a first commit of 331 lines.
+- **Found by:** Codex.
+- **Recovery:** each finding planted as a failing control, then fixed; the third with a rule for its whole family.
+- **What changed:** nothing yet; proposal 14.
+- **Pattern:** checks a wrong output can pass.
+- **Update, 20 November:** proposal 14 applied to the `author` skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+
+### 2026-11-20 · A grid check took sixteen Codex rounds over four hours, each finding one more wrong output that passed
+- **Kind:** failure.
+- **What happened:** The grid's check that an MCP tool's output schema and the SDK's field types match the model went
+  through 18 Codex reviews. Sixteen had findings: 22 in all, 18 of them a wrong output that passed, 4 a right one
+  refused. None was a product bug. Before Codex, the author had planted a long list of wrong schemas and types. Codex
+  kept finding the next one of a kind already met. Seven findings, in rounds 1 to 15, were an SDK type wider than the
+  model: an array, a union, `undefined`, `true` for a number, an intersection, an extra member, a call signature. Those
+  stopped only when the check compared the whole type with the model. Six findings, in rounds 1 to 16, judged one
+  sample where the runtime gives many: one refusal status, optional fields left out, role-private fields left out, one
+  state, the first answer only. Those stopped when the check judged every recorded answer. One finding was circular:
+  the expected value came from the schema being judged.
+- **Evidence:** [PR 154](https://github.com/AaronAbuUsama/architect/pull/154): 18 "@codex review" requests from 01:30 to 06:20; 22 Codex comments, the first at 01:32
+  (on 743a5136) and the last finding at 05:48 (on ec1863dc); clean reviews at 06:16 and 06:22. Fixes include
+  489c8cd3, 73e420e3, 85d714c1, ffb76543, cfeafae3, dc3cee50 and 7c04d0c3. Round 9's false red was recorded as a known
+  gap in `design/later.md`, not fixed.
+- **Cost:** 4 hours 15 minutes from the first review to the last finding, and 23 commits, for one check.
+- **Found by:** Codex.
+- **Recovery:** each finding planted as a failing case, then fixed; the two big families closed only when the check
+  was rewritten to judge the whole type and every answer.
+- **What changed:** nothing yet; proposal 14.
+- **Pattern:** checks a wrong output can pass.
+- **Update, 20 November:** proposal 14 applied to the `author` skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+
+### 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending
+- **Kind:** near miss.
+- **What happened:** `codex-finished` reads Codex's summary comment through `tools/ci/codex-state.sh`. When Codex ran
+  only a security review, the script reported success but named `-` as the reviewed commit, because it read only the
+  code review's commit. The workflow then found that `-` was not the head and left the required status pending, though
+  the review had finished. A pull request reviewed that way could not have merged until someone asked for a second
+  review. Codex found it at 23:17 while reviewing the merge of `main` into `goal/stage-1`, which carried the script
+  there. The fix took the commit from whichever review completed, with three new cases in `tools/ci/ci.test.sh`, one
+  of which fails on the old script. It was committed five minutes later and merged at 00:10.
+- **Evidence:** Codex's P2 comment on `tools/ci/codex-state.sh` in [PR 145](https://github.com/AaronAbuUsama/architect/pull/145) (23:17); the fix, commit 8d892163 (23:22),
+  in [PR 146](https://github.com/AaronAbuUsama/architect/pull/146), merged 20 November 00:10 as 5900f758.
+- **Cost:** none known.
+- **Found by:** Codex, reviewing a merge pull request.
+- **Recovery:** fixed and merged within an hour.
+- **What changed:** the guard's own test now covers a security-only review.
+- **Pattern:** CI that can't tell us anything.
+
 ### 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes
 - **Kind:** failure.
 - **What happened:** Since 21:54 `main` requires a pull request to contain the current `main` before it merges. Most
@@ -33,6 +112,11 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet. Raised with the conductor at 22:50 (session only) with three options: a docs-only fast path that
   skips the heavy jobs as passing (the way `builder-paths` skips), `strict` off on `main`, or a merge queue.
 - **Pattern:** CI that can't tell us anything.
+- **Update, 20 November:** the first option applied in [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) (merged 06:11 as ac457483; record
+  `design/decisions/CI-docs-fast-path.md`). A new `changes` job flags a pull request whose every path is under `design/`,
+  or is a `*.md` outside `packages/`, `e2e/` and `examples/`. On that flag `e2e-layer1` and `e2e-layer2` skip, and a
+  skip passes a required check. `check` and `e2e-m0` still run, and `main` stays strict. A merge queue isn't offered
+  on a repository a person owns, only on one an organization owns.
 
 ### 2026-11-19 · A lint boundary test timed out on a docs-only pull request
 - **Kind:** failure.
@@ -47,6 +131,10 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** reran the failed job.
 - **What changed:** nothing yet. No flake list exists, so the next one is rerun too.
 - **Pattern:** CI that can't tell us anything.
+- **Update, 20 November:** it failed `check` a second time, on PR 147 (5216 ms, run
+  [44638137760](https://github.com/AaronAbuUsama/architect/actions/runs/44638137760/attempts/1)). [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) gives the test's
+  `describe` a 30-second timeout and runs `oxlint` directly instead of through `pnpm exec`, which started Node a
+  second time per case. Assertions and fixtures are unchanged. Still no flake list.
 
 ### 2026-11-19 · The first journey climbed from 0 to 8 of 8 steps in four recorded runs, each run written by the tool
 - **Kind:** win.
@@ -221,7 +309,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Found by:** 🔍 reviewer.
 - **Recovery:** the check was strengthened before the build.
 - **What changed:** `e2e/m1/25-unique-fields.test.ts` (25.5) and the projections `unique.test.ts`.
-- **Pattern:** fakes that diverge from the real service.
+- **Pattern:** fakes that diverge from the real service; checks a wrong output can pass.
 
 ### 2026-11-19 · Two different decisions were both named G3
 - **Kind:** near miss.
@@ -239,6 +327,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing general. Decision IDs are still picked by whoever writes one, on whatever branch.
 - **Pattern:** parallel work collides.
 - **Update, 19 November:** the conductor now hands out decision IDs from one list on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
+- **Update, 20 November:** PR 129 made the rule, but the list itself didn't exist until [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) added it to
+  `design/handoff.md` under "Decision IDs", with every ID used on `main`, `m1`, `goal/stage-1` and the open branches.
 
 ### 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy
 - **Kind:** win, with a near miss inside it.

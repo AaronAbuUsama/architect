@@ -19,6 +19,8 @@ skill change: the conductor, or the thread that owns the skill, does.
 | 11 | One records suite runs against both stores | Fakes that diverge from the real service | check | medium |
 | 12 | Push before you end a turn | State lost across sessions | skill change | small |
 | 13 | Lint rules for the four unenforced code rules | Rules with no check behind them | check | medium |
+| 14 | Plant a wrong output for every way a check reads, pass it through a hostile reviewer, and fix families, not instances | Checks a wrong output can pass | skill change | small |
+| 15 | Applied means it reached the branches where the work runs | Fixes that don't reach the working branch | skill change | small |
 
 ---
 
@@ -174,7 +176,7 @@ jobs:
 And merge `main` into `m1` (or cherry-pick 352f316a), so m1's pushes stop cancelling each other.
 
 **Applies it:** the conductor. **Partly applied, 19 November:** timeouts on `main` ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)); timeouts and
-per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), merged 21:05). **Applied, 19 November:** the closed-PR workflow, `cancel-closed`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). Merging `main` into `m1` is still to do.
+per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), merged 21:05). **Applied, 19 November:** the closed-PR workflow, `cancel-closed`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). Merging `main` into `m1` is still to do. `goal/stage-1` has it since [PR 145](https://github.com/AaronAbuUsama/architect/pull/145).
 
 ## 5. "Stop what you started, by PID" moves into AGENTS.md, with an end-of-turn step
 
@@ -240,7 +242,7 @@ And `AGENTS.md`, "How work flows":
 ```
 
 **Applies it:** the conductor, with the checks author owning the exact path list.
-**Applied, 19 November:** the `builder-paths` job in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130), for branches ending in `-build`. Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them.
+**Applied, 19 November:** the `builder-paths` job in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130), for branches ending in `-build`. Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them. **Update, 20 November:** `goal/stage-1` runs and requires it since [PR 145](https://github.com/AaronAbuUsama/architect/pull/145); `m1` not yet.
 
 ## 7. An `author` skill: prove each new check reachable, satisfiable and consistent first
 
@@ -403,3 +405,96 @@ Turn each on as `warn` first, ratchet the existing breaches into a list like `e2
 
 **Applies it:** a builder thread, checks first by an author.
 **Applied, 19 November:** [PR 132](https://github.com/AaronAbuUsama/architect/pull/132), `design/decisions/P1-code-rules.md`, each rule from a baseline that only shrinks.
+
+## 14. Plant a wrong output for every way a check reads, pass it through a hostile reviewer, and fix families, not instances
+
+**Fixes:** two entries from 20 November, both checks pull requests into `goal/stage-1` with no product bug found:
+PR 154 (sixteen Codex rounds, 22 findings, four hours) and PR 166 (three rounds, four findings, the third a repeat of
+the second's kind). Neither author had the `author` skill in their checkout (proposal 15), so these loops don't show
+proof 5 failing. They show that a long list of planted cases, without a method, didn't stop Codex: PR 154's author
+planted many before the first review, and Codex found the next one every round. Proof 5 as written asks for one
+cheapest wrong implementation, which is less than that list.
+
+**Does it hold up?** The 22 wrong outputs that passed, across both pull requests, each fall in one row of this table:
+
+| A wrong output that… | PR 154 | PR 166 | Total |
+|---|---|---|---|
+| is right on one input and wrong on another (one sample, one state, an optional or role-private field, the first answer; one operation of many) | 6 | 1 | 7 |
+| widens a type (an array, a union, `null`, `undefined`, another literal) | 5 | 0 | 5 |
+| leaves a part out (one required field or element at a time) | 2 | 1 | 3 |
+| adds to it (an extra member, signature or intersected part) | 3 | 0 | 3 |
+| repeats it, or points two at one target | 0 | 2 | 2 |
+| sets the value the check expects (the expected value came from the output judged) | 1 | 0 | 1 |
+| is misread by the check (`null` read as the text `"null"`) | 1 | 0 | 1 |
+
+Five generic ways cover 20 of the 22. The two in the last rows are about where the check gets its evidence. The
+table is drawn from these same findings, so it's a hypothesis: that an author working through it, and a hostile pass
+after, would have planted these cases is not shown. The next checks pull request is the test, and its entry records
+the Codex rounds with findings. The repeats are what cost the time. Seven of PR 154's findings were one
+family (a type wider than the model) in rounds 1 to 15, and six were another (one sample of many) in rounds 1 to 16.
+Each family ended only when the check was rewritten to judge the whole: the whole type against the model, every
+recorded answer. PR 166's loop ended the same way: its third fix asked for exactly one wherever the contract says one,
+and the next review was clean. A hostile pass before Codex already worked once: a 🔍 found the unique-field checks could pass on a
+hand-written index, before any build.
+
+**Change:** `.agents/skills/author/SKILL.md`:
+
+```diff
+@@ before you hand a check to a builder
+-Prove all five, and paste the runs into your pull request:
++Prove all six, and paste the runs into your pull request:
+@@ proof 5, and a new proof 6
+-5. **It can't be passed hollow.** Name the cheapest wrong implementation that would pass it (an app-level lookup
+-   instead of the generated index, an answer hard-coded for the journey's one input) and make the check refuse it.
++5. **It can't be passed hollow.** List what the check reads: each field, element, row, link and type, and each input
++   it judges (every recorded answer, every state, every role). For each, plant one wrong output for every way below
++   that applies, and show it fails:
++   - right on one input, wrong on another: the first answer only, one state, a field only some roles see
++   - a wider type: a union, `null`, `undefined`, a list, another literal
++   - one required part left out, one at a time
++   - something added: an extra member, field, row or signature
++   - something repeated, or two pointing at one target
++   The check's expected values come from the model or a recording, never from the output it judges. Paste the table,
++   each thing read against each way, with the planted case or "doesn't apply", in the pull request. Where things of
++   one kind repeat (twenty fields of one type), plant each way once for the kind and say which it stands for.
++6. **A hostile pass, before Codex.** A subagent that didn't write the check gets the table and tries to pass the
++   check with a wrong output. Each one that passes becomes a row, planted, before the first "@codex review".
+
+@@ review findings
+ ## Review findings
+
+ A review finding becomes one planted check that fails first. Then the builder fixes it, and a fresh 🔍 reviews the fix.
++
++A finding on your own check is planted with its whole family: the finding and every sibling in its row of the table.
++When a second finding lands in a row that already had one, stop patching. Rewrite the check to judge the whole thing
++(every input, the whole type against the model), then plant the row again.
+```
+
+And "the five proofs" becomes "the six proofs" in "Finished when" and in the ✍️ Author row of
+`.agents/skills/threads/SKILL.md`.
+
+**Applies it:** the conductor, or the thread that owns the skills, with the Goal 3 lead. The test: on the next checks
+pull request, count the Codex rounds with findings.
+**Applied, 20 November:** by the Scribe at the conductor's request, the skills' owner being archived, in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169). On `main`;
+reaches `goal/stage-1` when `main` is next merged into it.
+
+## 15. Applied means it reached the branches where the work runs
+
+**Fixes:** one entry. The `author` skill merged on `main` at 22:57 on 19 November and reached `goal/stage-1` at 06:47
+on 20 November, after both checks above were written. `builder-paths` and `cancel-closed` took two hours to reach
+`goal/stage-1` and haven't reached `m1`.
+
+**Change:** `.agents/skills/conductor/SKILL.md`, beside landing a pull request:
+
+```diff
++- **A process change lands everywhere work runs.** When a skill, AGENTS.md or a CI guard lands on `main`, merge `main`
++  into each live goal branch the same hour, and tell its lead to have open branches merge their base.
+```
+
+And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `goal/stage-1` at …; on `m1` at …".
+`m1` still lacks PR 130's guards.
+
+**Applies it:** the conductor. The Scribe's half is in this change.
+**Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169),
+widened to milestone branches (`m1` lacks PR 130's guards) and worded "within the hour, by its lead". On `main`;
+reaches `goal/stage-1` and `m1` when `main` is next merged into them.

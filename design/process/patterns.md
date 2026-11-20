@@ -9,9 +9,10 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 
 | Pattern | Entries | Failures | Status | Proposal |
 |---|---|---|---|---|
+| Checks a wrong output can pass | 3 | 2 | partly covered | 14 (applied) |
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
 | Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
-| CI that can't tell us anything | 10 | 8 | partly covered | 4 (applied) |
+| CI that can't tell us anything | 11 | 8 | partly covered | 4 (applied) |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 (applied) |
 | Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
 | Found before building, or after | 12 | 3 | partly covered | 7 (applied) |
@@ -21,12 +22,31 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | One fact, many hand-kept copies | 4 | 4 | partly covered | 10 (applied) |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 (applied) |
+| Fixes that don't reach the working branch | 1 | 1 | partly covered | 15 (applied) |
 | Rules with no check behind them | 1 | 1 | partly covered | 13 (applied) |
 | Briefs that miss context | 2 | 0 | open, small | none yet |
 | Secrets in output | 1 | 0 | open, small | none yet |
 | Evidence that overclaims | 1 | 1 | covered | none |
 
 ---
+
+## Checks a wrong output can pass
+
+A check written before the build lets some wrong output through, and a review finds the holes one at a time. Each
+round's fix waits on the next review, so the cost is the loop, not any one hole. The findings are in the check, never
+the product.
+
+Entries:
+- 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again (failure)
+- 2026-11-20 · A grid check took sixteen Codex rounds over four hours, each finding one more wrong output that passed (failure)
+- 2026-11-19 · A 🔍 found that the unique-field checks could be passed without the real index (win)
+
+**Covers it today:** the `author` skill's proof 5, "It can't be passed hollow" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)), which asks for one
+cheapest wrong implementation, on `goal/stage-1` only since 06:47 on 20 November, after both loops began; planting each
+review finding as a failing case. Proposal 14 in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169): a table of what the check reads against five ways a wrong
+output passes, a hostile pass before Codex, and a family rewritten, not patched, once it repeats.
+
+**Gap:** untested until the next checks pull request; its Codex rounds with findings are the measure.
 
 ## Reviews miss runtime defects
 
@@ -78,6 +98,7 @@ about 182 runner-hours were spent: 90.5 in jobs that passed, 50.5 in jobs that f
 m1's longest red lasted 5 hours 47 minutes.
 
 Entries:
+- 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending (near miss)
 - 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes (failure)
 - 2026-11-19 · A lint boundary test timed out on a docs-only pull request (failure)
 - 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (win)
@@ -90,13 +111,14 @@ Entries:
 - 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
 **Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102) and on `m1`
-(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main`, reaching `m1` and `goal/stage-1` when `main` is merged in; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
-item 8.
+(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main` and, since
+[PR 145](https://github.com/AaronAbuUsama/architect/pull/145), on `goal/stage-1`; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); a docs-only pull request
+skips the layer gates, and the flaky lint test has a 30-second timeout ([PR 160](https://github.com/AaronAbuUsama/architect/pull/160)); reviewer item 8.
 
-**Gap:** `m1` has no ratchet. No flake list exists, so a flake is rerun rather than fixed or quarantined (the lint
-boundary test, 19 November). The `check` job has no ratchet, so it merged red six times in an hour. And `strict` on
-`main` reruns all of CI for every PR each time another lands, docs-only ones too: one docs PR ran five times. Raised
-with the conductor on 19 November.
+**Gap:** `m1` has no ratchet, and no `cancel-closed` until `main` is merged into it. No flake list exists, so the next
+flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it merged red six times in an hour.
+`strict` on `main` still reruns `check` and `e2e-m0` for every pull request each time another lands, and code pull
+requests still rerun everything.
 
 ## Shared machine and stray processes
 
@@ -191,10 +213,11 @@ Entries:
 - 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
 **Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks." The
-`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`.
+`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that
+touches them; required on `main`, and on `goal/stage-1` since `main` was merged into it
+([PR 145](https://github.com/AaronAbuUsama/architect/pull/145), 19 November 23:58).
 
-**Gap:** the guard reaches only branches named `-build`, and `m1` and `goal/stage-1` run it once `main` is merged into
-them. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
+**Gap:** the guard reaches only branches named `-build`, and `m1` doesn't run it until `main` is merged into it. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
 
 ## Talking to Aaron, and showing unchecked work
 
@@ -263,6 +286,20 @@ Entries:
 `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 **Gap:** the rule is written; watching for work that lives only in a worktree.
+
+## Fixes that don't reach the working branch
+
+A process fix lands on `main` and is logged as applied, while the work it's for runs on a goal branch that doesn't
+have it yet.
+
+Entries:
+- 2026-11-20 · The author skill reached the goal branch eight hours after it merged, after both checks were written (failure)
+
+**Covers it today:** the conductor skill has `main` merged into each live goal and milestone branch within the hour
+of a process change (proposal 15, [PR 169](https://github.com/AaronAbuUsama/architect/pull/169)).
+
+**Gap:** it's a rule with no check. `m1` still lacks `builder-paths` and `cancel-closed`. The Scribe logs where each
+change reached.
 
 ## Rules with no check behind them
 
