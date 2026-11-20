@@ -2,16 +2,19 @@
 # Join the e2e-m1 shards' reports into the one report and hook-error file the ratchet reads (design/decisions/CI-speed.md).
 # Each shard runs a quarter of e2e/m1 and uploads `m1-report.json` (vitest's JSON report) and `m1-errors.json`
 # (e2e/ratchet/reporter.ts's hook errors); download-artifact puts each shard's pair in its own folder under <dir>.
-#   tools/ci/m1-reports.sh <dir> <shards> <out>
+#   tools/ci/m1-reports.sh <dir> <shards> <files> <out>
 # Writes <out>/m1-report.json (every shard's test files) and <out>/m1-errors.json (every shard's hook and unhandled
 # errors), for `node e2e/ratchet/check.ts <out>/m1-report.json e2e/m1/expected-failing.txt <out>/m1-errors.json`.
 # Fails, writing nothing, unless there are exactly <shards> of each file, every report has its test files, every errors
-# file is the reporter's, and no test file was run by two shards. A missing shard can never read as a smaller green run.
+# file is the reporter's, no test file was run by two shards, and together they ran <files> test files (the count of
+# e2e/m1/*.test.ts). A missing shard or a dropped file can never read as a smaller green run.
 set -euo pipefail
 
-dir="${1:?usage: m1-reports.sh <dir> <shards> <out>}"
-shards="${2:?usage: m1-reports.sh <dir> <shards> <out>}"
-out="${3:?usage: m1-reports.sh <dir> <shards> <out>}"
+usage="usage: m1-reports.sh <dir> <shards> <files> <out>"
+dir="${1:?$usage}"
+shards="${2:?$usage}"
+files="${3:?$usage}"
+out="${4:?$usage}"
 
 fail() { echo "::error::m1-reports: $1"; exit 1; }
 
@@ -31,6 +34,8 @@ for file in "${errors[@]}"; do
 done
 twice=$(jq -rs '[.[].testResults[].name] | group_by(.) | map(select(length > 1) | .[0]) | .[]' "${reports[@]}")
 [ -z "$twice" ] || fail "run by two shards: $twice"
+joined=$(jq -s '[.[].testResults[].name] | length' "${reports[@]}")
+[ "$joined" -eq "$files" ] || fail "the shards ran $joined test files, and there are $files"
 
 mkdir -p "$out"
 jq -s '{testResults: (map(.testResults) | add)}' "${reports[@]}" > "$out/m1-report.json"

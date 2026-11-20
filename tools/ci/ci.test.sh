@@ -130,6 +130,10 @@ r=$(repo); mkdir -p "$r/.github/workflows"; echo d > "$r/.github/workflows/ci.ym
 expect "docs-only: a workflow is not docs" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/notes.md"; commit "$r"; git -C "$r" mv design/notes.md src/notes.ts; commit "$r"
 expect "docs-only: moving a file out of design/ is not docs" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/heroui-pro-notes.md"; commit "$r"
+expect "docs-only: a doc named for HeroUI Pro is not docs (check 15 scans paths)" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/design"; echo 'HEROUI_AUTH_TOKEN=abcdefghijklmnop' > "$r/design/setup.md"; commit "$r"
+expect "docs-only: a doc that adds a line naming the token is not docs (check 15 scans text)" 0 docs "$r" false
 r=$(repo)
 expect "docs-only: an empty diff is not docs" 0 docs "$r" false
 r=$(repo); echo d > "$r/README.md"; commit "$r"
@@ -255,7 +259,7 @@ shard() { # <dir> <n> <test file...>; writes shard n's report (one passing test 
   printf '%s\n' "$@" | jq -R '{name: ., status: "passed", assertionResults: [{title: "t", status: "passed"}]}' | jq -s '{testResults: .}' > "$dir/m1-report.json"
   echo '{"suiteErrors":[],"unhandled":[]}' > "$dir/m1-errors.json"
 }
-join() { "$here/m1-reports.sh" "$1" 2 "$1/out"; }
+join() { "$here/m1-reports.sh" "$1" 2 "${2:-2}" "$1/out"; }
 d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
 expect "m1-reports: two shards join" 0 join "$d"
 expect "m1-reports: the joined report has both files" 0 jq -e '.testResults | length == 2' "$d/out/m1-report.json"
@@ -267,6 +271,8 @@ d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 
 expect "m1-reports: a file run by two shards fails" 1 join "$d"
 d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts; echo '{}' > "$d/m1-report-2/m1-report.json"
 expect "m1-reports: a report without test files fails" 1 join "$d"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
+expect "m1-reports: a file no shard ran fails" 1 join "$d" 3
 d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
 echo '{"suiteErrors":[{"name":"/e2e/m1/b.test.ts","path":[]}],"unhandled":["boom"]}' > "$d/m1-report-2/m1-errors.json"
 join "$d" > /dev/null

@@ -31,4 +31,15 @@ if [ -n "$changed" ]; then
   done <<< "$changed"
 fi
 
+# Check 15 (e2e/m1/15-portal-ui-seam.test.ts) scans every tracked file, docs included, for a path named for HeroUI Pro and
+# a literal licence token. A docs-only pull request skips it, so one that names a path for Pro or adds a line naming the
+# token runs everything (design/decisions/CI-speed.md).
+if [ "$docs_only" = true ]; then
+  if grep -qi 'heroui-pro' <<< "$changed"; then
+    docs_only=false; echo "docs-only: no, a changed path is named for HeroUI Pro." >&2
+  elif git diff --no-renames -U0 "$base...$head" | grep '^+' | grep -q 'HEROUI_AUTH_TOKEN'; then
+    docs_only=false; echo "docs-only: no, an added line names HEROUI_AUTH_TOKEN." >&2
+  fi
+fi
+
 echo "docs_only=$docs_only"

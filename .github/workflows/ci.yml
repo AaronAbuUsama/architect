@@ -443,7 +443,7 @@ jobs:
       - name: The ratchet over every shard
         if: needs.e2e-m1-shard.result == 'success'
         run: |
-          tools/ci/m1-reports.sh tmp/m1-shards 4 tmp
+          tools/ci/m1-reports.sh tmp/m1-shards 4 "$(find e2e/m1 -name '*.test.ts' | wc -l)" tmp
           node e2e/ratchet/check.ts tmp/m1-report.json e2e/m1/expected-failing.txt tmp/m1-errors.json
 
   # Goal 3's climbability check (`e2e/climb/README.md`): `ortho prove` on planted wrong handlers must name the journey and
