@@ -6,4 +6,4 @@ import { Pages } from "#modules/pages/service.js";
 import "./portal.css";
 
 const root = document.getElementById("root");
-if (root !== null) createRoot(root).render(createElement(Pages.App, { pathname: location.pathname }));
+if (root !== null) createRoot(root).render(createElement(Pages.App, { pathname: location.pathname, search: location.search }));
