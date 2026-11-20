@@ -16,7 +16,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { Effect } from "effect";
-import { Portal, Wire } from "@orthograph/portal";
+import { ServedPortals } from "../../served-portal/service.ts";
 import { FileSource } from "@orthograph/prove";
 import { Evidence } from "./modules/evidence/service.ts";
 import type { Observed, Ports } from "./modules/evidence/types.ts";
@@ -83,15 +83,15 @@ const loadModel = () => {
   return model ?? fail([`no generated/model/model.json in ${project}: run \`ortho generate\` there first`]);
 };
 
+/** Why the portal could not be read, said once each (K19): the served portal is how a person reads it, and until the split there is none. */
+const told = new Set<string>();
+const unavailable = (message: string) => { if (!told.has(message)) { told.add(message); process.stderr.write(`portal: ${message}\n`); } };
+
 const portalPort = (route: string): Effect.Effect<string | undefined> => {
   const wire = readJson<unknown>(join(project, "generated/portal/blueprint.json"));
-  if (wire === undefined) return Effect.succeed(undefined);
-  return Wire.decode(wire).pipe(
-    Effect.flatMap((blueprint) => Portal.handle({ blueprint, reader: null, bundleRevision: null }, new Request(`http://portal.test${route}`))),
-    Effect.flatMap((response) => (response.status === 200 ? Effect.promise(() => response.text()) : Effect.succeed(undefined))),
-    Effect.orElseSucceed(() => undefined),
-  );
+  return wire === undefined ? Effect.succeed(undefined) : (pages ??= ServedPortals.pages(wire, undefined, unavailable))(route);
 };
+let pages: ReturnType<typeof ServedPortals.pages> | undefined;
 
 const spansPort = (): Effect.Effect<ReadonlyArray<SpanView> | undefined> => {
   if (!existsSync(telemetryPath)) return Effect.succeed(undefined);
@@ -137,7 +137,7 @@ const runCommand = async () => {
   });
   // Every other cell is judged over the whole project's outputs, gathered once, and only the outputs a switched-on cell needs.
   const wanted = new Set(projectList.cells.map((c) => c.cell.split(".")[1] as OutputId));
-  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node }), wanted }));
+  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node, onUnavailable: unavailable }), wanted }));
   const projectReport = evidence === undefined ? Grid.run<undefined>({ list: projectList, evals: [], evidence: () => undefined, revision: sha, environment: "local" })
     : Grid.run({ list: projectList, evals: ProjectEvals.evals, evidence: () => evidence, revision: sha, environment: "local" });
   const report = Grid.combine([refusalReport, projectReport], sha, "local");
@@ -145,6 +145,7 @@ const runCommand = async () => {
   writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
   const ratchet = Grid.ratchet(report, loadExpected());
   say([...Grid.lines(report), `verdicts written to ${outPath}`, ...Grid.ratchetLines(ratchet)]);
+  await ServedPortals.closeAll();
   process.exit(ratchet.ok ? 0 : 1);
 };
 
@@ -176,7 +177,7 @@ const captureCommand = async () => {
   const out = resolve(option("out") ?? fail(["capture needs --out <folder>"]));
   const withRun = argv.includes("--run");
   const wanted = new Set<OutputId>(withRun ? ["portal", "cli", "mcp"] : ["portal"]);
-  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node }), wanted }));
+  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node, onUnavailable: unavailable }), wanted }));
   if (evidence === undefined) return fail([`no generated/model/model.json in ${project}`]);
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
@@ -188,6 +189,7 @@ const captureCommand = async () => {
     const spans = (evidence.spans ?? []).filter((s) => s.name !== "BATCH" && s.name !== "sqlite" && !seen.has(shape(s)) && seen.add(shape(s)));
     writeFileSync(join(out, "run.json"), `${JSON.stringify({ cli: evidence.cli, mcp: evidence.mcp, spans, prove: evidence.prove }, null, 1)}\n`);
   }
+  await ServedPortals.closeAll();
   return say([`captured ${Object.keys(evidence.files).length} files, the portal${withRun ? " and a run" : ""} into ${out}`]);
 };
 

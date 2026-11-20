@@ -25,13 +25,13 @@
 //     exits. One trace per call: the operation's span `receipt.stamp` (attribute `operation`), and as its children
 //     `receipt.stamp.prepare` then `receipt.stamp.seal` (attribute `step.kind` `wait`), none ending in error.
 //  6. Where "the portal" reads spans. The portal package reads a blueprint and the logbook, not spans: it lists each
-//     operation's declared steps on `/portal/operations/<name>` (`Portal.serve` over `generated/portal/blueprint.json`).
+//     operation's declared steps on `/portal/operations/<name>` (K19: the data API `/_portal/v1/blueprint` over `generated/portal/blueprint.json`).
 //     Spans are read through `TraceSource` (`FileSource.open`), the seam prove, `ortho telemetry trace` and `watch` use,
 //     over OTLP JSON lines in `traces.jsonl`. The Collector that writes those files is a process prove starts (a pinned binary,
 //     M1.33), which this check never starts: a receiver in this file writes the same lines (a control posts a span to it and
 //     reads it back through `FileSource`). So this check runs in CI as it is. Seeing the same spans written by the real
 //     Collector is prove's own telemetry test, not repeated here.
-//  7. e2e now depends on `@orthograph/portal` (workspace), to call `Portal.serve` as the Worker does.
+//  7. e2e now depends on `@orthograph/portal` (workspace), to ask its server half for the data as the Worker does.
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -40,7 +40,7 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Effect } from "effect";
-import { Portal } from "@orthograph/portal";
+import * as portalPackage from "@orthograph/portal";
 import { FileSource } from "@orthograph/prove";
 import { afterEach, describe, expect, it } from "vitest";
 import { bundle, filesOf } from "./closures.ts";
@@ -229,15 +229,20 @@ describe("11 the steps are spans, and the portal shows them", () => {
     expect(world.strays).toEqual([]);
   });
 
-  it("the portal's page for the operation lists both declared steps, from the blueprint generate wrote", async () => {
+  it("the portal's data for the operation lists both declared steps, from the blueprint generate wrote", async () => {
     const copy = ready();
-    const blueprint = JSON.parse(readFileSync(join(copy.root, "generated/portal/blueprint.json"), "utf8")) as { model: { operations: Record<string, { steps: Record<string, { name: string; type: string }> }> } };
-    expect(Object.values(blueprint.model.operations["receipt.stamp"]?.steps ?? {}).map((step) => step.name)).toEqual(["receipt.stamp.prepare", "receipt.stamp.seal"]);
-    const response = await Effect.runPromise(Portal.serve(blueprint, new Request("http://portal/portal/operations/receipt.stamp"), {}));
+    const file = JSON.parse(readFileSync(join(copy.root, "generated/portal/blueprint.json"), "utf8")) as unknown;
+    const steps = (blueprint: { model: { operations: Record<string, { steps: Record<string, { name: string; type: string }> }> } }) => Object.values(blueprint.model.operations["receipt.stamp"]?.steps ?? {});
+    expect(steps(file as Parameters<typeof steps>[0]).map((step) => step.name)).toEqual(["receipt.stamp.prepare", "receipt.stamp.seal"]);
+    // K19: the Worker answers `/_portal/v1/blueprint`; the page is drawn from it. Asked as the Worker's own server half is, whatever the package calls it.
+    const exported = portalPackage as unknown as Record<string, { readonly handle?: (context: unknown, request: Request) => Effect.Effect<Response> } | undefined>;
+    const server = exported["PortalServer"] ?? exported["Portal"];
+    expect(server?.handle, "the portal package's server half").toBeDefined();
+    const decoded = await Effect.runPromise(portalPackage.Wire.decode(file));
+    const response = await Effect.runPromise(server!.handle!({ blueprint: decoded, reader: null, bundleRevision: null }, new Request("http://portal/_portal/v1/blueprint")));
     expect(response.status).toBe(200);
-    const page = (await response.text()).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
-    expect(page).toContain("receipt.stamp.prepare (wait)");
-    expect(page).toContain("receipt.stamp.seal (wait)");
+    const served = await response.json() as Parameters<typeof steps>[0];
+    expect(steps(served).map((step) => `${step.name} (${step.type})`)).toEqual(["receipt.stamp.prepare (wait)", "receipt.stamp.seal (wait)"]);
   });
 });
 

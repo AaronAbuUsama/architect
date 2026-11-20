@@ -26,7 +26,13 @@
       "options": { "parallel": false, "commands": ["nx run e2e:layer1", "nx run e2e:layer2", "nx run e2e:m0-names"] },
       "cache": false
     },
+    "browser": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm exec playwright install chromium", "cwd": "{projectRoot}" },
+      "cache": false
+    },
     "m1-checks": {
+      "dependsOn": ["browser"],
       "executor": "nx:run-commands",
       "options": { "command": "vitest run --root {projectRoot} --config vitest.m1.config.ts m1" },
       "cache": false
@@ -42,8 +48,9 @@
       "cache": false
     },
     "grid-tests": {
+      "dependsOn": ["browser"],
       "executor": "nx:run-commands",
-      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid", "node --test tools/climb/*.test.mjs"] },
+      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid served-portal", "node --test tools/climb/*.test.mjs"] },
       "cache": false
     },
     "grid": {
@@ -57,6 +64,7 @@
       "cache": false
     },
     "m1-ratchet": {
+      "dependsOn": ["browser"],
       "executor": "nx:run-commands",
       "options": {
         "parallel": false,
