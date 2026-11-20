@@ -1,6 +1,6 @@
 // Generated from blueprint/things/handle/verbs/release.ts (model handle.release). Do not edit.
 import { useState } from "react";
-import { Field, FieldDescription, FieldLabel } from "@ui-sdk/react/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
 import { handleRelease, type HandleReleaseAnswer, type HandleReleaseOutcome, type HandleReleasePayload } from "./handle-release.ts";
@@ -15,7 +15,8 @@ export const HandleReleaseForm = ({ send, label = "Release handle", onDone }: { 
   const [handle, setHandle] = useState("");
   const [reason, setReason] = useState("");
   return (
-    <parts.Root aria-label={label} data-slot="field-set" handle={handle} reason={reason} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label} handle={handle} reason={reason} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+      <FieldGroup>
       <Field name="handle">
         <FieldLabel>Handle</FieldLabel>
         <Input value={handle} onValueChange={setHandle} />
@@ -29,6 +30,7 @@ export const HandleReleaseForm = ({ send, label = "Release handle", onDone }: { 
       <parts.Refusal>{(state) => `Refused: ${state.name} (${state.code})`}</parts.Refusal>
       <parts.Answer>{(_state) => "Done"}</parts.Answer>
       <parts.Submit data-agent-confirm="Free your name and take its public page offline. Anyone may claim the name afterwards.">Release</parts.Submit>
+      </FieldGroup>
     </parts.Root>
   );
 };

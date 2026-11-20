@@ -15,6 +15,8 @@ type Step = { readonly confirm?: string };
 type Spike = {
   token?: string;
   nextRequestKey?: string;
+  /** For the marks page: the next recorded send is refused with this, as a declared error would be. */
+  refuseNext?: { name: string; code: string };
   approve: boolean;
   sent: Array<{ verb: string; payload: unknown; via: string }>;
   agent: ReturnType<typeof createAgent>;
@@ -66,7 +68,9 @@ const claim: ClaimSend = (payload, { via }) => {
 /** For the marks page: nothing leaves the page, each send is recorded and answered as the declaration says. */
 const recorded = <A,>(verb: string, answer: A) => (payload: unknown, { via }: { readonly via: string }) => {
   spike.sent.push({ verb, payload, via });
-  return Promise.resolve({ ok: true as const, answer });
+  const refusal = spike.refuseNext;
+  spike.refuseNext = undefined;
+  return Promise.resolve(refusal ? { ok: false as const, refusal } : { ok: true as const, answer });
 };
 
 const page = new URLSearchParams(location.search).get("page") ?? "claim";
@@ -82,7 +86,9 @@ if (page === "claim") {
   );
 } else {
   // Proof 7: only web.css and a few --ui-* tokens; no other library, no other stylesheet.
-  document.documentElement.style.cssText = "--ui-primary: oklch(0.55 0.2 260); --ui-radius: 0.5rem; --ui-font-size: 0.9375rem;";
+  document.documentElement.style.cssText = "--ui-primary: oklch(0.55 0.2 260); --ui-primary-foreground: oklch(0.99 0 0); --ui-radius: 0.5rem; --ui-font-size: 0.9375rem;";
+  // web.css styles its components and leaves the page itself to the app: these three come from its own tokens.
+  document.body.style.cssText = "margin: 0; font-family: var(--ui-font-sans); background: var(--ui-background); color: var(--ui-foreground);";
   root.render(
     <div style={{ maxWidth: "26rem", margin: "3rem auto", display: "grid", gap: "2rem" }}>
       <HandleClaimForm send={claim} label="Claim your name" />

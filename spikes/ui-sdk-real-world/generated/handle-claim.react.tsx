@@ -1,6 +1,6 @@
 // Generated from blueprint/things/handle/verbs/claim.ts (model handle.claim). Do not edit.
 import { useState } from "react";
-import { Field, FieldDescription, FieldLabel } from "@ui-sdk/react/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
 import { handleClaim, type HandleClaimAnswer, type HandleClaimOutcome, type HandleClaimPayload } from "./handle-claim.ts";
@@ -14,7 +14,8 @@ export type Send = (payload: HandleClaimPayload, meta: { readonly via: string })
 export const HandleClaimForm = ({ send, label = "Claim handle", onDone }: { send: Send; label?: string; onDone?: (answer: HandleClaimAnswer) => void }) => {
   const [name, setName] = useState("");
   return (
-    <parts.Root aria-label={label} data-slot="field-set" name={name} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label} name={name} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+      <FieldGroup>
       <Field name="name">
         <FieldLabel>Name</FieldLabel>
         <Input value={name} onValueChange={setName} />
@@ -23,6 +24,7 @@ export const HandleClaimForm = ({ send, label = "Claim handle", onDone }: { send
       <parts.Refusal>{(state) => `Refused: ${state.name} (${state.code})`}</parts.Refusal>
       <parts.Answer>{(state) => `Handle: ${state.answer?.handle ?? ""}`}</parts.Answer>
       <parts.Submit>Claim</parts.Submit>
+      </FieldGroup>
     </parts.Root>
   );
 };

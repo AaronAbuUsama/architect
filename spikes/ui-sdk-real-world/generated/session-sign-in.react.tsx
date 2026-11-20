@@ -1,6 +1,6 @@
 // Generated from blueprint/things/session/verbs/sign-in.ts (model session.sign-in). Do not edit.
 import { useState } from "react";
-import { Field, FieldDescription, FieldLabel } from "@ui-sdk/react/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
 import { sessionSignIn, type SessionSignInAnswer, type SessionSignInOutcome, type SessionSignInPayload } from "./session-sign-in.ts";
@@ -15,7 +15,8 @@ export const SessionSignInForm = ({ send, label = "Sign-in session", onDone }: {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
-    <parts.Root aria-label={label} data-slot="field-set" email={email} password={password} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label} email={email} password={password} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+      <FieldGroup>
       <Field name="email">
         <FieldLabel>Email</FieldLabel>
         <Input value={email} onValueChange={setEmail} maxLength={254} />
@@ -27,6 +28,7 @@ export const SessionSignInForm = ({ send, label = "Sign-in session", onDone }: {
       <parts.Refusal>{(state) => `Refused: ${state.name} (${state.code})`}</parts.Refusal>
       <parts.Answer data-agent-secret="">{(state) => `Session: ${state.answer?.session ?? ""}` + " · " + `Token: ${state.answer?.token ?? ""}`}</parts.Answer>
       <parts.Submit>Sign-in</parts.Submit>
+      </FieldGroup>
     </parts.Root>
   );
 };

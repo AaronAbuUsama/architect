@@ -116,7 +116,7 @@ const react = (op: Operation) => {
   const answer = Object.keys(op.answer);
   return `// Generated from ${op.file} (model ${op.name}). Do not edit.
 import { useState } from "react";
-import { Field, FieldDescription, FieldLabel } from "@ui-sdk/react/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
 import { ${id}, type ${P}Answer, type ${P}Outcome, type ${P}Payload } from "./${op.thing}-${op.verb}.ts";
@@ -130,7 +130,8 @@ export type Send = (payload: ${P}Payload, meta: { readonly via: string }) => Pro
 export const ${P}Form = ({ send, label = ${JSON.stringify(`${words(op.verb)} ${op.thing}`)}, onDone }: { send: Send; label?: string; onDone?: (answer: ${P}Answer) => void }) => {
 ${fields.map(([key]) => `  const [${key}, set${pascal(key)}] = useState("");`).join("\n")}
   return (
-    <parts.Root aria-label={label} data-slot="field-set"${fields.map(([key]) => ` ${key}={${key}}`).join("")} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label}${fields.map(([key]) => ` ${key}={${key}}`).join("")} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+      <FieldGroup>
 ${fields.map(([key, field]) => `      <Field name="${key}"${fieldMarks(field)}>
         <FieldLabel>${words(key)}</FieldLabel>
         <Input value={${key}} onValueChange={set${pascal(key)}}${field.visibility === "secret" ? ` type="password"` : ""}${field.value.max ? ` maxLength={${field.value.max}}` : ""} />${field.description ? `\n        <FieldDescription>${field.description}</FieldDescription>` : ""}
@@ -138,6 +139,7 @@ ${fields.map(([key, field]) => `      <Field name="${key}"${fieldMarks(field)}>
       <parts.Refusal>{(state) => \`Refused: \${state.name} (\${state.code})\`}</parts.Refusal>
       <parts.Answer${answerMarks(op)}>{(${answer.length ? "state" : "_state"}) => ${answer.length ? answer.map((key) => `\`${words(key)}: \${state.answer?.${key} ?? ""}\``).join(" + \" · \" + ") : `"Done"`}}</parts.Answer>
       <parts.Submit${submitMarks(op)}>${words(op.verb)}</parts.Submit>
+      </FieldGroup>
     </parts.Root>
   );
 };

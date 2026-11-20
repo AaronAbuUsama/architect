@@ -78,10 +78,13 @@ test("1. a person's typing and clicking claims a name in the real world; a read 
 
 test("2. the agent bridge claims in one act, and the request says an agent made it", async () => {
   const page = await open(people["bob"]!);
+  const started = performance.now();
   const result = await page.evaluate(() =>
     window.spike.agent.act({ steps: [{ ref: "Name", action: "setValue", args: ["helperpage"] }, { ref: "Claim your name", action: "submit" }] }));
+  const actMs = Math.round(performance.now() - started);
   const hop = site.hops.at(-1)!;
   const read = await resolve("helperpage");
+  note("2 one act, fill and send and settle, as the test sees it (ms)", actMs);
   const written = await journal(hop.trace!);
   note("2 act", result);
   note("2 snapshot after: the verb's value is its answer", await page.evaluate(() => window.spike.agent.snapshot()));

@@ -1,8 +1,8 @@
 ## world
-Worlds.start answered /_world/health after 4147 ms
+Worlds.start answered /_world/health after 7413 ms
 
 ## 1 the page after the click
-Handle: hdl_rzwpionkzfru80qc
+Handle: hdl_f9s27w08gwl1s7tg
 
 ## 1 the request at the world's door
 {
@@ -10,28 +10,28 @@ Handle: hdl_rzwpionkzfru80qc
  "path": "/handle/claim",
  "source": "mouse",
  "status": 200,
- "ms": 77,
- "trace": "35b24c25dfae5b215bde798a8e9323ea",
- "parent": "ede156020989c762"
+ "ms": 139,
+ "trace": "e01b1dd27c25917f4492a93cc38bee33",
+ "parent": "24e962ffbdfaac0a"
 }
 
 ## 1 handle.resolve through the SDK afterwards
 {
  "ok": true,
- "handle": "hdl_rzwpionkzfru80qc"
+ "handle": "hdl_f9s27w08gwl1s7tg"
 }
 
 ## 1 the journal for that trace
 [
  {
   "seq": 1,
-  "trace": "35b24c25dfae5b215bde798a8e9323ea",
+  "trace": "e01b1dd27c25917f4492a93cc38bee33",
   "operation": "handle.claim",
   "move": "claim",
-  "subject": "hdl_rzwpionkzfru80qc",
+  "subject": "hdl_f9s27w08gwl1s7tg",
   "event": "HandleClaimed",
   "fields": {
-   "handle": "hdl_rzwpionkzfru80qc",
+   "handle": "hdl_f9s27w08gwl1s7tg",
    "name": "firstpage"
   }
  }
@@ -51,6 +51,9 @@ Handle: hdl_rzwpionkzfru80qc
  "handle.claim"
 ]
 
+## 2 one act, fill and send and settle, as the test sees it (ms)
+139
+
 ## 2 act
 {
  "ok": true,
@@ -69,7 +72,7 @@ Handle: hdl_rzwpionkzfru80qc
   },
   {
    "step": 1,
-   "ref": "c3",
+   "ref": "c4",
    "result": "pending",
    "changes": [
     {
@@ -77,7 +80,7 @@ Handle: hdl_rzwpionkzfru80qc
      "label": "Claim your name",
      "key": "value",
      "value": {
-      "handle": "hdl_ztscl2h928h618yv"
+      "handle": "hdl_vo368v8gtyjgpfhd"
      }
     }
    ]
@@ -86,8 +89,8 @@ Handle: hdl_rzwpionkzfru80qc
  "appeared": [],
  "values": {
   "c1 Name": "helperpage",
-  "c3 Claim your name": {
-   "handle": "hdl_ztscl2h928h618yv"
+  "c4 Claim your name": {
+   "handle": "hdl_vo368v8gtyjgpfhd"
   }
  }
 }
@@ -105,14 +108,14 @@ Handle: hdl_rzwpionkzfru80qc
   "value": "helperpage"
  },
  {
-  "ref": "c3",
+  "ref": "c4",
   "component": "handle-claim",
   "actions": [
    "submit"
   ],
   "label": "Claim your name",
   "value": {
-   "handle": "hdl_ztscl2h928h618yv"
+   "handle": "hdl_vo368v8gtyjgpfhd"
   }
  }
 ]
@@ -123,22 +126,22 @@ Handle: hdl_rzwpionkzfru80qc
  "path": "/handle/claim",
  "source": "agent",
  "status": 200,
- "ms": 47,
- "trace": "bdf702828f1585842d7c2195467c38fb",
- "parent": "81a98bfb5a3d6b0c"
+ "ms": 40,
+ "trace": "26a210a5f4cb8514a42bb520265f9116",
+ "parent": "410aa955fa2954b4"
 }
 
 ## 2 the journal entry the server wrote for it (no source anywhere in it)
 [
  {
   "seq": 2,
-  "trace": "bdf702828f1585842d7c2195467c38fb",
+  "trace": "26a210a5f4cb8514a42bb520265f9116",
   "operation": "handle.claim",
   "move": "claim",
-  "subject": "hdl_ztscl2h928h618yv",
+  "subject": "hdl_vo368v8gtyjgpfhd",
   "event": "HandleClaimed",
   "fields": {
-   "handle": "hdl_ztscl2h928h618yv",
+   "handle": "hdl_vo368v8gtyjgpfhd",
    "name": "helperpage"
   }
  }
@@ -146,25 +149,25 @@ Handle: hdl_rzwpionkzfru80qc
 
 ## 2 the server's root span and its attributes (no source anywhere in them)
 {
- "traceId": "bdf702828f1585842d7c2195467c38fb",
- "spanId": "3ffa4f68122d8432",
- "parentSpanId": "81a98bfb5a3d6b0c",
+ "traceId": "26a210a5f4cb8514a42bb520265f9116",
+ "spanId": "8dd136615d7a26b4",
+ "parentSpanId": "410aa955fa2954b4",
  "name": "handle.claim",
  "attrs": {
   "operation": "handle.claim",
   "attempt": 1,
-  "call.id": "call_ge8g7dqwjcrvrkc6",
-  "principal.person": "per_bbo4kqi6iek61k4e",
+  "call.id": "call_68fjmsfy1ezf11gg",
+  "principal.person": "per_cdkdpwi8x7yn9p6l",
   "payload.name": "helperpage",
   "environment": "local",
   "store": "database",
   "move.name": "claim",
   "move.to": "claimed",
-  "answer.handle": "hdl_ztscl2h928h618yv"
+  "answer.handle": "hdl_vo368v8gtyjgpfhd"
  },
  "status": 1,
- "ms": 19,
- "start": 1795195186651
+ "ms": 18,
+ "start": 1795195576918
 }
 
 ## 3 act
@@ -172,7 +175,7 @@ Handle: hdl_rzwpionkzfru80qc
  "ok": false,
  "error": {
   "step": 1,
-  "message": "submit on Claim your name (c3) failed: HandleTaken (HN-001)"
+  "message": "submit on Claim your name (c4) failed: HandleTaken (HN-001)"
  },
  "steps": [
   {
@@ -191,7 +194,7 @@ Handle: hdl_rzwpionkzfru80qc
  "appeared": [],
  "values": {
   "c1 Name": "firstpage",
-  "c3 Claim your name": null
+  "c4 Claim your name": null
  }
 }
 
@@ -201,9 +204,9 @@ Handle: hdl_rzwpionkzfru80qc
  "path": "/handle/claim",
  "source": "agent",
  "status": 422,
- "ms": 17.5,
- "trace": "adbed9e40e4c78ff4290fce98598b187",
- "parent": "663bb5d83a2137ee"
+ "ms": 26.2,
+ "trace": "d9840a33ba2c00d16af8dd30173d6284",
+ "parent": "ade3edf4bb997fae"
 }
 
 ## 3 the journal for that trace
@@ -222,7 +225,7 @@ Handle: hdl_rzwpionkzfru80qc
   "value": "firstpage"
  },
  {
-  "ref": "c3",
+  "ref": "c4",
   "component": "handle-claim",
   "actions": [
    "submit"
@@ -251,46 +254,46 @@ Refused: HandleTaken (HN-001)
   "ok": false,
   "error": {
    "step": 0,
-   "message": "handle-claim c3 takes no release now. It takes: submit."
+   "message": "handle-claim c4 takes no release now. It takes: submit."
   },
   "steps": [],
   "appeared": [],
   "values": {
    "c1 Name": "",
-   "c3 Claim your name": null
+   "c4 Claim your name": null
   }
  },
  "setName": {
   "ok": false,
   "error": {
    "step": 0,
-   "message": "handle-claim c3 takes no setName now. It takes: submit."
+   "message": "handle-claim c4 takes no setName now. It takes: submit."
   },
   "steps": [],
   "appeared": [],
   "values": {
    "c1 Name": "",
-   "c3 Claim your name": null
+   "c4 Claim your name": null
   }
  },
  "press": {
   "ok": false,
   "error": {
    "step": 0,
-   "message": "handle-claim c3 has nothing to press now."
+   "message": "handle-claim c4 has nothing to press now."
   },
   "steps": [],
   "appeared": [],
   "values": {
    "c1 Name": "",
-   "c3 Claim your name": null
+   "c4 Claim your name": null
   }
  },
  "badName": {
   "ok": false,
   "error": {
    "step": 1,
-   "message": "submit on Claim your name (c3) failed: InvalidPayload (none)"
+   "message": "submit on Claim your name (c4) failed: InvalidPayload (none)"
   },
   "steps": [
    {
@@ -309,7 +312,7 @@ Refused: HandleTaken (HN-001)
   "appeared": [],
   "values": {
    "c1 Name": "Not A Name!",
-   "c3 Claim your name": null
+   "c4 Claim your name": null
   }
  }
 }
@@ -321,17 +324,17 @@ Refused: HandleTaken (HN-001)
 [
  {
   "status": 200,
-  "ms": 77,
+  "ms": 139,
   "source": "mouse"
  },
  {
   "status": 200,
-  "ms": 47,
+  "ms": 40,
   "source": "agent"
  },
  {
   "status": 422,
-  "ms": 17.5,
+  "ms": 26.2,
   "source": "agent"
  }
 ]
