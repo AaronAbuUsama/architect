@@ -52,7 +52,6 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 >   three plugin kinds);
 > - `docs/canon/languages-and-hosts.mdx`, which K27 builds on;
 > - `design/frame/examples/allowance-on-chain.md` and `spikes/chain-languages/` (its README and `evm/`);
-> - the whiteboard, https://claude.ai/artifact/Awa6ahjAfYiLQXsUyXY9Ht ("Step back" and "Step 2");
 > - the `conductor`, `reviewer`, `author`, `threads` and `kanban` skills.
 >
 > - **Branch:** `goal/on-chain`, cut from `goal/stage-1` at `9f855a91`.
@@ -64,8 +63,13 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 > - **Roles:** keep the five roles below apart. No agent plays two of them on the same slice.
 > - **Ownership:** you own the architecture, as `AGENTS.md` says. Where code and design disagree, decide, fix the
 >   other in the same change, and record it.
-> - **Reporting:** report to the 📐 on-chain designer session that started you each time a slice merges, in two or
+> - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
+>   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
+> - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
 >   three lines: the slice, its check, its snags. Write for Aaron's ear.
+> - **Branch protection:** `goal/on-chain` is not protected yet (`design/decisions/CI-branch-protection.md` covers
+>   `main`, `m1` and `goal/stage-1`); protecting it is a repository setting, so the conductor asks Aaron. Until then
+>   the rule holds by discipline: never merge a red pull request, and never push to `goal/on-chain` directly.
 
 ## The bound
 
@@ -119,11 +123,23 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 | **🔍 Reviewer** | a verdict on each pull request | anything it reviews |
 
 When the user is stuck on something it can't fix inside `src/`, it writes a snag in `design/goals/04-snags.md` and
-moves on. It never works around the framework.
+moves on. It never works around the framework. The lead creates `04-snags.md` in slice 1, in the shape of
+`03-snags.md`; each entry looks like this:
+
+```md
+## S-03 · budgets · "the hook can't read the Safe"
+- Hit: the user, filling `src/Budgets.sol`: the scaffold's `_spend` gets the allowance but not its Safe.
+- Lost: 3 tries, 10 minutes.
+- Cause: the base contract passes only the row to the hook.
+- Fix: framework, the Solidity language passes the account to every hook (PR #…). Docs: the scaffold's brief.
+- Status: fixed
+```
 
 ## The slices
 
-Each slice starts with its check, written first and failing, and ends with that check green on `goal/on-chain`.
+Each slice starts with its check, written first and failing, and ends with that check green on `goal/on-chain`. The
+M6 checks in `design/milestones.md` were written for acme's allowance vault ("0 passed · 24 failed", "24 passed"); the
+checks author rewrites each for the budgets module before its slice starts, keeping what it proves.
 
 ### Part 1: on Anvil, end to end
 
@@ -131,13 +147,13 @@ Each slice starts with its check, written first and failing, and ends with that 
 |---|---|---|
 | 0 | **K27, the three plugin kinds.** Recorded before the goal started (K27). Nothing to build; read it | done |
 | 1 | **The seam, on Effect alone.** `Blueprint.language` and `Blueprint.host` in `orthograph`. Effect becomes a language served by `host-cloudflare` and `Host.node`. The server projection keeps only its face. Hosts supply store kinds and languages write for them, not a fixed list (`compiler/.../stores.ts:10`, K27 item 5). Rewrite `packages/language-solidity`'s "Solidity target" wording and the walkthrough's quote of it | acme's generated files are byte-identical; the compiler refuses an operation that no language takes, or that two take |
-| 2 | **M6.02, the journeys** for `examples/budgets` (the journey author, beside slice 1) | they fail on empty handlers |
+| 2 | **M6.02, the journeys** for `examples/budgets` (the journey author, beside slice 1). The checks author adds the `e2e:on-chain` target: every slice's check and the budgets journeys, red until each turns green | they fail on empty handlers; `nx run e2e:on-chain` runs and fails |
 | 3 | **M6.10, the chain store and values.** `Blueprint.store.chain.evm()`, `Blueprint.account()`, Solidity types worked out from values, and `blueprint/refusals.lock` | M6.10's check |
 | 4 | **M6.11, the Solidity language renders** the base contract (role, machine, hook, account, event), roles behind `IAccessControl`, and `surface.json` | M6.11's check |
 | 5 | **M6.12, the scaffold and the Foundry tests** | M6.12's check: the scaffold's tests fail as not written |
 | 6 | **M6.13, the user fills the hook; the fuzz** | M6.13's check: every test passes, the fuzz finds no difference, the planted mutant diverges |
-| 7 | **`Host.chain` and the `safe` adapter.** Deploy to Anvil; a Safe from its release enables the module; `_execute` goes through the adapter; redeploy only on new bytecode (M6.17, local part) | M6.17's check, and a spend pays from the Safe |
-| 8 | **M6.14, the client from `surface.json`**: simulate, sign and submit directly through `chain-evm` | M6.14's check, and an SDK spend confirms on Anvil |
+| 7 | **`Host.chain` and the `safe` adapter.** Deploy the module to Anvil; a Safe from its release enables it; `_execute` goes through the adapter. This is the Safe-and-Anvil half of M6.16, done early; its worlds and M6.17's redeploy rule come in slice 12 | a spend within the allowance pays from the Safe on Anvil; one over it reverts with its refusal code |
+| 8 | **M6.14, the client from `surface.json`**: simulate, sign and submit directly through `chain-evm` | M6.14's check, and an SDK spend is included on Anvil |
 
 Slice 1 also carries what K27 left for it:
 - `packages/language-solidity`'s `README.md` and the comment in `src/index.ts` still say "The Solidity target"; rewrite
@@ -152,8 +168,8 @@ Slice 1 also carries what K27 left for it:
 |---|---|---|
 | 9 | **M6.07, the relayer actor.** Not written from scratch: a Durable Object that holds the relayer key and wraps `chain-evm`'s nonce allocator, transaction manager, replacement and tracker (adapted from `@prb/effect-evm`) | M6.07's check |
 | 10 | **M6.09, the follower actor.** A Durable Object around `chain-evm`'s reliable event stream (backfill, cursor, decoder), storing its checkpoint | M6.09's check |
-| 11 | **M6.15, the signing flow**, the in-between state and the submission lifecycle, through the relayer | M6.15's check |
-| 12 | **M6.16 and M6.18, worlds with a chain, and key hygiene.** `ortho prove --env local` runs every budgets journey on Anvil | M6.16's and M6.18's checks |
+| 11 | **M6.15, the signing flow**, the in-between state and the submission lifecycle, through the relayer | M6.15's check, and an SDK spend is confirmed by the follower |
+| 12 | **M6.16, M6.17 and M6.18: worlds with a chain, redeploy on new bytecode only, and key hygiene.** `ortho prove --env local` runs every budgets journey on Anvil | M6.16's, M6.17's and M6.18's checks |
 
 ## The done check
 
@@ -167,8 +183,12 @@ It passes only when all of these hold, in CI on `goal/on-chain`:
 - acme's and Plugged In's generated files are unchanged by the seam;
 - every snag in `04-snags.md` is fixed, or parked with an owner and a reason.
 
-Then one pull request takes `goal/on-chain` into `main` once stage 1 is there, or into `goal/stage-1` if Goal 3 is
-still open. A 🔍 reviewer passes it first.
+## Landing
+
+When the done check passes, open one pull request from `goal/on-chain`: into `main` once stage 1 is there, or into
+`goal/stage-1` if Goal 3 is still open (K26 item 4). Merge `goal/stage-1` in first, by a merge. It merges when CI is
+green, `nx run e2e:on-chain` passes on it, and a 🔍 reviewer has passed the whole branch, reading this file, the snag
+log, each slice's check and the evidence below. Then tag `budgets/on-chain`.
 
 ## Evidence for Aaron
 
