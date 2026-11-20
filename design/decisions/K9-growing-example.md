@@ -106,7 +106,7 @@ The app's `profile.create` answers `handles.events.HandleClaimed` through `on:` 
 `/claim` makes both calls in a row. This is the canon's first example: the same lesson as the tickets' `event.claim`
 (a refusal that depends on the data, idempotent by request), now in the app everything else grows from.
 
-**Needs:** M1 and M2 (the gate's slices), plus the stage slices ST1.01 to ST1.08 in `milestones.md`. Until
+**Needs:** M1 and M2 (the gate's slices), plus the stage slices ST1.01 to ST1.08 in `milestones.md`. (Superseded by G10, 20 November 2026.) Until
 M2.07, stage 1 signs in through auth copied from the starter, as acme does. M2 swaps that copy for the mount, and the
 handlers don't change.
 
