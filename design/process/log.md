@@ -10,6 +10,64 @@ gave was checked against its source; where the seed was wrong, the entry says so
 
 ---
 
+### 2026-11-20 · The author skill reached the goal branch eight hours after it merged, after both checks were written
+- **Kind:** failure.
+- **What happened:** The `author` skill, with its five proofs and "it can't be passed hollow", merged on `main` at
+  22:57 on 19 November, and the Scribe logged proposal 7 as applied. Goal 3's authors work from `goal/stage-1`. A
+  session reads its skills from its own checkout, and `goal/stage-1` didn't have the skill until the next merge of
+  `main`, at 06:47 on 20 November. Both checks pull requests that looped through Codex were cut from `goal/stage-1`
+  before then: PR 154 from 7c7f9fcc (05:50) and PR 166 from 852a6eab (06:23). Neither branch has the skill, and
+  neither description shows the five proofs. Whether their authors read the skill some other way isn't known.
+- **Evidence:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129) merged as 84882931 (19 November 22:57); `goal/stage-1` first contains it at 18227b4f,
+  [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) (20 November 06:47); `git cat-file -e origin/<branch>:.agents/skills/author/SKILL.md` fails on
+  `goal-3/grid-evals-mcp-schema` and `goal-3/st1-22-check`.
+- **Cost:** not measurable on its own; it overlaps the two entries below.
+- **Found by:** the Scribe, checking why proof 5 didn't bite before Codex.
+- **Recovery:** [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) merged `main` into `goal/stage-1`. The two open branches still lack the skill until they
+  merge their base.
+- **What changed:** nothing yet. The Scribe's "applied" meant "merged on `main`", not "in force where the work runs".
+  The same gap held for `builder-paths` and `cancel-closed`, which reached `goal/stage-1` two hours after `main` and
+  haven't reached `m1`.
+- **Pattern:** fixes that don't reach the working branch.
+
+### 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again
+- **Kind:** failure.
+- **What happened:** ST1.22's check (check 28) reads the portal's rules section in Chromium. Its author planted three
+  controls before Codex: a reference page, one with Plugged In's words written in, and a broken page. Codex then found
+  four ways a wrong page still passed. A page with no Rules section skipped the ordering checks. A refusal dropped from
+  one operation passed while it showed on another. A rule rendered twice passed, because a `Map` kept the last row. Two
+  rows sharing one fragment id passed, so a refusal linked to the wrong rule. The last two are the same hole: the check
+  trusted an element existed, not that it was unique and pointed to its own target. None was a product bug.
+- **Evidence:** [PR 166](https://github.com/AaronAbuUsama/architect/pull/166): Codex at 06:32 (two findings, on 4cb6dc19), 06:39 (on 3363aa75) and 06:43 (on 3f921a19);
+  fixes 3363aa75 and 3f921a19, each with planted controls. The third finding was unanswered when this was written.
+- **Cost:** three review rounds and two fix commits so far, on a first commit of 331 lines.
+- **Found by:** Codex.
+- **Recovery:** each finding planted as a failing control, then fixed.
+- **What changed:** nothing yet; proposal 14.
+- **Pattern:** checks a wrong output can pass.
+
+### 2026-11-20 · A grid check took sixteen Codex rounds over four hours, each finding one more wrong output that passed
+- **Kind:** failure.
+- **What happened:** The grid's check that an MCP tool's output schema and the SDK's field types match the model went
+  through 18 Codex reviews. Sixteen had findings: 22 in all, 18 of them a wrong output that passed, 4 a right one
+  refused. None was a product bug. Before Codex, the author had planted a long list of wrong schemas and types. Codex
+  kept finding the next one of a kind already met. Seven findings, in rounds 1 to 15, were an SDK type wider than the
+  model: an array, a union, `undefined`, `true` for a number, an intersection, an extra member, a call signature. Those
+  stopped only when the check compared the whole type with the model. Six findings, in rounds 1 to 16, judged one
+  sample where the runtime gives many: one refusal status, optional fields left out, role-private fields left out, one
+  state, the first answer only. Those stopped when the check judged every recorded answer. One finding was circular:
+  the expected value came from the schema being judged.
+- **Evidence:** [PR 154](https://github.com/AaronAbuUsama/architect/pull/154): 18 "@codex review" requests from 01:30 to 06:20; 22 Codex comments, the first at 01:32
+  (on 743a5136) and the last finding at 05:48 (on ec1863dc); clean reviews at 06:16 and 06:22. Fixes include
+  489c8cd3, 73e420e3, 85d714c1, ffb76543, cfeafae3, dc3cee50 and 7c04d0c3. Round 9's false red was recorded as a known
+  gap in `design/later.md`, not fixed.
+- **Cost:** 4 hours 15 minutes from the first review to the last finding, and 23 commits, for one check.
+- **Found by:** Codex.
+- **Recovery:** each finding planted as a failing case, then fixed; the two big families closed only when the check
+  was rewritten to judge the whole type and every answer.
+- **What changed:** nothing yet; proposal 14.
+- **Pattern:** checks a wrong output can pass.
+
 ### 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending
 - **Kind:** near miss.
 - **What happened:** `codex-finished` reads Codex's summary comment through `tools/ci/codex-state.sh`. When Codex ran
@@ -247,7 +305,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Found by:** 🔍 reviewer.
 - **Recovery:** the check was strengthened before the build.
 - **What changed:** `e2e/m1/25-unique-fields.test.ts` (25.5) and the projections `unique.test.ts`.
-- **Pattern:** fakes that diverge from the real service.
+- **Pattern:** fakes that diverge from the real service; checks a wrong output can pass.
 
 ### 2026-11-19 · Two different decisions were both named G3
 - **Kind:** near miss.
