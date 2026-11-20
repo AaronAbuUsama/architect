@@ -87,3 +87,5 @@ belongs to, and why it waits.
 - **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
   Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
   or its terms stop a framework importing it.
+
+<!-- Throwaway probe for CI-docs-fast-path; never merged. -->
