@@ -163,18 +163,6 @@
       "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
-      "cell": "machine.mcp",
-      "subject": "handle",
-      "reason": "handle.claim's description does not name the states it moves between (claimed missing)",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
-    },
-    {
-      "cell": "machine.mcp",
-      "subject": "link",
-      "reason": "link.add's description does not name the states it moves between (listed missing)",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
-    },
-    {
       "cell": "machine.portal",
       "subject": "handle",
       "reason": "/portal/things/handle's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
