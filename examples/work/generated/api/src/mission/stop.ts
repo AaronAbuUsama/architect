@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("stop", "/mission/stop", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [MissionNotIntake, NotAllowed],
 });
-export const steps = ["mission.stop.record"] as const;

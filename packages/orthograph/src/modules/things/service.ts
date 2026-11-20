@@ -10,6 +10,7 @@ export const Things: ThingsApi = {
     for (const [key, input] of Object.entries(spec.fields) as Array<[string, FieldInput]>) {
       fields[key] = Object.freeze({
         kind: "field", of: thing as Thing, key, value: valueOf(input), from: input.kind === "field" ? input : undefined, visibility: input.visibility,
+        ...(input.description === undefined ? {} : { description: input.description }),
         ...(input.traced === true ? { traced: true as const } : {}),
         ...(input.issued === true ? { issued: true as const } : {}),
       });

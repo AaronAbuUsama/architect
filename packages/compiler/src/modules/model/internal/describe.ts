@@ -48,12 +48,12 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const fieldModel = (input: Field | Value, where: string, place: Place = "a thing's field"): FieldModel => {
     const value = input.kind === "field" ? input.value : input;
     // `Blueprint.issued(Secret)` is a copy of the named value, so it is found by the schema it shares with it.
-    const named = valueNames.get(value) ?? (input.issued === true ? schemaNames.get(value.schema) : undefined);
+    const named = valueNames.get(value) ?? (input.issued === true || input.description !== undefined ? schemaNames.get(value.schema) : undefined);
     const ref = input.kind === "field" ? fieldRef(input) : undefined;
     if (input.kind === "field" && !ref) problems.push(`${where}: uses a field of a thing that isn't in the blueprint`);
     const visibility = visibilityModel(input.visibility, where);
     const issued = issuedIn(input, where, place);
-    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
+    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(input.description === undefined ? {} : { description: input.description }), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
   };
   const fieldsModel = (fields: FieldsInput, where: string, place: Place): FieldsModel =>
     Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`, place)]));

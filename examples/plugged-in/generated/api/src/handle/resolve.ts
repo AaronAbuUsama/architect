@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("resolve", "/handle/resolve", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [HandleNotFound],
 });
-export const steps = ["handle.resolve.load"] as const;
