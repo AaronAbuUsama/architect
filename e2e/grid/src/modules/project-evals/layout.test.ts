@@ -174,7 +174,7 @@ describe("operation.api: the endpoint's method and path, not its formatting", ()
 describe("machine.mcp and operation.mcp do not contradict: the description is the model's, the states are in the schema", () => {
   it("is green on both for a tool whose description names no state but whose schema does, and red on machine.mcp when neither does", () => {
     const schema = { properties: { state: { enum: ["listed", "removed"] } } };
-    const named = { ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "link.add" || t.name === "link.remove" ? { ...t, outputSchema: schema } : t)) };
+    const named = { ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "link.add" ? { ...t, outputSchema: schema, _meta: { move: { key: "add", from: [], to: ["listed"], emits: "LinkAdded" } } } : t.name === "link.remove" ? { ...t, outputSchema: schema, _meta: { move: { key: "remove", from: ["listed"], to: ["removed"], emits: "LinkRemoved" } } } : t)) };
     expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", named)).toEqual({ ok: true, why: [] });
     expect(judge(MachineEvals.evals, "machine.mcp", "link", named)).toEqual({ ok: true, why: [] });
     expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", pluggedIn)).toEqual({ ok: true, why: [] });

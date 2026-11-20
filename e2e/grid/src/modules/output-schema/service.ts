@@ -25,10 +25,6 @@ const refusalNames = (model: ProjectModel, op: OperationModel): ReadonlyArray<st
   return [...new Set([...(op.refusals ?? []), "NotAllowed", ...(thing?.notFound === undefined ? [] : [thing.notFound.error]), ...(op.move !== null && thing?.machine != null ? [thing.machine.notFrom.error] : [])])];
 };
 
-/**
- * Every refusal the operation can give, as a tool result carries it: `{ refusal, code, exit, status }` from the very table the runtime reads
- * (`generated/api/src/errors.ts`: the declared rows, the machine's wrong-state, the not-found and `NotAllowed`), never a status or exit written here.
- */
 /** Does the schema name a property `name` anywhere? A declared refusal field is judged only where the schema types it: an untyped extra is no claim. */
 const mentions = (schema: unknown, name: string): boolean => JSON.stringify(schema).includes(`"${name}":`);
 
@@ -39,6 +35,10 @@ interface RefusalSample {
   readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>;
 }
 
+/**
+ * Every refusal the operation can give, as a tool result carries it: `{ refusal, code, exit, status }` from the very table the runtime reads
+ * (`generated/api/src/errors.ts`: the declared rows, the machine's wrong-state, the not-found and `NotAllowed`), never a status or exit written here.
+ */
 const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, files: Readonly<Record<string, string>> | undefined): { readonly samples: ReadonlyArray<RefusalSample>; readonly problems: ReadonlyArray<string> } => {
   const source = files?.[TABLE];
   const table = source === undefined ? undefined : Reading.objectRows(source, "refusals");

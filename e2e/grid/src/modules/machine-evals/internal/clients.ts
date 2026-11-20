@@ -25,11 +25,11 @@ const sameList = (value: unknown, want: ReadonlyArray<string>) => Array.isArray(
 
 /**
  * A tool's `_meta.move` is the move as the model has it: its key, the states it leaves and enters as lists of strings, the event it emits. A string where a list
- * belongs, a state the machine does not have, or another event is wrong; a tool with no `_meta.move` is judged on the strings the framework emits for it.
+ * belongs, a state the machine does not have, or another event is wrong, and so is a tool that sends none: a client cannot read the move from it.
  */
 const metaMove = (op: { readonly name: string; readonly move: { readonly key: string; readonly from: ReadonlyArray<string>; readonly to: ReadonlyArray<string>; readonly emits: string } }, meta: unknown): ReadonlyArray<string> => {
   const move = typeof meta === "object" && meta !== null ? (meta as { readonly move?: unknown }).move : undefined;
-  if (move === undefined) return [];
+  if (move === undefined) return [`${op.name} sends no _meta.move, so a client cannot read the move (${op.move.key}) from the tool`];
   if (typeof move !== "object" || move === null || Array.isArray(move)) return [`${op.name}'s _meta.move is not an object`];
   const m = move as Record<string, unknown>;
   return [
