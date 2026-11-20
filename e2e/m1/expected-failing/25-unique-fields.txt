@@ -1,1 +1,0 @@
-m1/25-unique-fields.test.ts > 25 G5: `ortho add thing` writes an empty invariants.ts that compiles and declares no rule > the file is written, a comment and no rule or blank, and the model builds with it and carries no rule
