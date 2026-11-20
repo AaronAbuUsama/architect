@@ -21,7 +21,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   of which fails on the old script. It was committed five minutes later and merged at 00:10.
 - **Evidence:** Codex's P2 comment on `tools/ci/codex-state.sh` in [PR 145](https://github.com/AaronAbuUsama/architect/pull/145) (23:17); the fix, commit 8d892163 (23:22),
   in [PR 146](https://github.com/AaronAbuUsama/architect/pull/146), merged 20 November 00:10 as 5900f758.
-- **Cost:** none known; no pull request is recorded as stuck on it.
+- **Cost:** none known.
 - **Found by:** Codex, reviewing a merge pull request.
 - **Recovery:** fixed and merged within an hour.
 - **What changed:** the guard's own test now covers a security-only review.
@@ -70,7 +70,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet. No flake list exists, so the next one is rerun too.
 - **Pattern:** CI that can't tell us anything.
 - **Update, 20 November:** it failed `check` a second time, on PR 147 (5216 ms, run
-  [44638137760](https://github.com/AaronAbuUsama/architect/actions/runs/44638137760)). [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) gives the test's
+  [44638137760](https://github.com/AaronAbuUsama/architect/actions/runs/44638137760/attempts/1)). [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) gives the test's
   `describe` a 30-second timeout and runs `oxlint` directly instead of through `pnpm exec`, which started Node a
   second time per case. Assertions and fixtures are unchanged. Still no flake list.
 

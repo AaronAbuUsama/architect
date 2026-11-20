@@ -193,8 +193,9 @@ Entries:
 - 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
 **Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks." The
-`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`, and
-on `goal/stage-1` since `main` was merged into it ([PR 145](https://github.com/AaronAbuUsama/architect/pull/145), 19 November 23:58).
+`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that
+touches them; required on `main`, and on `goal/stage-1` since `main` was merged into it
+([PR 145](https://github.com/AaronAbuUsama/architect/pull/145), 19 November 23:58).
 
 **Gap:** the guard reaches only branches named `-build`, and `m1` doesn't run it until `main` is merged into it. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
 
