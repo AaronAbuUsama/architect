@@ -29,8 +29,10 @@ export interface IssuerConfig {
 
 export interface IssuerOptions {
   readonly config?: IssuerConfig;
-  /** Default: a free loopback port. */
+  /** Default: a port from `ports`. A port given here is never swapped for another. */
   readonly port?: number;
+  /** Where the issuer gets a port when `port` is not given, again for each try when the one it got was taken first. Default: a free loopback port. */
+  readonly ports?: Effect.Effect<number, ProcessFailed>;
   /** A folder for its config and log. Default: a fresh one under the system's temporary folder, removed when the scope closes. */
   readonly dir?: string;
 }
