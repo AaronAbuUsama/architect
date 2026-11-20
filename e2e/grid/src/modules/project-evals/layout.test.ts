@@ -71,6 +71,34 @@ describe("event.docs: an event's fields, in any layout", () => {
     expect(portal("<table>\n<tr>\n<td>\nLinkAdded\n</td>\n<td>\nlink\n</td>\n</tr>\n</table>")).toEqual({ ok: true, why: [] });
     expect(portal("<ul>\n<li>\n  LinkAdded:\n  nothing\n</li>\n</ul>").why).toEqual([`${route}'s Events lists LinkAdded without its field link`]);
   });
+  describe("an entry is the full text of its element, however its content is wrapped", () => {
+    const route = "/portal/things/link";
+    const portal = (events: string, event = "LinkAdded") => judge(EventEvals.evals, "event.portal", event, editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));
+    const docsLike = (events: string, event = "LinkAdded") => judge(EventEvals.evals, "event.portal", event, editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));
+    const red = [`${route}'s Events lists LinkAdded without its field link`];
+
+    it("is green with the event and field wrapped in p, div and strong/code, in a list item, a table cell and a definition", () => {
+      expect(portal("<ul><li><p>LinkAdded: link</p></li><li><p>LinkRemoved: link</p></li></ul>")).toEqual({ ok: true, why: [] });
+      expect(portal("<ul><li><div><strong><code>LinkAdded</code></strong>: <div>link</div></div></li><li>LinkRemoved</li></ul>")).toEqual({ ok: true, why: [] });
+      expect(portal("<table><tr><td><p>LinkAdded</p></td><td><div><strong><code>link</code></strong></div></td></tr><tr><td><p>LinkRemoved</p></td><td><p>link</p></td></tr></table>")).toEqual({ ok: true, why: [] });
+      expect(portal("<dl><dt><p>LinkAdded</p></dt><dd><div>link</div></dd><dt>LinkRemoved</dt><dd><p>link</p></dd></dl>")).toEqual({ ok: true, why: [] });
+    });
+    it("is green with inline tags nested and split across lines", () => {
+      expect(portal("<ul>\n<li>\n<p>\n<strong>\n  <code>\n LinkAdded\n </code>\n</strong>:\n<span>\n  <em>link</em>\n</span>\n</p>\n</li>\n<li><br/>LinkRemoved</li>\n</ul>")).toEqual({ ok: true, why: [] });
+      expect(docsLike("<dl>\n<dt>\n<code>LinkAdded</code>\n</dt>\n<dd>\n<p>\nlink\n</p>\n</dd>\n</dl>")).toEqual({ ok: true, why: [] });
+    });
+    it("is red with the field missing, in each of them", () => {
+      expect(portal("<ul><li><p>LinkAdded</p></li><li><p>LinkRemoved: link</p></li></ul>").why).toEqual(red);
+      expect(portal("<table><tr><td><p>LinkAdded</p></td><td><div>nothing</div></td></tr></table>").why).toEqual(red);
+      expect(portal("<dl><dt><p>LinkAdded</p></dt><dd><div>nothing</div></dd><dt>LinkRemoved</dt><dd>link</dd></dl>").why).toEqual(red);
+      expect(portal("<ul>\n<li>\n<p>\n<strong><code>LinkAdded</code></strong>\n</p>\n</li>\n</ul>").why).toEqual(red);
+    });
+    it("is red when two events sit in one entry and the field is the second's", () => {
+      expect(portal("<ul><li><p>LinkAdded</p><p>LinkRemoved: link</p></li></ul>").why).toEqual(red);
+      expect(portal("<ul><li><strong>LinkAdded</strong> and <strong>LinkRemoved</strong>: link</li></ul>").why).toEqual(red);
+      expect(portal("<ul><li><strong>LinkAdded</strong> and <strong>LinkRemoved</strong>: link</li></ul>", "LinkRemoved").why).toEqual([`${route}'s Events has no entry for LinkRemoved`]);
+    });
+  });
   it("reads the portal's list items and table rows the same way", () => {
     const route = "/portal/things/link";
     const portal = (events: string) => judge(EventEvals.evals, "event.portal", "LinkAdded", editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));

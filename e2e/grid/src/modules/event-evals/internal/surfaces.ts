@@ -29,8 +29,11 @@ const subjectOf = (line: string) => /^\s*(?:#{1,6}\s+|[-*+]\s+|\d+[.)]\s+|\|\s*)
 const lists = (lines: ReadonlyArray<string>, name: string, fields: ReadonlyArray<string>, others: ReadonlyArray<string>): ReadonlyArray<string> => {
   const start = lines.findIndex((line) => subjectOf(line) === name);
   if (start < 0) return [`has no entry for ${name}`];
-  const end = lines.findIndex((line, i) => i > start && others.includes(subjectOf(line) ?? ""));
-  const entry = lines.slice(start, end < 0 ? undefined : end).join("\n");
+  // From where the entry names the event to where anything names another event, on that line or a later one: two events in one entry do not share fields.
+  const text = lines.slice(start).join("\n");
+  const after = text.slice(text.search(new RegExp(`\\b${name}\\b`)) + name.length);
+  const cuts = others.map((o) => after.search(new RegExp(`\\b${o}\\b`))).filter((i) => i >= 0);
+  const entry = cuts.length === 0 ? after : after.slice(0, Math.min(...cuts));
   return fields.filter((f) => !new RegExp(`\\b${f}\\b`).test(entry)).map((f) => `lists ${name} without its field ${f}`);
 };
 
