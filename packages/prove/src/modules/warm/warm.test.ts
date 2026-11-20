@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { Effect } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Warm } from "./service.ts";
+import { fingerprint } from "./internal/source.ts";
 
 const root = mkdtempSync(join(tmpdir(), "warm-"));
 mkdirSync(join(root, "src"), { recursive: true });
@@ -23,7 +24,7 @@ afterAll(async () => {
   rmSync(root, { recursive: true, force: true });
 });
 
-const record = (over: Partial<{ pid: number; url: string; startedAt: number }> = {}) => ({ pid: process.pid, url, collector: "http://127.0.0.1:1", telemetry: join(root, ".ortho/dev-telemetry"), startedAt: Date.now() + 1000, ...over });
+const record = (over: Partial<{ pid: number; url: string; startedAt: number; sources: string }> = {}) => ({ pid: process.pid, url, collector: "http://127.0.0.1:1", telemetry: join(root, ".ortho/dev-telemetry"), startedAt: Date.now() + 1000, sources: fingerprint(root), ...over });
 const published = <A>(r: ReturnType<typeof record>, use: () => Promise<A>) =>
   Effect.runPromise(Effect.scoped(Warm.publish(root, r).pipe(Effect.andThen(Effect.promise(use)))));
 const found = () => Effect.runPromise(Warm.find(root));
@@ -45,6 +46,21 @@ describe("warm", () => {
     const later = new Date(Date.now() + 60_000);
     utimesSync(join(root, "src/handler.ts"), later, later);
     expect(await published(record(), found)).toBeUndefined();
+  });
+
+  it("does not find a record once a source file was added or deleted after dev began, though no file is newer (a rename is both)", async () => {
+    const past = new Date(Date.now() - 60_000);
+    const helper = join(root, "src/helper.ts");
+    utimesSync(join(root, "src/handler.ts"), past, past);
+    const before = record();
+    expect(await published(before, found), "nothing changed").toEqual(before);
+    writeFileSync(helper, "export const helper = 1;\n");
+    utimesSync(helper, past, past);
+    expect(await published(before, found), "an added file").toBeUndefined();
+    const withHelper = record();
+    expect(await published(withHelper, found), "the helper was there when dev began").toEqual(withHelper);
+    rmSync(helper);
+    expect(await published(withHelper, found), "a deleted file").toBeUndefined();
   });
 
   it("empties the collector's folder when it resets", async () => {

@@ -13,6 +13,7 @@ import { handlerHashes } from "#modules/verdicts/internal/proof.js";
 import { closing, exercise } from "./internal/exercise.ts";
 import { PORTAL_WINDOW_MS, standWorld } from "./internal/stand.ts";
 import { Warm } from "#modules/warm/service.js";
+import { fingerprint } from "#modules/warm/internal/source.js";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
 import { proveReport } from "./internal/structured.ts";
@@ -55,6 +56,7 @@ export const Prove: ProveApi = {
   dev: ({ root, port, env, pid }) =>
     Effect.gen(function* () {
       const startedAt = yield* Clock.currentTimeMillis;
+      const sources = fingerprint(root);
       const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.mapError((e) => failed(e._tag === "BlueprintInvalid" ? { message: `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` } : e)));
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       // The collector and the world outlive each prove: a prove that finds them uses them (ST1.24).
@@ -62,7 +64,7 @@ export const Prove: ProveApi = {
       const collector = yield* Collectors.local(dir, privateKeys(model)).pipe(Effect.mapError(failed));
       const feed = yield* PortalFeed.serve({ source: collector, metrics: FileMetrics.open(dir), environment: "local", windowMs: PORTAL_WINDOW_MS }).pipe(Effect.mapError(failed));
       const { url, log } = yield* Worlds.start({ root, port, name: "dev", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
-      yield* Warm.publish(root, { pid, url, collector: collector.url, telemetry: dir, startedAt }).pipe(Effect.mapError(failed));
+      yield* Warm.publish(root, { pid, url, collector: collector.url, telemetry: dir, startedAt, sources }).pipe(Effect.mapError(failed));
       return { url, log, notes: sinks.notes };
     }),
   test: (options) =>

@@ -15,6 +15,8 @@ export interface DevRecord {
   readonly telemetry: string;
   /** When `ortho dev` began, in milliseconds: the world serves the source as it was then. */
   readonly startedAt: number;
+  /** Which source files there were, and what each held, when dev began (`fingerprint`). */
+  readonly sources: string;
 }
 
 export interface WarmApi {
@@ -23,7 +25,7 @@ export interface WarmApi {
   /**
    * The record of a live `ortho dev` whose world is fit to run a prove in, or `undefined`. Not fit: no record, a process that
    * is gone (dev was killed), a world that does not answer, or source (src, blueprint, generated/server) changed since dev
-   * began, because the world may not have reloaded it yet and a verdict must be the code on disk's.
+   * began (a file edited, added, deleted or renamed), because the world may not have reloaded it yet and a verdict must be the code on disk's.
    */
   readonly find: (root: string) => Effect.Effect<DevRecord | undefined>;
   /** Empty the world's databases and its cast, so a run never sees the last one's records. */

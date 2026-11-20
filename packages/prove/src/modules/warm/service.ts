@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { Effect, Option } from "effect";
 import { Names } from "orthograph/server";
 import { WarmFailed, type DevRecord, type WarmApi } from "./types.ts";
-import { newestChange } from "./internal/source.ts";
+import { fingerprint, newestChange } from "./internal/source.ts";
 
 const fileOf = (root: string) => resolve(root, Names.folder, "dev.json");
 
@@ -13,7 +13,7 @@ const answers = (url: string) =>
 
 const isRecord = (x: unknown): x is DevRecord => {
   const r = x as Partial<Record<keyof DevRecord, unknown>> | null;
-  return typeof r === "object" && r !== null && typeof r.pid === "number" && typeof r.url === "string" && typeof r.collector === "string" && typeof r.telemetry === "string" && typeof r.startedAt === "number";
+  return typeof r === "object" && r !== null && typeof r.pid === "number" && typeof r.url === "string" && typeof r.collector === "string" && typeof r.telemetry === "string" && typeof r.startedAt === "number" && typeof r.sources === "string";
 };
 
 const read = (root: string) =>
@@ -41,7 +41,8 @@ export const Warm: WarmApi = {
       if (Option.isNone(found)) return undefined;
       const record = found.value;
       if (!(yield* alive(record.pid)) || !(yield* answers(record.url))) return undefined;
-      return newestChange(root) > record.startedAt ? undefined : record;
+      // An edit is a newer file; an addition, a deletion or a rename is a different list of files.
+      return newestChange(root) > record.startedAt || fingerprint(root) !== record.sources ? undefined : record;
     }),
   reset: ({ url, telemetry }) =>
     // The collector's files too: a run reads them whole, and the last run's spans would only be in its way.

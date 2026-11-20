@@ -10,7 +10,7 @@
   folder, and when it began. The file is removed when dev stops.
 - **`ortho prove --env local` looks for it** (`packages/prove/src/modules/warm`). It uses the world only when dev's pid is alive, the
   world answers `/_world/health`, and nothing under `src`, `blueprint` or `generated/server` (not wrangler's `.wrangler` output) is
-  newer than dev's start. A record whose process is gone (dev killed) is ignored, and prove starts its own world. A prove with
+  newer than dev's start, and the list and contents of those files are what dev began with (a hash taken at dev's start, so an added, deleted or renamed file counts too). A record whose process is gone (dev killed) is ignored, and prove starts its own world. A prove with
   `--empty`, a chosen `--port`, or a model whose plugins run on a device (they need a chain of their own) never reuses.
   When it reuses it prints `prove: reusing the world of ortho dev at <url>` first, in its text and in the report's `lines`.
 - **Isolation is a reset before the run**, not a store per run: `POST /_world/reset` (host-cloudflare, `world`) empties every table
@@ -37,5 +37,4 @@ rule can follow them.
 
 ## Supersedes
 
-- `design/research/speed-and-vitest-proposal.md`: "needs A4 or a reset to be trustworthy" → this decision's reset (the page is a
-  dated record and keeps its words).
+- design/research/speed-and-vitest-proposal.md: "Leftover state between runs; needs A4 or a reset to be trustworthy." → "Leftover state between runs: a reset before each run keeps it out of the way (Superseded by ST1-24, 20 November 2026)."
