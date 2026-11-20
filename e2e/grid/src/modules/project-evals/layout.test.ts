@@ -64,6 +64,13 @@ describe("event.docs: an event's fields, in any layout", () => {
     expect(check(last, "LinkRemoved").why).toEqual([`${link}'s Events lists LinkRemoved without its field link`]);
     expect(check(last, "LinkAdded")).toEqual({ ok: true, why: [] });
   });
+  it("reads an entry whose markup has line breaks inside it", () => {
+    const route = "/portal/things/link";
+    const portal = (events: string) => judge(EventEvals.evals, "event.portal", "LinkAdded", editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));
+    expect(portal("<ul>\n<li>\n  LinkAdded:\n  link\n</li>\n<li>\nLinkRemoved\n</li>\n</ul>")).toEqual({ ok: true, why: [] });
+    expect(portal("<table>\n<tr>\n<td>\nLinkAdded\n</td>\n<td>\nlink\n</td>\n</tr>\n</table>")).toEqual({ ok: true, why: [] });
+    expect(portal("<ul>\n<li>\n  LinkAdded:\n  nothing\n</li>\n</ul>").why).toEqual([`${route}'s Events lists LinkAdded without its field link`]);
+  });
   it("reads the portal's list items and table rows the same way", () => {
     const route = "/portal/things/link";
     const portal = (events: string) => judge(EventEvals.evals, "event.portal", "LinkAdded", editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));
@@ -89,6 +96,20 @@ describe("thing.cli: a flag's name, type and description, in any layout", () => 
     expect(check("FLAGS\n  --link string  the link\n  --position string  The integer position\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
     expect(check("FLAGS\n  --link string\n  --position string\n      A number, an integer, from zero\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
     expect(check("FLAGS\n  --link string\n  --position integer  The string position\n")).toEqual({ ok: true, why: [] });
+  });
+  it("reads the whole type expression: an enum's choices in brackets, and a type written after the description", () => {
+    const enumField = (type: string) => {
+      const add = pluggedIn.model.operations["link.order"]!;
+      const model = { ...pluggedIn.model, operations: { ...pluggedIn.model.operations, "link.order": { ...add, payload: { ...add.payload, position: { value: { type: "enum" } } } } } };
+      return judge(ThingEvals.evals, "thing.cli", "link", { ...pluggedIn, model, cli: { ...pluggedIn.cli, "link order": `FLAGS\n  --link string\n  --position ${type}\n` } });
+    };
+    expect(enumField("<listed | removed>")).toEqual({ ok: true, why: [] });
+    expect(enumField("[listed|removed]  where it goes")).toEqual({ ok: true, why: [] });
+    expect(enumField("{a,b}")).toEqual({ ok: true, why: [] });
+    expect(enumField("<string>").why).toEqual(['link order --position: an enum is shown as "string", not its choices']);
+    expect(check("FLAGS\n  --link string\n  --position  Where it goes <integer>\n")).toEqual({ ok: true, why: [] });
+    expect(check("FLAGS\n  --link string\n  --position  Where it goes <string>\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
+    expect(check("FLAGS\n  --link string\n  --position <integer | string>\n").ok).toBe(false);
   });
   it("finds a flag by its own declaration: the usage line and another flag's description do not name it", () => {
     expect(check("USAGE\n  plugged-in link order --position <integer> --link <link>\n\nFLAGS\n  --link string  like --position integer\n").why).toEqual(["link order has no --position flag"]);

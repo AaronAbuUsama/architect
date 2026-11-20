@@ -24,9 +24,28 @@ const flagOf = (help: string, name: string): { readonly type: string; readonly d
     if (line.trim() === "" || isHeading(line) || startsAFlag(line)) break;
     following.push(line.trim());
   }
-  const words = `${after} ${following.join(" ")}`.trim().split(/\s+/).filter((w) => w !== "");
-  const token = (words[0] ?? "").replace(/^[<[=({]+|[>\])}.,:]+$/g, "");
-  return { type: token.toLowerCase(), description: words.slice(1).join(" ") };
+  return typeAndDescription(`${after} ${following.join(" ")}`.replace(/\s+/g, " ").trim());
+};
+
+/** Words a help prints as a type when it has no brackets around it. */
+const TYPE_WORDS = new Set(["uint", "int", "integer", "number", "float", "string", "text", "boolean", "bool", "choice", "enum", "json", "id", "path", "file", "url", "uuid"]);
+/** A type expression written whole: `<integer>`, `[a | b]`, `{a,b}`, `(integer)`. */
+const BRACKETED = /^(?:<([^<>]*)>|\[([^[\]]*)\]|\{([^{}]*)\}|\(([^()]*)\))\s*/;
+
+/**
+ * Splits what follows a flag's name into its type and its description. The type is the whole expression when it opens with a bracket (`<listed | removed>`),
+ * else the first word when it is one a help prints as a type (`integer`, `TEXT`), else the first `<…>` expression anywhere after (a type written after
+ * the description); and there is none otherwise.
+ */
+const typeAndDescription = (text: string): { readonly type: string; readonly description: string } => {
+  const lead = BRACKETED.exec(text);
+  if (lead !== null) return { type: (lead[1] ?? lead[2] ?? lead[3] ?? lead[4] ?? "").trim().toLowerCase(), description: text.slice(lead[0].length) };
+  const first = /^(\S+)\s*(.*)$/.exec(text);
+  const word = (first?.[1] ?? "").replace(/[.,:]+$/g, "");
+  if (TYPE_WORDS.has(word.toLowerCase())) return { type: word.toLowerCase(), description: first?.[2] ?? "" };
+  const later = /<([^<>]*)>/.exec(text);
+  if (later !== null) return { type: later[1]!.trim().toLowerCase(), description: text.replace(later[0], " ").replace(/\s+/g, " ").trim() };
+  return { type: "", description: text };
 };
 
 /** A number is shown as a number, an enum as its choices: judged on the flag's own type token, never on a word in its description. */

@@ -32,6 +32,6 @@ export const htmlRecords = (html: string): ReadonlyArray<Readonly<Record<string,
 
 /** Lines of text, a list item starting `- `, a table row `| ` and a heading `# `, as markdown writes them, so one reader serves both. */
 export const htmlLines = (html: string): ReadonlyArray<string> =>
-  html.replace(/<\/t[dh]>/g, " | ").replace(/<li\b[^>]*>/g, "\n- ").replace(/<tr\b[^>]*>/g, "\n| ").replace(/<h[1-6]\b[^>]*>/g, "\n# ")
+  html.replace(/\s+/g, " ").replace(/<\/t[dh]>/g, " | ").replace(/<li\b[^>]*>/g, "\n- ").replace(/<tr\b[^>]*>/g, "\n| ").replace(/<h[1-6]\b[^>]*>/g, "\n# ")
     .replace(/<(?:p|ul|ol|table|pre)\b|<\/(?:li|tr|h[1-6]|p|ul|ol|table|pre)>|<br\s*\/?>/g, "\n$&").split("\n")
     .map((line) => htmlText(line).replace(/(?: \|)+$/, "").trim()).filter((line) => line !== "" && !/^[-|#]$/.test(line));
