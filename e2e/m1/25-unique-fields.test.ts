@@ -268,11 +268,8 @@ describe("25 G5: `ortho add thing` writes an empty invariants.ts that compiles a
     expect(added.stdout.trim().split("\n"), "add says it wrote the file").toContain(`wrote ${path}`);
     expect(existsSync(join(root, path)), "the file is where G5 puts it, beside errors.ts").toBe(true);
     const text = textAt(root, path);
-    const code = text.split("\n").filter((l) => l.trim() !== "" && !l.trim().startsWith("//"));
-    expect(text.split("\n").some((l) => l.trim().startsWith("//")), "a comment saying what goes here").toBe(true);
-    expect(code.join("\n"), "no rule is declared").not.toMatch(/Blueprint\.invariant/);
-    expect(code.join("\n"), "no blank: add's three blanks stay in thing.ts, machine.ts and roles.ts").not.toMatch(/Blueprint\.todo/);
-    expect(code, "nothing but an empty export, which makes the file a module").toEqual(["export {};"]);
+    // G5 section 2: one comment line with words in it, then `export {};`, and nothing else: no blank line, no second comment, no rule, no blank.
+    expect(text, "exactly one non-empty comment line, then `export {};` (no rule, no blank, no spare lines)").toMatch(/^\/\/ [^\s/][^\n]*\nexport \{\};\n$/);
     expect(run(root, "check").out, "check names the three blanks and does not refuse the file").not.toMatch(/invariants/);
 
     // The blanks filled as layer1/06 does (acme's allowance declarations and what they need), with the written invariants.ts left as add wrote it.
