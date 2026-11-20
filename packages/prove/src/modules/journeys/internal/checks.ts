@@ -26,7 +26,7 @@ const tagOfRefusal = (error: Refusal, tableOf: (thing: Thing) => string | undefi
   if ((error as NotFound).kind === "not-found") return `${pascal(tableOf((error as NotFound).thing) ?? "?")}NotFound`;
   if ((error as NotFrom).kind !== "not-from") return tagOfClass(error);
   const machine = (error as NotFrom).machine;
-  return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(machine.states[0] ?? "")}`;
+  return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(Object.keys(machine.states)[0] ?? "")}`;
 };
 
 const subset = (want: Readonly<Record<string, unknown>>, got: unknown) =>
