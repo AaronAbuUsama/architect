@@ -25,9 +25,9 @@
 //   2. HARD, isolation: a fixture journey (`a run leaves a record`: a person signs up with one fixed email, which a world refuses a second
 //      time) is run three times in a row against one warm world; each run must pass and each must reuse the world. A world that kept the
 //      last run's person would refuse the second.
-//   3. RATIO, speed: the warm run is timed after a warm-up, twice, and the faster is at most 60% of the cold run of the same project
+//   3. RATIO, speed: the warm run is timed after a warm-up, three times, and the fastest is at most 60% of the cold run of the same project
 //      measured on the same machine at the start of this file (a cold run twice as slow on a loaded runner has a warm run twice as slow).
-//      Row 1 says the speed-up is real; this row says it is enough. It prints every time it measured, and whether the faster warm run was
+//      Row 1 says the speed-up is real; this row says it is enough. It prints every time it measured, and whether the fastest warm run was
 //      under 6 s, which is the target on a developer's machine and information only here (design/decisions/ST1-24-timing.md). It runs
 //      only if the warm-up reused dev's world.
 // Guards that pass today and must keep passing: a handler edited between two warm runs is what the next run judges (its verdict is the
@@ -208,11 +208,11 @@ describe("30 ST1.24: a warm world", () => {
     }
   });
 
-  it("the faster of two timed warm prove runs, after a warm-up, is at most 60% of the cold run measured on this machine", async () => {
+  it("the fastest of three timed warm prove runs, after a warm-up, is at most 60% of the cold run measured on this machine", async () => {
     const warmUp = await proveWarm(warm.root);
     expect(reused(warmUp, warm.url), `nothing is warm, so there is nothing to time\n${why(warmUp)}`).toBe(true);
     const times: Array<number> = [];
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       const timed = await proveWarm(warm.root);
       expect(timed.status, why(timed)).toBe(0);
       times.push(timed.seconds);

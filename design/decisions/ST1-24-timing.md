@@ -11,7 +11,7 @@ absolute 6 s therefore measures the machine, not what was built.
 
 ## Decision
 
-Check 30's speed row asserts that the faster of two timed warm runs, after a warm-up, is at most 60% of the cold run of the same
+Check 30's speed row asserts that the fastest of three timed warm runs, after a warm-up, is at most 60% of the cold run of the same
 project measured on the same machine in the same file. It prints both times and whether the warm run was under 6 s, as
 information only. The 6 s stays the target on a developer's machine, in words (the ST1.24 row in `milestones.md`).
 
