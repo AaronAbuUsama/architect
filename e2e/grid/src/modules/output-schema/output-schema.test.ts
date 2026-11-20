@@ -133,3 +133,24 @@ describe("a number is judged from the model's type, never from the schema", () =
     expect(OutputSchema.states({ model: pluggedIn.model, op: moved, schema: {}, spans: [], files: pluggedIn.files, states: ["a"] })).toEqual(["handle.claim's answer field links has no recorded value (the run's span carries none and the model does not say one), so the schema cannot be shown to accept it"]);
   });
 });
+
+describe("an optional public field is judged too", () => {
+  const claim = pluggedIn.model.operations["handle.claim"]!;
+  const note = { ...claim, answer: { handle: claim.answer["handle"]!, note: { value: { type: "text", max: 80 }, optional: true } } } as OperationModel;
+  const run = (schema: unknown, spans: ReadonlyArray<{ name: string; attrs: Record<string, unknown> }> = []) => OutputSchema.answers({ model: pluggedIn.model, op: note, schema, spans, files: pluggedIn.files });
+  const withNote = (type: unknown) => ({ type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" }, note: type }, required: ["handle"] }, refusalBranch] });
+
+  it("red: an optional text typed integer", () => {
+    expect(run(withNote({ type: "integer" }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer {"handle":"hdl_abc123","note":"x"}/);
+  });
+  it("red: an optional text that takes anything", () => {
+    expect(run(withNote({}))).toEqual(["handle.claim's output schema accepts an object for the answer field note, so its type is not the field's"]);
+  });
+  it("green: an optional text typed string", () => {
+    expect(run(withNote({ type: "string" }))).toEqual([]);
+  });
+  it("a text that looks like JSON is still text: a recorded \"{}\" is not read back as an object", () => {
+    const spans = [{ name: "handle.claim", attrs: { "answer.note": "{}" } }];
+    expect(run(withNote({ type: "string" }), spans)).toEqual([]);
+  });
+});

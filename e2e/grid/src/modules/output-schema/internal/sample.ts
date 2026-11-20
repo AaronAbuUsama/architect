@@ -15,8 +15,11 @@ const unflattened = (value: unknown): unknown => {
 };
 
 /** A real value of the answer field `name`: the one the operation's span in the prove run recorded. */
-const observed = (spans: ReadonlyArray<SpanView> | undefined, op: string, name: string): unknown =>
-  unflattened((spans ?? []).filter((s) => s.name === op).map((s) => s.attrs[`answer.${name}`]).find((v) => v !== undefined));
+const observed = (spans: ReadonlyArray<SpanView> | undefined, op: string, name: string, field: FieldModel): unknown => {
+  const value = (spans ?? []).filter((s) => s.name === op).map((s) => s.attrs[`answer.${name}`]).find((v) => v !== undefined);
+  // Text that happens to look like JSON (`"[1]"`) is still text: only a value the model does not say is a scalar is read back.
+  return ["text", "id", "boolean", "bool", "uint", "int"].includes(field.value.type) ? value : unflattened(value);
+};
 
 /**
  * A value of the kinds the model fully determines, as the wire carries it: an id of its prefix, a text, a boolean, and a number as the text of its digits
@@ -43,8 +46,14 @@ const answerConst = (schema: unknown, name: string): unknown => {
   return isObject(property) ? ("const" in property ? property["const"] : (property["enum"] as ReadonlyArray<unknown>)[0]) : undefined;
 };
 
-/** What every caller is shown of an answer: the fields with no visibility rule. A private field is optional and a secret is never named, so neither is in a sample. */
-const required = (op: OperationModel): ReadonlyArray<[string, FieldModel]> => Object.entries(op.answer).filter(([, f]) => f.visibility === undefined && f.optional !== true);
+/**
+ * What every caller is shown of an answer: the fields with no visibility rule. A private field is optional and a secret is never named, so neither is in a
+ * sample. A field the model declares optional is in the sample only when `withOptional` (a second sample, so both shapes are judged).
+ */
+const shown = (op: OperationModel, withOptional: boolean): ReadonlyArray<[string, FieldModel]> => Object.entries(op.answer).filter(([, f]) => f.visibility === undefined && (withOptional || f.optional !== true));
+
+/** Does the operation's answer declare a public field that is optional? */
+export const hasOptional = (op: OperationModel): boolean => shown(op, true).length > shown(op, false).length;
 
 export interface Sample {
   /** The answer, field by field. */
@@ -58,13 +67,13 @@ export interface Sample {
 }
 
 /** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's, else (a refusal's name only) the answer branch's own constant. */
-export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined): Sample => {
+export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined, withOptional = false): Sample => {
   const answer: Record<string, unknown> = {};
   const unknown: Array<string> = [];
   const scalars: Array<string> = [];
   const numeric: Array<string> = [];
-  for (const [name, field] of required(op)) {
-    const real = observed(spans, op.name, name);
+  for (const [name, field] of shown(op, withOptional)) {
+    const real = observed(spans, op.name, name, field);
     const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real ?? fromModel(field));
     const value = known ?? ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
     if (value === undefined) unknown.push(name);

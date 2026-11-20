@@ -1,7 +1,7 @@
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/cfworker";
 import type { OperationModel, ProjectModel } from "../project-evidence/types.ts";
 import { Reading } from "../reading/service.ts";
-import { sampleOf } from "./internal/sample.ts";
+import { hasOptional, sampleOf } from "./internal/sample.ts";
 import type { OutputSchemaApi } from "./types.ts";
 
 type Check = (value: unknown) => { readonly valid: boolean; readonly errorMessage?: string | undefined };
@@ -44,18 +44,24 @@ export const OutputSchema: OutputSchemaApi = {
     if (Object.keys(op.answer).length === 0) return [];
     if (!objectSchema(schema)) return [`${op.name}'s output schema is not a JSON Schema object`];
     const accepts = checkerOf(schema);
-    const sample = sampleOf(op, schema, spans);
     const refusals = refusalsOf(model, op, files);
-    const answer = sample.answer;
-    return [
-      ...unjudged(op, sample.unknown),
-      ...(sample.unknown.length > 0 ? [] : ((verdict) => (verdict.valid ? [] : [`${op.name}'s output schema refuses its own answer ${shown(answer)}, so the SDK client rejects every successful call: ${verdict.errorMessage ?? "no reason given"}`]))(accepts(answer))),
+    // Two shapes of answer: the fields every answer has, and (when the model declares some optional) the answer that carries them too.
+    const samples = [sampleOf(op, schema, spans), ...(hasOptional(op) ? [sampleOf(op, schema, spans, true)] : [])];
+    const ofSample = (sample: ReturnType<typeof sampleOf>): ReadonlyArray<string> => {
+      const answer = sample.answer;
+      return [
+        ...unjudged(op, sample.unknown),
+        ...(sample.unknown.length > 0 ? [] : ((verdict) => (verdict.valid ? [] : [`${op.name}'s output schema refuses its own answer ${shown(answer)}, so the SDK client rejects every successful call: ${verdict.errorMessage ?? "no reason given"}`]))(accepts(answer))),
+        ...(sample.unknown.length > 0 || accepts({}).valid ? [] : sample.scalars.filter((name) => name in answer).flatMap((name) => (accepts({ ...answer, [name]: { wrong: "type" } }).valid ? [`${op.name}'s output schema accepts an object for the answer field ${name}, so its type is not the field's`] : []))),
+        ...(sample.unknown.length > 0 ? [] : sample.numeric.filter((name) => name in answer && accepts({ ...answer, [name]: "not-a-number" }).valid).map((name) => `${op.name}'s output schema accepts "not-a-number" for the answer field ${name}, so it does not type it as a number`)),
+      ];
+    };
+    return [...new Set([
+      ...samples.flatMap(ofSample),
       ...refusals.problems,
       ...refusals.samples.flatMap((refusal) => (accepts(refusal).valid ? [] : [`${op.name}'s output schema refuses the refusal ${shown(refusal)}, so the SDK client rejects every refused call`])),
-      ...(Object.keys(answer).length > 0 && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
-      ...(sample.unknown.length > 0 || accepts({}).valid ? [] : sample.scalars.filter((name) => name in answer).flatMap((name) => (accepts({ ...answer, [name]: { wrong: "type" } }).valid ? [`${op.name}'s output schema accepts an object for the answer field ${name}, so its type is not the field's`] : []))),
-      ...(sample.unknown.length > 0 ? [] : sample.numeric.filter((name) => name in answer && accepts({ ...answer, [name]: "not-a-number" }).valid).map((name) => `${op.name}'s output schema accepts "not-a-number" for the answer field ${name}, so it does not type it as a number`)),
-    ];
+      ...(Object.keys(samples[0]!.answer).length > 0 && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
+    ])];
   },
 
   states: ({ op, schema, spans, states }) => {
