@@ -24,7 +24,7 @@
 // fixture without its rules compiles and carries no `invariants`.
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it } from "vitest";
 import * as W from "./loop-world.ts";
 import { copyOf, acme, fixtures, model, run, succeeds, textAt } from "./support.ts";
 
@@ -131,12 +131,24 @@ describe("25 G5: the compiler refuses a rule that cannot hold, naming the file",
 });
 
 describe("25 G5: a real world refuses, and the handler checks nothing", () => {
-  let root = "";
-  let loop: W.Loop;
-  beforeAll(async () => { root = project(); succeeds(root, "generate"); loop = await W.openLoop(root); }, 300_000);
-  afterAll(async () => { await loop?.close(); copies.splice(0).forEach((c) => c.remove()); });
+  // One world for the describe, opened by the first test that asks and shared after: a failure to open it fails each test with its own name, never a hook.
+  let opened: Promise<W.Loop> | undefined;
+  let kept: ReturnType<typeof copyOf> | undefined;
+  const world = () => (opened ??= (() => { const root = project(); kept = copies.pop(); succeeds(root, "generate"); return W.openLoop(root); })());
+  afterAll(async () => { await (await opened?.catch(() => undefined))?.close(); kept?.remove(); });
+
+  /** A call's spans once its named span is there; a call with no trace, or no such span in 30 s, fails this test by name and never waits out the file's timeout. */
+  const spansOf = async (r: { trace: string | undefined }, operation: string) => {
+    expect(r.trace, "the call has a trace").toBeDefined();
+    const loop = await world();
+    const read = W.until(() => loop.spans(r.trace!), (spans) => W.named(spans, operation) !== undefined, 20_000);
+    const spans = await Promise.race([read, new Promise<never>((_, reject) => { setTimeout(() => reject(new Error(`no ${operation} span for trace ${r.trace} within 30 s`)), 30_000); })]);
+    expect(W.named(spans, operation), `a ${operation} span`).toBeDefined();
+    return spans;
+  };
 
   const call = async (route: string, body: object) => {
+    const loop = await world();
     const response = await fetch(`${loop.url}/${route}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     const text = await response.text();
     const json = (() => { try { return JSON.parse(text) as Record<string, unknown>; } catch { return { raw: text }; } })();
@@ -159,7 +171,7 @@ describe("25 G5: a real world refuses, and the handler checks nothing", () => {
     const taken = await call("handle/claim", { name: "spanned", owner: "s2" });
     const owned = await call("handle/claim", { name: "spanned2", owner: "s1" });
     for (const [r, tag, rule] of [[taken, "HandleTaken", "handle.oneHolderPerName"], [owned, "HandleAlreadyOwned", "handle.oneNamePerPerson"]] as const) {
-      const spans = await W.until(() => loop.spans(r.trace!), (s) => W.named(s, "handle.claim") !== undefined);
+      const spans = await spansOf(r, "handle.claim");
       expect(W.named(spans, "handle.claim")?.attrs, tag).toMatchObject({ refusal: tag, "refusal.invariant": rule });
       expect(W.named(spans, "handle.claim")?.attrs["refusal.code"], `${tag}'s code`).toMatch(/^HD-\d+$/);
       expect(W.named(spans, "handle.claim")?.attrs["defect"]).toBeUndefined();
@@ -188,7 +200,7 @@ describe("25 G5: a real world refuses, and the handler checks nothing", () => {
     const other = await call("handle/claim", { name: "moved", owner: "k2" });
     const renamed = await call("handle/rename", { handle: String(other.body["handle"]), name: "kept" });
     expect(renamed.status, "a defect, never an undeclared refusal on the wire").toBeGreaterThanOrEqual(500);
-    const spans = await W.until(() => loop.spans(renamed.trace!), (s) => W.named(s, "handle.rename") !== undefined);
+    const spans = await spansOf(renamed, "handle.rename");
     expect(String(W.named(spans, "handle.rename")?.attrs["defect"] ?? "")).toMatch(/handle\.oneHolderPerName/);
     expect(String(W.named(spans, "handle.rename")?.attrs["defect"] ?? "")).toMatch(/handle\.rename/);
   });
@@ -201,7 +213,7 @@ describe("25 G5: a real world refuses, and the handler checks nothing", () => {
     expect((await call("profile/get", { handle })).body["profile"]).toBe(made.body["profile"]);
     const again = await call("profile/make", { handle });
     expect(again.status).toBeGreaterThanOrEqual(500);
-    const spans = await W.until(() => loop.spans(again.trace!), (s) => W.named(s, "profile.make") !== undefined);
+    const spans = await spansOf(again, "profile.make");
     expect(String(W.named(spans, "profile.make")?.attrs["defect"] ?? "")).toMatch(/profile\.onePagePerHandle/);
   });
 });
