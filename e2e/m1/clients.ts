@@ -67,6 +67,12 @@ console.log(JSON.stringify({ top: Object.keys(S).sort(), things }));`;
   return JSON.parse(result.stdout.trim().split("\n").at(-1) ?? "{}") as ClientBaseline["exports"];
 };
 
+/** What `want` exports that `now` does not (`Errors.shown`, say, when it is dropped): the SDK's top level, then each thing's. */
+export const missingExports = (want: ClientBaseline["exports"], now: ClientBaseline["exports"], extra: ReadonlyArray<string> = []): ReadonlyArray<string> => [
+  ...[...want.top, ...extra].filter((name) => !now.top.includes(name)).map((name) => name),
+  ...Object.entries(want.things).flatMap(([thing, names]) => names.filter((name) => !(now.things[thing] ?? []).includes(name)).map((name) => `${thing}.${name}`)),
+];
+
 // ---- instruments ----
 
 export const freePort = () => new Promise<number>((resolve, reject) => {

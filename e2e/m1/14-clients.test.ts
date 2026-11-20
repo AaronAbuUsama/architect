@@ -57,7 +57,7 @@ import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { callAs } from "../layer2/mcp.ts";
 import { acme, copyOf, declaration, model, mountEcho, nothingRunning, project, removeAt, run, succeeds, writeMount, type Copy } from "./support.ts";
-import { baseline, carriesOptions, clientDigest, differences, exportsOf, headerless, keepsItsFace, longWorld, proxy, runCli, runSdk, type Fate, type Proxy, type World } from "./clients.ts";
+import { baseline, carriesOptions, clientDigest, differences, exportsOf, headerless, keepsItsFace, longWorld, missingExports, proxy, runCli, runSdk, type Fate, type Proxy, type World } from "./clients.ts";
 
 const copies: Array<{ readonly remove: () => void }> = [];
 const fresh = () => { const copy = copyOf(acme); copies.push(copy); return copy.root; };
@@ -345,6 +345,17 @@ describe("14 M1.12: acme mounts its clients, and what they make is unchanged apa
     }
   });
 
+  it("control: the export check fails when a real export is dropped, and passes on the whole baseline", () => {
+    const { exports: want } = baseline();
+    const whole = { top: [...want.top, "Credential"], things: want.things };
+    expect(missingExports(want, whole, ["Credential"]), "the baseline itself").toEqual([]);
+    expect(missingExports(want, { ...whole, top: whole.top.filter((n) => n !== "Credential") }, ["Credential"])).toEqual(["Credential"]);
+    expect(missingExports(want, { ...whole, top: whole.top.filter((n) => n !== want.top[0]) }, ["Credential"])).toEqual([want.top[0]]);
+    const thing = Object.keys(want.things).find((t) => (want.things[t] ?? []).length > 0)!;
+    const dropped = want.things[thing]![0]!;
+    expect(missingExports(want, { ...whole, things: { ...want.things, [thing]: want.things[thing]!.slice(1) } }, ["Credential"]), "a thing's own export").toEqual([`${thing}.${dropped}`]);
+  });
+
   it("generates the clients as the fixed renderers did apart from the options, exports all it did, and check passes", () => {
     const root = fresh();
     for (const name of clients) expect(existsSync(join(root, mountPath(name))), `${mountPath(name)} is not in the project`).toBe(true);
@@ -356,9 +367,7 @@ describe("14 M1.12: acme mounts its clients, and what they make is unchanged apa
     const faces = Object.keys(want.files).filter((p) => carriesOptions(p) && /^sdk\/src\/[^/]+\/[^/]+\.ts$/.test(p));
     expect(faces.length, "an sdk file per operation").toBe(15);
     expect(faces.filter((path) => !keepsItsFace(root, path)), "each keeps its doc comment and its declaration").toEqual([]);
-    const now = exportsOf(root);
-    expect(now.top, "everything the SDK exported, and the Credential").toEqual(expect.arrayContaining([...want.exports.top, "Credential"]));
-    for (const [name, names] of Object.entries(want.exports.things)) expect(now.things[name], name).toEqual(expect.arrayContaining([...names]));
+    expect(missingExports(want.exports, exportsOf(root), ["Credential"]), "everything the SDK exported, and the Credential").toEqual([]);
     const checked = run(root, "check");
     expect(checked.status, checked.out).toBe(0);
   });
