@@ -1,0 +1,16 @@
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a `while` naming a state the machine does not have
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a `while` on a thing with no machine
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a file in a thing's folder with another name stays refused, and the message lists `invariants`
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a key that is not a field of the thing
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a refusal carrying a field that is not in the key
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a refusal whose exit another refusal the same operation can make already has (a borrowed error from another thing)
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a thing that lives as actors, with the real reason and not G4's
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > an empty tuple
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > an error owned by two rules
+src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > an error that is also in a verb's `errors:`, naming the rule and the verb's file
+src/modules/model/invariants.test.ts > G5: the model carries each rule > one field, a tuple, and a rule with no `while`, `refuse` or `description`
+src/modules/model/invariants.test.ts > G5: the model carries each rule > the rules are part of the thing's hash, and so are their scope, refusal and description
+src/modules/model/invariants.test.ts > G5: which operations can break a rule (section 3) > a database step that names the thing in `writes` breaks it, and a refusal is never in `errors`
+src/modules/model/invariants.test.ts > G5: which operations can break a rule (section 3) > a move that can end in a `while` state breaks it; a move that only leaves it and a default step with no move do not
+src/modules/model/invariants.test.ts > G5: which operations can break a rule (section 3) > a rule with no `while` is broken by any move, and a thing with no machine by any database step on it
+src/modules/model/invariants.test.ts > G5: which operations can break a rule (section 3) > a rule with no refusal attaches nothing to any operation
