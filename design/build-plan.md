@@ -216,6 +216,8 @@ parallel, then A4, A5; A8 after A0 (its open-model cells after A2); A9 after A8;
 
 ## Layer 5: Time
 
+Replaced by M8 in `milestones.md` ([`decisions/K23-time.md`](decisions/K23-time.md)); kept here as the record.
+
 **Goal.** One clock per world. A journey moves the clock a month and a year in seconds. Both moves made by time happen on time, locally and in CI.
 
 | id | name | needs | packages | what is built | done when |

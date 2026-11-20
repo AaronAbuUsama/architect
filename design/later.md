@@ -35,6 +35,13 @@ belongs to, and why it waits.
     database steps, so an operation that can break a rule is known exactly; `ortho add invariant`.
   - Caseless keys belong in the value (K9's `names.lowercase` choice), never in a key function no index can hold.
 
+- **A plugin that hangs on the app's own thing** (K22 option D, "slots"): the plugin declares a slot and the app binds
+  its own thing to it, so the app keeps its central thing and the plugin brings what points at it. Waits until
+  extracting Capxul's budgets or companies shows a plugin that truly wraps another app's thing; adoption (K22) covers
+  naming until then.
+- **An intent key on actors** (K21): `idempotent: { by }` for things that `lives: "actor"` waits with idempotency by
+  request on actors, below.
+
 ## From stage two (layer one)
 
 - An actor's journal entries live in its own Durable Object, so `prove`'s facts door doesn't see them yet. Layer four
@@ -136,6 +143,7 @@ belongs to, and why it waits.
 - **Our own tests by what changed** (proposal B2, B3): tests that only need prove's result call it in process, and suites that start `ortho` carry a tag; CI then picks suites from a table of changed path to tag. It waits because nothing in CI may use `vitest --changed` before B2 (it would skip the climbability check).
 - **Vitest for this repository** (proposal C2; spike `spikes/vitest-fixtures`, #189): world-starting checks on shared fixtures and report matchers, one config with named projects, the ratchet as a reporter, a slow-file budget. The checks author's work, after stage 1.
 - **Vitest as a generated output for users** (proposal C1): each journey a suite, each step a test, run by prove's engine, with an Orthograph reporter and the journey checks as matchers. It waits for the framework session with Aaron.
+- **One Cloudflare account per environment** (`decisions/M7-cloud.md`, addendum): today one account holds every environment, each resource prefixed by app, environment and run. When production holds real data, each environment gets its own account and token. It waits because nothing in that account matters yet (Aaron, 20 November 2026).
 
 ## From Codex's review of #159 (website builder, 20 November 2026)
 

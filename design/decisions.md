@@ -64,8 +64,7 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
   kept but unused.
 - **The clock from day one** (proposed, backed by the clock spike): one clock per world; nothing reads the wall clock;
   every wait goes through a Timers service; all handler, workflow and keeper work is counted work, so the world knows
-  when it's quiet; a lint rule bans plain sleeps in handlers; the world steps time like a simulation. Time moves still
-  arrive in layer 5.
+  when it's quiet; a lint rule bans plain sleeps in handlers; the world steps time like a simulation. Time moves arrive in M8 (K23).
 - **Names** (decided, backed by the names spike): an operation's name is its path, an error's its exported class name;
   one compiler writes the only copy of each name into `generated/`; verb files keep their dashes (`change-role.ts`) and
   the compiler maps them to identifiers (Aaron, 16 November 2026).
@@ -112,6 +111,9 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
 - Reads come from the contract's own view. Indexers are later.
 
 ## Layer 5: time
+
+Now its own milestone, M8, decided in [`decisions/K23-time.md`](decisions/K23-time.md): real, stepped and scaled
+clocks; `s.clock` in journeys; calendar anchors; each system's hook; adapters that declare their clock.
 
 - One clock per world: real, stepped or scaled. Moving a stepped clock moves the chain with it.
 - Moves made by time: `every` or `after`, fired lazily or by the keeper (a built-in caller) within a `late` window.

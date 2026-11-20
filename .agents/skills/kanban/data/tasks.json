@@ -2079,7 +2079,7 @@
    "M2.13",
    "M2.16"
   ],
-  "needsText": "M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.04, ST1.06 to ST1.22",
+  "needsText": "M2.02 to M2.11, M2.13 to M2.20, ST1.01 to ST1.04, ST1.06 to ST1.22",
   "order": 64,
   "plain": "One command makes a new app with sign-in and organisations; the links example at stage 1.",
   "pr": null,
@@ -4143,7 +4143,7 @@
     "raisedAt": "2026-11-19T09:38:00Z",
     "source": "M7.01",
     "status": "open",
-    "text": "What scope does the orthograph-staging token get?"
+    "text": "What scope does the Cloudflare token get?"
    },
    {
     "answer": null,
@@ -4171,7 +4171,7 @@
   "title": "The cloud pass for staging",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "The cloud pass for staging (K10 section 8): the orthograph-staging account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store Cloudflare.secrets means"
+  "what": "The cloud pass for staging (K10 section 8): the Cloudflare account Aaron uses for every environment for now, every resource prefixed, its token's scope, a cost estimate under the cap, which secret store Cloudflare.secrets means"
  },
  "M7-02": {
   "doneWhen": "npm view orthograph shows the release",
@@ -4218,7 +4218,7 @@
   "what": "The infra projection: an Alchemy stack per environment from the model and mounts"
  },
  "M7-04": {
-  "doneWhen": "ortho env destroy leaves nothing in the account",
+  "doneWhen": "ortho env destroy leaves nothing with its run's prefix in the account and changes nothing without it",
   "history": [],
   "id": "M7-04",
   "kind": "build",
