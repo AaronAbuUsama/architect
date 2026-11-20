@@ -1,5 +1,6 @@
 // The done-when check for L2.03 (D3 #8, #15.2): the real logbook worker on local workerd, behind wrangler, and a real
-// OIDC issuer (an `@orthograph/services` process). Ports 9120 to 9122 are this file's.
+// OIDC issuer (an `@orthograph/services` process), each on a free port.
+import { freePorts } from "../../../test/ports.ts";
 import { createSign, generateKeyPairSync } from "node:crypto";
 import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -11,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Logbook } from "./service.ts";
 
 const REPO = "acme/acme";
-const PORTS = { logbook: 9120, issuer: 9121, rogue: 9122 };
+const PORTS = freePorts("logbook", "issuer", "rogue");
 const services = Effect.runSync(Scope.make());
 
 /** One client id per scenario: the claims a GitHub Actions job would carry (D3 #8). */

@@ -1,9 +1,10 @@
+import { acmeCopy } from "../../../test/acme.ts";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { Clock, Duration, Effect, Exit, Scope } from "effect";
 import { Anvil } from "@orthograph/chain-evm";
 import { Timers } from "@orthograph/language-effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Worlds } from "./service.ts";
 import { WorldFailed } from "./types.ts";
 
@@ -21,12 +22,14 @@ const chainId = (rpcUrl: string) =>
   Effect.promise(() => fetch(rpcUrl, { method: "POST", headers: { "content-type": "application/json" }, body: '{"jsonrpc":"2.0","id":1,"method":"eth_chainId"}' })
     .then((r) => r.json() as Promise<{ result: string }>).then((j) => j.result, () => "gone"));
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 
 describe("a local world", () => {
   it("serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500", { timeout: 90_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8791, name: "world-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "world-test" });
       const post = (path: string, body: unknown, token?: string) =>
         Effect.promise(() => fetch(`${url}${path}`, {
           method: "POST",
@@ -48,7 +51,7 @@ describe("a local world", () => {
 
   it("the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer", { timeout: 90_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8792, name: "cli-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "cli-test" });
       const cast = yield* Effect.promise(() =>
         fetch(`${url}/_world/cast`, { method: "POST", body: JSON.stringify({ names: ["ada", "olga", "bob"] }) }).then((r) => r.json() as Promise<Record<string, { person: string; token: string }>>));
       const acmeCli = (who: string, ...args: ReadonlyArray<string>) =>
@@ -79,7 +82,7 @@ describe("a local world", () => {
         Effect.mapError((e) => new WorldFailed({ message: e.message })),
         Effect.provideService(Timers, timers),
       );
-      const running = yield* Worlds.start({ root: acme, port: 8793, name: "chain-test", chain }).pipe(Scope.provide(scope));
+      const running = yield* Worlds.start({ root: acme, port: 0, name: "chain-test", chain }).pipe(Scope.provide(scope));
       expect(running.chain?.chainId).toBe(31_337);
       expect(yield* chainId(running.chain!.rpcUrl)).toBe("0x7a69");
       expect((yield* Effect.promise(() => fetch(`${running.url}/_world/health`))).ok).toBe(true);

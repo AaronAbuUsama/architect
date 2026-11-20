@@ -1,7 +1,8 @@
 // L2.02's done-when checks, on a copy of acme under git: `prove --env test` posts verdicts the logbook reads back and
 // leaves no world; a run killed mid-way (SIGKILL) with a 20 s lifetime leaves a world that `worlds reap` removes after
 // its lifetime. Real wrangler and workerd for the logbook and the test environment, a real collector and a real OIDC
-// issuer (an @orthograph/services process). Ports 8970 to 8989 are this file's.
+// issuer (an @orthograph/services process), each on a free port.
+import { freePorts } from "../../../test/ports.ts";
 import { spawn, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -15,7 +16,7 @@ import { Prove } from "#modules/prove/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
 import { TestWorlds } from "./service.ts";
 
-const PORTS = { logbook: 8970, test: 8971, issuer: 8972 };
+const PORTS = freePorts("logbook", "test", "issuer");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const cli = resolve(import.meta.dirname, "../../../../cli/src/main.ts");
 const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" };

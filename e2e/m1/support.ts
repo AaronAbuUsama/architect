@@ -5,15 +5,16 @@ import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync
 import { dirname, join } from "node:path";
 import { expect } from "vitest";
 import { acme, copyOf, nothingRunning, ortho, repo } from "../layer1/support.ts";
+import { freePorts } from "../ports.ts";
 import { fixtures, installFixture, type Installed } from "./packages.ts";
 
 export { acme, copyOf, fixtures, installFixture, nothingRunning, repo };
 
-/** This milestone's ports: 19260 to 19279, and nothing outside them. */
-export const PORTS = {
-  control: 19260, sdk: 19261, mcp: 19262, loud: 19263, empty: 19264, defect: 19265, prove: 19266, narrow: 19267, omit: 19268,
-  journey: 19269, promise: 19270, effect: 19271, mapper: 19272, walletControl: 19273, wallets: 19274, hold: 19275,
-} as const;
+/** This milestone's ports: free ones picked when the file loads (`e2e/ports.ts`), so two runs on one machine never meet. */
+export const PORTS = freePorts(
+  "control", "sdk", "mcp", "loud", "empty", "defect", "prove", "narrow", "omit",
+  "journey", "promise", "effect", "mapper", "walletControl", "wallets", "hold",
+);
 
 export interface Copy {
   readonly root: string;

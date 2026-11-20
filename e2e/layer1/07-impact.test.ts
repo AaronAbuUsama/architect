@@ -11,7 +11,7 @@ afterAll(project.remove);
 describe("check 7: ortho impact", () => {
   it("stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added", () => {
     const { root } = project;
-    expect(ortho(root, "prove", "--env", "local", "--port", "8886").status).toBe(0);
+    expect(ortho(root, "prove", "--env", "local", "--port", "0").status).toBe(0);
     expect(ortho(root, "impact").stdout).toMatch(/^stale none$/m);
 
     const spend = join(root, "blueprint/things/allowance/verbs/spend.ts");

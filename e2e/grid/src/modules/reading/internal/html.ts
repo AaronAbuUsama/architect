@@ -29,3 +29,15 @@ export const htmlRecords = (html: string): ReadonlyArray<Readonly<Record<string,
   const head = [...(/<tr>([\s\S]*?)<\/tr>/.exec(table)?.[1] ?? "").matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) => htmlText(m[1]!).toLowerCase());
   return htmlRows(table).map((row) => Object.fromEntries(row.map((c, i) => [head[i] ?? String(i), c])));
 };
+
+export const htmlHeadings = (html: string, level: number): ReadonlyArray<string> =>
+  [...html.matchAll(new RegExp(`<h${level}\\b[^>]*>([\\s\\S]*?)</h${level}>`, "g"))].map((m) => htmlText(m[1]!));
+
+/**
+ * The entries of an HTML fragment, one line each, marked as markdown marks them (a list item or a definition term `- `, a table row `| `, a heading
+ * `# `) so one reader serves both. Only an entry's start makes a new line: every tag inside an entry (`p`, `div`, `span`, `strong`, `code`, `br`, a
+ * definition's `dd`, a table cell) is flattened to a space, so the full text of the entry stays on its line, however the markup is laid out.
+ */
+export const htmlLines = (html: string): ReadonlyArray<string> =>
+  html.replace(/\s+/g, " ").replace(/<\/t[dh]>/g, " | ").replace(/<(?:li|dt)\b[^>]*>/g, "\n- ").replace(/<tr\b[^>]*>/g, "\n| ").replace(/<h[1-6]\b[^>]*>/g, "\n# ")
+    .split("\n").map((line) => htmlText(line).replace(/(?: \|)+$/, "").trim()).filter((line) => line !== "" && !/^[-|#]$/.test(line));

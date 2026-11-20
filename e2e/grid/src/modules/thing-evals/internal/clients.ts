@@ -3,37 +3,70 @@ import { operationsOf, over, publicFields } from "./over.ts";
 
 const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** A flag is declared on a line of its own: it starts the line, alone or after a short form (`-p, --position`). */
+const declaration = (name: string) => new RegExp(`^\\s*(?:-[A-Za-z]\\s*,?\\s*)?--${escaped(name)}(?![A-Za-z0-9-])(.*)$`);
+const startsAFlag = (line: string) => /^\s*(?:-[A-Za-z]\s*,?\s*)?--[A-Za-z]/.test(line);
+/** A heading ends a section: an unindented line (`FLAGS`, `GLOBAL FLAGS`, `Options:`). */
+const isHeading = (line: string) => /^\S/.test(line) && line.trim() !== "";
+
 /**
- * What a `--help` says of one flag, in any layout: the text from where the flag is named (`--position`, alone or after `-p,`) up to where
- * the next flag is named, or the next blank line or section heading. `undefined` when the flag is not named.
+ * One flag as its own declaration states it: the type token right after the name (`string`, `<integer>`, `=INTEGER`), and the description, which
+ * is whatever follows the type on that line and on the lines below it until the next flag, a blank line or a heading, so the last flag's text
+ * ends with the flags section. The usage line and other flags' descriptions never name a flag; only a declaration does.
  */
-const flagBlock = (help: string, name: string): string | undefined => {
-  const start = new RegExp(`(?:^|[\\s,=])--${escaped(name)}(?![A-Za-z0-9-])`).exec(help);
-  if (start === null) return undefined;
-  const rest = help.slice(start.index + start[0].length);
-  const next = /(?:^|[\s,])--[A-Za-z]|\n\s*\n|\n[A-Z][A-Z ]+\n/.exec(rest);
-  return next === null ? rest : rest.slice(0, next.index);
+const flagOf = (help: string, name: string): { readonly type: string; readonly description: string } | undefined => {
+  const lines = help.split("\n");
+  const at = lines.findIndex((line) => declaration(name).test(line));
+  if (at < 0) return undefined;
+  const after = declaration(name).exec(lines[at]!)![1]!.replace(/^\s*=/, " ");
+  const following: Array<string> = [];
+  for (const line of lines.slice(at + 1)) {
+    if (line.trim() === "" || isHeading(line) || startsAFlag(line)) break;
+    following.push(line.trim());
+  }
+  return typeAndDescription(`${after} ${following.join(" ")}`.replace(/\s+/g, " ").trim());
 };
 
-/** A number is shown as a number (`integer`, `float`, `number`, in `<integer>` or any other form), never only as `string`. */
+/** Words a help prints as a type when it has no brackets around it. */
+const TYPE_WORDS = new Set(["uint", "int", "integer", "number", "float", "string", "text", "boolean", "bool", "choice", "enum", "json", "id", "path", "file", "url", "uuid"]);
+/** A type expression written whole: `<integer>`, `[a | b]`, `{a,b}`, `(integer)`. */
+const BRACKETED = /^(?:<([^<>]*)>|\[([^[\]]*)\]|\{([^{}]*)\}|\(([^()]*)\))\s*/;
+
+/**
+ * Splits what follows a flag's name into its type and its description. The type is the whole expression when it opens with a bracket (`<listed | removed>`),
+ * else the first word when it is one a help prints as a type (`integer`, `TEXT`), else the first `<…>` expression anywhere after (a type written after
+ * the description); and there is none otherwise.
+ */
+const typeAndDescription = (text: string): { readonly type: string; readonly description: string } => {
+  const lead = BRACKETED.exec(text);
+  if (lead !== null) return { type: (lead[1] ?? lead[2] ?? lead[3] ?? lead[4] ?? "").trim().toLowerCase(), description: text.slice(lead[0].length) };
+  const first = /^(\S+)\s*(.*)$/.exec(text);
+  const word = (first?.[1] ?? "").replace(/[.,:]+$/g, "");
+  if (TYPE_WORDS.has(word.toLowerCase())) return { type: word.toLowerCase(), description: first?.[2] ?? "" };
+  const later = /<([^<>]*)>/.exec(text);
+  if (later !== null) return { type: later[1]!.trim().toLowerCase(), description: text.replace(later[0], " ").replace(/\s+/g, " ").trim() };
+  return { type: "", description: text };
+};
+
+/** A number is shown as a number, an enum as its choices: judged on the flag's own type token, never on a word in its description. */
 const numeric = new Set(["uint", "int", "integer", "number", "float"]);
-const wrongType = (field: FieldModel, block: string): string | undefined =>
-  numeric.has(field.value.type) && !/\b(integer|int|float|number|uint)\b/i.test(block) ? `a ${field.value.type} is not shown as a number${/\bstring\b/.test(block) ? ' (it says "string")' : ""}`
-  : field.value.type === "enum" && !/\b(choice|one of)\b|\|/i.test(block) ? "an enum does not list its choices"
+const wrongType = (field: FieldModel, flag: { readonly type: string }): string | undefined =>
+  numeric.has(field.value.type) && !numeric.has(flag.type) ? `a ${field.value.type} is shown as ${flag.type === "" ? "no type" : `"${flag.type}"`}, not a number`
+  : field.value.type === "enum" && !/^(choice|enum|oneof)$|[|,]/.test(flag.type) ? `an enum is shown as ${flag.type === "" ? "no type" : `"${flag.type}"`}, not its choices`
   : undefined;
 
-/** thing.cli: each public payload field is a flag the help names, typed from its value (a number is a number) and carrying the field's description. */
+/** thing.cli: each public payload field is a declared flag, typed from its value (a number is a number) and carrying the field's description. */
 export const cli = over("thing.cli", (thing, e) => operationsOf(e, thing.name).flatMap((op) => {
   const command = `${op.thing} ${op.verb}`;
   const help = e.cli[command];
   if (help === undefined) return [`\`${command} --help\` could not be run through the generated CLI`];
   return publicFields(op.payload).flatMap(([name, field]) => {
-    const block = flagBlock(help, name);
-    if (block === undefined) return [`${command} has no --${name} flag`];
-    const typed = wrongType(field, block);
+    const flag = flagOf(help, name);
+    if (flag === undefined) return [`${command} has no --${name} flag`];
+    const typed = wrongType(field, flag);
     return [
       ...(typed === undefined ? [] : [`${command} --${name}: ${typed}`]),
-      ...(field.description === undefined || block.replace(/\s+/g, " ").includes(field.description) ? [] : [`${command} --${name} does not carry the field's description "${field.description}"`]),
+      ...(field.description === undefined || flag.description.includes(field.description) ? [] : [`${command} --${name} does not carry the field's description "${field.description}"`]),
     ];
   });
 }));

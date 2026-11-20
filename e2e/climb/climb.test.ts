@@ -41,8 +41,8 @@ const ran = (kind: Kind) => {
   const index = KINDS.indexOf(kind);
   const made = {
     root: copy.root,
-    first: prove(copy.root, PORTS.first + index, kind.journey),
-    second: prove(copy.root, PORTS.second + index, kind.journey),
+    first: prove(copy.root, PORTS.first[index]!, kind.journey),
+    second: prove(copy.root, PORTS.second[index]!, kind.journey),
   };
   runs.set(kind.id, made);
   return made;
