@@ -26,3 +26,5 @@ export { Promote } from "#modules/promote/service.js";
 export { PromoteFailed, PromoteRefused, type Promoted, type Target as PromoteTarget } from "#modules/promote/types.js";
 export { Publish } from "#modules/publish/service.js";
 export { PublishFailed, type Binary as PublishedBinary, type Published, type PublishTarget } from "#modules/publish/types.js";
+export { PortalFeed } from "#modules/portal-feed/service.js";
+export { PortalFeedFailed, type PortalFeedOptions } from "#modules/portal-feed/types.js";

@@ -17,6 +17,8 @@ export interface PortalEnv {
   /** The revision this environment's bundle is. */
   readonly ORTHO_REVISION?: string;
   readonly ORTHO_ENVIRONMENT?: string;
+  /** Where the world's starter answers its telemetry window (a loopback URL, local worlds only): the snapshot's `telemetry` and the trace pages read it. */
+  readonly ORTHO_PORTAL_FEED?: string;
   /** The client's files, as the Worker's static assets (K19). Without them `/portal` says the client is missing. */
   readonly PORTAL_ASSETS?: PortalAssets;
 }
