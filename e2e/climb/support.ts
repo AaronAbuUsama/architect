@@ -6,11 +6,17 @@ import { cpSync, existsSync, readFileSync } from "node:fs";
 import type { ProveReport } from "@orthograph/prove";
 import { join } from "node:path";
 import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
+import { freePorts } from "../ports.ts";
 
 export { nothingRunning };
 
-/** This check's ports: 19400 to 19419, and nothing outside them (m1 uses 19260 to 19279). */
-export const PORTS = { control: 19400, first: 19401, second: 19411 } as const;
+/** This check's ports, free ones picked when the file loads (`e2e/ports.ts`): the control's, and a pair for each kind of failure. */
+const picked = freePorts("control", "first0", "first1", "first2", "first3", "first4", "second0", "second1", "second2", "second3", "second4");
+export const PORTS = {
+  control: picked.control,
+  first: [picked.first0, picked.first1, picked.first2, picked.first3, picked.first4],
+  second: [picked.second0, picked.second1, picked.second2, picked.second3, picked.second4],
+} as const;
 
 const fixture = join(repo, "e2e/fixtures/climb");
 
@@ -86,12 +92,16 @@ export const journeyLine = (proved: Proved, journey: string) => proved.lines.fin
 export const stepLines = (proved: Proved, step: string) => proved.lines.filter((line) => line.startsWith(`  ✘ "${step}"`));
 
 /**
- * What a result is, with the things that differ between two honest runs taken out: an id the world made, and a measured
- * time. Whatever remains must be the same on the next run.
+ * What a result is, with the things that differ between two honest runs taken out: an id the world made, a measured
+ * time, and the performance eval's review note (`; review: p95 <t> is over 1.5x budget`), which appears only when p95
+ * crosses 1.5x the budget, so it depends on how loaded the machine is. Eval 7 never fails (`failures` is always empty),
+ * so the note cannot change a verdict; the line's own ✔ or ✘ stays and is still compared.
  */
 export const essence = (proved: Proved) =>
   proved.lines
-    .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>"))
+    .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>")
+        .replace(/; review: p95 \S+ is over 1\.5x budget$/, ""),
+    )
     .filter((line) => line.trim() !== "");
 
 /** The structured detail of a journey's failing step, from prove's report. */

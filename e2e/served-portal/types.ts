@@ -52,6 +52,10 @@ export interface OpenOptions {
   readonly clientDir?: string;
   /** The server module, when a control supplies its own. Default: `@orthograph/portal/server`. */
   readonly server?: PortalServerModule;
+  /** The module the server half is imported from, when `server` is not given. Default: `@orthograph/portal/server`. A control names one that cannot exist, or one with no `PortalServer`. */
+  readonly serverSpecifier?: string;
+  /** A browser launcher, for a control that makes the launch fail. Default: Playwright's Chromium, shared by the process. */
+  readonly launch?: () => Promise<import("playwright").Browser>;
   /** Run the Effect the server's `handle` returned. Default: `Effect.runPromise`. */
   readonly run?: (effect: unknown) => Promise<Response>;
 }
@@ -66,3 +70,6 @@ export interface ServedPortalsApi {
 
 /** The hooks the harness reads, named once. A builder's client must give them. */
 export const HOOKS = { ready: '[data-portal="page"][data-ready="true"]', page: '[data-portal="page"]' } as const;
+
+/** The browser's clock, fixed (`Date` only): the 9th of September 2001. A client that reads the time shows this, which no check expects. */
+export const CLOCK_ISO = "2001-09-09T01:46:40.000Z";

@@ -8,7 +8,7 @@ const acme = await evidenceOf("acme");
 const journeys = (e: typeof pluggedIn) => Object.values(e.model.journeys ?? {}).map((j) => j.name);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(JourneyEvals.evals, `journey.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("has seven journeys", () => {
     expect(journeys(pluggedIn).length).toBe(7);
   });

@@ -50,7 +50,7 @@
     "grid-tests": {
       "dependsOn": ["browser"],
       "executor": "nx:run-commands",
-      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid", "node --test tools/climb/*.test.mjs"] },
+      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid served-portal", "node --test tools/climb/*.test.mjs"] },
       "cache": false
     },
     "grid": {

@@ -38,6 +38,10 @@ package file, and the list parses.
 2. M1.37's MCP output schema and states (`thing.mcp`, `machine.mcp`, 5 pairs) are pulled into Goal 3 from M3, because a journey touched
    those cells. They are built with M1.42's client slice, and the list labels them "M1.42 (with M1.37's output schema, pulled from M3 by G7)".
 
+3. `machine.mcp` reads a move's states from what the framework emits for the tool (schemas, annotations), not from its description, which `operation.mcp` requires to equal the model's. K14's row and `grid.json` were amended to say so in #150.
+
+4. Stopping rule for the evals (#150, after four rounds of review on one kind of finding): the evals guard against false greens first. A false red from a presentation form no generator emits is loud, because the ratchet fails it as unexpected red. It is fixed when a generator first emits that form, not ahead of it. #150 swept the evals once for the kind (names matched as tokens, one declaration syntax accepted and its equivalent refused, formatting left in labels and values) and the sweep ends there. A false green is always fixed now, whatever form it needs.
+
 K19 (the portal prebuilt, #103) is the route for the M1.13 portal pairs.
 
 **When the list may grow.** Only in a checks author's change; only for pairs that change's new reading turns red; each named in the PR body with
@@ -52,7 +56,7 @@ CI: the `e2e-grid` job now runs `run --prove` through the nx target (`e2e/projec
 ## The evidence
 
 239 of 316 pairs green, 77 red, 53 cells on, 10 held off, from one `nx run e2e:grid --skip-nx-cache` on the branch (exit 0, ratchet ✔). The 77
-by slice (a pair that names two counts under each): M1.42 52 (the 5 MCP pairs now counted here, M1.37's output schema pulled from M3), M1.13 38, M2.08 7, M1.36 3 (operation.cli's journeys half).
+by slice (a pair that names two counts under each): M1.42 52 (the 5 MCP pairs now counted here, M1.37's output schema pulled from M3), M1.13 38, M2.08 7, M1.36 3 (`error.telemetry` for NotAllowed, `machine.telemetry` for handle and link). M2.08's 7 are `operation.cli`'s journeys half.
 By file, the builders' list is in `e2e/grid/README.md`, "Where Plugged In stands".
 
 Not decided here: `error.cli`, `error.mcp` (`prove --through`, S-11, S-20) and the eight not-needed event and journey cells (K14 Q2, Q3)

@@ -83,7 +83,7 @@ if (mode === "refuse") {
   console.log(`migrations: ${files.filter((f) => f.path.includes("/migrations/")).map((f) => f.path).join(", ")}`);
   const state = join(root, ".ortho/world");
   const program = Effect.scoped(Effect.gen(function* () {
-    const world = yield* Worlds.start({ root, port: 8841, name: "world" });
+    const world = yield* Worlds.start({ root, port: 0, name: "world" });
     const added = yield* call(world.url, "/line/add", { amount: "5" });
     console.log(`POST /line/add (the vault's store) -> ${added.status} ${added.body}`);
     const line = (JSON.parse(added.body) as { line: string }).line;

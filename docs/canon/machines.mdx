@@ -133,7 +133,7 @@ Once the handler has answered and its answer is checked, the move is applied
 as this call left it, then the payload, then the answer. A field found in none of them dies. `PlaceTaken`'s `left` is
 in the answer. Then:
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=75-79
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=79-83
 // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
 const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
 yield* unit.setState(op.thing, subject, outcome);

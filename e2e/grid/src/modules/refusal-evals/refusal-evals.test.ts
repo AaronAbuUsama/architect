@@ -6,9 +6,10 @@ import { describe, expect, it } from "vitest";
 import { RefusalEvals } from "./service.ts";
 import type { ModelView, RefusalEvidence } from "./types.ts";
 
-const acme = join(import.meta.dirname, "../../../../../examples/acme");
-const model = JSON.parse(readFileSync(join(acme, "generated/model/model.json"), "utf8")) as ModelView;
-const doc = (operation: string) => readFileSync(join(acme, "generated/docs", `${operation.replace(".", "/")}.md`), "utf8");
+// Acme's captured outputs (`e2e/grid/fixtures/acme`), not its live ones: a generator change must not break a test.
+const acme = JSON.parse(readFileSync(join(import.meta.dirname, "../../../fixtures/acme/files.json"), "utf8")) as Record<string, string>;
+const model = JSON.parse(acme["generated/model/model.json"]!) as ModelView;
+const doc = (operation: string) => acme[`generated/docs/${operation.replace(".", "/")}.md`]!;
 
 const judge = (cell: string, subject: string, evidence: Partial<RefusalEvidence>) => {
   const found = RefusalEvals.evals.find((e) => e.cell === cell);

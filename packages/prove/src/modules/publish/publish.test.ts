@@ -1,7 +1,8 @@
 // L2.06's done-when checks, through the `ortho publish` command on a copy of acme under git: the dry run lists exactly what would
 // go out and sends nothing; `--local` puts `@acme/sdk@1.1.0` and `@acme/cli@1.1.0` on a real Verdaccio, installable in a fresh folder;
 // the formula it commits to the tap installs with `brew` and runs; a prerelease never takes `latest`. Real wrangler and workerd for the
-// logbook, a real OIDC issuer and a real registry (Verdaccio under Node), both @orthograph/services processes, real Homebrew. Ports 9050 to 9069 are this file's.
+// logbook, a real OIDC issuer and a real registry (Verdaccio under Node), both @orthograph/services processes, real Homebrew, each on a free port.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,7 +19,7 @@ import { Publish } from "./service.ts";
 import { hostTarget } from "./internal/sea.ts";
 import { publishOrthograph } from "../../../test/orthograph-package.ts";
 
-const PORTS = { registry: 9050, logbook: 9051, issuer: 9052, world: 9053 };
+const PORTS = freePorts("registry", "logbook", "issuer", "world");
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const cli = join(repo, "packages/cli/src/main.ts");
@@ -116,8 +117,8 @@ describe("ortho publish", () => {
     expect(said.status, said.out).toBe(0);
     const target = hostTarget() ?? `${process.platform}-${process.arch}`;
     expect(said.lines, said.out).toEqual(expect.arrayContaining([
-      expect.stringMatching(/^npm @acme\/sdk@1\.1\.0 --tag latest to http:\/\/127\.0\.0\.1:9050\/ {2}\(\d+ files/),
-      expect.stringMatching(/^npm @acme\/cli@1\.1\.0 --tag latest to http:\/\/127\.0\.0\.1:9050\/ {2}\(\d+ files/),
+      expect.stringMatching(new RegExp(`^npm @acme/sdk@1\\.1\\.0 --tag latest to http://127\\.0\\.0\\.1:${PORTS.registry}/ {2}\\(\\d+ files`)),
+      expect.stringMatching(new RegExp(`^npm @acme/cli@1\\.1\\.0 --tag latest to http://127\\.0\\.0\\.1:${PORTS.registry}/ {2}\\(\\d+ files`)),
       expect.stringMatching(/^ {2}dist\/index\.js {2}\d+ B$/), expect.stringMatching(/^ {2}dist\/main\.js {2}\d+ B$/),
       expect.stringMatching(/^ {2}types\/generated\/sdk\/src\/index\.d\.ts {2}\d+ B$/),
       expect.stringMatching(new RegExp(`^binary acme-1\\.1\\.0-${target}\\.tar\\.gz `)),

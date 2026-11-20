@@ -9,7 +9,7 @@ const acme = await evidenceOf("acme");
 const things = Object.keys(pluggedIn.model.things);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(ThingEvals.evals, `thing.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it.each(["model", "api", "server", "docs", "portal", "telemetry"])("thing.%s is green for every thing", (cell) => {
     for (const thing of things) expect({ thing, ...check(cell, thing) }).toEqual({ thing, ok: true, why: [] });
   });
@@ -24,7 +24,7 @@ describe("Plugged In, as it is today", () => {
   });
 
   it("thing.cli is red where a flag is typed wrongly: link order's position is a uint shown as a string", () => {
-    expect(check("cli", "link").why).toEqual(['link order --position: a uint is shown as "string", expected a number']);
+    expect(check("cli", "link").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
     expect(check("cli", "handle").ok).toBe(true);
   });
 });

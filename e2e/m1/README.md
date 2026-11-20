@@ -73,9 +73,7 @@ cases; `adapter-cases` holds check 04's planted runner.  `live-steps` (check 13)
 
 ## Ports
 
-Check 00 to 08 use 19260 to 19279 and nothing else (`support.ts`, `PORTS`): 19260 control, 19261 sdk, 19262 mcp, 19263 loud,
-19264 empty, 19265 defect, 19266 prove, 19267 narrow, 19268 omit, 19269 journey, 19270 promise, 19271 effect, 19272 mapper,
-19275 the held-request service of check 04. 19273 and 19274 are check 09's; the range is used up, so checks 11, 12, 13, 14 and 16 bind port 0 and take what the system gives (11's two listeners, 13's gate service; 13's and 14's worlds get a free port found by binding 0, because wrangler needs it named; 14's proxy binds 0 itself).
+Every port a check names comes from `freePorts` in `e2e/ports.ts` (`support.ts`, `PORTS`; check 10 and the climb check ask for their own): distinct free ports picked when the test file loads, in 20000 to 29999, so two runs on one machine never meet on a port. Checks 11, 12, 13, 14 and 16 bind port 0 and take what the system gives (11's two listeners, 13's gate service; 13's and 14's worlds get a free port found by binding 0, because wrangler needs it named; 14's proxy binds 0 itself).
 
 ## Assumptions beyond M1-plugins
 

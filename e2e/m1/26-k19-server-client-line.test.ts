@@ -2,7 +2,8 @@
 // `@orthograph/portal/server`, or from any generated code, may import `react`, `@orthograph/portal-ui` or HeroUI Pro. Three things are judged:
 //   1. the graph walker itself, on planted in-memory graphs (a control: it passes today);
 //   2. the real import graph: the server entry's, and every generated file's;
-//   3. the lint rule a builder writes: `ortho/no-ui-in-worker`, tried on a planted breach and its expected diagnostics.
+//   3. the lint rule a builder writes: `ortho/no-ui-in-worker`, tried on a planted breach and its expected diagnostics: each names the
+//      module in quotes ('react'), and says K19.
 // What a builder owes (K19, "The decision"): `packages/portal/package.json` exports `./server` (the data API for `/_portal/v1/*`, no
 // React); the generated portal entry imports only that; `.oxlintrc.json` turns the rule on for `generated/` folders and for the server
 // half of `packages/portal`. The pieces of the licensed package's name are joined here: check 15 allows the whole name only in portal-ui.
@@ -49,6 +50,10 @@ describe("26 control: the walker sees every way a Worker can reach the UI, and o
     ["a re-export", `export { Chart } from "${PRO}/chart";`, `${PRO}/chart`],
     ["a dynamic import", 'export const lazy = () => import("@orthograph/portal-ui/shell");', "@orthograph/portal-ui/shell"],
     ["a require", 'const ui = require("react");', "react"],
+    ["a star re-export", 'export * from "react";', "react"],
+    ["a type-only named import", 'import type { ReactNode, FC } from "react";', "react"],
+    ["a type-only re-export", 'export type { FC } from "react";', "react"],
+    ["react-dom, which is not react", 'import "react-dom";', "react-dom"],
     ["the OSS HeroUI", 'import { Button } from "@heroui/react";', "@heroui/react"],
   ])("finds %s", (_, line, specifier) => {
     expect(from(tree({ "/w/portal/src/server.ts": line })).map((b) => b.specifier)).toEqual([specifier]);
@@ -120,6 +125,8 @@ const diagnostics = (file: string): { readonly exit: number | null; readonly lin
 const BREACH = [
   'import React from "react";',
   'import { renderToString } from "react-dom/server";',
+  'export * from "react";',
+  'import type { ReactNode } from "react";',
   'import { Shell } from "@orthograph/portal-ui";',
   `import { Button } from "${PRO}/react";`,
   `export { Chart } from "${PRO}/react/chart";`,
@@ -128,7 +135,7 @@ const BREACH = [
   "export const planted = [React, renderToString, Shell, Button];",
 ].join("\n");
 /** What the rule must say for each line of BREACH: K19, and the name it found. */
-const EXPECTED = ["react", "react-dom/server", "@orthograph/portal-ui", `${PRO}/react`, `${PRO}/react/chart`, "react", "@orthograph/portal-ui/shell"];
+const EXPECTED = ["react", "react-dom/server", "react", "react", "@orthograph/portal-ui", `${PRO}/react`, `${PRO}/react/chart`, "react", "@orthograph/portal-ui/shell"];
 
 describe("26 K19: the lint rule `ortho/no-ui-in-worker`", () => {
   const plant = (file: string, text: string, run: () => void) => {
@@ -142,7 +149,7 @@ describe("26 K19: the lint rule `ortho/no-ui-in-worker`", () => {
       const { lines, output } = diagnostics("tmp/lint-k19/generated/portal/breach.ts");
       expect(lines, `K19: the rule is not registered or not on for generated code; oxlint said:\n${output.slice(0, 600)}`).toHaveLength(EXPECTED.length);
       for (const [i, name] of EXPECTED.entries()) {
-        expect(lines[i], `diagnostic ${i + 1} names the module`).toContain(name);
+        expect(lines[i], `diagnostic ${i + 1} names the module, quoted`).toMatch(new RegExp(`['"\`]${name.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}['"\`]`));
         expect(lines[i], `diagnostic ${i + 1} says why`).toContain("K19");
       }
     });

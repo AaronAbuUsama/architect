@@ -7,14 +7,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ServedPortals } from "./service.ts";
-import { ServedPortalUnavailable, type PortalServerModule } from "./types.ts";
+import { CLOCK_ISO, ServedPortalUnavailable, type PortalServerModule } from "./types.ts";
 
 const SHELL = `<!doctype html><html><head><meta charset="utf-8"><title>stand-in</title></head><body><div id="root">loading</div><script>
 const route = location.pathname.replace(/^\\/portal/, "") || "/";
 fetch("/_portal/v1/blueprint").then((r) => r.json()).then((blueprint) => {
   const missing = route.startsWith("/nowhere");
   document.getElementById("root").innerHTML = '<main data-portal="page" data-ready="true" data-status="' + (missing ? 404 : 200) + '">'
-    + blueprint.things.map((t) => '<div data-portal="thing-card" data-thing="' + t + '">' + t + '</div>').join("") + '<p>route ' + route + '</p></main>';
+    + blueprint.things.map((t) => '<div data-portal="thing-card" data-thing="' + t + '">' + t + '</div>').join("") + '<p>route ' + route + '</p><time data-clock>' + new Date().toISOString() + '</time></main>';
 });
 </script></body></html>`;
 
@@ -43,6 +43,12 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     await portal.close();
   });
 
+  it("holds the browser's clock fixed, so a client that reads the time shows it", async () => {
+    const portal = await open();
+    expect((await portal.page("/portal")).html).toContain(`<time data-clock="">${CLOCK_ISO}</time>`);
+    await portal.close();
+  });
+
   it("serves a route with a dot in its name as the shell, and says a page is a 404 by its own hook", async () => {
     const portal = await open();
     expect((await portal.page("/portal/operations/handle.claim?tab=metrics")).html).toContain("route /operations/handle.claim");
@@ -58,6 +64,17 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     await portal.close();
   });
 
+  it("keeps each parallel screenshot its own: eight routes shot together are eight pictures, the ones shot one by one", async () => {
+    const portal = await open(["handle", "link", "profile", "thing"]);
+    const routes = Array.from({ length: 8 }, (_, i) => `/portal/things/route-${i}-${"x".repeat(i * 7)}`);
+    const serial: Array<string> = [];
+    for (const route of routes) serial.push(Buffer.from(await portal.shoot(route)).toString("base64"));
+    const together = (await Promise.all(routes.map((route) => portal.shoot(route)))).map((png) => Buffer.from(png).toString("base64"));
+    expect(new Set(serial).size, "the routes differ").toBe(routes.length);
+    expect(together).toEqual(serial);
+    await portal.close();
+  });
+
   it("takes the same screenshot twice, and a different one for different data", async () => {
     const first = await open();
     const again = await open();
@@ -70,6 +87,21 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
   });
 });
 
+describe("served portal: a failed start leaves nothing listening", () => {
+  const servers = () => process.getActiveResourcesInfo().filter((r) => r === "TCPServerWrap").length;
+
+  it("when the browser will not launch, the Worker it had started is released, and closeAll has nothing left to stop", async () => {
+    await ServedPortals.closeAll();
+    const before = servers();
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, server, run, launch: () => Promise.reject(new Error("no chromium here")) }).catch((e: unknown) => e);
+    expect((error as ServedPortalUnavailable).reason).toBe("no-browser");
+    expect((error as Error).message).toMatch(/^K19: /);
+    await ServedPortals.closeAll();
+    await new Promise<void>((resolve) => { setTimeout(resolve, 50); });
+    expect(servers(), "no server is left listening").toBe(before);
+  });
+});
+
 describe("served portal: a missing half says K19, never crashes", () => {
   it("no built client", async () => {
     const error = await ServedPortals.open({ context: {}, clientDir: join(dir, "nowhere"), server, run }).catch((e: unknown) => e);
@@ -78,11 +110,19 @@ describe("served portal: a missing half says K19, never crashes", () => {
     expect((error as Error).message).toMatch(/^K19: the portal's client is not built/);
   });
 
-  it("no ./server export", async () => {
-    const error = await ServedPortals.open({ context: {}, clientDir: dir }).catch((e: unknown) => e);
+  it("a server module that does not load", async () => {
+    const specifier = "@orthograph/portal/no-such-server";
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, serverSpecifier: specifier }).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ServedPortalUnavailable);
     expect((error as ServedPortalUnavailable).reason).toBe("no-server");
-    expect((error as Error).message).toMatch(/^K19: @orthograph\/portal\/server does not load/);
+    expect((error as Error).message.startsWith(`K19: ${specifier} does not load`), (error as Error).message).toBe(true);
+  });
+
+  it("a server module that loads but exports no PortalServer.handle", async () => {
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, serverSpecifier: "effect" }).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ServedPortalUnavailable);
+    expect((error as ServedPortalUnavailable).reason).toBe("no-server");
+    expect((error as Error).message).toMatch(/^K19: effect loads but exports no `PortalServer\.handle/);
   });
 
   it("a page that never says it is ready", async () => {

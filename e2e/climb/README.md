@@ -24,9 +24,9 @@ laid over acme's correct handler. It does not use Plugged In. Five kinds, each o
 | missing span | the record write is not a step | `spans({ present: [… "allowance.spend.record"] })` |
 
 The **control** runs the whole project with the correct handler: every climb journey passes and prove exits 0. Each planted
-kind is run twice with `--only <journey>` (property 5 compares the runs after taking out world-made ids and measured
-times; property 4 times both). Each property is its own test, so a red test names a property that does not hold: a snag.
-Prove prints text only, so the assertions read its lines. Ports 19400 to 19419. No Docker.
+kind is run twice with `--only <journey>` (property 5 compares the runs after taking out world-made ids, measured
+times and the performance eval's `; review: …` note, which depends on machine load and never changes a verdict; property 4 times both). Each property is its own test, so a red test names a property that does not hold: a snag.
+Prove prints text only, so the assertions read its lines. Each run takes free ports (`e2e/ports.ts`), so it never meets another run on the machine. No Docker.
 
 ## What holds (after #119, 19 November 2026)
 
@@ -39,7 +39,7 @@ Prove prints text only, so the assertions read its lines. Ports 19400 to 19419. 
   it for properties 1 to 3 (journey and step names, expected and got, the two files) and still asserts the text lines an agent reads.
 
 Property 4 (about 5 s per journey, world warm) and 5 (same result twice, world-made ids and p50/p95 taken out) held throughout.
-Ports 19400 to 19419. CI job `e2e-climb` is required.
+Free ports per run (`e2e/ports.ts`). CI job `e2e-climb` is required.
 
 ## The climb recorder
 

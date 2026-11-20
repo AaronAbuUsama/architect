@@ -55,12 +55,6 @@
       "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
-      "cell": "error.telemetry",
-      "subject": "NotAllowed",
-      "reason": "no span has refusal=NotAllowed: the refused call was not traced",
-      "waitsOn": "M1.36 — packages/language-effect/src/modules/handler/service.ts:77 (the role check runs before the operation span opens)"
-    },
-    {
       "cell": "event.docs",
       "subject": "HandleClaimed",
       "reason": "generated/docs/handle/index.md has no Events section documenting HandleClaimed with its fields",
@@ -193,18 +187,6 @@
       "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
-      "cell": "journey.telemetry",
-      "subject": "a stranger cannot edit a page",
-      "reason": "its spans cover 4 distinct steps, the journey ran 8",
-      "waitsOn": "M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its \"a journey's run lights up its operation\" needs) — packages/language-effect/src/modules/handler/service.ts:77, packages/prove/src/modules/telemetry/internal/journey-root.ts"
-    },
-    {
-      "cell": "journey.telemetry",
-      "subject": "release a handle",
-      "reason": "its spans cover 12 distinct steps, the journey ran 13",
-      "waitsOn": "M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its \"a journey's run lights up its operation\" needs) — packages/language-effect/src/modules/handler/service.ts:77, packages/prove/src/modules/telemetry/internal/journey-root.ts"
-    },
-    {
       "cell": "machine.api",
       "subject": "handle",
       "reason": "HandleNotClaimed's state is not typed as the union of claimed | released: state: Schema.String } }, { ht",
@@ -263,18 +245,6 @@
       "subject": "link",
       "reason": "the SDK never names the state \"listed\": a caller's state is not a typed union",
       "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
-    },
-    {
-      "cell": "machine.telemetry",
-      "subject": "handle",
-      "reason": "no committed handle.release span carries move.name release, move.from and move.to (it has move.from); the rest are on another span",
-      "waitsOn": "M1.36 — packages/language-effect/src/modules/handler/internal/move.ts:46"
-    },
-    {
-      "cell": "machine.telemetry",
-      "subject": "link",
-      "reason": "no committed link.remove span carries move.name remove, move.from and move.to (it has move.from); the rest are on another span",
-      "waitsOn": "M1.36 — packages/language-effect/src/modules/handler/internal/move.ts:46"
     },
     {
       "cell": "operation.cli",

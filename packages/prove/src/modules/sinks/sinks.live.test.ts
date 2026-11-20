@@ -37,7 +37,7 @@ describe.skipIf(!live)("Axiom, live (capxul-test, EU Central 1)", () => {
     expect(domain, "the edge domain axiom-domain").toBeTruthy();
 
     const root = withAxiom();
-    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 8942, env })));
+    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 0, env })));
     expect(report.lines.filter((l) => l.startsWith("axiom "))).toEqual([]); // the sink was not skipped
     expect(report.passed).toBe(true);
 

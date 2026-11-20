@@ -321,7 +321,7 @@ describe("17 journeys: the fixture's operation is proved", () => {
   const journey = "a lamp glows";
   it("passes with its handler, and fails with empty handlers, naming its step", async () => {
     const root = lampProject();
-    // `prove` takes a port and cannot ask for 0; the OS picks a free one (ports 19260 to 19279 stay with the other checks).
+    // A free port is named here: the run reports against it, and the port is not shared with another check.
     const real = run(root, "prove", "--only", journey, "--port", String(await freePort()));
     // `--only` leaves acme's other journeys unrun, so the run as a whole fails on their coverage: only this journey's line is judged.
     expect(real.out.match(/^journey .*$/gm), real.out).toEqual([`journey ${journey} ✔ 1/1 steps`]);

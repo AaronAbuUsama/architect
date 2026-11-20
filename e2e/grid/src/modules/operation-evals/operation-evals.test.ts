@@ -10,7 +10,7 @@ const acme = await evidenceOf("acme");
 const ops = Object.keys(pluggedIn.model.operations);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(OperationEvals.evals, `operation.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("has seven operations, so the suites below are not empty", () => {
     expect(ops.length).toBe(7);
   });
@@ -71,7 +71,7 @@ describe("a wrong output is red, and says what", () => {
 
   it("sdk: a function that lost its doc comment, one the group does not export", () => {
     expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/add.ts", (t) => t.replace(/\/\*\*[^\n]*\*\/\n/, ""))).why[0]).toMatch(/does not export add under the doc comment/);
-    expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => t.replace('export { add } from "./add.ts";\n', ""))).why).toEqual(["the link group does not export add"]);
+    expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => t.replace('export { add } from "./add.ts";\n', ""))).why).toEqual(["the link group does not export add from ./add.ts"]);
   });
 
   it("cli: a command that carries the description passes; one the group does not list is red", () => {

@@ -1,7 +1,8 @@
 // L2.10b's done-when, against the real logbook (workerd, behind wrangler) holding real verdicts signed by a real OIDC
 // issuer (an @orthograph/services process), over models the real compiler wrote: a recorded pass shows on
 // spend, a budget edit makes spend stale and nothing else, the latest failure wins, and a logbook that stops or a model
-// that is missing never shows green. Ports 9090 and 9091 are this file's.
+// that is missing never shows green.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +18,7 @@ import type { ModelWire } from "#modules/wire/types.js";
 import { Snapshot } from "./service.ts";
 import type { PortalSnapshot } from "./types.ts";
 
-const PORTS = { logbook: 9090, issuer: 9091 };
+const PORTS = freePorts("logbook", "issuer");
 const REPO = "acme/acme";
 const services = Effect.runSync(Scope.make());
 

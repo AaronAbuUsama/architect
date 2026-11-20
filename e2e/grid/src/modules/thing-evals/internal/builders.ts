@@ -14,7 +14,7 @@ const rowProblems = (where: string, thing: ThingModel, rows: ReadonlyArray<Reado
     const row = rows.find((r) => r[0] === name);
     if (row === undefined) return [`${where} has no row for the field ${name}`];
     return [
-      ...(row.slice(1).some((cell) => cell.includes(typeName(field))) ? [] : [`${where}'s row for ${name} does not show its type ${typeName(field)}`]),
+      ...(row.slice(1).some((cell) => Reading.hasName(cell, typeName(field))) ? [] : [`${where}'s row for ${name} does not show its type ${typeName(field)}`]),
       ...extras(field).filter((x) => !row.join(" ").includes(x.shown)).map((x) => `${where}'s row for ${name} does not show its ${x.what} (${x.shown})`),
     ];
   });
@@ -26,8 +26,8 @@ export const docs = over("thing.docs", (thing, e) => {
   if (page === undefined) return [`${path} was not generated`];
   const fields = Reading.mdSection(page, "Fields");
   return [
-    ...(page.includes(`# ${thing.name}\n`) ? [] : [`${path} has no heading "# ${thing.name}"`]),
-    ...(page.includes(thing.description ?? "\0") ? [] : [`${path} does not carry the description`]),
+    ...(Reading.mdTitle(page) === thing.name ? [] : [`${path} has no heading "# ${thing.name}"`]),
+    ...(Reading.plain(page.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")).replace(/\s+/g, " ").includes(Reading.plain(thing.description ?? "\0")) ? [] : [`${path} does not carry the description`]),
     ...(fields === undefined ? [`${path} has no Fields section`] : rowProblems("the Fields table", thing, Reading.mdRows(fields))),
   ];
 });
@@ -42,7 +42,7 @@ export const portal = over("thing.portal", (thing, e) => {
   const things = Reading.htmlItems(Reading.htmlSection(e.portal["/portal"] ?? "", 2, "Things") ?? "");
   return [
     ...(things.some((t) => t.startsWith(thing.name) && t.includes(thing.description ?? "\0")) ? [] : [`home shows no card for ${thing.name} with its description`]),
-    ...(own.includes(`<h1>${thing.name}</h1>`) ? [] : [`${route} has no heading ${thing.name}`]),
+    ...(Reading.htmlHeadings(own, 1).includes(thing.name) ? [] : [`${route} has no heading ${thing.name}`]),
     ...(Reading.htmlText(own).includes(thing.description ?? "\0") ? [] : [`${route} does not carry the description`]),
     ...(fields === undefined ? [`${route} has no Fields table`] : rowProblems("the Fields table", thing, Reading.htmlRows(fields))),
   ];

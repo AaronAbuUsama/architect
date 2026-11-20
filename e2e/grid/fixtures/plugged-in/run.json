@@ -1,5 +1,4 @@
 {
- "_": "Captured from a real prove run of examples/plugged-in (ortho prove --report) and the generated CLI and MCP server, by `tsx e2e/grid/src/main.ts capture`; spans kept one per distinct shape.",
  "cli": {
   "": "USAGE\n  plugged-in <subcommand> [flags]\n\nGLOBAL FLAGS\n  --help, -h                                                          Show help information\n  --version, -v                                                       Show version information\n  --wizard                                                            Start wizard mode for a command\n  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)\n  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)\n\nSUBCOMMANDS\n  handle     \n  link       \n  profile    \n",
   "handle": "USAGE\n  plugged-in handle <subcommand> [flags]\n\nGLOBAL FLAGS\n  --help, -h                                                          Show help information\n  --version, -v                                                       Show version information\n  --wizard                                                            Start wizard mode for a command\n  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)\n  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)\n\nSUBCOMMANDS\n  claim      \n  release    \n  resolve    \n",
@@ -167,13 +166,13 @@
    "attrs": {
     "operation": "handle.claim",
     "attempt": 1,
-    "principal.person": "per_5p12k8buhtcfub9v",
+    "principal.person": "per_b5q9ajq0glgvyyj8",
     "payload.name": "claimedname",
     "environment": "local",
     "store": "database",
     "move.name": "claim",
     "move.to": "claimed",
-    "answer.handle": "hdl_kdngy9ukgdpqp18g"
+    "answer.handle": "hdl_2bg7wv2cvtpf1fsm"
    }
   },
   {
@@ -190,7 +189,7 @@
    "attrs": {
     "operation": "handle.claim",
     "attempt": 1,
-    "principal.person": "per_5p12k8buhtcfub9v",
+    "principal.person": "per_b5q9ajq0glgvyyj8",
     "payload.name": "claimedname",
     "environment": "local",
     "store": "database",
@@ -211,7 +210,7 @@
    "attrs": {
     "operation": "handle.claim",
     "attempt": 1,
-    "principal.person": "per_cjavph0l6trm5fnt",
+    "principal.person": "per_i9mhoc37kaepin49",
     "payload.name": "claimedname",
     "environment": "local",
     "store": "database",
@@ -262,7 +261,7 @@
     "payload.name": "claimedname",
     "environment": "local",
     "store": "database",
-    "answer.handle": "hdl_kdngy9ukgdpqp18g"
+    "answer.handle": "hdl_2bg7wv2cvtpf1fsm"
    }
   },
   {
@@ -319,13 +318,13 @@
    "attrs": {
     "operation": "link.add",
     "attempt": 1,
-    "principal.person": "per_9hexrmqcl6hkgqzc",
+    "principal.person": "per_nvpnq69jkwg7qlq0",
     "payload.url": "https://github.com/aaron",
     "environment": "local",
     "store": "database",
     "move.name": "add",
     "move.to": "listed",
-    "answer.link": "lnk_r6v44qpw7rtuvo5f"
+    "answer.link": "lnk_ixo1wkv27ytajfkk"
    }
   },
   {
@@ -333,7 +332,7 @@
    "attrs": {
     "operation": "link.add",
     "attempt": 1,
-    "principal.person": "per_m5pfs3vmc37udty3",
+    "principal.person": "per_ecbk2k11n59v7f72",
     "payload.url": "https://bob.example.com",
     "environment": "local",
     "store": "database",
@@ -385,7 +384,7 @@
     "environment": "local",
     "store": "database",
     "answer.handle": "guardpage",
-    "answer.links": "[{\"id\":\"lnk_r6v44qpw7rtuvo5f\",\"title\":\"GitHub\",\"url\":\"https://github.com/aaron\"}]"
+    "answer.links": "[{\"id\":\"lnk_ixo1wkv27ytajfkk\",\"title\":\"GitHub\",\"url\":\"https://github.com/aaron\"}]"
    }
   },
   {
@@ -459,8 +458,8 @@
    "attrs": {
     "operation": "link.order",
     "attempt": 1,
-    "principal.person": "per_ask01t0lwfdl9q0a",
-    "payload.link": "lnk_perptttgeg8hwprb",
+    "principal.person": "per_d2yal3fiy5dx37wx",
+    "payload.link": "lnk_9hkilcw7xsaqrz9c",
     "payload.position": "0",
     "environment": "local",
     "store": "database"
@@ -525,8 +524,8 @@
    "attrs": {
     "operation": "link.remove",
     "attempt": 1,
-    "principal.person": "per_ask01t0lwfdl9q0a",
-    "payload.link": "lnk_92u0slzxzadiaj5z",
+    "principal.person": "per_d2yal3fiy5dx37wx",
+    "payload.link": "lnk_jwkxzkolhu7f30gd",
     "environment": "local",
     "store": "database",
     "move.from": "listed"
@@ -555,8 +554,8 @@
    "attrs": {
     "operation": "link.remove",
     "attempt": 1,
-    "principal.person": "per_ask01t0lwfdl9q0a",
-    "payload.link": "lnk_92u0slzxzadiaj5z",
+    "principal.person": "per_d2yal3fiy5dx37wx",
+    "payload.link": "lnk_jwkxzkolhu7f30gd",
     "environment": "local",
     "store": "database",
     "refusal": "LinkNotListed",
@@ -577,8 +576,8 @@
    "attrs": {
     "operation": "link.order",
     "attempt": 1,
-    "principal.person": "per_ask01t0lwfdl9q0a",
-    "payload.link": "lnk_92u0slzxzadiaj5z",
+    "principal.person": "per_d2yal3fiy5dx37wx",
+    "payload.link": "lnk_jwkxzkolhu7f30gd",
     "payload.position": "0",
     "environment": "local",
     "store": "database",
@@ -637,12 +636,12 @@
    "attrs": {
     "operation": "profile.get",
     "attempt": 1,
-    "principal.person": "per_psbs416o89hsa9qk",
+    "principal.person": "per_shulou2zvp9pft6l",
     "payload.handle": "linkpage",
     "environment": "local",
     "store": "database",
     "answer.handle": "linkpage",
-    "answer.links": "[{\"id\":\"lnk_aivno68yotd8cz9b\",\"title\":\"GitHub\",\"url\":\"https://github.com/aaron\"},{\"id\":\"lnk_pk67t21s983o9p5j\",\"title\":\"Blog\",\"url\":\"https://aaron.example.com/blog\"},{\"id\":\"lnk_n4oj5hnrdw1w9oly\",\"title\":\"Talks\",\"url\":\"https://aaron.example.com/talks\"}]"
+    "answer.links": "[{\"id\":\"lnk_t972s5q7lja9q8yf\",\"title\":\"GitHub\",\"url\":\"https://github.com/aaron\"},{\"id\":\"lnk_l0u27byb0xjk03q8\",\"title\":\"Blog\",\"url\":\"https://aaron.example.com/blog\"},{\"id\":\"lnk_zc1j0hhivvt2j77f\",\"title\":\"Talks\",\"url\":\"https://aaron.example.com/talks\"}]"
    }
   },
   {
@@ -759,7 +758,7 @@
    "attrs": {
     "operation": "handle.claim",
     "attempt": 1,
-    "principal.person": "per_3eceh0i1t8t0wxue",
+    "principal.person": "per_4brb0n104z9wjd1u",
     "payload.name": "secondpage",
     "environment": "local",
     "store": "database",
@@ -827,8 +826,8 @@
    "attrs": {
     "operation": "handle.release",
     "attempt": 1,
-    "principal.person": "per_qd1mju8jbr5woibh",
-    "payload.handle": "hdl_1fahm7r5kdcob9df",
+    "principal.person": "per_9xrlf4435s8uz3x9",
+    "payload.handle": "hdl_dbkk7hhocoibjjl3",
     "environment": "local",
     "store": "database",
     "move.from": "claimed"
@@ -848,8 +847,8 @@
    "attrs": {
     "operation": "handle.release",
     "attempt": 1,
-    "principal.person": "per_qd1mju8jbr5woibh",
-    "payload.handle": "hdl_1fahm7r5kdcob9df",
+    "principal.person": "per_9xrlf4435s8uz3x9",
+    "payload.handle": "hdl_dbkk7hhocoibjjl3",
     "environment": "local",
     "store": "database",
     "refusal": "HandleNotClaimed",
@@ -994,7 +993,7 @@
    "evalsFailed": 0,
    "failing": 0
   },
-  "seconds": 23.17,
+  "seconds": 23.638,
   "journeys": [
    {
     "name": "a name is claimed once",
@@ -1016,7 +1015,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 4
+      "ms": 10
      },
      {
       "name": "another person's request key is not aaron's: still refused",
@@ -1025,7 +1024,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 4
+      "ms": 7
      },
      {
       "name": "the name still resolves to aaron's handle",
@@ -1034,7 +1033,7 @@
       "operation": "handle.resolve",
       "handlerFile": "src/handle/resolve.ts",
       "declarationFile": "blueprint/things/handle/verbs/resolve.ts",
-      "ms": 3
+      "ms": 6
      },
      {
       "name": "the refusal left bob free to claim a name of his own",
@@ -1047,7 +1046,7 @@
      }
     ],
     "skipped": [],
-    "ms": 22
+    "ms": 34
    },
    {
     "name": "a stranger cannot edit a page",
@@ -1060,7 +1059,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 4
+      "ms": 3
      },
      {
       "name": "bob cannot move aaron's link, and the handler never runs",
@@ -1105,7 +1104,7 @@
       "operation": "handle.resolve",
       "handlerFile": "src/handle/resolve.ts",
       "declarationFile": "blueprint/things/handle/verbs/resolve.ts",
-      "ms": 3
+      "ms": 4
      },
      {
       "name": "bob cannot release aaron's name",
@@ -1123,11 +1122,11 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 8
+      "ms": 14
      }
     ],
     "skipped": [],
-    "ms": 15
+    "ms": 21
    },
    {
     "name": "add, order and remove a link",
@@ -1140,7 +1139,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 10
+      "ms": 13
      },
      {
       "name": "aaron adds a fourth link",
@@ -1176,7 +1175,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 10
+      "ms": 17
      },
      {
       "name": "a position past the end puts a link last",
@@ -1185,7 +1184,7 @@
       "operation": "link.order",
       "handlerFile": "src/link/order.ts",
       "declarationFile": "blueprint/things/link/verbs/order.ts",
-      "ms": 4
+      "ms": 6
      },
      {
       "name": "the page shows GitHub last",
@@ -1194,7 +1193,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 10
+      "ms": 13
      },
      {
       "name": "aaron removes the talks link",
@@ -1203,7 +1202,7 @@
       "operation": "link.remove",
       "handlerFile": "src/link/remove.ts",
       "declarationFile": "blueprint/things/link/verbs/remove.ts",
-      "ms": 5
+      "ms": 8
      },
      {
       "name": "the page no longer lists it, and keeps the order of the rest",
@@ -1212,7 +1211,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 8
+      "ms": 11
      },
      {
       "name": "he cannot remove it twice",
@@ -1221,7 +1220,7 @@
       "operation": "link.remove",
       "handlerFile": "src/link/remove.ts",
       "declarationFile": "blueprint/things/link/verbs/remove.ts",
-      "ms": 0
+      "ms": 1
      },
      {
       "name": "he cannot move a removed link",
@@ -1243,7 +1242,7 @@
      }
     ],
     "skipped": [],
-    "ms": 86
+    "ms": 108
    },
    {
     "name": "anyone reads a public page",
@@ -1265,7 +1264,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 15
+      "ms": 11
      },
      {
       "name": "a signed-in person who is not the owner reads the same page",
@@ -1292,11 +1291,11 @@
       "operation": "handle.resolve",
       "handlerFile": "src/handle/resolve.ts",
       "declarationFile": "blueprint/things/handle/verbs/resolve.ts",
-      "ms": 4
+      "ms": 3
      }
     ],
     "skipped": [],
-    "ms": 35
+    "ms": 30
    },
    {
     "name": "claim a handle",
@@ -1318,7 +1317,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 1
+      "ms": 3
      },
      {
       "name": "aaron cannot add a link before he has a page",
@@ -1336,7 +1335,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 6
+      "ms": 9
      },
      {
       "name": "the name now resolves to a handle",
@@ -1345,7 +1344,7 @@
       "operation": "handle.resolve",
       "handlerFile": "src/handle/resolve.ts",
       "declarationFile": "blueprint/things/handle/verbs/resolve.ts",
-      "ms": 2
+      "ms": 3
      },
      {
       "name": "the claim made a public page, with no links yet",
@@ -1376,7 +1375,7 @@
      }
     ],
     "skipped": [],
-    "ms": 26
+    "ms": 32
    },
    {
     "name": "release a handle",
@@ -1389,7 +1388,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 9
+      "ms": 10
      },
      {
       "name": "bob cannot release aaron's name",
@@ -1425,7 +1424,7 @@
       "operation": "handle.resolve",
       "handlerFile": "src/handle/resolve.ts",
       "declarationFile": "blueprint/things/handle/verbs/resolve.ts",
-      "ms": 1
+      "ms": 3
      },
      {
       "name": "the released name has no public page",
@@ -1434,7 +1433,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 2
+      "ms": 3
      },
      {
       "name": "aaron has no page to add a link to any more",
@@ -1443,7 +1442,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 2
+      "ms": 3
      },
      {
       "name": "someone else claims the released name",
@@ -1452,7 +1451,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 6
+      "ms": 13
      },
      {
       "name": "the new page has none of the old owner's links",
@@ -1461,7 +1460,7 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 6
+      "ms": 13
      },
      {
       "name": "the old handle is not bob's: he cannot release it, and it stays released",
@@ -1479,7 +1478,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 6
+      "ms": 9
      },
      {
       "name": "aaron can add a link again, to his new page",
@@ -1488,7 +1487,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 7
+      "ms": 10
      },
      {
       "name": "his new page has only the new link, and the old name's page is still bob's and empty",
@@ -1497,11 +1496,11 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 6
+      "ms": 16
      }
     ],
     "skipped": [],
-    "ms": 48
+    "ms": 83
    },
    {
     "name": "a person claims a page and shares it",
@@ -1514,7 +1513,7 @@
       "operation": "handle.claim",
       "handlerFile": "src/handle/claim.ts",
       "declarationFile": "blueprint/things/handle/verbs/claim.ts",
-      "ms": 7
+      "ms": 10
      },
      {
       "name": "aaron adds his GitHub",
@@ -1523,7 +1522,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 7
+      "ms": 15
      },
      {
       "name": "aaron adds his blog",
@@ -1532,7 +1531,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 6
+      "ms": 11
      },
      {
       "name": "aaron adds his talks",
@@ -1541,7 +1540,7 @@
       "operation": "link.add",
       "handlerFile": "src/link/add.ts",
       "declarationFile": "blueprint/things/link/verbs/add.ts",
-      "ms": 17
+      "ms": 11
      },
      {
       "name": "anyone sees his public page at @aaron: three links in the order he added them",
@@ -1550,11 +1549,11 @@
       "operation": "profile.get",
       "handlerFile": "src/profile/get.ts",
       "declarationFile": "blueprint/things/profile/verbs/get.ts",
-      "ms": 7
+      "ms": 12
      }
     ],
     "skipped": [],
-    "ms": 44
+    "ms": 59
    }
   ],
   "lines": [
@@ -1571,10 +1570,10 @@
    "handle.claim events ✔",
    "handle.claim who may call ✔",
    "handle.claim steps ✔",
-   "handle.claim performance ✔ p50 6ms p95 23ms budget p95 150ms",
+   "handle.claim performance ✔ p50 9ms p95 28ms budget p95 150ms",
    "handle.claim coverage ✔",
    "handle.claim explainability ✔",
-   "handle.claim 9 evals ✔ p50 6ms p95 23ms budget p95 150ms",
+   "handle.claim 9 evals ✔ p50 9ms p95 28ms budget p95 150ms",
    "handle.release answer shape ✔",
    "handle.release declared errors ✔",
    "handle.release machine path ✔",
@@ -1591,50 +1590,50 @@
    "handle.resolve events ✔",
    "handle.resolve who may call ✔",
    "handle.resolve steps ✔",
-   "handle.resolve performance ✔ p50 2ms p95 4ms budget p95 150ms",
+   "handle.resolve performance ✔ p50 3ms p95 6ms budget p95 150ms",
    "handle.resolve coverage ✔",
    "handle.resolve explainability ✔",
-   "handle.resolve 9 evals ✔ p50 2ms p95 4ms budget p95 150ms",
+   "handle.resolve 9 evals ✔ p50 3ms p95 6ms budget p95 150ms",
    "link.add answer shape ✔",
    "link.add declared errors ✔",
    "link.add machine path ✔",
    "link.add events ✔",
    "link.add who may call ✔",
    "link.add steps ✔",
-   "link.add performance ✔ p50 9ms p95 17ms budget p95 150ms",
+   "link.add performance ✔ p50 10ms p95 19ms budget p95 150ms",
    "link.add coverage ✔",
    "link.add explainability ✔",
-   "link.add 9 evals ✔ p50 9ms p95 17ms budget p95 150ms",
+   "link.add 9 evals ✔ p50 10ms p95 19ms budget p95 150ms",
    "link.order answer shape ✔",
    "link.order declared errors ✔",
    "link.order machine path ✔",
    "link.order events ✔",
    "link.order who may call ✔",
    "link.order steps ✔",
-   "link.order performance ✔ p50 4ms p95 5ms budget p95 150ms",
+   "link.order performance ✔ p50 5ms p95 6ms budget p95 150ms",
    "link.order coverage ✔",
    "link.order explainability ✔",
-   "link.order 9 evals ✔ p50 4ms p95 5ms budget p95 150ms",
+   "link.order 9 evals ✔ p50 5ms p95 6ms budget p95 150ms",
    "link.remove answer shape ✔",
    "link.remove declared errors ✔",
    "link.remove machine path ✔",
    "link.remove events ✔",
    "link.remove who may call ✔",
    "link.remove steps ✔",
-   "link.remove performance ✔ p50 0ms p95 5ms budget p95 150ms",
+   "link.remove performance ✔ p50 1ms p95 8ms budget p95 150ms",
    "link.remove coverage ✔",
    "link.remove explainability ✔",
-   "link.remove 9 evals ✔ p50 0ms p95 5ms budget p95 150ms",
+   "link.remove 9 evals ✔ p50 1ms p95 8ms budget p95 150ms",
    "profile.get answer shape ✔",
    "profile.get declared errors ✔",
    "profile.get machine path ✔",
    "profile.get events ✔",
    "profile.get who may call ✔",
    "profile.get steps ✔",
-   "profile.get performance ✔ p50 8ms p95 15ms budget p95 150ms",
+   "profile.get performance ✔ p50 11ms p95 17ms budget p95 150ms",
    "profile.get coverage ✔",
    "profile.get explainability ✔",
-   "profile.get 9 evals ✔ p50 8ms p95 15ms budget p95 150ms",
+   "profile.get 9 evals ✔ p50 11ms p95 17ms budget p95 150ms",
    "coverage ✔ moves 4/4 · outcomes 4/4 · refusals 6/6 · runtime refusals 6/7",
    "prove ✔"
   ]
