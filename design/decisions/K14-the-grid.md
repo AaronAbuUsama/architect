@@ -31,7 +31,7 @@ that one declaration for free: the model, the HTTP API, the server, the SDK, the
 portal and the telemetry. Nothing is configured twice, and nothing an output shows is written by hand.
 
 **Why a grid measures it.** "Falls out for free" is a claim about every pair of building block and output. The
-coverage audit of 19 November (K12) drew that as a grid of 13 building blocks by 9 outputs, 117 cells, and found the
+coverage audit of 19 November (K12) drew that as a grid of 13 building blocks by 9 outputs, 117 cells (14 and 126 since G5 added invariants), and found the
 claim fully true only for operations. A promise that holds for one row is not yet the promise. So the grid is the
 goal: each row is a lane, each cell in it is a card, and each card is an eval. A card says, in one or two sentences,
 what green means for that building block in that output, and names the evidence that proves it: an e2e check, a
@@ -114,8 +114,9 @@ cell's `path:line` and what it means are in its lane's section below.
 | 11 | [Store](#11-store) | ✓ | ✗ⁿ | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ~ | ✗ | ✗ |
 | 12 | [Mount, adapter, plugin origin](#12-mount) | ✓ | ✓ⁿ | ✓ | ✓ⁿ | ✓ⁿ | ✓ⁿ | ✗ | ✗ | ✗ |
 | 13 | [Runs on the device (runs: "client")](#13-device) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ~ |
+| 14 | [Invariants (unique rules, G5)](#14-invariant) | ~ | ✗ | ~ | ~ | ~ | ✗ | ~ | ✗ | ✗ |
 
-**In numbers:** 52 ✓, 32 ~ and 33 ✗ of 117. The audiences rule (below, "Who each block is for") makes 20 cards not needed (5 of them ✓ today) and 4 absence checks, which leaves 50 cards to build. By column, ✓ out of 13: model 12, api 6, server 11, sdk 5, cli 4, mcp 6, docs 4, portal 0, telemetry 4.
+**In numbers:** 52 ✓, 37 ~ and 37 ✗ of 126 (the 117 of the audit thirteen rows, plus invariants: 5 ~ and 4 ✗). The audiences rule (below, "Who each block is for") makes 20 cards not needed (5 of them ✓ today) and 4 absence checks, which leaves 50 cards to build. By column, ✓ out of 13: model 12, api 6, server 11, sdk 5, cli 4, mcp 6, docs 4, portal 0, telemetry 4.
 
 **Where this differs from the audit.** The audit's grid (K12) was read from a wider sweep; this one is read cell
 by cell against each card's own green, so some cells moved. Up: the CLI and MCP refusal cards (both print the code,
@@ -526,7 +527,7 @@ export const cellRole = (block: Block, output: Output): CellRole =>
   : "not-needed";
 ```
 
-On the 117 cards it gives 93 that carry, 4 absence checks (step in the api, sdk, cli and mcp) and 20 not needed:
+On the 126 cards it gives 102 that carry (the invariant lane is for every audience, so its nine all carry), 4 absence checks (step in the api, sdk, cli and mcp) and 20 not needed:
 event, environment, store, mount and journey, each in the four caller outputs. Against the first list of 17, it moves
 these:
 
@@ -680,9 +681,27 @@ them on the rows in one change (this record does not edit `milestones.md`):
 **New slices proposed:** the story check (`e2e/story`, after Gate M2, see "The end-to-end story") and ST2.07 (a
 device operation's spans reach the environment's sink, ledger `LAH-02`, before ST2.03).
 
+### 14. invariant
+
+**Invariants (unique rules, G5).** A thing's rule that stays true among many records of it, declared once in `things/<thing>/invariants.ts` with `Blueprint.invariant.unique(field or tuple, { while, refuse, description })`. The runtime refuses for the handler; every output says the rule. Joined the grid on 20 November 2026 (ST1.10), graded from `goal/stage-1`.
+
+**How it is proved.** Check 25 and its package halves (the model, the compiler's refusals, a real world, the outputs); check 31 (S-19); `ortho prove` on Plugged In's claim journey; ST1.22's Chromium check on the portal's Rules section. Cards and their greens are in `design/grid/grid.json`; the owners are the slices ST1.12 to ST1.18 and ST1.22.
+
+| Output | Today |
+|---|---|
+| model | ~ G4's per-field `unique` is in the model; no named rule, no `refuse`, no operation map |
+| api | ✗ a rule's refusal is in no operation's errors |
+| server | ~ the store's index and conflict retry; the handler still refuses by hand |
+| sdk | ~ reads an operation's refusals, so it would carry a rule's once the model lists it |
+| cli | ~ the same |
+| mcp | ✗ the tool says nothing of a rule |
+| docs | ~ `## Unique` with its scope; no `## Invariants` or reasons |
+| portal | ✗ no Rules section |
+| telemetry | ✗ no `refusal.invariant`, no runtime deciding log |
+
 ## Rows still to come
 
-The audit's thirteen rows are the blocks that exist today. These join the grid as rows when their decision slice names
+The audit's thirteen rows are the blocks that existed then; invariants (G5) is the fourteenth and is already a row. These join the grid as rows when their decision slice names
 their outputs, each with nine cards like the rest: **workflows** (M3.01; stage 3's owner signatures), **views**
 (M5.01, M5.05), **agents and runs** (M4.01, M4.10), **chains as stores and chain events** (M6.01, M6.09), and
 **secrets by declaration** (M2.04; today a field's visibility covers secret fields, not the environment's secrets).
