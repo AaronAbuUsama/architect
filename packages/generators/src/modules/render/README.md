@@ -2,10 +2,9 @@
 
 `Render.files({ name, model, root })`: an Effect of every file of `generated/` from the model, plus one handler scaffold
 per operation. No file system is written, so it is tested without one. What a project mounts in `blueprint/projections/`
-makes its folder: the model, the api and the server are `@orthograph/projections` (M1.11), loaded from the mount files at
+makes its folder: the model, the api, the server, the sdk, the cli and the mcp are `@orthograph/projections` (M1.11, M1.12), loaded from the mount files at
 `root` (`internal/mounted.ts`), each file under `generated/<mount>/` with its first line naming the mount. A model that
-mounts no projection gets those three as if mounted, headers as they were. Still fixed here, until M1.12 and M1.13: `generated/sdk`
-(the typed client), `generated/cli`, `generated/mcp`, `generated/docs`, `generated/portal` and the handler scaffolds. Generated files start with the do-not-edit line; scaffolds say where they came from
+mounts no projection gets those six as if mounted, headers as they were. Still fixed here, until M1.13: `generated/docs`, `generated/portal` and the handler scaffolds. Generated files start with the do-not-edit line; scaffolds say where they came from
 and are the project's from then on.
 
 The CLI's session commands are special when the model has the starter's `session.sign-in` and `session.show`

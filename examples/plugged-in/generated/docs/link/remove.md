@@ -9,9 +9,9 @@ Remove a link from a public page.
 
 ## Payload
 
-| field | value |
-|---|---|
-| link | link.id |
+| field | value | description |
+|---|---|---|
+| link | link.id | The link's own id. |
 
 ## Answer
 

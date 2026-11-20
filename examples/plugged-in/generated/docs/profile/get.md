@@ -9,16 +9,16 @@ Read a claimed name's public page and its links in display order.
 
 ## Payload
 
-| field | value |
-|---|---|
-| handle | handle.name |
+| field | value | description |
+|---|---|---|
+| handle | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |
 
 ## Answer
 
-| field | value |
-|---|---|
-| handle | handle.name |
-| links | schema |
+| field | value | description |
+|---|---|---|
+| handle | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |
+| links | schema |  |
 
 ## Steps
 

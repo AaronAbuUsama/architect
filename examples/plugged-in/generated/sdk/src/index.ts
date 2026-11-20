@@ -1,5 +1,6 @@
-// Generated from the blueprint. Do not edit.
-export { PluggedIn, layer } from "./client.ts";
+// Generated from blueprint/projections/sdk.ts. Do not edit.
+export { PluggedIn, layer, Credential, InvalidPayload } from "./client.ts";
+export type { CallOptions } from "./client.ts";
 export { Errors } from "../../api/src/index.ts";
 export * as handle from "./handle/index.ts";
 export * as link from "./link/index.ts";
