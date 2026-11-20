@@ -14,6 +14,9 @@
 //   Rerun, exactly: a journey whose own file changed; a journey (through its steps or the starting worlds it stands on, oldest first)
 //   that calls an operation whose handler, declaration or last verdict (failed, never proven) changed; a journey whose starting world
 //   changed. Nothing else.
+//   A file of a mounted package (a plugin or adapter under node_modules, or linked) that an operation's steps reach counts as a change to
+//   that mount's operations: the journeys that call them rerun. Journeys are keyed by their file, not their name: two files that
+//   declare one name are two journeys, a change to one reruns that one, and the other is named skipped (the name is then in both lists).
 //   Cannot tell: a changed, added or removed file that is none of those (ortho.config.ts, package.json, a helper in src/ no handler
 //   is known to import, any new file) or no record at all. Then it proves every journey and says why.
 //   Says, in text (stdout):

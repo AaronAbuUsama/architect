@@ -58,6 +58,15 @@ pass, `allowance.grant explainability ✘`, and exit 1. It also owes proof that 
 operation at least as often as the rerun journeys' steps that reach a handler (a read, and a step refused before its span, are
 left out, `refusedBeforeSpan`), and every step's verdict agrees with its journey's.
 
+## Mounted dependencies, and journeys of one name
+
+Two false greens Codex found in the first build, planted before its fix: a change to a file of a mounted plugin (the echo
+plugin's `choices.js`, which its handlers import; `ortho impact` already marks the mount's operations stale) skipped every journey
+that calls it, and two journey files declaring one name were keyed by that name, so changing one reran both. The check plants each
+(`29`, "two more false greens"): the mounted file must rerun exactly the one journey that calls the plugin's operations, and a
+change to only the twin, or only the original, reruns that file's journey and names the other skipped. Both rows fail against
+`88655dd5` (ran none of the 12; ran both twins) and pass against `50dd40b8`.
+
 ## What the check pins, and what it leaves
 
 Pinned: the exact set rerun and the exact set named skipped, from the model; a fall-back that names the file it could not place
