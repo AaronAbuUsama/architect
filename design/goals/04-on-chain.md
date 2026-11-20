@@ -101,10 +101,14 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
     reads `declared`; `model.json` still carries `machine.states` as a list. After each merge-in, grep the chain store,
     the Solidity language and the chain host for direct `machine.states` reads. `Records.findBy(rule, value)` fails at
     runtime until ST1.16, so use the old form until then;
-  - ST1.15 (in progress, the compiler slice for invariants): the model gains `things.<t>.invariants` (with hashes) and
-    `operations.<op>.invariants`, and the rules' refusals fold into `refusals`. A blueprint with no invariants keeps a
-    byte-identical digest. The Solidity language and the SDK's chain path must read `refusals` and walk things and
-    operations without assuming those keys are absent; the conductor forwards the exact fields before it merges;
+  - ST1.15 (#233, the invariants in the model): `things.<t>.invariants.<rule>` is `{ kind: "unique", fields,
+    while?, refuse?, description? }`, and `operations.<op>.invariants` maps a refusal to its rule's full name
+    (`"HandleTaken": "handle.oneHolderPerName"`); both appear only when there are rules, and the hashes cover them.
+    `operations.<op>.refusals` now lists the rule refusals right after the `errors`, never inside them. A blueprint
+    without `invariants.ts` is byte-identical. Until a slice builds an on-chain index with a revert carrying the
+    rule's refusal, the Solidity language refuses to compile a chain-stored thing that has `invariants`, naming it,
+    rather than ignore the rule;
+  - ST1.16 (next, the runtime and the stores) touches `language-effect`; Goal 3 warns before it merges;
   - ST1.14: the front door gains `machine.states.<state>` as references, fields whose type carries their key and
     thing, `Blueprint.invariant.unique`, and the type of `Records.findBy(rule, value)`. Slice 1's `Blueprint.language`
     and `Blueprint.host` sit beside them in `orthograph`, so merge before touching the plugins module;
@@ -147,9 +151,10 @@ checks author rewrites each for the budgets module before its slice starts, keep
 |---|---|---|
 | 0 | **K27, the three plugin kinds.** Recorded before the goal started (K27). Nothing to build; read it | done |
 | 1 | **The seam, on Effect alone.** `Blueprint.language` and `Blueprint.host` in `orthograph`. Effect becomes a language served by `host-cloudflare` and `Host.node`. The server projection keeps only its face. Hosts supply store kinds and languages write for them, not a fixed list (`compiler/.../stores.ts:10`, K27 item 5). Rewrite `packages/language-solidity`'s "Solidity target" wording and the walkthrough's quote of it | acme's generated files are byte-identical; the compiler refuses an operation that no language takes, or that two take |
-| 2 | **M6.02, the journeys** for `examples/budgets` (the journey author, beside slice 1). The checks author adds the `e2e:on-chain` target: every slice's check and the budgets journeys, red until each turns green | they fail on empty handlers; `nx run e2e:on-chain` runs and fails |
+| 1b | **M6.01, the chain decision**, by the lead, beside slice 1 and before slices 2 to 8. K7 and K25 settle most of it; what is left is `signedBy` as EIP-712 typed data, values across languages (the rest of D5), and the exact schemas of `surface.json` and `blueprint/refusals.lock`, which separate authors and builders produce and consume | `design/decisions/M6-chain.md` written, with the evidence, and a 🔍 has passed it |
+| 2 | **M6.02, the journeys** for `examples/budgets` (the journey author, beside slice 1, once 1b has passed). The checks author adds the `e2e:on-chain` target: every slice's check and the budgets journeys, red until each turns green | they fail on empty handlers; `nx run e2e:on-chain` runs and fails |
 | 3 | **M6.10, the chain store and values.** `Blueprint.store.chain.evm()`, `Blueprint.account()`, Solidity types worked out from values, and `blueprint/refusals.lock` | M6.10's check |
-| 4 | **M6.11, the Solidity language renders** the base contract (role, machine, hook, account, event), roles behind `IAccessControl`, and `surface.json` | M6.11's check |
+| 4 | **M6.11, the Solidity language renders** the base contract (role, machine, hook, account, event), roles behind `IAccessControl`, and `surface.json` | M6.11's check; a fixture with a chain-stored thing that has an invariant fails to compile, naming the thing |
 | 5 | **M6.12, the scaffold and the Foundry tests** | M6.12's check: the scaffold's tests fail as not written |
 | 6 | **M6.13, the user fills the hook; the fuzz** | M6.13's check: every test passes, the fuzz finds no difference, the planted mutant diverges |
 | 7 | **`Host.chain` and the `safe` adapter.** Deploy the module to Anvil; a Safe from its release enables it; `_execute` goes through the adapter. This is the Safe-and-Anvil half of M6.16, done early; its worlds and M6.17's redeploy rule come in slice 12 | a spend within the allowance pays from the Safe on Anvil; one over it reverts with its refusal code |
