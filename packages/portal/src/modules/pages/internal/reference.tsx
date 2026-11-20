@@ -1,7 +1,7 @@
 // /portal/reference/<access|refusals|events|values|machines>: the model's tables, one page each. Refusal codes are counted by name and code;
 // a refusal the door gave opens no span, and its row says `no span`.
 import type { PortalData } from "../types.ts";
-import { refusalCount } from "./live.ts";
+import { refusalCount, refusalTotals, whyNot } from "./live.ts";
 import { eventsOf, refusalsOf } from "./model.ts";
 import { NotYet } from "./not-yet.tsx";
 import { Page, Table, who } from "./parts.tsx";
@@ -16,17 +16,24 @@ const Body = ({ data, kind }: { readonly data: PortalData; readonly kind: Kind }
     return <Table head={["Operation", "Who may call"]} rows={Object.values(blueprint.model.operations).map((o) => [<a href={`/portal/operations/${o.name}`}>{o.name}</a>, who(o)])} />;
   }
   if (kind === "refusals") {
+    const why = whyNot(data, "metrics");
     return (
+      <>
+      {why === undefined ? null : <p>Counts: <NotYet hole="metrics" what={why} /></p>}
       <table>
         <thead><tr><th>Refusal</th><th>Code</th><th>Count</th><th>Trace</th></tr></thead>
         <tbody>
-          {Object.entries(refusalsOf(blueprint)).map(([name, code]) => (
-            <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(refusalCount(data, name))} data-span="none">
-              <td>{name}</td><td>{code}</td><td>{refusalCount(data, name)}</td><td>no span</td>
-            </tr>
-          ))}
+          {Object.entries(refusalsOf(blueprint)).map(([name, code]) => {
+            const trace = refusalTotals(data, name)?.trace ?? null;
+            return (
+              <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(refusalCount(data, name))} data-span={trace === null ? "none" : "trace"} {...(trace === null ? {} : { "data-trace": trace })}>
+                <td>{name}</td><td>{code}</td><td>{refusalCount(data, name)}</td><td>{trace === null ? "no span" : <a href={`/portal/traces/${trace}`}>open the trace</a>}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+      </>
     );
   }
   if (kind === "events") {

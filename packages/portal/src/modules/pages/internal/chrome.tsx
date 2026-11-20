@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { PortalData } from "../types.ts";
 import { environmentsOf } from "./model.ts";
-import { environmentOf, hasLive, tallyOf, NOT_YET } from "./live.ts";
+import { environmentOf, lastCalls, tallyOf, whyNot, NOT_YET } from "./live.ts";
 import { PANELS, panelPages, searchIndex, type PanelName } from "./nav.ts";
 import { NotYet } from "./not-yet.tsx";
 
@@ -82,11 +82,21 @@ const Tree = ({ data }: { readonly data: PortalData }) => (
 /** The live rail, scoped to the page: every operation on home, a thing's operations on its page. Numbers only from the window's own counts. */
 export const Rail = ({ data, scope, operations }: { readonly data: PortalData; readonly scope: string; readonly operations?: ReadonlyArray<string> }) => {
   const tally = tallyOf(data, operations);
+  const noNumbers = whyNot(data, "metrics");
+  const noCalls = whyNot(data, "calls");
+  const last = lastCalls(data, operations);
   return (
     <aside data-portal="rail" data-scope={scope} aria-label="Live">
-      {hasLive(data)
-        ? (["calls", "answered", "refused", "defects"] as const).map((s) => <div key={s}><span className="meta">{s}</span> <b data-portal="stat" data-stat={s} data-value={tally[s]}>{tally[s]}</b></div>)
-        : <NotYet hole="live" what="the calls in the window: this portal has no telemetry source" />}
+      {noNumbers !== undefined
+        ? <NotYet hole="metrics" what={noNumbers} />
+        : (["calls", "answered", "refused", "defects"] as const).map((s) => <div key={s}><span className="meta">{s}</span> <b data-portal="stat" data-stat={s} data-value={tally[s]}>{tally[s]}</b></div>)}
+      <div className="meta">Last calls</div>
+      {noCalls !== undefined ? <NotYet hole="calls" what={noCalls} /> : last.length === 0 ? <p className="meta">No call in the window.</p> : null}
+      {last.map((c) => (
+        <a key={c.trace} href={`/portal/traces/${c.trace}`} data-portal="last-call" data-trace={c.trace} data-operation={c.operation} data-outcome={c.outcome} data-caller-kind={c.caller} data-attempts={String(c.attempts)}>
+          {`${c.operation} ${c.outcome}, ${c.caller}, ${c.durationMs} ms`}
+        </a>
+      ))}
     </aside>
   );
 };

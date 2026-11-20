@@ -1,6 +1,7 @@
 // The portal's pages, drawn in the browser (K19). A route is read from `location.pathname`; a page is drawn from `/_portal/v1/*` and
 // from nothing else: no clock, no project source. Types only here, from the wire; none of this reaches a Worker.
 import type { PortalSnapshot } from "#modules/snapshot/types.js";
+import type { PortalTelemetry } from "#modules/telemetry/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
 
 /** Where a path under `/portal` goes. `missing` is a path that is not a page (a thing or operation the blueprint does not declare is one too). */
@@ -21,7 +22,8 @@ export type Route =
 /** Everything a page is drawn from: the blueprint, and the snapshot taken for exactly that blueprint's digest. */
 export interface PortalData {
   readonly blueprint: BlueprintWire;
-  readonly snapshot: PortalSnapshot;
+  /** The snapshot, and what the environment is doing now: `null` when this portal has no live source. */
+  readonly snapshot: PortalSnapshot & { readonly telemetry: PortalTelemetry | null };
 }
 
 /** The data could not be read: which request, and what it answered. The page says so; it never draws a tick it could not read. */

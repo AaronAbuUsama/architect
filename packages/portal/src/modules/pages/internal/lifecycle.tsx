@@ -17,7 +17,7 @@ export const Lifecycle = ({ data, thing, counted }: { readonly data: PortalData;
           <Table
             head={["Move", "From", "To", "Emits", "Count"]}
             rows={Object.entries(machine.moves).map(([key, m]) => [
-              <span data-portal="move" data-move={key} data-lit="false" data-count={moveCount(data, thing.name, key)}>{key}</span>,
+              <span data-portal="move" data-move={key} data-lit={String(Number(moveCount(data, thing.name, key)) > 0)} data-count={moveCount(data, thing.name, key)}>{key}</span>,
               m.from.join(", ") || "(creates)", m.to.join(", "), m.emits, moveCount(data, thing.name, key),
             ])}
           />

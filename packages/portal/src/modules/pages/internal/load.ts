@@ -1,8 +1,8 @@
 // Reading the data API from the browser: the blueprint, then the snapshot for its digest. Each is a failure with the request named,
 // never a guess; the page says what it could not read.
 import { Effect } from "effect";
-import type { PortalSnapshot } from "#modules/snapshot/types.js";
-import type { BlueprintWire } from "#modules/wire/types.js";
+import type { TraceView } from "#modules/telemetry/types.js";
+import type { Availability, BlueprintWire } from "#modules/wire/types.js";
 import type { DataFailed, PortalData } from "../types.ts";
 
 const failed = (request: string, reason: string): DataFailed => ({ _tag: "DataFailed", request, reason });
@@ -17,9 +17,20 @@ const read = <T>(request: string): Effect.Effect<T, DataFailed> =>
     ),
   );
 
-export const load = (): Effect.Effect<PortalData, DataFailed> =>
+/** One trace, scrubbed by the server: `undefined` when the portal has none of it (a 404), the source's reason when it could not read. */
+export const loadTrace = (id: string): Effect.Effect<Availability<TraceView>, DataFailed> => {
+  const request = `/_portal/v1/traces/${encodeURIComponent(id)}`;
+  return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(
+    Effect.flatMap((response) =>
+      response.status === 404 ? Effect.fail(failed(request, "it has no such trace"))
+      : response.status === 200 ? Effect.tryPromise({ try: () => response.json() as Promise<Availability<TraceView>>, catch: () => failed(request, "its answer was not JSON") })
+      : Effect.fail(failed(request, `it answered ${response.status}`))),
+  );
+};
+
+export const load =(): Effect.Effect<PortalData, DataFailed> =>
   Effect.gen(function* () {
     const blueprint = yield* read<BlueprintWire>("/_portal/v1/blueprint");
-    const snapshot = yield* read<PortalSnapshot>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
+    const snapshot = yield* read<PortalData["snapshot"]>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
     return { blueprint, snapshot };
   });
