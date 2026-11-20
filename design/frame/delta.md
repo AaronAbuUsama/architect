@@ -59,7 +59,7 @@ version answers each, and for the gap between today and the goal. This is that l
 | Weakness | Evidence | The answer |
 |---|---|---|
 | A principal is only `anonymous` or `person` | `roles/types.ts:6-8` | Add `agent`, `service` (an adapter's door) and `system` (the keeper) |
-| Two role models disagree (`holds` and `owner.of`) | design records | One role model, decided in the step that adds the new principals |
+| Two role models disagree (`holds` and `owner.of`) | design records | One role model: a role is a `rule`, or declared with `who` or `holds`, and `.of(...)` works on each ([K20](../decisions/K20-roles-across-things.md)); the new principals are M2.01's |
 
 ### Data
 

@@ -45,8 +45,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   in `design/decisions/<id>.md` with the evidence. Don't reopen one without new evidence.
 - **Journeys and checks come first.** A different agent from the builder writes an operation's journeys and checks,
   and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
-  evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet list, a file per check
-  in `e2e/m1/expected-failing/`, or delete a file there. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
+  evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet lists, a file per check
+  in `e2e/m1/expected-failing/` and a file per test file in `packages/<package>/expected-failing/` (G11), or delete a file there. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
   check changed stops and asks its author.
 - **Merge your own pull requests when CI is green,** every review thread is resolved and a 🔍 reviewer that wrote none
   of it has passed it. The 🔍 pass is the gate. Codex is advisory (`design/decisions/CI-codex-advisory.md`): comment
