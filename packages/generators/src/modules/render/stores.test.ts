@@ -23,6 +23,8 @@ const project = () => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "p-"));
   cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (from) => !basename(from).startsWith(".") && basename(from) !== "projections" });
+  // The journeys are part of acme: its docs pages carry them as worked examples (W2).
+  cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true, filter: (from) => !basename(from).startsWith(".") });
   mkdirSync(join(root, "blueprint/features"), { recursive: true });
   writeFileSync(join(root, "blueprint/features/vault.ts"), `import { Blueprint } from "orthograph";\nimport vault from "@fixture/vault";\n\nexport default Blueprint.use(vault);\n`);
   const plugin = join(root, "node_modules/@fixture/vault");
