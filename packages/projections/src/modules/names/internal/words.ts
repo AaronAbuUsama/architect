@@ -1,5 +1,5 @@
 // The small pieces of English the generated outputs share: an article that fits the word, a name as words, and what a flag says of its field.
-import type { FieldModel, OperationModel } from "@orthograph/compiler";
+import type { FieldModel, Model, OperationModel } from "@orthograph/compiler";
 
 /** `a handle`, `an allowance`, `an hour`-less: by the first letter, which is right for every name a blueprint is likely to give. */
 export const article = (word: string) => (/^[aeiou]/i.test(word) ? "an" : "a");
@@ -51,4 +51,34 @@ export const flagCode = (name: string, f: FieldModel): string => {
   return f.value.type === "uint" && f.value.bits <= 53
     ? `Flag.Int("${name}").pipe(Flag.map(String), ${note})`
     : `Flag.String("${name}").pipe(Flag.withMetavar(${JSON.stringify(metavar(f))}), ${note})`;
+};
+
+/** The rule behind one of an operation's refusals, by the model: its full name (`handle.oneHolderPerName`), the thing that holds it, and the sentence every output says. */
+export interface RuleBehind {
+  readonly full: string;
+  readonly thing: string;
+  readonly name: string;
+  readonly sentence: string;
+  /** The fields the rule keys on, which the refusal carries by place. */
+  readonly fields: ReadonlyArray<string>;
+}
+
+const joined = (xs: ReadonlyArray<string>, joiner: string) => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} ${joiner} ${xs.at(-1)}`);
+
+/**
+ * The one sentence for a rule (G5, the grill's Q2), shared by the docs, MCP's description, the scaffold's header and the portal: the rule's own
+ * `description` when it wrote one (without its closing full stop, which the outputs add themselves), else "another claimed handle holds this name", made from the thing, the states it holds in and its key.
+ */
+export const ruleSentence = (thing: string, rule: { readonly while?: ReadonlyArray<string>; readonly fields: ReadonlyArray<string>; readonly description?: string }): string =>
+  rule.description?.replace(/\.+\s*$/, "") ?? `another ${rule.while && rule.while.length > 0 ? `${joined(rule.while, "or")} ` : ""}${words(thing)} holds this ${joined(rule.fields.map(words), "and")}`;
+
+/** The rule an operation's refusal is made for (`op.invariants`), or undefined when the runtime refuses it for another reason. */
+export const ruleBehind = (model: Model, op: OperationModel, refusal: string): RuleBehind | undefined => {
+  const full = op.invariants?.[refusal];
+  if (full === undefined) return undefined;
+  const at = full.lastIndexOf(".");
+  const thing = full.slice(0, at);
+  const name = full.slice(at + 1);
+  const rule = model.things[thing]?.invariants?.[name];
+  return rule === undefined ? undefined : { full, thing, name, sentence: ruleSentence(thing, rule), fields: rule.fields };
 };

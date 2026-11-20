@@ -3,7 +3,7 @@
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
 // `who` is the scaffold's own sentence (K16 a), so the docs page and the handler's front matter never disagree.
 import { workedExamples } from "./examples.ts";
-import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
+import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, lines, ruleBehind, ruleSentence, who, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
@@ -29,6 +29,10 @@ const eventRows = (t: ThingModel) =>
     return `- \`${name}\`: ${carries}${by.length > 0 ? `; emitted by the move ${by.join(", ")}` : ""}`;
   });
 
+/** Each rule the thing holds (G5): its full name, the sentence every output says, where it holds, and the refusal it makes. */
+const invariantRows = (t: ThingModel) =>
+  Object.entries(t.invariants ?? {}).map(([name, r]) =>
+    `- \`${t.name}.${name}\`: ${ruleSentence(t.name, r)}. Unique on ${r.fields.join(", ")}, ${r.while?.length ? `while ${r.while.join(" or ")}` : "in every state"}; ${r.refuse ? `refused ${r.refuse}` : "refuses nothing, a break is a defect"}.`);
 
 /** Every refusal the operation can give, with its exit code and what it means. */
 const refusals = (model: Model, op: OperationModel) => {
@@ -36,6 +40,11 @@ const refusals = (model: Model, op: OperationModel) => {
   return op.refusals.map((r) => {
     const declared = thing?.errors[r];
     const code = model.refusals[r] ?? "?";
+    // A rule's refusal (G5): the runtime's, why in the rule's one sentence, and which rule.
+    const rule = ruleBehind(model, op, r);
+    // The error is the rule's own thing's, which is not always the operation's (a step that writes another thing breaks that thing's rule).
+    const refused = rule ? model.things[rule.thing]?.errors[r] : undefined;
+    if (rule && refused) return `| ${r} | ${refused.exit} | ${code} | ${cell(`${rule.sentence}; by the rule ${rule.full}`)}${Object.keys(refused.fields).length ? `, carrying ${Object.keys(refused.fields).join(", ")}` : ""} |`;
     if (declared) return `| ${r} | ${declared.exit} | ${code} | declared in errors.ts${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
     const missing = Object.entries(op.notFound ?? {}).filter(([, e]) => e === r).map(([k]) => k);
     if (missing.length > 0) return `| ${r} | ${Object.values(model.things).find((t) => t.notFound?.error === r)?.notFound?.exit ?? "?"} | ${code} | nothing has the id in ${missing.join(", ")}; the handler never runs; carries \`id\` |`;
@@ -86,6 +95,7 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
       t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. A move from the wrong state is refused ${t.machine.notFrom.error} (exit ${t.machine.notFrom.exit}).`, "",
         "| move | from | to | emits |", "|---|---|---|---|",
         ...Object.entries(t.machine.moves).map(([k, m]) => `| ${k} | ${m.from.join(", ") || "(creates)"} | ${m.to.join(", ")} | ${m.emits} |`)] : [],
+      Object.keys(t.invariants ?? {}).length ? ["", "## Invariants", "", ...invariantRows(t)] : [],
       Object.keys(t.events).length ? ["", "## Events", "", ...eventRows(t)] : [],
       Object.keys(t.unique ?? {}).length ? ["", "## Unique", "", ...Object.entries(t.unique ?? {}).map(([k, u]) => `- ${k}: unique ${u.while ? `while ${u.while.join(", ")}` : "in every state"}`)] : [],
       t.roles.length ? ["", "## Roles", "", ...t.roles.map((r) => `- ${r}`)] : [],

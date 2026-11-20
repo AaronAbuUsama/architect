@@ -26,7 +26,7 @@ import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs
 import { join } from "node:path";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import * as W from "./loop-world.ts";
-import { copyOf, acme, fixtures, model, run, succeeds, textAt } from "./support.ts";
+import { copyOf, acme, fixtures, model, repo, run, succeeds, textAt } from "./support.ts";
 
 const copies: Array<ReturnType<typeof copyOf>> = [];
 afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
@@ -253,5 +253,33 @@ describe("25 G5: the outputs say the rule, in the generated sentence or its writ
     expect(journey, "the journey is in the model").toBeDefined();
     const refused = journey!.steps.flatMap((s) => (s.checks ?? []).filter((c) => c.kind === "refuses").map((c) => c.error));
     expect(refused.sort()).toEqual(["HandleAlreadyOwned", "HandleTaken"]);
+  });
+});
+
+// ST1.17 (G5 section 2): `ortho add thing` writes `blueprint/things/<thing>/invariants.ts` beside `errors.ts`: an empty file with a one-line
+// comment, no rule and no blank. The compiler's layout reader takes the name (ST1.15), so the project compiles with it there.
+describe("25 G5: `ortho add thing` writes an empty invariants.ts that compiles and declares no rule", () => {
+  it("the file is written, a comment and no rule or blank, and the model builds with it and carries no rule", { timeout: 300_000 }, () => {
+    const copy = copyOf(join(repo, "examples/starter"));
+    copies.push(copy);
+    const { root } = copy;
+    const path = "blueprint/things/allowance/invariants.ts";
+    const added = succeeds(root, "add", "thing", "allowance");
+    expect(added.stdout.trim().split("\n"), "add says it wrote the file").toContain(`wrote ${path}`);
+    expect(existsSync(join(root, path)), "the file is where G5 puts it, beside errors.ts").toBe(true);
+    const text = textAt(root, path);
+    // G5 section 2: one comment line with words in it, then `export {};`, and nothing else: no blank line, no second comment, no rule, no blank.
+    expect(text, "exactly one non-empty comment line, then `export {};` (no rule, no blank, no spare lines)").toMatch(/^\/\/ [^\s/][^\n]*\nexport \{\};\n$/);
+    expect(run(root, "check").out, "check names the three blanks and does not refuse the file").not.toMatch(/invariants/);
+
+    // The blanks filled as layer1/06 does (acme's allowance declarations and what they need), with the written invariants.ts left as add wrote it.
+    for (const file of ["thing", "machine", "roles", "events", "errors"]) cpSync(join(acme, `blueprint/things/allowance/${file}.ts`), join(root, `blueprint/things/allowance/${file}.ts`));
+    for (const p of ["blueprint/things/organization", "blueprint/values/money.ts"]) {
+      cpSync(join(acme, p), join(root, p), { recursive: true, filter: (from) => !from.split("/").pop()!.startsWith(".") });
+    }
+    expect(textAt(root, path), "filling the others leaves it alone").toBe(text);
+    const m = model(root) as unknown as M;
+    expect(Object.keys(m.things), "the thing compiles with the file beside its declarations").toContain("allowance");
+    expect(Object.keys(m.things["allowance"]?.invariants ?? {}), "an empty file declares no rule").toEqual([]);
   });
 });
