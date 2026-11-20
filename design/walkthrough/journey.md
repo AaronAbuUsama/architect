@@ -1599,9 +1599,9 @@ nothing"). K17 names this a gap "to close or to state openly".
 
 ### What a plugin is
 
-A **plugin** is a package you mount with one file. There are three kinds: a **feature** (things and operations,
+A **plugin** is a package you mount with one file. Three kinds work today: a **feature** (things and operations,
 like wallets), an **adapter** (someone else's service, called as a step), and a **projection** (an output, like the
-SDK). 🟢 **Works today**: `ortho add feature|adapter|projection` writes the mount and pins the version (M1.10, as you
+SDK). K27 adds a **language** and a **host**, below. 🟢 **Works today**: `ortho add feature|adapter|projection` writes the mount and pins the version (M1.10, as you
 saw with wallets). Mounts can choose, include, narrow and omit (M1.07).
 
 ### Auth as a plugin

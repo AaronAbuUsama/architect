@@ -21,9 +21,10 @@ A **plugin** is a blueprint someone else wrote, proved in its own CI, and shippe
 and they answer three questions about a system. A **feature** is what else the system is: its things, operations and
 journeys (governance, wallets, auth). An **adapter** is what is outside it: an outside system's calls and events (a
 forum, Stripe, a browser wallet). A **projection** is what the system becomes: the API, the SDK, the CLI, the docs,
-the portal. You use a plugin by **mounting** it: one small file that says "use this plugin here, like this". Four
-verbs shape a mount (**choose**, **include**, **narrow**, **omit**), and every one of them keeps the plugin's proof
-true. None of this is built yet. It is planned for M1.06 to M1.13.
+the portal. K27 adds two more kinds, a **language** and a **host**, for what code is written in and where it runs
+([languages and hosts](languages-and-hosts.mdx)); Goal 4 builds them.
+You use a plugin by **mounting** it: one small file that says "use this plugin here, like this". Four verbs shape a
+mount (**choose**, **include**, **narrow**, **omit**), and every one of them keeps the plugin's proof true. None of this is built yet. It is planned for M1.06 to M1.13.
 
 ## The smallest example
 

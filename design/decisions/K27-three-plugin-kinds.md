@@ -45,8 +45,8 @@ the walkthrough.
 
    "Target" is not one of them. It was retired by K2, and K17's return of it is superseded here.
 
-2. **Three of them are plugin kinds.** `Blueprint.language` and `Blueprint.host` join `Blueprint.projection`. An
-   environment stays a file, not a plugin.
+2. **Three of them are plugin kinds.** `Blueprint.language` and `Blueprint.host` join `Blueprint.projection`, and
+   with the feature and the adapter a plugin is now one of five kinds. An environment stays a file, not a plugin.
 
    ```ts
    // what a language owns: the code it writes, and what that code needs
@@ -126,6 +126,7 @@ the walkthrough.
 | K17 | dated notes beside `TargetSpec` and its build step 1 point here |
 | `frame/projections.md` (opening, 3.9), the allowance example, the walkthrough, `design/state` | rewritten here |
 | `docs/canon/languages-and-hosts.mdx`, `docs/canon/stores.mdx` | who supplies `chain`, rewritten here |
+| `frame/README.md`, `design/docs/index.html`, the walkthrough, `docs/canon/plugins.mdx` | five plugin kinds, here |
 | ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
 
 Left for their owners. Goal 4's file copies this list into slice 1 when it is written:
@@ -158,3 +159,7 @@ Left for their owners. Goal 4's file copies this list into slice 1 when it is wr
 - docs/canon/languages-and-hosts.mdx: "and `chain` is the store kind that runs on it, supplied by `language-solidity` (K3" → "and `chain` is the store kind that runs on it. The host supplies the kind"
 - docs/canon/languages-and-hosts.mdx: "supplied by `language-solidity` (K3 item 2, K5 decision 8)" → "supplied by the host and written for by `language-solidity`"
 - docs/canon/stores.mdx: "| `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |" → "| `@orthograph/host-cloudflare` | `Host.chain`, written for by `@orthograph/language-solidity` (K27) |"
+- design/frame/README.md: "Solidity is a projection onto a chain." → "Solidity is a language, and a chain is a host it runs on (K27)."
+- design/docs/index.html: "There are three kinds, and the" → "There are five kinds, and the"
+- design/docs/index.html: "builder, agents, solidity, python</td>" → "builder, agents</td>"
+- design/walkthrough/journey.md: "There are three kinds: a **feature**" → "Three kinds work today: a **feature**"

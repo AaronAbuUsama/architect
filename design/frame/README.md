@@ -42,7 +42,7 @@ names.
 1. **One description.** What exists (things), how it changes (machines, operations), who may change it (roles), what is
    recorded (events, steps), what must hold (journeys). That is the blueprint; compiled, it is the model.
 2. **Many projections.** The server is the description projected onto a host. The SDK, CLI and MCP are projections onto
-   callers. Docs and the portal are projections onto readers. Solidity is a projection onto a chain. A world is the
+   callers. Docs and the portal are projections onto readers. Solidity is a language, and a chain is a host it runs on (K27). A world is the
    description running for a test. None of them is the system; each is a view of it.
 3. **Behaviour is the only freehand.** Handlers fill blanks in generated frames. Their types come from the declaration,
    so code that breaks the contract doesn't compile.
