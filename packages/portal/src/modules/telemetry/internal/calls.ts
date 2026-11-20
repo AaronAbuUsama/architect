@@ -2,6 +2,7 @@
 // span, a step span and a commit span are not attempts. Nothing is read from a span but a whitelist of structural attributes.
 import type { CallerKind, CallsView, Outcome, TelemetryCall, WindowSpan, WindowTrace } from "../types.ts";
 import { ROWS_MAX } from "../types.ts";
+import { isAttempt, spanKind, type OperationKinds } from "./spans.ts";
 
 const text = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
 
@@ -12,12 +13,6 @@ export const callerOf = (span: WindowSpan): CallerKind | undefined => {
   return kind === "agent" ? "agent" : kind === "anonymous" ? "anyone" : kind === "person" ? "person" : undefined;
 };
 
-/**
- * An operation's own span: named for the operation, carrying `operation`. A served operation has one per attempt (`attempt`); a read and a device
- * operation have one and no `attempt`. The journey's span, a step, a commit and `<operation>.refused` (the door's refusal, which is a count and
- * never a call) are named otherwise.
- */
-const isAttempt = (span: WindowSpan) => typeof span.attrs["operation"] === "string" && span.name === span.attrs["operation"];
 const numberOf = (span: WindowSpan) => (typeof span.attrs["attempt"] === "number" ? span.attrs["attempt"] : 1);
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
@@ -49,14 +44,14 @@ const moved = (attempts: ReadonlyArray<WindowSpan>) => attempts.some((s) => type
 /** Calls with a span that were refused, per operation and refusal name, with the newest such trace. */
 export type SpanRefusals = ReadonlyMap<string, { readonly operation: string; readonly name: string; readonly count: number; readonly trace: string; readonly start: number }>;
 
-export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
+export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
   const all: Array<TelemetryCall> = [];
   const moves: Record<string, number> = {};
   const journeys: Record<string, Set<string>> = {};
   for (const [trace, { spans }] of traces) {
     const journey = spans.map((s) => text(s.attrs["journey"])).find((j) => j !== undefined) ?? null;
     const byOperation = new Map<string, Array<WindowSpan>>();
-    for (const span of spans.filter(isAttempt)) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
+    for (const span of spans.filter((span) => isAttempt(spanKind(span, kinds)))) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
     for (const [operation, attempts] of byOperation) {
       const call = callOf(trace, operation, attempts, journey, environment, budgets[operation]);
       all.push(call);

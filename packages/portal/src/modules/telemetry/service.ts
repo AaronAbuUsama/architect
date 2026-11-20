@@ -3,6 +3,7 @@ import type { Availability } from "#modules/wire/types.js";
 import type { TelemetryApi, WindowFailure } from "./types.ts";
 import { callsOf } from "./internal/calls.ts";
 import { countsOf } from "./internal/counts.ts";
+import { kindsOf } from "./internal/spans.ts";
 import { traceOf } from "./internal/trace.ts";
 
 /** A read that failed, or died, is a value naming its reason; it never carries what the source held. */
@@ -18,7 +19,7 @@ const read: TelemetryApi["read"] = (blueprint, live) =>
     const budgets = Object.fromEntries(Object.entries(blueprint.model.operations).map(([name, op]) => [name, op.budget?.p95Ms]));
     const traces = yield* attempt(live.source.window(live.windowMs, live.now));
     const points = yield* attempt(live.metrics.window(live.windowMs, live.now));
-    const calls = traces.state === "available" ? callsOf(traces.value, live.environment, budgets) : undefined;
+    const calls = traces.state === "available" ? callsOf(traces.value, live.environment, budgets, kindsOf(blueprint)) : undefined;
     return {
       environment: live.environment, now: live.now, windowMs: live.windowMs, since: live.now - live.windowMs,
       metrics: points.state === "available" ? { state: "available", value: countsOf(blueprint, points.value, calls?.refusals) } : points,

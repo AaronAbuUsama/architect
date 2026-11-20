@@ -55,6 +55,13 @@ describe("FileMetrics.window", () => {
     expect(got).toEqual([{ name: "ortho.calls", labels: claim, value: 7 }]);
   });
 
+  it("two producers that count the same name and labels are two series: their growth is summed, not merged", async () => {
+    const fromProducer = (service: string, value: number) => JSON.stringify({
+      resourceMetrics: [{ resource: { attributes: [{ key: "service.instance.id", value: { stringValue: service } }] }, scopeMetrics: [{ scope: { name: "ortho" }, metrics: [{ name: "ortho.calls", sum: { aggregationTemporality: 2, dataPoints: [{ attributes: attrs(claim), timeUnixNano: nano(NOW - 300_000), asInt: String(value) }] } }] }] }],
+    });
+    expect(await read("producers", [fromProducer("a", 10), fromProducer("b", 20)])).toEqual([{ name: "ortho.calls", labels: claim, value: 30 }]);
+  });
+
   it("a file that is not metrics is a failure that says so, never a guess", async () => {
     const folder = join(dir, "broken");
     mkdirSync(folder, { recursive: true });

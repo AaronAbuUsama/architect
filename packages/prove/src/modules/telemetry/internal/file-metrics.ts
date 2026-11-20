@@ -7,7 +7,7 @@ import { SourceFailed, type MetricPoint, type MetricsSource } from "../types.ts"
 
 interface RawPoint { readonly attributes?: ReadonlyArray<{ readonly key: string; readonly value: { readonly stringValue?: string } }>; readonly timeUnixNano?: string; readonly asInt?: string; readonly asDouble?: number }
 interface RawMetric { readonly name: string; readonly sum?: { readonly aggregationTemporality?: number | string; readonly dataPoints?: ReadonlyArray<RawPoint> } }
-interface Sample { readonly name: string; readonly labels: Readonly<Record<string, string>>; readonly at: number; readonly value: number; readonly delta: boolean }
+interface Sample { readonly producer: string; readonly name: string; readonly labels: Readonly<Record<string, string>>; readonly at: number; readonly value: number; readonly delta: boolean }
 
 const DELTA = new Set<unknown>([1, "AGGREGATION_TEMPORALITY_DELTA"]);
 
@@ -18,10 +18,10 @@ const samplesIn = (dirs: ReadonlyArray<string>): Array<Sample> =>
     if (!existsSync(file)) return [];
     // Whole lines only: the exporter may be mid-line, and the next read sees it complete.
     return readFileSync(file, "utf8").split("\n").slice(0, -1).filter((l) => l.trim() !== "").flatMap((line) => {
-      const doc = JSON.parse(line) as { resourceMetrics?: ReadonlyArray<{ scopeMetrics?: ReadonlyArray<{ metrics?: ReadonlyArray<RawMetric> }> }> };
-      return (doc.resourceMetrics ?? []).flatMap((r) => (r.scopeMetrics ?? []).flatMap((s) => s.metrics ?? [])).flatMap((metric) =>
+      const doc = JSON.parse(line) as { resourceMetrics?: ReadonlyArray<{ resource?: { attributes?: ReadonlyArray<unknown> }; scopeMetrics?: ReadonlyArray<{ scope?: unknown; metrics?: ReadonlyArray<RawMetric> }> }> };
+      return (doc.resourceMetrics ?? []).flatMap((r) => (r.scopeMetrics ?? []).flatMap((s) => (s.metrics ?? []).map((metric) => ({ metric, producer: `${dir}\u0000${JSON.stringify(r.resource?.attributes ?? [])}\u0000${JSON.stringify(s.scope ?? null)}` })))).flatMap(({ metric, producer }) =>
         (metric.sum?.dataPoints ?? []).map((point): Sample => ({
-          name: metric.name,
+          producer, name: metric.name,
           labels: Object.fromEntries((point.attributes ?? []).map(({ key, value }) => [key, value.stringValue ?? ""])),
           at: Number(BigInt(point.timeUnixNano ?? "0") / 1_000_000n),
           value: Number(point.asInt ?? point.asDouble ?? 0),
@@ -30,7 +30,8 @@ const samplesIn = (dirs: ReadonlyArray<string>): Array<Sample> =>
     });
   });
 
-const keyOf = (s: Sample) => `${s.name}\u0000${JSON.stringify(Object.entries(s.labels).sort(([a], [b]) => (a < b ? -1 : 1)))}`;
+/** A series is one producer's counter: its resource, its scope and its source folder tell two processes that count the same name and labels apart. */
+const keyOf = (s: Sample) => `${s.producer}\u0000${s.name}\u0000${JSON.stringify(Object.entries(s.labels).sort(([a], [b]) => (a < b ? -1 : 1)))}`;
 
 /** One series' growth in `(from, now]`: its samples walked in order, each adding what it grew by, or its whole total after a restart (a total that fell). */
 const growth = (series: ReadonlyArray<Sample>, from: number, now: number): number => {
@@ -48,15 +49,23 @@ const growth = (series: ReadonlyArray<Sample>, from: number, now: number): numbe
   return total;
 };
 
+const labelsKey = (labels: Readonly<Record<string, string>>) => JSON.stringify(Object.entries(labels).sort(([a], [b]) => (a < b ? -1 : 1)));
+
 export const fileMetrics = (dirs: ReadonlyArray<string>): MetricsSource => ({
   window: (since, now) =>
     Effect.try({ try: () => samplesIn(dirs), catch: () => new SourceFailed({ message: "the collector's metrics could not be read" }) }).pipe(
       Effect.map((samples) => {
         const series = new Map<string, Array<Sample>>();
         for (const s of samples) series.set(keyOf(s), [...(series.get(keyOf(s)) ?? []), s]);
-        return [...series.values()]
-          .map((all): MetricPoint => ({ name: all[0]!.name, labels: all[0]!.labels, value: growth(all, now - since, now) }))
-          .filter((p) => p.value > 0);
+        // Each producer's growth is its own; what the portal reads is the sum over producers of the same name and labels.
+        const summed = new Map<string, MetricPoint>();
+        for (const all of series.values()) {
+          const grew = growth(all, now - since, now);
+          const key = `${all[0]!.name}\u0000${labelsKey(all[0]!.labels)}`;
+          const held = summed.get(key);
+          summed.set(key, { name: all[0]!.name, labels: all[0]!.labels, value: (held?.value ?? 0) + grew });
+        }
+        return [...summed.values()].filter((p) => p.value > 0);
       }),
     ),
 });

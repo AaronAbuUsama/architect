@@ -93,12 +93,15 @@ const Environment = Schema.Struct({
 });
 
 /** A journey as the compiler writes it: its cast, where it starts, and its declared steps (never read from spans). Checks are kept as written. */
-const JourneyStep = Schema.Struct({
-  title: Schema.String,
-  call: Schema.optionalKey(Schema.Struct({ actor: Schema.String, operation: Schema.String, payload: Schema.optionalKey(Schema.Unknown), request: Schema.optionalKey(Schema.String) })),
-  checks: Schema.Array(Schema.Unknown),
-  skipped: Schema.optionalKey(Schema.Unknown),
-});
+const JourneyStep = Schema.Union([
+  Schema.Struct({
+    title: Schema.String,
+    call: Schema.Struct({ actor: Schema.String, operation: Schema.String, payload: Schema.optionalKey(Schema.Unknown), request: Schema.optionalKey(Schema.String) }),
+    checks: Schema.Array(Schema.Unknown),
+  }),
+  /** A step whose operation is outside the model (`storiesOf`): it names why it was not drawn, and has no call and no checks. */
+  Schema.Struct({ title: Schema.String, skipped: Schema.String }),
+]);
 const Journey = Schema.Struct({
   name: Schema.String,
   file: Schema.String,

@@ -8,6 +8,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { acmeCopy } from "../../../test/acme.ts";
 import { Collectors, FileMetrics } from "#modules/telemetry/service.js";
 import { Worlds } from "#modules/world/service.js";
+import { SourceFailed } from "#modules/telemetry/types.js";
 import { PortalFeed } from "./service.ts";
 
 const project = acmeCopy();
@@ -16,6 +17,16 @@ afterAll(() => { project.remove(); rmSync(telemetry, { recursive: true, force: t
 const sleep = (ms: number) => new Promise<void>((done) => { setTimeout(done, ms); });
 
 interface Snapshot { readonly observedAt: string; readonly telemetry: null | { readonly environment: string; readonly now: number; readonly calls: { readonly state: string; readonly value?: { readonly rows: ReadonlyArray<{ readonly trace: string; readonly operation: string; readonly outcome: string; readonly caller: string }> } }; readonly metrics: { readonly state: string; readonly value?: { readonly operations: Record<string, { readonly calls: number; readonly answered: number }> } } } }
+
+describe("the feed keeps each source's answer on its own", () => {
+  it("metrics that fail beside traces that read: the traces are still there", () =>
+    Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+      const source = { traces: () => Effect.succeed(new Map()), find: () => Effect.succeed(undefined), window: () => Effect.succeed(new Map([["t", { spans: [], logs: [] }]])) };
+      const feed = yield* PortalFeed.serve({ source, metrics: { window: () => Effect.fail(new SourceFailed({ message: "unreadable" })) }, environment: "local", windowMs: 1000, now: Effect.succeed(5) });
+      const answer = yield* Effect.promise(() => fetch(feed.url).then((r) => r.json()));
+      expect(answer).toEqual({ environment: "local", now: 5, windowMs: 1000, traces: { state: "available", value: { t: { spans: [], logs: [] } } }, points: { state: "unavailable", reason: "unreadable" } });
+    }))));
+});
 
 describe("a local world's portal", () => {
   it("carries the world's own call: the row, the count, and a trace page of structure only", { timeout: 120_000 }, () =>
