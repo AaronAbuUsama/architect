@@ -102,6 +102,12 @@ r=$(repo); sed -i.bak '/totals:/d' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README
 expect "deleting the totals markers fails" 1 guard "$r"
 r=$(repo); sed -i.bak 's/<!-- totals:end -->/<!-- totals:end -->\nnew line/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
 expect "a line added after the block fails" 1 guard "$r"
+r=$(repo); printf 'names `<!-- totals:start -->` and `<!-- totals:end -->` in prose\nbody\n' > "$r/e2e/m1/NOTES.md"; git -C "$r" add -A; git -C "$r" commit -qm notes -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/NOTES.md"; commit "$r"
+expect "a markdown file that is not a suite README fails" 1 guard "$r"
+r=$(repo); printf '# m1\n\nnames `<!-- totals:start -->` in prose\nbody\n' > "$r/e2e/m1/README.md"; git -C "$r" add -A; git -C "$r" commit -qm prose -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/README.md"; commit "$r"
+expect "a marker named in prose is not a block" 1 guard "$r"
+r=$(repo); mkdir -p "$r/e2e/totals/fixture/demo"; printf '<!-- totals:start -->\nx\n<!-- totals:end -->\n' > "$r/e2e/totals/fixture/demo/README.md"; git -C "$r" add -A; git -C "$r" commit -qm nested -q; git -C "$r" branch -qf base; sed -i.bak 's/^x$/y/' "$r/e2e/totals/fixture/demo/README.md" && rm "$r/e2e/totals/fixture/demo/README.md.bak"; commit "$r"
+expect "a nested README's block fails" 1 guard "$r"
 
 # supersedes
 decisions() { # <repo> <decision body>; writes design/decisions/G9.md and a stale doc
