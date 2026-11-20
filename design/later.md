@@ -24,6 +24,16 @@ belongs to, and why it waits.
   on a move from a state, where it is `undefined` at runtime (`prehandle.ts` mints only from `[]`). Keeping `from` a
   tuple through `Blueprint.machine` restores the exact type. It waits because the runtime is right and nothing reads
   that `id` today; a type test pinning a non-creating machine move's `id` to `undefined` comes with it.
+- **Invariants beyond `unique`** ([G5](decisions/G5-invariants.md) §7), each with a decision step before the slice that
+  first needs it:
+  - `Blueprint.invariant.requires`, a rule across things: Plugged In's `LinkNeedsHandle` and work's four `Mission*`
+    refusals. It waits on two questions: a key that comes from the caller (`link.add` carries no owner), and whether
+    the rule holds only when a record is made or always, in which case releasing a handle must refuse or cascade.
+  - A bound on one record (`taken + people ≤ places`): `SheetFull`, `AllowanceExceeded`, `SoldOut`. It waits because
+    those refusals carry a computed `left`, which a declared bound would have to produce.
+  - An early refusal before the handler, for a creating move whose payload carries the key; field-level `writes` on
+    database steps, so an operation that can break a rule is known exactly; `ortho add invariant`.
+  - Caseless keys belong in the value (K9's `names.lowercase` choice), never in a key function no index can hold.
 
 ## From stage two (layer one)
 
