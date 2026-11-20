@@ -52,6 +52,8 @@ export interface OpenOptions {
   readonly clientDir?: string;
   /** The server module, when a control supplies its own. Default: `@orthograph/portal/server`. */
   readonly server?: PortalServerModule;
+  /** The module the server half is imported from, when `server` is not given. Default: `@orthograph/portal/server`. A control names one that cannot exist, or one with no `PortalServer`. */
+  readonly serverSpecifier?: string;
   /** A browser launcher, for a control that makes the launch fail. Default: Playwright's Chromium, shared by the process. */
   readonly launch?: () => Promise<import("playwright").Browser>;
   /** Run the Effect the server's `handle` returned. Default: `Effect.runPromise`. */

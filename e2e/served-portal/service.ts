@@ -23,9 +23,8 @@ const chromiumBrowser = (launch?: () => Promise<Browser>): Promise<Browser> => {
   return browser;
 };
 
-const serverOf = async (given: PortalServerModule | undefined): Promise<PortalServerModule> => {
+const serverOf = async (given: PortalServerModule | undefined, specifier = "@orthograph/portal/server"): Promise<PortalServerModule> => {
   if (given !== undefined) return given;
-  const specifier = "@orthograph/portal/server";
   const loaded = await import(/* @vite-ignore */ specifier).catch((error: unknown) => {
     throw new ServedPortalUnavailable("no-server", `K19: ${specifier} does not load (${String(error).split("\n")[0]}). The portal's server half is its own entry, exporting \`PortalServer.handle(context, request)\` for \`/_portal/v1/*\`, with no React and no HeroUI.`);
   }) as Partial<PortalServerModule>;
@@ -39,7 +38,7 @@ const newContext = (b: Browser): Promise<BrowserContext> =>
 /** The two halves of the Worker, played here: the data API from the server module, the built client from a folder. */
 const playWorker = async (options: OpenOptions): Promise<{ readonly url: string; readonly answer: (request: Request) => Promise<Response>; readonly stop: () => Promise<void> }> => {
   const clientDir = options.clientDir ?? DEFAULT_CLIENT;
-  const server = await serverOf(options.server);
+  const server = await serverOf(options.server, options.serverSpecifier);
   if (!existsSync(join(clientDir, "index.html"))) {
     throw new ServedPortalUnavailable("no-client", `K19: the portal's client is not built: ${join(clientDir, "index.html")} is missing. \`@orthograph/portal\` builds its pages once, with portal-ui and HeroUI Pro, into dist/client (HTML, JS, CSS) at our build.`);
   }

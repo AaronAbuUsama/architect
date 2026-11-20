@@ -110,11 +110,19 @@ describe("served portal: a missing half says K19, never crashes", () => {
     expect((error as Error).message).toMatch(/^K19: the portal's client is not built/);
   });
 
-  it("no ./server export", async () => {
-    const error = await ServedPortals.open({ context: {}, clientDir: dir }).catch((e: unknown) => e);
+  it("a server module that does not load", async () => {
+    const specifier = "@orthograph/portal/no-such-server";
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, serverSpecifier: specifier }).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ServedPortalUnavailable);
     expect((error as ServedPortalUnavailable).reason).toBe("no-server");
-    expect((error as Error).message).toMatch(/^K19: @orthograph\/portal\/server does not load/);
+    expect((error as Error).message.startsWith(`K19: ${specifier} does not load`), (error as Error).message).toBe(true);
+  });
+
+  it("a server module that loads but exports no PortalServer.handle", async () => {
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, serverSpecifier: "effect" }).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ServedPortalUnavailable);
+    expect((error as ServedPortalUnavailable).reason).toBe("no-server");
+    expect((error as Error).message).toMatch(/^K19: effect loads but exports no `PortalServer\.handle/);
   });
 
   it("a page that never says it is ready", async () => {
