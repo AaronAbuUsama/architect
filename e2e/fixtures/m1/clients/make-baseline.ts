@@ -1,4 +1,4 @@
-// Writes `acme-baseline.json` from acme's checked-in `generated/` (run once, on m1 at 3a99bd92, before the SDK has options):
+// Writes `acme-baseline.json` from acme's checked-in `generated/` (first run on m1 at 3a99bd92, before the SDK has options; recaptured once after M1.35, below):
 //   node e2e/fixtures/m1/clients/make-baseline.ts
 // It is the record of what "unchanged" means for M1.12, so it is not run again once the clients carry them. Recaptured once, on 20 November 2026, after M1.35 removed `Errors.shown` for `refusals` (design/decisions/M1-clients-baseline.md).
 import { writeFileSync } from "node:fs";

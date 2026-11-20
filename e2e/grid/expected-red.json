@@ -3,43 +3,43 @@
     {
       "cell": "journey.docs",
       "subject": "a name is claimed once",
-      "reason": "generated/docs/handle/claim.md's page does not list the journey \"a name is claimed once\" as a worked example",
+      "reason": "generated/docs/handle/claim.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "a person claims a page and shares it",
-      "reason": "generated/docs/handle/claim.md's page does not list the journey \"a person claims a page and shares it\" as a worked example",
+      "reason": "generated/docs/handle/claim.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "a stranger cannot edit a page",
-      "reason": "generated/docs/link/add.md's page does not list the journey \"a stranger cannot edit a page\" as a worked example",
+      "reason": "generated/docs/link/add.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "add, order and remove a link",
-      "reason": "generated/docs/profile/get.md's page does not list the journey \"add, order and remove a link\" as a worked example",
+      "reason": "generated/docs/profile/get.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "anyone reads a public page",
-      "reason": "generated/docs/handle/resolve.md's page does not list the journey \"anyone reads a public page\" as a worked example",
+      "reason": "generated/docs/handle/resolve.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "claim a handle",
-      "reason": "generated/docs/handle/resolve.md's page does not list the journey \"claim a handle\" as a worked example",
+      "reason": "generated/docs/handle/resolve.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     },
     {
       "cell": "journey.docs",
       "subject": "release a handle",
-      "reason": "generated/docs/link/add.md's page does not list the journey \"release a handle\" as a worked example",
+      "reason": "generated/docs/link/add.md has no \"Worked examples\" section",
       "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
     }
   ]
