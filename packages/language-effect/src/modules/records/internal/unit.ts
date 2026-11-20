@@ -73,13 +73,14 @@ export const makeUnit = (store: Store["Service"], given?: ReadonlyArray<NamedRul
     const check = Effect.gen(function* () {
       const steps = stepsOf();
       // The call's own rows first (G5 section 6.2): two of them under one key is the handler's bug, whoever else holds it in the store.
-      const seenKeys = new Map<string, Instance>();
+      const seenKeys = new Map<Thing, Set<string>>();
       for (const { write, after } of steps) {
         for (const rule of rules.of(write.thing)) {
           if (!inScope(rule, after)) continue;
           const slot = `${rule.name}\u0000${ruleKey(rule, after)}`;
-          if (seenKeys.has(slot)) return { rule: rule.name, refuse: rule.declared?.refuse, row: after, own: true } satisfies Violation;
-          seenKeys.set(slot, after);
+          const seen = seenKeys.get(write.thing) ?? seenKeys.set(write.thing, new Set()).get(write.thing)!;
+          if (seen.has(slot)) return { rule: rule.name, refuse: rule.declared?.refuse, row: after, own: true } satisfies Violation;
+          seen.add(slot);
         }
       }
       for (const { write, before, after } of steps) {

@@ -44,4 +44,13 @@ describe("unit.check and the call's own rows (G5 6.2)", () => {
     }));
     expect(v).toBeUndefined();
   });
+  it("two different things that keep a G4 unique field of one name, with one value, are no clash", async () => {
+    const Cup = Blueprint.thing({ description: "A cup.", code: "CU", fields: { id: Blueprint.id("cup"), name: Blueprint.text({ max: 40 }) }, unique: { name: {} } });
+    const Mug = Blueprint.thing({ description: "A mug.", code: "MG", fields: { id: Blueprint.id("mug"), name: Blueprint.text({ max: 40 }) }, unique: { name: {} } });
+    const v = await checked([], (unit) => Effect.gen(function* () {
+      yield* unit.records.insert(Cup, { id: "cup_1", name: "same" });
+      yield* unit.records.insert(Mug, { id: "mug_1", name: "same" });
+    }));
+    expect(v).toBeUndefined();
+  });
 });
