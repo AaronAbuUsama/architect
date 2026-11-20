@@ -126,6 +126,16 @@ belongs to, and why it waits.
   M1.13 and the marker is not tied to a surface. When the portal gets a source in the grid, the eval must check the marker against
   the source (a marker with a source is wrong), and require the marker to sit on, or be visible next to, the refusal surface it
   excuses. Waits on a metrics source in the grid's portal data (M1.13's metrics reader, M7.14 for history).
+- **Faster proving, the rest of track A** ([`research/speed-and-vitest-proposal.md`](research/speed-and-vitest-proposal.md)),
+  after ST1.23 and ST1.24, one at a time:
+  - A3, reuse a signed verdict keyed by handler hashes, journey text, model slice and framework version. Each key input needs a planted change of its own first.
+  - A4, starting worlds as D1-plus-Durable-Object snapshots. Needs a spike.
+  - A5, journeys at the same time. The performance eval must run apart.
+  - A6, prove receives telemetry itself, without a collector process.
+  - A7, load each command's code only when it runs.
+- **Our own tests by what changed** (proposal B2, B3): tests that only need prove's result call it in process, and suites that start `ortho` carry a tag; CI then picks suites from a table of changed path to tag. It waits because nothing in CI may use `vitest --changed` before B2 (it would skip the climbability check).
+- **Vitest for this repository** (proposal C2; spike `spikes/vitest-fixtures`, #189): world-starting checks on shared fixtures and report matchers, one config with named projects, the ratchet as a reporter, a slow-file budget. The checks author's work, after stage 1.
+- **Vitest as a generated output for users** (proposal C1): each journey a suite, each step a test, run by prove's engine, with an Orthograph reporter and the journey checks as matchers. It waits for the framework session with Aaron.
 
 ## From Codex's review of #159 (website builder, 20 November 2026)
 

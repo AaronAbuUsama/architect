@@ -18,6 +18,9 @@ describe("ortho prove --env local on signup, the canon's example", () => {
     expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
     expect(lines).toContain(coverageLine("moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4", model));
     expect(lines.at(-1)).toBe("prove ✔");
+    // The suffix names IdempotencyConflict, literally, exactly when an operation lists it (HAN-10): not whatever the helper infers.
+    const listed = Object.values(model.operations as Record<string, { refusals: Array<string> }>).some((op) => op.refusals.includes("IdempotencyConflict"));
+    expect(lines.find((l) => l.startsWith("coverage ✔"))?.includes("(not counted: IdempotencyConflict,") ?? false, "the coverage line's suffix").toBe(listed);
     nothingRunning(project.root);
   });
 });
