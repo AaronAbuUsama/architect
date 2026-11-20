@@ -15,6 +15,8 @@ export interface DevRecord {
   readonly telemetry: string;
   /** When `ortho dev` began, in milliseconds: the world serves the source as it was then. */
   readonly startedAt: number;
+  /** Said by the world's health answer and required by its reset: a pid reused by another process, or another world on the port, has another. */
+  readonly nonce: string;
   /** Which source files there were, and what each held, when dev began (`fingerprint`). */
   readonly sources: string;
 }
@@ -28,6 +30,11 @@ export interface WarmApi {
    * began (a file edited, added, deleted or renamed), because the world may not have reloaded it yet and a verdict must be the code on disk's.
    */
   readonly find: (root: string) => Effect.Effect<DevRecord | undefined>;
+  /**
+   * Take the right to run in the warm world, until the scope closes. `false` when another prove holds it (it would be reset under
+   * that prove): the caller starts a world of its own. A lock left by a process that is gone is not held.
+   */
+  readonly lock: (root: string) => Effect.Effect<boolean, never, Scope.Scope>;
   /** Empty the world's databases and its cast, so a run never sees the last one's records. */
   readonly reset: (record: DevRecord) => Effect.Effect<void, WarmFailed>;
 }

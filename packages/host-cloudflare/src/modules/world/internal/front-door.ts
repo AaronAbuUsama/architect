@@ -7,10 +7,12 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 const strings = (v: unknown) => (Array.isArray(v) ? v.filter((n): n is string => typeof n === "string") : []);
 
 /** The world's front door, over its own SQLite storage. */
-export const frontDoor = (sql: SqlStorage, auth: AuthInstance, request: Request): Effect.Effect<Response> =>
+export const RESET_HEADER = "x-ortho-world";
+
+export const frontDoor = (sql: SqlStorage, auth: AuthInstance, request: Request, nonce?: string): Effect.Effect<Response> =>
   Effect.gen(function* () {
     const path = new URL(request.url).pathname;
-    if (path === "/_world/health") return json({ ok: true });
+    if (path === "/_world/health") return json({ ok: true, ...(nonce ? { nonce } : {}) });
     if (path === "/_world/cast" && request.method === "POST") {
       const body = (yield* Effect.promise(() => request.json().catch(() => ({})))) as { readonly names?: unknown; readonly anonymous?: unknown };
       const anonymous = new Set(strings(body.anonymous));
@@ -25,6 +27,7 @@ export const frontDoor = (sql: SqlStorage, auth: AuthInstance, request: Request)
       return json(cast satisfies Cast);
     }
     if (path === "/_world/reset" && request.method === "POST") {
+      if (nonce && request.headers.get(RESET_HEADER) !== nonce) return json({ error: "not this world's reset" }, 403);
       // The cast stays (a warm world's population); the Worker empties the databases around the people it names.
       return json({ people: sql.exec<{ person: string }>("SELECT person FROM cast WHERE person IS NOT NULL").toArray().map((r) => r.person) });
     }

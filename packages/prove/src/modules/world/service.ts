@@ -10,7 +10,7 @@ import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
   anyPort,
-  start: ({ root, port: asked, name, otlp, portalFeed, environment, secretEnv, chain }) =>
+  start: ({ root, port: asked, name, otlp, portalFeed, environment, secretEnv, chain, nonce }) =>
     Effect.gen(function* () {
       const generated = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(generated)) return yield* new WorldFailed({ message: `${generated} is missing: run nx sync first` });
@@ -30,7 +30,7 @@ export const Worlds: WorldsApi = {
       // Port 0 asks for any free port; wrangler is told a named one, and `url` is the one it got.
       const port = asked === 0 ? yield* anyPort : asked;
       const url = `http://127.0.0.1:${port}`;
-      const vars = { AUTH_SECRET: secret, [Names.variable("ENVIRONMENT")]: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}), ...(portalFeed ? { ORTHO_PORTAL_FEED: portalFeed } : {}) };
+      const vars = { AUTH_SECRET: secret, [Names.variable("ENVIRONMENT")]: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}), ...(portalFeed ? { ORTHO_PORTAL_FEED: portalFeed } : {}), ...(nonce ? { ORTHO_WORLD_NONCE: nonce } : {}) };
       yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars, ...(secretEnv ? { secretEnv } : {}) }, "/_world/health"), stop);
       return { url, log, ...(stood ? { chain: stood } : {}) };
     }),

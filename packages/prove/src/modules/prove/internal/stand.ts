@@ -39,12 +39,14 @@ interface Wanted {
 }
 
 /** The warm world of a live `ortho dev`, emptied; `undefined` when a prove must have one of its own (or there is none to use). */
-const warmWorld = ({ root, model, port, empty }: Wanted): Effect.Effect<Stand | undefined, ProveFailed> =>
+const warmWorld = ({ root, model, port, empty }: Wanted): Effect.Effect<Stand | undefined, ProveFailed, Scope.Scope> =>
   Effect.gen(function* () {
     // A scaffold world, a chosen port and a device chain are each a world of the run's own making.
     if (empty || port !== 0 || needsDevice(model)) return undefined;
     const record = yield* Warm.find(root);
     if (record === undefined) return undefined;
+    // Another prove is running in it: resetting now would empty the world under that run, so this one starts a world of its own.
+    if (!(yield* Warm.lock(root))) return undefined;
     yield* Warm.reset(record).pipe(Effect.mapError(failed));
     return { url: record.url, collector: Collectors.read(record.telemetry), otlp: record.collector, device: undefined, notes: [`prove: reusing the world of ortho dev at ${record.url}`] };
   });

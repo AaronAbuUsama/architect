@@ -1,4 +1,5 @@
 import { Names } from "orthograph/server";
+import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
 import { Clock, Duration, Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
@@ -57,14 +58,15 @@ export const Prove: ProveApi = {
     Effect.gen(function* () {
       const startedAt = yield* Clock.currentTimeMillis;
       const sources = fingerprint(root);
+      const nonce = randomBytes(16).toString("hex");
       const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.mapError((e) => failed(e._tag === "BlueprintInvalid" ? { message: `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` } : e)));
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       // The collector and the world outlive each prove: a prove that finds them uses them (ST1.24).
       const dir = resolve(root, Names.folder, "dev-telemetry");
       const collector = yield* Collectors.local(dir, privateKeys(model)).pipe(Effect.mapError(failed));
       const feed = yield* PortalFeed.serve({ source: collector, metrics: FileMetrics.open(dir), environment: "local", windowMs: PORTAL_WINDOW_MS }).pipe(Effect.mapError(failed));
-      const { url, log } = yield* Worlds.start({ root, port, name: "dev", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
-      yield* Warm.publish(root, { pid, url, collector: collector.url, telemetry: dir, startedAt, sources }).pipe(Effect.mapError(failed));
+      const { url, log } = yield* Worlds.start({ root, port, name: "dev", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv, nonce }).pipe(Effect.mapError(failed));
+      yield* Warm.publish(root, { pid, url, collector: collector.url, telemetry: dir, startedAt, sources, nonce }).pipe(Effect.mapError(failed));
       return { url, log, notes: sinks.notes };
     }),
   test: (options) =>

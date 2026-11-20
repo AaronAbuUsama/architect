@@ -2,8 +2,9 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-/** What a world of dev serves: the handlers, the blueprint, the generated Worker. */
-const SOURCES = ["src", "blueprint", "generated/server"];
+/** What a world of dev runs on: the handlers, the blueprint, everything generated, and (at the root) the config, the dependencies and the environment files. */
+const FOLDERS = ["src", "blueprint", "generated"];
+const ROOT_FILE = /^(ortho\.config\.[cm]?[jt]s|package\.json|pnpm-lock\.yaml|package-lock\.json|yarn\.lock|bun\.lockb?|\.env.*)$/;
 /** Never input: installed packages, and wrangler's own bundles (its output). */
 const SKIPPED = new Set(["node_modules", ".wrangler"]);
 
@@ -12,10 +13,12 @@ const filesUnder = (path: string): ReadonlyArray<string> =>
     ? readdirSync(path).filter((name) => !SKIPPED.has(name)).flatMap((name) => filesUnder(join(path, name)))
     : [path];
 
-const sourceFiles = (root: string): ReadonlyArray<string> =>
-  SOURCES.map((part) => join(root, part)).filter(existsSync).flatMap(filesUnder).sort();
+const sourceFiles = (root: string): ReadonlyArray<string> => [
+  ...FOLDERS.map((part) => join(root, part)).filter(existsSync).flatMap(filesUnder),
+  ...readdirSync(root).filter((name) => ROOT_FILE.test(name)).map((name) => join(root, name)).filter((file) => statSync(file).isFile()),
+].sort();
 
-/** The newest modification time, in milliseconds, of any file under the project's sources; 0 when there are none. */
+/** The newest modification time, in milliseconds, of any file under the project's sources (`fingerprint` says which); 0 when there are none. */
 export const newestChange = (root: string): number => sourceFiles(root).reduce((newest, file) => Math.max(newest, statSync(file).mtimeMs), 0);
 
 /**
