@@ -6,6 +6,7 @@
 //  2. the coverage line counts each rule's refusal once, however many operations can break the rule: a second breaker (`handle.rename` with `writes: [Handle]`) does not
 //     change the refusals denominator, and the one journey on `handle.claim` still covers both;
 //  3. with the journey removed prove fails and names each unreached rule by its full name (`handle.oneHolderPerName`, `handle.oneNamePerPerson`), not an operation.
+// A build that dies on any write to a rule's key that the call does not account for would fail `handle.rename` (it renames onto a free name: no clash, so G5 says it does not die).
 // Real workerd, no Docker, a port from the OS. Written by the checks author; a builder never edits this file or the fixture.
 // Red today on the missing surface (`Blueprint.invariant` is not a function): all three tests. The fixture compiling without its rules is check 25's control.
 import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -53,11 +54,16 @@ describe("32 ST1.18: prove holds the rules", () => {
     expect(proved.out, "no handler died on a lookup in prove's world").not.toMatch(/findBy|is not declared unique|Cannot read properties/);
     const coverage = coverageOf(proved.stdout);
     expect(coverage, proved.out).toBeDefined();
-    expect(coverage!.covered).toBe(coverage!.of);
-    // Acme alone is already full; the fixture adds the two rules' refusals and two declared errors, so the line must have grown by at least the two rules.
+    // Moves, outcomes and declared refusals are all reached. `runtime refusals` is not asked to be full: acme alone prints 14/17 and exits 0.
+    for (const name of ["moves", "outcomes", "refusals"]) {
+      const counter = coverage!.counters.find((c) => c.name === name);
+      expect(counter, `${name} is on the coverage line`).toBeDefined();
+      expect(counter!.covered, name).toBe(counter!.of);
+    }
+    // The fixture adds the two rules' refusals and the two declared errors of its lookups to acme's own line: its declared refusals grow by at least the two rules.
     const base = await bare();
     expect(base, "acme's own coverage line").toBeDefined();
-    expect(coverage!.of, "HandleTaken and HandleAlreadyOwned are counted").toBeGreaterThanOrEqual(base!.of + 2);
+    expect(coverage!.refusals!.of, "HandleTaken and HandleAlreadyOwned are counted").toBeGreaterThanOrEqual(base!.refusals!.of + 2);
     expect(lines.at(-1)).toBe("prove ✔");
   });
 
