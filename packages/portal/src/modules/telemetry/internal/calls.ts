@@ -17,18 +17,24 @@ const numberOf = (span: WindowSpan) => (typeof span.attrs["attempt"] === "number
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
 
-const outcomeOf = (last: WindowSpan): { readonly outcome: Outcome; readonly refusal: string | null } => {
+/**
+ * The last attempt decides. A conflict is no refusal and ends its span ok, so a call whose final attempt's commit conflicted (the retries ran out:
+ * the loop dies outside the attempt span, and `ortho.calls` counts a defect) committed nothing and is a defect, never an answer.
+ */
+const outcomeOf = (last: WindowSpan, spans: ReadonlyArray<WindowSpan>): { readonly outcome: Outcome; readonly refusal: string | null } => {
   const refusal = text(last.attrs["refusal"]);
-  return refusal !== undefined ? { outcome: "refused", refusal } : { outcome: last.status === 2 ? "defect" : "answered", refusal: null };
+  if (refusal !== undefined) return { outcome: "refused", refusal };
+  const conflicted = spans.some((s) => s.parentSpanId === last.spanId && s.attrs["step.kind"] === "commit" && s.attrs["commit.outcome"] === "conflict");
+  return { outcome: last.status === 2 || conflicted ? "defect" : "answered", refusal: null };
 };
 
-const callOf = (trace: string, operation: string, attempts: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
+const callOf = (trace: string, operation: string, attempts: ReadonlyArray<WindowSpan>, all: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
   const ordered = [...attempts].sort((a, b) => numberOf(a) - numberOf(b) || a.start - b.start);
   const first = ordered.reduce((a, b) => (b.start < a.start ? b : a));
   const end = Math.max(...ordered.map((s) => s.start + s.ms));
   const durationMs = round(end - first.start);
   return {
-    trace, operation, start: first.start, ...outcomeOf(ordered[ordered.length - 1]!),
+    trace, operation, start: first.start, ...outcomeOf(ordered[ordered.length - 1]!, all),
     caller: ordered.map(callerOf).find((k) => k !== undefined) ?? "unknown",
     attempts: new Set(ordered.map(numberOf)).size,
     durationMs,
@@ -53,7 +59,7 @@ export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: s
     const byOperation = new Map<string, Array<WindowSpan>>();
     for (const span of spans.filter((span) => isAttempt(spanKind(span, kinds)))) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
     for (const [operation, attempts] of byOperation) {
-      const call = callOf(trace, operation, attempts, journey, environment, budgets[operation]);
+      const call = callOf(trace, operation, attempts, spans, journey, environment, budgets[operation]);
       all.push(call);
       if (call.outcome === "answered" && moved(attempts)) moves[operation] = (moves[operation] ?? 0) + 1;
       if (journey !== null) (journeys[operation] ??= new Set()).add(journey);

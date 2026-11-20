@@ -3,7 +3,8 @@
 import type { OperationWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
 import { journeysCalling, refusalsFor } from "./model.ts";
-import { refusalCount } from "./live.ts";
+import { refusalCount, whyNot } from "./live.ts";
+import { NotYet } from "./not-yet.tsx";
 import { Banner, FieldRows, Page, who } from "./parts.tsx";
 import { DocsTab, MetricsTab, NotesTab, ProofTab } from "./op-tabs.tsx";
 import { TABS } from "./route.ts";
@@ -12,6 +13,7 @@ const Contract = ({ data, op }: { readonly data: PortalData; readonly op: Operat
   const { blueprint } = data;
   const steps = Object.values(op.steps);
   const journeys = journeysCalling(blueprint, op.name);
+  const why = whyNot(data, "metrics");
   return (
     <>
       <h2>Contract</h2>
@@ -22,11 +24,12 @@ const Contract = ({ data, op }: { readonly data: PortalData; readonly op: Operat
       <FieldRows fields={op.answer} />
       {op.move ? <p>{`Move ${op.move.key}: from ${op.move.from.join(" or ") || "nothing (it creates)"} to ${op.move.to.join(" or ")}, emitting ${op.move.emits}.`}</p> : null}
       <h3>Refusals</h3>
-      {/* `?? 0` below exists only because the error.portal eval requires a digit even with no source: design/decisions/W1-no-source-count.md. */}
+      {why === undefined ? null : <p>Refusal counts: <NotYet hole="metrics" what={why} /></p>}
       <ul>
-        {refusalsFor(blueprint, op).map(([name, code]) => (
-          <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} data-count={String(refusalCount(data, name, op.name) ?? 0)} data-counted={String(refusalCount(data, name, op.name) !== null)}>{name}</span></li>
-        ))}
+        {refusalsFor(blueprint, op).map(([name, code]) => {
+          const count = refusalCount(data, name, op.name);
+          return <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} {...(count === null ? {} : { "data-count": String(count) })}>{name}</span></li>;
+        })}
       </ul>
       {steps.length > 0 ? <><h3>Steps</h3><ul>{steps.map((st) => <li key={st.name}>{`${st.name} (${st.type})`}</li>)}</ul></> : null}
       <h3>Journeys that call it</h3>

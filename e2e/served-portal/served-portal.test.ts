@@ -49,6 +49,12 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     await portal.close();
   });
 
+  it("evaluates an expression in the ready page, and hands the answer back", async () => {
+    const portal = await open();
+    expect(await portal.evaluate<ReadonlyArray<string>>("/portal", "[...document.querySelectorAll('[data-thing]')].map((e) => e.getAttribute('data-thing'))")).toEqual(["handle", "link"]);
+    await portal.close();
+  });
+
   it("serves a route with a dot in its name as the shell, and says a page is a 404 by its own hook", async () => {
     const portal = await open();
     expect((await portal.page("/portal/operations/handle.claim?tab=metrics")).html).toContain("route /operations/handle.claim");
