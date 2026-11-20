@@ -135,6 +135,19 @@ describe("what an operation reaches by importing", () => {
     expect(choose(root, record).fellBack).toEqual({ reason: `cannot place ${SHUT}`, files: [SHUT] });
   });
 
+  it("proves everything when a handler imports or requires something whose specifier is not a literal", () => {
+    for (const line of ["await import(`./${name}.ts`);", "require(name);", "import(target)"]) {
+      const root = project();
+      write(root, SHUT, `export default async (name: string, target: string) => { ${line} };\n`);
+      const record = proven(root);
+      // The real target sits in another handler's closure: the operation that cannot say where it imports rests on every file.
+      write(root, OPEN, "// the real target\n");
+      expect(choose(root, record).rerun, line).toEqual([A, B]);
+      write(root, SHUT, `export default async (name: string, target: string) => { ${line} }; // edited\n`);
+      expect(choose(root, record).fellBack?.files, line).toEqual([SHUT]);
+    }
+  });
+
   it("sees a file outside the usual folders that a handler imports", () => {
     const root = project();
     write(root, SHUT, 'import { x } from "../../lib/x.ts";\nexport default x;\n');

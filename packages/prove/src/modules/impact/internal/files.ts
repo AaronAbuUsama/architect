@@ -17,14 +17,15 @@ const sorted = (files: ReadonlySet<string>) => [...files].sort();
 export const stampOf = (root: string, model: Model): Stamp => {
   const snap: Snapshot = scan(root);
   const closure = graphOf(snap);
-  const through = (files: ReadonlySet<string>) => sorted(files).map((file) => [file, snap.hashes.get(file) ?? null]);
+  // What reaches a file that imports by a specifier it cannot read rests on every file: its real target could be any of them.
+  const through = (reached: Closure) => sorted(reached.wild.size > 0 ? new Set(snap.hashes.keys()) : reached.files).map((file) => [file, snap.hashes.get(file) ?? null]);
   const operations = new Map<string, { readonly inputs: string; readonly closure: Closure }>();
   for (const [name, op] of Object.entries(model.operations)) {
     const roots = [op.file, ...handlerFiles(op).map((h) => h.file)];
     const reached = closure(roots);
     // A plugin's declaration and handler live in its package, outside the project: what the model and the handler's hash say stands in.
     const outside = roots.filter((r) => !snap.hashes.has(r)).map((r) => (r === op.file ? op.hash : handlerHash(root, op) ?? null));
-    operations.set(name, { closure: reached, inputs: digest(JSON.stringify([through(reached.files), outside, Compare.dependsOn(model, name)])) });
+    operations.set(name, { closure: reached, inputs: digest(JSON.stringify([through(reached), outside, Compare.dependsOn(model, name)])) });
   }
   const journeys = new Map<string, { readonly inputs: string; readonly closure: Closure }>();
   for (const journey of Object.values(model.journeys)) {
@@ -33,7 +34,7 @@ export const stampOf = (root: string, model: Model): Stamp => {
     const reached = closure(roots);
     const outside = roots.filter((r) => !snap.hashes.has(r)).map((r) => (r === journey.file ? journey.sourceHash : scenario.worlds.find((w) => w.file === r)?.sourceHash) ?? null);
     const calls = [...scenario.operationNames].sort().map((name) => operations.get(name)?.inputs ?? name);
-    journeys.set(journey.file, { closure: reached, inputs: digest(JSON.stringify([through(reached.files), outside, calls])) });
+    journeys.set(journey.file, { closure: reached, inputs: digest(JSON.stringify([through(reached), outside, calls])) });
   }
   // The starting worlds are roots too, whether or not a journey stands on one.
   const worlds = Object.values(model.startingWorlds).map((w) => closure([w.file]));
