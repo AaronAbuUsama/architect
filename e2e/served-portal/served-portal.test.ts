@@ -87,6 +87,21 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
   });
 });
 
+describe("served portal: a failed start leaves nothing listening", () => {
+  const servers = () => process.getActiveResourcesInfo().filter((r) => r === "TCPServerWrap").length;
+
+  it("when the browser will not launch, the Worker it had started is released, and closeAll has nothing left to stop", async () => {
+    await ServedPortals.closeAll();
+    const before = servers();
+    const error = await ServedPortals.open({ context: {}, clientDir: dir, server, run, launch: () => Promise.reject(new Error("no chromium here")) }).catch((e: unknown) => e);
+    expect((error as ServedPortalUnavailable).reason).toBe("no-browser");
+    expect((error as Error).message).toMatch(/^K19: /);
+    await ServedPortals.closeAll();
+    await new Promise<void>((resolve) => { setTimeout(resolve, 50); });
+    expect(servers(), "no server is left listening").toBe(before);
+  });
+});
+
 describe("served portal: a missing half says K19, never crashes", () => {
   it("no built client", async () => {
     const error = await ServedPortals.open({ context: {}, clientDir: join(dir, "nowhere"), server, run }).catch((e: unknown) => e);

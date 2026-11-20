@@ -12,12 +12,14 @@ const READY_MS = 15_000;
 let browser: Promise<Browser> | undefined;
 const opened = new Set<ServedPortal>();
 
+const unavailable = (error: unknown): never => {
+  throw new ServedPortalUnavailable("no-browser", `K19: the served portal is read in headless Chromium and it did not start (${String(error).split("\n")[0]}); run \`pnpm exec playwright install chromium\` in e2e`);
+};
+
 /** One headless Chromium for the process, from Playwright's own download (`playwright install chromium`), never a container. */
-const chromiumBrowser = (): Promise<Browser> => {
-  browser ??= chromium.launch({ headless: true }).catch((error: unknown) => {
-    browser = undefined;
-    throw new ServedPortalUnavailable("no-browser", `K19: the served portal is read in headless Chromium and it did not start (${String(error).split("\n")[0]}); run \`pnpm exec playwright install chromium\` in e2e`);
-  });
+const chromiumBrowser = (launch?: () => Promise<Browser>): Promise<Browser> => {
+  if (launch !== undefined) return launch().catch(unavailable);
+  browser ??= chromium.launch({ headless: true }).catch((error: unknown) => { browser = undefined; return unavailable(error); });
   return browser;
 };
 
@@ -51,9 +53,10 @@ const open: ServedPortalsApi["open"] = async (options) => {
   // `url`: a portal some other Worker serves (a world `ortho` started), read the same way; there is no Worker to play.
   const worker = options.url === undefined ? await playWorker(options) : { url: options.url, answer: (request: Request) => fetch(`${options.url}${new URL(request.url).pathname}${new URL(request.url).search}`), stop: () => Promise.resolve() };
   const { url, answer } = worker;
-  const context = await newContext(await chromiumBrowser());
+  // The Worker is already listening: if anything after it fails, release it, or `closeAll` could never reach it.
+  const context = await chromiumBrowser(options.launch).then(newContext).catch(async (error: unknown) => { await worker.stop(); throw error; });
   // A fixed clock, long ago: a client that reads the time draws it, and the checks see it every run, not only when two runs differ.
-  await context.clock.setFixedTime(new Date(CLOCK_ISO));
+  await context.clock.setFixedTime(new Date(CLOCK_ISO)).catch(async (error: unknown) => { await context.close().catch(() => undefined); await worker.stop(); throw error; });
 
   const visit = async <T>(route: string, keep: (page: import("playwright").Page) => Promise<T>): Promise<RenderedPage & { readonly kept: T | undefined }> => {
     const page = await context.newPage();
