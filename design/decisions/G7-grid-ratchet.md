@@ -40,6 +40,8 @@ package file, and the list parses.
 
 3. `machine.mcp` reads a move's states from what the framework emits for the tool (schemas, annotations), not from its description, which `operation.mcp` requires to equal the model's. K14's row and `grid.json` were amended to say so in #150.
 
+4. Stopping rule for the evals (#150, after four rounds of review on one kind of finding): the evals guard against false greens first. A false red from a presentation form no generator emits is loud, because the ratchet fails it as unexpected red. It is fixed when a generator first emits that form, not ahead of it. #150 swept the evals once for the kind (names matched as tokens, one declaration syntax accepted and its equivalent refused, formatting left in labels and values) and the sweep ends there.
+
 K19 (the portal prebuilt, #103) is the route for the M1.13 portal pairs.
 
 **The goal's done check needs the list empty.** A pair stays visible until a builder fixes it; fixing it is what shortens the list.

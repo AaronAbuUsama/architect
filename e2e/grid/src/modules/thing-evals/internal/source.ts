@@ -16,9 +16,10 @@ export const api = over("thing.api", (thing, e) => operationsOf(e, thing.name).f
   const path = `generated/api/src/${op.thing}/${op.verb}.ts`;
   const source = e.files[path];
   if (source === undefined) return [`${path} was not generated`];
+  const code = Reading.code(source);
   return [
-    ...(source.includes("payload: declaration.payloadSchema") ? [] : [`${path} does not type its payload from the declaration`]),
-    ...(source.includes("wireStruct(declaration.answer") ? [] : [`${path} does not type its answer from the declaration`]),
+    ...(code.includes("payload: declaration.payloadSchema") ? [] : [`${path} does not type its payload from the declaration`]),
+    ...(code.includes("wireStruct(declaration.answer") ? [] : [`${path} does not type its answer from the declaration`]),
   ];
 }));
 
@@ -33,11 +34,11 @@ export const server = over("thing.server", (thing, e) => {
 
 /** thing.sdk: the SDK exports a type for the thing (`Link`) that names each of its fields, so a caller can name it. */
 export const sdk = over("thing.sdk", (thing, e) => {
-  const sources = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/"));
-  const declared = sources.map(([path, text]) => ({ path, at: new RegExp(`export (?:type|interface) ${thing.identifier}\\b`).exec(text), text })).find((s) => s.at !== null);
+  // An interface, or an alias of an object type: the type a caller writes, with a member for each field.
+  const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
+    Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
   if (declared === undefined) return [`the SDK exports no type ${thing.identifier}: a caller cannot name a ${thing.name}`];
-  const body = declared.text.slice(declared.at!.index, declared.at!.index + 2000);
-  return Object.keys(thing.fields).filter((field) => !new RegExp(`\\b${field}\\b`).test(body)).map((field) => `${declared.path}'s ${thing.identifier} leaves out the field ${field}`);
+  return Object.keys(thing.fields).filter((field) => !declared.members.includes(field)).map((field) => `${declared.path}'s ${thing.identifier} leaves out the field ${field}`);
 });
 
 /** thing.telemetry: a thing's public fields appear on its operations' spans as `payload.*` and `answer.*` (text only when `traced`), and no others do. */

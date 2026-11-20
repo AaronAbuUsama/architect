@@ -2,9 +2,6 @@ import { Reading } from "../../reading/service.ts";
 import { over } from "./over.ts";
 import { moveProblems, refusalProblems, stateProblems } from "./rows.ts";
 
-/** The classes of a generated errors file, by name: `export class LinkNotListed extends … { code…, ...{ state: Schema.String } }`. */
-const classOf = (errors: string, name: string): string | undefined => errors.split("\n").find((line) => line.startsWith(`export class ${name} `));
-
 /** machine.model: states, every move with its from, to and emits, the wrong-state refusal, and each operation's move agreeing with the machine's. */
 export const model = over("machine.model", ({ thing, machine, moves }) => [
   ...(machine.states.length === 0 ? ["it has no states"] : []),
@@ -25,11 +22,11 @@ export const model = over("machine.model", ({ thing, machine, moves }) => [
 /** machine.api: each move-guarded endpoint lists the wrong-state refusal, and that refusal's `state` is typed as the union of the states, not text. */
 export const api = over("machine.api", ({ machine, moves }, e) => {
   const errors = e.files["generated/api/src/errors.ts"] ?? "";
-  const refusal = classOf(errors, machine.notFrom.error);
+  const refusal = Reading.classText(errors, machine.notFrom.error);
   return [
     ...moves.filter((op) => op.move.from.length > 0).flatMap((op) => {
       const source = e.files[`generated/api/src/${op.thing}/${op.verb}.ts`] ?? "";
-      return new RegExp(`\\berror: \\[[^\\]]*\\b${machine.notFrom.error}\\b`).test(source) ? [] : [`${op.name}'s endpoint does not declare ${machine.notFrom.error}`];
+      return Reading.hasName(/\berror:\s*\[([^\]]*)\]/.exec(source)?.[1] ?? "", machine.notFrom.error) ? [] : [`${op.name}'s endpoint does not declare ${machine.notFrom.error}`];
     }),
     ...(refusal === undefined ? [`generated/api/src/errors.ts has no class ${machine.notFrom.error}`]
       : machine.states.every((s) => quoted(refusal, s)) ? [] : [`${machine.notFrom.error}'s state is not typed as the union of ${machine.states.join(" | ")}: ${refusal.slice(refusal.indexOf("state"), refusal.indexOf("state") + 30).trim()}`]),
@@ -42,13 +39,13 @@ export const server = over("machine.server", ({ moves }, e) => moves.flatMap((op
 const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]`).test(text);
 
 /**
- * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, declared in the thing's own
+ * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, interface (its `state`) or enum, declared in the thing's own
  * folder or named for the thing, whose own type names every state as a string literal. The source is parsed as TypeScript, so a missing
  * semicolon, a comment that quotes a state, or the next declaration's literals cannot make a type pass or fail.
  */
 export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
   const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
-    Reading.typeAliases(text).map((t) => ({ path, ...t })));
+    Reading.exportedTypes(text).map((t) => ({ path, ...t })));
   const ofThing = exported.filter((t) => t.path.startsWith(`generated/sdk/src/${thing.name}/`) || t.name.startsWith(thing.identifier));
   return ofThing.some((t) => machine.states.every((s) => t.literals.includes(s))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
 });
@@ -65,7 +62,7 @@ export const docs = over("machine.docs", ({ thing, machine, moves }, e) => {
     ...moves.flatMap((op) => {
       const page = e.files[`generated/docs/${op.thing}/${op.verb}.md`] ?? "";
       const move = Reading.mdSection(page, "Move");
-      const named = (w: string) => move !== undefined && new RegExp(`\\b${w}\\b`).test(move);
+      const named = (w: string) => move !== undefined && Reading.hasName(Reading.plain(move), w);
       return named(op.move.key) && named(op.move.emits) && op.move.to.every(named) ? [] : [`${op.name}'s page has no Move section with ${op.move.key}, its states and ${op.move.emits}`];
     }),
   ];

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { EventEvals } from "../event-evals/service.ts";
 import { MachineEvals } from "../machine-evals/service.ts";
 import { OperationEvals } from "../operation-evals/service.ts";
+import { RefusalSourceEvals } from "../refusal-source-evals/service.ts";
 import { editFile, editPortal, evidenceOf, judge } from "../project-evidence/testing.ts";
 import { ThingEvals } from "../thing-evals/service.ts";
 
@@ -178,6 +179,82 @@ describe("machine.mcp and operation.mcp do not contradict: the description is th
     expect(judge(MachineEvals.evals, "machine.mcp", "link", named)).toEqual({ ok: true, why: [] });
     expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", pluggedIn)).toEqual({ ok: true, why: [] });
     expect(judge(MachineEvals.evals, "machine.mcp", "link", pluggedIn).ok).toBe(false);
+  });
+});
+
+describe("presentation forms: the same content written another way (#150 round four)", () => {
+  const index = "generated/sdk/src/link/index.ts";
+  const docsPath = "generated/docs/link/index.md";
+  const machineDocs = (e: typeof pluggedIn) => judge(MachineEvals.evals, "machine.docs", "link", e);
+  const machineSdk = (e: typeof pluggedIn) => judge(MachineEvals.evals, "machine.sdk", "link", e);
+  const withMachine = (section: string) => editFile(pluggedIn, docsPath, (t) => t.replace(/## Machine[\s\S]*?(?=## Roles)/, section));
+
+  it("machine.docs: emphasis, code and links in headers and cells are formatting, not part of the label", () => {
+    const formatted = withMachine("## **Machine**\n\nStates: `listed`, `removed`. **LinkNotListed** (exit 31) is the refusal.\n\n| **Move** | _From_ | `To` | [Emits](emits.md) |\n|---|---|---|---|\n| **add** | (creates) | `listed` | **LinkAdded** |\n| `remove` | `listed` | `removed` | [LinkRemoved](x.md) |\n\n");
+    expect(machineDocs(formatted)).toEqual({ ok: true, why: [] });
+    expect(machineDocs(editFile(formatted, docsPath, (t) => t.replace("| `remove` | `listed` | `removed` |", "| `remove` | `listed` | `listed` |"))).why).toEqual(["the move table has no correct row for remove"]);
+  });
+  it("machine.docs: a cell with an escaped pipe stays one cell", () => {
+    const piped = withMachine("## Machine\n\nStates: listed, removed. LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded \\| LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n");
+    expect(machineDocs(piped)).toEqual({ ok: true, why: [] });
+  });
+  it("machine.docs: states are whole names: `un-listed` is not `listed`, and a state only inside a longer word is not named", () => {
+    const hyphen = withMachine("## Machine\n\nStates: un-listed, removed. LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | un-listed | LinkAdded |\n| remove | un-listed | removed | LinkRemoved |\n\n");
+    expect(machineDocs(hyphen).why).toEqual(["the Machine section does not name the states listed", "the move table has no correct row for add", "the move table has no correct row for remove"]);
+    const longer = withMachine("## Machine\n\nStates: listed, removed2. LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed2 | LinkRemoved |\n\n");
+    expect(machineDocs(longer).ok).toBe(false);
+  });
+  it("machine.docs: a heading with formatting is still the Machine section", () => {
+    const heading = editFile(pluggedIn, docsPath, (t) => t.replace("## Machine", "##  _Machine_  ##"));
+    expect(machineDocs(heading)).toEqual({ ok: true, why: [] });
+  });
+
+  it("machine.sdk: an interface's `state` and an enum's values count like a type alias", () => {
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export interface Link { readonly state: "listed" | "removed" }\n`))).toEqual({ ok: true, why: [] });
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export enum LinkState { Listed = "listed", Removed = "removed" }\n`))).toEqual({ ok: true, why: [] });
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export type Link = { state: "listed" | "removed" }\n`))).toEqual({ ok: true, why: [] });
+  });
+  it("machine.sdk: an interface whose state is missing a state, or another property's literals, is red", () => {
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export interface Link { readonly state: "listed"; readonly kind: "removed" }\n`)).ok).toBe(false);
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export enum LinkState { Listed = "listed" }\n`)).ok).toBe(false);
+  });
+
+  it("operation.sdk: a function declaration, or a re-export under any syntax, is the same export", () => {
+    const check = (e: typeof pluggedIn) => judge(OperationEvals.evals, "operation.sdk", "link.remove", e);
+    const fn = "generated/sdk/src/link/remove.ts";
+    const described = pluggedIn.model.operations["link.remove"]!.description!;
+    const asFunction = editFile(pluggedIn, fn, () => `/**\n * ${described}\n */\nexport function remove(payload: unknown) { return payload }\n`);
+    expect(check(asFunction)).toEqual({ ok: true, why: [] });
+    expect(check(editFile(asFunction, "generated/sdk/src/link/index.ts", () => 'export { remove as remove } from "./remove.ts"\nexport * from "./add.ts"\n'))).toEqual({ ok: true, why: [] });
+    expect(check(editFile(asFunction, fn, (t) => t.replace(described, "Something else"))).why[0]).toMatch(/does not export remove under the doc comment/);
+    expect(check(editFile(asFunction, "generated/sdk/src/link/index.ts", () => "// export { remove }\n")).why).toEqual(["the link group does not export remove"]);
+  });
+  it("operation.api: the declaration's schemas in a comment are not the endpoint's", () => {
+    const check = (t: (text: string) => string) => judge(OperationEvals.evals, "operation.api", "link.remove", editFile(pluggedIn, "generated/api/src/link/remove.ts", t));
+    expect(check((t) => t.replace("payload: declaration.payloadSchema", "payload: Other.schema // declaration.payloadSchema")).why).toEqual(["generated/api/src/link/remove.ts's payload is not the declaration's own schema"]);
+    expect(check((t) => t.replace("error: [LinkNotListed, NotAllowed]", "error: [\n    LinkNotListed,\n    NotAllowed,\n  ]"))).toEqual({ ok: true, why: [] });
+  });
+  it("operation.docs: formatting on a label (`**Budget:**` or none) is the same statement", () => {
+    const check = (t: (text: string) => string) => judge(OperationEvals.evals, "operation.docs", "link.remove", editFile(pluggedIn, "generated/docs/link/remove.md", t));
+    expect(check((t) => t.replace("**Budget:**", "Budget:").replace("**Who may call:**", "_Who may call:_").replace("# link.remove", "# `link.remove`"))).toEqual({ ok: true, why: [] });
+    expect(check((t) => t.replace("**Budget:** p95 150ms.", "**Budget:** p95 999ms.")).ok).toBe(false);
+  });
+
+  it("machine.api: a refusal class laid out over several lines, with a comment that quotes the states, is judged on its code", () => {
+    const check = (t: (text: string) => string) => judge(MachineEvals.evals, "machine.api", "link", editFile(pluggedIn, "generated/api/src/errors.ts", t));
+    const multi = (state: string) => (text: string) => text.replace(/export class LinkNotListed .*\n/, `export class LinkNotListed extends Schema.TaggedError<LinkNotListed>()(\n  "LinkNotListed",\n  { code: Schema.Literal(refusals.LinkNotListed.code), ...{ state: ${state} } },\n  { httpApiStatus: refusals.LinkNotListed.status },\n) {\n  static readonly code = refusals.LinkNotListed.code;\n}\n`);
+    expect(check(multi('Schema.Literals(["listed", "removed"])'))).toEqual({ ok: true, why: [] });
+    expect(check((t) => `// "listed" "removed"\n${multi("Schema.String")(t)}`).ok).toBe(false);
+  });
+  it("error.api: the refusals table in any layout, and a class split over lines", () => {
+    const check = (t: (text: string) => string) => judge(RefusalSourceEvals.evals, "error.api", "HandleTaken", editFile(pluggedIn, "generated/api/src/errors.ts", t));
+    expect(check((t) => t.replace(/HandleTaken: \{ code: "HN-001", exit: 10, status: 422 \},/, "HandleTaken: {\n    code: 'HN-001',\n    exit: 10,\n    status: 422,\n  },"))).toEqual({ ok: true, why: [] });
+    expect(check((t) => t.replace('code: "HN-001"', 'code: "HN-777"')).why).toEqual(["the table says HN-777, the model says HN-001"]);
+  });
+  it("thing.docs and thing.portal: a heading with formatting, a link in a type cell", () => {
+    const check = (e: typeof pluggedIn) => judge(ThingEvals.evals, "thing.docs", "link", e);
+    expect(check(editFile(pluggedIn, docsPath, (t) => t.replace("# link", "# **link**").replace("| title | LinkTitle |", "| title | [LinkTitle](x.md) |")))).toEqual({ ok: true, why: [] });
+    expect(check(editFile(pluggedIn, docsPath, (t) => t.replace("| title | LinkTitle |", "| title | LinkTitleTwo |"))).ok).toBe(false);
   });
 });
 

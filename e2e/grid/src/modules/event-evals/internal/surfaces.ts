@@ -31,10 +31,11 @@ const lists = (lines: ReadonlyArray<string>, name: string, fields: ReadonlyArray
   if (start < 0) return [`has no entry for ${name}`];
   // From where the entry names the event to where anything names another event, on that line or a later one: two events in one entry do not share fields.
   const text = lines.slice(start).join("\n");
-  const after = text.slice(text.search(new RegExp(`\\b${name}\\b`)) + name.length);
-  const cuts = others.map((o) => after.search(new RegExp(`\\b${o}\\b`))).filter((i) => i >= 0);
+  const whole = (n: string) => new RegExp(`(?<![\\w.-])${n}(?![\\w-])`);
+  const after = text.slice(text.search(whole(name)) + name.length);
+  const cuts = others.map((o) => after.search(whole(o))).filter((i) => i >= 0);
   const entry = cuts.length === 0 ? after : after.slice(0, Math.min(...cuts));
-  return fields.filter((f) => !new RegExp(`\\b${f}\\b`).test(entry)).map((f) => `lists ${name} without its field ${f}`);
+  return fields.filter((f) => !whole(f).test(entry)).map((f) => `lists ${name} without its field ${f}`);
 };
 
 /** event.docs: the thing's page documents the event with its fields (an Events section; a move table naming it does not document it). */

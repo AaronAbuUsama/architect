@@ -10,11 +10,38 @@ describe("a docs page", () => {
   it("is read by its sections, tables and bullets", () => {
     expect(Reading.mdSection(page, "Payload")).toBe("| field | value |\n|---|---|\n| link | link.id |");
     expect(Reading.mdRows(Reading.mdSection(page, "Refusals")!).map((r) => r.slice(0, 3))).toEqual([["LinkNotListed", "31", "LN-900"], ["NotAllowed", "3", "AR-001"]]);
-    expect(Reading.mdBullets(Reading.mdSection(page, "Steps")!)).toEqual(["`link.remove.record` (database)"]);
+    expect(Reading.mdBullets(Reading.mdSection(page, "Steps")!)).toEqual(["link.remove.record (database)"]);
     expect(Reading.mdSection(page, "Nothing here")).toBeUndefined();
   });
   it("does not mistake a heading that starts the same for the section", () => {
     expect(Reading.mdSection("## Moves\nx\n## Move\ny", "Move")).toBe("y");
+  });
+});
+
+describe("formatting and whole names", () => {
+  it("plain takes inline Markdown off: emphasis, code, links and escapes, but not an underscore inside a name", () => {
+    expect(Reading.plain("**Move** _from_ `to` [Emits](e.md) a\\|b link_add")).toBe("Move from to Emits a|b link_add");
+    expect(Reading.mdRows("| **a** | b |\n|---|---|\n| **x** \\| y | `z` |")).toEqual([["x | y", "z"]]);
+    expect(Reading.mdRecords("| **Move** | _To_ |\n|---|---|\n| add | listed |")).toEqual([{ move: "add", to: "listed" }]);
+    expect(Reading.mdSection("## **Machine** ##\nbody\n## Next", "Machine")).toBe("body");
+    expect(Reading.mdTitle("# `link.remove`\n")).toBe("link.remove");
+  });
+  it("hasName matches a whole name only: not inside a hyphenated, dotted or longer one", () => {
+    expect(Reading.hasName("states: listed, removed.", "removed")).toBe(true);
+    expect(Reading.hasName("un-listed", "listed")).toBe(false);
+    expect(Reading.hasName("link.add.record", "link.add")).toBe(false);
+    expect(Reading.hasName("see link.add.", "link.add")).toBe(true);
+    expect(Reading.hasName("LinkAdded2", "LinkAdded")).toBe(false);
+    expect(Reading.hasName("x.listed", "listed")).toBe(false);
+  });
+  it("TypeScript is read as TypeScript: types, exports and classes in any syntax, comments never", () => {
+    expect(Reading.exportedTypes('export interface A { state: "x" | "y"; id: string }\nexport enum B { C = "z" }\n// export type D = "q"\nexport type E = "r"')).toEqual([
+      { name: "A", literals: ["x", "y"], members: ["state", "id"] }, { name: "B", literals: ["z"], members: ["C"] }, { name: "E", literals: ["r"], members: [] },
+    ]);
+    expect(Reading.exportedNames('export { a as b } from "./a.ts"\nexport * as c from "./c.ts"\nexport const d = 1\nexport function e() {}')).toEqual(["b", "c", "d", "e"]);
+    expect(Reading.exportedValues("/** One. */\nexport const f = 1\n/**\n * Two\n * lines.\n */\nexport function g() {}").map((v) => v.doc)).toEqual(["One.", "Two\nlines."]);
+    expect(Reading.objectRows('export const r = {\n  A: { code: "X", exit: 3 },\n  B: {\n    code: \'Y\',\n  },\n} as const', "r")).toEqual({ A: { code: "X", exit: 3 }, B: { code: "Y" } });
+    expect(Reading.code("const a = 1 // note\n/* b */ const c = 2")).not.toMatch(/note|\/\*/);
   });
 });
 

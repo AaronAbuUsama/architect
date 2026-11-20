@@ -38,14 +38,15 @@ export const api = over("operation.api", (op, e) => {
   const source = e.files[path];
   if (source === undefined) return [`${path} was not generated`];
   const index = e.files["generated/api/src/index.ts"] ?? "";
-  const listed = endpointErrors(source);
+  const text = Reading.code(source);
+  const listed = endpointErrors(text);
   const want = [...(op.refusals ?? [])].sort();
   return [
     ...endpointProblems(path, source, op),
-    ...(source.includes("declaration.payloadSchema") ? [] : [`${path}'s payload is not the declaration's own schema`]),
-    ...(source.includes("declaration.answer") ? [] : [`${path}'s answer is not the declaration's own answer`]),
+    ...(text.includes("declaration.payloadSchema") ? [] : [`${path}'s payload is not the declaration's own schema`]),
+    ...(text.includes("declaration.answer") ? [] : [`${path}'s answer is not the declaration's own answer`]),
     ...(listed === undefined ? [`${path} lists no error classes`] : JSON.stringify([...listed].sort()) === JSON.stringify(want) ? [] : [`${path} lists errors [${[...listed].sort().join(", ")}], the model gives [${want.join(", ")}]`]),
-    ...(index.includes(`"${op.name}":`) ? [] : [`generated/api/src/index.ts's operations table has no "${op.name}"`]),
+    ...(new RegExp(`["'\`]${op.name.replace(/\./g, "\\.")}["'\`]\\s*:`).test(Reading.code(index)) ? [] : [`generated/api/src/index.ts's operations table has no "${op.name}"`]),
   ];
 });
 
@@ -60,9 +61,12 @@ export const sdk = over("operation.sdk", (op, e) => {
   const fn = op.identifier ?? op.verb;
   const identifier = e.model.things[op.thing]?.identifier ?? op.thing;
   const groupName = identifier.charAt(0).toLowerCase() + identifier.slice(1);
+  // The function is any exported value of that name (a const or a function), its doc comment the description as words (formatting off).
+  const documented = Reading.exportedValues(source).find((v) => v.name === fn);
+  const said = (text: string | undefined) => Reading.plain(text ?? "").replace(/\s+/g, " ").trim();
   return [
-    ...(source.includes(`/** ${op.description ?? ""} */\nexport const ${fn} =`) ? [] : [`${path} does not export ${fn} under the doc comment "${op.description ?? ""}"`]),
-    ...(group.includes(`export { ${fn} } from "./${op.verb}.ts"`) ? [] : [`the ${op.thing} group does not export ${fn}`]),
-    ...(root.includes(`export * as ${groupName} from "./${op.thing}/index.ts"`) ? [] : [`the SDK does not export the ${op.thing} group as ${groupName}`]),
+    ...(documented !== undefined && said(documented.doc) === said(op.description) ? [] : [`${path} does not export ${fn} under the doc comment "${op.description ?? ""}"`]),
+    ...(Reading.exportedNames(group).includes(fn) ? [] : [`the ${op.thing} group does not export ${fn}`]),
+    ...(Reading.exportedNames(root).includes(groupName) ? [] : [`the SDK does not export the ${op.thing} group as ${groupName}`]),
   ];
 });

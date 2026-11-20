@@ -1,6 +1,7 @@
 // What the row evals read, and how: pure functions over the text the outputs wrote. Nothing here reads a file.
 import type { CellId, Eval, Finding } from "../grid/types.ts";
 import type { ProjectEvidence, ProveReport } from "../project-evidence/types.ts";
+import type { ExportedType } from "./internal/code.ts";
 import type { SpanView } from "../refusal-evals/types.ts";
 
 export interface ReadingApi {
@@ -8,6 +9,8 @@ export interface ReadingApi {
   readonly finding: (problems: ReadonlyArray<string>) => Finding;
   /** The text under a markdown `## <heading>`, up to the next `##`; `undefined` when the page has no such section. */
   readonly mdSection: (page: string, heading: string) => string | undefined;
+  /** The words of a markdown page's first `# ` heading, formatting off. */
+  readonly mdTitle: (page: string) => string | undefined;
   /** The body rows of the first markdown table in a section, each as its trimmed cells. */
   readonly mdRows: (section: string) => ReadonlyArray<ReadonlyArray<string>>;
   /** The body rows of the first markdown table, each by its header (lower-cased): columns are found by name, never by position. */
@@ -33,8 +36,22 @@ export interface ReadingApi {
    * a subject the model does not have is red, and otherwise `problems` says what is wrong, empty when the cell is right.
    */
   readonly over: <T>(cell: CellId, noun: string, find: (evidence: ProjectEvidence, subject: string) => T | undefined, problems: (found: T, evidence: ProjectEvidence, subject: string) => ReadonlyArray<string>) => Eval<ProjectEvidence>;
-  /** The exported type aliases of a TypeScript source, each with the string literals its type names (comments and other declarations never count). */
-  readonly typeAliases: (source: string) => ReadonlyArray<{ readonly name: string; readonly literals: ReadonlyArray<string> }>;
+  /** The exported types of a TypeScript source (aliases, interfaces, enums) with the string literals each names and its property names; comments and other declarations never count. */
+  readonly exportedTypes: (source: string) => ReadonlyArray<ExportedType>;
+  /** What a TypeScript source exports as a value (`export const f`, `export function f`), with the doc comment above it. */
+  readonly exportedValues: (source: string) => ReadonlyArray<{ readonly name: string; readonly doc: string | undefined }>;
+  /** Every name a TypeScript source exports: its own declarations, `export { a } from` and `export * as ns from`. */
+  readonly exportedNames: (source: string) => ReadonlyArray<string>;
+  /** An exported class as code without comments, on one line however it is laid out; `undefined` when there is none. */
+  readonly classText: (source: string, name: string) => string | undefined;
+  /** The rows of `export const <name> = { Row: { a: 1, b: "x" } }`: each row's literal properties, in any layout. */
+  readonly objectRows: (source: string, name: string) => Readonly<Record<string, Readonly<Record<string, string | number>>>> | undefined;
+  /** A TypeScript source as code alone, comments taken off. */
+  readonly code: (source: string) => string;
+  /** Inline Markdown as the words it stands for: links, code spans, emphasis and escapes taken off. */
+  readonly plain: (text: string) => string;
+  /** Is `name` in the text as a whole name, not part of a longer one (`un-listed` is not `listed`)? */
+  readonly hasName: (text: string, name: string) => boolean;
   /** The `HttpApiEndpoint.<method>(<name>, <path>, …)` calls of a TypeScript source, in any formatting; a call in a comment is not one. */
   readonly endpoints: (source: string) => ReadonlyArray<{ readonly method: string; readonly name: string; readonly path: string }>;
   /** An HTML fragment as lines of text: each list item, table row (cells joined by ` | `), heading and paragraph on a line of its own. */

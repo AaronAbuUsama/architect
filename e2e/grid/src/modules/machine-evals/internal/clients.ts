@@ -1,3 +1,4 @@
+import { Reading } from "../../reading/service.ts";
 import { over } from "./over.ts";
 
 /** The states a move starts in and ends in. */
@@ -8,7 +9,7 @@ export const cli = over("machine.cli", ({ moves }, e) => moves.flatMap((op) => {
   const command = `${op.thing} ${op.verb}`;
   const help = e.cli[command];
   if (help === undefined) return [`\`${command} --help\` could not be run through the generated CLI`];
-  const missing = statesOf(op.move).filter((s) => !new RegExp(`\\b${s}\\b`).test(help));
+  const missing = statesOf(op.move).filter((s) => !Reading.hasName(help, s));
   return missing.length === 0 ? [] : [`\`${command} --help\` does not name the states it moves between (${missing.join(", ")} missing)`];
 }));
 

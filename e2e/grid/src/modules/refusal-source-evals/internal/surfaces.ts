@@ -19,8 +19,8 @@ const fact = (e: ProjectEvidence, name: string): Fact | undefined => {
 const over = (cell: Cell, problems: (fact: Fact, evidence: ProjectEvidence) => ReadonlyArray<string>): Eval<ProjectEvidence> =>
   Reading.over(cell, "refusal", fact, problems);
 
-/** The class a generated errors file declares for a refusal, as one line. */
-const classOf = (errors: string, name: string) => errors.split("\n").find((l) => l.startsWith(`export class ${name} `));
+/** The error classes an endpoint lists in `error: [A, B]`, read from its code with comments off. */
+const listedErrors = (source: string) => /\berror:\s*\[([^\]]*)\]/.exec(Reading.code(source))?.[1] ?? "";
 
 /** error.model: the refusal has a code (two letters, a dash, three digits, unique in the model), an exit when declared, and some operation that gives it. */
 export const model = over("error.model", (f, e) => [
@@ -34,18 +34,17 @@ export const model = over("error.model", (f, e) => [
 export const api = over("error.api", (f, e) => {
   const errors = e.files["generated/api/src/errors.ts"];
   if (errors === undefined) return ["generated/api/src/errors.ts was not generated"];
-  const row = new RegExp(`^\\s+${f.name}: \\{ code: "([^"]+)", exit: (\\d+), status: (\\d+) \\},?$`, "m").exec(errors);
-  const cls = classOf(errors, f.name);
+  const row = Reading.objectRows(errors, "refusals")?.[f.name];
+  const cls = Reading.classText(errors, f.name);
   return [
     ...(cls === undefined ? [`errors.ts has no class ${f.name}`] : cls.includes(`Schema.Literal(refusals.${f.name}.code)`) ? [] : [`${f.name}'s class does not carry its code as a literal`]),
-    ...(row === null ? [`errors.ts's refusals table has no row for ${f.name}`] : [
-      ...(row[1] === f.code ? [] : [`the table says ${row[1]}, the model says ${f.code ?? "no code"}`]),
-      ...(f.exit === undefined || Number(row[2]) === f.exit ? [] : [`the table's exit is ${row[2]}, the model's is ${f.exit}`]),
+    ...(row === undefined ? [`errors.ts's refusals table has no row for ${f.name}`] : [
+      ...(row["code"] === f.code ? [] : [`the table says ${String(row["code"])}, the model says ${f.code ?? "no code"}`]),
+      ...(f.exit === undefined || row["exit"] === f.exit ? [] : [`the table's exit is ${String(row["exit"])}, the model's is ${f.exit}`]),
     ]),
     ...f.operations.flatMap((name) => {
       const op = e.model.operations[name]!;
-      const source = e.files[`generated/api/src/${op.thing}/${op.verb}.ts`] ?? "";
-      return new RegExp(`\\berror: \\[[^\\]]*\\b${f.name}\\b`).test(source) ? [] : [`${name}'s endpoint does not list ${f.name}`];
+      return Reading.hasName(listedErrors(e.files[`generated/api/src/${op.thing}/${op.verb}.ts`] ?? ""), f.name) ? [] : [`${name}'s endpoint does not list ${f.name}`];
     }),
   ];
 });
@@ -72,10 +71,10 @@ export const server = over("error.server", (f, e) => {
 /** error.sdk: the SDK exports the errors, and the refusal's class is a tagged error carrying its code, which each giving operation's error channel has. */
 export const sdk = over("error.sdk", (f, e) => {
   const errors = e.files["generated/api/src/errors.ts"] ?? "";
-  const cls = classOf(errors, f.name);
+  const cls = Reading.classText(errors, f.name);
   return [
-    ...((e.files["generated/sdk/src/index.ts"] ?? "").includes('export { Errors } from') ? [] : ["the SDK does not export the errors"]),
+    ...(Reading.exportedNames(e.files["generated/sdk/src/index.ts"] ?? "").includes("Errors") ? [] : ["the SDK does not export the errors"]),
     ...(cls === undefined ? [`errors.ts has no class ${f.name}`] : /extends Schema\.TaggedError</.test(cls) && /static readonly code = /.test(cls) ? [] : [`${f.name} is not a tagged error with a static code`]),
-    ...f.operations.filter((name) => !(e.files[`generated/api/src/${e.model.operations[name]!.thing}/${e.model.operations[name]!.verb}.ts`] ?? "").includes(f.name)).map((name) => `${name}'s call does not have ${f.name} in its error channel`),
+    ...f.operations.filter((name) => !Reading.hasName(listedErrors(e.files[`generated/api/src/${e.model.operations[name]!.thing}/${e.model.operations[name]!.verb}.ts`] ?? ""), f.name)).map((name) => `${name}'s call does not have ${f.name} in its error channel`),
   ];
 });
