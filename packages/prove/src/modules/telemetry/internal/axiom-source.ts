@@ -5,7 +5,7 @@ import { Effect, Schedule } from "effect";
 import type { Env, Reader } from "#modules/sinks/types.js";
 import { Sinks } from "#modules/sinks/service.js";
 import { SourceFailed, type AxiomSourceApi, type Log, type Span, type Trace, type TraceSource, type Wanted } from "../types.ts";
-import { looksComplete } from "./otlp.ts";
+import { arrived } from "./otlp.ts";
 
 type Row = Readonly<Record<string, unknown>>;
 
@@ -102,7 +102,7 @@ const sourceOf = (c: Connection, group: string, environment: string): TraceSourc
         const settled = (ids.length === 0 ? Effect.succeed(new Map<string, Trace>()) : byIds(ids)).pipe(
           Effect.map((got) => {
             last = got;
-            return wanted.every((w) => looksComplete(got.get(w.trace), w.parent, w.rooted));
+            return wanted.every((w) => arrived(got.get(w.trace), w));
           }),
           Effect.orElseSucceed(() => true),
         );

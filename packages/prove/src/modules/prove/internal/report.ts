@@ -6,7 +6,7 @@ import type { Trace } from "#modules/telemetry/types.js";
 import { filesOf, journeyDetail, stepDetail, type FailureDetail, type JourneyDetail } from "./structured.ts";
 
 /** World facts predict the access refusal before the server answers. */
-const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
+export const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
   call?.mayCall === false && call.status === 403 &&
   typeof call.body === "object" && call.body !== null && "_tag" in call.body && call.body._tag === "NotAllowed";
 
