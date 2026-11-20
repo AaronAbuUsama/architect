@@ -4,7 +4,7 @@ import { Effect } from "effect";
 import { chromium, type Browser, type BrowserContext } from "playwright";
 import { pagesOf } from "./internal/pages.ts";
 import { listen } from "./internal/static.ts";
-import { HOOKS, ServedPortalUnavailable, type OpenOptions, type Fetched, type PortalServerModule, type RenderedPage, type ServedPortal, type ServedPortalsApi } from "./types.ts";
+import { CLOCK_ISO, HOOKS, ServedPortalUnavailable, type OpenOptions, type Fetched, type PortalServerModule, type RenderedPage, type ServedPortal, type ServedPortalsApi } from "./types.ts";
 
 const DEFAULT_CLIENT = join(import.meta.dirname, "../../packages/portal/dist/client");
 const READY_MS = 15_000;
@@ -52,8 +52,10 @@ const open: ServedPortalsApi["open"] = async (options) => {
   const worker = options.url === undefined ? await playWorker(options) : { url: options.url, answer: (request: Request) => fetch(`${options.url}${new URL(request.url).pathname}${new URL(request.url).search}`), stop: () => Promise.resolve() };
   const { url, answer } = worker;
   const context = await newContext(await chromiumBrowser());
+  // A fixed clock, long ago: a client that reads the time draws it, and the checks see it every run, not only when two runs differ.
+  await context.clock.setFixedTime(new Date(CLOCK_ISO));
 
-  const visit = async (route: string, keep: (page: import("playwright").Page, fetched: Array<Fetched>) => Promise<void>): Promise<RenderedPage> => {
+  const visit = async <T>(route: string, keep: (page: import("playwright").Page) => Promise<T>): Promise<RenderedPage & { readonly kept: T | undefined }> => {
     const page = await context.newPage();
     const fetched: Array<Fetched> = [];
     const reads: Array<Promise<void>> = [];
@@ -63,24 +65,24 @@ const open: ServedPortalsApi["open"] = async (options) => {
     });
     try {
       const navigated = await page.goto(`${url}${route}`, { waitUntil: "load" });
-      if (navigated !== null && navigated.status() !== 200) return { status: navigated.status(), html: await page.content(), fetched };
+      if (navigated !== null && navigated.status() !== 200) return { status: navigated.status(), html: await page.content(), fetched, kept: undefined };
       await page.waitForSelector(HOOKS.ready, { state: "attached", timeout: READY_MS }).catch(() => {
         throw new ServedPortalUnavailable("never-ready", `K19: ${route} never said it was ready: no \`[data-portal="page"][data-ready="true"]\` within ${READY_MS} ms. The client sets it once the page has drawn from \`/_portal/v1/*\`; \`data-status\` is the page's own status (404 for a route that is not a page).`);
       });
-      await keep(page, fetched);
+      const kept = await keep(page);
       await Promise.all(reads);
       const status = Number(await page.getAttribute(HOOKS.page, "data-status") ?? "200");
-      return { status, html: await page.content(), fetched };
+      return { status, html: await page.content(), fetched, kept };
     } finally { await page.close(); }
   };
 
-  let shot: Uint8Array = new Uint8Array();
   const portal: ServedPortal = {
     url,
-    page: (route) => visit(route, async () => undefined),
+    page: async (route) => { const { kept: _, ...page } = await visit(route, () => Promise.resolve(undefined)); return page; },
+    // Each call keeps its own picture: calls in parallel on one portal never share one.
     shoot: async (route) => {
-      await visit(route, async (page) => { shot = await page.screenshot({ animations: "disabled", caret: "hide", fullPage: true }); });
-      return shot;
+      const { kept } = await visit(route, (page) => page.screenshot({ animations: "disabled", caret: "hide", fullPage: true }));
+      return kept ?? new Uint8Array();
     },
     data: async (path) => {
       const response = await answer(new Request(`http://127.0.0.1${path}`));

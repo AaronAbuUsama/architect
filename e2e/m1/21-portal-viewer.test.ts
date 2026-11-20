@@ -478,6 +478,7 @@ describe("21 E: the portal's pages are byte-identical across two runs at the sam
     expect(later["/portal"], "the retried claim, five minutes old, is now 31: out of a 30-minute window").not.toBe(one["/portal"]);
     expect(stat(later["/portal"]!, "calls"), "six calls where there were seven").toBe("6");
     const year = String(new Date().getFullYear());
+    expect(Object.values(one).filter((text) => text.includes("2001-09-09")), "the browser's clock is fixed at 2001-09-09: no page may draw it").toEqual([]);
     const stamps = Object.values(one).flatMap((text) => text.match(new RegExp(`${year}-\\d\\d-\\d\\dT\\d\\d:\\d\\d`, "g")) ?? []);
     expect(stamps.filter((s) => !s.startsWith(new Date(NOW).toISOString().slice(0, 10))), "no timestamp from the clock").toEqual([]);
   });

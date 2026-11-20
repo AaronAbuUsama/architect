@@ -66,3 +66,6 @@ export interface ServedPortalsApi {
 
 /** The hooks the harness reads, named once. A builder's client must give them. */
 export const HOOKS = { ready: '[data-portal="page"][data-ready="true"]', page: '[data-portal="page"]' } as const;
+
+/** The browser's clock, fixed (`Date` only): the 9th of September 2001. A client that reads the time shows this, which no check expects. */
+export const CLOCK_ISO = "2001-09-09T01:46:40.000Z";

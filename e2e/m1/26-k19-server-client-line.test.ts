@@ -49,6 +49,10 @@ describe("26 control: the walker sees every way a Worker can reach the UI, and o
     ["a re-export", `export { Chart } from "${PRO}/chart";`, `${PRO}/chart`],
     ["a dynamic import", 'export const lazy = () => import("@orthograph/portal-ui/shell");', "@orthograph/portal-ui/shell"],
     ["a require", 'const ui = require("react");', "react"],
+    ["a star re-export", 'export * from "react";', "react"],
+    ["a type-only named import", 'import type { ReactNode, FC } from "react";', "react"],
+    ["a type-only re-export", 'export type { FC } from "react";', "react"],
+    ["react-dom, which is not react", 'import "react-dom";', "react-dom"],
     ["the OSS HeroUI", 'import { Button } from "@heroui/react";', "@heroui/react"],
   ])("finds %s", (_, line, specifier) => {
     expect(from(tree({ "/w/portal/src/server.ts": line })).map((b) => b.specifier)).toEqual([specifier]);
@@ -120,6 +124,8 @@ const diagnostics = (file: string): { readonly exit: number | null; readonly lin
 const BREACH = [
   'import React from "react";',
   'import { renderToString } from "react-dom/server";',
+  'export * from "react";',
+  'import type { ReactNode } from "react";',
   'import { Shell } from "@orthograph/portal-ui";',
   `import { Button } from "${PRO}/react";`,
   `export { Chart } from "${PRO}/react/chart";`,
@@ -128,7 +134,7 @@ const BREACH = [
   "export const planted = [React, renderToString, Shell, Button];",
 ].join("\n");
 /** What the rule must say for each line of BREACH: K19, and the name it found. */
-const EXPECTED = ["react", "react-dom/server", "@orthograph/portal-ui", `${PRO}/react`, `${PRO}/react/chart`, "react", "@orthograph/portal-ui/shell"];
+const EXPECTED = ["react", "react-dom/server", "react", "react", "@orthograph/portal-ui", `${PRO}/react`, `${PRO}/react/chart`, "react", "@orthograph/portal-ui/shell"];
 
 describe("26 K19: the lint rule `ortho/no-ui-in-worker`", () => {
   const plant = (file: string, text: string, run: () => void) => {

@@ -7,14 +7,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ServedPortals } from "./service.ts";
-import { ServedPortalUnavailable, type PortalServerModule } from "./types.ts";
+import { CLOCK_ISO, ServedPortalUnavailable, type PortalServerModule } from "./types.ts";
 
 const SHELL = `<!doctype html><html><head><meta charset="utf-8"><title>stand-in</title></head><body><div id="root">loading</div><script>
 const route = location.pathname.replace(/^\\/portal/, "") || "/";
 fetch("/_portal/v1/blueprint").then((r) => r.json()).then((blueprint) => {
   const missing = route.startsWith("/nowhere");
   document.getElementById("root").innerHTML = '<main data-portal="page" data-ready="true" data-status="' + (missing ? 404 : 200) + '">'
-    + blueprint.things.map((t) => '<div data-portal="thing-card" data-thing="' + t + '">' + t + '</div>').join("") + '<p>route ' + route + '</p></main>';
+    + blueprint.things.map((t) => '<div data-portal="thing-card" data-thing="' + t + '">' + t + '</div>').join("") + '<p>route ' + route + '</p><time data-clock>' + new Date().toISOString() + '</time></main>';
 });
 </script></body></html>`;
 
@@ -43,6 +43,12 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     await portal.close();
   });
 
+  it("holds the browser's clock fixed, so a client that reads the time shows it", async () => {
+    const portal = await open();
+    expect((await portal.page("/portal")).html).toContain(`<time data-clock="">${CLOCK_ISO}</time>`);
+    await portal.close();
+  });
+
   it("serves a route with a dot in its name as the shell, and says a page is a 404 by its own hook", async () => {
     const portal = await open();
     expect((await portal.page("/portal/operations/handle.claim?tab=metrics")).html).toContain("route /operations/handle.claim");
@@ -55,6 +61,17 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     expect(JSON.parse((await portal.data("/_portal/v1/blueprint")).text)).toEqual({ things: ["handle", "link"] });
     expect((await fetch(`${portal.url}/elsewhere`)).status).toBe(404);
     expect((await fetch(`${portal.url}/portal/missing.js`)).status, "a missing asset is a 404, not the shell").toBe(404);
+    await portal.close();
+  });
+
+  it("keeps each parallel screenshot its own: three routes shot together are three pictures, the ones shot one by one", async () => {
+    const portal = await open(["handle", "link", "profile", "thing"]);
+    const routes = ["/portal", "/portal/things/a-longer-route-name", "/portal/operations/x.y?tab=metrics"];
+    const serial: Array<string> = [];
+    for (const route of routes) serial.push(Buffer.from(await portal.shoot(route)).toString("base64"));
+    const together = (await Promise.all(routes.map((route) => portal.shoot(route)))).map((png) => Buffer.from(png).toString("base64"));
+    expect(new Set(serial).size, "the routes differ").toBe(3);
+    expect(together).toEqual(serial);
     await portal.close();
   });
 

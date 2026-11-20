@@ -20,6 +20,7 @@ A missing half is never a crash: `ServedPortalUnavailable`, whose message starts
 2. `@orthograph/portal` builds `dist/client`: `index.html`, JS and CSS, served at `/portal` and under it (the client reads `location.pathname`).
 3. Every page, once drawn, carries `<... data-portal="page" data-ready="true" data-status="200">` (`404` for a route that is not a page). The
    harness waits for it, and reads the page's status from it. The other `data-portal` hooks are check 21's, unchanged.
-4. The client reads no clock: `now` comes from the data API. The harness leaves the browser's clock alone, so a client that read it would show.
+4. The client reads no clock: `now` comes from the data API. The harness fixes the browser's `Date` at 2001-09-09 (`CLOCK_ISO`), so a client that reads the time draws it, and check 21 E fails on that every run.
+5. CI: the `e2e-m1` and `e2e-grid` jobs must build `packages/portal/dist/client` with the HeroUI token from Actions secrets before the checks run. No nx target does this yet; the checks only read the built files.
 
 `served-portal.test.ts` tries the harness on a stand-in client and server, so it judges the instrument, not the portal.
