@@ -181,7 +181,7 @@ describe("M1.47: an exit means one thing, so the compiler refuses a clash", () =
     ["2, a payload that doesn't decode", exceeded, "{ remaining: Amount }, { exit: 2 }", /AllowanceExceeded's exit 2 is (?:SchemaError|InvalidPayload)'s; pick another/],
     ["3, NotAllowed's", exceeded, "{ remaining: Amount }, { exit: 3 }", /AllowanceExceeded's exit 3 is NotAllowed's; pick another/],
     ["4, the generated not-found's", exceeded, "{ remaining: Amount }, { exit: 4 }", /AllowanceExceeded's exit 4 is \w*NotFound's; pick another/],
-    ["130, the shell's", exceeded, "{ remaining: Amount }, { exit: 130 }", /AllowanceExceeded's exit 130 is outside 5 to 125/],
+    ["130, the shell's", exceeded, "{ remaining: Amount }, { exit: 130 }", /AllowanceExceeded's exit 130 is outside 5 to 119/],
     ["41, another error of the same thing", tooHigh, "{ cap: Amount }, { exit: 41 }", /AllowanceLimitTooHigh's exit 41 is AllowanceExceeded's; pick another/],
     ["40, the thing's machine's", exceeded, "{ remaining: Amount }, { exit: 40 }", /AllowanceExceeded's exit 40 is AllowanceNotActive's; pick another/],
   ])("ortho model refuses a declared exit of %s, naming the error and its file", (_, from, to, message) => {

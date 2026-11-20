@@ -94,7 +94,7 @@ gains the new fields and `PersonNotFound`. No code that has shipped moved.
   hands no table, keeps its old shape unchanged.
 - **Exit clashes** (`compiler/…/model/internal/exits.ts`, K16 section g "An exit means one thing"): `ortho model` refuses a
   declared exit the runtime keeps (0 success, 1 a defect, 2 `InvalidPayload`, 3 `NotAllowed`, 4 `NotFound`), one outside
-  5 to 125, and one another refusal of the same thing already has (its earlier errors, its machine's `notFrom`), naming
+  5 to 125 (5 to 119 since [G3](G3-runtime-exits.md), which gives the runtime 120 to 125), and one another refusal of the same thing already has (its earlier errors, its machine's `notFrom`), naming
   the error, the exit, whose it is and the thing's `errors.ts`. Exits are unique per thing, not per app. Only a thing's own declared `<Thing>NotFound` (exactly that name) may use 4, since it
   is that refusal. A machine's `notFrom` exit is held to the same reserved exits and range, named at its `machine.ts`. A
   declared `<Thing>NotFound` with any field but `id` is refused too: the runtime's refusal carries only the missing id.

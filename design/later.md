@@ -24,6 +24,16 @@ belongs to, and why it waits.
   on a move from a state, where it is `undefined` at runtime (`prehandle.ts` mints only from `[]`). Keeping `from` a
   tuple through `Blueprint.machine` restores the exact type. It waits because the runtime is right and nothing reads
   that `id` today; a type test pinning a non-creating machine move's `id` to `undefined` comes with it.
+- **Invariants beyond `unique`** ([G5](decisions/G5-invariants.md) §7), each with a decision step before the slice that
+  first needs it:
+  - `Blueprint.invariant.requires`, a rule across things: Plugged In's `LinkNeedsHandle` and work's four `Mission*`
+    refusals. It waits on two questions: a key that comes from the caller (`link.add` carries no owner), and whether
+    the rule holds only when a record is made or always, in which case releasing a handle must refuse or cascade.
+  - A bound on one record (`taken + people ≤ places`): `SheetFull`, `AllowanceExceeded`, `SoldOut`. It waits because
+    those refusals carry a computed `left`, which a declared bound would have to produce.
+  - An early refusal before the handler, for a creating move whose payload carries the key; field-level `writes` on
+    database steps, so an operation that can break a rule is known exactly; `ortho add invariant`.
+  - Caseless keys belong in the value (K9's `names.lowercase` choice), never in a key function no index can hold.
 
 ## From stage two (layer one)
 
@@ -92,3 +102,15 @@ belongs to, and why it waits.
 - **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
   Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
   or its terms stop a framework importing it.
+
+## From the grid (#154)
+
+- **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
+  item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.
+
+## From prove's coverage (the eval 8 line, G3)
+
+- **A "reachable from a journey" flag on the model's refusals.** Prove's coverage line leaves out the runtime refusals no journey can cause by name:
+  every refusal coded under the runtime's prefix (`AR`) except `NotAllowed` (`packages/prove/src/modules/evals/internal/run.ts`, `unreachable`). That is
+  inferred, so the next runtime refusal is classed by its prefix, right or wrong. When one arrives, the model should say per refusal whether a journey can
+  cause it, and prove should read that. Waits on the next runtime refusal (121 to 125 are held for them, G3).

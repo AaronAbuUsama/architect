@@ -223,7 +223,7 @@ Operations
   release  person   Give the name back.                               5 calls ·  2 refused · p95 5 ms
   resolve  anyone   Find a handle by its name. (read)               1,904 calls · 0 refused · p95 2 ms
 Events     HandleClaimed { handle, name, owner } · HandleReleased { handle }
-Errors     HandleTaken HN-001 exit 10 · HandleNotClaimed HN-002 exit 11
+Errors     HandleTaken HN-001 exit 10 · HandleNotClaimed HN-900 exit 11
 Roles      person · anyone
 Notes (2)  "claim retries once on a version race; that's by design" (pinned to thing:handle@4e1c…, current)
 Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov
@@ -589,7 +589,7 @@ Real values below are from Plugged In's model as Codex generated it on `links/st
 | `lives` (`database`, `actor`) | page header chip | ✓ |
 | `store` | page header chip, linking to its store | ✗ |
 | `machine.states`, `moves` | the lifecycle strip on home and the page; moves on the arrows | ✓ |
-| `machine.notFrom` (`HandleNotClaimed HN-900 exit 5`) | the errors section, marked generated; on the arrow it guards | ~ no code |
+| `machine.notFrom` (`HandleNotClaimed HN-900 exit 11`) | the errors section, marked generated; on the arrow it guards | ~ no code |
 | `events` with fields | the events section; the events page **R3 Q5** | ✗ names only, via `emits` |
 | `errors` with fields, `exit`, `code` | the errors section; the code table **R3 Q5** | ✗ |
 | `roles`, `roleRules` (`handleOwner`) | the roles section with each rule; the access page **R3 Q5** | ~ names only |
@@ -659,7 +659,7 @@ Real values below are from Plugged In's model as Codex generated it on `links/st
 2. **Who may call is the model's words**: `signed-in`, `anyone`, or a role such as `handleOwner`. The sketches above
    wrote `person`, which is not a model term.
 3. **Codes are the model's**: the machine's refusal is generated as `<Thing>Not<FirstState>` with code `<PREFIX>-900`
-   (`HandleNotClaimed HN-900 exit 5`); `HN-002` is `HandleAlreadyOwned`. The sketches above are kept as drawn on 19
+   (`HandleNotClaimed HN-900 exit 11`); `HN-002` is `HandleAlreadyOwned`. The sketches above are kept as drawn on 19
    November; the drawing follows the model.
 4. **The example app is Plugged In** (K15). Where the sketches above say `links`, read Plugged In.
 
@@ -832,7 +832,7 @@ Legend for **Gap?**: `no` = on m1 and wire-decodable or telemetry-built; `wire` 
 | "lives in database rows", `store: default` chip | model | `lives` `T:44` (decoded `W:57`), `store` `T:46`, `Model.stores` `T:193` | wire for `store`/`stores` |
 | `thing:handle@hash` | model | `hash` `T:54` | no |
 | Lifecycle with move counts and refusal on arrow | model + telemetry | `T:29-34`; `refusal` attr + `move.name` | no |
-| "wrong state ... HN-900 (generated, exit 5)" | model | `MachineModel.notFrom` `T:33` (wire keeps `error`,`exit`, drops `code` `W:61`) | wire |
+| "wrong state ... HN-900 (generated, exit 11)" | model | `MachineModel.notFrom` `T:33` (wire keeps `error`,`exit`, drops `code` `W:61`) | wire |
 | Fields table: name, type, taken from, optional | model | `FieldModel` `T:18-26` (decoded `W:12-17`) | no |
 | Fields: visibility (secret chip) | model | `FieldModel.visibility` `T:25`; drawing uses hand-set `secretFields` (`overlay.ts:32`) | wire (not in `W:12-17`); also the sample set names `person.sign-up.password` etc: slice: M2.05 (auth) + M1.35 visibility (`MS:222`) |
 | Fields: descriptions ("arrive with M1.42") | model (planned) | no `description` on `FieldModel` `T:18-26`; slice: M1.42 (`MS:228`) | slice: M1.42 |

@@ -2,6 +2,13 @@
 
 Decided 19 November 2026 by the Goal 3 lead, under "Who decides" in `AGENTS.md`, for snag S-04.
 
+> **Spelling superseded by [G5](G5-invariants.md)** (19 November 2026): a unique rule is declared in the thing's
+> `invariants.ts` as `Blueprint.invariant.unique(Handle.fields.name, { while: [machine.states.claimed], refuse: HandleTaken })`,
+> the runtime refuses for the handler, and `findBy` takes the rule. G4's runtime stands: the store's partial unique
+> index, a conflict on commit that retries, and the compiler's refusals. Until G5's slices land, the one-line
+> `unique:` below is the working spelling, used in Plugged In only: `handle.name` and `handle.owner` while claimed,
+> and `profile.handle` (snags S-22 and S-23, #139). G5's ST1.19 swaps all three.
+
 ## The problem, in code
 
 Claiming a name is the first step of every Plugged In journey, and the handler has to ask "is this name taken?". It

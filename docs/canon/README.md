@@ -28,7 +28,7 @@ A page explains one concept that a reader needs and can't get from another page.
 2. **Answer its questions.** Its `questions` are the ones a reader brings. A question the page doesn't answer means
    the page isn't done.
 3. **Show it in the layer's example.** The smallest example is real code from `examples/signup` (layers 1 and 2;
-   K5's workshop from layer 4), quoted with its file and lines, or
+   K5's workshop from layer 4), quoted with its file and the name of the declaration, or
    designed code marked with the slice that builds it.
 4. **Say what it is not.** The near-misses, each pointing at the page that owns it. This is what stops two pages from
    drifting into explaining the same idea.
@@ -66,8 +66,19 @@ A page's status is its least-proved part's. The Status section breaks it down, p
 
 Docs drift when nothing checks them. `check.mjs` reads every page and refuses it when:
 
-- **a quote has drifted.** A fence with `file=` and `lines=` must match those lines of that file, line for line. Change
-  the code, and the page that quotes it fails until it is updated.
+- **a quote has drifted.** A fence is anchored on a name, not a line number: `file=<path> name=<declaration>` (a function,
+  const, class, interface or type; also `default`, `imports`, `file`, a test's `describe` title, or `name=a,b` for
+  everything from `a` to `b`). The quote must be that declaration, or a run of its lines, line for line. Change the
+  code, and the page that quotes it fails until `node docs/canon/check.mjs --fix` (`nx run canon:fix`) rewrites it
+  from the source; a quote that no longer resembles anything in the declaration is reported, for a person to redo.
+  `--fix` keeps the quote true to the code, not the prose around it: read its diff against the paragraph above each
+  quote it rewrote. A part of a declaration must be one place in it: a run that occurs twice (a lone `});`) fails.
+  `lines=a-b` after the name is only a hint for readers, which `--fix` keeps fresh. A file that isn't code (JSON, SQL,
+  markdown) has no names, so its fence says `lines=a-b` and is compared with those lines. `quotes.mjs` holds the
+  resolver and `quotes.test.mjs` its test (`nx run canon:test`).
+- **a refusal is misquoted.** A refusal quoted in `design/portal.md` as `<Name> <CODE> exit <n>` must agree with the
+  generated `refusals` tables in `examples/*/generated/**/errors.ts`. A name found in no table is counted, not failed, so
+  the check bites once the example that declares it is on the branch. Codes and exits are copied from there, never by hand.
 - **a reference is broken.** Every inline `path:line` must open and have that line. A short one, like
   `service.ts:46`, must match a full path given elsewhere on the page.
 - **a component points at nothing.** A `<Scenario>` names a journey file that exists and a step in it. A
