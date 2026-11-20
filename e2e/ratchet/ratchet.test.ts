@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compare, fileKey, ok, outcomes, parseList, type Report } from "./ratchet.ts";
+import { compare, fileKey, ok, outcomes, parseFolder, parseList, type Report } from "./ratchet.ts";
 
 const root = "/work/e2e";
 const test = (ancestorTitles: ReadonlyArray<string>, title: string, status: string) => ({ ancestorTitles, title, status });
@@ -69,6 +69,19 @@ describe("hook and suite errors", () => {
 describe("parseList", () => {
   it("drops comments and blank lines", () => {
     expect(parseList("# header\n\nm1/a.test.ts > t\n  m1/b.test.ts  \n")).toEqual(["m1/a.test.ts > t", "m1/b.test.ts"]);
+  });
+});
+
+describe("parseFolder", () => {
+  it("reads every file's entries, and names an entry filed under another check's name", () => {
+    const files = [
+      { name: "01-a.txt", text: "# why\nm1/01-a.test.ts > t\nm1/01-a.test.ts\n" },
+      { name: "02-b.txt", text: "m1/02-b.test.ts > u\nm1/01-a.test.ts > misplaced\n" },
+    ];
+    const folder = parseFolder(files);
+    expect(folder.keys).toEqual(["m1/01-a.test.ts > t", "m1/01-a.test.ts", "m1/02-b.test.ts > u", "m1/01-a.test.ts > misplaced"]);
+    expect(folder.misfiled).toEqual(["02-b.txt: m1/01-a.test.ts > misplaced"]);
+    expect(parseFolder([]).keys).toEqual([]);
   });
 });
 

@@ -4,7 +4,7 @@
 # (e2e/ratchet/reporter.ts's hook errors); download-artifact puts each shard's pair in its own folder under <dir>.
 #   tools/ci/m1-reports.sh <dir> <shards> <files> <out>
 # Writes <out>/m1-report.json (every shard's test files) and <out>/m1-errors.json (every shard's hook and unhandled
-# errors), for `node e2e/ratchet/check.ts <out>/m1-report.json e2e/m1/expected-failing.txt <out>/m1-errors.json`.
+# errors), for `node e2e/ratchet/check.ts <out>/m1-report.json e2e/m1/expected-failing <out>/m1-errors.json`.
 # Fails, writing nothing, unless there are exactly <shards> of each file, every report has its test files, every errors
 # file is the reporter's, no test file was run by two shards, and together they ran <files> test files (the count of
 # e2e/m1/*.test.ts). A missing shard or a dropped file can never read as a smaller green run.

@@ -1,0 +1,2 @@
+# K19: the line between the portal's server and client halves; passes when the split lands.
+m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean

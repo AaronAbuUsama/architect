@@ -1,0 +1,28 @@
+# K19: check 21 reads the served portal through Chromium; these pass when the portal's pages draw in the browser (M1.13 and the split).
+# The docs control (acme's checked-in docs) is W2's: it fails until #184 regenerates acme's docs, and #184 takes it off.
+m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > `/portal` is the things as cards in the tree's order, each with its lifecycle, under the environment's top bar
+m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > the rail is scoped to the page: everything on home, the thing's operations on its page, nothing from outside the window
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > handle's page lights `claim` and its arrow, names the journey, and leaves the unrun operations and arrows dark
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > link's page lights `add` (answered once, a defect once) and its arrow, and leaves `order` and `remove` dark
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > with no run in the window the same page is all dark
+m1/21-portal-viewer.test.ts > 21 D: no leak > a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace render nowhere, and the caller's kind does
+m1/21-portal-viewer.test.ts > 21 D: no leak > the trace page shows the answered call's structure and timing, and how many logs its span has, with none of the four
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > `now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same pixels: the screenshots of the home page, a thing's page and a trace are byte-identical, and a later `now` is not
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > each declared environment has a page with its summary, its declared fields and a proof column for every environment, this one in focus
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > every kind of page carries the environment in its top bar
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > the picker lists the declared environments and marks the current one; each page is the environment's own portal
+m1/21-portal-viewer.test.ts > 21 H: plugins and stores, one page > a card per mount with its kind and package, then the stores table with what each store runs on in each environment
+m1/21-portal-viewer.test.ts > 21 I: the icon rail and the command palette > five icons, in order, on every page, each opening a short panel of pages
+m1/21-portal-viewer.test.ts > 21 I: the icon rail and the command palette > ⌘K searches things, operations, journeys, refusal codes, environments and monitor pages, from one index in the page
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > Metrics ends with the calls table: its filters and columns as drawn, one row per call, newest first, each opening its trace
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > over budget is derived from the model's budget: link.add's slow defect is over, its quick answer is not
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > the tabs are Contract, Metrics, Proof, Docs and Notes; there is no Spans tab
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > a metrics source that fails gives a page with no numbers and no guess
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the refusal-codes page counts every refusal by name and code, and says `no span` for the door's
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 control: acme's docs are the baseline, and the instruments are sound > acme's checked-in docs are the recorded bytes, and `ortho generate` in a copy writes the same

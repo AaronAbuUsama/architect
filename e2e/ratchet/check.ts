@@ -1,9 +1,9 @@
-// The ratchet's entry: node e2e/ratchet/check.ts <report.json> <expected-failing.txt> [<errors.json>]
+// The ratchet's entry: node e2e/ratchet/check.ts <report.json> <expected-failing folder or file> [<errors.json>]
 // errors.json is reporter.ts's file (hooks that threw, unhandled errors); when given it must exist, or the run did not finish.
 // Exit 0 when every failing test is on the list; 1 when one is not, or when there is no usable report (a crashed run).
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { compare, ok, parseList, type Report } from "./ratchet.ts";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { compare, ok, parseFolder, parseList, type Report } from "./ratchet.ts";
 
 const [reportPath, listPath, errorsPath] = process.argv.slice(2);
 const github = process.env["GITHUB_ACTIONS"] === "true";
@@ -35,7 +35,8 @@ const readReport2 = (path: string): Pick<Report, "suiteErrors" | "unhandled"> =>
   }
 };
 
-if (reportPath === undefined || listPath === undefined) fail("usage: check.ts <report.json> <expected-failing.txt>");
+if (reportPath === undefined || listPath === undefined) fail("usage: check.ts <report.json> <expected-failing folder> [<errors.json>]");
+if (!existsSync(String(listPath))) fail(`no expected-failing list at ${listPath}`);
 if (!existsSync(String(reportPath))) fail(`no vitest report at ${reportPath}: the run crashed before it wrote one`);
 const report = readReport(String(reportPath));
 if (report === undefined) fail(`${reportPath} is not a vitest JSON report`);
@@ -48,7 +49,12 @@ if (errorsPath !== undefined) {
   merged = { ...merged, suiteErrors: extra.suiteErrors ?? [], unhandled: extra.unhandled ?? [] };
 }
 
-const verdict = compare(merged, parseList(readFileSync(String(listPath), "utf8")), e2eRoot);
+// The list is a folder, one `<check>.txt` per check file; a single file still reads as one list.
+const list = statSync(String(listPath)).isDirectory()
+  ? parseFolder(readdirSync(String(listPath)).filter((n) => n.endsWith(".txt")).sort().map((name) => ({ name, text: readFileSync(join(String(listPath), name), "utf8") })))
+  : { keys: parseList(readFileSync(String(listPath), "utf8")), misfiled: [] };
+for (const entry of list.misfiled) annotate("error", `filed under another check's name: ${entry}`);
+const verdict = compare(merged, list.keys, e2eRoot);
 
 for (const key of verdict.nowPassing) annotate("warning", `newly passing, take it off the list: ${key}`);
 for (const key of verdict.missing) annotate("warning", `on the list but not in the report (renamed or deleted?): ${key}`);
@@ -58,4 +64,4 @@ for (const key of verdict.unexpected) annotate("error", `failing and not on the 
 console.log(
   `ratchet: ${verdict.failing} failing, ${verdict.failing - verdict.unexpected.length} expected, ${verdict.unexpected.length} unexpected, ${verdict.nowPassing.length} newly passing, ${verdict.missing.length} missing`,
 );
-process.exit(ok(verdict) ? 0 : 1);
+process.exit(ok(verdict) && list.misfiled.length === 0 ? 0 : 1);

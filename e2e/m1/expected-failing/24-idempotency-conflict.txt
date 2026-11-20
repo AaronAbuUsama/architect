@@ -1,0 +1,11 @@
+# HAN-10 (#116): these pass when HAN-10 is built (#117).
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > has a code in the model, and an idempotent operation (not another) lists it
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > is one row of generated errors.ts beside NotAllowed's, which the CLI, HTTP and MCP read, and is a wire class every idempotent endpoint lists
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 120 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 122 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 126 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: in telemetry > writes refusal and refusal.code on the operation span, no defect, and no commit span
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: over HTTP > answers 409 with the refusal's tag and code, no key and no detail, and not a defect
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the CLI > prints [AR-002] IdempotencyConflict and exits 120, where a defect exits 1 with no code
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is a typed failure in the error channel with its tag and code, never a die; the first payload still gets its answer
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is catchable by its tag, as NotAllowed is: the program type-checks
