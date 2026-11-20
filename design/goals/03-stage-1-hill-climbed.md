@@ -67,8 +67,11 @@ skills or the process.
 
 ## The bound
 
-- **Stage 1 only:** the journeys below, the framework work they need (the rest of M1, all of M2, and ST1.01 to ST1.08,
-  with ST1.05 moved to M3 by K13), and the grid cells they touch. Each milestone slice is still ticked in
+- **Stage 1 only:** the journeys below, the framework work they need (the rest of M1, all of M2, and ST1.01 to ST1.04
+  and ST1.06 to ST1.24, ST1.05 having moved to M3 by K13), and the grid cells they touch. The invariants (ST1.09 to
+  ST1.22) and the speed slices (ST1.23, ST1.24) are inside because check 28 sits on this goal's ratchet list, the stage 1
+  gate (M2.12) names ST1.06 to ST1.22, and the speed slices serve "climbable"
+  ([`decisions/G10-goal-3-bound.md`](../decisions/G10-goal-3-bound.md)). Each milestone slice is still ticked in
   `milestones.md` with its proof when it lands, and Gates M1 and M2 must pass on this branch before it reaches `main`.
 - **Local, never fake,** as in goals 1 and 2: real workerd, D1, Durable Objects, Better Auth and Collector on this Mac.
   No Docker.

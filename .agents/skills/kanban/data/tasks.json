@@ -2079,7 +2079,7 @@
    "M2.13",
    "M2.16"
   ],
-  "needsText": "M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.08",
+  "needsText": "M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.04, ST1.06 to ST1.22",
   "order": 64,
   "plain": "One command makes a new app with sign-in and organisations; the links example at stage 1.",
   "pr": null,
