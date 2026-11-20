@@ -6,6 +6,7 @@ import { AuthD1 } from "#modules/auth/service.js";
 import type { AuthInstance } from "#modules/auth/types.js";
 import { facts } from "./internal/facts.ts";
 import { end, live } from "./internal/leases.ts";
+import { resetDatabases } from "./internal/reset.ts";
 import { worldsDoor } from "./internal/worlds.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -56,6 +57,14 @@ export class World extends DurableObject<WorldEnv> {
 export const toWorld = (world: WorldHost, request: Request): Promise<Response> => {
   const { pathname } = new URL(request.url);
   if (pathname.startsWith("/_world/facts/")) return Effect.runPromise(facts(world, request));
+  // A warm world is emptied between runs (ST1.24); a world with leases ends by its own lease instead.
+  if (pathname === "/_world/reset" && request.method === "POST") {
+    return world.leases
+      ? Promise.resolve(json({ error: "a world with leases is ended, not reset" }, 404))
+      : world.worlds.get(world.worlds.idFromName("world")).fetch(request).then((cast) => cast.json() as Promise<{ readonly people: ReadonlyArray<string> }>)
+        .then(({ people }) => Effect.runPromise(resetDatabases(world, people)))
+        .then(() => json({ reset: true }));
+  }
   if (!world.leases) return world.worlds.get(world.worlds.idFromName("world")).fetch(request);
   if (pathname.startsWith("/_world/worlds")) return Effect.runPromise(worldsDoor({ worlds: world.worlds, db: world.db }, request));
   return Effect.runPromise(live(world.db)).then((held) => world.worlds.get(world.worlds.idFromName(held[0]?.id ?? "world")).fetch(request));

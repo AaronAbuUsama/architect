@@ -24,5 +24,9 @@ export const frontDoor = (sql: SqlStorage, auth: AuthInstance, request: Request)
       }
       return json(cast satisfies Cast);
     }
+    if (path === "/_world/reset" && request.method === "POST") {
+      // The cast stays (a warm world's population); the Worker empties the databases around the people it names.
+      return json({ people: sql.exec<{ person: string }>("SELECT person FROM cast WHERE person IS NOT NULL").toArray().map((r) => r.person) });
+    }
     return json({ error: "not a door the world has" }, 404);
   });

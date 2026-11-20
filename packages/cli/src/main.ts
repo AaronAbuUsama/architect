@@ -42,7 +42,7 @@ const dev = Command.make(
   },
   ({ root, port }) =>
     Effect.scoped(
-      Prove.dev({ root, port, env: process.env }).pipe(
+      Prove.dev({ root, port, pid: process.pid, env: process.env }).pipe(
         Effect.tap(({ notes }) => Effect.forEach(notes, (n) => Console.log(n))),
         Effect.tap(({ url, log }) => Console.log(`running at ${url}  (world at ${url}/_world, wrangler output in ${log})`)),
         Effect.andThen(Effect.never),
