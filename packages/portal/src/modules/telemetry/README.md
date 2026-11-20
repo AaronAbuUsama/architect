@@ -12,4 +12,7 @@ reader of `ortho.calls` (`prove`'s `FileMetrics`), `now` the only clock. Both ar
 - `Telemetry.trace(live, id)` is `GET /_portal/v1/traces/<id>`: structure, timing, outcome, attempt and a log count per span.
 - Scrubbed here: only declared operation and refusal names and a whitelist of structural attributes are copied, so a statement, a person's
   id, a payload value or a log body has nowhere to land. Test: `telemetry.test.ts`.
-- A call is an operation's own attempts, not a trace: every call starts at attempt 1 and attempt `n` continues the call whose last was `n - 1`, so several calls under one distributed trace are several rows. The window is each call's (its first attempt's start), whatever whole traces the source hands back. A move counts only for an attempt that did not lose its commit race.
+- A call is an operation's own attempts, not a trace (O3, `design/decisions/O3-call-id.md`): the runtime writes one `call.id` on every attempt span of a call, and the
+  reader groups by it, so several calls under one distributed trace are several rows. For spans without it, an attempt joins a call only when exactly one could take it;
+  otherwise those attempts are one call whose outcome is `unknown`, with no move. The window is each call's (its first attempt's start), whatever whole traces the source
+  hands back. A move counts only for an attempt that did not lose its commit race.

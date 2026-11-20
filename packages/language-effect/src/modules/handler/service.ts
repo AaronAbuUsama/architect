@@ -7,6 +7,7 @@ import type { CallRunner, CallWiring } from "#modules/calls/types.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
+import { CALL_ID, newCallId } from "./internal/call-id.ts";
 import { BlankReached, IdempotencyConflict, InvalidPayload, type HandlerApi } from "./types.ts";
 import { canonical, sha256 } from "./internal/digest.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
@@ -69,22 +70,22 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
   // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused caller
   // leaves no handler span, only `<operation>.refused`, which carries the refusal), the machine's check, the handler,
   // its answer checked, its move, one commit.
-  const refused = (principal: Principal, number: number) => (e: unknown) => {
+  const refused = (principal: Principal, number: number, callId: string) => (e: unknown) => {
     const tag = tagOf(e);
     const code = codes?.[tag];
     return Effect.annotateCurrentSpan({ refusal: tag, ...(code === undefined ? {} : { "refusal.code": code }) }).pipe(
-      spanned(`${name}.refused`, { operation: name, attempt: number, "principal.kind": principal.kind }),
+      spanned(`${name}.refused`, { operation: name, attempt: number, [CALL_ID]: callId, "principal.kind": principal.kind }),
     );
   };
   const decodeAnswer = Schema.decodeUnknownEffect(op.answerSchema as unknown as AnyCodec);
-  const attempt = (payload: object, principal: Principal, key: string | undefined, number: number) =>
+  const attempt = (payload: object, principal: Principal, key: string | undefined, number: number, callId: string) =>
     Effect.gen(function* () {
       const store = yield* Store;
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
       // The check's own reads are not traced: a refusal is, in its own span.
       yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(
-        withRecords, Effect.withTracerEnabled(false), Effect.tapError(refused(principal, number)),
+        withRecords, Effect.withTracerEnabled(false), Effect.tapError(refused(principal, number, callId)),
       );
       const logs = yield* recordingLogs(payload, op.payload);
       return yield* Effect.gen(function* () {
@@ -144,7 +145,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
           return logs.last.pipe(Effect.flatMap((log) =>
             Effect.annotateCurrentSpan({ refusal: tag, ...(code === undefined ? {} : { "refusal.code": code }), ...(log === undefined ? {} : { "refusal.log": log }) })));
         }),
-        spanned(name, { operation: name, attempt: number, ...principalAttributes(principal) }),
+        spanned(name, { operation: name, attempt: number, [CALL_ID]: callId, ...principalAttributes(principal) }),
       );
     });
 
@@ -152,15 +153,17 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
     // Keyed by operation and caller as well, so one caller's key never answers another's call.
     const who = principal.kind === "person" ? principal.person : "anonymous";
     const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
-    const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
-      attempt(payload, principal, key, number).pipe(
+    // The call is named once, before its first attempt, and every attempt's span carries the name: attempts of one call are sequential, but different
+    // calls' attempts overlap, so nothing else in a trace says which attempts belong together (O3).
+    const loop = (number: number, callId: string): Effect.Effect<object, unknown, unknown> =>
+      attempt(payload, principal, key, number, callId).pipe(
         Effect.catch((e) =>
           !(e instanceof Conflict) ? Effect.fail(e)
-          : number < ATTEMPTS ? loop(number + 1)
+          : number < ATTEMPTS ? loop(number + 1, callId)
           : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
         ),
       );
-    return loop(1);
+    return Effect.flatMap(newCallId, (callId) => loop(1, callId));
   };
   return {
     name,

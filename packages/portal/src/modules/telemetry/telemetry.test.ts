@@ -90,12 +90,43 @@ describe("calls are the operation's own spans, not the trace", () => {
     span(id, trace, "link.add", start, { operation: "link.add", attempt: 1, "principal.kind": "anonymous", ...attrs }, over);
   const only = (map: Map<string, WindowTrace>, over: Partial<PortalLive> = {}) => read({ source: { window: () => Effect.succeed(map), find: () => Effect.succeed(undefined) }, ...over });
 
-  it("three calls to one operation under one distributed trace are three calls, and a retry inside one is still one", async () => {
+  const commit = (id: string, trace: string, parent: string, start: number, outcome: string) =>
+    span(id, trace, "link.add.commit", start, { "step.kind": "commit", "commit.outcome": outcome }, { parentSpanId: parent });
+
+  it("three calls to one operation under one distributed trace are three calls, and a retry inside one is still one: the runtime names each call", async () => {
     const trace = new Map<string, WindowTrace>([["T", { spans: [
-      link("c1", "T", at(9)), link("c2", "T", at(8)), link("c3a", "T", at(7)), link("c3b", "T", at(6), { attempt: 2 }),
+      link("c1", "T", at(9), { "call.id": "call_1" }), link("c2", "T", at(8), { "call.id": "call_2" }),
+      link("c3a", "T", at(7), { "call.id": "call_3" }), link("c3b", "T", at(6), { "call.id": "call_3", attempt: 2 }),
     ], logs: [] }]]);
     const { rows } = ok((await only(trace)).calls);
     expect(rows.map((r) => [r.start, r.attempts]).sort()).toEqual([[at(9), 1], [at(8), 1], [at(7), 2]].sort());
+  });
+
+  /** A1 loses its commit at t0, B1 wins at t2, A2 (A's retry) runs at t20: the loser started first, so A2's trace position says nothing of whose it is. */
+  const interleaved = (named: boolean) => {
+    const id = (call: string) => (named ? { "call.id": call } : {});
+    return new Map<string, WindowTrace>([["I", { spans: [
+      link("a1", "I", at(9), { ...id("A"), "move.name": "add" }), commit("ka1", "I", "a1", at(9) + 1, "conflict"),
+      link("b1", "I", at(8), { ...id("B"), "move.name": "add" }), commit("kb1", "I", "b1", at(8) + 1, "committed"),
+      link("a2", "I", at(5), { ...id("A"), attempt: 2, "move.name": "add" }), commit("ka2", "I", "a2", at(5) + 1, "committed"),
+    ], logs: [] }]]);
+  };
+
+  it.each([[true], [false]])("an interleaved retry is its own call's, never the one that was running beside it (call.id: %s)", async (named) => {
+    const { rows, moves } = ok((await only(interleaved(named))).calls);
+    expect(rows.map((r) => [r.start, r.attempts, r.outcome])).toEqual([[at(8), 1, "answered"], [at(9), 2, "answered"]]);
+    expect(moves, "both calls committed a move").toEqual({ "link.add": 2 });
+  });
+
+  it("attempts that two calls could each be say `unknown`, not an invented defect, and count no move", async () => {
+    const both = new Map<string, WindowTrace>([["U", { spans: [
+      link("a1", "U", at(9), { "move.name": "add" }), commit("ka1", "U", "a1", at(9) + 1, "conflict"),
+      link("b1", "U", at(8), { "move.name": "add" }), commit("kb1", "U", "b1", at(8) + 1, "conflict"),
+      link("a2", "U", at(5), { attempt: 2, "move.name": "add" }), commit("ka2", "U", "a2", at(5) + 1, "committed"),
+    ], logs: [] }]]);
+    const { rows, moves } = ok((await only(both)).calls);
+    expect(rows.map((r) => r.outcome)).toEqual(["unknown"]);
+    expect(moves).toEqual({});
   });
 
   it("the window is each call's: a trace that reaches out of it brings only the calls inside", async () => {

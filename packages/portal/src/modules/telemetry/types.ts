@@ -50,7 +50,8 @@ export interface PortalLive {
 
 /** Derived, never the person's id: a span with `principal.person` is a person; `principal.kind` `agent` an agent; `anonymous` anyone. */
 export type CallerKind = "person" | "agent" | "anyone" | "unknown";
-export type Outcome = "answered" | "refused" | "defect";
+/** `unknown`: attempts without a `call.id` that two or more calls could each have been (O3). Its row says so, and it counts no move. */
+export type Outcome = "answered" | "refused" | "defect" | "unknown";
 
 /** One call (a retry is one call, however many attempts it took): one row of the calls table and one entry of the rail's last calls. */
 export interface TelemetryCall {
