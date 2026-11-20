@@ -33,7 +33,9 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
 - **Land on a fresh base.** Merge a pull request only when it has no conflicts and CI ran on a head that includes the
   current target branch. Two pull requests that were each green can break the branch together.
 - **Every build pull request needs a 🔍 pass,** as well as CI: a builder's pull request into a goal or milestone branch
-  as much as a layer into `main`. The build pull requests are where runtime defects merge.
+  as much as a layer into `main`. The build pull requests are where runtime defects merge. The 🔍 pass is the gate;
+  Codex is advisory (`AGENTS.md`): ask it with `@codex review` when it is available, answer what it posts before the
+  merge, and never wait on it.
 - **Slices that share one contract go on one branch,** built in order. If one slice changes a type, a generated file or
   a header another reads, or promises what another delivers, they are one branch, not two threads. Before starting a
   thread, check the thread list for one already doing the job.

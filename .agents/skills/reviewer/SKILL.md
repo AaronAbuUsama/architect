@@ -47,7 +47,8 @@ Check each of these, and note what you checked:
    - **process hygiene:** an agent stops only the processes it started, by PID, never a machine-wide kill.
 7. **No finding is left unanswered.** Every review thread on the pull request, Codex's and earlier reviewers' included,
    is either fixed with a check, or answered with the ledger entry or decision that takes it. An unanswered finding
-   blocks.
+   blocks. Your pass is the merge gate; Codex is advisory (`design/decisions/CI-codex-advisory.md`), so a Codex review
+   that never came is not a reason to block, but a finding it did post must be answered.
 8. **CI is really green.** A job that runs with continue-on-error is read, not trusted: until the ratchet holds, the
    pull request's failing tests must be a subset of its target's, compared against the run on the target's current
    head, and you name that run in your verdict.
