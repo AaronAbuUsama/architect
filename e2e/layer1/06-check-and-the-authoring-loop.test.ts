@@ -21,7 +21,16 @@ describe("check 6: ortho add, generate and check build the allowance on the star
     const { root } = project;
     try {
       const added = ortho(root, "add", "thing", "allowance");
-      expect(added.stdout.trim().split("\n")).toHaveLength(6);
+      // The six files add wrote before G5, by name and in order; G5's `invariants.ts` (ST1.17) is the one more line the output may carry, and
+      // anything else is a failure. No count is pinned: the check holds each of the six, and refuses a stranger.
+      const wrote = (path: string) => `wrote blueprint/${path}`;
+      const lines = added.stdout.trim().split("\n");
+      const invariants = wrote("things/allowance/invariants.ts");
+      expect(lines.filter((l) => l !== invariants)).toEqual([
+        "things/allowance/thing.ts", "things/allowance/machine.ts", "things/allowance/roles.ts",
+        "things/allowance/events.ts", "things/allowance/errors.ts", "values/allowance.ts",
+      ].map(wrote));
+      expect(lines.filter((l) => l === invariants).length).toBeLessThanOrEqual(1);
       const blank = ortho(root, "check");
       expect(blank.status).toBe(1);
       expect(blank.stdout.split("\n")[0]).toBe("allowance has 3 blanks");
