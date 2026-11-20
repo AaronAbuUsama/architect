@@ -1,4 +1,5 @@
 import { Reading } from "../../reading/service.ts";
+import { SdkTypes } from "../../sdk-types/service.ts";
 import { operationsOf, over, typeName } from "./over.ts";
 
 /** thing.model: the thing is in the model with its description, and every field with its value type; a reference or named value says which. */
@@ -32,13 +33,16 @@ export const server = over("thing.server", (thing, e) => {
   ];
 });
 
-/** thing.sdk: the SDK exports a type for the thing (`Link`) that names each of its fields, so a caller can name it. */
+/**
+ * thing.sdk: the SDK exports a type for the thing (`Link`) whose every member resolves, in the TypeScript checker, to what the model says the field is (`SdkTypes`):
+ * a string for an id or text, a number or bigint for a uint, a boolean for a boolean, a real value for a named schema, optional exactly when a call may leave it out.
+ */
 export const sdk = over("thing.sdk", (thing, e) => {
   // An interface, or an alias of an object type: the type a caller writes, with a member for each field.
   const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
     Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
   if (declared === undefined) return [`the SDK exports no type ${thing.identifier}: a caller cannot name a ${thing.name}`];
-  return Object.keys(thing.fields).filter((field) => !declared.members.includes(field)).map((field) => `${declared.path}'s ${thing.identifier} leaves out the field ${field}`);
+  return SdkTypes.fieldProblems({ files: e.files, model: e.model, thing, path: declared.path });
 });
 
 /** thing.telemetry: a thing's public fields appear on its operations' spans as `payload.*` and `answer.*` (text only when `traced`), and no others do. */

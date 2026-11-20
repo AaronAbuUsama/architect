@@ -103,6 +103,11 @@ belongs to, and why it waits.
   Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
   or its terms stop a framework importing it.
 
+## From the grid (#154)
+
+- **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
+  item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.
+
 ## From the grid (error.portal, #168)
 
 - **`error.portal` can't see whether the portal really has a metrics source.** A page that always shows the `not-yet` marker

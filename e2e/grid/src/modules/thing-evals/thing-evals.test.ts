@@ -2,6 +2,7 @@
 // described ones, so what a field's row must show is judged from the model, never typed). The same suite runs for every thing the model has.
 import { describe, expect, it } from "vitest";
 import { editFile, editPortal, editSpans, evidenceOf, judge } from "../project-evidence/testing.ts";
+import { LINK_TYPES, LINK_TYPES_PATH, withLinkTypes } from "../sdk-types/testing.ts";
 import { ThingEvals } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
@@ -81,11 +82,34 @@ describe("a wrong output is red, and says what", () => {
     expect(check("server", "link", { ...pluggedIn, prove: { ...pluggedIn.prove!, lines } }).why).toEqual(['prove did not report "link.add answer shape ✔"']);
   });
 
-  it("sdk: a type that leaves out a field", () => {
-    const withType = editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => `${t}export interface Link { readonly id: string; readonly title: string }\n`);
-    expect(check("sdk", "link", withType).why).toEqual(["generated/sdk/src/link/index.ts's Link leaves out the field profile", "generated/sdk/src/link/index.ts's Link leaves out the field owner", "generated/sdk/src/link/index.ts's Link leaves out the field url"]);
-    const whole = editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => `${t}export interface Link { readonly id: string; readonly profile: string; readonly owner: string; readonly title: string; readonly url: string }\n`);
-    expect(check("sdk", "link", whole)).toEqual({ ok: true, why: [] });
+  describe("sdk: every member resolves to what the model says (the checker's verdict; the attacks are in sdk-types.test.ts)", () => {
+    const path = LINK_TYPES_PATH;
+    it("green: the file the generator writes", () => {
+      expect(check("sdk", "link", withLinkTypes(pluggedIn))).toEqual({ ok: true, why: [] });
+    });
+    it("red: a type that leaves out a field", () => {
+      expect(check("sdk", "link", withLinkTypes(pluggedIn, LINK_TYPES.replace('  readonly "url": Of<Declared["url"]>;\n', ""))).why).toEqual([`${path}'s Link leaves out the field url`]);
+    });
+    it("red: the SDK exports no type for the thing", () => {
+      expect(check("sdk", "link").why).toEqual(["the SDK exports no type Link: a caller cannot name a link"]);
+    });
+    it("red: a helper type that resolves to never, so every member does", () => {
+      const tampered = LINK_TYPES.replace(/type Of<F> = .*;/, "type Of<F> = never;");
+      expect(check("sdk", "link", withLinkTypes(pluggedIn, tampered)).why).toHaveLength(5);
+    });
+    it("red: a member typed as a boxed Number, a Promise, or any, and an index signature", () => {
+      for (const type of ["Number", "string | Promise<void>", "any", "Record<string, unknown>"]) expect(check("sdk", "link", withLinkTypes(pluggedIn, LINK_TYPES.replace('"title": Of<Declared["title"]>', `"title": ${type}`))).ok, type).toBe(false);
+      expect(check("sdk", "link", withLinkTypes(pluggedIn, LINK_TYPES.replace('"state": LinkState;', '"state": LinkState; [key: string]: unknown;'))).ok).toBe(false);
+    });
+  });
+
+  it("mcp: an output schema that refuses its own answer, one that accepts anything, and a correct one", () => {
+    const refusal = { type: "object", properties: { refusal: { type: "string" }, code: { type: "string" }, exit: { type: "integer" }, status: { type: "integer" } }, required: ["refusal", "code", "exit", "status"] };
+    const answered = (outputSchema: unknown) => ({ ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "handle.claim" ? { ...t, outputSchema } : t)) });
+    const only = (e: typeof pluggedIn) => check("mcp", "handle", e).why.filter((w) => w.startsWith("handle.claim"));
+    expect(only(answered({ type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" } }, required: ["handle"] }, refusal] }))).toEqual([]);
+    expect(only(answered({ type: "object", properties: { handle: { type: "integer" } }, anyOf: [{ required: ["handle"] }, refusal] }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer/);
+    expect(only(answered({ type: "object" }))[0]).toMatch(/^handle\.claim's output schema accepts {}/);
   });
 
   it("cli: a flag that is not there, and a numeric flag typed as a number", () => {
