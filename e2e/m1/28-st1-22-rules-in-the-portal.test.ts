@@ -94,6 +94,10 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect((await judged((h) => h)).section, "the reference page, to start from").toEqual([]);
     const noSection = await judged((h) => h.replace(`'<section data-portal="rules">'`, `'<section>'`));
     expect(noSection.section.some((p) => p.includes("has 0 Rules sections")), noSection.section.join("\n")).toBe(true);
+    const twice = await judged((h) => h.replace("rules.map(([n, r]) =>", "rules.concat(rules).map(([n, r]) =>"));
+    expect(twice.section.some((p) => p.includes("2 times")), twice.section.join("\n")).toBe(true);
+    const twoCommits = await judged((h) => h.replace(`+ '<div data-portal="spine-stop" data-stop="commit">commit</div>'`, `+ '<div data-portal="spine-stop" data-stop="commit">commit</div><div data-portal="spine-stop" data-stop="commit">commit</div>'`));
+    expect(twoCommits.spine.some((p) => p.includes("more than once")), twoCommits.spine.join("\n")).toBe(true);
     const noLifecycle = await judged((h) => h.replace(`'<div data-portal="lifecycle">'`, `'<div>'`));
     expect(noLifecycle.section.some((p) => p.includes("has a machine and no")), noLifecycle.section.join("\n")).toBe(true);
     const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));

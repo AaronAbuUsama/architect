@@ -99,6 +99,7 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     if (page.sections !== 1) out.section.push(`/portal/things/${thing} has ${page.sections} Rules sections (\`[data-portal="rules"]\`), it needs one, holding its rows`);
     if (page.strays > 0) out.section.push(`/portal/things/${thing}: ${page.strays} rule rows sit outside the Rules section`);
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
+    for (const [rule, n] of Object.entries(page.rules.reduce<Record<string, number>>((all, r) => ({ ...all, [r.rule]: (all[r.rule] ?? 0) + 1 }), {}))) if (n > 1) out.section.push(`/portal/things/${thing} shows ${rule} ${n} times: one row per rule`);
     if ([...seen.keys()].sort().join() !== mine.map(full).sort().join()) out.section.push(`/portal/things/${thing} lists rules [${[...seen.keys()]}], the wire declares [${mine.map(full)}]: a Rules section of one row per rule, each \`[data-portal="rule"][data-rule]\``);
     const at = (hook: string) => page.order.indexOf(hook);
     const machine = (wire.model.things[thing] as { machine?: unknown }).machine;
@@ -156,6 +157,7 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
   for (const [name, op] of Object.entries(wire.model.operations)) {
     const stops = (await read(`/portal/operations/${name}`)).stops;
     const attached = [...new Set(Object.values(op.invariants ?? {}))].sort();
+    for (const stop of new Set(stops.map((s) => s.stop))) if (stops.filter((s) => s.stop === stop).length > 1) out.spine.push(`${name}: the spine has the ${stop} stop more than once`);
     const at = stops.findIndex((s) => s.stop === "rules");
     if (attached.length === 0) { if (at >= 0) out.spine.push(`${name}: a rules stop on the spine of an operation that can break no rule`); continue; }
     const [move, commit] = [stops.findIndex((s) => s.stop === "move"), stops.findIndex((s) => s.stop === "commit")];
