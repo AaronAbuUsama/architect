@@ -353,7 +353,7 @@ export const portal = Blueprint.projection({
 
 ### 3.9 Solidity contracts: a language, not a projection (K27)
 
-Solidity is a language on an EVM host, not a projection. It is listed here because the SDK, CLI and MCP reach what it
+Solidity is a language on `Host.chain`, not a projection. It is listed here because the SDK, CLI and MCP reach what it
 writes. For every thing that lives in a chain store (K25), the Solidity language renders:
 
 - its contract scaffold, with blanks;
@@ -364,10 +364,10 @@ writes. For every thing that lives in a chain store (K25), the Solidity language
 ```ts
 export const solidity = Blueprint.language({
   frame, scaffold, surface, refusal, guards,   // the contract, src/<Store>.sol, surface.json, refusals.lock
-  storeKinds: ["chain:evm"],
+  writesFor: ["chain.evm"],    // the store kind its code is written for
 });
-export const evm = Blueprint.host({
-  runs: ["chain:evm"], wire: "chain",
+export const chain = Blueprint.host({   // Host.chain
+  supplies: ["chain.evm"], wire: "chain",
   deploy,                     // redeployed only when the bytecode changes
 });
 ```

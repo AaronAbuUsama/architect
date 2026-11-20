@@ -272,7 +272,7 @@ private notes. The client may have to know where they are before it can even mak
 | A limit the blueprint must respect | gas | 1,232 bytes per transaction (the measured vote is 452), and an account limit per transaction not measured here; rent; every vote write-locks the same Proposal account (not measured) | proving time; note growth |
 
 **Decided.**
-- **`chain` is a family, and each chain is a store kind**, supplied by its language package (K3 item 2's open list):
+- **`chain` is a family, and each chain is a store kind**, supplied by its language package (K3 item 2's open list) (superseded by K27, 20 November 2026: supplied by its host, `Host.chain` for `evm`, and written for by its language):
   - `evm`, from `@orthograph/language-solidity`;
   - `solana`, from `@orthograph/language-solana` (Anchor 1.2.2);
   - `aztec`, from `@orthograph/language-noir`.

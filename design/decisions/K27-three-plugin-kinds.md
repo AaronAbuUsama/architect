@@ -39,7 +39,7 @@ the walkthrough.
    | Question | Word | Examples |
    |---|---|---|
    | What is it written in? | **language** | Effect, Solidity; later Noir |
-   | Where does it run once deployed? | **host** | a Cloudflare worker, the device, an EVM chain |
+   | Where does it run once deployed? | **host** | `host-cloudflare`, `Host.node`, `Host.browser`, `Host.chain` |
    | Which copy of that place? | **environment** | Anvil, Base Sepolia, Base |
    | How do people reach it? | **projection** | the SDK, CLI, MCP, docs, portal |
 
@@ -54,12 +54,12 @@ the walkthrough.
      frame, scaffold, surface,          // BudgetsBase.sol ("Do not edit"), src/Budgets.sol ("Yours"), surface.json
      refusal,                           // a code's wire identity, from blueprint/refusals.lock
      guards,                            // what it enforces before and after the body (K17's guards table)
-     storeKinds: ["chain:evm"],         // the store kinds its code can live in
+     writesFor: ["chain.evm"],          // the store kinds its code is written for; it supplies none
    });
 
-   // what a host owns: where code runs, how it is reached, how it is deployed
-   export const evm = Blueprint.host({
-     runs: ["chain:evm"],               // the places it supplies
+   // what a host owns: where code runs, how it is reached, how it is deployed; mounted as `Host.chain`
+   export const chain = Blueprint.host({
+     supplies: ["chain.evm"],           // the store kinds of its place, with their store port
      wire: "chain",                     // how a projection reaches it: a signed transaction
      deploy,                            // only when the bytecode hash changes
    });
@@ -69,8 +69,8 @@ the walkthrough.
    ```
 
 3. **Nobody picks a language or a host per operation; they fall out.**
-   - The thing's store kind and the operation's `runs` decide them: a thing in a chain store gets Solidity on an EVM
-     host, and an operation that runs on the server gets Effect on the worker.
+   - The thing's store kind and the operation's `runs` decide them: a thing in a chain store gets Solidity on
+     `Host.chain`, and an operation that runs on the server gets Effect on `host-cloudflare`.
    - Every operation is taken by exactly one language on one host. The compiler refuses an operation that none takes,
      or that two take.
 
@@ -82,13 +82,25 @@ the walkthrough.
    - **The projection** owns the face. "A language never chooses where it runs, and a host never gives an operation
      meaning" (K5) still holds.
 
-5. **Store kinds come from what is mounted**, a host or a language, not from a fixed list in the compiler
-   (`compiler/.../stores.ts:10`).
+5. **A host supplies store kinds; a language writes for them.** Store kinds come from what is mounted, not from a
+   fixed list in the compiler (`compiler/.../stores.ts:10`), and each has one owner:
+   - **The host supplies** the kinds of its place, with the store port that commits there: `host-cloudflare` supplies
+     `database` and `actor`, as it already implements the store over D1
+     (`packages/host-cloudflare/src/modules/store/service.ts:11`); `Host.chain` supplies `chain.evm`.
+   - **The language writes for** kinds and supplies none: Effect writes for `database` and `actor`, Solidity for
+     `chain.evm`.
+   - `chain` stays a family, one member per chain (`chain.evm`, later `chain.solana` and `chain.aztec`), and
+     `Blueprint.store.chain.evm()` names the member (K25).
+   - The compiler accepts a store only when a mounted host supplies its kind and a mounted language writes for it.
+
+   This replaces one line of K3 and K7: they had each chain kind supplied by its language package
+   (`language-solidity`). K3 and K7 gain dated notes; everything else in them stands.
 
 6. **Effect moves first, and nothing visible changes.**
-   - `language-effect` becomes the Effect language, served by the worker host and the device host.
+   - `language-effect` becomes the Effect language, served by `host-cloudflare` and, for the CLI, `Host.node`.
    - The server projection keeps only its face, and the deploy moves to `host-cloudflare`.
-   - This is Goal 4's first build slice. Its check: acme's generated files come out byte-identical.
+   - This is slice 1 of Goal 4 (`design/goals/04-on-chain.md`, on `goal/on-chain`). Its check: acme's generated
+     files come out byte-identical.
    - Solidity is the second language on the same seam.
 
 ## Not chosen, and why
@@ -105,13 +117,23 @@ the walkthrough.
 | Dependent | Change |
 |---|---|
 | `orthograph`: plugins | `Blueprint.language` and `Blueprint.host` beside `Blueprint.projection` (Goal 4, slice 1) |
-| `compiler` | languages and hosts are folded in like projections; store kinds come from them; one language and host per operation |
-| `projections`: server | keeps its face; its Effect frame moves to `language-effect` and its deploy to `host-cloudflare` |
+| `compiler` | folds in languages and hosts; store kinds come from them; one language and one host per operation |
+| `projections`: server | keeps its face; its Effect frame moves to `language-effect`, its deploy to `host-cloudflare` |
 | `language-effect`, `host-cloudflare` | the first language and the first host |
-| `language-solidity`, an EVM host | the second of each (Goal 4) |
-| `docs/canon/languages-and-hosts.mdx` | already right; the canon thread adds `Blueprint.language` and `Blueprint.host` when they are built |
-| K17 | a dated record: notes beside `TargetSpec` and its build step 1 point here |
-| `frame/projections.md` 3.9, the allowance example, the walkthrough | rewritten in this change |
+| `language-solidity`, `Host.chain` | the second of each (Goal 4) |
+| K3, K7 | dated notes beside "supplied by `language-solidity`": the host supplies, the language writes for |
+| K17 | dated notes beside `TargetSpec` and its build step 1 point here |
+| `frame/projections.md` 3.9, the allowance example, the walkthrough, `design/state` | rewritten in this change |
+| ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
+
+Left for their owners, and named in Goal 4's file:
+
+- **The canon thread**, `docs/canon/languages-and-hosts.mdx`: line 145 still has `chain` "supplied by
+  `language-solidity`", and line 139 quotes the package's "the Solidity target". It adds `Blueprint.language`,
+  `Blueprint.host` and item 5 when slice 1 is built.
+- **Goal 4, slice 1**: `packages/language-solidity` (its `README.md` and the comment in `src/index.ts`) still say
+  "The Solidity target"; the slice rewrites them with the package, and the walkthrough's quote of that file
+  (`design/walkthrough/journey.md:1684`) with them. Ledger `G-02` tracks the word.
 
 ## Ledger
 
@@ -122,6 +144,10 @@ the walkthrough.
 
 - design/frame/projections.md (3.9): "export const solidity = Blueprint.projection({" → "export const solidity = Blueprint.language({"
 - design/frame/examples/allowance-on-chain.md: "The Solidity projection" → "The Solidity language"
-- design/frame/examples/allowance-on-chain.md: "mounts added: projection solidity (automatic), adapter chain (needed by lives: chain)" → "mounts added: language solidity and host evm (automatic, needed by the chain store)"
+- design/frame/examples/allowance-on-chain.md: "mounts added: projection solidity (automatic), adapter chain (needed by lives: chain)" → "mounts added: language solidity and host chain (automatic, needed by the chain store)"
 - design/walkthrough/journey.md: "export interface TargetSpec {" → "Blueprint.language({ … }) and Blueprint.host({ … }) (K27)"
 - design/walkthrough/journey.md: "The Solidity target is M6" → "The Solidity language is M6"
+- design/frame/examples/allowance-on-chain.md: "`@orthograph/language-solidity` plus the solidity projection" → "`@orthograph/language-solidity` on `Host.chain`"
+- design/frame/projections.md (3.9): "storeKinds: ["chain:evm"]" → "writesFor: ["chain.evm"]"
+- design/state/index.html: "The Solidity target, signed operations, a vault per organisation on Anvil." → "The Solidity language, signed operations, and a Safe that enables the budgets module, on Anvil."
+

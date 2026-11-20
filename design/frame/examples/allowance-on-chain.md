@@ -57,10 +57,10 @@ $ ortho impact
 allowance lives: database → chain              major, next 2.0.0
   payload of allowance.spend gains a signature   (signed by the caller's wallet)
   stale: allowance.grant, .spend, .revoke, .get in every environment
-  mounts added: language solidity and host evm (automatic, needed by the chain store)
+  mounts added: language solidity and host chain (automatic, needed by the chain store)
 ```
 
-The Solidity language and the EVM host mount themselves (K27), because a thing on chain can't exist without them ([`../projections.md`](../projections.md)
+The Solidity language and `Host.chain` mount themselves (K27), because a thing on chain can't exist without them ([`../projections.md`](../projections.md)
 section 3.9). The chain adapter mounts too; its stand-in is Anvil.
 
 ```ts
@@ -159,7 +159,8 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 ## Projections and what gets generated
 
-- **solidity**: the machine, typed data, Foundry tests, the fuzz conformance test, the scaffold.
+- **the Solidity language** (K27, not a projection): the machine, typed data, Foundry tests, the fuzz conformance
+  test, the scaffold.
 - **server**: the operations, now verifying signatures and calling the relayer.
 - **sdk, cli**: a `--wallet` on every signed operation (`acme allowance spend --wallet olga`).
 - **mcp**: signed operations are out. An agent holds no wallet of ours.
@@ -169,7 +170,7 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 | | Today (`origin/layer/3`) | Proposed (layer 4) |
 |---|---|---|
 | Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds chain stores, `Blueprint.store.chain.evm()` (K25) |
-| Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@orthograph/language-solidity` plus the solidity projection |
+| Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@orthograph/language-solidity` on `Host.chain` |
 | Relayer, follower | not built (L3.06, L3.08 on layer 3) | two actors |
 | Conformance between languages | none | generated fuzz, Effect machine against contract |
 

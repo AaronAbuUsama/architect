@@ -1708,13 +1708,13 @@ error NotAllowed();                     // AR-001
 🔵 **Decided, not yet built** (K27, 20 November 2026, replacing K17's "target"). Four questions, four words: what code
 is written in is its **language**; where it runs once deployed is its **host**; which copy of that place is the
 **environment**; how people reach it is a **projection**. The first, second and fourth are plugin kinds.
-`language-effect` is the first language, served by the worker and device hosts; `language-solidity` on an EVM host is
-next.
+`language-effect` is the first language, served by `host-cloudflare` and `Host.node`; `language-solidity` on
+`Host.chain` is next. A host supplies the store kinds of its place; a language writes for them.
 
 ```ts
 // packages/orthograph (proposed, K27)
-Blueprint.language({ frame, scaffold, surface, refusal, guards, storeKinds });   // what code is written in
-Blueprint.host({ runs, wire, deploy });                                          // where it runs, how it's reached and deployed
+Blueprint.language({ frame, scaffold, surface, refusal, guards, writesFor });   // what code is written in
+Blueprint.host({ supplies, wire, deploy });   // where it runs, how it's reached and deployed
 ```
 
 For Plugged In, the handle could one day live on a chain: a contract with a `claim` function, its role check as a
@@ -1778,7 +1778,7 @@ The Solidity language is M6 (M6.01 starts from K7). Stage 3 (the vault) needs th
 | 10 | the React hooks and three screens | 🔵 ST1.01, ST1.04, ST1.06 |
 | 10 | `ortho new feature` | 🔵 M2.10 |
 | 10 | workflows | 🔵 M3.01 to M3.03 |
-| 11 | Solidity, a language on an EVM host | 🔵 K7, K17, K27, M6 |
+| 11 | Solidity, a language on `Host.chain` | 🔵 K7, K17, K27, M6 |
 
 ## How this was made
 

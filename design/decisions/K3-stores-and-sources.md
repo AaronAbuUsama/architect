@@ -55,6 +55,8 @@ that does all of that can be where a thing lives.
    | `actor` | `@formants/host-cloudflare` | a Durable Object per instance, its own SQLite, its outbox | no: use a view |
    | `chain` | `@formants/language-solidity` | a contract or program (M6 for `evm`) | through views |
 
+   (Superseded by K27, 20 November 2026: the host supplies a store kind and a language writes for it; `chain.evm` is
+   supplied by `Host.chain`, and `language-solidity` writes for it.)
    `chain` is a family of kinds, one per chain: `evm`, `solana` and `aztec`, each from its language package, with
    the capabilities `pending`, `accounts` and `private` (K7 Q4, 18 November 2026).
 
