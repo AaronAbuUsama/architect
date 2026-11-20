@@ -1,6 +1,6 @@
 # K21: a repeated call answers instead of refusing
 
-**Status: proposed, waiting on Aaron's grill (20 November 2026).** Drafted by the 📐 Capxul language designer thread.
+**Decided 20 November 2026 by Aaron (option A), from the 📐 Capxul language designer thread's grill.** Drafted by the 📐 Capxul language designer thread.
 It answers two of Capxul's questions at once, "a move that changes nothing" and "idempotent by intent", because they
 are one family: a call that asks for what is already true should answer, change nothing and emit nothing, rather than
 be refused. They differ only in how "already true" is recognised: by the subject's state, or by what the payload means.
@@ -183,8 +183,12 @@ the same truth reached another way. Settle needs the second, founding needs the 
 
 ## Supersedes
 
-Filled in once Aaron answers.
+- design/frame/adapters.md: "the door uses `idempotent: \"request\"` keyed by the event's id. Whether that is enough for every vendor's retry rules is unchecked." → "the door uses `idempotent: \"request\"` keyed by the event's id, and a move that may arrive twice by another path declares `unchanged` (K21)."
+- design/frame/examples/notifications.md: "also `idempotent: { by: <field> }`" → "also `idempotent: { by: [<payload key>] }` (K21), and `unchanged` on a move"
+
+The proposal in `notifications.md` is where `by` first appeared; K21 gives it its shape.
 
 ## Aaron's answers
 
-Waiting on the grill.
+**A, both: `unchanged` on a move and `idempotent: { by }` on an operation.** Aaron, 20 November 2026: "agreed". The six
+smaller calls under A stand as written. Build slices: M3.24 to M3.26 in `design/milestones.md`.

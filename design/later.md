@@ -20,6 +20,13 @@ belongs to, and why it waits.
   stays a view of the file, never a second source. It waits because the portal is read-only until the editor exists,
   and because an editor needs elk in the browser (a worker), where `Graph` today gets positions from the generator.
 
+- **A plugin that hangs on the app's own thing** (K22 option D, "slots"): the plugin declares a slot and the app binds
+  its own thing to it, so the app keeps its central thing and the plugin brings what points at it. Waits until
+  extracting Capxul's budgets or companies shows a plugin that truly wraps another app's thing; adoption (K22) covers
+  naming until then.
+- **An intent key on actors** (K21): `idempotent: { by }` for things that `lives: "actor"` waits with idempotency by
+  request on actors, below.
+
 ## From stage two (layer one)
 
 - An actor's journal entries live in its own Durable Object, so `prove`'s facts door doesn't see them yet. Layer four

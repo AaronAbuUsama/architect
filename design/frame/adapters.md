@@ -223,5 +223,5 @@ response types, which come from the contract.
   proposal treats it as a declared, labelled stand-in, never silently.
 - Some outside systems publish no machine-readable contract (Resend has an OpenAPI document; many don't). Those
   adapters are hand-written and only as good as their conformance test.
-- Events that arrive out of order or twice: the door uses `idempotent: "request"` keyed by the event's id. Whether that
-  is enough for every vendor's retry rules is unchecked.
+- Events that arrive out of order or twice: the door uses `idempotent: "request"` keyed by the event's id, and a move
+  that may arrive twice by another path declares `unchanged` (K21).

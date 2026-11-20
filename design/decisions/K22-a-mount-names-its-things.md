@@ -1,6 +1,6 @@
 # K22: an app can give a mounted thing its own name
 
-**Status: proposed, waiting on Aaron's grill (20 November 2026).** Drafted by the 📐 Capxul language designer thread.
+**Decided 20 November 2026 by Aaron (option A), from the 📐 Capxul language designer thread's grill.** Drafted by the 📐 Capxul language designer thread.
 Grounded at `origin/goal/stage-1` `f109821d` and Capxul Next `50851875` (read only).
 
 This decides only the language: what a blueprint author writes to call a plugin's thing by the app's word. Where the
@@ -152,8 +152,9 @@ another app's thing, if extracting Capxul's budgets shows one.
 
 ## Supersedes
 
-Filled in once Aaron answers.
+- design/frame/mounting.md: "The fix is to rename a mount." → "The fix is to rename a mount, or to adopt one of the things under the app's own name (K22)."
 
 ## Aaron's answers
 
-Waiting on the grill.
+**A, a folder in the app names it, and what is named after it follows.** Aaron, 20 November 2026: "agreed". Slots
+(option D) go to `design/later.md`. Build slices: M2.20 and M2.21 in `design/milestones.md`.

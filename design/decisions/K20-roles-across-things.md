@@ -161,6 +161,117 @@ allowed: [Blueprint.role(Membership, { rule: (m, caller) => m.person === caller.
 **Recommendation: A.** It is the `holds` K2 already promised, written down, and the only option that lets the model
 know who may call well enough to explain it and to scope a list by it.
 
+### How a declared role renders in each language
+
+Aaron asked (20 November 2026) how option A comes out through the stack: in TypeScript, Solidity and Noir. One
+declaration, the Director role above, renders to the same check in each, refused with the same `NotAllowed` (`AR-001`),
+in K7's order: the role, then the machine, then the developer's body. Only the Effect half is planned soon (M2); the
+Solidity target is an empty package today (`packages/language-solidity/src/index.ts`, M6.10 and M6.11), and Noir is a
+later target (N1). The chain sketches follow the shapes the chain spikes ran (`K7-chain-languages.md:97-124`,
+`design/noir/spike-2-role-gate-e2.md`).
+
+**The model**, which every generator reads:
+
+```jsonc
+// ortho describe --json, things.company.roles
+"director": {
+  "kind": "holds",
+  "holds": { "thing": "membership", "field": "company" },
+  "who": "person",
+  "where": { "seat": "director" },
+  "while": ["active"]
+}
+```
+
+**TypeScript (Effect, on the Worker).** No generated check: `language-effect` reads the model and makes one query,
+over an index the store's first migration creates.
+
+```sql
+-- generated/server/migrations/0001.sql
+CREATE INDEX membership_by_company_person ON membership (company, person);
+```
+
+```ts
+// packages/language-effect/src/modules/access/service.ts, the new branch beside roleOn
+const holding = (role: HoldsRole, target: { id: string }, person: Person) =>
+  Effect.gen(function* () {
+    const records = yield* Records;
+    // `Records.any` is new: an equality lookup on the list read's query (D3 #60); `Records` has only `find` and `findBy` today (records/types.ts:80)
+    return yield* records.any(role.holds.of, { [role.holds.key]: target.id, [role.who.key]: person.person, ...role.where }, { states: role.while });
+  });
+```
+
+```text
+docs and MCP: "Who may call: a Director of the company you name: someone with an active membership of it, seat director."
+refused:      NotAllowed [AR-001], and the <operation>.refused span, as every role today
+```
+
+**Solidity (EVM).** The contract can't read the database, so the compiler refuses a chain operation whose role's
+holding thing lives in another store. When both live on the chain, the generator keeps the role's index in storage,
+set and cleared by the holding thing's moves, never by hand:
+
+```solidity
+// generated/solidity/CompanyRoles.sol
+// Generated from blueprint/things/company/roles.ts. Do not edit.
+abstract contract CompanyRoles {
+    /// One flag per held row: true while a membership of `company` held by `person` is active with seat director.
+    mapping(bytes32 company => mapping(address person => bool)) internal _director;
+    error NotAllowed(); // AR-001
+
+    modifier onlyDirector(bytes32 company) {
+        if (!_director[company][msg.sender]) revert NotAllowed();
+        _;
+    }
+}
+
+// generated/solidity/Membership.sol, inside the generated moves
+function _enterActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] = true; }
+function _leaveActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] = false; }
+
+// the operation's entry: role, machine, then the developer's body (K7)
+function createBudget(bytes32 company, uint256 limit) external onlyDirector(company) { _createBudget(company, limit); }
+```
+
+**Noir (Aztec, private).** The check runs on the caller's device and is proved: the chain learns that a Director
+acted, never which one. Each held row is a private note owned by its person; the membership's move into `active`
+creates it and the move out nullifies it:
+
+```rust
+// generated/noir/src/company_roles.nr
+// Generated from blueprint/things/company/roles.ts. Do not edit.
+// storage: directors: Map<Field, Map<AztecAddress, PrivateSet<HeldNote>>>   (company -> person -> held rows)
+fn assert_director(self, company: Field) {
+    let mine = self.storage.directors.at(company).at(self.msg_sender()).get_notes(NoteGetterOptions::new().set_limit(1));
+    assert(mine.len() == 1, "[AR-001] NotAllowed");
+}
+
+#[external("private")]
+fn create_budget(company: Field, limit: u128) {
+    self.assert_director(company);   // role, then the machine (enqueued public half), then the body
+    // ...
+}
+```
+
+**What each option can render to:**
+
+| Language | A · declared holding | B · effectful rule | C · copy onto the company | D · caller names their row |
+|---|---|---|---|---|
+| TypeScript | one indexed query | the rule's own code | a plain rule | a plain rule plus a handler check |
+| Solidity | a generated mapping and modifier | nothing: Effect code can't become Solidity, so each contract hand-writes it | an array on the company, looped per call (gas grows with the board) | a generated check plus a hand-written company check |
+| Noir | a private note per held row, proved on the device | nothing, as for Solidity | a public list of Directors: privacy lost | a note the caller names, plus a hand-written company check |
+
+This is the strongest reason for A: a declared role is data, so every language can be generated from it; a rule that
+reads anything is code in one language only.
+
+**Limits found while drawing these, kept honest:**
+
+- **Capxul's budgets are a tree.** Its contract allows a budget's holder *or the holder of any budget above it*
+  (`capxul-next packages/contracts/src/money/Budgets.sol:373-383`). A `holds` role does not recurse; the bounded
+  spelling is `allowed: [seated, seated.of("parent"), seated.of("parent.parent")]`. A recursive form goes in
+  `design/later.md` until a journey needs it.
+- **Capxul's Directors live in another contract** (Hats: `IHats.isWearerOfHat`, `Budgets.sol:379`). A `holds` whose
+  holding thing lives in an adapter's contract would render as a call to it. That waits on chain stores (M6.10).
+
 ## The options: question 2, a list held to the caller's own rows
 
 **Today**, a list with a role is refused unless the caller names the instance (`access/service.ts:55`); the work app
@@ -232,8 +343,21 @@ export default Blueprint.read(Budget, { where: ["state"], tenant: Budget.fields.
 
 ## Supersedes
 
-Filled in once Aaron answers, per `AGENTS.md` "One way to supersede".
+Filled in once Aaron answers question 1, per `AGENTS.md` "One way to supersede".
 
 ## Aaron's answers
 
-Waiting on the grill.
+**Question 2, a list held to the caller's own rows: C, always name it (today).** Aaron, 20 November 2026: "agreed",
+against the recommendation. So nothing changes in list reads: a list with a role answers only when the caller names the
+instance the role is decided on, and a caller who names none is refused `NotAllowed`. What follows from it:
+
+- Capxul's `invitation.list` (empty payload, "the invitations sent to me") can't be a declared read: a read with
+  `where: ["email"]` and `allowed: [Blueprint.signedIn]` would let anyone list anyone's invitations by email. It becomes
+  an operation with no move whose handler lists by the caller's own email, as Capxul's handler does today.
+- The work app's open mission list (`examples/work/blueprint/things/mission/verbs/list.ts:4-11`) stays as it is, with
+  its comment; closing it means requiring `owner` and a role on it, which is the work app's own change.
+- Question 1's `who` form does not need question 2 to be useful: it still says "the founder" in words in the docs and
+  renders to every language.
+
+**Question 1, a role decided through another thing's rows:** Aaron asked to see how it renders through TypeScript,
+Solidity and Noir before deciding (20 November 2026). The section above answers that; his decision is pending.
