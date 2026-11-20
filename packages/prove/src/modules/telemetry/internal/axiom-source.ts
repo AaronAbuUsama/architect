@@ -99,10 +99,14 @@ const sourceOf = (c: Connection, group: string, environment: string): TraceSourc
       Effect.gen(function* () {
         const ids = wanted.map((w) => w.trace).filter((id) => HEX.test(id));
         let last: ReadonlyMap<string, Trace> = new Map();
+        // Axiom has no quiet period and its ingestion lags: an empty trace that may stay empty is believed only on a
+        // second look, a second later, so the late spans of a handler that ran after all are still seen.
+        let looks = 0;
         const settled = (ids.length === 0 ? Effect.succeed(new Map<string, Trace>()) : byIds(ids)).pipe(
           Effect.map((got) => {
             last = got;
-            return wanted.every((w) => arrived(got.get(w.trace), w));
+            looks += 1;
+            return wanted.every((w) => arrived(got.get(w.trace), looks > 1 ? w : { ...w, mayBeEmpty: false }));
           }),
           Effect.orElseSucceed(() => true),
         );

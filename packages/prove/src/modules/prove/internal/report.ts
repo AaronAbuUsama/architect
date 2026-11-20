@@ -5,7 +5,11 @@ import type { CallRecord, JourneyRun, StepResult } from "#modules/journeys/types
 import type { Trace } from "#modules/telemetry/types.js";
 import { filesOf, journeyDetail, stepDetail, type FailureDetail, type JourneyDetail } from "./structured.ts";
 
-/** World facts predict the access refusal before the server answers. */
+/**
+ * World facts predict the access refusal before the server answers: no span will come (O2, gap 3). A payload the server
+ * can't decode leaves no span either, and is left out on purpose: a journey's payload is encoded from its declaration
+ * before it is sent, so that refusal is not one a journey predicts, and its missing telemetry stays a failure.
+ */
 export const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
   call?.mayCall === false && call.status === 403 &&
   typeof call.body === "object" && call.body !== null && "_tag" in call.body && call.body._tag === "NotAllowed";
