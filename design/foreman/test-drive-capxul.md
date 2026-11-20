@@ -1,7 +1,8 @@
 # Test drive: Foreman on Capxul's first slice
 
-Written 20 November 2026. Foreman isn't built, so this plays it by hand: the skills in `design/decisions/F9-foreman.md`
-section 3, followed as written, on the idea the whole project started from. The input is Capxul Next
+Written 20 November 2026. Foreman isn't built, so this plays it by hand: the intake and shape routines in
+`design/decisions/F9-foreman.md` (sections 8 and 9; together they are the model draft's ideation loop), followed as
+written, on the idea the whole project started from. The input is Capxul Next
 (`/Users/abuusama/projects/capxul-next`, read only, at commit `50851875`). The slice is Capxul's first: a company, its
 members, invitations, and signing in with a wallet. It stops where the ideation loop stops: a blueprint and the questions,
 with no handlers.
@@ -14,8 +15,9 @@ How to read the cites: Capxul's files are given from its repository root; Orthog
 
 ## 1. The wake
 
-Foreman starts by reading where things stand. There is no `foreman/` folder in Capxul yet, so this is a first wake, and
-the `where-are-we` skill would say:
+Foreman starts by reading where things stand. Capxul has no project in the work app yet, so this is a first wake. Aaron's
+profile is already known (he listens, works at the design level and reads code for now), so the wake routine would say,
+for the ear:
 
 > We're starting Capxul on Orthograph. Capxul already has its own blueprint, written by hand in its own format, and a
 > working pipeline around it; none of it runs on Orthograph yet. I've read it. The first slice is a company, its people,
@@ -52,7 +54,9 @@ chain), and the company's business site (it needs the Frappe bench). Questions 2
 
 **Step 4: batch the questions.** Section 4.
 
-**Step 5: journeys as stories.** The journey author would write these, for Aaron to read back:
+**Step 5: journeys as stories.** The journey author would write these, for Aaron to read back. Because his profile says
+he listens, Foreman reads them aloud, and draws the invitation's machine with the `machine-journey` skill when he asks to
+see it:
 
 1. Dana founds Northwind; she is its founder and first Director, and the handle `northwind` is taken from then on.
 2. Eli tries to found a second company called `northwind`, and is refused because the handle is taken.
@@ -417,7 +421,7 @@ Batched, for the ear, each with a recommendation first. The first four block the
 8. **Can an invitation be revoked, and does it expire?** Capxul adds cancelling later; the starter has revoke. I'd say
    revoke now, by the founder, and no expiry.
 
-Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are filled the same turn.
+Each answer becomes a `decision` in the work app (F9, section 5), and the blanks it closes are filled the same turn.
 
 ## 5. Findings
 
@@ -458,12 +462,12 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
    (`packages/orthograph/src/modules/plugins/service.ts:36-39` on goal/stage-1), and `ortho add feature --as <name>`
    names the mount, not its things (`packages/cli/src/modules/mounting/README.md:3` on goal/stage-1), so a plugin's
    "organisation" can't be an app's "company".
-10. **A mount is app-wide.** It can't be limited to the development environment (`F9-foreman.md`, question 3).
+10. **A mount is app-wide.** It can't be limited to the development environment (`F9-foreman.md`, question 1).
 11. **No list of references in a payload.** Field values are an id, a number, text or a raw schema
     (`packages/orthograph/src/modules/values/types.ts:22-25` on goal/stage-1), so "the founding Directors, by person" is
     a blank.
 12. **An app gets no builder guard.** Orthograph's own CI refuses a builder branch that edits checks (`builder-paths`);
-    an app made by the preset has no such job, so lesson 5 rests on briefs alone (`F9-foreman.md`, section 8).
+    an app made by the preset has no such job, so lesson 5 rests on briefs alone (`F9-foreman.md`, section 9).
 13. **What Capxul has that Orthograph might borrow.** Each Capxul operation carries its promises, in prose, each with
     its starting world and where it came from (kept, rewritten or dropped from the old stack)
     (`packages/blueprint/src/things/company/verbs/create.ts:122-198`), and its budget says what it leaves out and why
@@ -472,7 +476,7 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
 
 ### Where the skills fell short
 
-1. **`ideate` has no way to port a blueprint that already exists.** Step 2, "read what exists", was enough to read, but
+1. **The `shape` routine has no way to port a blueprint that already exists.** Step 2, "read what exists", was enough to read, but
    nothing maps a foreign blueprint's kinds onto Orthograph's: refusals, promises, starting points, roles, budgets. A
    `port-a-blueprint` step, with that table, is the missing piece; the table in section 2 is a first draft of it.
 2. **`extract` has no rule for a plugin that exists only on paper.** Its trigger is "a second real user", which assumes
@@ -480,12 +484,13 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
 3. **The walk-it check needs a "blocked by the framework" outcome.** Two stories can't be walked because of Orthograph,
    not the blueprint. The skill should record those as framework snags and let the rest of the slice proceed, rather
    than call the slice "not ready" as a whole.
-4. **The `ask` skill's format is too heavy for product questions.** `F9-foreman.md` section 7 says asks go in the grill
-   format in writing. That suits design forks; the eight product questions above are better as one numbered list for
-   the ear, with the grill kept for a fork with code to compare. Changed in `F9-foreman.md` section 7 in the same pull
-   request.
+4. **The grill format is too heavy for product questions.** The first draft of `F9-foreman.md` put every ask in the
+   grill format in writing. That suits design forks; the eight product questions above are better as one numbered list
+   for the ear, with the grill kept for a fork with code to compare. Changed in `F9-foreman.md` section 10 in the same
+   pull request.
 5. **The role skills are written for this repository.** The checks author would have to read past branch suffixes and
-   ratchet files that Capxul doesn't have (question 1 of `F9-foreman.md`).
+   ratchet files that Capxul doesn't have. `F9-foreman.md` section 3 moves them into the plugin, worded for any project,
+   with this repository's own rules left in `AGENTS.md`.
 6. **Nothing covers an outside system in the first slice.** Capxul's founding makes the company's business site on its
    Frappe bench. Orthograph designs that as a source through an adapter (`design/decisions/K3-stores-and-sources.md`),
    but no Foreman skill says how to cut it out of a slice or put it back.
@@ -493,7 +498,8 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
 ### Where the original idea and Orthograph disagree
 
 1. **Where worlds run.** Capxul: "A world never lives on the agent's own machine" (`docs/roadmap.md:22`). Orthograph is
-   local first: worlds run in local workerd and D1 (the model draft, section 1, layer 5).
+   local first: worlds run in local workerd and D1 (the model draft, section 1, layer 5). Foreman's own work app meets the
+   same choice (`F9-foreman.md`, question 3).
 2. **Who holds authority.** Capxul: "The chain owns authority; business-system permissions reflect it"
    (`docs/grounding.md:16`). In Orthograph a role is a rule over database rows, and on-chain authority is a stage 3
    plugin. The first slice puts Directors in a table, which Capxul's idea gives to the chain.

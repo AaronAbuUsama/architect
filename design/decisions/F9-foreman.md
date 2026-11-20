@@ -1,787 +1,674 @@
 # F9: Foreman, version zero
 
-Proposed 20 November 2026, as a draft for Aaron. Nothing here is built. The architecture is the building agent's to
-decide (`AGENTS.md`, "Who decides"); the five forks at the end are the ones where the goal itself is Aaron's.
+Proposed 20 November 2026 as a draft for Aaron, and revised the same day after his answers to the first draft (relayed
+by the conductor; his own phrases are quoted). Nothing here is built. The architecture is the building agent's to
+decide (`AGENTS.md`, "Who decides"); the four forks at the end are the ones his answers left open.
+
+**Foreman is a working name.** Aaron may change it. Read aloud it sounds like "Forman", the framework's retired name,
+which is still in dated records (`design/naming.md:45`); the name search already noted that "heard aloud it is
+'foreman'" (`design/naming-search.md:139`).
 
 Read first, and leaned on throughout: the working lessons (`design/process/lessons.md`), the model draft on draft PR 185
-(`design/model/README.md` on branch `claude/orthograph-model-cf3dca`, cited below as "the model draft"), the agent
-harness (`H1-agent-harness.md`), agent runs and benchmarks (`H2-agent-runs-and-benchmarks.md`), the factory
-(`K10-factory.md`), the work board (`K11-work-board.md`), the portal (`design/portal.md`) and the frame's skills
-(`design/frame/skills.md`).
+(`design/model/README.md` on branch `claude/orthograph-model-cf3dca`, "the model draft" below), the work system as an
+Orthograph app (`F5-work-blueprint.md`) and its board (`K11-work-board.md`), the agent harness (`H1-agent-harness.md`),
+the factory (`K10-factory.md`), the portal (`design/portal.md`) and the frame's skills (`design/frame/skills.md`).
+Words are the canon's (`docs/canon/outline.md`); **the person** means whoever builds with Foreman (for Capxul, Aaron).
 
-Words are the canon's (`docs/canon/outline.md`): blueprint, thing, operation, journey, refusal, feature plugin, mount,
-prove, the portal. Two working words are this record's own: **Foreman** (the agent) and **the person** (whoever builds
-an app with it; for Capxul, Aaron).
+## 1. What it is: an agency, not an assistant
 
-## 1. What Foreman is
+Aaron's picture: taking an idea to an outside software firm. The firm does intake, writes the first spec, turns it into
+a blueprint, scaffolds the code, and its factory builds it. Foreman is that firm. Its job is to gather everything and
+turn it into a blueprint, then drive the build until the journeys are green. It has impetus: in Aaron's words, "the
+thing's running, and it's coming back to prompt you, or stopping when it's fully blocked."
 
-Foreman is the agent a person builds an app with on Orthograph. The person brings an idea and makes the decisions.
-Foreman does the rest: it turns the idea into a blueprint, gets journeys written before anything is built, runs builder
-agents until the journeys are green, says plainly where things stand, and, when a piece has proved itself inside the app,
-extracts it into a plugin.
-
-It holds its own state, apart from whichever agent runs it. Version zero runs inside Claude Code or Codex as a plugin:
-skills, subagents and hooks, with one way of working. Its state is plain files in the person's repository. Later the same
-state moves into a durable actor through the agent harness (H1), and Foreman becomes an agent in the portal. Version
-zero builds none of that machinery. It is mostly the working practices, written down so an agent follows them.
-
-**What it knows, and where that knowledge lives:**
-
-| It knows | From |
-|---|---|
-| where things stand and what is missing | `ortho check`, `ortho impact`, the last prove, open pull requests and CI, read on every wake (section 5) |
-| what it needs from the person, and when to ask | its own asks list (section 4), and the rule in section 7 |
-| when to start building | a slice is ready when its journeys fail on empty handlers and have been shown satisfiable (lessons 1 and 2) |
-| how to prove something | `ortho prove`, journeys by a different agent, a 🔍 that probes every door (lessons 3 to 6) |
-| when and how to extract | the extraction loop in the model draft, section 3, gated on a second real user (question 4 of the model draft) |
-| Orthograph's mental model, to explain it | the model draft, sections 1 and 2, shipped with the plugin as its `explain` skill's reference |
-
-**What it is not.**
-
-- **Not the conductor.** The conductor builds Orthograph: many threads, milestones, `main`, one shared Mac. Foreman builds
-  one app on Orthograph, for one person. Section 2 says what they share.
-- **Not the factory.** The factory (K10) is the building agents and their sandboxes, as packages. Foreman drives builder
-  agents; in version zero those are Claude Code subagents or sessions, and later the factory's roster.
-- **Not the agent kit.** The agent kit (`design/frame/skills.md`, M3.12) is twenty-three skills, generated per app,
-  for one job each. Foreman is the persona and the loops that use them. Where Foreman's version-zero skill does the same
-  job as a kit skill, it takes the kit's name, so when the kit lands it replaces Foreman's hand-written one (section 3).
-- **Not the portal's chat assistant.** That agent uses the running app on a person's behalf (K10 section 1). Foreman
-  builds the app.
-
-## 2. Foreman and the conductor
-
-The conductor skill (`.agents/skills/conductor/SKILL.md`) starts threads, briefs them, lands their work and keeps
-Aaron's view. Foreman does the same jobs at a smaller scale, for a different person, in a different repository:
-
-| | Conductor | Foreman |
+| Stage | What the firm produces | Orthograph's form of it |
 |---|---|---|
-| Builds | Orthograph, the framework | an app on Orthograph |
-| For | Aaron, as Orthograph's owner | the person who owns the app |
-| Runs | many threads at once, across milestones | one loop at a time, a few subagents |
-| State | `design/handoff.md`, the kanban skill's board, `STATE.md` | `foreman/` in the app's repository (section 4) |
-| Gate | milestone gates on `main` | each slice's journeys green, with a 🔍 pass |
+| Intake | what the person wants, and who they are | intake questions (the work app's `question`), the person's profile (section 4) |
+| Spec | the stories the app must tell | journeys, read back by the person (`design/frame/skills.md:106-107`) |
+| Blueprint | the declared app | `blueprint/`: things, machines, roles, operations; open points are `Blueprint.todo` |
+| Scaffold | code to fill | `ortho generate`: handler scaffolds, SDK, CLI, MCP, docs, portal |
+| Build | the working app | builder agents climb until `ortho prove` is green (the factory, K10) |
+| Ship and run | the app in staging and production | promotion, with the person's yes |
 
-**Do they share a core?** They should share the role skills, not the persona. The lessons show the same practices hold
-both ways: 23 of 24 are marked "both" (`design/process/lessons.md`, "At a glance"). The roles that carry those practices
-(author, reviewer) are the same jobs whether the app is Orthograph or Capxul. The persona differs: the conductor talks
-to Aaron about milestones and threads; Foreman talks to a person about their idea. Question 1 at the end puts this to
-Aaron, with the sketch.
+**The goal: a person never touches the code and still knows it's correct.** Aaron will read code for a while; other
+people shouldn't have to. They get that knowledge from the portal (section 7).
 
-## 3. Its parts, as a plugin
+**It is for us first.** Foreman builds Orthograph itself and Capxul. It is multi-purpose: the same routines run for any
+project.
 
-One plugin, shipped from the Orthograph repository, installed into the person's agent. Claude Code reads it as a plugin;
-Codex reads the same skill folders from `.agents/skills/`, the way this repository's skills already serve every agent
-(`AGENTS.md`, "Threads").
+**Where it is going.** An always-on, durable agent, like a Slack bot, that later runs on Pi Durable through the agent
+harness (H1) as part of the product itself: the same framework, the same skills, the same tools. Version zero is a
+Claude Code plugin with basic proactivity, and builds nothing heavy (section 6).
+
+**What it is not.** Not the factory: the factory (K10) is the building agents and their sandboxes, which Foreman drives.
+Not the agent kit: the kit (`design/frame/skills.md`, M3.12) is per-app skills for one job each; Foreman is the routines
+that use them, and takes a kit skill's name wherever it does the same job, so the kit replaces its hand-written copy.
+
+## 2. Why the blueprint
+
+Driven by a person, a blueprint looks over-engineered. Driven by agents, the structure is what lets one person scale
+their attention, the way Effect pays off once agents write the code. Everything that falls out of it is agent-native:
+the SDK, React hooks on top of it, the server, staging, production, tests, evals and hill climbing, and monitoring.
+Aaron: "a way to force a swarm of agents to not build slop: it might be verbose, but it's not slop." So Foreman never
+skips the blueprint to save time: an idea becomes declarations before it becomes code.
+
+## 3. One entry point: the conductor is Foreman, used on ourselves
+
+Decided by Aaron: there is one consistent way to deal with Orthograph. The conductor and Foreman are the same thing,
+not separate skills a person has to remember or wire together. So:
+
+- **One plugin, one entry point.** The person talks to Foreman. On Orthograph's own repository it runs the same
+  routines as on Capxul's: intake, blueprint, journeys first, climb, review, report.
+- **What the conductor skill holds today moves.** Starting and briefing threads becomes Foreman's subagents and side
+  sessions. `design/handoff.md` and the kanban board become the work app (section 5). The rules that are only about
+  this repository (milestone gates, `-check` and `-build` branches, the ratchet file) stay in `AGENTS.md`, which Foreman
+  reads like any project's rules.
+- **One copy of each role skill.** `author` and `reviewer` move into the plugin, worded for any Orthograph project;
+  `.agents/skills/` links to them, as `.claude/skills` already links to `.agents/skills` (`AGENTS.md`, "Threads").
+- **Superseding is done when the plugin lands, not in this draft.** The change that builds the plugin rewrites the
+  conductor and kanban skills and `design/handoff.md`'s opening, and lists each replaced phrase under `## Supersedes`.
+  Until then they stay live, because they are what is running the build today.
+
+## 4. It knows the person
+
+Foreman is stateful about the person as well as the project. It keeps their technical level and what they need to
+hear, and goes low-level or high-level for each person. Today that knowledge is hand-written for one person:
+
+```md
+<!-- AGENTS.md:91, on main -->
+- Aaron listens rather than reads: write to him as the `threads` skill says, "Talking to Aaron".
+```
+
+Foreman holds it as a thing in its own state (section 5), one per person:
+
+```ts
+// apps/work/blueprint/things/profile/thing.ts: proposed, in the work app beside K11's things
+import { Blueprint, Schema } from "orthograph";
+import { Person } from "../person/thing.ts";
+
+/** How deep to go by default: the code itself, the design (things, machines, rules), or only outcomes. */
+export const Depth = Blueprint.value(Schema.Literals(["code", "design", "outcome"]));
+/** How the person takes things in: heard (text-to-speech, often on a phone), seen (pictures, the portal), or read. */
+export const Channel = Blueprint.value(Schema.Literals(["voice", "visual", "text"]));
+
+export const Profile = Blueprint.thing({
+  description: "How one person wants to work with Foreman: how deep to go, how to tell them, what they check.",
+  code: "PF",
+  fields: {
+    id: Blueprint.id("prf"),
+    person: Person.fields.id,
+    depth: Depth,
+    channel: Channel,
+    readsCode: Blueprint.value(Schema.Literals(["yes", "for now", "no"])), // Aaron: "for now"
+    notes: Blueprint.text({ max: 2000 }), // what they care about, in their words; shown to them, never hidden
+  },
+});
+```
+
+Every routine reads the profile before it speaks: what height to start at, whether to say it or draw it, and whether
+to show code. Question 4 asks how Foreman learns it.
+
+## 5. Its state is an Orthograph app
+
+Decided by Aaron: Foreman's state is not files in the repository and not a separate tool. It is part of the
+framework. The project, the board, the requirements and the journeys are an Orthograph app, declared in a blueprint,
+and Foreman's own state is built with Orthograph.
+
+That app already has a design: the work system (F5), reshaped into the work board (K11). K11 even names Foreman's role
+in it, as the manager:
+
+```md
+<!-- design/decisions/K11-work-board.md:163-165, on main -->
+The manager is an agent of the agents feature (M4), declared with the work operations as its only tools, as in
+`frame/examples/factory.md`. Before M4 the manager is a person (Aaron, or a Claude Code session) calling the same
+operations through the CLI or MCP: the floor.
+```
+
+So Foreman version zero is that Claude Code session: the manager, plus intake, the person's profile and the routines in
+section 8. Its memory is the work app's things:
+
+| Foreman remembers | Held by | Where it is designed |
+|---|---|---|
+| the projects (Orthograph, Capxul) and each one's stage of life | `project`: new, with its repository and stage | question 1 |
+| what the person agreed to build | `goal`, agreed once | K11, "Words" |
+| the plan | `milestone` and `item`, each item with one done-when check | K11, things table (`K11-work-board.md:65-71`) |
+| the requirements still open | `question`: asked, answered or spiked | F5 call 6, K11 |
+| what waits on the person | `attention`: promote, money, credential, question, goal | F5 call 7, K11 |
+| who is working on what | `claim`, and later the agents run it names | K11, K10 |
+| decisions and why | `decision`: new, one per decision, with who made it | this record |
+| who the person is | `profile`: new (section 4) | this record |
+| the journeys | stay in the app's own blueprint, as code; items point at them by path | the canon |
+
+**Status is never stored.** Whether a journey is green, how many blanks are open and what is stale are read fresh from
+the app's model, `ortho prove` and the logbook (F5 call 4: "Facts stay in the logbook"). A status someone typed drifts,
+as the board did (lesson 18); a status read from the tools can't.
+
+**"Held in a Durable Object", made exact.** The work app's things are database rows, not actors, because the board
+needs list reads:
+
+```md
+<!-- design/decisions/F5-work-blueprint.md:50, on main -->
+| 3 | **Missions and runs are database rows, not actors.** The compiler refuses a list read on a thing that lives as
+actors, and the board and sidebar need lists. The manager's Durable Object (one per mission) and the run's (one per
+run) are agents keyed by those ids that call these operations over MCP. They hold a conversation or a harness, never
+the mission's state. |
+```
+
+So the rows live in the work app's database, and Foreman's always-on loop, when it comes, is a Durable Object running
+Pi Durable that calls the work app's operations. Both run in workerd, locally under `ortho dev` and on Cloudflare later.
+
+**How Foreman reads and writes it.** Through the work app's generated tools, never by editing data: its `work` CLI and
+MCP server are generated from the blueprint (`examples/work/README.md:11-12` on `goal/stage-1`). Foreman asks a question
+with the `question.ask` operation, and the person answers it in the portal or by voice through Foreman.
+
+**How the portal shows it.** For free: the work app is an Orthograph app, so its portal is generated like any other,
+and K11's board is an extension of the one portal, with "Needs you" pinned on top (K11, Aaron's answer to Q4).
+
+### What has to exist
+
+| Piece | Today | Where it is planned | Version zero needs it? |
+|---|---|---|---|
+| The work blueprint in K11's shape (goal, milestone, item, claim, board, question, attention) | F5's shape is declared: 26 operations in `examples/work` on `goal/stage-1` | M3.05 makes it a feature package | yes, as declarations only: K11 already decided the shape |
+| The work app's handlers | "None is written yet" (`examples/work/README.md:13` on `goal/stage-1`) | M3.05 | yes: question 2 |
+| `project`, `decision`, `profile` | not declared | this record | yes; three small things |
+| Facts from the logbook | a blank waiting on L3.01 (F5 call 4) | L3.01 | no: Foreman reads `ortho` on the machine until then |
+| An agent acting for a person | `Principal` is `anonymous` or `person` (F5, "Open, for the language") | M2.01, M2.03 | no: version zero runs with test people locally |
+| Somewhere the work app runs | `runs: "on this machine"`, a local database (`examples/work/blueprint/environments/local.ts:3-8` on `goal/stage-1`) | staging, later | yes, locally: question 3 |
+| The board inside the portal | designed (K11, `spikes/kanban-components`) | M3 | no: the work app's generated portal pages first |
+| The always-on agent | Pi Durable behind H1's seam; durability proven in workerd (`H1-agent-harness.md:28`) | H1's A1 to A7, the manager workflow M3.10, the join M4.13 | no |
+
+## 6. Proactivity: why a plugin, not a skill
+
+A skill only runs when someone asks. A plugin adds hooks and schedules, which is how Foreman comes back to the person
+without being asked. Version zero does the basic version now and builds nothing heavy:
+
+| Waker | Version zero | What Foreman does |
+|---|---|---|
+| **Session start** | a `SessionStart` hook loads the `foreman` skill | the wake routine, then says where things stand |
+| **A subagent or side session finishes** | the harness's own notice | records the fact, starts the next item |
+| **The person speaks** | their message | answers, then drives: the next step, or one batched ask |
+| **A scheduled check** | a scheduled task on the person's machine, set up with their yes on first run | the wake routine, read-only; anything that needs the person becomes an `attention` |
+| **Stopping** | a `Stop` hook: is there work committed but not pushed? | pushes it (lesson 11) |
+
+```jsonc
+// plugins/foreman/hooks/hooks.json: proposed, not built
+{
+  "hooks": {
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "echo 'Run the foreman skill before anything else.'" }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "test -z \"$(git log @{u}.. --oneline 2>/dev/null)\" || { echo 'Commits not pushed.' >&2; exit 2; }" }] }]
+  }
+}
+```
+
+**The wake routine**, the same every time: read the person's profile; read the project's goals, items, claims,
+questions and attention from the work app; gather the facts (`ortho check`, `ortho model --json`, `ortho impact`, the
+last prove report, open pull requests and CI); record what changed; tell the person, at their height, in their channel;
+then drive.
+
+**Later**, the durable agent wakes on events and alarms instead of hooks: the manager's workflow waits "on durable
+deferreds and a daily clock" (M3.10), and finished runs come back through `runFinished` (M4.13).
+
+**Harnesses: Claude first, Codex later, by migration.** The skills are `SKILL.md` folders that Codex already reads from
+`.agents/skills/`; the hooks and the schedule are the part that has to be migrated.
+
+## 7. The portal is central
+
+People don't know what's happening because there is no portal; the portal is the fix. It is how a person who never
+reads code still knows the app is correct:
+
+| The person wants to know | What shows it | Where |
+|---|---|---|
+| Does it do what I said? | each journey as a story, green or red | the app's portal, from `ortho prove` |
+| What can happen to an invitation? | the thing's machine, drawn; a journey walked across it | the portal; the `machine-journey` skill animates it (`.agents/skills/machine-journey/SKILL.md:3`, on main) |
+| Who may do what? | roles and refusals per operation | the portal's operation pages |
+| Did a change break anything? | the grid and what `ortho impact` made stale | the portal, after each prove |
+| Where are we, and what do you need from me? | the board, with "Needs you" on top | the work app's portal (section 5) |
+
+Version zero is honest about the gap: the portal shows live calls only during a prove (the model draft, section 5),
+and the board extension is M3. Until then Foreman says it, and draws it when the profile says visual.
+
+## 8. Personality is routines
+
+Aaron: personality means routines and workflows, and structuring and driving the conversation, the same way every
+time. Foreman acts differently at each stage of a project's life:
+
+| Stage | Routine | It asks | It shows |
+|---|---|---|---|
+| Intake | **Requirements gathering**: who the person is (the profile), the idea in one sentence in their words, who uses it, what must never happen, what exists already | batched, each with a recommendation | the idea back, in one breath |
+| Spec | journeys as stories, by the journey author | "is this what you meant?" for each story | the stories; the machine drawn |
+| Blueprint | declare things and operations; unknowns become `Blueprint.todo`, never guesses | only product forks | what is declared and what is blank |
+| Scaffold and build | walk each journey with a throwaway handler before calling a slice ready (lesson 2); climb one slice at a time unless nothing is shared | nothing, unless blocked | the board moving |
+| Prove and review | a 🔍 that wrote none of it; findings become failing checks first | nothing | the grid |
+| Ship | promotion | always: production is the person's | what changes for users |
+| Extract | at a piece's second real user, never its first | always | the plugin and what mounts it |
+
+**How it explains.** By the profile's channel. For voice, the rules in "Talking to Aaron"
+(`.agents/skills/threads/SKILL.md:55-76`): short sentences, answer first, no bare IDs. For visual, the house skills:
+`machine-journey` for a lifecycle, `trace-waterfall` for one call in time, `visuals` for the rest, and the portal itself.
+
+**The working rules**, in order, every turn:
+
+1. Start by saying where we are, from the top down: the project and its stage, what moved, what I need, what's next.
+2. Drive. End every turn with the next step started, or one batched ask. Never "let me know what you'd like".
+3. Plain words before labels; the canon's words; no slice numbers or decision IDs alone.
+4. Check before you claim: anything said about the code or the app is read first-hand that turn (lesson 16).
+5. Separate the judge from the judged: never write a handler and the journey that tests it in the same role (lesson 5).
+6. Push before you report (lesson 11).
+7. Ask only when blocked, and batch it; otherwise decide, record a `decision`, and say so.
+
+## 9. Its parts, as a plugin
 
 ```text
 plugins/foreman/
   .claude-plugin/plugin.json      name, version, description
   skills/
-    foreman/SKILL.md              the persona and the wake routine; loaded first, every session
-    where-are-we/SKILL.md         read the facts, rewrite foreman/now.md, say it aloud
-    ideate/SKILL.md               the ideation loop
-    climb/SKILL.md                the dev loop
+    foreman/SKILL.md              the entry point: the working rules, the wake routine, which routine runs next
+    intake/SKILL.md               requirements gathering and the profile
+    shape/SKILL.md                spec and blueprint: journeys read back, declarations, blanks
+    climb/SKILL.md                scaffold, build, prove, review
+    ship/SKILL.md                 promotion, with the person's yes
     extract/SKILL.md              the extraction loop
-    ask/SKILL.md                  putting a decision to the person: batched, for the ear, recommendation first
-    explain/SKILL.md              explaining Orthograph's model; reference: the model draft's sections 1 and 2
+    explain/SKILL.md              explaining Orthograph and this app, at the profile's height and channel
+    author/SKILL.md               moved from .agents/skills, one copy (section 3)
+    reviewer/SKILL.md             moved from .agents/skills, one copy
   agents/
-    journey-author.md             writes journeys from declarations, never handlers
+    journey-author.md             journeys from declarations, never handlers
     checks-author.md              makes journeys executable; the author skill's six proofs
     climber.md                    fills handlers until prove is green; never touches journeys
-    framework-builder.md          fixes a gap in Orthograph itself, in Orthograph's repository, never the app's
+    framework-builder.md          fixes a gap in Orthograph, in Orthograph's repository, never in the app
     reviewer.md                   the 🔍: every door, one probe each; wrote none of what it reviews
-  hooks/hooks.json                session start: wake; stop: is the state saved and pushed?
-  reference/
-    model.md                      the model draft's sections 1 and 2, pinned to the version shipped
-    lessons.md                    design/process/lessons.md, pinned
+  hooks/hooks.json                session start and stop (section 6)
 ```
 
-### The skills
+The subagents are the roles this repository already runs. Each brief points at the skill holding its practice, so each
+practice has one copy (lesson 13). The split between journey author and climber is the one rule Foreman never bends.
+An app made by `ortho new` has no `builder-paths` CI job, so in version zero the briefs and the 🔍 hold that line; a
+generated job belongs in the preset (the Capxul test drive, finding 12).
 
-| Skill | Trigger | Does | Done when | Kit skill it becomes |
-|---|---|---|---|---|
-| `foreman` | every session start (the hook loads it) | sets the way of working (below), then runs `where-are-we` | the person has heard where things stand | none: the persona stays |
-| `where-are-we` | waking; "where are we"; after any subagent finishes | section 5's wake routine | `foreman/now.md` is current and said aloud | `describe-this-app` (`design/frame/skills.md:92`) |
-| `ideate` | a new idea, or "let's add …" | the ideation loop, below | a slice whose journeys fail on empty handlers and are shown satisfiable | `shape-an-idea` (`design/frame/skills.md:100`) |
-| `climb` | a slice is ready | the dev loop, below | every journey in the slice green, the grid not worse, a 🔍 pass | the builder bundle (`design/frame/skills.md:275`) |
-| `extract` | a piece has its second real user | the extraction loop, below | the app mounts the plugin with one file, and its copy is deleted | none yet (`ortho new feature` is M2.10) |
-| `ask` | Foreman is blocked on the person | section 7's asking rules | the answer is a decision file | none |
-| `explain` | "what is a …", "why does …" | explains from `reference/model.md` and this app's own files | the person can say it back | none |
+## 10. Who decides, and what it always asks
 
-### The subagents: the existing roles, reused
-
-These are the roles this repository already runs, under the names Aaron's brief gives them. Each file is a role brief
-that points at the skill holding its practice, so there is one copy of each practice (lesson 13).
-
-| Subagent | Today's role | Practice it carries | May write | Never |
-|---|---|---|---|---|
-| journey author | ✍️ author, journeys half (`threads` skill) | proofs 1 to 3 of the `author` skill; journeys as stories the person reads back | `journeys/`, `blueprint/starting-worlds/` | `src/` |
-| checks author | ✍️ author, checks half | proofs 4 to 6, the hostile pass (`.agents/skills/author/SKILL.md:24-38`) | journeys' executable steps | `src/` |
-| climber | 🔨 builder, as Goal 3's climber | prove after every handler change; the tool writes the curve (lesson 22) | `src/`, one slice's handlers | journeys, evals, `generated/` |
-| framework builder | 🔨 builder, in Orthograph's repository | a gap in Orthograph becomes a snag with a failing check, built there, never patched in the app | Orthograph's repository, on its own branch | the app |
-| reviewer | 🔍 reviewer (`.agents/skills/reviewer/SKILL.md`) | every door, one probe each; unanswered findings block | nothing | any file |
-
-The split between journey author and climber is the one rule Foreman never bends: whoever is judged never edits the
-judge (lesson 5). In version zero, separate subagents with separate briefs hold it. In the person's repository there is
-no `builder-paths` check yet; section 8 says what Foreman does about that.
-
-### The workflows: the three loops
-
-Each loop is the model draft's (section 3), with what Foreman adds in **bold**.
-
-**The ideation loop: from an idea to a slice ready to build.**
-
-1. Name the idea in one sentence, in the person's words.
-2. **Read what exists.** In an existing codebase, read it before declaring anything; say what the blueprint will keep
-   and what it will drop.
-3. Declare the things and operations: `ortho add thing`, `ortho add operation`; the machine and rules where known.
-   Unknowns are `Blueprint.todo("…")`, never guesses.
-4. **Batch the open questions** (section 7) and ask them, each with a recommendation.
-5. Journeys, written by the journey author as stories the person reads back. The person's yes is a decision file.
-6. **Walk each journey with a throwaway handler** before calling the slice ready (lesson 2). A journey that can't be
-   walked is a gap: in the blueprint (back to step 3), or in Orthograph (a framework snag, section 8).
-7. The checks author makes them executable; `ortho prove --empty` is red on every behaviour step.
-
-**The dev loop: from a ready slice to green.** Edit, `ortho generate`, `ortho check`, `ortho prove`, `ortho impact`
-(model draft, section 3). Foreman runs the climber on it, and adds: **one slice at a time unless nothing is shared**
-(lesson 9); **findings become failing checks first** (lesson 4); **a 🔍 before the merge** (lesson 6).
-
-**The extraction loop: from app code to a plugin.** The model draft's eight steps, from "find the seam" to "delete the
-copy". Foreman adds the trigger: **a piece is extracted at its second real user, never its first** (the model draft's
-question 4), and the person says yes before anything is published.
-
-### The persona, as working behaviour
-
-The `foreman` skill's body is these rules, in this order. They are what Foreman does, not how it sounds.
-
-1. **Start every session by saying where we are.** Three sentences: the idea and the loop, what moved since last time,
-   what I need from you. Then detail only if asked (lessons 16 and 18).
-2. **Drive.** End every turn with the next step already started, or with one batched ask. Never "let me know what
-   you'd like to do".
-3. **Plain words before labels.** No slice numbers, decision IDs or pull request numbers alone; say what each does.
-4. **Check before you claim.** Anything said about the code or the app's state is read first-hand that turn
-   (lesson 16). Status comes from runs, never from memory (lesson 22).
-5. **Write for the ear.** Short sentences, answer first, numbers and links at the end (`.agents/skills/threads/SKILL.md:55-76`).
-6. **Separate the judge from the judged.** Never write a handler and the journey that tests it in the same role.
-7. **Push before you report.** Every change, including Foreman's own state, is committed and pushed (lesson 11).
-8. **Ask only when blocked, and batch it** (`AGENTS.md`, "Standing rules"); otherwise decide, record why, and say so.
-
-## 4. Its state, floor-first
-
-### Version zero: files in the person's repository
-
-```text
-foreman/
-  now.md              where we are, rewritten on every wake; never edited by hand; the page the person reads or hears
-  state.json          the one owner of Foreman's intent: the idea, the plan, the asks, the decisions index, the runs
-  decisions/          one file per decision, dated, with who made it; replaced words kept with "Superseded by"
-    0001-<slug>.md
-  journal.jsonl       append-only: each wake, ask, answer, run started and finished, with UTC times from `date -u`
-```
-
-Only Foreman writes `state.json` and `now.md`. Subagents never do: they produce facts (a branch, a prove report, a
-review verdict), and Foreman reads them on its next wake. One writer means no merge conflicts on the state, which is the
-failure the shared totals table had (lesson 13).
-
-**The shape of `state.json`.** It mirrors the things it will become (below), so moving it is a move, not a rewrite: the
-same trick H1 uses for its run states (`H1-agent-harness.md:305-310`).
-
-```ts
-// foreman/state.json, version 0. The shape the Foreman plugin's skills read and write.
-type ForemanState = {
-  readonly version: 0;
-  readonly plugin: string;            // the Foreman version that last wrote this file (lesson 12)
-  readonly idea: string;              // one sentence, the person's words
-  readonly loop: "ideation" | "dev" | "extraction";
-  readonly slices: ReadonlyArray<{
-    readonly id: string;              // "company-and-members"; plain words, never "S1"
-    readonly title: string;
-    readonly doneWhen: string;        // the check that proves it, word for word
-    readonly journeys: ReadonlyArray<string>; // journey files; their green or red is read from prove, never stored
-  }>;
-  readonly asks: ReadonlyArray<{
-    readonly id: string;
-    readonly question: string;        // one sentence for the ear
-    readonly recommended: string;
-    readonly blocks: ReadonlyArray<string>;   // slice ids it holds up
-    readonly kind: "question" | "money" | "credential" | "promote" | "extract"; // K11's attention kinds, plus extract
-    readonly askedAt: string;
-  }>;
-  readonly decisions: ReadonlyArray<{ readonly id: string; readonly file: string; readonly by: "person" | "foreman" }>;
-  readonly runs: ReadonlyArray<{
-    readonly id: string;
-    readonly role: "journey-author" | "checks-author" | "climber" | "framework-builder" | "reviewer";
-    readonly slice: string;
-    readonly branch: string;
-    readonly startedAt: string;
-  }>;
-  readonly limits: { readonly usdPerDay: number }; // the person's cap; Aaron's is 10 (AGENTS.md)
-};
-```
-
-**What is never stored:** whether a journey is green, how many blanks are open, what is stale. Those are read fresh on
-every wake from `ortho prove`, `ortho check` and `ortho impact`. A status Foreman typed would drift, as the board did
-(lesson 18); a status read from the tools can't.
-
-### How the portal reads it
-
-Not at all, in version zero. The portal is generated from the app's model (`design/portal.md`, "The frame"), and
-Foreman's state is not in the model. The person reads `foreman/now.md` on GitHub or in their editor, or hears it at
-session start. That is the floor, and it ships now.
-
-The next step, once the first feature plugin has been mounted end to end (the model draft says none has, section 3), is
-to make Foreman's state a feature plugin of its own, `@orthograph/foreman`, mounted in the app's development
-environment. Its things are `Slice`, `Ask`, `Decision` and `Run`, with the shapes above. Then the portal shows them with
-no portal code: a "foreman · feature" group in the tree, Foreman's asks in the "Needs you" count, which reads K11's
-`attention` slot (`design/portal.md:163-164`; `K11-work-board.md:71`), and Foreman's skills read and write its state
-through the generated SDK and MCP tools instead of editing JSON. Question 3 at the end puts this to Aaron.
-
-### Later: the same state in a durable actor
-
-H1 already designs a run as a declared thing that lives as an actor (`H1-agent-harness.md:305-310`) and the chat as a
-Run of `@orthograph/agents` (K10 section 1). Foreman's later form is one long-lived `@orthograph/agents` agent per app,
-whose memory is the `@orthograph/foreman` things above, stored in its own Durable Object. Its wake becomes an alarm or an
-event, not a hook. Nothing in version zero blocks that: the file shapes are the things' shapes, and the skills become the
-agent's skills unchanged (H1.6 reads the same `SKILL.md` layout, `H1-agent-harness.md:175-178`).
-
-## 5. Proactivity: what wakes Foreman
-
-An agent in a harness acts only when something starts a turn. Version zero uses what the harness already gives:
-
-| Waker | In version zero | What Foreman does |
-|---|---|---|
-| **Session start** | a `SessionStart` hook in `hooks/hooks.json` prints `foreman/now.md` and loads the `foreman` skill | the wake routine, below, then says where we are |
-| **A subagent or side session finishes** | the harness's own completion notice | read what it produced, update state, start the next step |
-| **The person speaks** | their message | answer, then drive: the next step or one batched ask |
-| **Stopping** | a `Stop` hook checks `foreman/` has nothing uncommitted or unpushed, and says so once if it has | commit and push the state (lesson 11) |
-| **CI finishes** | nothing reaches a local session. The next wake reads CI through `gh` | treat red as the first thing to fix |
-| **A schedule** | not in version zero. Later, a scheduled task opens a session each morning to run `where-are-we` and leave `now.md` current | the same wake routine, read-only |
-
-Later, in the durable form, CI events and the app's own events (`agents.events.runFinished`, K10 section 5) wake it
-directly. Question 4 asks how far version zero should reach.
-
-**The wake routine** (the `where-are-we` skill), in order:
-
-1. Read `foreman/state.json` and the journal's last lines.
-2. Gather the facts: `ortho check` (blanks, drift), `ortho model --json` (what is declared), `ortho impact` (what is
-   stale), the last prove report, `git status`, open pull requests and their CI.
-3. Reconcile: a run that finished, a check that went red, an answer that arrived. Each becomes a journal line.
-4. Rewrite `foreman/now.md` from the state and the facts.
-5. Say it: three sentences, for the ear.
-6. Drive: start what is blocked first (lesson 19), then the next slice step; or put the batched ask.
-
-## 6. Legibility: where you are, in plain words
-
-This is the problem Foreman solves first. Aaron gets lost in a multi-thread build; the board went stale; a sitrep came
-at the wrong height (lessons 16 and 18). Foreman's answer has three parts.
-
-**One page, always current, never hand-edited.** `foreman/now.md`, rewritten on every wake:
-
-```markdown
-# Where we are: Capxul, 20 November 2026, 14:05 UTC
-
-**In one breath.** We're shaping the first slice: a company, its members, their invitations and signing in with a
-wallet. The blueprint compiles with four open blanks. Nothing is built yet.
-
-**I need from you.** Two answers, both blocking the membership journeys. My recommendation is first in each.
-1. Can a company have more than one owner? I'd say yes: directors are co-owners.
-2. Can an invitation be withdrawn, and does it expire? I'd say the founder can revoke it, and it doesn't expire.
-
-**Moving.** Nothing running.
-
-**Next.** When you answer, I start the journey author on company and members.
-
-## The map
-| Loop | Slice | Journeys green | Blanks | Stale |
-|---|---|---|---|---|
-| ideation | company and members | not built | 4 | none |
-| not started | invitations | | | |
-| not started | wallet sign-in | | | |
-```
-
-**Spoken at every wake, in the same order:** the idea and the loop, what moved, what I need, what's next. Big picture
-first, detail on request (lesson 16).
-
-**In the portal, later:** the same page as the `@orthograph/foreman` group (section 4), with the asks in "Needs you".
-
-The map has three heights, and Foreman always speaks from the top down: the **loop** (ideation, dev, extraction), the
-**slice** (company and members), and the **step** (journeys written, checks fair, climbing, reviewed). A person never
-has to know what a thread is.
-
-## 7. Guardrails, and what Foreman always asks
-
-**Always asks, and waits:**
+Settled by Aaron for the manager, and it holds for Foreman: a goal is agreed once, and then "you give one authority and
+the manager carries as much authority as possible" (`K11-work-board.md:340-343`). Foreman decides how: the blueprint's
+shape, the order of slices, which role does what, fixes that keep a proved contract, merging in the app's repository
+once CI is green and a 🔍 has passed. It always asks, and waits, before:
 
 | Before | Why |
 |---|---|
-| any decision about what the app does or who may do it | the product is the person's (`design/frame/skills.md:106`: the read-back is "a person's step, never the agent's") |
+| agreeing a goal, and anything about what the app does or who may do it | the read-back is "a person's step, never the agent's" (`design/frame/skills.md:107`) |
 | loosening a contract that is already proved | `design/frame/skills.md:417`, W4 step 1 |
-| spending past the person's daily cap, or starting anything in the cloud | `AGENTS.md`: $10 a day for Aaron; the cap is in `state.json` |
-| creating or using a credential | `AGENTS.md`: never create a cloud credential without a written yes |
-| anything outward-facing or irreversible: production, publishing a package, deleting data, a message to anyone | the standing rules |
-| extracting a plugin | it changes what other apps mount |
-| editing Orthograph itself | it is another repository with its own owner and gate |
+| spending past the person's cap, or anything in the cloud | `AGENTS.md:82`: $10 a day for Aaron |
+| creating or using a credential | `AGENTS.md:86` |
+| production, publishing, deleting data, a message to anyone | outward-facing or irreversible |
+| extracting a plugin, or editing Orthograph from an app | it changes what other apps mount; another repository's gate |
 
-**Decides alone, records why, and says so:** how the blueprint is shaped, the order of slices, which role does what,
-fixes that keep a proved contract, merging its own pull requests in the app's repository once CI is green and a 🔍 has
-passed, if the person has said yes to that once (a decision file).
+**How it asks:** batched, a recommendation first, as one short numbered list for the ear. A design fork with code to
+compare also goes in writing in the grill format, which the plugin's `ask` routine holds as its own copy. Each answer
+becomes a `decision` the same turn.
 
-**How it asks:** batched, each question with a recommendation first, as one short numbered list for the ear. A design
-fork with code to compare also goes in writing in the grill format, which the plugin's `ask` skill holds as its own copy
-(Orthograph's copy lives in a private file of Aaron's, which an app's repository can't read); a product question doesn't need it (the Capxul test drive, "Where the skills fell short", 4). An answer becomes
-a decision file the same turn.
-
-**Money.** Each subagent run carries a budget. Before starting runs, Foreman checks the day's spend against
-`limits.usdPerDay`, the way H2.9 reserves before a run (`H2-agent-runs-and-benchmarks.md:233-244`). Version zero can only
-estimate from the harness's reported cost; past the cap it stops starting runs and asks.
-
-**Machine and secrets.** The standing rules apply unchanged: stop only what you started, by process id; never print a key
-(lessons 10 and 24).
-
-## 8. Its tools
+## 11. Its tools
 
 | Tool | What Foreman uses it for | Today |
 |---|---|---|
-| `ortho model --json` | what is declared, for the map and for explaining | built (`packages/cli/src/main.ts:23`) |
+| `ortho model --json` | what is declared | built (`packages/cli/src/main.ts:23`) |
 | `ortho add thing`, `operation`, `read`, `journey` | declaring | built (`packages/cli/src/main.ts:139`) |
 | `ortho check` | blanks, types, rules, drift | built (`packages/cli/src/main.ts:145`) |
 | `ortho generate` | outputs and scaffolds | built (`packages/cli/src/main.ts:157`) |
-| `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`packages/cli/src/main.ts:65`); `--report` is on `goal/stage-1` (the model draft, section 3) |
+| `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`packages/cli/src/main.ts:65`) |
 | `ortho impact` | what a change made stale | built (`packages/cli/src/main.ts:169`), local only |
 | `ortho brief <operation>` | a climber's brief | built (`packages/cli/src/main.ts:235`) |
-| `ortho dev` and the portal | showing the person their app | built (`packages/cli/src/main.ts:37`); the portal shows live calls only during a prove (the model draft, section 5) |
-| the factory | builder agents | version zero: Claude Code subagents and sessions, each in its own worktree. Later: `factory.roster.for(kind)` and `agents.run.start` (`K10-factory.md:209-216`) |
-| `gh` | pull requests, CI | the person's own GitHub sign-in |
+| `ortho dev` and the portal | running an app, its world and its portal | built (`packages/cli/src/main.ts:37`) |
+| the work app's `work` CLI and MCP tools | Foreman's own state | generated; handlers not written (section 5) |
+| the factory | builder agents | version zero: Claude Code subagents and sessions in their own worktrees; later `agents.run.start` (`K10-factory.md:209-216`) |
+| `gh` | pull requests and CI | the person's own GitHub sign-in |
 
-**What happens when Orthograph falls short.** Foreman will hit gaps in the framework, as Capxul's test drive does
-(`design/foreman/test-drive-capxul.md`). The rule: a gap is never patched in the app. Foreman writes it as a snag with
-a journey that can't be walked, and either waits with an ask or, where the person owns Orthograph too, starts the
-framework builder in Orthograph's repository. The app keeps a `Blueprint.todo` naming the gap until then.
+**When Orthograph falls short**, as Capxul's test drive shows it will (`design/foreman/test-drive-capxul.md`), the gap
+is never patched in the app. It becomes a framework item with a journey that can't be walked, and the app keeps a
+`Blueprint.todo` naming it until Orthograph closes it.
 
-**A guard the person's repository lacks.** Orthograph's own CI refuses a builder branch that touches the checks
-(`builder-paths`). An app made by `ortho new` has no such job. Version zero holds the line by role briefs and by the 🔍
-checking it (reviewer item 2); a generated `builder-paths` job for apps belongs in the preset's CI, and is listed as a
-framework finding in the test drive.
+## 12. What this changes
 
-## 9. What this changes, and what it doesn't
-
-- No live document's words change, so this record has no `## Supersedes` section. The agent kit
-  (`design/frame/skills.md`) stands: Foreman is the persona and loops over it, and takes the kit's skill names where
-  they overlap.
-- `design/handoff.md`'s decision list gains `F9`.
-- Building it is a goal of its own, after Aaron's answers: the plugin folder, its hooks, and a first run on Capxul with
-  Aaron as the person.
-
-**On the name.** "Foreman" read aloud is the same sound as "Forman", the framework's retired name, which is still in
-its dated records (`design/naming.md:45`). The name search already noted that "heard aloud it is 'foreman'"
-(`design/naming-search.md:139`). Aaron listens to text-to-speech, so in a sentence about the old design the two can't be
-told apart. It is his name to keep; this record keeps it.
+- No live document's words change in this draft, so there is no `## Supersedes` section yet; section 3 says which
+  change will carry one.
+- `design/handoff.md`'s decision list gains F9.
+- Building it is a goal of its own, after Aaron's answers below. Its first project is decided by this record: Foreman's
+  own work app, in Orthograph's repository, which makes Foreman's first user Orthograph itself. Capxul is second.
 
 ---
 
 ## The forks for Aaron
 
+Aaron's answers settled five of the first draft's forks, which are dropped: whether the conductor and Foreman share a
+core (they are one thing, section 3), where the state lives (an Orthograph app, section 5), how the portal shows it (it
+falls out, section 5), what wakes it (hooks and schedules now, section 6), and who decides (K11's one agreement per goal,
+section 10). Four remain.
+
 Shared terms for this round:
 
-- **The person:** whoever builds an app with Foreman; for Capxul, you.
-- **Role skills:** the skills that carry a role's practice: `author` and `reviewer` today, in `.agents/skills/`.
-- **The state:** the files in section 4, `foreman/state.json`, `now.md`, `decisions/` and `journal.jsonl`.
+- **The work app:** the Orthograph app that holds Foreman's state: F5's blueprint, reshaped to K11, in
+  `examples/work` today.
+- **The person:** whoever builds with Foreman; for Capxul and Orthograph, you.
 - **Floor:** the smallest version that does the real thing now.
 
-## Q1 — Do the conductor and Foreman share one copy of the role skills?
+## Q1 — Is there one work app for all your projects, or one mounted into each app?
 
-**The problem, in code.** The practices that make reviews and checks trustworthy live in two skills that are written for
-this repository: they cite its milestones and branches. Foreman needs the same practices for an app. Copy them, and the
-next lesson reaches one copy and not the other, which is exactly how the author skill reached the goal branch eight
-hours late (lesson 12).
+**The problem, in code.** K11 designs the work feature as a mount inside an app:
 
-```md
-<!-- .agents/skills/author/SKILL.md:24-26 -->
-5. **It can't be passed hollow.** List what the check reads: each field, element, row, link and type, and each input
-   it judges (every recorded answer, every state, every role). For each, plant one wrong output for every way below
-   that applies, and show it fails:
+```ts
+// design/decisions/K11-work-board.md:51-58, on main
+// blueprint/features/work.ts: the mount is `work`
+import { Blueprint } from "orthograph";
+import work from "@orthograph/work";
+
+export default Blueprint.use(work, (w) => [
+  w.choose(w.choices.workers.people),          // `agents` once M4.13 lands: dispatch starts agents-feature runs
+  w.authority([owner]),                        // who may agree goals and close in person; signals from them skip the inbox
+]);
 ```
 
-```md
-<!-- .agents/skills/threads/SKILL.md:24 -->
-| ✍️ | Author | Writes the journeys and checks for a step from its declarations, before any build, and proves each check fair (the `author` skill) | The journeys fail on empty handlers, in a pull request into the layer, with the `author` skill's six proofs |
-```
+But Foreman's first project is Orthograph, which is not an Orthograph app and has no blueprint to mount into. And a
+mount is app-wide: `use` takes the plugin and its verbs, nothing about environments
+(`packages/orthograph/src/modules/plugins/service.ts:31` on `goal/stage-1`), so a mount in Capxul ships Capxul's build
+board to Capxul's production.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| `.agents/skills/author`, `reviewer` | they would move or be linked |
-| `.claude/skills`, `.claude/agents/reviewer.md` | links into `.agents/skills/` today (`AGENTS.md`, "Threads") |
-| Foreman's five subagents | each points at a role skill |
-| the Scribe's proposals | a skill change must reach both users (lesson 12) |
+| `examples/work` | becomes `apps/work`, or a package every app mounts |
+| Capxul's blueprint | gains a mount, or doesn't |
+| the portal | one board for everything, or one per app |
+| M3.05 | "the work blueprint moves into a package, mounted by `examples/work`" |
 
 **The options**
 
-**Today** — two role skills in `.agents/skills/`, written for building Orthograph; nothing for an app.
+**Today** — F5 already says the work app stands alone and moves once it runs:
 
-**A · One copy in the plugin, linked from here** (recommended)
-```bash
-# the role skills move into the plugin, worded for any Orthograph project;
-# this repository links to them, as .claude/skills already links to .agents/skills
-plugins/foreman/skills/author/SKILL.md
-plugins/foreman/skills/reviewer/SKILL.md
-.agents/skills/author   -> ../../plugins/foreman/skills/author
-.agents/skills/reviewer -> ../../plugins/foreman/skills/reviewer
-# what is only about this repository (branch names, -build, the ratchet file) stays in AGENTS.md and the conductor skill
+```md
+<!-- design/decisions/F5-work-blueprint.md:48, on main -->
+| 1 | **Work is a project, `examples/work`.** It moves to `apps/work` when its handlers are built and it is deployed.
 ```
 
-**B · Two copies**
-```bash
-.agents/skills/author/SKILL.md              # for building Orthograph
-plugins/foreman/skills/author/SKILL.md      # copied, then edited for apps
+**A · One work app, every project in it** (recommended)
+```ts
+// apps/work/blueprint/things/project/thing.ts: proposed
+import { Blueprint, Schema } from "orthograph";
+
+export const Stage = Blueprint.value(Schema.Literals(["intake", "spec", "blueprint", "build", "live"]));
+
+export const Project = Blueprint.thing({
+  description: "One thing being built: Orthograph itself, or Capxul.",
+  code: "PJ",
+  fields: { id: Blueprint.id("prj"), name: Blueprint.text({ max: 80 }), repository: Blueprint.text({ max: 200 }), stage: Stage },
+});
+// each goal belongs to a project; the board filters by project
 ```
 
-**C · Foreman is the conductor**
-```bash
-# one persona for both; .agents/skills/conductor becomes a Foreman mode
-plugins/foreman/skills/foreman/SKILL.md     # "if this repository is Orthograph, run threads and milestones"
+**B · Mounted into each app it builds**
+```ts
+// capxul/blueprint/features/work.ts
+import { Blueprint } from "orthograph";
+import work from "@orthograph/work";
+export default Blueprint.use(work); // Orthograph itself has no blueprint to put this in
+```
+
+**C · Both: one work app now, and each live app later mounts work for its own production signals**
+```ts
+// now: A. Later, when Capxul is live, its alerts and failing checks reach the inbox of the one work app
+// through K11's signals, rather than a second board inside Capxul.
 ```
 
 **You do X → what happens**
 
-| Scenario | A · One copy, linked | B · Two copies | C · Foreman is the conductor |
+| Scenario | A · One work app | B · Mounted in each app | C · Both |
 |---|---|---|---|
-| The Scribe finds a new review miss | one edit reaches both | two edits, and one gets forgotten | one edit |
-| Foreman reviews Capxul | the same 🔍 that reviews Orthograph | a copy that may lag | the same |
-| You talk to the conductor about milestones | unchanged | unchanged | it speaks as Foreman, with app words |
-| A role skill needs a line only Orthograph needs | it goes in `AGENTS.md`, not the skill | edit one copy | a branch inside the skill |
+| You ask "where are we?" across Orthograph and Capxul | one board, filtered by project | two boards, and none for Orthograph | one board |
+| Capxul goes to production | its build board stays in the work app | ships with Capxul | stays out |
+| A second person builds their own app | gets their own work app | their app carries it | their own work app |
+| Capxul raises an alert | it reaches the work app as a signal (K11) | it lands on Capxul's own board | as A |
 
 **Rubric**
 
-| Axis | A | B | C |
+| Axis | A · One work app | B · Mounted in each | C · Both |
 |---|---|---|---|
-| Floor-first | ✅ a move and two links | ✅ a copy, today | ⚠️ rewrites the conductor first |
-| Reversibility | ✅ undo the links | ✅ trivial | ❌ hard to split again |
-| Blast radius | ⚠️ two skills reworded | ✅ none | ❌ every thread's brief |
-| Correctness | ✅ one owner per practice | ❌ two owners drift | ✅ one owner |
-| Fit | ✅ the same link pattern as `.claude/skills` | ⚠️ against "one fact, one owner" | ❌ the two jobs differ in scale and person |
+| Floor-first | ✅ `examples/work` as it is | ❌ waits on mounting proved end to end | ✅ A now |
+| Reversibility | ✅ a mount can be added later | ⚠️ removing a mount from a live app | ✅ |
+| Blast radius | ✅ one app | ❌ every app's production | ✅ |
+| Correctness | ✅ one place for status | ⚠️ none for Orthograph | ✅ |
+| Fit | ✅ F5 call 1 | ⚠️ K11's mount, but app-wide | ✅ K11's signals |
 
-**Recommendation: A.** One owner per practice is the lesson the record teaches most often, and the link pattern is
-already how this repository serves its skills to every agent.
+**Recommendation: A.** It is what F5 already says, it holds Orthograph too, and production apps stay clean. C's second
+half needs no decision now: it is K11's inbox working as designed.
 
-## Q2 — Where does Foreman's state live in version zero?
+## Q2 — What holds Foreman's state until the work app runs?
 
-**The problem, in code.** Foreman must remember what is decided, what it is waiting on, and the plan, across sessions
-and across harnesses. The last time state lived somewhere other than the repository, an account ran out and a morning
-was lost (log.md:1016), and the board went stale while the work moved (log.md:946). The kanban skill's answer was to save
-the board into the repository:
+**The problem, in code.** The work app is declared, but nothing in it works yet:
 
 ```md
-<!-- .agents/skills/kanban/SKILL.md:17-18, on main -->
-| `STATE.md` | Where the project stands, in words, at the last snapshot: read it first |
-| `data/tasks.json`, `threads.json`, `lanes.json`, `meta.json` | The board's whole database at the last snapshot, `{id: document}` |
+<!-- examples/work/README.md:13, on goal/stage-1 -->
+- `src/` holds the handler scaffolds. None is written yet; journeys come first, from another agent.
 ```
+
+Foreman can't keep its state in an app that doesn't run, and you've said the state is not files.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| every Foreman skill | each reads and writes the state |
-| the portal, later | reads the same shapes (Q3) |
-| the durable actor, later | the shapes become its things (section 4) |
-| the person's repository | gains a folder |
+| when Foreman can start on Capxul | it needs somewhere to keep asks and decisions |
+| the kanban board and `design/handoff.md` | carry today's state by hand |
+| M3.05 and M3.10 | the milestone plan builds the work feature and the manager in M3 |
+| the gate rule in `AGENTS.md` | nothing in a milestone starts before the previous gate passes |
 
 **The options**
 
-**Today** — nothing for an app. For Orthograph, the conductor keeps it by hand:
+**Today** — the conductor keeps the state by hand:
+
 ```md
-<!-- .agents/skills/conductor/SKILL.md:45-48, on main -->
+<!-- .agents/skills/conductor/SKILL.md:46-48, on main -->
 - **Plan and decisions:** `design/build-plan.md` (mark each step done, with its proof, in the pull request that lands
   it), `design/decisions.md` and `design/decisions/`. `design/handoff.md`, which you keep, says where each piece of work
   stands, so a fresh conductor can take over.
 ```
 
-**A · A `foreman/` folder of files, one writer** (recommended)
-```text
-foreman/now.md          generated each wake
-foreman/state.json      intent only; status read fresh from ortho
-foreman/decisions/0001-<slug>.md
-foreman/journal.jsonl
-```
-
-**B · One `FOREMAN.md`**
-```markdown
-# Foreman
-## Decided
-- 20 Nov: directors are co-owners
-## Waiting on you
-- Can an invitation be withdrawn, and does it expire?
-## Plan
-1. company and members (in progress)
-```
-
-**C · GitHub issues and a project board**
+**A · The work app is Foreman's first project** (recommended)
 ```bash
-gh issue create --title "Ask: can an invitation be withdrawn, and does it expire?" --label foreman:ask
-gh project item-add 3 --owner <person> --url <issue>
+# reshape examples/work's declarations to K11 (already decided), add project, decision and profile
+ortho add thing project --root examples/work
+ortho check --root examples/work
+# journeys by the journey author, then the climber writes the handlers
+ortho prove --root examples/work
+# until it proves, the kanban board carries the state, as now; then its items are imported once
+```
+
+**B · Wait for the milestone plan**
+```text
+M3.05  the work feature as a package
+M3.10  the manager as a declared workflow
+# Foreman starts after Gate M2 and these two land; the conductor carries on as now until then
+```
+
+**C · Files in the repository as a bridge** (the tempting one)
+```text
+foreman/state.json   asks, decisions, plan; imported into the work app later
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Folder of files | B · One markdown file | C · GitHub issues |
+| Scenario | A · Work app first | B · Wait for M3 | C · Files bridge |
 |---|---|---|---|
-| You open a fresh session in Codex instead of Claude | it reads the same files | it reads the same file | it needs `gh` and network |
-| A climber and Foreman both finish at once | only Foreman writes; no conflict | conflict if both edit | no conflict |
-| You ask "where are we" | `now.md`, current | as current as the last hand edit | many issues to read |
-| Later, the state moves to the portal | the shapes are already the things' shapes | a parser of prose | an import |
-| You read it without an agent | `now.md` | yes | yes, on GitHub |
+| You ask Foreman about Capxul next week | it runs, with the board as its state | no Foreman yet | it runs |
+| The work app hits a framework gap | found by Foreman's own first project | found in M3 | found later |
+| The state's shape changes | the blueprint changes, everything regenerates | the same | a hand migration |
+| Milestone order | an example app's handlers, which the gate rule allows | strictly in order | in order |
 
 **Rubric**
 
-| Axis | A | B | C |
+| Axis | A · Work app first | B · Wait for M3 | C · Files bridge |
 |---|---|---|---|
-| Floor-first | ✅ files today | ✅ one file today | ⚠️ needs labels, a board and network |
-| Reversibility | ✅ delete a folder | ✅ | ⚠️ issues stay public in the repository |
-| Blast radius | ✅ one folder | ✅ one file | ⚠️ the person's issue tracker |
-| Correctness | ✅ status never stored, so never stale | ❌ status typed by hand drifts (lesson 22) | ⚠️ open or closed is typed by hand |
-| Fit | ✅ the kanban skill's lesson; H1's "a move, not a rewrite" | ⚠️ the kanban's old staleness | ❌ outward-facing by default |
+| Floor-first | ✅ the real state, soon | ❌ weeks of nothing | ⚠️ ships now, but not the real thing |
+| Reversibility | ✅ an example app | ✅ | ⚠️ a second store to retire |
+| Blast radius | ✅ `examples/work` only | ✅ none | ⚠️ every project's repository |
+| Correctness | ✅ one store, status read fresh | ✅ | ❌ you ruled it out |
+| Fit | ✅ dogfood: Orthograph built with Orthograph | ⚠️ | ❌ |
 
-**Recommendation: A.** It survives any harness, has one writer, and never stores a status the tools can compute.
+**Recommendation: A.** It is the smallest real thing, it makes Foreman's first user Orthograph itself, and the board
+already carries the state in the meantime.
 
-## Q3 — How does the portal show where you are?
+## Q3 — Where does the work app run until the durable agent?
 
-**The problem, in code.** The portal is the artifact a person shares, and it is generated from the app's model.
-Foreman's state is not in the model, so today the portal can't show it. The portal already has a slot for "what waits on
-a person", fed by any mounted feature:
+**The problem, in code.** The work app's only environment runs on the machine it starts on:
 
-```md
-<!-- design/portal.md:163-164 -->
-- **The top bar.** The environment and window control (Q12), search over the model (`⌘K`), the "Needs you" count
-  (K11's attention, from any mounted feature) and the chat.
-```
-
-```md
-<!-- design/decisions/K11-work-board.md:71 -->
-| `attention` | database | What only a person decides, as F5: promote, money, credential, question, plus `goal` (a goal the manager proposes from a signal) |
-```
-
-**What it touches**
-
-| Dependent | Why it cares |
-|---|---|
-| `design/portal.md` | a new group in the tree, asks in "Needs you" |
-| mounting a feature (M1.07, M1.08) | built, but no example app has mounted one end to end (the model draft, section 3) |
-| `@orthograph/agents`, later | Foreman's durable form reads the same things |
-| Foreman's skills | read and write state through files, or through the SDK |
-
-**The options**
-
-**Today** — `ortho dev` shows the app's own things; nothing about Foreman.
-
-**A · Files now; Foreman's state as a feature plugin once mounting is proved** (recommended)
 ```ts
-// later: one mount file in the app, the same shape as examples/plugged-in/blueprint/projections/server.ts:5
-// on goal/stage-1 (`export default Blueprint.use(server);`)
-import { Blueprint } from "orthograph";
-import { foreman } from "@orthograph/foreman";
-export default Blueprint.use(foreman);
-// its things: Slice, Ask, Decision, Run. Asks fill the portal's attention slot.
-// A mount is app-wide today: `use` takes the plugin and its verbs, nothing about environments
-// (packages/orthograph/src/modules/plugins/service.ts:31 on goal/stage-1), so "development only" is a framework gap.
+// examples/work/blueprint/environments/local.ts:3-8, on goal/stage-1
+export default Blueprint.environment({
+  runs: "on this machine",
+  identity: Identity.testPrincipals,
+  database: Cloud.d1.local(),
+  telemetry: [Telemetry.sink.local()],
+});
 ```
 
-**B · A portal page that reads `foreman/*.json`**
+Local means no cost and no credential, but nothing reaches it from your phone or from a cloud session, and it is down
+when the Mac sleeps. Staging means you can hear where things stand from anywhere, but it needs a cloud credential and
+counts against the cap:
+
+```md
+<!-- AGENTS.md:82, on main -->
+- Spend at most $10 a day on cloud resources, across everything. Layer one needs no cloud at all.
+```
+
+**What it touches**
+
+| Dependent | Why it cares |
+|---|---|
+| the scheduled check | it must run where the work app is reachable |
+| voice on your phone | needs the work app reachable from outside the Mac |
+| the cloud cap and credentials | staging spends and needs your written yes |
+| identity | locally, test people; in staging, Better Auth (M2.05) |
+
+**The options**
+
+**Today** — `ortho dev` serves an app and its world on this machine (`packages/cli/src/main.ts:45-47` on
+`goal/stage-1`).
+
+**A · Local only**
+```bash
+ortho dev --root examples/work      # on your Mac; a scheduled task on the same Mac runs the check
+```
+
+**B · Staging now**
 ```ts
-// a hand-written portal face, reading files rather than the model
-Portal.face({ sidebar: "Foreman", views: { one: readJson("foreman/state.json") } });
+// examples/work/blueprint/environments/staging.ts: proposed, the shape of
+// examples/acme/blueprint/environments/staging.ts:3-11 on goal/stage-1
+export default Blueprint.environment({
+  runs: "always on",
+  identity: Identity.betterAuth,
+  cloud: Cloud.cloudflare({ database: Cloud.d1() }),
+  deploy: { server: Deploy.worker({ domain: "api.work.<yours>" }), portal: Deploy.site({ domain: "work.<yours>" }) },
+});
 ```
 
-**C · A separate shared page, like the kanban board**
+**C · Local until it proves, then staging** (recommended)
 ```text
-https://claude.ai/artifact/<id>    Foreman's board, with its own database, outside the portal
+now:   A
+then:  B, once `ortho prove --root examples/work` is green and you've said yes to the credential
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Files, then a feature | B · A page over files | C · A separate page |
+| Scenario | A · Local | B · Staging now | C · Local, then staging |
 |---|---|---|---|
-| You share where Capxul stands with a co-founder | `now.md` now; the portal later | the portal | a second link to keep |
-| Foreman's state changes shape | the blueprint changes, everything regenerates | the page breaks | the page and its database |
-| An agent in the portal's chat wants your open asks | a generated read | a file read | an outside call |
-| The first feature mount turns up a gap | found by Foreman's own plugin, which is the point | not tested | not tested |
+| You ask from your phone where Capxul stands | only through a session on the Mac | answered | answered, once it proves |
+| The Mac sleeps overnight | the check doesn't run | it runs | as A, then as B |
+| Cost when idle | nothing | a little, daily | nothing, then a little |
+| Something is wrong with the work app's handlers | found locally, for free | found in the cloud | found locally first |
 
 **Rubric**
 
-| Axis | A | B | C |
+| Axis | A · Local | B · Staging now | C · Local, then staging |
 |---|---|---|---|
-| Floor-first | ✅ `now.md` ships now | ⚠️ needs the extension slot built | ✅ quick |
-| Reversibility | ✅ unmount one file | ⚠️ | ✅ |
-| Blast radius | ⚠️ waits on mounting | ⚠️ the portal gains a non-model page | ✅ none |
-| Correctness | ✅ falls out of the model | ❌ against "every page belongs to a thing" (K10 section 6) | ❌ a hand-kept copy |
-| Fit | ✅ Aaron's rule: build it in an app, then extract | ❌ | ⚠️ the board that went stale |
+| Floor-first | ✅ | ⚠️ needs a credential first | ✅ |
+| Reversibility | ✅ | ⚠️ a cloud resource to destroy | ✅ |
+| Blast radius | ✅ | ⚠️ cloud spend | ✅ |
+| Correctness | ⚠️ down when the Mac is | ✅ | ✅ in the end |
+| Fit | ✅ layer one needs no cloud | ⚠️ staging before it proves | ✅ the usual order: prove, then promote |
 
-**Recommendation: A.** The page ships now as a file, and the portal gets it the way everything else gets there: from
-the model.
+**Recommendation: C.** Nothing goes to the cloud until it proves, and you get it on your phone as soon as it is worth
+having there.
 
-## Q4 — What wakes Foreman in version zero?
+## Q4 — How does Foreman learn who you are?
 
-**The problem, in code.** A harness acts only when asked. If nothing wakes Foreman, it can't drive the work, and the
-person is back to asking "where are we". Claude Code's hooks can start a turn's context; a plugin declares them:
+**The problem, in code.** Today one person's profile is hand-written into the project's rules:
 
-```jsonc
-// plugins/foreman/hooks/hooks.json (proposed, not built)
-{
-  "hooks": {
-    "SessionStart": [{ "hooks": [{ "type": "command", "command": "cat foreman/now.md 2>/dev/null; echo 'Run the foreman skill.'" }] }],
-    "Stop": [{ "hooks": [{ "type": "command", "command": "git status --porcelain foreman/ | grep -q . && echo 'foreman/ has unsaved state' >&2 && exit 2 || exit 0" }] }]
-  }
-}
+```md
+<!-- AGENTS.md:91, on main -->
+- Aaron listens rather than reads: write to him as the `threads` skill says, "Talking to Aaron".
 ```
+
+Foreman needs that for every person, kept current. Get it wrong, and it talks code to someone who wanted outcomes, or
+reads a wall of text to someone listening on a phone.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| the `foreman` and `where-are-we` skills | they run on every wake |
-| spend | every wake is a model call |
-| Codex | has no hooks of the same shape; it wakes on the person's message |
-| the durable form, later | wakes on events instead |
+| the `profile` thing (section 4) | what fills it |
+| every routine | each reads it before speaking |
+| intake | the first minutes with a new person |
+| privacy | what Foreman keeps about a person, and whether they see it |
 
 **The options**
 
-**Today** — the conductor has no waker of its own: it acts when Aaron speaks or a thread's message arrives, and its
-skill says what to do then, not how to be woken:
+**Today** — a line in `AGENTS.md` and a section of the `threads` skill (`.agents/skills/threads/SKILL.md:55-76`),
+written by hand, for Aaron only.
+
+**A · Ask a few questions at intake, show the profile, update it out loud** (recommended)
+```text
+Foreman: Before we start: do you want to read the code, see the design, or just hear what it does?
+         Will you mostly listen, look, or read?
+Person:  Listen. Design level. I'll read code for now.
+Foreman: Got it. I'll talk at the design level and send code only when you ask. You can change this any time.
+# profile.update { depth: "design", channel: "voice", readsCode: "for now" }; later changes are said, never silent
+```
+
+**B · Infer it silently from how the person talks**
+```text
+# profile.update after each session, from what the person asked for; never shown
+```
+
+**C · A preset per person, written by hand, as AGENTS.md does now**
 ```md
-<!-- .agents/skills/conductor/SKILL.md:53-55, on main -->
-## While threads run
-
-- **Read before you answer Aaron about a thread.** Read its last turns, not your memory of it.
-- **Unblock them.** When a thread waits on a prompt or an answer, tell Aaron which thread and what, with its link.
-```
-
-**A · Session start, finished subagents, the person, and a save check on stop** (recommended)
-```text
-SessionStart hook  -> wake routine
-subagent finished  -> reconcile, start next
-person speaks      -> answer, then drive
-Stop hook          -> state committed and pushed?
-```
-
-**B · A, plus a scheduled morning wake**
-```text
-a scheduled task, 07:00 local: open a session, run where-are-we read-only, leave now.md current
-```
-
-**C · A, plus CI events through a cloud routine**
-```text
-on: workflow_run completed -> a cloud session runs where-are-we, comments the result on the pull request
+- Aaron listens rather than reads.
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Hooks | B · Plus a schedule | C · Plus CI events |
+| Scenario | A · Ask, show, update | B · Infer silently | C · Hand-written |
 |---|---|---|---|
-| You open a session after two days away | it tells you where you are first | it was already current | it was already current |
-| CI goes red overnight | found at your next session | found at 07:00 | found at once, and posted to the pull request |
-| You use Codex | wakes on your message only | the same | the same |
-| Cost when nothing changes | none | one small run a day | one run per CI run |
+| A new person starts | three questions, then it fits them | it guesses until it learns | nothing until someone writes it |
+| You start reading code less | it notices, says so and asks | it shifts without telling you | someone edits the file |
+| You want to know what it keeps about you | it's on your profile page | hidden | in a file |
 
 **Rubric**
 
-| Axis | A | B | C |
-|---|---|---|---|
-| Floor-first | ✅ hooks exist today | ✅ | ⚠️ a cloud session per event |
-| Reversibility | ✅ | ✅ | ⚠️ comments are public |
-| Blast radius | ✅ the session only | ✅ | ⚠️ outward-facing |
-| Correctness | ✅ | ✅ | ✅ |
-| Fit | ✅ | ✅ | ⚠️ a cloud session can't reach a local one (`AGENTS.md`, "Standing rules") |
-
-**Recommendation: A**, and B once a person has a build running overnight. C waits for the durable form, where events
-are native.
-
-## Q5 — Which decisions are Foreman's, and which are yours?
-
-**The problem, in code.** Foreman is meant to drive, so the person mostly decides. Draw the line too tight and Foreman
-asks about every field; too loose and it decides what the app does. This repository drew the line for the conductor:
-
-```md
-<!-- AGENTS.md:28-29, on main -->
-- Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
-  or irreversible, or a fork where the goal itself is unclear.
-```
-
-and the frame drew it for shaping an idea:
-
-```md
-<!-- design/frame/skills.md:106-107 -->
-plain words; the chat is not kept (S4). *Done when:* `ortho check` compiles, every unanswered question is a blank, and
-the person has read the stories back and said yes (a person's step, never the agent's).
-```
-
-**What it touches**
-
-| Dependent | Why it cares |
-|---|---|
-| the `ask` skill | what it asks |
-| section 7's guardrails | the list of always-asks |
-| `foreman/decisions/` | `by: "person" | "foreman"` |
-| your time | every ask is time spent listening |
-
-**The options**
-
-**Today** — the conductor decides architecture and routes the rest to Aaron:
-```md
-<!-- .agents/skills/conductor/SKILL.md:56-57, on main -->
-- **Route decisions.** Aaron decides in designer threads or with you. Pass each decision to every thread it touches,
-  word for word.
-```
-
-**A · Foreman decides how; you decide what, and say yes to the stories** (recommended)
-```text
-yours:     what the app does, who may do it, what is refused, money, credentials, production, extraction
-           the read-back of each slice's journeys
-Foreman's: blueprint shape, slice order, roles, fixes within a proved contract, merging when the gate passes
-```
-
-**B · You approve every blueprint change**
-```text
-yours:     every `ortho add`, every edit under blueprint/
-Foreman's: handlers, tests, merges
-```
-
-**C · You approve only at gates**
-```text
-yours:     a slice is ready; a slice is done; production
-Foreman's: everything between, including what is refused and who may act
-```
-
-**You do X → what happens**
-
-| Scenario | A · How vs what | B · Every blueprint change | C · Gates only |
-|---|---|---|---|
-| Foreman wants a `deleted` state on company | it asks: deleting is product | it asks | it adds it; you see it at the gate |
-| Foreman splits invitations into its own slice | it decides and tells you | it asks | it decides |
-| A directors-only refusal is added | it asks: who may act is yours | it asks | it decides |
-| You're away for a day | it keeps building between asks | it stops at the first edit | it runs to the next gate |
-
-**Rubric**
-
-| Axis | A | B | C |
+| Axis | A · Ask, show, update | B · Infer silently | C · Hand-written |
 |---|---|---|---|
 | Floor-first | ✅ | ✅ | ✅ |
-| Reversibility | ✅ decisions are files | ✅ | ⚠️ product calls made silently are found late |
-| Blast radius | ✅ | ⚠️ you become the bottleneck | ⚠️ |
-| Correctness | ✅ product calls stay yours | ✅ | ❌ who may act decided by an agent |
-| Fit | ✅ mirrors "Who decides" and the frame's read-back | ❌ against "Foreman drives" | ⚠️ |
+| Reversibility | ✅ you can change it | ⚠️ you can't see what to change | ✅ |
+| Blast radius | ✅ | ✅ | ✅ |
+| Correctness | ✅ the person confirms it | ⚠️ guesses | ⚠️ goes stale |
+| Fit | ✅ the profile is a thing, shown like any other | ❌ hidden state about a person | ⚠️ today's single-person way |
 
-**Recommendation: A.** It is the line this repository already draws for its own conductor, with the read-back the frame
-already makes a person's step.
+**Recommendation: A.** It fits each person from the first minute, and nothing about them is kept where they can't see it.
 
 ## At a glance
 
 | # | Joint | Recommendation |
 |---|---|---|
-| 1 | Shared role skills between the conductor and Foreman | A · one copy in the plugin, linked from here |
-| 2 | Where the state lives | A · a `foreman/` folder, one writer, status never stored |
-| 3 | How the portal shows it | A · `now.md` now; a feature plugin once mounting is proved |
-| 4 | What wakes it | A · session start, finished work, you, a save check; a schedule later |
-| 5 | Who decides | A · Foreman decides how, you decide what |
+| 1 | One work app, or one per app | A · one work app holding every project, Orthograph included |
+| 2 | State until the work app runs | A · the work app is Foreman's first project; the board carries the state meanwhile |
+| 3 | Where the work app runs | C · locally until it proves, then staging with your yes |
+| 4 | How Foreman learns you | A · ask at intake, show the profile, say every change |
 
-**Answer key.** Reply with the question number and a letter, for example "1 A, 2 A, 3 C, 4 B, 5 A". Anything you don't
+**Answer key.** Reply with the question number and a letter, for example "1 A, 2 A, 3 C, 4 A". Anything you don't
 answer takes the recommendation.
