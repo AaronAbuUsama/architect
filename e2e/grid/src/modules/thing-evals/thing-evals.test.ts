@@ -125,6 +125,12 @@ describe("a wrong output is red, and says what", () => {
       expect(check("sdk", "link", linkWith({ [first]: '"a" | "b" | undefined' })).ok).toBe(true);
       expect(check("sdk", "link", linkWith({ [first]: "(string)" })).ok).toBe(true);
     });
+    it("red: a uint field typed true, a boolean literal; green: typed 1, bigint or a number or bigint", () => {
+      const counted = { ...pluggedIn, model: { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, fields: { ...link.fields, [first]: { ...link.fields[first]!, value: { type: "uint", bits: 32 } } } } } } };
+      const typed = (type: string) => editFile(counted, path, (t) => `${t}export interface Link { ${Object.keys(link.fields).map((f) => `readonly ${JSON.stringify(f)}: ${f === first ? type : "string"}`).join("; ")} }\n`);
+      expect(check("sdk", "link", typed("true")).why).toEqual([`${path}'s Link.${first} is true (holds boolean-literal), but the model's uint is number or bigint`]);
+      for (const ok of ["1", "bigint", "number | bigint"]) expect(check("sdk", "link", typed(ok)).ok, ok).toBe(true);
+    });
     it("red: a field typed any, or unknown", () => {
       expect(check("sdk", "link", linkWith({ [first]: "any", [second]: "unknown" })).why).toEqual([`${path}'s Link.${first} is typed "any", which does not say what the field holds`, `${path}'s Link.${second} is typed "unknown", which does not say what the field holds`]);
     });

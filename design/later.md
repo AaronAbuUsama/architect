@@ -92,3 +92,8 @@ belongs to, and why it waits.
 - **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
   Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
   or its terms stop a framework importing it.
+
+## From the grid (#154)
+
+- **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
+  item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.

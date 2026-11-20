@@ -5,6 +5,7 @@ import type { OperationModel } from "../project-evidence/types.ts";
 import { OutputSchema } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
+const acme = await evidenceOf("acme");
 const refusalBranch = { type: "object", properties: { refusal: { type: "string" }, code: { type: "string" }, exit: { type: "integer" }, status: { type: "integer" } }, required: ["refusal", "code", "exit", "status"] };
 
 describe("every JSON kind a field's type is not must be refused", () => {
@@ -57,5 +58,26 @@ describe("a recorded null is null", () => {
   });
   it("green: a nullable cursor", () => {
     expect(run({ type: ["string", "null"] })).toEqual([]);
+  });
+});
+
+describe("a role-private field on a declared refusal is sampled and probed too", () => {
+  const health = acme.model.operations["system.health"]!;
+  const exceeding = { ...health, refusals: ["AllowanceExceeded"] } as OperationModel;
+  const allowance = acme.model.things["allowance"]!;
+  const error = allowance.errors!["AllowanceExceeded"]!;
+  const model = { ...acme.model, things: { ...acme.model.things, allowance: { ...allowance, errors: { ...allowance.errors, AllowanceExceeded: { ...error, fields: { ...error.fields, extra: { value: { type: "uint", bits: 32 }, optional: true, visibility: { private: ["allowance.grantee"] } } } } } } } };
+  const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
+  const digits = { type: "string", pattern: "^-?\\d+$" };
+  const run = (extra: unknown) => OutputSchema.answers({
+    model, op: exceeding, spans: [{ name: "system.health", attrs: { "answer.status": "ok" } }], files: acme.files,
+    schema: { type: "object", anyOf: [answer, { ...refusalBranch, properties: { ...refusalBranch.properties, refusal: { type: "string", not: { const: "AllowanceExceeded" } } } }, { ...refusalBranch, properties: { ...refusalBranch.properties, refusal: { const: "AllowanceExceeded" }, remaining: digits, extra }, required: [...refusalBranch.required, "remaining"] }] },
+  });
+
+  it("red: an optional role-private uint typed integer", () => {
+    expect(run({ type: "integer" }).some((w) => /refuses the refusal {"remaining":"1","extra":"1","refusal":"AllowanceExceeded"/.test(w))).toBe(true);
+  });
+  it("green: the same field typed as digits", () => {
+    expect(run(digits)).toEqual([]);
   });
 });

@@ -45,26 +45,29 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
   if (table === undefined) return { samples: [], problems: [`${op.name}'s refusals cannot be tried: ${TABLE} has no refusals table to read each one's code, exit and status from`] };
   const rows = refusalNames(model, op).map((name) => [name, table[name]] as const);
   return {
+    // Two shapes of each refusal, as for an answer: what every caller is shown, and what a caller holding a role is shown too (its private fields).
     samples: rows.flatMap(([name, row]): ReadonlyArray<RefusalSample> => {
       if (row === undefined) return [];
-      const own = fieldsOf(model, name);
       const envelope = { refusal: wrongValues("string"), code: wrongValues("string"), exit: wrongValues("integer"), status: wrongValues("integer") };
-      return [{ value: { ...own.values, refusal: name, code: row["code"], exit: row["exit"], status: row["status"] }, probes: { ...Object.fromEntries(Object.entries(own.probes).filter(([key]) => mentions(schema, key))), ...envelope } }];
+      return [false, true].flatMap((withMore) => {
+        const own = fieldsOf(model, name, withMore);
+        return withMore && !own.more ? [] : [{ value: { ...own.values, refusal: name, code: row["code"], exit: row["exit"], status: row["status"] }, probes: { ...Object.fromEntries(Object.entries(own.probes).filter(([key]) => mentions(schema, key))), ...envelope } }];
+      });
     }),
     problems: rows.filter(([, row]) => row === undefined).map(([name]) => `${op.name}'s refusal ${name} has no row in ${TABLE}`),
   };
 };
 
 /**
- * The fields a refusal carries beside its table row, as the runtime's `refusalOf` writes them: a declared error's public fields (`AllowanceExceeded.remaining`),
+ * The fields a refusal carries beside its table row, as the runtime's `refusalOf` writes them: a declared error's public fields (`AllowanceExceeded.remaining`) and, for a caller holding a role, its role-private ones (never a secret),
  * a machine's wrong-state refusal's `state`, a generated not-found's `id`. A field whose value the model does not say is left out.
  */
-const fieldsOf = (model: ProjectModel, name: string): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>> } => {
+const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>; readonly more: boolean } => {
   const things = Object.values(model.things);
   const declared = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
   const text = { value: { type: "text" } };
   const fields: Readonly<Record<string, FieldModel>> =
-    declared !== undefined ? Object.fromEntries(Object.entries(declared.fields).filter(([, f]) => f.visibility === undefined && fromModel(f) !== undefined))
+    declared !== undefined ? Object.fromEntries(Object.entries(declared.fields).filter(([, f]) => f.visibility !== "secret" && (withMore || f.visibility === undefined) && fromModel(f) !== undefined))
     : things.some((t) => t.machine?.notFrom.error === name) ? { state: text }
     : things.some((t) => t.notFound?.error === name) ? { id: text }
     : {};
@@ -72,6 +75,7 @@ const fieldsOf = (model: ProjectModel, name: string): { readonly values: Readonl
   return {
     values: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, key === "state" && machine != null ? (machine.states[0] ?? "x") : (fromModel(f) ?? "x")])),
     probes: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, probesOf(f, undefined)])),
+    more: Object.values(declared?.fields ?? {}).some((f) => f.visibility !== undefined && f.visibility !== "secret" && fromModel(f) !== undefined),
   };
 };
 

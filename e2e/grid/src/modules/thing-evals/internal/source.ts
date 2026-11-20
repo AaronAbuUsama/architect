@@ -49,7 +49,7 @@ const typeProblem = (name: string, field: FieldModel, written: string): string |
   const want = PRIMITIVE_OF[field.value.type];
   if (want === undefined) return undefined;
   // A union's every member must be what the value is: only a named or indexed type (`Of<Declared["id"]>`) is trusted, wherever it sits in the union, and an array of one is still an array; `undefined` is an optional field, a literal must be of the value's kind.
-  const allowed = new Set([...want, "reference", "indexed", "undefined", ...(want.includes("string") ? ["string-literal"] : []), ...(want.includes("number") ? ["number-literal"] : [])]);
+  const allowed = new Set([...want, "reference", "indexed", "undefined", ...(want.includes("string") ? ["string-literal"] : []), ...(want.includes("number") ? ["number-literal"] : []), ...(want.includes("boolean") ? ["boolean-literal"] : []), ...(want.includes("bigint") ? ["bigint-literal"] : [])]);
   const wrong = [...new Set(kinds.filter((k) => !allowed.has(k)))];
   return wrong.length === 0 ? undefined : `is ${type}${wrong.length === 1 && wrong[0] === type ? "" : ` (holds ${wrong.join(", ")})`}, but the model's ${field.value.type} is ${want.join(" or ")}`;
 };
