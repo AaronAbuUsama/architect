@@ -51,7 +51,7 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
 
 The MCP door is on the same Worker, and calls the same served operations:
 
-```ts file=examples/signup/generated/server/main.ts lines=109-114
+```ts file=examples/signup/generated/server/main.ts lines=116-121
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
