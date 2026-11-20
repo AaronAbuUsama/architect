@@ -8,8 +8,9 @@ const isObject = (value: unknown): value is Json => typeof value === "object" &&
 /** The names a refusal's structured content always carries; an answer field with one of them is the case a spread schema breaks. */
 export const ENVELOPE = ["refusal", "code", "exit", "status"] as const;
 
-/** A span attribute holds a list or an object as its JSON text; read it back as the value it was. */
+/** A span attribute holds a list, an object or `null` as its JSON text; read it back as the value it was. */
 const unflattened = (value: unknown): unknown => {
+  if (value === "null") return null;
   if (typeof value !== "string" || !/^\s*[[{]/.test(value)) return value;
   return Effect.runSync(Effect.try(() => JSON.parse(value) as unknown).pipe(Effect.orElseSucceed(() => value)));
 };
@@ -81,8 +82,8 @@ export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArr
   const numeric: Array<string> = [];
   for (const [name, field] of shown(op, withMore)) {
     const real = observed(spans, op.name, name, field);
-    const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real ?? fromModel(field));
-    const value = known ?? ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
+    const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real !== undefined ? real : fromModel(field));
+    const value = known !== undefined ? known : ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
     if (value === undefined) unknown.push(name);
     else answer[name] = value;
     if (scalar(field, known)) scalars.push(name);

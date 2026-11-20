@@ -60,17 +60,19 @@ export const OutputSchema: OutputSchemaApi = {
     const refusals = refusalsOf(model, op, files);
     // Two shapes of answer: the fields every answer has, and (when the model declares some optional) the answer that carries them too.
     const samples = [sampleOf(op, schema, spans), ...(hasOptional(op) ? [sampleOf(op, schema, spans, true)] : [])];
-    const ofSample = (sample: ReturnType<typeof sampleOf>): ReadonlyArray<string> => {
+    const ofSample = (sample: ReturnType<typeof sampleOf>, index: number): ReadonlyArray<string> => {
       const answer = sample.answer;
       return [
         ...unjudged(op, sample.unknown),
         ...(sample.unknown.length > 0 ? [] : ((verdict) => (verdict.valid ? [] : [`${op.name}'s output schema refuses its own answer ${shown(answer)}, so the SDK client rejects every successful call: ${verdict.errorMessage ?? "no reason given"}`]))(accepts(answer))),
         ...(sample.unknown.length > 0 || accepts({}).valid ? [] : sample.scalars.filter((name) => name in answer).flatMap((name) => (accepts({ ...answer, [name]: { wrong: "type" } }).valid ? [`${op.name}'s output schema accepts an object for the answer field ${name}, so its type is not the field's`] : []))),
+        // Every field every answer has must be required: the answer without it is refused (`{}` alone would pass a schema requiring only some).
+        ...(index > 0 || sample.unknown.length > 0 || accepts({}).valid ? [] : Object.keys(answer).filter((name) => accepts(Object.fromEntries(Object.entries(answer).filter(([key]) => key !== name))).valid).map((name) => `${op.name}'s output schema does not require the answer field ${name}: an answer without it is accepted`)),
         ...(sample.unknown.length > 0 ? [] : sample.numeric.filter((name) => name in answer && accepts({ ...answer, [name]: "not-a-number" }).valid).map((name) => `${op.name}'s output schema accepts "not-a-number" for the answer field ${name}, so it does not type it as a number`)),
       ];
     };
     return [...new Set([
-      ...samples.flatMap(ofSample),
+      ...samples.flatMap((sample, index) => ofSample(sample, index)),
       ...refusals.problems,
       ...refusals.samples.flatMap((refusal) => (accepts(refusal).valid ? [] : [`${op.name}'s output schema refuses the refusal ${shown(refusal)}, so the SDK client rejects every refused call`])),
       ...(Object.keys(samples[0]!.answer).length > 0 && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
