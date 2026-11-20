@@ -21,7 +21,7 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
 | 🎼 | Conductor | Starts, briefs, lands and archives threads; keeps `main` green; routes Aaron's decisions; keeps his view current | Never; a fresh conductor can take over from `design/`, the build plan's step states and the threads |
 | 🧭 | Lead | Runs one layer on `layer/<n>`: has authors and builders do its steps, merges their pull requests into the layer, lands the layer on `main` when its gate passes | Every step of the layer is done on `main`, with its gate passing |
 | 🧪 | Spike | Answers one question in throwaway code under `spikes/<name>/` (the `spike` skill) | Its README is merged into `main`, with the decision it supports |
-| ✍️ | Author | Writes the journeys and checks for a step from its declarations, before any build, and proves each check fair (the `author` skill) | The journeys fail on empty handlers, in a pull request into the layer, with the `author` skill's five proofs |
+| ✍️ | Author | Writes the journeys and checks for a step from its declarations, before any build, and proves each check fair (the `author` skill) | The journeys fail on empty handlers, in a pull request into the layer, with the `author` skill's six proofs |
 | 🔨 | Builder | Does one step: one branch, one pull request into the layer (or into `main` for L1.01) | The pull request is merged with CI green and its "done when" check passing; never touches journeys or the evals |
 | 🔍 | Reviewer | Reads a diff against its brief, `AGENTS.md` and `design/`, independent of whoever wrote it (the `reviewer` skill) | A verdict: pass, or the numbered findings that block it |
 | 📐 | Designer | Works a decision step through with Aaron: options, a recommendation each, his decision recorded | The decision is written in `design/decisions/<id>.md` with its date and evidence |
@@ -33,7 +33,9 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
 - **Land on a fresh base.** Merge a pull request only when it has no conflicts and CI ran on a head that includes the
   current target branch. Two pull requests that were each green can break the branch together.
 - **Every build pull request needs a 🔍 pass,** as well as CI: a builder's pull request into a goal or milestone branch
-  as much as a layer into `main`. The build pull requests are where runtime defects merge.
+  as much as a layer into `main`. The build pull requests are where runtime defects merge. The 🔍 pass is the gate;
+  Codex is advisory (`AGENTS.md`): ask it with `@codex review` when it is available, answer what it posts before the
+  merge, and never wait on it.
 - **Slices that share one contract go on one branch,** built in order. If one slice changes a type, a generated file or
   a header another reads, or promises what another delivers, they are one branch, not two threads. Before starting a
   thread, check the thread list for one already doing the job.

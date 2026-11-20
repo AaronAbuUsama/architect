@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Has Codex finished reviewing this pull request? (proposal 2 in design/process/proposals.md)
+# Advisory since 20 November 2026 (design/decisions/CI-codex-advisory.md): no branch requires the status it feeds.
 #   gh api --paginate --slurp repos/<owner>/<repo>/issues/<n>/comments | tools/ci/codex-state.sh
 # Reads the pull request's issue comments (a JSON array, or an array of pages from --slurp) and prints one line,
 # "<state>\t<reviewed commit>\t<description>", for the commit status `codex-finished`:
