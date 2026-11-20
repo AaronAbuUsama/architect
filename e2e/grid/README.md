@@ -69,7 +69,7 @@ Green in every subject: `error.{model,api,server,sdk,docs}`, `operation.{model,a
 | `thing.sdk`, `machine.sdk` | the SDK exports functions only: no `Link` type, no state union | `packages/generators/src/modules/render/internal/sdk.ts` |
 | `thing.mcp`, `machine.mcp` | `tools/list` offers no output schema; descriptions name no states | `packages/language-effect/src/modules/mcp/service.ts`, `packages/generators/src/modules/render/internal/mcp.ts` |
 | `machine.api` | a wrong-state refusal's `state` is `Schema.String`, not the union of the states | `packages/projections/src/modules/api/internal/api.ts:35` |
-| `step.api` | each endpoint file exports `steps`, naming the declared steps (an absence check, K14 Q1) | `packages/projections/src/modules/api/internal/api.ts:99` |
+| `step.api` | the API package names a step where a caller can read it (an absence check, K14 Q1): today each endpoint file exports `steps`; M1.42 moves it beside the handler's wiring in `generated/server/main.ts`. K14's `step.api` row is the cell | `packages/projections/src/modules/api/internal/api.ts` |
 | `machine.telemetry` | `move.name` and `move.to` land on the record step's span, because `chooseOutcome` annotates the current span | `packages/language-effect/src/modules/handler/internal/move.ts:46` |
 | `event.docs`, `event.portal` | a thing's page names its events only in the move table: no section documents their fields | `packages/generators/src/modules/render/internal/docs.ts`, the portal's thing page |
 | `journey.docs`, `journey.portal` | no operation page lists the journeys that cover it | same two |
@@ -92,7 +92,11 @@ What an eval leaves out, because nothing can be read yet (each is a line in the 
   with a secret or private field is red; `journey.server` does not judge that `/_world/*` answers only where an environment declares a
   lifetime (it needs the server run without one: `prove --through`).
 - `thing.cli` does not judge that an answer prints by field, and `thing.mcp` and `machine.mcp` judge `tools/list`, not a call.
-- `machine.mcp` judges the states a move crosses from what the framework emits for the tool (its input and output schemas, annotations), never
+- `thing.mcp` runs each tool's `outputSchema` through the MCP SDK's own validator (`modules/output-schema`): it must accept an answer built from
+  the operation's declared fields (a real value from the prove run's spans where one is recorded), accept each refusal, refuse `{}` and refuse a
+  wrong-typed answer field; `machine.mcp` also requires each of the machine's states accepted and a non-state refused. `thing.sdk` judges each
+  field's type against the model, not only that the type is exported (G7, scope call 4).
+- `machine.mcp` judges the states a move crosses from what the framework emits for the tool (its input and output schemas, annotations and metadata (`_meta`)), never
   from its description: that is the author's prose, which `operation.mcp` requires to equal the model's. K14's text says "description"; the
   lead's call at #150 moved it to the schema, so a blueprint's wording cannot decide the cell.
 - Reading generated code: `operation.api` parses the endpoint calls as TypeScript (a call in a comment is none) and owns the method, `POST`

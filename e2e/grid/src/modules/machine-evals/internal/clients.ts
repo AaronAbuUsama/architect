@@ -1,3 +1,4 @@
+import { OutputSchema } from "../../output-schema/service.ts";
 import { Reading } from "../../reading/service.ts";
 import { over } from "./over.ts";
 
@@ -25,7 +26,7 @@ const structuredStrings = (value: unknown): ReadonlyArray<string> =>
  * (that is `operation.mcp`'s, and must equal the model's): in its input schema, its output schema (the `state` enum) or its annotations. An
  * answer that carries a `state` is also typed by an output schema.
  */
-export const mcp = over("machine.mcp", ({ moves }, e) => {
+export const mcp = over("machine.mcp", ({ moves, machine }, e) => {
   if (e.mcp === undefined) return ["the MCP server's tools/list could not be read"];
   const tools = e.mcp;
   return moves.flatMap((op) => {
@@ -36,6 +37,7 @@ export const mcp = over("machine.mcp", ({ moves }, e) => {
     return [
       ...(missing.length === 0 ? [] : [`${op.name}'s schemas and annotations do not name the states it moves between (${missing.join(", ")} missing)`]),
       ...(Object.keys(op.answer).includes("state") && tool.outputSchema === undefined ? [`${op.name} answers a state but offers no output schema typing it`] : []),
+      ...(tool.outputSchema === undefined ? [] : OutputSchema.states({ model: e.model, op, schema: tool.outputSchema, spans: e.spans, states: machine.states })),
     ];
   });
 });

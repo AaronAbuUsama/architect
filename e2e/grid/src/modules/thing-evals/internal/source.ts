@@ -1,3 +1,4 @@
+import type { FieldModel } from "../../project-evidence/types.ts";
 import { Reading } from "../../reading/service.ts";
 import { operationsOf, over, typeName } from "./over.ts";
 
@@ -32,13 +33,34 @@ export const server = over("thing.server", (thing, e) => {
   ];
 });
 
-/** thing.sdk: the SDK exports a type for the thing (`Link`) that names each of its fields, so a caller can name it. */
+/** What a model value type is as a TypeScript primitive: a caller holds an id or a text as a string, a count as a number or a bigint. */
+const PRIMITIVE_OF: Readonly<Record<string, ReadonlyArray<string>>> = { id: ["string"], text: ["string"], uint: ["number", "bigint"], int: ["number", "bigint"], boolean: ["boolean"], bool: ["boolean"] };
+
+/**
+ * What is wrong with one property's type against the field it stands for: a type derived from the declaration (`Of<Declared["title"]>`) must be derived from this
+ * field and no other; a type that says nothing (`any`, `unknown`, `never`, `object`, `{}`) is wrong for every field; a primitive must be the one the value is.
+ */
+const typeProblem = (name: string, field: FieldModel, written: string): string | undefined => {
+  const type = written.trim();
+  const derivedFrom = [...type.matchAll(/\[\s*["']([^"']+)["']\s*\]/g)].map((m) => m[1]!);
+  if (derivedFrom.length > 0) return derivedFrom.includes(name) ? undefined : `is derived from ${derivedFrom.join(", ")}, not from ${name}`;
+  if (type === "" || /^(any|unknown|never|object|Function|\{\s*\})$/.test(type)) return `is typed "${type}", which does not say what the field holds`;
+  const want = PRIMITIVE_OF[field.value.type];
+  return want !== undefined && ["string", "number", "boolean", "bigint"].includes(type) && !want.includes(type) ? `is ${type}, but the model's ${field.value.type} is ${want.join(" or ")}` : undefined;
+};
+
+/** thing.sdk: the SDK exports a type for the thing (`Link`) that names each of its fields with the type the model gives it, so a caller can name it and hold what a call returns. */
 export const sdk = over("thing.sdk", (thing, e) => {
   // An interface, or an alias of an object type: the type a caller writes, with a member for each field.
   const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
     Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
   if (declared === undefined) return [`the SDK exports no type ${thing.identifier}: a caller cannot name a ${thing.name}`];
-  return Object.keys(thing.fields).filter((field) => !declared.members.includes(field)).map((field) => `${declared.path}'s ${thing.identifier} leaves out the field ${field}`);
+  return Object.entries(thing.fields).flatMap(([name, field]) => {
+    const member = declared.memberTypes[name];
+    if (member === undefined) return [`${declared.path}'s ${thing.identifier} leaves out the field ${name}`];
+    const wrong = typeProblem(name, field, member.type);
+    return wrong === undefined ? [] : [`${declared.path}'s ${thing.identifier}.${name} ${wrong}`];
+  });
 });
 
 /** thing.telemetry: a thing's public fields appear on its operations' spans as `payload.*` and `answer.*` (text only when `traced`), and no others do. */

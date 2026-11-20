@@ -1,4 +1,5 @@
 import type { FieldModel } from "../../project-evidence/types.ts";
+import { OutputSchema } from "../../output-schema/service.ts";
 import { operationsOf, over, publicFields } from "./over.ts";
 
 const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -71,7 +72,10 @@ export const cli = over("thing.cli", (thing, e) => operationsOf(e, thing.name).f
   });
 }));
 
-/** thing.mcp: each tool's input schema has every public payload field (with its description), and the tool offers an output schema when the answer has fields. */
+/**
+ * thing.mcp: each tool's input schema has every public payload field (with its description), and the tool offers an output schema when the answer has
+ * fields, one that works: it accepts the operation's answer and its refusals and refuses what is neither (`OutputSchema`, validated as the SDK client does).
+ */
 export const mcp = over("thing.mcp", (thing, e) => {
   if (e.mcp === undefined) return ["the MCP server's tools/list could not be read"];
   const tools = e.mcp;
@@ -85,6 +89,7 @@ export const mcp = over("thing.mcp", (thing, e) => {
       ...Object.keys(properties).filter((name) => !want.some(([w]) => w === name)).map((name) => `${op.name}'s input schema shows ${name}, which is not a public payload field`),
       ...want.flatMap(([name, field]) => (field.description !== undefined && properties[name] !== undefined && properties[name]!.description !== field.description ? [`${op.name}'s input ${name} does not carry the field's description`] : [])),
       ...(Object.keys(op.answer).length > 0 && tool.outputSchema === undefined ? [`${op.name} offers no output schema, so an agent does not know the shape it gets back`] : []),
+      ...(tool.outputSchema === undefined ? [] : OutputSchema.answers({ model: e.model, op, schema: tool.outputSchema, spans: e.spans })),
     ];
   });
 });

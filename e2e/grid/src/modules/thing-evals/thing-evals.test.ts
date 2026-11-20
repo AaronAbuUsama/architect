@@ -88,6 +88,45 @@ describe("a wrong output is red, and says what", () => {
     expect(check("sdk", "link", whole)).toEqual({ ok: true, why: [] });
   });
 
+  describe("sdk: a field's type is the model's", () => {
+    const link = pluggedIn.model.things["link"]!;
+    const path = "generated/sdk/src/link/index.ts";
+    /** `Link` with each field of the model written as `types[field]`, a string when it is not given: an id, a text or a named schema as a caller holds it. */
+    const linkWith = (types: Record<string, string> = {}, form: "interface" | "alias" = "interface") => {
+      const members = Object.keys(link.fields).map((f) => `readonly ${JSON.stringify(f)}: ${types[f] ?? "string"}`).join("; ");
+      return editFile(pluggedIn, path, (t) => `${t}${form === "interface" ? `export interface Link { ${members} }` : `export type Link = { ${members} }`}\n`);
+    };
+    const first = Object.keys(link.fields)[0]!;
+    const second = Object.keys(link.fields)[1]!;
+
+    it("green: each field as the primitive the model says, as an interface or an alias", () => {
+      expect(check("sdk", "link", linkWith())).toEqual({ ok: true, why: [] });
+      expect(check("sdk", "link", linkWith({}, "alias"))).toEqual({ ok: true, why: [] });
+    });
+    it("green: each field derived from its own declaration, as #153's generator writes it", () => {
+      const derived = Object.fromEntries(Object.keys(link.fields).map((f) => [f, `Of<Declared[${JSON.stringify(f)}]>`]));
+      expect(check("sdk", "link", linkWith(derived))).toEqual({ ok: true, why: [] });
+    });
+    it("red: a field typed as a number when the model's value is an id or a text", () => {
+      expect(check("sdk", "link", linkWith({ [first]: "number" })).why).toEqual([`${path}'s Link.${first} is number, but the model's ${link.fields[first]!.value.type} is string`]);
+    });
+    it("red: a field typed any, or unknown", () => {
+      expect(check("sdk", "link", linkWith({ [first]: "any", [second]: "unknown" })).why).toEqual([`${path}'s Link.${first} is typed "any", which does not say what the field holds`, `${path}'s Link.${second} is typed "unknown", which does not say what the field holds`]);
+    });
+    it("red: a field derived from another field's declaration", () => {
+      expect(check("sdk", "link", linkWith({ [first]: `Of<Declared[${JSON.stringify(second)}]>` })).why).toEqual([`${path}'s Link.${first} is derived from ${second}, not from ${first}`]);
+    });
+  });
+
+  it("mcp: an output schema that refuses its own answer, one that accepts anything, and a correct one", () => {
+    const refusal = { type: "object", properties: { refusal: { type: "string" }, code: { type: "string" }, exit: { type: "integer" }, status: { type: "integer" } }, required: ["refusal", "code", "exit", "status"] };
+    const answered = (outputSchema: unknown) => ({ ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "handle.claim" ? { ...t, outputSchema } : t)) });
+    const only = (e: typeof pluggedIn) => check("mcp", "handle", e).why.filter((w) => w.startsWith("handle.claim"));
+    expect(only(answered({ type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" } }, required: ["handle"] }, refusal] }))).toEqual([]);
+    expect(only(answered({ type: "object", properties: { handle: { type: "integer" } }, anyOf: [{ required: ["handle"] }, refusal] }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer/);
+    expect(only(answered({ type: "object" }))[0]).toMatch(/^handle\.claim's output schema accepts {}/);
+  });
+
   it("cli: a flag that is not there, and a numeric flag typed as a number", () => {
     const help = (flag: string) => ({ ...pluggedIn.cli, "link order": `USAGE\n\nFLAGS\n${flag}\n` });
     expect(check("cli", "link", { ...pluggedIn, cli: help("  --link string    \n  --json    ") }).why).toContain("link order has no --position flag");

@@ -36,7 +36,8 @@ describe("formatting and whole names", () => {
   });
   it("TypeScript is read as TypeScript: types, exports and classes in any syntax, comments never", () => {
     expect(Reading.exportedTypes('export interface A { state: "x" | "y"; id: string }\nexport enum B { C = "z" }\n// export type D = "q"\nexport type E = "r"')).toEqual([
-      { name: "A", literals: [], stateLiterals: ["x", "y"], members: ["state", "id"] }, { name: "B", literals: ["z"], stateLiterals: [], members: ["C"] }, { name: "E", literals: ["r"], stateLiterals: [], members: [] },
+      { name: "A", literals: [], stateLiterals: ["x", "y"], members: ["state", "id"], memberTypes: { state: { type: '"x" | "y"', optional: false }, id: { type: "string", optional: false } } },
+      { name: "B", literals: ["z"], stateLiterals: [], members: ["C"], memberTypes: {} }, { name: "E", literals: ["r"], stateLiterals: [], members: [], memberTypes: {} },
     ]);
     expect(Reading.exportedNames('export { a as b } from "./a.ts"\nexport * as c from "./c.ts"\nexport * from "./s.ts"\nexport const d = 1\nexport function e() {}')).toEqual([
       { exported: "b", local: "a", from: "./a.ts" }, { exported: "c", local: "*", from: "./c.ts" }, { exported: "*", local: "*", from: "./s.ts" },
