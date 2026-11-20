@@ -574,7 +574,7 @@ The nine columns are not nine independent results. They form three tiers, and a 
 
 **The source tier: model.** Every other column is generated from the model, so the model card is the floor of its lane.
 A building block missing from the model is missing everywhere, and no other card in the lane can be green before it.
-The model column is the only one that is green in the thirteen lanes of the audit today (the invariant lane's model card is ~).
+The model column is the greenest: 12 of the audit's 13 lanes (Thing & fields is ~), and ~ in the invariant lane.
 
 **The surfaces tier: api, server, sdk, cli, mcp.** The SDK, CLI and MCP are all generated from the one API declaration
 (`packages/generators/src/modules/render/internal/sdk.ts`, `cli.ts` and `mcp.ts` each import the generated API), so a
@@ -683,7 +683,7 @@ device operation's spans reach the environment's sink, ledger `LAH-02`, before S
 
 ### 14. invariant
 
-**Waiting for ST1.19.** No journey touches an invariant card yet, so none is switched on in `e2e/grid/switched-on.json` and none runs; Plugged In's claim journey touches them when ST1.19 declares its rules, and their pairs go on `e2e/grid/expected-red.json` then.
+**Waiting for the grid to learn `invariant`, then for ST1.19.** No journey touches an invariant card yet, and the grid cannot see one even when it does: `e2e/grid/src/modules/touches/service.ts` emits no `invariant` row and no evals exist for the block, so ST1.19's rules alone switch nothing on. The checks author adds both, beside ST1.19's checks (a line in the ST1.19 row's needs in `design/milestones.md`); the cards are then switched on by Plugged In's claim journey and their pairs go on `e2e/grid/expected-red.json`.
 
 **Invariants (unique rules, G5).** A thing's rule that stays true among many records of it, declared once in `things/<thing>/invariants.ts` with `Blueprint.invariant.unique(field or tuple, { while, refuse, description })`. The runtime refuses for the handler; every output says the rule. Joined the grid on 20 November 2026 (ST1.10), graded from `goal/stage-1`.
 
