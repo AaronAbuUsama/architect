@@ -4,6 +4,9 @@
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
 # K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
+m1/12-projections.test.ts > 12 M1.11: acme mounts the model, the api and the server > generates generated/server and generated/api as before, the model as before plus its mounts, and check passes
+m1/12-projections.test.ts > 12 controls: the baseline and the instrument > acme's checked-in generated/server, generated/api and model are what the baseline records
+m1/12-projections.test.ts > 12 controls: the baseline and the instrument > the comparison sees a changed byte, an extra file and a missing one, but not a different header line
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
@@ -19,6 +22,8 @@ m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is never a 
 m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once on the layer: two layers in one program are two people, and a layer with no credential is anonymous
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
+m1/14-clients.test.ts > 14 controls: the baseline and the instruments > the baseline records acme's 44 client files, and what acme has now still matches it where it must not change
+m1/14-clients.test.ts > 14 controls: the baseline and the instruments > the comparison sees a changed byte, an extra file and a missing one, and allows what carries the options
 m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > event x API ✓, SDK ✗: the server speaks each event, and the SDK exports its type (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
@@ -52,6 +57,7 @@ m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not ye
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 control: acme's docs are the baseline, and the instruments are sound > acme's checked-in docs are the recorded bytes, and `ortho generate` in a copy writes the same
 m1/21-portal-viewer.test.ts > 21 control: the served portal > serves acme's `/portal` and a thing's page to a browser, twice with the same bytes
 m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > `@orthograph/portal` exports `./server`, and nothing reachable from it imports react, portal-ui or HeroUI
 m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > the generated portal entry imports the portal's server half and nothing else of the portal
