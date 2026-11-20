@@ -47,7 +47,3 @@ The `claude/test-free-ports` branch was merged (#133, in `goal/stage-1`): it gav
 `launch-port.test.ts`: the first two tries refused as taken, the third succeeds on a third port which is
 the one on disk; a named port is never moved; another failure is not retried. With the retry condition replaced by "never", the first
 case fails.
-
-## Supersedes
-
-- design/decisions/CI-speed.md: "the check 8 latency flake, 280 ms against a 150 ms budget" → still the evidence, now answered by this decision
