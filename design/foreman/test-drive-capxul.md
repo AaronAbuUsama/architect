@@ -53,7 +53,7 @@ chain), and the company's business site (it needs the Frappe bench). Questions 2
 
 **Step 4: batch the questions.** Section 4.
 
-**Step 5: journeys as stories.** The journey author would write these, for Aaron to read back. Because his profile says
+**Step 5: journeys as stories.** The journey author would write these, for Aaron to read back. Because his "Working with you" says
 he listens, Foreman reads them aloud, and draws the invitation's machine with the `machine-journey` skill when he asks to
 see it:
 

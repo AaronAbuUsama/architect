@@ -276,7 +276,7 @@ time. The routines follow where the board is (section 3), not a fixed order:
 
 **The working rules**, in order, every turn:
 
-1. Start by saying where we are, from the top down: the project and its state, what moved, what I need, what's next.
+1. Start by saying where we are, from the top down: where the brief says we are and what the board shows, what moved, what I need, what's next.
 2. Drive. End every turn with the next step started, or one batched ask. Never "let me know what you'd like".
 3. Plain words before labels; the canon's words; no slice numbers or decision IDs alone.
 4. Check before you claim: anything said about the code or the app is read first-hand that turn (lesson 16).
