@@ -56,7 +56,7 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { acme, copyOf, nothingRunning, run } from "./support.ts";
+import { acme, copyOf, echoJourneyTitle, mountEcho, nothingRunning, project, run, succeeds, type Copy } from "./support.ts";
 import { append, calling, edit, journeyNames, modelOf, perfect, problems, prove, standingOn, stepsShortfall, worldCallsOf, type Expected, type JourneyMap, type Proved } from "./prove-speed.ts";
 
 const RECORD = ".ortho/evidence/proven.json";
@@ -431,6 +431,119 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     writeFileSync(join(root, SPEND), readFileSync(join(acme, SPEND), "utf8"));
     either(await prove(root, "--changed"), true);
     judged(await prove(root, "--changed"), expecting([]));
+    nothingRunning(root);
+  });
+});
+
+describe("29 ST1.23, two more false greens Codex found in the build: a mounted dependency, and two journeys of one name", () => {
+  // (a) A plugin mounted from node_modules: a file of it that its handlers import, which is not a handler, is a change to something an
+  // operation's steps reach. `ortho impact` places it on the mount's operations; `--changed` must place it on the journeys that call them.
+  const DEPENDENCY = "node_modules/@fixture/echo/dist/blueprint/choices.js";
+  const rowCopies: Array<{ readonly remove: () => void }> = [];
+  afterEach(() => { for (const copy of rowCopies.splice(0)) copy.remove(); });
+  let echoBase: Copy;
+  let echoRecord = "";
+  let echoMap: JourneyMap;
+  let echoAll: ReadonlyArray<string>;
+  const echoProject = () => {
+    const copy = project({ kind: "echo" });
+    mountEcho(copy.root, { pick: "plain" });
+    succeeds(copy.root, "generate");
+    return copy;
+  };
+  const echoSeeded = () => {
+    const copy = echoProject();
+    rowCopies.push(copy);
+    mkdirSync(dirname(join(copy.root, RECORD)), { recursive: true });
+    writeFileSync(join(copy.root, RECORD), echoRecord);
+    return copy.root;
+  };
+  const withEcho = (over: Partial<Expected> = {}) => expecting(calling(echoMap, "echo.repeat", "echo.shout"), { all: echoAll, map: echoMap, ...over });
+
+  // (b) Two journey files that declare one name. Prove reports journeys by name, so the check tells them apart by their steps' titles.
+  const TWIN = "journeys/outsider-cannot-revoke-twin.ts";
+  const SAME = "an outsider cannot revoke";
+  const ORIGINAL_STEP = "bob is refused and the handler never runs";
+  const TWIN_STEP = "bob is refused, the twin's way";
+  let twinBase: ReturnType<typeof copyOf>;
+  let twinRecord = "";
+  let twinMap: JourneyMap;
+  let twinAll: ReadonlyArray<string>;
+  const twinProject = () => {
+    const copy = copyOf(acme);
+    writeFileSync(join(copy.root, TWIN), readFileSync(join(copy.root, JOURNEY), "utf8").replace(ORIGINAL_STEP, TWIN_STEP));
+    return copy;
+  };
+  const twinSeeded = () => {
+    const copy = twinProject();
+    rowCopies.push(copy);
+    mkdirSync(dirname(join(copy.root, RECORD)), { recursive: true });
+    writeFileSync(join(copy.root, RECORD), twinRecord);
+    return copy.root;
+  };
+  const withTwin = (step: string) => {
+    const once = twinAll.indexOf(SAME);
+    return expecting([SAME], { all: twinAll, map: twinMap, skipped: twinAll.filter((_, i) => i !== once), titles: { [SAME]: [step] } });
+  };
+
+  beforeAll(async () => {
+    echoBase = echoProject();
+    const echoFull = await prove(echoBase.root);
+    expect(echoFull.status, echoFull.out.slice(-600)).toBe(0);
+    echoRecord = readFileSync(join(echoBase.root, RECORD), "utf8");
+    echoMap = modelOf(echoBase.root);
+    echoAll = journeyNames(echoMap);
+    twinBase = twinProject();
+    const twinFull = await prove(twinBase.root);
+    expect(twinFull.status, twinFull.out.slice(-600)).toBe(0);
+    twinRecord = readFileSync(join(twinBase.root, RECORD), "utf8");
+    twinMap = JSON.parse(succeeds(twinBase.root, "model", "--json").stdout) as JourneyMap;
+    twinAll = journeyNames(twinMap);
+  }, 900_000);
+  afterAll(() => { echoBase?.remove(); twinBase?.remove(); });
+
+  it("controls: the plugin's journey is the only one that calls its operations (1 of 12), and an edit to a file of the package is seen by `ortho impact` as stale on that mount's operations", () => {
+    expect(echoAll).toHaveLength(12);
+    expect(calling(echoMap, "echo.repeat", "echo.shout")).toEqual([echoJourneyTitle]);
+    const root = echoSeeded();
+    expect(run(root, "impact").out, "before any change").toMatch(/^stale none$/m);
+    append(root, DEPENDENCY, note());
+    const impact = run(root, "impact");
+    expect(impact.status, impact.out).toBe(0);
+    expect(impact.out.match(/^stale (.*)$/m)?.[1], "today's impact sees the package's bytes: it is the operations of the mount").toBe("echo.repeat, echo.shout");
+  });
+
+  it("controls: two journey files of one name are accepted, the full prove runs both (12 journeys, the name twice), and the judge tells the twin from the original by its steps", () => {
+    expect(twinAll).toHaveLength(12);
+    expect(twinAll.filter((name) => name === SAME)).toHaveLength(2);
+    const right = perfect(withTwin(TWIN_STEP));
+    expect(problems(right, withTwin(TWIN_STEP))).toEqual([]);
+    expect(problems(right, withTwin(ORIGINAL_STEP)), "the other file's steps").not.toEqual([]);
+    expect(problems({ ...right, out: right.out.replace(`journey ${SAME} skipped: nothing it calls changed\n`, "") }, withTwin(TWIN_STEP)), "the other one not named skipped").not.toEqual([]);
+    const both = { ...right, report: { ...right.report, journeys: [...right.report.journeys, right.report.journeys[0]!] } };
+    expect(problems(both, withTwin(TWIN_STEP)), "both reran").not.toEqual([]);
+  });
+
+  it("a change to a file of a mounted plugin that its handlers import proves the 1 journey that calls the plugin's operations and names the other 11 skipped", async () => {
+    const root = echoSeeded();
+    append(root, DEPENDENCY, note());
+    const proved = await prove(root, "--changed");
+    judged(proved, withEcho());
+    expect(proved.report?.changed?.rerun).toEqual([echoJourneyTitle]);
+    nothingRunning(root);
+  });
+
+  it("changing only the twin of two journeys of one name reruns that one, and names the original skipped", async () => {
+    const root = twinSeeded();
+    append(root, TWIN, note());
+    judged(await prove(root, "--changed"), withTwin(TWIN_STEP));
+    nothingRunning(root);
+  });
+
+  it("changing only the original of two journeys of one name reruns that one, and names the twin skipped", async () => {
+    const root = twinSeeded();
+    append(root, JOURNEY, note());
+    judged(await prove(root, "--changed"), withTwin(ORIGINAL_STEP));
     nothingRunning(root);
   });
 });
