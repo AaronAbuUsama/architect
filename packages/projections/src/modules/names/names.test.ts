@@ -22,6 +22,8 @@ describe("the sentence for a rule (G5)", () => {
     expect(ruleSentence("handle", { fields: ["name"], while: ["claimed"] })).toBe("another claimed handle holds this name");
     expect(ruleSentence("handle", { fields: ["owner"], while: ["claimed"], description: "you already hold a name" })).toBe("you already hold a name");
     expect(ruleSentence("handle", { fields: ["owner"], description: "you already hold a name." })).toBe("you already hold a name");
+    expect(ruleSentence("handle", { fields: ["owner"], description: "wait..." })).toBe("wait...");
+    expect(ruleSentence("handle", { fields: ["owner"], while: ["claimed"], description: "." })).toBe("another claimed handle holds this owner");
     expect(ruleSentence("profile", { fields: ["handle"] })).toBe("another profile holds this handle");
     expect(ruleSentence("run", { fields: ["mission", "task"], while: ["claimed", "running"] })).toBe("another claimed or running run holds this mission and task");
     expect(ruleSentence("sign-in", { fields: ["person-id"] })).toBe("another sign in holds this person id");
