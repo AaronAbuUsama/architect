@@ -48,8 +48,11 @@ export const handlerAt = (from: string, op: OperationModel) =>
 export const lines = (...parts: ReadonlyArray<string | ReadonlyArray<string>>) => parts.flat().join("\n") + "\n";
 
 /** HTTP status per kind of refusal: a declared data error, a machine in the wrong state, nothing with that id, a caller without the role. */
-export const STATUS = { declared: 422, notFrom: 409, notFound: 404, notAllowed: 403 } as const;
+export const STATUS = { declared: 422, notFrom: 409, notFound: 404, notAllowed: 403, idempotencyConflict: 409 } as const;
 export const NOT_ALLOWED_EXIT = 3;
+/** The runtime keeps 120 to 125 (G3): a request key reused with another payload exits 120 and is a 409. */
+export const IDEMPOTENCY_CONFLICT_EXIT = 120;
+export { IDEMPOTENCY_CONFLICT } from "@orthograph/compiler";
 
 /** An operation that runs on the caller's device (a plugin's `runs: "client"`): never on the server, in no API route or tool. */
 export const onDevice = (op: OperationModel) => op.runs === "client";
