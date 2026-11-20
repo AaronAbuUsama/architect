@@ -52,6 +52,10 @@ const Operation = Schema.Struct({
   idempotent: Schema.NullOr(Schema.Literal("request")),
   budget: Schema.NullOr(Schema.Struct({ p95Ms: Schema.Number })),
   hash: Schema.String,
+  /** Where it lives and how it is tested and run (M1.42). */
+  from: Schema.optionalKey(Schema.Unknown),
+  runs: Schema.optionalKey(Schema.String),
+  test: Schema.optionalKey(Schema.String),
 });
 
 const Thing = Schema.Struct({
@@ -66,9 +70,55 @@ const Thing = Schema.Struct({
   })),
   roles: Schema.Array(Schema.String),
   hash: Schema.String,
+  /** The model's own (M1.42): the code prefix, the events with their fields, and each error with its fields, exit and code. */
+  code: Schema.optionalKey(Schema.String),
+  events: Schema.optionalKey(Schema.Record(Schema.String, Fields)),
+  errors: Schema.optionalKey(Schema.Record(Schema.String, Schema.Struct({ fields: Fields, exit: Schema.Number, code: Schema.String }))),
 });
 
-const Environment = Schema.Struct({ name: Schema.String, runs: Schema.String, promotesFrom: Schema.NullOr(Schema.String), lifetimeMs: Schema.NullOr(Schema.Number) });
+const Environment = Schema.Struct({
+  name: Schema.String,
+  runs: Schema.String,
+  promotesFrom: Schema.NullOr(Schema.String),
+  lifetimeMs: Schema.NullOr(Schema.Number),
+  identity: Schema.optionalKey(Schema.String),
+  cloud: Schema.optionalKey(Schema.NullOr(Schema.Record(Schema.String, Schema.Unknown))),
+  database: Schema.optionalKey(Schema.NullOr(Schema.String)),
+  secrets: Schema.optionalKey(Schema.Record(Schema.String, Schema.Unknown)),
+  telemetry: Schema.optionalKey(Schema.Array(Schema.Record(Schema.String, Schema.Unknown))),
+  file: Schema.optionalKey(Schema.String),
+  deploy: Schema.optionalKey(Schema.Record(Schema.String, Schema.Unknown)),
+  publish: Schema.optionalKey(Schema.Record(Schema.String, Schema.Unknown)),
+  hash: Schema.optionalKey(Schema.String),
+});
+
+/** A journey as the compiler writes it: its cast, where it starts, and its declared steps (never read from spans). Checks are kept as written. */
+const JourneyStep = Schema.Struct({
+  title: Schema.String,
+  call: Schema.optionalKey(Schema.Struct({ actor: Schema.String, operation: Schema.String, payload: Schema.optionalKey(Schema.Unknown), request: Schema.optionalKey(Schema.String) })),
+  checks: Schema.Array(Schema.Unknown),
+  skipped: Schema.optionalKey(Schema.Unknown),
+});
+const Journey = Schema.Struct({
+  name: Schema.String,
+  file: Schema.String,
+  cast: Schema.Record(Schema.String, Schema.Unknown),
+  starts: Schema.NullOr(Schema.String),
+  steps: Schema.Array(JourneyStep),
+  sourceHash: Schema.optionalKey(Schema.String),
+});
+
+const StartingWorld = Schema.Struct({
+  name: Schema.String,
+  file: Schema.String,
+  from: Schema.NullOr(Schema.String),
+  cast: Schema.Record(Schema.String, Schema.Unknown),
+  makes: Schema.Array(Schema.Unknown),
+  gives: Schema.Record(Schema.String, Schema.Unknown),
+  sourceHash: Schema.optionalKey(Schema.String),
+});
+
+const Mount = Schema.Struct({ kind: Schema.String, package: Schema.String, version: Schema.String, file: Schema.String, chosen: Schema.Record(Schema.String, Schema.Unknown), integrity: Schema.optionalKey(Schema.String), hash: Schema.optionalKey(Schema.String) });
 
 /** The compiler's model as far as the portal reads it. The digest is over the whole document, so what it does not read is still what it holds. */
 export const ModelSchema = Schema.Struct({
@@ -76,6 +126,11 @@ export const ModelSchema = Schema.Struct({
   operations: Schema.Record(Schema.String, Operation),
   environments: Schema.optionalKey(Schema.Record(Schema.String, Environment)),
   blanks: Schema.optionalKey(Schema.Record(Schema.String, Schema.Array(Schema.String))),
+  /** Refusal name to its code (HandleTaken to HN-001): the table the calls table and the refusal-codes page map names through. */
+  refusals: Schema.optionalKey(Schema.Record(Schema.String, Schema.String)),
+  journeys: Schema.optionalKey(Schema.Record(Schema.String, Journey)),
+  startingWorlds: Schema.optionalKey(Schema.Record(Schema.String, StartingWorld)),
+  mounts: Schema.optionalKey(Schema.Record(Schema.String, Mount)),
 });
 export type ModelWire = typeof ModelSchema.Type;
 export type OperationWire = ModelWire["operations"][string];

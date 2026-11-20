@@ -1,4 +1,6 @@
 // L2.10a: the wire projection is versioned and deterministic, and the decoder rejects what it does not know.
+import { readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Wire } from "./service.ts";
@@ -87,5 +89,19 @@ describe("a proof's dependencies, from the model's JSON alone", () => {
   it("refuse a model shape they do not know (unavailable, never guessed)", async () => {
     expect((await Effect.runPromise(Effect.result(Wire.core({ operations: 3 })))) ._tag).toBe("Failure");
     expect((await Effect.runPromise(Effect.result(Wire.core(null))))._tag).toBe("Failure");
+  });
+});
+
+describe("what the compiler writes is what the decoder keeps (M1.13)", () => {
+  it("keeps Plugged In's refusals, events, errors, journeys, starting worlds, environments and mounts exactly", async () => {
+    const file = join(resolve(import.meta.dirname, "../../../../.."), "examples/plugged-in/generated/portal/blueprint.json");
+    const raw = JSON.parse(readFileSync(file, "utf8")) as { model: Record<string, any> };
+    const model = (await Effect.runPromise(Wire.decode(raw))).model as unknown as Record<string, any>;
+    for (const key of ["refusals", "journeys", "startingWorlds", "mounts"]) expect(model[key], key).toEqual(raw.model[key]);
+    expect(model["things"]["handle"]).toMatchObject({ code: "HN", events: raw.model["things"]["handle"].events, errors: raw.model["things"]["handle"].errors });
+    for (const [name, env] of Object.entries(raw.model["environments"] as Record<string, any>)) {
+      expect(model["environments"][name], name).toEqual(env);
+    }
+    expect(model["operations"]["handle.claim"]).toMatchObject({ test: "unit", runs: "server", from: { kind: "app" } });
   });
 });
