@@ -36,9 +36,9 @@ export const portal: Eval<RefusalEvidence> = {
       const shown = [...html.matchAll(/<[a-z][a-z0-9]*\b[^>]*\bdata-refusal="[^"]*"[^>]*>/g)].map((m) => attrsOf(m[0])).filter((a) => a["data-refusal"] === subject);
       if (shown.length === 0) return [`${operation}: the portal page shows no ${subject} (expected data-refusal="${subject}" data-code="${facts.code ?? "…"}" and a data-count)`];
       // A page that says its metrics are unavailable (`not-yet[data-hole="metrics"]`, as check 21 K reads it) has no count to show: a digit there,
-      // zero included, is a guess. With a source the count is a digit, and it is the source's: here, the refused spans of the operation.
+      // zero included, is a guess. With a source the count is a digit, and it is the source's: here, the operation's refused spans: those the handler writes with `operation` and `refusal` on `<operation>` (an attempt, a read, a device call) and on `<operation>.refused` (a refusal at the door, before any handler). A retry that conflicted writes no refusal; one call, one refusing span.
       const noSource = [...html.matchAll(/<[a-z][a-z0-9]*\b[^>]*\bdata-hole="metrics"[^>]*>/g)].some((m) => attrsOf(m[0])["data-portal"] === "not-yet");
-      const said = evidence.spans === undefined ? undefined : evidence.spans.filter((span) => span.name === operation && span.attrs["refusal"] === subject).length;
+      const said = evidence.spans === undefined ? undefined : evidence.spans.filter((span) => span.attrs["operation"] === operation && span.attrs["refusal"] === subject).length;
       return shown.flatMap((a) => [
         ...(a["data-code"] === facts.code ? [] : [`${operation}: the portal counts ${subject} under code ${a["data-code"] ?? "none"}, expected ${facts.code ?? "its code"}`]),
         ...(noSource
