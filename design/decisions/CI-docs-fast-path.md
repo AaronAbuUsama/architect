@@ -29,6 +29,8 @@ other one behind, and each catch-up merge reruns all of CI, 9 to 20 minutes, the
    gates run: the condition skips only on a `changes` that succeeded and said docs-only.
 4. **`check` and `e2e-m0` always run.** `check` lints, runs `e2e:totals` and the CI guards' cases; `e2e-m0` runs
    `docs:check`, `canon:check` over the design docs and `tools/ci/supersedes.sh`. A docs change can break those.
+   Superseded by CI-speed, 20 November 2026: `check` is now check-static, which always runs, plus prove's tests,
+   which skip on a docs-only pull request.
 5. **Pushes, and pull requests with any non-doc change, run everything** as before.
 6. **Never workflow-level `paths-ignore`.** A workflow that never starts never reports its jobs, and a required check
    with no report stays pending forever.
