@@ -99,7 +99,7 @@ written three different ways.
    | Value | Solidity |
    |---|---|
    | `uint(bits)` | `uint<bits>` (bits a multiple of 8, at most 256) |
-   | `id(prefix)` | `bytes32`, the id's own text padded, so it round-trips |
+   | `id(prefix)` | `bytes32`, the id's own text padded, so it round-trips. It must fit: the compiler refuses an id on a chain store whose prefix leaves no room for a minted suffix within 32 bytes, and a longer value is refused before sending. Moving existing longer ids on chain is a migration |
    | `text({ max })` | `string` |
    | `account()` | `address`, its chain part checked against the store's chain |
    | `email()`, `visibility.secret(...)`, `visibility.private(...)` | refused: "a public chain shows every field" |
@@ -192,4 +192,5 @@ written three different ways.
 - design/build-plan.md (D5): "(3) One vault per organisation from a factory, deployed by the starting world." → "(3) One budgets module per network, which each organisation's Safe enables, deployed by the starting world (K25)."
 - design/build-plan.md (L4.07): "The starting world deploys a vault per organisation and funds it with TestUSD" → "The starting world deploys a Safe per organisation, enables the budgets module (K25) and funds the Safe with TestUSD"
 - design/goals/01-the-whole-framework-locally.md: "worlds with a vault per organisation on Anvil" → "worlds with a Safe per organisation, enabling the budgets module (K25), on Anvil"
+- design/milestones.md (M6.10): "the compiler accepts `runs: "chain"`" → "the compiler works out `runs` for an operation on a thing in a chain store, and an author never writes it (K25 item 6; L4.01;"
 - design/frame/projections.md (3.9): "every thing that `lives: Blueprint.chain(...)`" → "every thing that lives in a chain store"

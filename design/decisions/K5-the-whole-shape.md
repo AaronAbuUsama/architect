@@ -280,7 +280,7 @@ export default Blueprint.operation(Proposal, {
   move: machine.moves.vote,           // from passed or failed: ProposalNotOpen, the generated refusal
   errors: [AlreadyVoted],             // K7: NotAMember dropped; `allowed: [member]` already refuses with NotAllowed
   allowed: [member],
-  runs: "chain",                      // new: refused by the compiler today, M6.10
+  runs: "chain",                      // new: refused by the compiler today, M6.10 (superseded by K25, 20 November 2026: worked out, never written)
 });
 ```
 
