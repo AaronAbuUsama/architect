@@ -389,6 +389,8 @@ By the recommendation Aaron let stand, the stages are the order:
 
 1. **After Gate M2 (stage 1),** stage 2 comes next.
 2. **Then stage 3,** which pulls in workflows from M3 and agents from M4.
+   (Superseded in part by K26, 20 November 2026: the on-chain slices of stages 2 and 3 are pulled forward, Aaron's
+   exception; their gates still run here.)
 3. **Then stage 4.**
 4. **Then the release.**
 

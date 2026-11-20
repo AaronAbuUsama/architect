@@ -1,26 +1,29 @@
-// Planted fixture (G4, S-04). Compiled on its own by records/find-by.test.ts, never by the package's typecheck. `findBy` takes a
-// field only when the thing declares it unique: the first lines compile, and each `@ts-expect-error` line hides exactly one error.
-// SPELLING: the `unique:` line below is G4's first spelling. A builder who settles on `Blueprint.unique(...)` changes only it.
+// Planted fixture (G5, ST1.13). Compiled on its own by records/find-by.test.ts, never by the package's typecheck. `findBy` takes a rule and the
+// rule's key: the first lines compile, and each `@ts-expect-error` line hides exactly one error.
 import { Effect } from "effect";
 import { Blueprint } from "orthograph";
 import { Records } from "../../../src/modules/records/types.ts";
 
 const Handle = Blueprint.thing({
   description: "A name someone holds.",
-  fields: { id: Blueprint.id("hdl"), name: Blueprint.text({ max: 40 }), note: Blueprint.text({ max: 40 }) },
-  unique: { name: { while: ["claimed"] } },
+  code: "HD",
+  fields: { id: Blueprint.id("hdl"), name: Blueprint.text({ max: 40 }), owner: Blueprint.text({ max: 40 }), note: Blueprint.text({ max: 40 }) },
 });
+const oneHolderPerName = Blueprint.invariant.unique(Handle.fields.name);
+const onePerPair = Blueprint.invariant.unique([Handle.fields.owner, Handle.fields.name]);
 
 export const program = Effect.gen(function* () {
   const records = yield* Records;
-  // A declared unique field, with a value of its own type: accepted, and the answer may be there or not.
-  const held = yield* records.findBy(Handle, "name", "ada");
+  // A rule with the key's own type: accepted, and the answer may be there or not.
+  const held = yield* records.findBy(oneHolderPerName, "ada");
   const name: string | undefined = held ? String(held["name"]) : undefined;
-  // @ts-expect-error `note` is a field, but not declared unique
-  yield* records.findBy(Handle, "note", "x");
-  // @ts-expect-error `nickname` is not a field at all
-  yield* records.findBy(Handle, "nickname", "x");
-  // @ts-expect-error the value is the field's own type, not a number
-  yield* records.findBy(Handle, "name", 7);
+  // A composite key takes an object of its fields.
+  yield* records.findBy(onePerPair, { owner: "o1", name: "ada" });
+  // @ts-expect-error the value is the key's own type, not a number
+  yield* records.findBy(oneHolderPerName, 7);
+  // @ts-expect-error a composite key takes its fields as an object, not one value
+  yield* records.findBy(onePerPair, "ada");
+  // @ts-expect-error an object of the wrong fields
+  yield* records.findBy(onePerPair, { owner: "o1", nickname: "ada" });
   return name;
 });
