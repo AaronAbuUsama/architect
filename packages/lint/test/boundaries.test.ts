@@ -19,12 +19,17 @@ const fixturesConfig = (): string => {
   return path;
 };
 
+// The workspace's oxlint binary, run directly: `pnpm exec` added a second Node start to every case.
+const oxlint = join(root, "node_modules", ".bin", "oxlint");
+
 const lint = (file: string) => {
-  const run = spawnSync("pnpm", ["exec", "oxlint", "-c", fixturesConfig(), file], { cwd: root, encoding: "utf8" });
+  const run = spawnSync(oxlint, ["-c", fixturesConfig(), file], { cwd: root, encoding: "utf8" });
   return { exit: run.status, output: run.stdout + run.stderr };
 };
 
-describe("module boundaries", () => {
+// Each case starts oxlint, which loads the JS plugin; under a loaded CI runner one took 5967 ms against vitest's 5 s
+// default, and every such flake cost a rerun of `check` (design/decisions/CI-docs-fast-path.md).
+describe("module boundaries", { timeout: 30_000 }, () => {
   it.each([
     ["blueprint imports compiler", "packages/orthograph/test/fixtures/boundaries/imports-compiler.ts"],
     ["blueprint imports a package other than Effect", "packages/orthograph/test/fixtures/boundaries/imports-other-package.ts"],
