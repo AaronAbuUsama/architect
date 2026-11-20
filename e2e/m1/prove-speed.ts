@@ -203,13 +203,13 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
 };
 
 /** A report and its text that `problems` accepts, for the controls to plant a wrong output into. */
-export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report" | "called"> & { readonly report: Report } => {
+export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report" | "called"> & { readonly report: Report & { readonly changed: Changed } } => {
   const skipped = want.all.filter((name) => !want.ran.includes(name));
   const why = want.fellBackOn !== null && want.fellBackOn.length === 0 ? "no record of an earlier prove" : `cannot place ${(want.fellBackOn ?? []).join(", ")}`;
   const fell = want.fellBackOn === null ? null : { reason: why, files: [...want.fellBackOn] };
   const headline = fell ? `prove --changed: proving all ${want.all.length} journeys: ${fell.reason}` : `prove --changed: proving ${want.ran.length} of ${want.all.length} journeys`;
   const out = [headline, ...skipped.map((name) => `journey ${name} skipped: nothing it calls changed`), ...want.ran.map((name) => `journey ${name} ✔ 1/1 steps`), "prove ✔"].join("\n");
-  const report: Report = {
+  const report: Report & { readonly changed: Changed } = {
     passed: want.passes, lines: out.split("\n"),
     journeys: want.ran.map((name) => {
       const verdict = want.passes || !(want.fails ?? want.ran).includes(name) ? "pass" : "fail";
