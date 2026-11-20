@@ -178,6 +178,23 @@ jobs:
           "$brew_bin/brew" --version
       - run: NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
 
+  # M8's checks (e2e/m8/README.md), written before time is built: the ratchet passes while every failure is listed in
+  # e2e/m8/expected-failing/, and fails on any other. Skipped on a docs-only pull request, like the gates above.
+  e2e-m8:
+    needs: changes
+    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: NX_DAEMON=false pnpm nx run e2e:m8-ratchet --outputStyle=static
+
   # Gate M0 (M0.06): no old name outside the records, and the design docs build with every link resolving.
   # The canon's check (docs/canon/README.md) runs beside it: every quote, reference and component in the MDX pages.
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
