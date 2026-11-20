@@ -1,7 +1,7 @@
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/cfworker";
 import type { OperationModel, ProjectModel } from "../project-evidence/types.ts";
 import { Reading } from "../reading/service.ts";
-import { hasOptional, sampleOf } from "./internal/sample.ts";
+import { fromModel, hasOptional, sampleOf } from "./internal/sample.ts";
 import type { OutputSchemaApi } from "./types.ts";
 
 type Check = (value: unknown) => { readonly valid: boolean; readonly errorMessage?: string | undefined };
@@ -29,9 +29,22 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, files: Readonly<Rec
   if (table === undefined) return { samples: [], problems: [`${op.name}'s refusals cannot be tried: ${TABLE} has no refusals table to read each one's code, exit and status from`] };
   const rows = refusalNames(model, op).map((name) => [name, table[name]] as const);
   return {
-    samples: rows.flatMap(([name, row]) => (row === undefined ? [] : [{ refusal: name, code: row["code"], exit: row["exit"], status: row["status"] }])),
+    samples: rows.flatMap(([name, row]) => (row === undefined ? [] : [{ ...fieldsOf(model, name), refusal: name, code: row["code"], exit: row["exit"], status: row["status"] }])),
     problems: rows.filter(([, row]) => row === undefined).map(([name]) => `${op.name}'s refusal ${name} has no row in ${TABLE}`),
   };
+};
+
+/**
+ * The fields a refusal carries beside its table row, as the runtime's `refusalOf` writes them: a declared error's public fields (`AllowanceExceeded.remaining`),
+ * a machine's wrong-state refusal's `state`, a generated not-found's `id`. A field whose value the model does not say is left out.
+ */
+const fieldsOf = (model: ProjectModel, name: string): Readonly<Record<string, unknown>> => {
+  const things = Object.values(model.things);
+  const declared = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
+  if (declared !== undefined) return Object.fromEntries(Object.entries(declared.fields).filter(([, f]) => f.visibility === undefined).flatMap(([key, f]) => (fromModel(f) === undefined ? [] : [[key, fromModel(f)] as const])));
+  const machine = things.find((t) => t.machine?.notFrom.error === name)?.machine;
+  if (machine != null) return { state: machine.states[0] ?? "x" };
+  return things.some((t) => t.notFound?.error === name) ? { id: "x" } : {};
 };
 
 const unjudged = (op: OperationModel, names: ReadonlyArray<string>) =>

@@ -22,12 +22,18 @@ const observed = (spans: ReadonlyArray<SpanView> | undefined, op: string, name: 
 };
 
 /**
+ * A text with more to it than a length: a key beyond `type` and `max`, or the length of `Values.email` (254), whose pattern the model does not record.
+ * "x" may not be a value of it, so with no recorded value it is unjudged rather than red for a value that cannot occur.
+ */
+const constrained = (field: FieldModel): boolean => Object.keys(field.value).some((k) => k !== "type" && k !== "max") || field.value["max"] === 254;
+
+/**
  * A value of the kinds the model fully determines, as the wire carries it: an id of its prefix, a text, a boolean, and a number as the text of its digits
  * (`Values.uint` decodes `BigIntFromString`). Anything else (a named schema) the model does not say.
  */
-const fromModel = (field: FieldModel): unknown =>
+export const fromModel = (field: FieldModel): unknown =>
   field.value.type === "id" ? `${String(field.value["prefix"] ?? "id")}_abc123`
-  : field.value.type === "text" ? "x"
+  : field.value.type === "text" ? (constrained(field) ? undefined : "x")
   : field.value.type === "uint" ? "1"
   : field.value.type === "int" ? "0"
   : field.value.type === "boolean" || field.value.type === "bool" ? true

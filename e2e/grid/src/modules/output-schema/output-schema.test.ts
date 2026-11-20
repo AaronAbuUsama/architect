@@ -154,3 +154,36 @@ describe("an optional public field is judged too", () => {
     expect(run(withNote({ type: "string" }), spans)).toEqual([]);
   });
 });
+
+describe("a refusal carries its declared public fields", () => {
+  const exceeding = { ...health, refusals: ["AllowanceExceeded"] } as OperationModel;
+  const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
+  /** The refusal branches: every other refusal as the envelope alone, and the named one with the branch under test. */
+  const others = (name: string) => ({ ...refusalBranch, properties: { ...refusalBranch.properties, refusal: { type: "string", not: { const: name } } } });
+  const only = (name: string, extra: Record<string, unknown>) => ({ ...refusalBranch, properties: { ...refusalBranch.properties, ...extra, refusal: { const: name } }, required: [...refusalBranch.required, ...Object.keys(extra)] });
+  const run = (refusal: unknown) => OutputSchema.answers({ model: acme.model, op: exceeding, schema: { type: "object", anyOf: [answer, others("AllowanceExceeded"), refusal] }, spans: healthSpans, files: acme.files });
+  const row = (remaining: unknown) => only("AllowanceExceeded", { remaining });
+
+  it("green: a refusal branch that correctly requires `remaining` (a uint, as its digits)", () => {
+    expect(run(row({ type: "string", pattern: "^-?\\d+$" }))).toEqual([]);
+  });
+  it("red: a refusal branch that types `remaining` as an integer refuses the real refusal", () => {
+    expect(run(row({ type: "integer" }))[0]).toMatch(/refuses the refusal {"remaining":"1","refusal":"AllowanceExceeded","code":"AL-001","exit":41,"status":422}/);
+  });
+  it("the machine's wrong-state refusal carries its state", () => {
+    const moving = { ...health, refusals: [], move: { key: "x", from: ["a"], to: ["b"], emits: "E" }, thing: "allowance" } as OperationModel;
+    const strict = only("AllowanceNotActive", { state: { type: "string" } });
+    expect(OutputSchema.answers({ model: acme.model, op: moving, schema: { type: "object", anyOf: [answer, others("AllowanceNotActive"), strict] }, spans: healthSpans, files: acme.files })).toEqual([]);
+  });
+});
+
+describe("a text with a constraint the model does not record is unjudged without a recorded value", () => {
+  const email = { ...health, answer: { email: { value: { type: "text", max: 254 } } } } as OperationModel;
+  const schema = { type: "object", anyOf: [{ type: "object", properties: { email: { type: "string", pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" } }, required: ["email"] }, refusalBranch] };
+  it("no value: unjudged, not red for an \"x\" that cannot occur", () => {
+    expect(OutputSchema.answers({ model: acme.model, op: email, schema, spans: [], files: acme.files })).toEqual(["system.health's answer field email has no recorded value (the run's span carries none and the model does not say one), so the schema cannot be shown to accept it"]);
+  });
+  it("a recorded value is judged", () => {
+    expect(OutputSchema.answers({ model: acme.model, op: email, schema, spans: [{ name: "system.health", attrs: { "answer.email": "a@b.co" } }], files: acme.files })).toEqual([]);
+  });
+});
