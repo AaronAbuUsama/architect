@@ -57,7 +57,7 @@ describe("a generated verb primitive", () => {
     note("3 call the world received from a person", world.calls);
     expect(world.calls).toHaveLength(1);
     expect(world.calls[0]?.payload).toEqual({ name: "aaron" });
-    expect(world.calls[0]?.via).not.toBe("agent");
+    expect(world.calls[0]?.via).toBe("mouse");
   });
 
   test("4. BREAK: the declared refusal must reach the agent, not a silent ok", async () => {
@@ -90,6 +90,7 @@ describe("a generated verb primitive", () => {
     const result = await agent.act({ steps: [{ ref: "Claim your name", action: "setName", args: ["x"] }] });
     note("5 two with one name", result.error ?? result);
     expect(result.ok).toBe(false);
+    expect(result.error?.message).toContain("names 2 components");
   });
 
   test("6. BREAK: an action the generator did not list is refused", async () => {
@@ -97,9 +98,10 @@ describe("a generated verb primitive", () => {
     const result = await agent.act({ steps: [{ ref: "Claim your name", action: "destroy" }] });
     note("6 unlisted action", result.error ?? result);
     expect(result.ok).toBe(false);
+    expect(result.error?.message).toContain("takes no destroy");
   });
 
-  test("7. a person-only mark stops the agent sending, and allow can ask", async () => {
+  test("7. a person-only mark stops the agent sending", async () => {
     const world = makeWorld();
     render(
       <div data-agent-confirm="Claims the name firstpage for you">
@@ -109,6 +111,7 @@ describe("a generated verb primitive", () => {
     const result = await agent.act({ steps: [{ ref: "Claim your name", action: "submit" }] });
     note("7 needs a person", result.error ?? result);
     expect(result.ok).toBe(false);
+    expect(result.error?.message).toContain("Needs a person");
     expect(world.calls).toHaveLength(0);
   });
   test("9. BREAK: a send that rejects must not leave the verb pending for ever", async () => {
@@ -128,6 +131,7 @@ describe("a generated verb primitive", () => {
     const first = await agent.act({ steps });
     note("9 the send rejects", first.error ?? first);
     expect(first.ok).toBe(false);
+    expect(first.error?.message).toContain("The call failed before it was answered.");
     expect(screen.getByText<HTMLButtonElement>("Claim").disabled).toBe(false);
     fail = false;
     const second = await agent.act({ steps: [{ ref: "Claim your name", action: "submit" }] });

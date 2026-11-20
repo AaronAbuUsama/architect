@@ -3,7 +3,7 @@
 **Question.** Can one blueprint verb be generated as a UI SDK primitive that renders in more than one framework and
 that an agent in the page can find, fill and send, with the verb's declared refusal reaching that agent?
 
-**Answer.** Yes. One generated file of 73 lines is the form in React and as custom elements, the agent bridge lists it
+**Answer.** Yes, against a stand-in server and for a verb with one field. One generated file of 73 lines is the form in React and as custom elements, the agent bridge lists it
 with exactly the actions the generator named, a call carries whether a person or an agent made it, and a refusal fails
 the agent's step with its code. Three things had to be found out by trying, and one of them was a silent failure.
 
@@ -90,9 +90,9 @@ Three things the docs did not say and the spike had to find:
 | Generator | 145 lines |
 | Shared helper | 62 lines |
 | Type errors in generated code on the first run | 1 (the helper's own typing, not UI SDK's) |
-| Test run, 9 tests in jsdom | 2.4 s wall, 0.33 s in tests |
-| UI SDK releases between 12 and 19 November | 13 |
-| The same generated code on `0.1.0-beta.13`, six releases later | type-checks and passed the 8 tests written at the time |
+| Test run, 9 tests in jsdom | about 2.3 s wall, 0.3 to 0.6 s in tests, over three runs |
+| UI SDK beta releases between 12 and 19 November | 12 (`beta.1` to `beta.13`; there is no `beta.11`) |
+| The same generated code on `0.1.0-beta.13`, five releases later | type-checked and passed the 8 tests written at the time, in a throwaway copy that is not committed |
 
 ## The decision it supports
 
@@ -113,7 +113,10 @@ Generate the page from the blueprint onto UI SDK, as its own output, and never h
 - **The model cannot describe the input.** `HandleName` reaches the model as `{ "type": "schema" }`, so the generator
   emitted no pattern and no length for the name. A plain input came out. Named value kinds would fix this for every
   output.
-- **A beta moving fast.** Thirteen releases in a week. The generated code survived six of them unchanged, which is one
+- **A beta moving fast.** Twelve releases in a week. The generated code survived five of them unchanged, which is one
   data point, not a promise.
+- **The lockfile is younger than the pins.** Every version in `package.json` is exact and at least three days old.
+  Four transitive ones that npm resolved are not: `undici` 8.13.0 (20 November), `tldts` and `tldts-core` 7.5.5 and
+  `source-map-js` 1.2.4 (19 November). They come through jsdom and Vitest and are test tooling only.
 - **Not tried:** Vue, Svelte and Solid; a verb with more than one field or a reference to another thing; a list read;
   server rendering; what a person sees while an agent is acting; the `allow` callback asking a person.
