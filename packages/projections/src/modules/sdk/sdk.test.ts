@@ -41,3 +41,18 @@ describe("the SDK's types", () => {
     expect(line.indexOf("*/")).toBe(line.length - 2);
   });
 });
+
+describe("InvalidPayload", () => {
+  it("names where a payload is refused and why, and never the value that was refused", async () => {
+    const { Effect, Exit, Cause } = await import("effect");
+    const Sdk = await import(resolve(repo, "examples/acme/generated/sdk/src/index.ts"));
+    const secret = "hunter2-not-a-string-9981";
+    const exit = await Effect.runPromiseExit(Sdk.session.signIn({ email: "ada@example.com", password: 123456789, note: secret } as never).pipe(Effect.provide(Sdk.layer("http://127.0.0.1:1"))));
+    expect(Exit.isFailure(exit)).toBe(true);
+    const error = Exit.isFailure(exit) ? (Cause.squash(exit.cause) as { readonly _tag: string; readonly message: string }) : undefined;
+    expect(error?._tag).toBe("InvalidPayload");
+    expect(error?.message).toContain("password");
+    expect(error?.message).not.toContain("123456789");
+    expect(error?.message).not.toContain(secret);
+  });
+});

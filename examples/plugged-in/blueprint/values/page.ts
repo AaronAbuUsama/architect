@@ -10,4 +10,4 @@ export const LinkUrl = Blueprint.described(Blueprint.value(Schema.String.check(
   Schema.isPattern(/^https?:\/\//),
   Schema.makeFilter((url: string) => URL.canParse(url)),
 )), "Where the link goes: a web address starting with http:// or https://, up to 2048 characters.");
-export const LinkPosition = Blueprint.described(Blueprint.value(Blueprint.uint(32)), "Where the link goes on the page, counted from the top.");
+export const LinkPosition = Blueprint.described(Blueprint.value(Blueprint.uint(32)), "Its place in the page's list of links: 0 is first.");
