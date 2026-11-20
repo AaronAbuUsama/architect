@@ -32,7 +32,7 @@ Three doors don't yet narrow a private field as MCP does: see the note `private-
 
 The sign-up sheet is a thing. It has an id, a title, and two counts:
 
-```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+```ts file=examples/signup/blueprint/things/sheet/thing.ts name=Sheet lines=4-7
 export const Sheet = Blueprint.thing({
   description: "A sign-up sheet with a fixed number of places.",
   fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
@@ -41,7 +41,7 @@ export const Sheet = Blueprint.thing({
 
 `Count` and `Title` are values, named once in `examples/signup/blueprint/values/counts.ts`:
 
-```ts file=examples/signup/blueprint/values/counts.ts lines=3-6
+```ts file=examples/signup/blueprint/values/counts.ts name=Count,Title lines=3-6
 /** How many of something. */
 export const Count = Blueprint.value(Blueprint.uint(32));
 /** A short name a person types. */
@@ -56,7 +56,7 @@ None of the sheet's fields is marked, so all of them are public. A sign-up sheet
 private are shown with acme, whose starter signs people in with a password. In acme, a password and a bearer token are
 values marked secret, once:
 
-```ts file=examples/acme/blueprint/values/identity.ts lines=3-6
+```ts file=examples/acme/blueprint/values/identity.ts name=Password,Secret lines=3-6
 /** What a person signs in with. Never stored by the project: Better Auth keeps only its hash. Secret: never in telemetry. */
 export const Password = Blueprint.visibility.secret(Blueprint.text({ max: 128 }));
 /** A secret shown once: a session's bearer token, or an API key. Secret: never in telemetry. */
@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/orthograph/src/modules/values/types.ts lines=30-49
+```ts file=packages/orthograph/src/modules/values/types.ts name=ValuesApi lines=30-49
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -115,7 +115,7 @@ comes from Effect, so a test world can seed it (`packages/language-effect/src/mo
 must have a field called `id`: the type of `Blueprint.thing` asks for one
 (`packages/orthograph/src/modules/things/types.ts:35`). The sheet's handler for `open` makes one:
 
-```ts file=examples/signup/src/sheet/open.ts lines=11-12
+```ts file=examples/signup/src/sheet/open.ts name=open lines=11-12
 const sheet = yield* Ids.of(Sheet.fields.id);
 yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n }));
 ```
@@ -124,7 +124,7 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=6-22
+```ts file=packages/orthograph/src/modules/things/types.ts name=Field lines=6-22
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
   readonly kind: "field";
@@ -147,7 +147,7 @@ export interface Field<V extends Value = Value> {
 You declare a field as a value (`places: Count`), or as another thing's field. Payloads and answers are made of fields
 too, so `sheet.join` takes `Sheet.fields.id` and gets the same id type the thing has:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=9-10
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts name=default lines=9-10
 payload: { sheet: Sheet.fields.id, people: Count },
 answer: { left: Count },
 ```
@@ -173,7 +173,7 @@ as a string, is on [blueprint](blueprint.mdx).
 
 There are three visibilities. Public is the default:
 
-```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-39
+```ts file=packages/orthograph/src/modules/visibility/types.ts name=Visibility,VisibilityApi lines=14-39
 /** `public`; `secret` (a password, token, key or session: nobody's, recorded nowhere); or private to some roles. */
 export type Visibility = "public" | "secret" | PrivateTo;
 
@@ -211,7 +211,7 @@ A mark gives back a copy of the same kind, so a marked value goes wherever the o
 as `Password` is, or one use of a field. acme's `sign-in` answers the session's own id, marked secret for this one
 answer, without touching the session thing's field:
 
-```ts file=examples/acme/blueprint/things/session/verbs/sign-in.ts lines=9-11
+```ts file=examples/acme/blueprint/things/session/verbs/sign-in.ts name=default lines=9-11
 payload: { email: Person.fields.email, password: Password },
 // The caller is handed both once, in this answer: `issued` lets a secret leave there and nowhere else.
 answer: { session: Blueprint.issued(Blueprint.visibility.secret(Session.fields.id)), token: Blueprint.issued(Secret) },
@@ -219,7 +219,7 @@ answer: { session: Blueprint.issued(Blueprint.visibility.secret(Session.fields.i
 
 No example has a private field yet. This is the test that proves the mark, with a role made for it:
 
-```ts file=packages/orthograph/src/modules/visibility/visibility.test.ts lines=41-47
+```ts file=packages/orthograph/src/modules/visibility/visibility.test.ts name=visibility lines=41-47
 it("is private to a list of roles", () => {
   const t = Things.thing({ description: "x", fields: { id: Values.id("x") } });
   const admin = Roles.role(t, { rule: () => true });

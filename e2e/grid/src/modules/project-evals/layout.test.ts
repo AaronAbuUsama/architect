@@ -174,7 +174,7 @@ describe("operation.api: the endpoint's method and path, not its formatting", ()
 describe("machine.mcp and operation.mcp do not contradict: the description is the model's, the states are in the schema", () => {
   it("is green on both for a tool whose description names no state but whose schema does, and red on machine.mcp when neither does", () => {
     const schema = { properties: { state: { enum: ["listed", "removed"] } } };
-    const named = { ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "link.add" || t.name === "link.remove" ? { ...t, outputSchema: schema } : t)) };
+    const named = { ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "link.add" ? { ...t, outputSchema: schema, _meta: { move: { key: "add", from: [], to: ["listed"], emits: "LinkAdded" } } } : t.name === "link.remove" ? { ...t, outputSchema: schema, _meta: { move: { key: "remove", from: ["listed"], to: ["removed"], emits: "LinkRemoved" } } } : t)) };
     expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", named)).toEqual({ ok: true, why: [] });
     expect(judge(MachineEvals.evals, "machine.mcp", "link", named)).toEqual({ ok: true, why: [] });
     expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", pluggedIn)).toEqual({ ok: true, why: [] });
@@ -211,7 +211,7 @@ describe("presentation forms: the same content written another way (#150 round f
 
   it("machine.sdk: an interface's `state` and an enum's values count like a type alias", () => {
     expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export interface Link { readonly state: "listed" | "removed" }\n`))).toEqual({ ok: true, why: [] });
-    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export enum LinkState { Listed = "listed", Removed = "removed" }\n`))).toEqual({ ok: true, why: [] });
+    expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export enum LinkState { Listed = "listed", Removed = "removed" }\nexport type Link = { readonly state: LinkState }\n`))).toEqual({ ok: true, why: [] });
     expect(machineSdk(editFile(pluggedIn, index, (t) => `${t}export type Link = { state: "listed" | "removed" }\n`))).toEqual({ ok: true, why: [] });
   });
   it("machine.sdk: an interface whose state is missing a state, or another property's literals, is red", () => {
@@ -263,8 +263,8 @@ describe("presentation forms: the same content written another way (#150 round f
   it("machine.sdk: a union named for something else does not belong to the thing", () => {
     const check = (decl: string) => judge(MachineEvals.evals, "machine.sdk", "link", editFile(pluggedIn, index, (t) => `${t}${decl}\n`));
     expect(check('export type Linkage = "listed" | "removed"').ok).toBe(false);
-    expect(check('export type LinkState = "listed" | "removed"')).toEqual({ ok: true, why: [] });
-    expect(check('export type LinkStatus = "listed" | "removed"')).toEqual({ ok: true, why: [] });
+    expect(check('export type LinkState = "listed" | "removed"\nexport type Link = { readonly state: LinkState }')).toEqual({ ok: true, why: [] });
+    expect(check('export type LinkStatus = "listed" | "removed"\nexport type Link = { readonly state: LinkStatus }')).toEqual({ ok: true, why: [] });
     expect(check('export type Link = { state: "listed" | "removed" }')).toEqual({ ok: true, why: [] });
     expect(check('export interface Other { state: "listed" | "removed" }').ok).toBe(false);
   });
@@ -307,7 +307,7 @@ describe("machine.sdk: a type exported for the thing, not a string anywhere", ()
   const check = (e: typeof pluggedIn) => judge(MachineEvals.evals, "machine.sdk", "link", e);
   const index = "generated/sdk/src/link/index.ts";
   it("stays green when the SDK has no semicolons, so one type's body ends where the next declaration starts", () => {
-    expect(check(editFile(pluggedIn, index, (t) => `${t.replace(/;\n/g, "\n")}export type LinkState =\n  | "listed"\n  | "removed"\nexport type Other = "x"\n`))).toEqual({ ok: true, why: [] });
+    expect(check(editFile(pluggedIn, index, (t) => `${t.replace(/;\n/g, "\n")}export type LinkState =\n  | "listed"\n  | "removed"\nexport type Other = "x"\nexport type Link = { readonly state: LinkState }\n`))).toEqual({ ok: true, why: [] });
   });
   it("is red when a neighbour's literals are swallowed, or a state is only in a comment inside the type", () => {
     expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState = "listed"\nexport type Removed = "removed"\n`)).ok).toBe(false);
@@ -315,8 +315,8 @@ describe("machine.sdk: a type exported for the thing, not a string anywhere", ()
     expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState = "listed" // or "removed"\n`)).ok).toBe(false);
   });
   it("stays green for a type with single quotes, spread over lines, or named for the thing in another file", () => {
-    expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState =\n  | 'listed'\n  | 'removed';\n`))).toEqual({ ok: true, why: [] });
-    expect(check(editFile(pluggedIn, "generated/sdk/src/link/state.ts", () => 'export type LinkStatus = "removed" | "listed";\n'))).toEqual({ ok: true, why: [] });
+    expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState =\n  | 'listed'\n  | 'removed';\nexport type Link = { readonly state: LinkState };\n`))).toEqual({ ok: true, why: [] });
+    expect(check(editFile(editFile(pluggedIn, "generated/sdk/src/link/state.ts", () => 'export type LinkStatus = "removed" | "listed";\n'), index, (t) => `${t}export type Link = { readonly state: "listed" | "removed" };\n`))).toEqual({ ok: true, why: [] });
   });
   it("is red when the states are only strings in a comment, a function or another thing's type", () => {
     expect(check(editFile(pluggedIn, index, (t) => `${t}// "listed" and "removed"\nexport const states = ["listed", "removed"];\n`)).ok).toBe(false);

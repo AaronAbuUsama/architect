@@ -29,7 +29,7 @@ machine makes for you.
 
 The sign-up sheet has three states and three moves:
 
-```ts file=examples/signup/blueprint/things/sheet/machine.ts lines=5-13
+```ts file=examples/signup/blueprint/things/sheet/machine.ts name=machine lines=5-13
 export const machine = Blueprint.machine(Sheet, {
   states: ["open", "full", "closed"],
   moves: {
@@ -44,7 +44,7 @@ export const machine = Blueprint.machine(Sheet, {
 `join` has two outcomes: the sheet stays `open`, or the last place fills it. Each move emits an event, declared beside
 it in `examples/signup/blueprint/things/sheet/events.ts`. An event is named by its export:
 
-```ts file=examples/signup/blueprint/things/sheet/events.ts lines=5-7
+```ts file=examples/signup/blueprint/things/sheet/events.ts name=SheetOpened,SheetClosed lines=5-7
 export const SheetOpened = Blueprint.event({ sheet: Sheet.fields.id, places: Count });
 export const PlaceTaken = Blueprint.event({ sheet: Sheet.fields.id, left: Count });
 export const SheetClosed = Blueprint.event({ sheet: Sheet.fields.id });
@@ -56,7 +56,7 @@ The compiled model draws the machine, and the refusal it made: `SheetNotOpen`, c
 
 An operation says which move it makes. `sheet.join` makes `join`:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=11-11
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts name=default lines=11
 move: machine.moves.join,
 ```
 
@@ -70,7 +70,7 @@ in the commit after it.
 Once the caller has passed the role check, the machine checks the state
 (`packages/language-effect/src/modules/handler/service.ts:90`):
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=30-37
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts name=checkFrom lines=30-37
  */
 export const checkFrom = (op: Operation, refusal: string | undefined, subject: Instance | undefined) =>
   Effect.gen(function* () {
@@ -111,7 +111,7 @@ The handler gets `move` and calls it once, with the state it ends in. A move wit
 nothing, or its one state, as `close` does (`examples/signup/src/sheet/close.ts:8`). A move with several must be told
 which. This is the sheet's join:
 
-```ts file=examples/signup/src/sheet/join.ts lines=22-24
+```ts file=examples/signup/src/sheet/join.ts name=join lines=22-24
 yield* steps.record(records.update(Sheet, sheet, { taken: taken + people }));
 yield* move(people === left ? "full" : "open");
 return { left: left - people };
@@ -133,7 +133,7 @@ Once the handler has answered and its answer is checked, the move is applied
 as this call left it, then the payload, then the answer. A field found in none of them dies. `PlaceTaken`'s `left` is
 in the answer. Then:
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=79-83
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts name=applyMove lines=79-83
 // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
 const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
 yield* unit.setState(op.thing, subject, outcome);

@@ -38,6 +38,8 @@ export interface ReadingApi {
   readonly over: <T>(cell: CellId, noun: string, find: (evidence: ProjectEvidence, subject: string) => T | undefined, problems: (found: T, evidence: ProjectEvidence, subject: string) => ReadonlyArray<string>) => Eval<ProjectEvidence>;
   /** The exported types of a TypeScript source (aliases, interfaces, enums) with the string literals each names and its property names; comments and other declarations never count. */
   readonly exportedTypes: (source: string) => ReadonlyArray<ExportedType>;
+  /** What a written type is made of, each union member as a kind (`string`, `array`, `null`, `string-literal`, `reference`, `indexed`, …): `string[]` is an `array`, not a `string`. */
+  readonly typeKinds: (text: string) => ReadonlyArray<string>;
   /** What a TypeScript source exports as a value (`export const f`, `export function f`), with the doc comment above it. */
   readonly exportedValues: (source: string) => ReadonlyArray<{ readonly name: string; readonly doc: string | undefined }>;
   /** Every name a TypeScript source exports, with what it is in the module it comes from and which module: `export { a as b } from "./a.ts"` is `{ exported: "b", local: "a", from: "./a.ts" }`. */

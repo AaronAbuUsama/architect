@@ -50,7 +50,7 @@ Acme mounts the model, the api, the server (M1.11), the sdk, the cli and the mcp
 gone. A project that mounts no projection, signup included, gets those six as if it had. What is still a fixed list in
 the generator, for every project, is the rest:
 
-```ts file=packages/generators/src/modules/render/service.ts lines=1-6
+```ts file=packages/generators/src/modules/render/service.ts name=imports,imports lines=1-6
 import { Effect } from "effect";
 import { emptyServer, renderHandlerScaffold } from "@orthograph/projections/shared";
 import { PortalRender } from "#modules/portal/service.js";
