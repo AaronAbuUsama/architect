@@ -326,9 +326,10 @@ has to know what a thread is.
 fixes that keep a proved contract, merging its own pull requests in the app's repository once CI is green and a 🔍 has
 passed, if the person has said yes to that once (a decision file).
 
-**How it asks:** batched, each question with a recommendation, for the ear; and in writing in the grill format (the
-person's `CLAUDE.md`, "Batch-grill question format"), with the real code. An answer becomes a decision file the same
-turn.
+**How it asks:** batched, each question with a recommendation first, as one short numbered list for the ear. A design
+fork with code to compare also goes in writing in the grill format (the person's `CLAUDE.md`, "Batch-grill question
+format"); a product question doesn't need it (the Capxul test drive, "Where the skills fell short", 4). An answer becomes
+a decision file the same turn.
 
 **Money.** Each subagent run carries a budget. Before starting runs, Foreman checks the day's spend against
 `limits.usdPerDay`, the way H2.9 reserves before a run (`H2-agent-runs-and-benchmarks.md:233-244`). Version zero can only
