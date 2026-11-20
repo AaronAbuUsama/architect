@@ -2,6 +2,7 @@
 // builder) fails its own eval in a scratch copy of acme.
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
+import { createServer } from "node:http";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
@@ -79,6 +80,22 @@ describe("ortho prove --env local", () => {
     expect(report.lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17");
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
+    nothingRunning();
+  });
+
+  // S-25: `ortho prove` defaults to port 0, a free port the OS picks. Another session's world on the old fixed default
+  // (8799) answers every request, so a run that landed on it would report its verdicts instead of its own.
+  it("with port 0 it runs its own world while 8799 is held by something else (S-25)", { timeout: 180_000 }, async () => {
+    const held = createServer((_, res) => { res.writeHead(200, { "content-type": "application/json" }); res.end("{}"); });
+    const taken = await new Promise<boolean>((done) => { held.once("error", () => done(true)); held.listen(8799, "127.0.0.1", () => done(true)); });
+    expect(taken).toBe(true);
+    try {
+      const report = await Effect.runPromise(Effect.scoped(Prove.run({ root: acme, port: 0, only: "grant an allowance" })));
+      expect(report.lines).toContain("journey grant an allowance ✔ 4/4 steps");
+      expect(report.lines.some((l) => l.includes("telemetry missing"))).toBe(false);
+    } finally {
+      held.close();
+    }
     nothingRunning();
   });
 

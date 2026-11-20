@@ -66,17 +66,30 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
     ]),
   );
 
-  // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused
-  // caller leaves no handler span), the machine's check, the handler, its answer checked, its move, one commit.
+  // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused caller
+  // leaves no handler span, only `<operation>.refused`, which carries the refusal), the machine's check, the handler,
+  // its answer checked, its move, one commit.
+  const refused = (principal: Principal, number: number) => (e: unknown) => {
+    const tag = tagOf(e);
+    const code = codes?.[tag];
+    return Effect.annotateCurrentSpan({ refusal: tag, ...(code === undefined ? {} : { "refusal.code": code }) }).pipe(
+      spanned(`${name}.refused`, { operation: name, attempt: number, "principal.kind": principal.kind }),
+    );
+  };
   const decodeAnswer = Schema.decodeUnknownEffect(op.answerSchema as unknown as AnyCodec);
   const attempt = (payload: object, principal: Principal, key: string | undefined, number: number) =>
     Effect.gen(function* () {
       const store = yield* Store;
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
-      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords, Effect.withTracerEnabled(false));
+      // The check's own reads are not traced: a refusal is, in its own span.
+      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(
+        withRecords, Effect.withTracerEnabled(false), Effect.tapError(refused(principal, number)),
+      );
       const logs = yield* recordingLogs(payload, op.payload);
       return yield* Effect.gen(function* () {
+        // The operation's span, which a move's attributes are written on whichever step span the handler is in.
+        const operationSpan = yield* Effect.currentSpan;
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
         // Where the call ran: the world's environment, and the kind of store its thing lives in.
@@ -94,7 +107,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
         const handed = yield* prehandle(op, notFound, payload, unit);
         const from = yield* checkFrom(op, notFrom, handed.subject);
         const chosen = yield* Ref.make<string | undefined>(undefined);
-        const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
+        const move = (to?: string) => chooseOutcome(name, op, to, operationSpan).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
         const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(Effect.provideService(Records, logs.watching(unit.records)), logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
