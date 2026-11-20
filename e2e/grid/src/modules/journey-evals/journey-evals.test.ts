@@ -89,9 +89,13 @@ describe("a wrong output is red, and says what", () => {
 
 type Model = typeof pluggedIn.model;
 const words = (ref: ReadonlyArray<unknown>) => (ref[0] === "world" ? `the world's ${ref.slice(1).join(" ")}` : ref.join(" "));
-const shown = (value: unknown) => {
-  const ref = typeof value === "object" && value !== null ? (value as { ref?: ReadonlyArray<unknown> }).ref : undefined;
-  return ref === undefined ? (typeof value === "string" ? value : JSON.stringify(value)) : words(ref);
+/** A value as a page says it: a reference in words from its path, a literal by its value, a structure as its parts in order. */
+const shown = (value: unknown): string => {
+  const ref = typeof value === "object" && value !== null && !Array.isArray(value) ? (value as { ref?: ReadonlyArray<unknown> }).ref : undefined;
+  if (ref !== undefined) return words(ref);
+  if (Array.isArray(value)) return value.map(shown).filter((t) => t !== "").join(", ");
+  if (typeof value === "object" && value !== null) return Object.values(value).map(shown).filter((t) => t !== "").join(", ");
+  return value === undefined || value === null ? "" : String(value);
 };
 /** One step as a bullet: title, caller by cast name and kind, every payload field with its value, and the refusal or the answer checked. */
 const bullet = (model: Model, journey: JourneyModel, step: JourneyModel["steps"][number]) => {
@@ -101,7 +105,7 @@ const bullet = (model: Model, journey: JourneyModel, step: JourneyModel["steps"]
   const refusal = step.checks?.find((c) => c.kind === "refuses");
   const answer = (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").map((c) => (c.kind === "expect" ? `something matching ${c.match}` : shown(c.value)));
   const refused = refusal?.error === undefined ? undefined : refusalOf(model, refusal.error);
-  const outcome = refused !== undefined ? `is refused with ${refused}, ${model.refusals[refused]}` : answer.length > 0 ? `gets back ${answer.join(" and ")}` : "is answered";
+  const outcome = refused !== undefined ? `is refused with ${refused}, ${model.refusals[refused]}${refusal?.fields !== undefined && shown(refusal.fields) !== "" ? ` (${shown(refusal.fields)})` : ""}` : answer.length > 0 ? `gets back ${answer.join(" and ")}` : "is answered";
   return `- **${step.title}.** ${call.actor} (${kind}) calls with ${payload || "nothing"}, and ${outcome}.`;
 };
 const entries = (e: typeof pluggedIn, op: string, only?: (title: string) => boolean) => Object.values(e.model.journeys ?? {}).flatMap((journey) => {
@@ -146,6 +150,22 @@ describe("journey.docs holds the worked example's content (W2)", () => {
     expect(why).toMatch(/does not name the answer it checks in the words world handle/);
     const payloadRef = Object.values(pluggedIn.model.journeys!).flatMap((j) => j.steps.flatMap((s) => Object.values(s.call?.payload ?? {}))).some((v) => typeof v === "object" && v !== null);
     expect(payloadRef, "the model has a payload value taken from the world").toBe(true);
+  });
+
+  it("reads a reference wherever it sits: nested in an answer, in a refusal's fields, in a payload; an id beside the words is still an id", () => {
+    const stranger = "a stranger cannot edit a page";
+    const strangerOp = Object.values(pluggedIn.model.journeys!).find((j) => j.name === stranger)!.steps.find((st) => st.title === "aaron's page is exactly as he left it")!.call!.operation;
+    const swapOp = (op: string, from: string | RegExp, to: string) => (page: string, at: string) => (at === op ? page.replace(from, to) : page);
+    expect(check("docs", stranger, worked(pluggedIn)), "the nested reference in words, and the literals beside it").toEqual({ ok: true, why: [] });
+    expect(check("docs", stranger, worked(pluggedIn, swapOp(strangerOp, "the world's lastLink", "a link"))).why.join("\n")).toMatch(/does not name the answer it checks in the words world lastLink/);
+    expect(check("docs", stranger, worked(pluggedIn, swapOp(strangerOp, "the world's lastLink", "the world's lastLink, lnk_9f31ab42"))).why.join("\n")).toMatch(/writes an id where the answer it checks is the journey's world lastLink/);
+    expect(check("docs", claimed, worked(pluggedIn, swap("gets back the world's handle", "gets back the world's handle hdl_9f31ab42"))).why.join("\n")).toMatch(/writes an id where the answer it checks is the journey's world handle/);
+    expect(check("docs", "add, order and remove a link", worked(pluggedIn, (page) => page.replace(" (removed)", ""))).why.join("\n")).toMatch(/does not show the refusal's fields removed/);
+    const withRef = Object.values(pluggedIn.model.journeys!).flatMap((j) => j.steps.map((st) => ({ j, st }))).find(({ st }) => Object.values(st.call?.payload ?? {}).some((v) => typeof v === "object" && v !== null && "ref" in v))!;
+    const field = Object.entries(withRef.st.call!.payload!).find(([, v]) => typeof v === "object" && v !== null && "ref" in v)!;
+    const ref = (field[1] as { ref: ReadonlyArray<string> }).ref;
+    const asId = worked(pluggedIn, swapOp(withRef.st.call!.operation, `${field[0]} ${words(ref)}`, `${field[0]} hdl_9f31ab42`));
+    expect(check("docs", withRef.j.name, asId).why.join("\n"), "an id where the journey takes the value from the world").toMatch(new RegExp(`the payload ${field[0]} in the words ${ref.join(" ")}`));
   });
 
   it("looks only in the journey's own entry: the same words under another journey's title, or in the Refusals table, do not count", () => {

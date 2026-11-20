@@ -39,9 +39,26 @@ export const server = over("journey.server", (journey, e) =>
 /** A value the journey takes from its starting world (or an earlier step) is a reference in the model: `{ ref: ["world", "handle"] }`. */
 const refOf = (value: unknown): ReadonlyArray<string> | undefined =>
   typeof value === "object" && value !== null && Array.isArray((value as { ref?: unknown }).ref) ? (value as { ref: ReadonlyArray<unknown> }).ref.map(String) : undefined;
+/** What a structured value is made of, wherever a reference sits in it (an array, an object, however deep): each reference's path, and each literal's text. */
+const leavesOf = (value: unknown): { readonly refs: ReadonlyArray<ReadonlyArray<string>>; readonly literals: ReadonlyArray<string> } => {
+  const ref = refOf(value);
+  if (ref !== undefined) return { refs: [ref], literals: [] };
+  if (Array.isArray(value)) return value.map(leavesOf).reduce((all, one) => ({ refs: [...all.refs, ...one.refs], literals: [...all.literals, ...one.literals] }), { refs: [], literals: [] });
+  if (typeof value === "object" && value !== null) return leavesOf(Object.values(value));
+  return { refs: [], literals: value === undefined || value === null ? [] : [String(value)] };
+};
 /** An id as the runtime makes one (`hdl_9f31ab42`): the page never shows one for a value the journey does not write. */
 const INVENTED = /\b[a-z]{2,5}_[0-9a-z]{6,}\b/;
 const hasWords = (text: string, words: ReadonlyArray<string>) => words.every((w) => Reading.hasName(text, w));
+/** What a page must show of one value, in its stretch: every literal by its value, every reference in words from its path, and no id where a reference sits. */
+const valueProblems = (segment: string, value: unknown, label: string): ReadonlyArray<string> => {
+  const { refs, literals } = leavesOf(value);
+  return [
+    ...refs.filter((r) => !hasWords(segment, r)).map((r) => `does not name ${label} in the words ${r.join(" ")}`),
+    ...literals.filter((text) => !segment.includes(text)).map((text) => `does not show ${label} ${text}`),
+    ...(refs.length > 0 && INVENTED.test(segment) ? [`writes an id where ${label} is the journey's ${refs.map((r) => r.join(" ")).join(", ")}`] : []),
+  ];
+};
 
 /** The words under a `###` (or deeper) heading that is the journey's name, up to the next heading of the same or a higher level. */
 const entryOf = (section: string, name: string): string | undefined => {
@@ -72,23 +89,16 @@ const stepProblems = (step: JourneyModel["steps"][number], segment: string, jour
     ...(Reading.hasName(segment, call.actor) ? [] : [`does not name the caller ${call.actor}`]),
     ...(who === undefined || flat.includes(who.kind.replace(/-/g, " ").toLowerCase()) ? [] : [`does not say the caller is ${who.kind}`]),
     ...(who?.role === undefined || Reading.hasName(segment, who.role) ? [] : [`does not say the caller's role ${who.role}`]),
-    ...Object.entries(call.payload ?? {}).flatMap(([field, value]) => {
-      const ref = refOf(value);
-      if (ref !== undefined) return [
-        ...(Reading.hasName(segment, field) && hasWords(segment, ref) ? [] : [`does not name ${field} by its reference, in the words ${ref.join(" ")}`]),
-        ...(INVENTED.test(segment) ? [`writes an id for ${field}, whose value the journey takes from ${ref.join(" ")}`] : []),
-      ];
-      const text = typeof value === "string" ? value : JSON.stringify(value);
-      return Reading.hasName(segment, field) && segment.includes(text) ? [] : [`does not show the payload ${field} ${text}`];
-    }),
+    ...Object.entries(call.payload ?? {}).flatMap(([field, value]) => [
+      ...(Reading.hasName(segment, field) ? [] : [`does not name the payload field ${field}`]),
+      ...valueProblems(segment, value, `the payload ${field}`),
+    ]),
     ...(refused === undefined
-      ? (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").flatMap((c) => {
-        const ref = refOf(c.value);
-        const want = c.kind === "expect" ? c.match : ref === undefined ? (typeof c.value === "string" ? c.value : JSON.stringify(c.value)) : undefined;
-        return want !== undefined ? (segment.includes(want) ? [] : [`does not show the answer it checks (${want})`]) : hasWords(segment, ref ?? []) ? [] : [`does not name the answer it checks in the words ${(ref ?? []).join(" ")}`];
-      })
+      ? (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").flatMap((c) =>
+        c.kind === "expect" ? (c.match === undefined || segment.includes(c.match) ? [] : [`does not show the answer it checks (${c.match})`]) : valueProblems(segment, c.value, "the answer it checks"))
       : [
         ...(Reading.hasName(segment, refused) && segment.includes(e.model.refusals[refused] ?? "\0") ? [] : [`is not shown refused with ${refused}, ${e.model.refusals[refused] ?? "its code"}`]),
+        ...valueProblems(segment, refusal?.fields ?? {}, "the refusal's fields"),
         ...Object.keys(e.model.refusals).filter((other) => other !== refused && Reading.hasName(segment, other)).map((other) => `names ${other}, a refusal this step does not check`),
       ]),
   ];
