@@ -23,7 +23,10 @@ it breaks "checks fail before the builder starts" (AGENTS.md), because the check
    and a run with no test files, and it prints a listed test that now passes ("newly passing, take it off the list") and a listed one that is not in the report. `check.ts` stays one tool for both.
 3. **A builder's rule is the same as for m1.** `tools/ci/builder-paths.sh` protects `packages/*/expected-failing/**` and lets a `-build` branch delete a line or a file there and refuses an added line, an added file,
    a swapped line and a rename (`tools/ci/ci.test.sh` has a case for each). A test stays a plain `it`: it goes green by the builder's work, and nothing in it is inverted.
-4. **Hook errors are not listed.** Unlike `e2e/m1`, the package run has no hook-error reporter: a file whose hook throws fails as the file, keyed by the file alone. That is enough here and keeps the change small.
+4. **Hook and unhandled errors are caught, as in m1.** The run uses the same hook-error reporter (`e2e/ratchet/reporter.ts`) and hands its errors file to `check.ts`: a `beforeAll` or `afterAll` that throws is its own key
+   (`file > describe > [suite error]`, or `file > [file error]`), and an unhandled error or a late throw is `unhandled error > <message>`; each fails the run unless it is listed under that key, and a listed failing test never covers it.
+   The per-test hook labels (`[beforeEach error]`, `[afterEach error]`) need the m1 runner and are not used in a package run; a throwing `beforeEach` or `afterEach` fails its test, which is keyed as the test. As a backstop `check.ts` also fails when vitest
+   exits non-zero and no test in the report failed (`RATCHET_VITEST_EXIT`), so nothing the report does not carry comes out green. `nx`'s `test` inputs include `package-test.sh` and the ratchet's files, so editing them invalidates the cache.
 5. **Proved fair.** `e2e/ratchet/package-ratchet.test.ts` runs the script on a scratch package with one passing and one failing test: no folder fails as before; a listed red test passes and the line says one expected;
    an unlisted red test fails and is named; a listed test that now passes is reported without failing the run; a key filed under another file's name fails.
 

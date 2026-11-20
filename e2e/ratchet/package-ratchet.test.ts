@@ -11,13 +11,14 @@ const repo = resolve(import.meta.dirname, "../..");
 const made: string[] = [];
 afterAll(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
 
-const scratchPackage = (lists?: Readonly<Record<string, string>>): string => {
+const scratchPackage = (lists?: Readonly<Record<string, string>>, extra: Readonly<Record<string, string>> = {}): string => {
   mkdirSync(join(repo, "tmp"), { recursive: true });
   const dir = mkdtempSync(join(repo, "tmp", "scratch-package-"));
   made.push(dir);
   mkdirSync(join(dir, "src"));
   writeFileSync(join(dir, "src/ok.test.ts"), 'import { expect, it } from "vitest";\nit("is fine", () => { expect(1).toBe(1); });\n');
   writeFileSync(join(dir, "src/red.test.ts"), 'import { describe, expect, it } from "vitest";\ndescribe("until it is built", () => { it("is red", () => { expect(1).toBe(2); }); });\n');
+  for (const [name, text] of Object.entries(extra)) writeFileSync(join(dir, name), text);
   if (lists !== undefined) {
     mkdirSync(join(dir, "expected-failing"));
     for (const [name, text] of Object.entries(lists)) writeFileSync(join(dir, "expected-failing", name), text);
@@ -59,5 +60,25 @@ describe("G11: a package's expected-failing list", () => {
     const r = run(scratchPackage({ "ok.txt": RED }));
     expect(r.status, r.out).not.toBe(0);
     expect(r.out).toContain("filed under another check's name");
+  });
+
+  it("a test that passes and then throws later fails the run, as plain vitest does", { timeout: 150_000 }, () => {
+    const late = { "src/late.test.ts": 'import { expect, it } from "vitest";\nit("passes", () => { expect(1).toBe(1); setTimeout(() => { throw new Error("late throw"); }, 20); });\nit("waits", async () => { await new Promise((r) => { setTimeout(r, 200); }); });\n' };
+    const r = run(scratchPackage({ "red.txt": RED }, late));
+    expect(r.status, r.out).not.toBe(0);
+    expect(r.out).toContain("failing and not on the expected-failing list: unhandled error > late throw");
+  });
+
+  it("a listed red test in a file whose afterAll throws still fails the run, under the hook's own key", { timeout: 150_000 }, () => {
+    const torn = 'import { afterAll, describe, expect, it } from "vitest";\ndescribe("until it is built", () => { afterAll(() => { throw new Error("teardown broke"); }); it("is red", () => { expect(1).toBe(2); }); });\n';
+    const r = run(scratchPackage({ "red.txt": RED }, { "src/red.test.ts": torn }));
+    expect(r.status, r.out).not.toBe(0);
+    expect(r.out).toContain("failing and not on the expected-failing list: src/red.test.ts > until it is built > [suite error]");
+  });
+
+  it("the same hook error passes once it is listed under its own key", { timeout: 150_000 }, () => {
+    const torn = 'import { afterAll, describe, expect, it } from "vitest";\ndescribe("until it is built", () => { afterAll(() => { throw new Error("teardown broke"); }); it("is red", () => { expect(1).toBe(2); }); });\n';
+    const r = run(scratchPackage({ "red.txt": `${RED}src/red.test.ts > until it is built > [suite error]\n` }, { "src/red.test.ts": torn }));
+    expect(r.status, r.out).toBe(0);
   });
 });

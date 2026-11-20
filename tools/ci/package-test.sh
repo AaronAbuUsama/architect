@@ -19,6 +19,9 @@ fi
 out="$(mktemp -d "${TMPDIR:-/tmp}/package-ratchet.XXXXXX")"
 trap 'rm -rf "$out"' EXIT
 # The run's own exit is not the verdict: the listed failures make it non-zero. The ratchet's is.
-# No hook-error reporter here: a file whose hook throws fails as the file (keyed by it), which is the m1 key for a file that does not load.
-"$vitest_bin" run --root "$package" --passWithNoTests --reporter=default --reporter=json --outputFile.json="$out/report.json"
-RATCHET_ROOT="$package" node "$here/e2e/ratchet/check.ts" "$out/report.json" "$package/expected-failing"
+# As the m1 run does: the hook-error reporter writes what the JSON report leaves out (a hook that threw, an unhandled error), check.ts reads it, and each is a
+# failure unless it is listed under its own key. vitest's own exit goes to check.ts as a backstop: non-zero with no failing test in the report fails the run.
+RATCHET_ERRORS_FILE="$out/errors.json" "$vitest_bin" run --root "$package" --passWithNoTests \
+  --reporter=default --reporter=json --reporter="$here/e2e/ratchet/reporter.ts" --outputFile.json="$out/report.json"
+vitest_exit=$?
+RATCHET_VITEST_EXIT="$vitest_exit" RATCHET_ROOT="$package" node "$here/e2e/ratchet/check.ts" "$out/report.json" "$package/expected-failing" "$out/errors.json"

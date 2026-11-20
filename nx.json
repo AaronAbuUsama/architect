@@ -39,6 +39,14 @@
       "options": {
         "command": "bash tools/ci/package-test.sh {projectRoot}"
       },
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/tools/ci/package-test.sh",
+        "{workspaceRoot}/e2e/ratchet/check.ts",
+        "{workspaceRoot}/e2e/ratchet/ratchet.ts",
+        "{workspaceRoot}/e2e/ratchet/reporter.ts"
+      ],
       "cache": true
     }
   },

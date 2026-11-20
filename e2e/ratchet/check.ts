@@ -65,7 +65,11 @@ for (const key of verdict.missing) annotate("warning", `on the list but not in t
 for (const key of verdict.notRun) annotate("warning", `on the list but skipped this run: ${key}`);
 for (const key of verdict.unexpected) annotate("error", `failing and not on the expected-failing list: ${key}`);
 
+// Backstop: vitest failed, and no test in the report did. Something the report does not carry (a crash, a late throw) must not come out green.
+const vitestExit = process.env["RATCHET_VITEST_EXIT"];
+if (vitestExit !== undefined && vitestExit !== "0" && verdict.failing === 0) annotate("error", `vitest exited ${vitestExit}, and no test in the report failed`);
+
 console.log(
   `ratchet: ${verdict.failing} failing, ${verdict.failing - verdict.unexpected.length} expected, ${verdict.unexpected.length} unexpected, ${verdict.nowPassing.length} newly passing, ${verdict.missing.length} missing`,
 );
-process.exit(ok(verdict) && list.misfiled.length === 0 ? 0 : 1);
+process.exit(ok(verdict) && list.misfiled.length === 0 && !(vitestExit !== undefined && vitestExit !== "0" && verdict.failing === 0) ? 0 : 1);
