@@ -82,6 +82,24 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect(hard.sentences.some((p) => p.includes("planted words 7f31")), hard.sentences.join("\n")).toBe(true);
   });
 
+  it("the judge fails a thing with no Rules section, rows outside it, and an operation page that drops one of its own refusals", { timeout: 120_000 }, async () => {
+    const built = await withRules(pluggedIn, AS_THEY_STAND, true);
+    const judged = async (change: (html: string) => string) => {
+      const dir = mkdtempSync(join(tmpdir(), "rules-broken-"));
+      dirs.push(dir);
+      writeFileSync(join(dir, "index.html"), change(standIn(false)));
+      const portal = await ServedPortals.open({ context: context(built), clientDir: dir, server: standInServer, run });
+      try { return await judge(portal, built.wire, built.rules); } finally { await portal.close(); }
+    };
+    expect((await judged((h) => h)).section, "the reference page, to start from").toEqual([]);
+    const noSection = await judged((h) => h.replace(`'<section data-portal="rules">'`, `'<section>'`));
+    expect(noSection.section.some((p) => p.includes("has 0 Rules sections")), noSection.section.join("\n")).toBe(true);
+    const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));
+    expect(outside.section.some((p) => p.includes("outside the Rules section")), outside.section.join("\n")).toBe(true);
+    const dropped = await judged((h) => h.replace("o.refusals.map((e) =>", `o.refusals.filter((e) => e !== "HandleAlreadyOwned").map((e) =>`));
+    expect(dropped.refusals.some((p) => p.includes("/portal/operations/handle.claim") && p.includes("HandleAlreadyOwned") && p.includes("is not shown")), dropped.refusals.join("\n")).toBe(true);
+  });
+
   it("the judge names a plain-text refusal, a missing link and a rules stop out of place", { timeout: 120_000 }, async () => {
     const built = await withRules(pluggedIn, AS_THEY_STAND, true);
     const dir = mkdtempSync(join(tmpdir(), "rules-broken-"));

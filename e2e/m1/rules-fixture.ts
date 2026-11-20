@@ -61,7 +61,9 @@ const SCAN = `(() => {
   }
   return {
     order: q("[data-portal]").map((e) => a(e, "data-portal")).filter((h) => ["lifecycle", "rules", "operation-row"].includes(h)),
-    rules: q('[data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]') })),
+    sections: q('[data-portal="rules"]').length,
+    strays: q('[data-portal="rule"]').filter((e) => !e.closest('[data-portal="rules"]')).length,
+    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]') })),
     refusals: q('[data-portal="refusal"]').map((e) => { const l = e.querySelector('a[data-portal="rule-link"]'); return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), href: l === null ? null : a(l, "href") }; }),
     bare,
     stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules") })),
@@ -69,7 +71,7 @@ const SCAN = `(() => {
   };
 })()`;
 interface Seen {
-  order: Array<string>; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string }>;
+  order: Array<string>; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string }>;
   refusals: Array<{ name: string; rule: string; sentence: string; href: string | null }>; bare: Array<{ name: string; text: string }>;
   stops: Array<{ stop: string; rules: string }>; ids: Array<string>;
 }
@@ -93,11 +95,13 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     const mine = rules.filter((r) => r.thing === thing);
     const page = await read(`/portal/things/${thing}`);
     for (const row of page.rules) rows.set(row.rule, row);
-    if (mine.length === 0) { if (page.rules.length > 0) out.section.push(`/portal/things/${thing} has a Rules section but declares no rule`); continue; }
+    if (mine.length === 0) { if (page.sections > 0 || page.strays > 0) out.section.push(`/portal/things/${thing} has a Rules section but declares no rule`); continue; }
+    if (page.sections !== 1) out.section.push(`/portal/things/${thing} has ${page.sections} Rules sections (\`[data-portal="rules"]\`), it needs one, holding its rows`);
+    if (page.strays > 0) out.section.push(`/portal/things/${thing}: ${page.strays} rule rows sit outside the Rules section`);
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
     if ([...seen.keys()].sort().join() !== mine.map(full).sort().join()) out.section.push(`/portal/things/${thing} lists rules [${[...seen.keys()]}], the wire declares [${mine.map(full)}]: a Rules section of one row per rule, each \`[data-portal="rule"][data-rule]\``);
     const at = (hook: string) => page.order.indexOf(hook);
-    if (at("rules") >= 0 && at("lifecycle") >= 0 && at("rules") < at("lifecycle")) out.section.push(`/portal/things/${thing}: Rules come before the lifecycle, not under it`);
+    if (page.sections === 1 && at("rules") >= 0 && at("lifecycle") >= 0 && at("rules") < at("lifecycle")) out.section.push(`/portal/things/${thing}: Rules come before the lifecycle, not under it`);
     if (at("rules") >= 0 && at("operation-row") >= 0 && at("rules") > at("operation-row")) out.section.push(`/portal/things/${thing}: Rules come after the operations, not under the lifecycle`);
     for (const r of mine) {
       const row = seen.get(full(r));
@@ -123,24 +127,29 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
   }
 
   const routes = ["/portal", ...Object.keys(wire.model.things).map((t) => `/portal/things/${t}`), ...Object.keys(wire.model.operations).map((o) => `/portal/operations/${o}`), "/portal/reference/refusals"];
-  let shown = 0;
+  const checkRefusal = (route: string, f: Seen["refusals"][number]) => {
+    const rule = rules.find((r) => r.refuse === f.name);
+    if (rule === undefined) { if (f.rule !== "" || f.href !== null) out.refusals.push(`${route}: ${f.name} is no rule's refusal and still links to "${f.rule}"`); return; }
+    const row = rows.get(full(rule));
+    if (f.rule !== full(rule)) out.refusals.push(`${route}: ${f.name} names rule "${f.rule}", the model gives "${full(rule)}"`);
+    if (row === undefined || f.sentence !== row.sentence) out.refusals.push(`${route}: ${f.name} reads "${f.sentence}", its rule's row reads "${row?.sentence}": one sentence on every surface`);
+    const path = f.href?.replace(/^https?:\/\/[^/]+/, "") ?? "";
+    if (row === undefined || path !== `/portal/things/${rule.thing}#${row.id}`) out.refusals.push(`${route}: ${f.name} links to ${f.href ?? "nothing"}, not to its rule's row (/portal/things/${rule.thing}#${row?.id})`);
+  };
   for (const route of routes) {
     // The reference page is an optional surface: a portal with no such route is not a portal that hides a refusal.
     const page = await read(route).catch((error: unknown) => { if (route === "/portal/reference/refusals") return undefined; throw error; });
     if (page === undefined) continue;
     for (const b of page.bare) out.refusals.push(`${route}: "${b.name}" is shown as plain text ("${b.text}"), not as a \`[data-portal="refusal"]\` that carries its rule's sentence and a link`);
-    for (const f of page.refusals) {
-      const rule = rules.find((r) => r.refuse === f.name);
-      if (rule === undefined) { if (f.rule !== "" || f.href !== null) out.refusals.push(`${route}: ${f.name} is no rule's refusal and still links to "${f.rule}"`); continue; }
-      shown += 1;
-      const row = rows.get(full(rule));
-      if (f.rule !== full(rule)) out.refusals.push(`${route}: ${f.name} names rule "${f.rule}", the model gives "${full(rule)}"`);
-      if (row === undefined || f.sentence !== row.sentence) out.refusals.push(`${route}: ${f.name} reads "${f.sentence}", its rule's row reads "${row?.sentence}": one sentence on every surface`);
-      const path = f.href?.replace(/^https?:\/\/[^/]+/, "") ?? "";
-      if (row === undefined || path !== `/portal/things/${rule.thing}#${row.id}`) out.refusals.push(`${route}: ${f.name} links to ${f.href ?? "nothing"}, not to its rule's row (/portal/things/${rule.thing}#${row?.id})`);
+    for (const f of page.refusals) checkRefusal(route, f);
+  }
+  // And each operation's own page, against its own contract: every refusal a rule owns there is on that page, as its rule's sentence, linked.
+  for (const [name, op] of Object.entries(wire.model.operations)) {
+    const page = await read(`/portal/operations/${name}`).catch(() => undefined);
+    for (const refusal of Object.keys(op.invariants ?? {})) {
+      if (page === undefined || !page.refusals.some((f) => f.name === refusal)) out.refusals.push(`/portal/operations/${name}: its refusal ${refusal} (owned by ${op.invariants![refusal]}) is not shown as a \`[data-portal="refusal"]\` on this page`);
     }
   }
-  if (shown === 0) out.refusals.push("no page shows a refusal a rule owns as a `[data-portal=\"refusal\"]`: handle.claim's page lists HandleTaken and HandleAlreadyOwned at least");
 
   for (const [name, op] of Object.entries(wire.model.operations)) {
     const stops = (await read(`/portal/operations/${name}`)).stops;
