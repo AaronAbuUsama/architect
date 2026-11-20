@@ -48,6 +48,8 @@ const Operation = Schema.Struct({
   answer: Fields,
   move: Schema.NullOr(Schema.Struct({ key: Schema.String, from: Schema.Array(Schema.String), to: Schema.Array(Schema.String), emits: Schema.String })),
   errors: Schema.Array(Schema.String),
+  /** Each refusal the runtime makes for a rule, to the rule's full name (`HandleTaken` to `handle.oneHolderPerName`, G5); absent when the operation breaks none. These refusals are also in `refusals`. */
+  invariants: Schema.optionalKey(Schema.Record(Schema.String, Schema.String)),
   refusals: Schema.Array(Schema.String),
   allowed: Schema.Array(Schema.Struct({ kind: Schema.String, role: Schema.optionalKey(Schema.String), path: Schema.optionalKey(Schema.String) })),
   steps: Schema.Record(Schema.String, Schema.Struct({ name: Schema.String, type: Schema.String })),
@@ -76,6 +78,14 @@ const Thing = Schema.Struct({
   code: Schema.optionalKey(Schema.String),
   events: Schema.optionalKey(Schema.Record(Schema.String, Fields)),
   errors: Schema.optionalKey(Schema.Record(Schema.String, Schema.Struct({ fields: Fields, exit: Schema.Number, code: Schema.String }))),
+  /** Its rules by name (G5): what stays true among its instances. A rule's hash is the thing's `hash`, which they are part of. Absent when it has none. */
+  invariants: Schema.optionalKey(Schema.Record(Schema.String, Schema.Struct({
+    kind: Schema.Literal("unique"),
+    fields: Schema.Array(Schema.String),
+    while: Schema.optionalKey(Schema.Array(Schema.String)),
+    refuse: Schema.optionalKey(Schema.String),
+    description: Schema.optionalKey(Schema.String),
+  }))),
 });
 
 const Environment = Schema.Struct({

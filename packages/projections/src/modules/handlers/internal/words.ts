@@ -2,13 +2,13 @@
 // where a declaration's file is, and every refusal with who gives it. Every word is a name from the model or a fixed
 // phrase about Orthograph itself; nothing names the domain unless the blueprint does.
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
-import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT } from "#modules/names/service.js";
+import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, ruleBehind } from "#modules/names/service.js";
 
 /** The exit of a generated `<Thing>NotFound` (K16 g, M1.46); a thing that declares one keeps its own. */
 export const NOT_FOUND_EXIT = 4;
 
 /** A thing's own file, as the header cites it: the project's `blueprint/things/<thing>/<file>.ts`, or the plugin's. */
-export const thingFile = (model: Model, thing: string, file: "thing" | "machine" | "errors" | "events" | "roles") => {
+export const thingFile = (model: Model, thing: string, file: "thing" | "machine" | "errors" | "events" | "roles" | "invariants") => {
   const t = model.things[thing];
   return t && t.from.kind !== "app" ? `${t.from.package}/blueprint/things/${t.from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`;
 };
@@ -87,6 +87,12 @@ export const refusalsOf = (model: Model, op: OperationModel): ReadonlyArray<Refu
     if (owner && declared) {
       const fields = Object.keys(declared.fields);
       return { name: r, exit: declared.exit, code: code(r), giver: "yours", fields, fieldModels: declared.fields, file: thingFile(model, owner, "errors"), said: `yours to refuse below${fields.length ? `, carrying ${fields.join(", ")}` : ""}` };
+    }
+    // A rule's refusal (G5): the runtime's, never the handler's, so the scaffold has no blank for it; the header says which rule and where it is written.
+    const rule = ruleBehind(model, op, r);
+    const refused = rule ? model.things[rule.thing]?.errors[r] : undefined;
+    if (rule && refused) {
+      return { name: r, exit: refused.exit, code: code(r), giver: "runtime", fields: Object.keys(refused.fields), fieldModels: refused.fields, file: thingFile(model, rule.thing, "invariants"), said: `the runtime's: ${rule.sentence} (${rule.full})` };
     }
     if (thing?.machine && r === thing.machine.notFrom.error) {
       const from = op.move?.from.length ? op.move.from : thing.machine.states;
