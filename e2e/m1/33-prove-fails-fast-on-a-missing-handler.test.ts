@@ -1,4 +1,4 @@
-// Check 31 (found by the reviews of #214): `ortho prove` fails fast, and says why, when a handler file is missing. A developer's typo or
+// Check 33 (found by the reviews of #214): `ortho prove` fails fast, and says why, when a handler file is missing. A developer's typo or
 // delete must not leave prove sitting for minutes: with `src/allowance/revoke.ts` removed, wrangler cannot resolve the import, the world
 // never comes up, and prove (warm or cold) waited more than 120 to 170 s with nothing said. Written by the checks author; a builder never
 // edits this file (AGENTS.md, "Journeys and checks come first").
@@ -62,7 +62,7 @@ const explains = (out: string) =>
   /src\/allowance\/revoke/.test(out) ||
   (/(could(?: no|n')t|unable to|failed to) (?:be )?start|did not start|never came up/i.test(out) && /Could not resolve|wrangler|esbuild|build failed|ERROR/i.test(out));
 
-describe("31 controls: with its handler present, prove ends inside the bound with the journey's verdict", () => {
+describe("33 controls: with its handler present, prove ends inside the bound with the journey's verdict", () => {
   it("the message test knows a good message from a bad one", () => {
     expect(explains("prove couldn't run: the world could not start: wrangler: Could not resolve \"../../src/allowance/revoke.ts\"")).toBe(true);
     expect(explains("prove couldn't run: the world could not start (wrangler build failed: ERROR Could not resolve ./x.ts)")).toBe(true);
@@ -91,7 +91,7 @@ describe("31 controls: with its handler present, prove ends inside the bound wit
   });
 });
 
-describe("31: a missing handler fails fast and says why", () => {
+describe("33: a missing handler fails fast and says why", () => {
   it("a whole prove with src/allowance/revoke.ts removed exits non-zero within 60 s and names the file or says the world could not start, with wrangler's error", async () => {
     const root = fresh();
     rmSync(join(root, HANDLER));

@@ -1,3 +1,0 @@
-# A missing handler file: prove sits for minutes with nothing said (found by #214's reviews). Both red tests pass when prove fails fast and says why. The controls pass today.
-m1/31-prove-fails-fast-on-a-missing-handler.test.ts > 31: a missing handler fails fast and says why > a whole prove with src/allowance/revoke.ts removed exits non-zero within 60 s and names the file or says the world could not start, with wrangler's error
-m1/31-prove-fails-fast-on-a-missing-handler.test.ts > 31: a missing handler fails fast and says why > the same with `--only 'health is up'`, a journey that never touches the missing file's operation: the world cannot start either
