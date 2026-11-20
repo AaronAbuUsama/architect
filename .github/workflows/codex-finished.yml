@@ -1,11 +1,12 @@
 name: codex-finished
 
-# Proposal 2 (design/process/proposals.md): "Codex has finished" is a landing condition. This workflow posts a commit
-# status, `codex-finished`, on a pull request's head: success once Codex's summary comment says its review has completed
-# and that review still covers the head, pending otherwise (comment "@codex review"). Branch protection requires it, so a
-# pull request cannot merge while Codex is at work, nor with code Codex has not seen. tools/ci/codex-state.sh reads the
-# state; tools/ci/codex-covers.sh decides whether a review of an older commit covers the head, which it does only when
-# everything since is a clean merge from the base branch (updating a branch for strict mode needs no second review).
+# Advisory only (design/decisions/CI-codex-advisory.md, 20 November 2026): this workflow posts a commit status,
+# `codex-finished`, on a pull request's head, so anyone can see whether Codex has reviewed what will land: success once
+# Codex's summary comment says its review has completed and that review still covers the head, pending otherwise
+# (comment "@codex review" when Codex is available). No branch requires it, so a pending status never holds a merge; the
+# 🔍 reviewer's pass is the gate. Findings Codex does post are review threads, which conversation resolution still holds.
+# tools/ci/codex-state.sh reads the state; tools/ci/codex-covers.sh decides whether a review of an older commit covers
+# the head, which it does only when everything since is a clean merge from the base branch.
 #
 # It runs from the default branch for every pull request, whatever its base: on Codex's comments (Codex edits one
 # summary comment as reviews start and finish), on every ci run a push starts (a new head needs its own status), and by
