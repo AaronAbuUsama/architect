@@ -98,6 +98,8 @@ And the conductor skill's landing list:
 
 **Applies it:** the conductor. Branch protection changes how Aaron's own merges behave, so tell him in the next report.
 **Applied, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) by the ci-guards thread (`design/decisions/CI-branch-protection.md`), on `main`, `m1` and `goal/stage-1`, with a `codex-finished` status as the Codex gate. One change from the diff above: `enforce_admins` is on, because every agent merges through Aaron's admin account and with it off the protection binds no one.
+**Superseded in part by CI-codex-advisory, 20 November:** Codex is advisory and `codex-finished` is required on no
+branch ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)). CI, resolved threads and a 🔍 pass are the gate.
 
 ## 3. Cut slices so two builders never share a contract; one allocator for decision IDs
 
@@ -477,6 +479,8 @@ And "the five proofs" becomes "the six proofs" in "Finished when" and in the ✍
 pull request, count the Codex rounds with findings.
 **Applied, 20 November:** by the Scribe at the conductor's request, the skills' owner being archived, in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169). On `main`;
 reaches `goal/stage-1` when `main` is next merged into it.
+**Superseded in part by CI-codex-advisory, 20 November:** proof 6's hostile pass runs before the first review of any
+kind, 🔍 or Codex, not before Codex in particular ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)).
 
 ## 15. Applied means it reached the branches where the work runs
 

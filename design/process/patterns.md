@@ -141,8 +141,9 @@ tests and worlds on free ports and their own folders ([PR 133](https://github.co
 
 ## Merged before review and CI finished
 
-A PR merges while a review finding (Codex's, or a reviewer's) is still open, or while its CI is still running. Some
-were real defects at merge. `main` has no branch protection, so "merge when green" merges at once.
+A PR merges while a review finding (Codex's, or a reviewer's) is still open, while its CI is still running, or without
+a 🔍 pass. Some were real defects at merge. From 20 November Codex is advisory, so a merge before Codex finished is no
+longer a miss; a merge with a Codex finding left unanswered, or without a 🔍 pass, is.
 
 Entries:
 - 2026-11-19 · A screens pull request merged before its CI finished, because main requires no checks (near miss)
@@ -151,12 +152,12 @@ Entries:
 - 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
 
 **Covers it today:** branch protection on `main`, `m1` and `goal/stage-1` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130), 19 November): each branch's CI jobs
-and a `codex-finished` status are required, every conversation must be resolved, and admins are bound too. Reviewer
-item 7 and the conductor's merge rule still hold.
+are required, every conversation must be resolved, and admins are bound too. Since [PR 173](https://github.com/AaronAbuUsama/architect/pull/173) (20 November) `codex-finished`
+is advisory and required on no branch; the 🔍 pass is the gate, in AGENTS.md and the skills.
 
-**Gap:** closed for the three protected branches; since [PR 138](https://github.com/AaronAbuUsama/architect/pull/138), `codex-finished` also needs Codex to have
-reviewed the head (or only clean merges from the base since). Other `goal/*` branches are not protected yet. Watching
-for a merge that gets through.
+**Gap:** the 🔍 pass is a rule, not a GitHub check, so nothing refuses a merge without one. A finding Codex posts
+after the merge reaches no gate. Other `goal/*` branches are not protected yet. Watching for a 🔍-passed merge that
+Codex or a later run shows was wrong.
 
 ## Found before building, or after
 
