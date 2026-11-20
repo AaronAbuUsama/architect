@@ -38,6 +38,8 @@ package file, and the list parses.
 2. M1.37's MCP output schema and states (`thing.mcp`, `machine.mcp`, 5 pairs) are pulled into Goal 3 from M3, because a journey touched
    those cells. They are built with M1.42's client slice, and the list labels them "M1.42 (with M1.37's output schema, pulled from M3 by G7)".
 
+3. `machine.mcp` reads a move's states from what the framework emits for the tool (schemas, annotations), not from its description, which `operation.mcp` requires to equal the model's. K14's row and `grid.json` were amended to say so in #150.
+
 K19 (the portal prebuilt, #103) is the route for the M1.13 portal pairs.
 
 **The goal's done check needs the list empty.** A pair stays visible until a builder fixes it; fixing it is what shortens the list.
