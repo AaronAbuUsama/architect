@@ -43,8 +43,8 @@ const log = (name: string, value: unknown) => console.log(JSON.stringify({ measu
 // 0. Date's shape after the patch.
 await clock("shape", { set: T0 });
 const shape = await call("/w/shape/date-shape");
-check("Date keeps its shape (instanceof both ways, parse, UTC, Date(), structuredClone)",
-  shape.realInstanceofDate && shape.worldInstanceofReal && shape.subclassReadsWorld && shape.parse === Date.UTC(2026, 0, 1)
+check("Date keeps its shape (instanceof both ways, a subclass keeps its prototype, parse, UTC, Date(), structuredClone)",
+  shape.realInstanceofDate && shape.worldInstanceofReal && shape.subclassReadsWorld && shape.subclassKeepsPrototype && shape.parse === Date.UTC(2026, 0, 1)
   && shape.utc === Date.UTC(2026, 0, 1) && shape.dateCall === "string" && shape.isDateCtor && shape.protoSame
   && shape.toStringTag === "[object Date]" && shape.structuredCloneOk, shape);
 

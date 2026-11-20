@@ -42,10 +42,11 @@ const app = async (request: Request, env: Env, ctx: ExecutionContext, world: str
         return json({ world, before, after: Date.now(), newDate: new Date().getTime(), effect, durableObjectUnwrapped: viaDO });
       }
       case "/date-shape": {
-        const real = new RealDate(0), world0 = new Date(0), sub = new (class extends Date {})();
+        class Derived extends Date { label() { return "derived"; } }
+        const real = new RealDate(0), world0 = new Date(0), sub = new Derived();
         return json({
           realInstanceofDate: real instanceof Date, worldInstanceofReal: world0 instanceof RealDate,
-          subclassReadsWorld: sub.getTime() === Date.now(), parse: Date.parse("2026-01-01T00:00:00Z"),
+          subclassReadsWorld: sub.getTime() === Date.now(), subclassKeepsPrototype: sub instanceof Derived && sub.label() === "derived" && sub instanceof Date, parse: Date.parse("2026-01-01T00:00:00Z"),
           utc: Date.UTC(2026, 0, 1), dateCall: typeof Date(), isDateCtor: Date === WorldDate,
           protoSame: Date.prototype === RealDate.prototype, toStringTag: Object.prototype.toString.call(new Date()),
           structuredCloneOk: structuredClone(new Date()) instanceof Date,

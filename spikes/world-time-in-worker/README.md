@@ -11,7 +11,7 @@ to the world's time per request on workerd, and what does that cost?
 running request. Better Auth's session and invitation expiry, jose's checks and Effect's default `Clock` then all
 follow a stepped clock. 100 concurrent requests in two worlds a month apart read 0 wrong instants. Assigning a
 plain global per request instead leaks in 99 or 100 of 100 requests. The cost is about 30–40 µs per request (one read of the
-world's instant from its Durable Object), plus well under 100 ns per `Date` read. K23 already puts the hook at the
+world's instant from its Durable Object), plus roughly 15–115 ns per `Date` read. K23 already puts the hook at the
 entry of the Worker and of Durable Objects. What this adds is how: a lookup, not an assignment. It also shows that the
 world does not cross a call into a Durable Object, and that libraries that time their caches or deadlines with
 `Date.now()` stall in a stepped world (viem's block cache is shown below).
@@ -65,7 +65,7 @@ them. Our own code is already kept off the wall clock by the lint rule; this lis
 
 | # | Check | Evidence |
 |---|---|---|
-| 1 | `Date` keeps its shape | `new RealDate() instanceof Date` and the reverse are true; a subclass of `Date` reads the world; `Date.parse`, `Date.UTC`, `Date()` (string), `structuredClone`, `Object.prototype.toString` unchanged |
+| 1 | `Date` keeps its shape | `new RealDate() instanceof Date` and the reverse are true; a subclass of `Date` reads the world and keeps its own prototype and methods (the trap forwards `newTarget`; Codex caught the first version dropping it); `Date.parse`, `Date.UTC`, `Date()` (string), `structuredClone`, `Object.prototype.toString` unchanged |
 | 2 | Better Auth session refused after 8 days | signed up at `2026-11-01T09:00Z` (the world's instant), `expiresAt 2026-11-08T09:00Z`; valid, then `null` after `advance(8 days)`. This is M8.05's done-when |
 | 3 | …and after a month | the same, `advance(30 days)` |
 | 4 | Control, no patch | the session is stamped with real time (`2026-11-20`) and is **still valid** after the world's month: the gap K23 names |
@@ -117,13 +117,13 @@ magnitude.
 
 | What | Cost |
 |---|---|
-| One `new Date()` plus one `Date.now()`, real vs patched (1,000,000 in a loop in the Worker, median of 7) | **26–178 ns more per pair** across five runs (the real baseline itself moved from 138 to 223 ns): under 100 ns per read, too small to pin down here |
+| One `new Date()` plus one `Date.now()`, real vs patched (1,000,000 in a loop in the Worker, median of 7) | **26–227 ns more per pair** across five runs (the real baseline itself moved from 138 to 223 ns): about 15–115 ns per read, too small to pin down on this machine |
 | One `AsyncLocalStorage.run` around a read (once per request) | 1.3–1.8 µs |
 | One read of the world's instant from its Durable Object (2,000 in a loop, median of 7) | **29–42 µs** |
 | A whole `/ping` request from Node (`dispatchFetch`, 2,000 each, after a warm-up) | medians 1.8–5.8 ms for every variant, run-to-run noise larger than any difference between them |
 
 So in a stepped or scaled world the patch costs about **30–40 µs per request**, nearly all of it the read of the
-world's instant. Each `Date` read adds well under 100 ns (not measured for a whole Better Auth request). A real world
+world's instant. Each `Date` read adds roughly 15–115 ns (not measured for a whole Better Auth request). A real world
 needs none of it.
 
 ## The decision it supports

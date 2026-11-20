@@ -11,7 +11,8 @@ let swapped: number | undefined;
 const now = (): number => store.getStore() ?? swapped ?? RealDate.now();
 
 export const WorldDate: DateConstructor = new Proxy(RealDate, {
-  construct: (target, args) => Reflect.construct(target, args.length === 0 ? [now()] : args),
+  // newTarget is forwarded so a subclass of Date keeps its own prototype and methods.
+  construct: (target, args, newTarget) => Reflect.construct(target, args.length === 0 ? [now()] : args, newTarget),
   apply: () => new RealDate(now()).toString(), // `Date()` called without `new` returns a string
   get: (target, key) => (key === "now" ? now : Reflect.get(target, key, target)),
 });
