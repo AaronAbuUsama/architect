@@ -353,7 +353,7 @@ export const portal = Blueprint.projection({
 
 ### 3.9 Solidity contracts
 
-For every thing that `lives: Blueprint.chain(...)`, this projection renders:
+For every thing that lives in a chain store (K25), this projection renders:
 
 - its contract scaffold, with blanks;
 - the compiled machine (`_step`);

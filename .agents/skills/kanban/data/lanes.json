@@ -65,7 +65,7 @@
   "id": "M6",
   "name": "On chain",
   "order": 7,
-  "ships": "@orthograph/language-solidity, the relayer and follower, one vault per organisation (S27); frame/examples/allowance-on-chain.md.",
+  "ships": "@orthograph/language-solidity, the relayer and follower, one budgets module per network, enabled by each organisation's Safe (S27, K25); frame/examples/allowance-on-chain.md.",
   "summary": "On chain: contracts as the enforcer, chain events in the model and the portal, adapters from a contract's ABI. Wallets and the EVM adapter already moved up into M1.",
   "workable": false
  },
