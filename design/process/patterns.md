@@ -11,7 +11,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 |---|---|---|---|---|
 | Checks a wrong output can pass | 3 | 2 | partly covered | 14 (applied) |
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
-| Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
+| Parallel work collides | 7 | 4 | partly covered | 3 (applied) |
 | CI that can't tell us anything | 11 | 8 | partly covered | 4 (applied) |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 (applied) |
 | Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
@@ -19,7 +19,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | Decisions leave older docs stale | 4 | 0 | partly covered | 8 (applied) |
 | Builders edit the checks that judge them | 2 | 1 | partly covered | 6 (applied) |
 | Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 (applied) |
-| One fact, many hand-kept copies | 4 | 4 | partly covered | 10 (applied) |
+| One fact, many hand-kept copies | 5 | 5 | partly covered | 10 (applied) |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 (applied) |
 | Fixes that don't reach the working branch | 1 | 1 | partly covered | 15 (applied) |
@@ -76,6 +76,7 @@ threads pick the same decision ID, a goal starts on a branch that's still moving
 already merged.
 
 Entries:
+- 2026-11-20 · Two files every pull request edited made twelve hand-merged catch-ups on one goal branch in a day (failure)
 - 2026-11-19 · Two different decisions were both named G3 (near miss)
 - 2026-11-19 · Goal 3 started before m1 settled, and m1 had to be merged in by hand twice (near miss)
 - 2026-11-19 · Two builders each built half of one feature, and both pull requests were closed (failure)
@@ -84,7 +85,8 @@ Entries:
 - 2026-11-19 · A commit was pushed to a branch whose pull request had already merged (near miss)
 
 **Covers it today:** "Land on a fresh base" and "Never push to a merged branch" in the `threads` skill; the
-`conductor` skill's "Parallel only when nothing is shared" and one list of decision IDs on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
+`conductor` skill's "Parallel only when nothing is shared" and one list of decision IDs on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)). G9's per-check ratchet files ([PR 193](https://github.com/AaronAbuUsama/architect/pull/193)) mean two pull requests collide on
+the list only when they change the same check.
 
 **Gap:** nothing stops a lead starting a duplicate of a running thread. The rest is now written down, and watching.
 Before it: the K16 split cost the most of any single event on 19 November (#76 open 5 hours 37 minutes with 49
@@ -247,6 +249,7 @@ AGENTS.md says every fact has one owner. Where a fact is copied by hand (line-nu
 digests, a rule restated in a second package), every change breaks the copies.
 
 Entries:
+- 2026-11-20 · Two files every pull request edited made twelve hand-merged catch-ups on one goal branch in a day (failure)
 - 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code (failure)
 - 2026-11-19 · Code quoted by line number in the docs broke on almost every change (failure)
 - 2026-11-19 · The fix that hid secrets from journeys hid public values too (failure)
@@ -254,10 +257,13 @@ Entries:
 
 **Covers it today:** [PR 134](https://github.com/AaronAbuUsama/architect/pull/134): canon quotes code by name with `--fix`; `e2e:totals` generates the totals; a check
 compares `design/portal.md`'s refusal codes with the generated tables. The `portal-design` skill quotes generated facts
-only from the generated files ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
+only from the generated files ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)). On `goal/stage-1`, [PR 193](https://github.com/AaronAbuUsama/architect/pull/193) (G9, 20 November) prints the totals
+instead of committing them, and splits the ratchet list into one file per check.
 
-**Gap:** pins are still moved by hand; `e2e/m1`'s totals markers are on `goal/stage-1`, with the Goal 3 lead; the
-rule restated in a second package (HAN-12) is with its owner.
+**Gap:** generating a copy didn't stop the conflicts while the copy was committed: twelve hand-merged catch-ups on
+`goal/stage-1` on 20 November, after proposal 10 had landed. A file every pull request must edit is a queue; split it
+by owner, or print it. The grid's `e2e/grid/expected-red.json` has the same shape and waits until its conflicts show.
+Pins are still moved by hand; the rule restated in a second package (HAN-12) is with its owner.
 
 ## Fakes that diverge from the real service
 

@@ -25,7 +25,7 @@
   "id": "M2",
   "name": "Auth and organizations (workable)",
   "order": 2,
-  "ships": "@orthograph/auth and @orthograph/organizations (K2); principals agent, service, system and Via; roles as rules with holds; secrets by declaration (frame/secrets.md); ortho new; ortho new feature with its own CI.",
+  "ships": "@orthograph/auth and @orthograph/organizations (K2); principals agent, service, system and Via; roles as rules, or declared with who and holds (K20); secrets by declaration (frame/secrets.md); ortho new; ortho new feature with its own CI.",
   "summary": "The workable point. Sign-in and organisations stop being copied into each app and become two plugins, every kind of caller exists (people, agents acting for them, services), secrets come from the plugins that need them, and ortho new makes an app in one command. Its gate is also stage 1's: the links app.",
   "workable": true
  },
@@ -76,7 +76,7 @@
   "name": "The cloud, then Capxul",
   "order": 8,
   "ships": "",
-  "summary": "The cloud, then Capxul: a dedicated staging account under the $10 a day cap, deploys that leave nothing behind, the release, then Capxul's plugins.",
+  "summary": "The cloud, then Capxul: the shared, prefixed Cloudflare account under the $10 a day cap, deploys that leave nothing behind, the release, then Capxul's plugins.",
   "workable": false
  },
  "ST1": {

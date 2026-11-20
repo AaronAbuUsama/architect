@@ -1442,7 +1442,7 @@ harness can.
 }
 ```
 
-The cloud pass for staging is M7.01 (the dedicated `orthograph-staging` account, a cost estimate, and Aaron's
+The cloud pass for staging is M7.01 (the Cloudflare account Aaron uses for every environment for now, every resource prefixed, a cost estimate, and Aaron's
 written yes per credential), then M7.03 and M7.04 (the infra projection, deploy and destroy). They can start after
 Gate M2. Publishing the app's SDK and CLI for real (npm, Homebrew, GitHub) is M7.06; Orthograph's own first npm
 release is M7.02. Nothing in this walkthrough touched a cloud.

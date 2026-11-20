@@ -1,0 +1,4 @@
+# ST1.24, a warm world: 3 red tests (prove does not reuse `ortho dev`'s world); they pass when ST1.24 lands. The controls and guards of the file pass today and are not listed.
+m1/30-st1-24-warm-world.test.ts > 30 ST1.24: a warm world > (soft) the faster of two timed prove runs, after a warm-up, finishes in under 6 s
+m1/30-st1-24-warm-world.test.ts > 30 ST1.24: a warm world > a record one run plants is not in the next run's way: a fixed email signs up in each of three runs in a row
+m1/30-st1-24-warm-world.test.ts > 30 ST1.24: a warm world > a second prove in a row against ortho dev starts no world of its own, says it is reusing dev's, and gives the cold run's verdict

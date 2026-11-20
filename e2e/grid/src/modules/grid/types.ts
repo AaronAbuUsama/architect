@@ -3,13 +3,13 @@
 // `handle.claim`). The checked-in list holds the cells switched on; the runner judges each and writes one verdict per
 // (cell, subject). Nothing here reads a file or prints: `src/main.ts` does, and hands values in.
 
-/** The thirteen building blocks (K14), as `design/grid/types.ts` writes them. */
-export const BLOCKS = ["thing", "operation", "step", "machine", "event", "error", "roles", "visibility", "environment", "store", "mount", "device", "journey"] as const;
+/** The fourteen building blocks (K14, and invariants from G5), as `design/grid/types.ts` writes them. */
+export const BLOCKS = ["thing", "operation", "step", "machine", "event", "error", "roles", "visibility", "environment", "store", "mount", "device", "journey", "invariant"] as const;
 /** The nine outputs. */
 export const OUTPUTS = ["model", "api", "server", "sdk", "cli", "mcp", "docs", "portal", "telemetry"] as const;
 export type BlockId = (typeof BLOCKS)[number];
 export type OutputId = (typeof OUTPUTS)[number];
-/** `<block>.<output>`, e.g. `error.cli`: the id K14's `grid.json` gives each of the 117 cells. */
+/** `<block>.<output>`, e.g. `error.cli`: the id K14's `grid.json` gives each of the 126 cells. */
 export type CellId = `${BlockId}.${OutputId}`;
 
 /** One line of the checked-in list: a cell, the subjects it is switched on for, and the first journey that touched them. */
