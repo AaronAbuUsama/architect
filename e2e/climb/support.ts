@@ -92,12 +92,16 @@ export const journeyLine = (proved: Proved, journey: string) => proved.lines.fin
 export const stepLines = (proved: Proved, step: string) => proved.lines.filter((line) => line.startsWith(`  ✘ "${step}"`));
 
 /**
- * What a result is, with the things that differ between two honest runs taken out: an id the world made, and a measured
- * time. Whatever remains must be the same on the next run.
+ * What a result is, with the things that differ between two honest runs taken out: an id the world made, a measured
+ * time, and the performance eval's review note (`; review: p95 <t> is over 1.5x budget`), which appears only when p95
+ * crosses 1.5x the budget, so it depends on how loaded the machine is. Eval 7 never fails (`failures` is always empty),
+ * so the note cannot change a verdict; the line's own ✔ or ✘ stays and is still compared.
  */
 export const essence = (proved: Proved) =>
   proved.lines
-    .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>"))
+    .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>")
+        .replace(/; review: p95 \S+ is over 1\.5x budget$/, ""),
+    )
     .filter((line) => line.trim() !== "");
 
 /** The structured detail of a journey's failing step, from prove's report. */

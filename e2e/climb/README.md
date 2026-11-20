@@ -24,8 +24,8 @@ laid over acme's correct handler. It does not use Plugged In. Five kinds, each o
 | missing span | the record write is not a step | `spans({ present: [… "allowance.spend.record"] })` |
 
 The **control** runs the whole project with the correct handler: every climb journey passes and prove exits 0. Each planted
-kind is run twice with `--only <journey>` (property 5 compares the runs after taking out world-made ids and measured
-times; property 4 times both). Each property is its own test, so a red test names a property that does not hold: a snag.
+kind is run twice with `--only <journey>` (property 5 compares the runs after taking out world-made ids, measured
+times and the performance eval's `; review: …` note, which depends on machine load and never changes a verdict; property 4 times both). Each property is its own test, so a red test names a property that does not hold: a snag.
 Prove prints text only, so the assertions read its lines. Each run takes free ports (`e2e/ports.ts`), so it never meets another run on the machine. No Docker.
 
 ## What holds (after #119, 19 November 2026)

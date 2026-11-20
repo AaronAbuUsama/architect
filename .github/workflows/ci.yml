@@ -208,7 +208,7 @@ jobs:
   # Gate M1 (M1.15) empties the list and makes the job required.
   e2e-m1:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -233,6 +233,8 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1.9.2
         with:
           version: v1.8.6
+      # K19: the portal is read in headless Chromium (e2e/served-portal). Playwright's own download plus the system libraries it needs on this image.
+      - run: pnpm --filter @orthograph/e2e exec playwright install --with-deps chromium
       - run: pnpm nx run e2e:m1-ratchet --outputStyle=static
 
   # Goal 3's climbability check (`e2e/climb/README.md`): `ortho prove` on planted wrong handlers must name the journey and
@@ -267,7 +269,7 @@ jobs:
   # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
   e2e-grid:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -288,4 +290,6 @@ jobs:
         with:
           path: ~/.cache/orthograph/otelcol-contrib
           key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      # K19: the portal is read in headless Chromium (e2e/served-portal). Playwright's own download plus the system libraries it needs on this image.
+      - run: pnpm --filter @orthograph/e2e exec playwright install --with-deps chromium
       - run: pnpm nx run e2e:grid --outputStyle=static

@@ -2,6 +2,7 @@
 // primitive handed in by `src/main.ts` (reading a file, listing a folder, running a command, loading a module), so this module is tested
 // with plain functions; what it adds is how each output is asked for: the portal over the project's own blueprint, the CLI's `--help` as a
 // process, the MCP server's `tools/list` as the server itself answers it, the spans a prove run wrote, prove's own report.
+import type { OpenOptions } from "../../../../served-portal/types.ts";
 import type { ProjectPorts } from "../project-evidence/types.ts";
 
 export interface Primitives {
@@ -35,5 +36,11 @@ export interface WorldApi {
    */
   readonly proveFresh: (options: { readonly repo: string; readonly project: string; readonly report: string; readonly telemetry: string; readonly node: Primitives }) => ProveRun;
   /** The real ports of the project at `project`; `report` is prove's `--report` JSON, `telemetry` its spans folder. */
-  readonly ports: (options: { readonly project: string; readonly report: string; readonly telemetry: string; readonly node: Primitives }) => ProjectPorts;
+  readonly ports: (options: {
+    readonly project: string; readonly report: string; readonly telemetry: string; readonly node: Primitives;
+    /** How the portal is served (K19), for a test that brings a stand-in client; the default is `@orthograph/portal`'s own. */
+    readonly serve?: Omit<OpenOptions, "context">;
+    /** Told why the portal could not be served or a page could not be read; `src/main.ts` prints it. */
+    readonly onUnavailable?: (message: string) => void;
+  }) => ProjectPorts;
 }

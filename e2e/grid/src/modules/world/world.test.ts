@@ -1,8 +1,10 @@
 // The real ports, tried on plain functions in place of the machine: what each is asked for, and what an output that is not there becomes.
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
+import { ServedPortals } from "../../../../served-portal/service.ts";
 import { World } from "./service.ts";
 import type { Primitives } from "./types.ts";
 
@@ -43,11 +45,28 @@ describe("the outputs the model does not hold", () => {
     expect(Effect.runSync(ports(node({ run: () => ({ status: 1, stdout: "", stderr: "boom" }) })).cliHelp(["x"]))).toBeUndefined();
   });
 
-  it("renders the portal's own pages over the project's blueprint, and a route it does not have is undefined", async () => {
-    const p = ports(node());
-    expect(await Effect.runPromise(p.portal("/portal/operations/link.add"))).toContain("<h1>link.add</h1>");
-    expect(await Effect.runPromise(p.portal("/portal/operations/link.fly"))).toBeUndefined();
-    expect(await Effect.runPromise(ports(node({ read: () => undefined })).portal("/portal"))).toBeUndefined();
+  // K19: the portal's page is the one a browser draws from the served portal. A stand-in client draws a page from the data API.
+  it("reads the portal's pages from the served portal in a browser, and a page that is not a 200 is undefined", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "grid-world-"));
+    try {
+      writeFileSync(join(dir, "index.html"), `<!doctype html><title>x</title><div id="r"></div><script>
+fetch("/_portal/v1/blueprint").then((r) => r.json()).then(() => { const route = location.pathname.replace(/^\\/portal/, "");
+document.getElementById("r").innerHTML = '<main data-portal="page" data-ready="true" data-status="' + (route.includes("fly") ? 404 : 200) + '"><h1>' + route + '</h1></main>'; });</script>`);
+      const serve = { clientDir: dir, run: (effect: unknown) => effect as Promise<Response>, server: { PortalServer: { handle: () => Promise.resolve(Response.json({})) } } };
+      const p = World.ports({ project: pluggedIn, report: "/prove.json", telemetry: "/telemetry", node: node(), serve });
+      expect(await Effect.runPromise(p.portal("/portal/operations/link.add"))).toContain("<h1>/operations/link.add</h1>");
+      expect(await Effect.runPromise(p.portal("/portal/operations/link.fly"))).toBeUndefined();
+      expect(await Effect.runPromise(ports(node({ read: () => undefined })).portal("/portal"))).toBeUndefined();
+    } finally { await ServedPortals.closeAll(); rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it("says why when the portal cannot be served (K19), once, and has no page", async () => {
+    const said: Array<string> = [];
+    const p = World.ports({ project: pluggedIn, report: "/prove.json", telemetry: "/telemetry", node: node(), serve: { clientDir: join(tmpdir(), "no-such-client") }, onUnavailable: (m) => said.push(m) });
+    expect(await Effect.runPromise(p.portal("/portal"))).toBeUndefined();
+    expect(await Effect.runPromise(p.portal("/portal/things/link"))).toBeUndefined();
+    expect(said).toHaveLength(1);
+    expect(said[0]).toMatch(/^K19: /);
   });
 
   it("answers `tools/list` as the MCP server does: from the project's own catalog and refusals, and nothing when they will not load", async () => {
