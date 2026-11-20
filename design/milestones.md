@@ -87,7 +87,7 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the shared, prefixed account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
 
 **Aaron's exception, K26 (20 November 2026):** the on-chain work is pulled forward. M6.01 starts now. M6.02, M6.07, M6.09 and M6.10
-to M6.18 start once their own `needs` are met, without waiting for the stage 2 or 3 gate, as one goal on its own
+to M6.18 start once their own `needs` are met, without waiting for the stage 2 or 3 gate. They run as one goal on its own
 branch, `goal/on-chain`, which merges `goal/stage-1` in at every slice and never pushes to it. M6.21 still waits for
 M8.09. The gates still run where the stages put them
 ([`decisions/K26-on-chain-pulled-forward.md`](decisions/K26-on-chain-pulled-forward.md)).

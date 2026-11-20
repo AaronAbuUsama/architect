@@ -33,8 +33,10 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
    from `goal/stage-1`:
    - It may change the engine (`packages/orthograph`, `compiler`, `generators`, `projections`, `language-effect`)
      on that branch.
-   - It merges `goal/stage-1` in at the start of every slice, and never pushes to it. Goal 3 never waits on it, and
-     the on-chain goal resolves every conflict.
+   - It merges `goal/stage-1` in at the start of every slice, and never pushes to it except through the one pull
+     request below. Goal 3 never waits on it, and the on-chain goal resolves every conflict.
+   - Authors' work (journeys and checks) arrives on `-check` branches merged into `goal/on-chain`, and builders never
+     edit it, as in `AGENTS.md`.
    - It lands in `main` once stage 1 has. If Goal 3 is still open when it finishes, it lands in `goal/stage-1`
      through one pull request.
    - It is local only: no cloud and no keys.
