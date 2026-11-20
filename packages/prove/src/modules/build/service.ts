@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 import { Effect } from "effect";
 import { ServerConfig } from "#modules/server-config/service.js";
 import { BuildFailed, type BuildApi } from "./types.ts";
-import { digest, io, read } from "./internal/manifest.ts";
+import { digest, io, read, treeDigest } from "./internal/manifest.ts";
 
 const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
 const artefacts = (root: string, revision: string) => join(resolve(root), Names.folder, "artefacts", revision);
@@ -36,11 +36,19 @@ const build: BuildApi["build"] = (root, env = {}) =>
     if (yield* dirty(root)) return yield* new BuildFailed({ message: `refused: the working tree differs from ${rev}: commit or stash what changed before building a deployable bundle` });
     const commit = yield* git(root, "rev-parse", "HEAD");
     const held = yield* find(root, rev);
-    if (held !== undefined) { yield* unchanged(root, held.commit); return { ...held, dirty: false }; }
     const generated = resolve(root, "generated/server/wrangler.jsonc");
     if (!existsSync(generated)) return yield* new BuildFailed({ message: `${generated} is missing: run nx sync first` });
     // The portal's prebuilt client ships with the revision, beside the bundle (K19); a machine that has none builds a revision without it.
     const client = ServerConfig.clientOf(root);
+    // A revision is its bundle and its client: one held with another client (or none, or one where there was none) is not this build, and is never overwritten.
+    if (held !== undefined) {
+      const wanted = client === undefined ? null : yield* io(() => treeDigest(client));
+      if (held.portal !== wanted) {
+        return yield* new BuildFailed({ message: `the artefact of ${rev} was built ${held.portal === null ? "without the portal's client" : "with another portal client"} and the client here is ${wanted === null ? "not built" : "another one"}: move .ortho/artefacts/${rev} aside, then run ortho build and ortho prove --env test` });
+      }
+      yield* unchanged(root, held.commit);
+      return { ...held, dirty: false };
+    }
     const dir = artefacts(root, rev);
     yield* io(() => mkdirSync(dirname(dir), { recursive: true }));
     return yield* Effect.acquireUseRelease(
@@ -57,12 +65,13 @@ const build: BuildApi["build"] = (root, env = {}) =>
         if ((yield* dirty(root)) || (yield* git(root, "rev-parse", "HEAD")) !== commit) return yield* new BuildFailed({ message: "the source changed while bundling: commit it and build again" });
         if (client !== undefined) yield* io(() => cpSync(client, join(scratch, "portal"), { recursive: true }));
         const sha256 = yield* io(() => digest(main));
-        yield* io(() => writeFileSync(join(scratch, "bundle.json"), JSON.stringify({ schemaVersion: 1, source: "clean", revision: rev, commit, sha256 }) + "\n"));
+        const portal = client === undefined ? null : { sha256: yield* io(() => treeDigest(join(scratch, "portal"))) };
+        yield* io(() => writeFileSync(join(scratch, "bundle.json"), JSON.stringify({ schemaVersion: 1, source: "clean", revision: rev, commit, sha256, portal }) + "\n"));
         // Publish only a complete clean build. A concurrent winner is reused; its files are never overwritten.
         const winner = yield* find(root, rev);
         if (winner !== undefined) return { ...winner, dirty: false };
         yield* io(() => renameSync(scratch, dir));
-        return { revision: rev, commit, sha256, main: join(dir, "main.js"), dirty: false };
+        return { revision: rev, commit, sha256, main: join(dir, "main.js"), portal: portal?.sha256 ?? null, dirty: false };
       }),
       (scratch) => io(() => { rmSync(scratch, { recursive: true, force: true }); rmSync(`${scratch}.wrangler.jsonc`, { force: true }); }).pipe(Effect.ignore),
     );

@@ -160,6 +160,8 @@ jobs:
   # Gate 2 (L2.11): all eight authored shipping checks, including the Linux Homebrew install.
   e2e-layer2:
     needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -177,6 +179,12 @@ jobs:
         with:
           name: portal-client
           path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
       # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
       # let a test that still reaches for it fail here.
       - name: No Docker on the PATH
@@ -226,6 +234,8 @@ jobs:
   # Gate M1 (M1.15) empties the list and makes the job required.
   e2e-m1:
     needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -241,6 +251,12 @@ jobs:
         with:
           name: portal-client
           path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
       # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
       # let a test that still reaches for it fail here.
       - name: No Docker on the PATH
@@ -293,6 +309,8 @@ jobs:
   # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
   e2e-grid:
     needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -308,6 +326,12 @@ jobs:
         with:
           name: portal-client
           path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
       # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
       # let a test that still reaches for it fail here.
       - name: No Docker on the PATH

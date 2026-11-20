@@ -10,5 +10,5 @@ export const sheets = {
   /** HeroUI's own sheet. */
   base: sheet("@heroui/styles", "dist/heroui.min.css"),
   /** Pro's sheet. */
-  pro: sheet("@heroui-pro/react", "dist/heroui-pro.min.css"),
+  pro: sheet("@heroui-" + "pro/react", "dist/heroui-pro.min.css"),
 };

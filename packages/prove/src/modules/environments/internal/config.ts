@@ -43,7 +43,7 @@ export const environmentConfig = (root: string, baseText: string, d: Describe): 
       database_name: `${String(db["database_name"])}-${d.name}`,
       migrations_dir: resolve(root, "generated/server", String(db["migrations_dir"] ?? "migrations")),
     })),
-    ...(d.portal === undefined ? {} : { assets: { directory: d.portal, binding: "PORTAL_ASSETS", run_worker_first: true } }),
+    ...(d.portal === undefined ? {} : { assets: ServerConfig.assets(d.portal) }),
     vars: {
       ...base.vars,
       [Names.variable("ENVIRONMENT")]: d.name,
