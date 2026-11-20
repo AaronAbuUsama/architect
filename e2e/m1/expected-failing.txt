@@ -24,9 +24,6 @@ m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fi
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x SDK ~: the SDK exports each thing's type and the type of each of its fields (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x portal ~: each field's description and visibility are in the portal's data file (M1.42)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > operation and read x CLI ✓: each is called once and answers what the model says it answers (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > operation and read x SDK ✓: each is called once and answers what the model says it answers (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > thing x read ✓: the page lists its links in the order they were given, and a removed one is gone (M1.43)
 m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > `/portal` is the things as cards in the tree's order, each with its lifecycle, under the environment's top bar
 m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > the rail is scoped to the page: everything on home, the thing's operations on its page, nothing from outside the window
 m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > handle's page lights `claim` and its arrow, names the journey, and leaves the unrun operations and arrows dark
