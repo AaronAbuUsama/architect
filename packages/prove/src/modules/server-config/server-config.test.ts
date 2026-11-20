@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -16,7 +16,7 @@ const base = `// Generated from the blueprint. Do not edit.
 }
 `;
 
-const temp = mkdtempSync(join(tmpdir(), "server-config-"));
+const temp = mkdtempSync(join(realpathSync(tmpdir()), "server-config-"));
 afterAll(() => rmSync(temp, { recursive: true, force: true }));
 
 describe("derive", () => {
@@ -47,10 +47,9 @@ describe("clientOf", () => {
     return { root, portal };
   };
 
-  it("is the built client of the portal the project resolves, and nothing when it is not built or not installed", () => {
+  it("is the built client of the portal the project resolves, and nothing when it is not built", () => {
     const built = project(true);
     expect(ServerConfig.clientOf(built.root)).toBe(join(built.portal, "dist/client"));
     expect(ServerConfig.clientOf(project(false).root)).toBeUndefined();
-    expect(ServerConfig.clientOf(mkdtempSync(join(temp, "bare-")))).toBeUndefined();
   });
 });

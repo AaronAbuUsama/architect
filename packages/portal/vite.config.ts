@@ -3,6 +3,8 @@
 // a project's Worker serves them as static assets and never builds them. HeroUI's and Pro's precompiled sheets come from portal-ui's
 // own install, the only place that names the licensed package.
 import { defineConfig } from "vite";
+// A build tool's config reads a sibling project's script by its path: portal-ui exports no sheets, and the script is not part of its package.
+// oxlint-disable-next-line @nx/enforce-module-boundaries
 import { sheets } from "../portal-ui/tools/sheets.mjs";
 
 export default defineConfig({
