@@ -10,7 +10,7 @@ removed on purpose. The baseline is stale, not the build.
 **The call.** The baseline is recaptured from acme's checked-in `generated/` (`node e2e/fixtures/m1/clients/make-baseline.ts`), and the
 recapture is read against the old one before it is kept: every file digest the old baseline held is unchanged, every top-level export is
 unchanged, and each thing's exports are unchanged except `Errors`, which drops `shown` and gains `refusals` (and `PersonNotFound`, an error
-class the SDK now exports); the new `sdk/src/<thing>/types.ts` files are added. Nothing else the old baseline protected is given up. A control in
+class the SDK now exports); the new `sdk/src/<thing>/types.ts` files are added. Nothing else the old baseline protected is given up. The baseline is now 52 files, not 44, and the check's consumers say so: the file count, and `carriesOptions`, which no longer counts a thing's `types.ts` as an operation's face (a type declaration takes no options), so the 15 operation faces are still 15. A control in
 the same check (`missingExports`) fails when a real export is dropped, from the top level or from a thing, and passes on the whole baseline.
 
 **Evidence.** M1.35 (the visibility slice, `refusals` for `shown`); the diff of the two baselines above; the control.

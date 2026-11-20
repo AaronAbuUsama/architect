@@ -11,7 +11,7 @@
 //     without `cli.ts`, nothing writes `generated/cli/` while the sdk and mcp still are (nothing builds on the CLI). Not judged:
 //     a cli mounted without its sdk, and a project that mounts no projection (M1.11's rule: it keeps the fixed list).
 //  2. "Unchanged apart from the new options" is `e2e/fixtures/m1/clients/acme-baseline.json`, taken from acme's checked-in
-//     `generated/` at m1 3a99bd92 (44 files). The cli (its `main.ts` too) and the mcp are byte for byte apart from the header
+//     `generated/` at m1 3a99bd92 (44 files), recaptured after M1.35 (52: each thing's `types.ts` added, design/decisions/M1-clients-baseline.md). The cli (its `main.ts` too) and the mcp are byte for byte apart from the header
 //     line, which may say the blueprint or the mount (`// Generated from blueprint/projections/<name>.ts. Do not edit.`, and it
 //     sits below the CLI entry's shebang), and so is each thing's `sdk/src/<thing>/index.ts`. Only `sdk/src/client.ts`,
 //     `sdk/src/index.ts` and each operation's file `sdk/src/<thing>/<verb>.ts` may differ (the layer, what the barrel exports,
@@ -85,9 +85,12 @@ describe("14 the surface: what acme needs to mount its clients", () => {
 });
 
 describe("14 controls: the baseline and the instruments", () => {
-  it("the baseline records acme's 44 client files, and what acme has now still matches it where it must not change", () => {
+  it("the baseline records acme's 52 client files (44 taken at 3a99bd92, and each thing's `types.ts`, 8), and what acme has now still matches it where it must not change", () => {
     const want = baseline();
-    expect(Object.keys(want.files).length, "sdk, cli and mcp").toBe(44);
+    const paths = Object.keys(want.files);
+    expect(paths.length, "sdk, cli and mcp").toBe(52);
+    expect(paths.filter((p) => /^sdk\/src\/[^/]+\/types\.ts$/.test(p)), "a types file per thing").toHaveLength(8);
+    expect(paths.filter((p) => carriesOptions(p) && /^sdk\/src\/[^/]+\/[^/]+\.ts$/.test(p)), "an sdk file per operation: the types files are not among them").toHaveLength(15);
     expect(Object.keys(want.files).filter((p) => p.startsWith("mcp/")), "one mcp file").toEqual(["mcp/src/index.ts"]);
     expect(want.exports.things["allowance"]).toEqual(["get", "grant", "revoke", "spend"]);
     expect(differences(want.files, clientDigest(acme)), "the cli, the mcp and each thing's sdk index, byte for byte but their first line").toEqual([]);
@@ -110,7 +113,7 @@ describe("14 controls: the baseline and the instruments", () => {
     removeAt(root, "generated/mcp/src/index.ts");
     removeAt(root, "generated/sdk/src/allowance/index.ts");
     expect(differences(want, clientDigest(root))).toEqual(["changed cli/src/main.ts", "extra cli/extra.txt", "missing mcp/src/index.ts", "missing sdk/src/allowance/index.ts"]);
-    expect([carriesOptions("sdk/src/client.ts"), carriesOptions("sdk/src/allowance/spend.ts"), carriesOptions("sdk/src/allowance/index.ts"), carriesOptions("cli/src/main.ts")]).toEqual([true, true, false, false]);
+    expect([carriesOptions("sdk/src/client.ts"), carriesOptions("sdk/src/allowance/spend.ts"), carriesOptions("sdk/src/allowance/index.ts"), carriesOptions("sdk/src/allowance/types.ts"), carriesOptions("cli/src/main.ts")]).toEqual([true, true, false, false, false]);
   });
 
   it("the proxy passes a request on, loses the first answer, and tells the key and the trace of each", async () => {

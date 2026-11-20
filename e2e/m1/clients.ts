@@ -40,8 +40,8 @@ export const digestOf = (root: string, folder: string): Record<string, string> =
   Object.fromEntries(walk(root, `generated/${folder}`).map((path) => [path.slice("generated/".length), sha(headerless(readFileSync(join(root, path), "utf8")))]));
 export const clientDigest = (root: string) => ({ ...digestOf(root, "sdk"), ...digestOf(root, "cli"), ...digestOf(root, "mcp") });
 
-/** The SDK's files that carry the new options: the layer, the barrel (which exports what the options need), and each operation's function. */
-export const carriesOptions = (path: string) => path === "sdk/src/client.ts" || path === "sdk/src/index.ts" || (/^sdk\/src\/[^/]+\/[^/]+\.ts$/.test(path) && !path.endsWith("/index.ts"));
+/** The SDK's files that carry the new options: the layer, the barrel (which exports what the options need), and each operation's function (not the barrel `index.ts` of a thing, nor its `types.ts`: a type declaration takes no options). */
+export const carriesOptions = (path: string) => path === "sdk/src/client.ts" || path === "sdk/src/index.ts" || (/^sdk\/src\/[^/]+\/[^/]+\.ts$/.test(path) && !path.endsWith("/index.ts") && !path.endsWith("/types.ts"));
 
 /** What differs between the baseline and a project's clients, other than the new options: missing, extra (only the SDK may gain files) and changed. */
 export const differences = (want: Record<string, string>, got: Record<string, string>) => [
