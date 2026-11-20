@@ -1,8 +1,2 @@
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > `findBy(rule, value)` finds the holder inside the rule's scope only
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > a claim, a taken name, a second name for one person, release then claim
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > a rule the compiler could not see an operation break dies as a defect naming the rule and the operation
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > a rule with no refusal: `findBy` finds the page, and a handler that breaks the rule dies naming it
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > each refusal is on its span with the rule that made it, and its code, and commits nothing
-m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > ten concurrent claims of one name: one wins, nine are HandleTaken, none is a defect, and releasing the winner frees the name
 m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the docs page, the MCP tool's description and the portal's data carry both rules, each by its sentence
 m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the scaffold's header says the runtime refuses each, by which rule and where; the body has no blank for them

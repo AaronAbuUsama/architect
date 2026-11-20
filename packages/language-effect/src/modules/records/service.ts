@@ -3,19 +3,21 @@ import type { Thing } from "orthograph";
 import type { Entry } from "#modules/journal/types.js";
 import { Journal } from "#modules/journal/types.js";
 import { journalOf } from "#modules/journal/service.js";
-import { Records, Store, type Instance, type UnitApi } from "./types.ts";
+import { Records, Store, type Instance, type NamedRule, type UnitApi } from "./types.ts";
 import { makeUnit } from "./internal/unit.ts";
-import { keyOf, uniqueIndex } from "./internal/unique.ts";
+import { keyOf, rulesOf, uniqueIndex } from "./internal/unique.ts";
 
 export const Unit: UnitApi = { make: makeUnit };
 
 /** A store and journal held in memory, for tests: the same versions and the same all-or-nothing commit as a host's. */
-export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> = []) => {
+export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> = [], given: ReadonlyArray<NamedRule> = []) => {
+  const rules = rulesOf(given);
   const rows = initial.map(([thing, instance]) => ({ thing, instance, version: 0 }));
   const entries: Array<Entry> = [];
   const requests = new Map<string, string>();
   const at = (thing: Thing, id: unknown) => rows.findIndex((r) => r.thing === thing && r.instance["id"] === id);
   const store = Store.of({
+    rules: given,
     find: (thing, id) => Effect.sync(() => {
       const r = rows[at(thing, id)];
       return r && { instance: r.instance, version: r.version };
@@ -39,7 +41,7 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
         const index = (thing: Thing, id: unknown) => next.findIndex((r) => r.thing === thing && r.instance["id"] === id);
         const keys = new Map<Thing, ReturnType<typeof uniqueIndex>>();
         for (const w of writes) {
-          if (!keys.has(w.thing)) keys.set(w.thing, uniqueIndex(w.thing, next.filter((r) => r.thing === w.thing).map((r) => r.instance)));
+          if (!keys.has(w.thing)) keys.set(w.thing, uniqueIndex(rules.of(w.thing), next.filter((r) => r.thing === w.thing).map((r) => r.instance)));
           if (w.kind === "insert") {
             const instance = { ...w.fields, ...(w.state ? { state: w.state } : {}) };
             next.push({ thing: w.thing, instance, version: 0 });
@@ -72,6 +74,11 @@ export const recordsMemory = (initial: ReadonlyArray<readonly [Thing, Instance]>
     const store = yield* Store;
     return (yield* makeUnit(store)).records;
   })).pipe(Layer.provide(storeMemory(initial).layer));
+
+/** The rules a `invariants.ts` module exports, each named `<thing>.<export>` (the thing's name, as the model has it): what a host's store and the unit enforce. */
+export const invariantsIn = (thing: string, module: Readonly<Record<string, unknown>>): ReadonlyArray<NamedRule> =>
+  Object.entries(module).flatMap(([name, rule]) =>
+    typeof rule === "object" && rule !== null && (rule as { kind?: unknown }).kind === "invariant" ? [{ name: `${thing}.${name}`, rule: rule as NamedRule["rule"] }] : []);
 
 /** The one thing a `thing.ts` module exports, whatever its export is called. */
 export const thingIn = (module: Readonly<Record<string, unknown>>): Thing => {
