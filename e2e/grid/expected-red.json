@@ -55,30 +55,6 @@
       "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
-      "cell": "event.docs",
-      "subject": "HandleClaimed",
-      "reason": "generated/docs/handle/index.md has no Events section documenting HandleClaimed with its fields",
-      "waitsOn": "M1.42 (proposed: name the docs in its row) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "event.docs",
-      "subject": "HandleReleased",
-      "reason": "generated/docs/handle/index.md has no Events section documenting HandleReleased with its fields",
-      "waitsOn": "M1.42 (proposed: name the docs in its row) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "event.docs",
-      "subject": "LinkAdded",
-      "reason": "generated/docs/link/index.md has no Events section documenting LinkAdded with its fields",
-      "waitsOn": "M1.42 (proposed: name the docs in its row) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "event.docs",
-      "subject": "LinkRemoved",
-      "reason": "generated/docs/link/index.md has no Events section documenting LinkRemoved with its fields",
-      "waitsOn": "M1.42 (proposed: name the docs in its row) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
       "cell": "event.portal",
       "subject": "HandleClaimed",
       "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/handle has no Events section listing HandleClaimed with its fields",
@@ -187,42 +163,6 @@
       "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
-      "cell": "machine.api",
-      "subject": "handle",
-      "reason": "HandleNotClaimed's state is not typed as the union of claimed | released: state: Schema.String } }, { ht",
-      "waitsOn": "M1.42 (proposed addition: `state` as a literal union in the answer schema) — packages/projections/src/modules/api/internal/api.ts:35"
-    },
-    {
-      "cell": "machine.api",
-      "subject": "link",
-      "reason": "LinkNotListed's state is not typed as the union of listed | removed: state: Schema.String } }, { ht",
-      "waitsOn": "M1.42 (proposed addition: `state` as a literal union in the answer schema) — packages/projections/src/modules/api/internal/api.ts:35"
-    },
-    {
-      "cell": "machine.cli",
-      "subject": "handle",
-      "reason": "`handle claim --help` does not name the states it moves between (claimed missing)",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "machine.cli",
-      "subject": "link",
-      "reason": "`link add --help` does not name the states it moves between (listed missing)",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "machine.mcp",
-      "subject": "handle",
-      "reason": "handle.claim's description does not name the states it moves between (claimed missing)",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
-    },
-    {
-      "cell": "machine.mcp",
-      "subject": "link",
-      "reason": "link.add's description does not name the states it moves between (listed missing)",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
-    },
-    {
       "cell": "machine.portal",
       "subject": "handle",
       "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/handle's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
@@ -235,60 +175,6 @@
       "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
-      "cell": "machine.sdk",
-      "subject": "handle",
-      "reason": "the SDK never names the state \"claimed\": a caller's state is not a typed union",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
-    },
-    {
-      "cell": "machine.sdk",
-      "subject": "link",
-      "reason": "the SDK never names the state \"listed\": a caller's state is not a typed union",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "handle.claim",
-      "reason": "`handle claim --help` does not carry the operation's description \"Claim a free name and make it the address of your public page, with its profile.\"; it prints \"USAGE / plugged-in handle claim [flags] ",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "handle.release",
-      "reason": "`handle release --help` does not carry the operation's description \"Free your name and take its public page offline. Anyone may claim the name afterwards.\"; it prints \"USAGE / plugged-in handle releas",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "handle.resolve",
-      "reason": "`handle resolve --help` does not carry the operation's description \"Find the handle that holds a claimed name. A released or unclaimed name has none.\"; it prints \"USAGE / plugged-in handle resolve [fl",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "link.add",
-      "reason": "`link add --help` does not carry the operation's description \"Append a link to your own public page. You need a claimed name first.\"; it prints \"USAGE / plugged-in link add [flags] /\"",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "link.order",
-      "reason": "`link order --help` does not carry the operation's description \"Move a link to a zero-based position. A position past the end puts it last.\"; it prints \"USAGE / plugged-in link order [flags] /\"",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "link.remove",
-      "reason": "`link remove --help` does not carry the operation's description \"Remove a link from a public page.\"; it prints \"USAGE / plugged-in link remove [flags] /\"",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "operation.cli",
-      "subject": "profile.get",
-      "reason": "`profile get --help` does not carry the operation's description \"Read a claimed name's public page and its links in display order.\"; it prints \"USAGE / plugged-in profile get [flags] /\"",
-      "waitsOn": "M1.42 (help text); M2.08 (journeys) — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
       "cell": "operation.portal",
       "subject": "handle.claim",
       "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
@@ -329,108 +215,6 @@
       "subject": "profile.get",
       "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
       "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
-    },
-    {
-      "cell": "step.api",
-      "subject": "handle.claim.load",
-      "reason": "generated/api/src/handle/claim.ts names handle.claim.load: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "handle.claim.record",
-      "reason": "generated/api/src/handle/claim.ts names handle.claim.record: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "handle.release.record",
-      "reason": "generated/api/src/handle/release.ts names handle.release.record: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "handle.resolve.load",
-      "reason": "generated/api/src/handle/resolve.ts names handle.resolve.load: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "link.add.load",
-      "reason": "generated/api/src/link/add.ts names link.add.load: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "link.add.record",
-      "reason": "generated/api/src/link/add.ts names link.add.record: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "link.order.load",
-      "reason": "generated/api/src/link/order.ts names link.order.load: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "link.order.record",
-      "reason": "generated/api/src/link/order.ts names link.order.record: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "link.remove.record",
-      "reason": "generated/api/src/link/remove.ts names link.remove.record: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "step.api",
-      "subject": "profile.get.load",
-      "reason": "generated/api/src/profile/get.ts names profile.get.load: the caller's contract must not carry a step",
-      "waitsOn": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) — packages/projections/src/modules/api/internal/api.ts:99"
-    },
-    {
-      "cell": "thing.cli",
-      "subject": "link",
-      "reason": "link order --position: a uint is shown as \"string\", expected a number",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/cli.ts:9"
-    },
-    {
-      "cell": "thing.mcp",
-      "subject": "handle",
-      "reason": "handle.claim offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
-    },
-    {
-      "cell": "thing.mcp",
-      "subject": "link",
-      "reason": "link.add offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
-    },
-    {
-      "cell": "thing.mcp",
-      "subject": "profile",
-      "reason": "profile.get offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
-    },
-    {
-      "cell": "thing.sdk",
-      "subject": "handle",
-      "reason": "the SDK exports no type Handle: a caller cannot name a handle",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
-    },
-    {
-      "cell": "thing.sdk",
-      "subject": "link",
-      "reason": "the SDK exports no type Link: a caller cannot name a link",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
-    },
-    {
-      "cell": "thing.sdk",
-      "subject": "profile",
-      "reason": "the SDK exports no type Profile: a caller cannot name a profile",
-      "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
     }
   ]
 }

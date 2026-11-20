@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("claim", "/handle/claim", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [HandleTaken, HandleAlreadyOwned, NotAllowed],
 });
-export const steps = ["handle.claim.load", "handle.claim.record"] as const;

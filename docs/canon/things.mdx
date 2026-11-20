@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/orthograph/src/modules/values/types.ts lines=27-41
+```ts file=packages/orthograph/src/modules/values/types.ts lines=30-49
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -83,6 +83,11 @@ export interface ValuesApi {
   readonly text: (options?: { readonly max?: number }) => Value<Schema.String>;
   /** A reference carrying a thing’s declaration name and the id of one instance. */
   readonly refAny: () => Value<Schema.Struct<{ readonly declaration: Schema.String; readonly id: Schema.String }>>;
+  /**
+   * Say what a value or a thing's field is for: `title: Blueprint.described(Blueprint.text({ max: 120 }), "The words a link shows.")`.
+   * Gives back the same kind, so it goes wherever the original went; a field made from it keeps the sentence.
+   */
+  readonly described: <const X extends Value | Field>(x: X, description: string) => X;
   /** An email address: text of at most 254 characters, with an `@` and a dot after it. */
   readonly email: () => Value<Schema.String>;
 }
@@ -119,7 +124,7 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=6-20
+```ts file=packages/orthograph/src/modules/things/types.ts lines=6-22
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
   readonly kind: "field";
@@ -130,6 +135,8 @@ export interface Field<V extends Value = Value> {
   readonly from: Field | undefined;
   /** Who may see this field's value: its own mark, or that of the value or field it was made from. */
   readonly visibility: Visibility;
+  /** What the field is for, in a sentence a caller reads: its own, or that of the value or field it was made from (M1.42). */
+  readonly description?: string;
   /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
   readonly traced?: true;
   /** A secret answer field handed to its caller once (`Blueprint.issued`); the compiler refuses it on a thing's own field. */

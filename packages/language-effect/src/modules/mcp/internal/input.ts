@@ -17,7 +17,11 @@ export const inputSchema = (payloadSchema: Schema.Top, payload: FieldsInput): Js
   const hidden = new Set(hiddenInputs(payload));
   return {
     type: "object",
-    properties: Object.fromEntries(Object.entries(full.properties ?? {}).filter(([k]) => !hidden.has(k))),
+    // Each property says what its field is for, in the blueprint's own words (M1.42).
+    properties: Object.fromEntries(Object.entries(full.properties ?? {}).filter(([k]) => !hidden.has(k)).map(([k, p]) => {
+      const description = payload[k]?.description;
+      return [k, description === undefined ? p : { ...(p as Json), description }] as const;
+    })),
     required: (full.required ?? []).filter((k) => !hidden.has(k)),
     additionalProperties: false,
     ...(Object.keys(definitions).length > 0 ? { $defs: definitions } : {}),

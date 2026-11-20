@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("sign-in", "/session/sign-in", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [SessionCredentialsWrong],
 });
-export const steps = ["session.sign-in.verify"] as const;

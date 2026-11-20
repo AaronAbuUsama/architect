@@ -2,6 +2,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot, type RenderedFile } from "@orthograph/projections/shared";
+import { sdkTypes } from "./sdk-types.ts";
 
 /** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
 const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);
@@ -124,6 +125,7 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
   const client = pascal(name);
   const devices = ops.filter((o) => onDevice(o) && o.from.kind !== "app");
   const perOp = ops.map((o) => (devices.includes(o) ? device(model, o, client) : server(o, client)));
+  const types = sdkTypes(model);
   const index: RenderedFile = {
     path: "generated/sdk/src/index.ts",
     scaffold: false,
@@ -132,6 +134,7 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
       `export { ${client}, layer } from "./client.ts";`,
       `export { Errors } from "../../api/src/index.ts";`,
       things.map((t) => `export * as ${camel(t)} from "./${t}/index.ts";`),
+      types.exports,
     ),
   };
   const thingIndexes = things.map((t): RenderedFile => ({
@@ -139,5 +142,5 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
     scaffold: false,
     content: lines(GENERATED, ops.filter((o) => o.thing === t).map((o) => `export { ${camel(o.verb)} } from "./${o.verb}.ts";`)),
   }));
-  return [clientFile(name, client, devices.length > 0), index, ...thingIndexes, ...perOp, ...(devices.length > 0 ? [sdkPackage(devices)] : [])];
+  return [clientFile(name, client, devices.length > 0), index, ...types.files, ...thingIndexes, ...perOp, ...(devices.length > 0 ? [sdkPackage(devices)] : [])];
 };

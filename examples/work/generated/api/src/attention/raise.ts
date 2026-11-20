@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("raise", "/attention/raise", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [MissionNotRunning, NotAllowed],
 });
-export const steps = ["attention.raise.insert"] as const;

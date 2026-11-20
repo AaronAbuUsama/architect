@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("add", "/link/add", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [LinkNeedsHandle, NotAllowed],
 });
-export const steps = ["link.add.load", "link.add.record"] as const;
