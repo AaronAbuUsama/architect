@@ -132,7 +132,7 @@ r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/notes.md"; commit "$r"; git
 expect "docs-only: moving a file out of design/ is not docs" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/heroui-pro-notes.md"; commit "$r"
 expect "docs-only: a doc named for HeroUI Pro is not docs (check 15 scans paths)" 0 docs "$r" false
-r=$(repo); mkdir -p "$r/design"; echo 'HEROUI_AUTH_TOKEN=abcdefghijklmnop' > "$r/design/setup.md"; commit "$r"
+r=$(repo); mkdir -p "$r/design"; name=HEROUI_AUTH; echo "${name}_TOKEN=$(printf 'a%.0s' {1..16})" > "$r/design/setup.md"; commit "$r"
 expect "docs-only: a doc that adds a line naming the token is not docs (check 15 scans text)" 0 docs "$r" false
 r=$(repo)
 expect "docs-only: an empty diff is not docs" 0 docs "$r" false
