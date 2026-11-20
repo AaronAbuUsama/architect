@@ -82,7 +82,7 @@ const json = (response: ServerResponse, status: number, value: unknown) => {
   response.end(JSON.stringify(value));
 };
 /**
- * A server on 127.0.0.1:19275. `/hold` is answered only when `/release` is called; `/wait-held` is answered once a request
+ * A server on 127.0.0.1 at `PORTS.hold`. `/hold` is answered only when `/release` is called; `/wait-held` is answered once a request
  * is held; `/reject` answers 503 with a private marker; `/state` counts what is held and what was dropped by its caller.
  */
 export const withHold = async (use: (held: Held) => Promise<void>) => {

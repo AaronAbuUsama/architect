@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("answer", "/question/answer", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [QuestionNoSuchOption, QuestionNotAsked, QuestionNotFound, NotAllowed],
 });
-export const steps = ["question.answer.record"] as const;

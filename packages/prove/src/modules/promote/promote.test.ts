@@ -1,7 +1,8 @@
 // L2.05's done-when checks, on a copy of acme under git, through the `ortho promote` command: it refuses a revision
 // without verdicts and accepts one that has them, production is refused without staging verdicts, one bundle hash runs in
 // test, staging and production, and a dirty tree or an unbuilt bundle is refused. Real wrangler and workerd for the
-// logbook and the three environments, real collectors and a real OIDC issuer (an @orthograph/services process). Ports 9030 to 9049 are this file's.
+// logbook and the three environments, real collectors and a real OIDC issuer (an @orthograph/services process), each on a free port.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -11,7 +12,7 @@ import { Issuer } from "@orthograph/services";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Environments } from "#modules/environments/service.js";
 
-const PORTS = { logbook: 9030, test: 9031, staging: 9032, production: 9033, issuer: 9034 };
+const PORTS = freePorts("logbook", "test", "staging", "production", "issuer");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const cli = resolve(import.meta.dirname, "../../../../cli/src/main.ts");
 const trusted = { repository: "acme/acme", workflow: "ortho" };

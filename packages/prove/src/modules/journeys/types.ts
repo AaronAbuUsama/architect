@@ -39,6 +39,8 @@ export interface StepResult {
   readonly trace: string;
   /** Empty when the step passed (span checks are added once telemetry is in). */
   readonly failures: ReadonlyArray<string>;
+  /** The same failures with what was expected and what came back, for the structured report. */
+  readonly findings?: ReadonlyArray<{ readonly message: string; readonly expected?: string; readonly got?: string }>;
   /** Span names the step expects present or absent in its trace. */
   readonly spans: { readonly present: ReadonlyArray<string>; readonly absent: ReadonlyArray<string> };
 }

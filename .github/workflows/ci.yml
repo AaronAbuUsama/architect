@@ -14,9 +14,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Every job has a timeout, about twice its longest green run, so a hung run or one left behind by a closed pull request
+# frees its runner instead of holding it for hours.
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -50,6 +53,23 @@ jobs:
           ORTHO_CHAIN_EVM_ANVIL: "1"
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
+      # The CI guards' own scripts (builder-paths, supersedes, codex-state), each case on a throwaway repository.
+      - run: bash tools/ci/ci.test.sh
+
+  # A builder never edits journeys, evals or the runner's checks (AGENTS.md; proposal 6 in design/process/proposals.md).
+  # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
+  # Any other pull request or push skips it, and a skipped job counts as passed where it is required.
+  builder-paths:
+    if: github.event_name == 'pull_request' && endsWith(github.head_ref, '-build')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - run: tools/ci/builder-paths.sh "origin/$BASE_REF" HEAD
+        env:
+          BASE_REF: ${{ github.base_ref }}
 
   # M1.34 (F7): `@orthograph/portal-ui` is built and typechecked against the real HeroUI Pro, which only a licensed install has.
   # Pro is downloaded with the HEROUI_AUTH_TOKEN secret (Aaron's, from the HeroUI Pro dashboard) and cached by the lockfile's
@@ -59,6 +79,7 @@ jobs:
   portal-ui:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -87,6 +108,18 @@ jobs:
         run: pnpm nx run-many -t lint,typecheck,test,build -p portal-ui --outputStyle=static
         env:
           ORTHO_REQUIRE_PRO: "1"
+      # K19: the portal's client (its pages, portal-ui and Pro, bundled by vite) is built here, once, where the licence is, and handed to the
+      # jobs that read the portal as built files. Nothing else builds it, so nothing else needs the licence.
+      - name: Build the portal's client against the real Pro
+        run: pnpm nx run portal:client --outputStyle=static
+        env:
+          ORTHO_REQUIRE_PRO: "1"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: portal-client
+          path: packages/portal/dist/client
+          if-no-files-found: error
+          retention-days: 7
       - name: List what npm would publish
         run: npm pack --dry-run --ignore-scripts
         working-directory: packages/portal-ui
@@ -96,6 +129,7 @@ jobs:
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -125,6 +159,9 @@ jobs:
 
   # Gate 2 (L2.11): all eight authored shipping checks, including the Linux Homebrew install.
   e2e-layer2:
+    needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -137,6 +174,17 @@ jobs:
           node-version: 24.22.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # K19: the portal's built client, from the portal-ui job (the only one with the licence).
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: portal-client
+          path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
       # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
       # let a test that still reaches for it fail here.
       - name: No Docker on the PATH
@@ -166,6 +214,7 @@ jobs:
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
   e2e-m0:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -177,12 +226,63 @@ jobs:
       - run: pnpm nx run e2e:m0-names --outputStyle=static
       - run: pnpm nx run docs:check --outputStyle=static
       - run: pnpm nx run canon:check --outputStyle=static
+      # A decision's `## Supersedes` phrases are gone from everything but the records (proposal 8; AGENTS.md, "Who decides").
+      - run: tools/ci/supersedes.sh
 
-  # M1's checks also run together in CI. Some checks are red until their slice lands, so the job reports and never
-  # blocks; Gate M1 (M1.15) makes it required.
+  # M1's checks also run together in CI, through the ratchet (e2e/ratchet/README.md): the checks whose slice has not landed
+  # are on e2e/m1/expected-failing.txt and may fail; any other failure fails the job, so a regression cannot merge unseen.
+  # Gate M1 (M1.15) empties the list and makes the job required.
   e2e-m1:
+    needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # K19: the portal's built client, from the portal-ui job (the only one with the licence).
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: portal-client
+          path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      # Check 09's send journeys run on Anvil, a plain process, the same pinned Foundry as the check job (M1.31).
+      - uses: foundry-rs/foundry-toolchain@v1.9.2
+        with:
+          version: v1.8.6
+      # K19: the portal is read in headless Chromium (e2e/served-portal). Playwright's own download plus the system libraries it needs on this image.
+      - run: pnpm --filter @orthograph/e2e exec playwright install --with-deps chromium
+      - run: pnpm nx run e2e:m1-ratchet --outputStyle=static
+
+  # Goal 3's climbability check (`e2e/climb/README.md`): `ortho prove` on planted wrong handlers must name the journey and
+  # step, show expected and got, point to the handler file and declaration, finish fast and give the same result twice.
+  # All five properties hold since #119, so the job is required.
+  e2e-climb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -203,8 +303,47 @@ jobs:
         with:
           path: ~/.cache/orthograph/otelcol-contrib
           key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
-      # Check 09's send journeys run on Anvil, a plain process, the same pinned Foundry as the check job (M1.31).
-      - uses: foundry-rs/foundry-toolchain@v1.9.2
+      - run: pnpm nx run e2e:climb --outputStyle=static
+
+  # Goal 3's grid runner (`e2e/grid/README.md`): its unit tests, then `ortho prove` and every switched-on cell, with the ratchet of
+  # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
+  e2e-grid:
+    needs: portal-ui
+    # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
         with:
-          version: v1.8.6
-      - run: pnpm nx run e2e:m1-checks --outputStyle=static
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # K19: the portal's built client, from the portal-ui job (the only one with the licence).
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: portal-client
+          path: packages/portal/dist/client
+      - name: The portal's client must be here
+        run: |
+          if [ ! -f packages/portal/dist/client/index.html ]; then
+            echo "::error::K19: the portal's client is missing. The portal-ui job builds it with the licence; this job reads the portal and cannot pass without it."
+            exit 1
+          fi
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      # K19: the portal is read in headless Chromium (e2e/served-portal). Playwright's own download plus the system libraries it needs on this image.
+      - run: pnpm --filter @orthograph/e2e exec playwright install --with-deps chromium
+      - run: pnpm nx run e2e:grid --outputStyle=static

@@ -1,9 +1,10 @@
-// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch.
+// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch. A guard that lost, or a unique index that refused (G4), is a `conflict`: the call runs again.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
 import type { Commit, Entry, Write } from "@orthograph/language-effect";
 import { encodeFields, lostGuard } from "./rows.ts";
+import { lostUnique } from "./unique.ts";
 
 /** A database a store lives in: its SQL client and its D1 client, from one binding. */
 export interface Db {
@@ -35,7 +36,7 @@ export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => st
     if (statements.length === 0) return "committed" as const;
     return yield* d1.batch(statements).pipe(
       Effect.as("committed" as const),
-      Effect.catch((e) => (lostGuard(e) ? Effect.succeed("conflict" as const) : Effect.die(e))),
+      Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf) ? Effect.succeed("conflict" as const) : Effect.die(e))),
     );
   });
 };

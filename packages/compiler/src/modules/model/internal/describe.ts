@@ -12,6 +12,7 @@ import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
+import { uniqueOf } from "./unique.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
 /** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
@@ -47,12 +48,12 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const fieldModel = (input: Field | Value, where: string, place: Place = "a thing's field"): FieldModel => {
     const value = input.kind === "field" ? input.value : input;
     // `Blueprint.issued(Secret)` is a copy of the named value, so it is found by the schema it shares with it.
-    const named = valueNames.get(value) ?? (input.issued === true ? schemaNames.get(value.schema) : undefined);
+    const named = valueNames.get(value) ?? (input.issued === true || input.description !== undefined ? schemaNames.get(value.schema) : undefined);
     const ref = input.kind === "field" ? fieldRef(input) : undefined;
     if (input.kind === "field" && !ref) problems.push(`${where}: uses a field of a thing that isn't in the blueprint`);
     const visibility = visibilityModel(input.visibility, where);
     const issued = issuedIn(input, where, place);
-    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
+    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(input.description === undefined ? {} : { description: input.description }), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
   };
   const fieldsModel = (fields: FieldsInput, where: string, place: Place): FieldsModel =>
     Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`, place)]));
@@ -99,9 +100,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
+    const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
     const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), machine,
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
       errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),

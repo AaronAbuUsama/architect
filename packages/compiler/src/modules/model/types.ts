@@ -21,6 +21,8 @@ export interface FieldModel {
   readonly ref?: string;
   /** A payload field the caller may leave out (a list's filters and cursor). */
   readonly optional?: true;
+  /** What the field is for, as the blueprint says (`Blueprint.described`); every output carries it (M1.42). */
+  readonly description?: string;
   /** Absent means public, the default. Only a public field's value may be a span attribute, a log line or a journal field. */
   readonly visibility?: VisibilityModel;
   /** A secret answer field handed to its caller once, by `Blueprint.issued`: it leaves in the answer of the call that issued it, and nowhere else. */
@@ -46,6 +48,8 @@ export interface ThingModel {
   readonly lives: "database" | "actor";
   /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
   readonly store?: string;
+  /** Its unique fields (G4), by field: no two instances hold one value within `while`'s states, or in any state without it. Absent when none. */
+  readonly unique?: Readonly<Record<string, { readonly while?: ReadonlyArray<string> }>>;
   readonly machine: MachineModel | null;
   /**
    * Its not-found refusal, present only when some operation can refuse it (K16): the one it declares under the name

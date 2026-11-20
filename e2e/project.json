@@ -26,9 +26,54 @@
       "options": { "parallel": false, "commands": ["nx run e2e:layer1", "nx run e2e:layer2", "nx run e2e:m0-names"] },
       "cache": false
     },
+    "browser": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm exec playwright install chromium", "cwd": "{projectRoot}" },
+      "cache": false
+    },
     "m1-checks": {
+      "dependsOn": ["browser"],
       "executor": "nx:run-commands",
       "options": { "command": "vitest run --root {projectRoot} --config vitest.m1.config.ts m1" },
+      "cache": false
+    },
+    "climb": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run --root {projectRoot} --config vitest.climb.config.ts climb" },
+      "cache": false
+    },
+    "climb-record": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node tools/climb/record.mjs", "cwd": "{workspaceRoot}" },
+      "cache": false
+    },
+    "grid-tests": {
+      "dependsOn": ["browser"],
+      "executor": "nx:run-commands",
+      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid served-portal", "node --test tools/climb/*.test.mjs"] },
+      "cache": false
+    },
+    "grid": {
+      "executor": "nx:run-commands",
+      "options": { "parallel": false, "commands": ["nx run e2e:grid-tests", "tsx {projectRoot}/grid/src/main.ts run --prove"] },
+      "cache": false
+    },
+    "ratchet-test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run --root {projectRoot} --config vitest.ratchet.config.ts ratchet" },
+      "cache": false
+    },
+    "m1-ratchet": {
+      "dependsOn": ["browser"],
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          "nx run e2e:ratchet-test",
+          "mkdir -p tmp && rm -f tmp/m1-report.json tmp/m1-errors.json",
+          "RATCHET_ERRORS_FILE=tmp/m1-errors.json vitest run --root e2e --config vitest.m1-ratchet.config.ts m1 --reporter=default --reporter=json --reporter=./e2e/ratchet/reporter.ts --outputFile.json=../tmp/m1-report.json; node e2e/ratchet/check.ts tmp/m1-report.json e2e/m1/expected-failing.txt tmp/m1-errors.json"
+        ]
+      },
       "cache": false
     },
     "m1": {

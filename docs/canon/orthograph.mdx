@@ -48,7 +48,7 @@ export default Blueprint.operation(Sheet, {
 From those eleven lines Orthograph makes every way in. Each file opens with a line saying it was generated and must
 not be edited. The HTTP endpoint takes its route, payload, answer and refusals from the declaration:
 
-```ts file=examples/signup/generated/api/src/sheet/join.ts lines=1-15
+```ts file=examples/signup/generated/api/src/sheet/join.ts lines=1-14
 // Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
 import { HttpApiEndpoint } from "effect/http-api";
 import { wireStruct } from "orthograph/server";
@@ -63,7 +63,6 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [SheetFull, SheetNotOpen, SheetNotFound],
 });
-export const steps = ["sheet.join.load", "sheet.join.record"] as const;
 ```
 
 One of those refusals was never written: `SheetNotOpen` comes from the machine. The rest of what `join` becomes:

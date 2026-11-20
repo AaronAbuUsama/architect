@@ -3,7 +3,7 @@
 
 Move a link to a zero-based position. A position past the end puts it last.
 
-**Who may call:** anyone.
+**Who may call:** the linkOwner of the link.
 
 **Budget:** p95 150ms.
 
@@ -28,7 +28,7 @@ Move a link to a zero-based position. A position past the end puts it last.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |
-| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |
+| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |
 
 ## How to call
 

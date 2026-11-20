@@ -2,6 +2,7 @@
 // instance, until the call commits them with its move.
 import { Effect } from "effect";
 import type { Thing } from "orthograph";
+import { holds } from "./unique.ts";
 import type { Instance, Store, Unit, Write } from "../types.ts";
 
 type Held = { thing: Thing; id: string; kind: "insert" | "update"; version: number; fields: Record<string, unknown>; state: string | undefined };
@@ -29,6 +30,25 @@ export const makeUnit = (store: Store["Service"]): Effect.Effect<Unit> =>
         return { ...base, ...h.fields, ...(h.state !== undefined ? { state: h.state } : {}) } as Instance;
       });
 
+    /** The holder of `value` in a unique field: the store's candidate as this call left it, or an instance this call wrote. */
+    const findBy = (thing: Thing, field: string, value: unknown) =>
+      Effect.gen(function* () {
+        const scope = thing.unique[field];
+        if (!scope) return yield* Effect.die(new Error(`${field} is not declared unique on this thing`));
+        for (const state of scope.while ?? [undefined]) {
+          const { items } = yield* store.list({ thing, where: { [field]: value }, state, order: "oldest", limit: 1, after: undefined });
+          for (const item of items) {
+            const current = yield* find(thing, String(item["id"]));
+            if (current && holds(thing, field, current, value)) return current;
+          }
+        }
+        for (const h of held.filter((x) => x.thing === thing)) {
+          const current = yield* find(thing, h.id);
+          if (current && holds(thing, field, current, value)) return current;
+        }
+        return undefined;
+      });
+
     const change = (thing: Thing, id: string, fields: Record<string, unknown>, state: string | undefined) =>
       Effect.gen(function* () {
         const h = heldFor(thing, id);
@@ -45,6 +65,7 @@ export const makeUnit = (store: Store["Service"]): Effect.Effect<Unit> =>
     return {
       records: {
         find,
+        findBy: findBy as Unit["records"]["findBy"],
         insert: (thing, fields, state) =>
           Effect.sync(() => {
             const id = String((fields as Record<string, unknown>)["id"]);

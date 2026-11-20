@@ -8,7 +8,7 @@ import { Sinks } from "#modules/sinks/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
 import { telemetryDir } from "./internal/collector.ts";
-import { environmentConfig, logbookOf } from "./internal/config.ts";
+import { environmentConfig, logbookOf, portalOf } from "./internal/config.ts";
 import { startLogbook } from "./internal/logbook.ts";
 import { choosePort, files, reap, writePort } from "./internal/process.ts";
 import { NAME, dirOf, failed, io, status } from "./internal/status.ts";
@@ -70,10 +70,11 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     const otlp = records
       ? yield* Collectors.launch({ dir: telemetryDir(dir), strip }).pipe(Effect.mapError((e) => failed(`${name}'s collector didn't start: ${e.message}`)))
       : undefined;
+    const portal = portalOf(built);
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));
       writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), {
-        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}), ...(logbook ? { logbook } : {}),
+        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(portal === undefined ? {} : { portal }), ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}), ...(logbook ? { logbook } : {}),
       }));
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);

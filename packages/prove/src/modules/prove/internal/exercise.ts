@@ -40,7 +40,7 @@ export const exercise = (
     if (otlp !== undefined) yield* exportRoots(otlp, roots);
     const rooted = new Set(roots.map((r) => r.traceId));
     const traces = roots.length === 0 ? first : yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, rooted: rooted.has(c.trace) })));
-    const journeys = journeyLines(runs, traces, empty);
+    const journeys = journeyLines(runs, traces, empty, model);
     if (empty) return { journeys, evals: { lines: [], failed: 0 }, verdicts: [], judged: [], results: [], failedTraces: journeys.failedTraces };
     const evidence = Evals.gather(calls, traces);
     const verdicts = Evals.judge(project, evidence);

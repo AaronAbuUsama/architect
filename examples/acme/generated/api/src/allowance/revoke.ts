@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("revoke", "/allowance/revoke", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [AllowanceNotActive, NotAllowed],
 });
-export const steps = ["allowance.revoke.update"] as const;

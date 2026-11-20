@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("close", "/sheet/close", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [SheetNotOpen, SheetNotFound],
 });
-export const steps = ["sheet.close.record"] as const;

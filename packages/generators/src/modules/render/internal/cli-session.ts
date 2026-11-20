@@ -1,6 +1,7 @@
 // generated/cli, the session commands: `session sign-in --env <env>` signs in by device code (D3 #10), `session show --env
 // <env>` uses the session it kept. Without `--env` both stay the operations' own: email and password, and ACME_TOKEN.
 import type { Model, OperationModel } from "@orthograph/compiler";
+import { flagCode, helpOf } from "./words.ts";
 import { GENERATED, camel, lines, type RenderedFile } from "@orthograph/projections/shared";
 
 /**
@@ -129,7 +130,8 @@ const device = (name: string): RenderedFile => {
 };
 
 const commands = (name: string, ops: { readonly signIn: OperationModel; readonly show: OperationModel }): ReadonlyArray<RenderedFile> => {
-  const flags = (op: OperationModel) => Object.keys(op.payload).map((k) => `${k}: Flag.String("${k}").pipe(Flag.optional)`);
+  const flags = (op: OperationModel) => Object.entries(op.payload).map(([k, f]) => `${k}: ${flagCode(k, f)}.pipe(Flag.optional)`);
+  const env = (what: string) => `env: Flag.String("env").pipe(Flag.withMetavar("env"), Flag.withDescription(${JSON.stringify(what)}), Flag.optional)`;
   const file = (op: OperationModel, doc: string, body: ReadonlyArray<string>): RenderedFile => ({
     path: `generated/cli/src/${op.thing}/${op.verb}.ts`,
     scaffold: false,
@@ -142,7 +144,7 @@ const commands = (name: string, ops: { readonly signIn: OperationModel; readonly
       `import { answer, refused } from "../output.ts";`,
       `import { deviceSignIn, given, withSession } from "./device.ts";`,
       "",
-      `/** ${doc} Every flag is text; the declaration decodes it. \`--json\` prints the whole answer as JSON. */`,
+      `/** ${doc} Each flag is handed on as text; the declaration decodes it. \`--json\` prints the whole answer as JSON. */`,
       ...body,
     ),
   });
@@ -150,23 +152,23 @@ const commands = (name: string, ops: { readonly signIn: OperationModel; readonly
   const signIn = file(ops.signIn, `${ops.signIn.description} With \`--env <env>\`, sign in by device code instead: it prints a code and where to approve it, waits, and keeps the session for \`session show --env <env>\`.`, [
     `export const ${camel(ops.signIn.verb)} = Command.make(`,
     `  "${ops.signIn.verb}",`,
-    `  { ${[...flags(ops.signIn), `env: Flag.String("env").pipe(Flag.optional)`, `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
+    `  { ${[...flags(ops.signIn), env("Sign in by device code to this environment, and keep the session, instead of with the flags."), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
     "  ({ json, env, ...flags }) =>",
     "    Effect.gen(function* () {",
     "      if (Option.isSome(env)) return yield* deviceSignIn(env.value).pipe(refused);",
     `      return yield* Schema.decodeUnknownEffect(declaration.payloadSchema)(given(flags)).pipe(Effect.flatMap(${verb(ops.signIn)}), answer(json));`,
     "    }),",
-    ");",
+    `).pipe(Command.withDescription(${JSON.stringify(`${helpOf(ops.signIn)} With --env <env>, sign in by device code instead: it prints a code and where to approve it, waits, and keeps the session.`)}));`,
   ]);
   const show = file(ops.show, `${ops.show.description} With \`--env <env>\`, as the person that environment's session belongs to.`, [
     `export const ${camel(ops.show.verb)} = Command.make(`,
     `  "${ops.show.verb}",`,
-    `  { ${[...flags(ops.show), `env: Flag.String("env").pipe(Flag.optional)`, `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
+    `  { ${[...flags(ops.show), env("Ask as the person this environment's kept session belongs to."), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
     "  ({ json, env, ...flags }) => {",
     `    const run = Schema.decodeUnknownEffect(declaration.payloadSchema)(given(flags)).pipe(Effect.flatMap(${verb(ops.show)}));`,
     "    return Effect.gen(function* () { return Option.isSome(env) ? yield* withSession(env.value)(run) : yield* run; }).pipe(answer(json));",
     "  },",
-    ");",
+    `).pipe(Command.withDescription(${JSON.stringify(`${helpOf(ops.show)} With --env <env>, as the person that environment's session belongs to.`)}));`,
   ]);
   return [device(name), signIn, show];
 };

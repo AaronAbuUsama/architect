@@ -9,4 +9,5 @@ export const Profile = Blueprint.thing({
     handle: Handle.fields.id,
     links: Blueprint.value(Schema.fromJsonString(Schema.Array(Schema.String))), // the ordered link ids
   },
+  unique: { handle: {} },
 });

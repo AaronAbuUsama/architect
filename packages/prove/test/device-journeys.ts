@@ -12,7 +12,6 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
-import { anyPort } from "../src/modules/environments/internal/process.ts";
 import { Journeys } from "../src/modules/journeys/service.ts";
 import { closing, exercise } from "../src/modules/prove/internal/exercise.ts";
 import { deviceHost, standChain } from "../src/modules/prove/internal/device-host.ts";
@@ -98,7 +97,7 @@ try {
     mkdirSync(telemetry);
     const collector = yield* receiver(telemetry);
     const stood = yield* standChain(model);
-    const { url, chain } = yield* Worlds.start({ root, port: yield* anyPort, name: "wallet-prove", otlp: collector.url, chain: Effect.succeed(stood.chain!) });
+    const { url, chain } = yield* Worlds.start({ root, port: 0, name: "wallet-prove", otlp: collector.url, chain: Effect.succeed(stood.chain!) });
     const device = yield* deviceHost(root, collector.url, chain);
     const wallets = { ...project, journeys: project.journeys.filter((j) => j.name.startsWith("wallet ")) };
     const done = yield* exercise(model, wallets, url, FileSource.open(telemetry), "world", collector.url, undefined, false, handlerHashes(root, model), device);

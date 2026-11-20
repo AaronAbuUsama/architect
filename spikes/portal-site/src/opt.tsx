@@ -12,7 +12,9 @@ import { environments, model, operations } from "./model.ts";
 import { mounts } from "./overlay.ts";
 
 export type Letter = "a" | "b" | "c";
-export type Opt = { nav: Letter; env: Letter; plugins: Letter; blank: Letter; label?: string; overlay?: "command" | "env-menu" };
+/** `strip` replaces the round strip at the top of the page; `treeRows` adds rows under a thing in the tree (G5's drawings). */
+export type TreeRow = { id: string; label: string; href: string; chip: string };
+export type Opt = { nav: Letter; env: Letter; plugins: Letter; blank: Letter; label?: string; overlay?: "command" | "env-menu"; strip?: ReactNode; treeRows?: Record<string, TreeRow[]> };
 /** Aaron's picks (round 4, 19 November 2026): Q1 B + C, Q2 B, Q3 B, Q6 A. */
 export const defaults: Opt = { nav: "b", env: "b", plugins: "b", blank: "a" };
 export const OptContext = createContext<Opt>(defaults);

@@ -5,6 +5,7 @@ import { Journal } from "#modules/journal/types.js";
 import { journalOf } from "#modules/journal/service.js";
 import { Records, Store, type Instance, type UnitApi } from "./types.ts";
 import { makeUnit } from "./internal/unit.ts";
+import { breaksUnique, keyOf } from "./internal/unique.ts";
 
 export const Unit: UnitApi = { make: makeUnit };
 
@@ -23,7 +24,7 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
       // A row's place in `rows` is the order it was made in, and its cursor.
       const ordered = rows.flatMap((r, i) => (r.thing === thing ? [{ r, i }] : []));
       const matching = (order === "newest" ? ordered.reverse() : ordered).filter(({ r, i }) =>
-        Object.entries(where).every(([k, v]) => String(r.instance[k]) === String(v))
+        Object.entries(where).every(([k, v]) => (k in thing.fields ? keyOf(thing, k, r.instance[k]) === keyOf(thing, k, v) : String(r.instance[k]) === String(v)))
         && (state === undefined || r.instance.state === state)
         && (after === undefined || (order === "newest" ? i < Number(after) : i > Number(after))));
       const page = matching.slice(0, limit);
@@ -33,7 +34,7 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
     commit: ({ writes, entries: events, request }) =>
       Effect.sync(() => {
         const stale = writes.some((w) => w.kind === "update" && rows[at(w.thing, w.id)]?.version !== w.version);
-        if (stale || (request && requests.has(request.key))) return "conflict" as const;
+        if (stale || breaksUnique(rows, writes) || (request && requests.has(request.key))) return "conflict" as const;
         if (request) requests.set(request.key, request.answer);
         for (const w of writes) {
           if (w.kind === "insert") rows.push({ thing: w.thing, instance: { ...w.fields, ...(w.state ? { state: w.state } : {}) }, version: 0 });
