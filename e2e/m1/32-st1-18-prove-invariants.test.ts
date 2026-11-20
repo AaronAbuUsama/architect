@@ -38,6 +38,14 @@ const coverageOf = (stdout: string) => {
   const counters = [...line.matchAll(/([a-z][a-z ]*?) (\d+)\/(\d+)/g)].map((m) => ({ name: m[1]!.trim(), covered: Number(m[2]), of: Number(m[3]) }));
   return { counters, covered: counters.reduce((n, c) => n + c.covered, 0), of: counters.reduce((n, c) => n + c.of, 0), refusals: counters.find((c) => c.name === "refusals") };
 };
+/**
+ * What the rules' two refusals add to the coverage line: the `refusals` bucket's covered count with the journey that refuses them, less without it, and whether the bucket's size is the
+ * same either way. A build that counts them in another bucket (`runtime refusals`) or not at all shows a drop of 0 in `refusals`, so only a build that counts them there passes.
+ */
+export const rulesContribution = (withJourney: ReturnType<typeof coverageOf>, without: ReturnType<typeof coverageOf>) =>
+  withJourney?.refusals === undefined || without?.refusals === undefined
+    ? undefined
+    : { drop: withJourney.refusals.covered - without.refusals.covered, sameSize: withJourney.refusals.of === without.refusals.of };
 const bare = async () => {
   const copy = copyOf(acme);
   copies.push(copy);
@@ -82,5 +90,29 @@ describe("32 ST1.18: prove holds the rules", () => {
     expect(proved.status, proved.out).not.toBe(0);
     expect(proved.out).toMatch(/handle\.oneHolderPerName/);
     expect(proved.out).toMatch(/handle\.oneNamePerPerson/);
+  });
+  it("the rules' two refusals are counted in the `refusals` bucket: removing the journey that refuses them drops that bucket's covered count by exactly two", { timeout: 600_000 }, async () => {
+    const full = await prove(project());
+    expect(full.status, full.out).toBe(0);
+    const less = await prove(project({}, ["journeys/one-name-one-person.ts"]));
+    expect(less.status, less.out).not.toBe(0);
+    const contribution = rulesContribution(coverageOf(full.stdout), coverageOf(less.stdout));
+    expect(contribution, `a coverage line with a refusals counter on both runs:\n${less.out}`).toBeDefined();
+    expect(contribution!.sameSize, "the bucket is the same size with or without the journey").toBe(true);
+    expect(contribution!.drop, "HandleTaken and HandleAlreadyOwned leave the bucket's covered count").toBe(2);
+  });
+});
+
+describe("32 controls: the contribution is read from the right bucket", () => {
+  const line = (refusals: string, runtime: string) => `coverage ✔ moves 10/10 · outcomes 10/10 · refusals ${refusals} · runtime refusals ${runtime}`;
+  const of = (...lines: string[]) => coverageOf(lines.join("\n"));
+  it("a build that counts the rules in `refusals` drops by two", () => {
+    expect(rulesContribution(of(line("8/8", "14/22")), of(line("6/8", "14/22")))).toEqual({ drop: 2, sameSize: true });
+  });
+  it("a build that counts them in the runtime bucket shows no drop in `refusals`", () => {
+    expect(rulesContribution(of(line("6/6", "16/24")), of(line("6/6", "14/24")))).toEqual({ drop: 0, sameSize: true });
+  });
+  it("a build that does not count them shows no drop at all", () => {
+    expect(rulesContribution(of(line("6/6", "14/22")), of(line("6/6", "14/22")))).toEqual({ drop: 0, sameSize: true });
   });
 });
