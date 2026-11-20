@@ -5,6 +5,20 @@
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
 # K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
 # ST1.22 (G5's portal screens), the checks author's change: check 28's eight red tests, two variants of the wire times four calls. They pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
+m1/25-unique-fields.test.ts > 25 G5: a real world refuses, and the handler checks nothing > [suite error]
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > a client operation that breaks a rule: the device has no store
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > a field of another thing
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > a refusal field that is not in the rule's key
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > a state of another thing's machine
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > a thing that lives as actors, with the real reason
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > an error of another thing
+m1/25-unique-fields.test.ts > 25 G5: the compiler refuses a rule that cannot hold, naming the file > an error owned by two rules, and one that is also in a verb's `errors:`, naming the rule and the verb's file
+m1/25-unique-fields.test.ts > 25 G5: the model carries the rules and which operations can break them > `handle.claim` lists both refusals, each mapped to its rule, and neither is in `errors`; release, rename and make attach none
+m1/25-unique-fields.test.ts > 25 G5: the model carries the rules and which operations can break them > `things.handle.invariants` and `things.profile.invariants` are the declarations, with the written description
+m1/25-unique-fields.test.ts > 25 G5: the model carries the rules and which operations can break them > a rule's refusal reaches the generated refusals table and the SDK's errors like any other
+m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the docs page, the MCP tool's description and the portal's data carry both rules, each by its sentence
+m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the fixture's journey reaches both refusals
+m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the scaffold's header says the runtime refuses each, by which rule and where; the body has no blank for them
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > a thing's page has a Rules section under its lifecycle, one row per rule of the model and none for a thing with no rules
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > each rule says one sentence, generated from its model or its own description verbatim
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > every refusal a rule owns reads as that sentence and links to its rule's row, on every page that shows one
