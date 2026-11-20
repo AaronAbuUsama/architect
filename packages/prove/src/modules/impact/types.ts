@@ -36,7 +36,7 @@ export interface Proof {
 
 /** What `prove --changed` will do, from the record and today's files. */
 export interface Selection {
-  /** The journeys to run, by name. */
+  /** The journeys to run, by file (the key of `model.journeys`: names may repeat). */
   readonly rerun: ReadonlyArray<string>;
   readonly skipped: ReadonlyArray<string>;
   /** The operations whose evals are judged again. */
@@ -47,7 +47,7 @@ export interface Selection {
 
 /** What a run judged: each journey it ran and each operation whose evals it judged. */
 export interface Ran {
-  readonly journeys: ReadonlyArray<{ readonly name: string; readonly passed: boolean }>;
+  readonly journeys: ReadonlyArray<{ readonly file: string; readonly passed: boolean }>;
   readonly operations: ReadonlyArray<{ readonly operation: string; readonly passed: boolean }>;
 }
 

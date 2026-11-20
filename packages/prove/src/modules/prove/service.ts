@@ -46,8 +46,8 @@ export const Prove: ProveApi = {
       const selection = changed && !empty && only === undefined ? yield* Impact.select(root, model) : undefined;
       const judging = selection !== undefined && selection.fellBack === null ? new Set(selection.judge) : undefined;
       const project = selection !== undefined && judging !== undefined ? narrowed(loaded, selection.rerun) : loaded;
-      const said = selection === undefined ? [] : headline(selection, project.journeys.length, loaded.journeys.length);
-      const report = selection === undefined ? undefined : detail(selection, project.journeys.map((journey) => journey.name));
+      const said = selection === undefined ? [] : headline(model, selection, project.journeys.length, loaded.journeys.length);
+      const report = selection === undefined ? undefined : detail(model, selection, project.journeyFiles ?? []);
       if (selection !== undefined && judging !== undefined && project.journeys.length === 0 && judging.size === 0) {
         yield* Impact.settle(root, model, { journeys: [], operations: [] });
         const lines = [...said, ...unfinishedIn(loaded), "prove ✔"];
@@ -72,7 +72,7 @@ export const Prove: ProveApi = {
       if (!empty && only === undefined) {
         yield* Impact.record(root, model, done.judged, judging === undefined ? done.results : done.results.filter((r) => judging.has(r.operation)));
         yield* Impact.settle(root, model, {
-          journeys: done.journeys.details.map((d) => ({ name: d.name, passed: d.verdict === "pass" })),
+          journeys: done.journeys.details.flatMap((d, i) => (project.journeyFiles?.[i] === undefined ? [] : [{ file: project.journeyFiles[i]!, passed: d.verdict === "pass" }])),
           operations: [...new Set(done.judged.flatMap((v) => (v.operation === undefined ? [] : [v.operation])))].map((operation) => ({ operation, passed: done.judged.every((v) => v.operation !== operation || v.failures.length === 0) })),
         });
       }

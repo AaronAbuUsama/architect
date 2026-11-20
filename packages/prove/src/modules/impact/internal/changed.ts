@@ -4,7 +4,8 @@ import { scenarioOf } from "#modules/verdicts/internal/proof.js";
 import type { Proof, Ran, Selection } from "../types.ts";
 import { differing, hashFiles, journeysInputs, operationsInputs, placed } from "./files.ts";
 
-const names = (model: Model) => Object.values(model.journeys).filter((j) => j.blanks === undefined).map((j) => j.name).sort();
+/** The journeys that can run, by file: the name is for display, and two files may share one. */
+const names = (model: Model) => Object.values(model.journeys).filter((j) => j.blanks === undefined).map((j) => j.file).sort();
 
 /** What today's files say has to run again, measured from the record of the last proof. */
 export const select = (root: string, model: Model, prior: Proof | undefined): Selection => {
@@ -20,12 +21,12 @@ export const select = (root: string, model: Model, prior: Proof | undefined): Se
   // An operation is judged again when what it rests on changed, or when it has not passed.
   const judge = Object.keys(model.operations).filter((op) => prior.operations[op]?.inputs !== operations[op] || prior.operations[op]?.passed !== true);
   const touched = new Set(judge);
-  const rerun = all.filter((name) => {
-    const journey = Object.values(model.journeys).find((j) => j.name === name)!;
-    const record = prior.journeys[name];
-    return record === undefined || record.inputs !== journeys[name] || !record.passed || [...scenarioOf(model, journey).operationNames].some((op) => touched.has(op));
+  const rerun = all.filter((file) => {
+    const journey = model.journeys[file]!;
+    const record = prior.journeys[file];
+    return record === undefined || record.inputs !== journeys[file] || !record.passed || [...scenarioOf(model, journey).operationNames].some((op) => touched.has(op));
   });
-  return { rerun, skipped: all.filter((name) => !rerun.includes(name)), judge, fellBack: null };
+  return { rerun, skipped: all.filter((file) => !rerun.includes(file)), judge, fellBack: null };
 };
 
 type Entries = Readonly<Record<string, { readonly inputs: string; readonly passed: boolean }>>;
@@ -44,7 +45,7 @@ export const settle = (root: string, model: Model, prior: Proof | undefined, ran
   const files = hashFiles(root);
   return {
     files,
-    journeys: entries(journeysInputs(root, model, files), prior?.journeys, ran.journeys.map((j) => [j.name, j.passed] as const)),
+    journeys: entries(journeysInputs(root, model, files), prior?.journeys, ran.journeys.map((j) => [j.file, j.passed] as const)),
     operations: entries(operationsInputs(root, model, files), prior?.operations, ran.operations.map((o) => [o.operation, o.passed] as const)),
   };
 };

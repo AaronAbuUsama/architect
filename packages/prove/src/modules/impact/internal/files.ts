@@ -2,7 +2,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { handlerFiles, type Model } from "@orthograph/compiler";
+import { Compare, handlerFiles, type Model } from "@orthograph/compiler";
 import { handlerHash, scenarioOf } from "#modules/verdicts/internal/proof.js";
 
 const digest = (text: string | Uint8Array) => createHash("sha256").update(text).digest("hex");
@@ -43,20 +43,20 @@ export const placed = (model: Model): ReadonlySet<string> =>
 export const differing = (was: Readonly<Record<string, string>>, now: Readonly<Record<string, string>>): ReadonlyArray<string> =>
   [...new Set([...Object.keys(was), ...Object.keys(now)])].filter((path) => was[path] !== now[path]).sort();
 
-/** What an operation's proof rests on: its declaration and its handler (a plugin's, by the hashes the model and the handler give). */
+/** What an operation's proof rests on: its declaration and its handler, and every declaration, thing and mount (adapter, plugin) its proof depends on. */
 const operationInputs = (root: string, model: Model, files: Readonly<Record<string, string>>, name: string): string => {
   const op = model.operations[name]!;
-  return digest(JSON.stringify([files[op.file] ?? op.hash, handlerFiles(op).map((h) => files[h.file] ?? handlerHash(root, op) ?? null)]));
+  return digest(JSON.stringify([files[op.file] ?? op.hash, handlerFiles(op).map((h) => files[h.file] ?? handlerHash(root, op) ?? null), Compare.dependsOn(model, name)]));
 };
 
 export const operationsInputs = (root: string, model: Model, files: Readonly<Record<string, string>>): Readonly<Record<string, string>> =>
   Object.fromEntries(Object.keys(model.operations).map((name) => [name, operationInputs(root, model, files, name)]));
 
-/** What a journey's proof rests on: its own file, the starting worlds it stands on, and every operation they call. */
+/** What a journey's proof rests on, by its file (two journeys may share a name): its own file, the starting worlds it stands on, and every operation they call. */
 export const journeysInputs = (root: string, model: Model, files: Readonly<Record<string, string>>): Readonly<Record<string, string>> =>
   Object.fromEntries(Object.values(model.journeys).filter((j) => j.blanks === undefined).map((journey) => {
     const scenario = scenarioOf(model, journey);
-    return [journey.name, digest(JSON.stringify([
+    return [journey.file, digest(JSON.stringify([
       files[journey.file] ?? journey.sourceHash ?? null,
       scenario.worlds.map((w) => files[w.file] ?? w.sourceHash ?? null),
       [...scenario.operationNames].sort().map((name) => (model.operations[name] === undefined ? name : operationInputs(root, model, files, name))),
