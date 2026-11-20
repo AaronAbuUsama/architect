@@ -1,10 +1,12 @@
 import { Effect } from "effect";
 import { Reader } from "#modules/reader/service.js";
 import { Snapshot } from "#modules/snapshot/service.js";
+import { Telemetry } from "#modules/telemetry/service.js";
 import { Wire } from "#modules/wire/service.js";
 import type { BlueprintRejected, BlueprintWire } from "#modules/wire/types.js";
 import type { PortalContext, PortalEnv, ServerApi } from "./types.ts";
 import { client } from "./internal/client.ts";
+import { feedLive } from "./internal/feed.ts";
 
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
   Response.json(body, { status, headers: { "cache-control": "no-store", ...headers } });
@@ -23,7 +25,17 @@ const data = (context: PortalContext, url: URL, request: Request): Effect.Effect
     const asked = url.searchParams.get("digest");
     if (asked === null) return Effect.succeed(json({ _tag: "BadRequest", reason: "a snapshot is for one blueprint: pass its digest" }, 400));
     if (asked !== blueprint.digest) return Effect.succeed(json({ _tag: "BlueprintChanged", digest: blueprint.digest }, 409));
-    return Snapshot.take({ blueprint, reader: context.reader, bundleRevision: context.bundleRevision, ...(context.ref === undefined ? {} : { ref: context.ref }) }).pipe(Effect.map((s) => json(s)));
+    const { live } = context;
+    return Effect.all({
+      snapshot: Snapshot.take({ blueprint, reader: context.reader, bundleRevision: context.bundleRevision, ...(context.ref === undefined ? {} : { ref: context.ref }), ...(live === undefined ? {} : { now: live.now }) }),
+      telemetry: live === undefined ? Effect.succeed(null) : Telemetry.read(blueprint, live),
+    }).pipe(Effect.map(({ snapshot, telemetry }) => json({ ...snapshot, telemetry })));
+  }
+  const traceId = /^\/_portal\/v1\/traces\/([0-9A-Za-z]{1,64})$/.exec(url.pathname)?.[1];
+  if (traceId !== undefined) {
+    if (context.live === undefined) return Effect.succeed(json({ _tag: "NotFound", reason: "this portal has no live source" }, 404));
+    return Telemetry.trace(context.live, traceId).pipe(Effect.map((found) =>
+      found.state === "available" && found.value === undefined ? json({ _tag: "NotFound" }, 404) : json(found)));
   }
   return Effect.succeed(json({ _tag: "NotFound" }, 404));
 };
@@ -62,7 +74,11 @@ const serve: ServerApi["serve"] = (blueprint, request, env: PortalEnv) => {
   if (request.method !== "GET" && request.method !== "HEAD") return Effect.succeed(refused(isData));
   if (!isData) return client(env.PORTAL_ASSETS, request);
   const logbook = env.ORTHO_LOGBOOK_URL;
-  return handle({ blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.ORTHO_REVISION ?? null }, request);
+  const context = { blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.ORTHO_REVISION ?? null };
+  // A world whose starter feeds it its telemetry: read once for the calls that use it (the snapshot and a trace), at the feed's own `now`.
+  const feed = env.ORTHO_PORTAL_FEED;
+  if (feed === undefined || !(url.pathname.startsWith("/_portal/v1/snapshot") || url.pathname.startsWith("/_portal/v1/traces/"))) return handle(context, request);
+  return feedLive(feed, env.ORTHO_ENVIRONMENT ?? "local").pipe(Effect.flatMap((live) => handle({ ...context, live }, request)));
 };
 
 export const PortalServer: ServerApi = { owns, handle, serve };
