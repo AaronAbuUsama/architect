@@ -25,3 +25,4 @@ build to be green.
 ## Supersedes
 
 - design/milestones.md (ST1.24): "finishes in under 6 s with the same verdict as a cold run" → "finishes in at most 70% of the time of a cold run on the same machine (about 6 s on a developer's machine) with the same verdict as a cold run"
+- design/decisions/ST1-23-prove-changed.md ("The warm world's check"): "The 6 s is a separate soft row: after a warm-up, the faster of two timed runs" → "the fastest of three timed runs, at most 70% of the cold run on the same machine"

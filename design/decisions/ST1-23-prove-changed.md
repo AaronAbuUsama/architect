@@ -91,7 +91,8 @@ prove starts no wrangler or workerd process (a 120 ms poll of `ps` over the whol
 `prove: reusing the world of ortho dev at <dev's url>`, and gives the cold run's verdict, journey by journey and step by step.
 Isolation is a fixture journey that signs up one fixed email, run three times against one warm world: a world that keeps the last
 run's person refuses the second. The 6 s is a separate soft row: after a warm-up, the faster of two timed runs, wall-clock,
-reported with the cold time; it runs only if the warm-up reused dev's world. No flag was added to `prove`: it finds a live world
+reported with the cold time; it runs only if the warm-up reused dev's world. (Superseded by ST1-24-timing, 20 November 2026: the row is
+the fastest of three timed runs at most 70% of the cold run on the same machine, and the 6 s is information only.) No flag was added to `prove`: it finds a live world
 by what `ortho dev` leaves in `.ortho/`, and a stale record (dev stopped) is ignored.
 
 Reset or isolate is the builder's call; the check asks that a run never sees the last one's records, and that a handler edited
