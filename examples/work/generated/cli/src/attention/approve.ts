@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Say yes. For a promote, the promote runs. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const approve = Command.make(
   "approve",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), attention: Flag.String("attention").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (att_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Attention mission: an id (msn_...).")), attention: Flag.String("attention").pipe(Flag.withMetavar("id"), Flag.withDescription("Attention id: an id (att_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.attention.approve), Output.answer(json)),
-).pipe(Command.withDescription("Say yes. For a promote, the promote runs. Moves the attention from open to approved."));
+).pipe(Command.withDescription("Say yes. For a promote, the promote runs. Moves an attention from open to approved."));

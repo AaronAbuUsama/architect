@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Find the handle that holds a claimed name. A released or unclaimed name has none. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const resolve = Command.make(
   "resolve",
-  { name: Flag.String("name").pipe(Flag.withMetavar("handle-name"), Flag.withDescription("Text.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { name: Flag.String("name").pipe(Flag.withMetavar("handle-name"), Flag.withDescription("Handle name: text.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.handle.resolve), Output.answer(json)),
 ).pipe(Command.withDescription("Find the handle that holds a claimed name. A released or unclaimed name has none."));

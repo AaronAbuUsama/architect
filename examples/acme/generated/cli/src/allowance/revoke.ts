@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Stop an allowance. Nothing more can be spent from it. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const revoke = Command.make(
   "revoke",
-  { allowance: Flag.String("allowance").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (alw_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { allowance: Flag.String("allowance").pipe(Flag.withMetavar("id"), Flag.withDescription("Allowance id: an id (alw_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.allowance.revoke), Output.answer(json)),
-).pipe(Command.withDescription("Stop an allowance. Nothing more can be spent from it. Moves the allowance from active or exhausted to revoked."));
+).pipe(Command.withDescription("Stop an allowance. Nothing more can be spent from it. Moves an allowance from active or exhausted to revoked."));

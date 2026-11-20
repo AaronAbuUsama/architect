@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** List milestones, oldest first, 50 to a page, filtered by mission, state. Each flag is handed on as text; the declaration decodes it; a flag left out is not sent. `--json` prints the whole answer as JSON. */
 export const list = Command.make(
   "list",
-  { mission: Flag.optional(Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...)."))), state: Flag.optional(Flag.String("state").pipe(Flag.withMetavar("text"), Flag.withDescription("Text."))), cursor: Flag.optional(Flag.String("cursor").pipe(Flag.withMetavar("text"), Flag.withDescription("Text."))), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.optional(Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Milestone mission: an id (msn_...)."))), state: Flag.optional(Flag.String("state").pipe(Flag.withMetavar("text"), Flag.withDescription("The state: text of up to 64 characters."))), cursor: Flag.optional(Flag.String("cursor").pipe(Flag.withMetavar("text"), Flag.withDescription("The cursor: text of up to 64 characters."))), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(Output.supplied(flags)).pipe(Effect.flatMap(Sdk.milestone.list), Output.answer(json)),
 ).pipe(Command.withDescription("List milestones, oldest first, 50 to a page, filtered by mission, state."));

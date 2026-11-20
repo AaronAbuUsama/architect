@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Pick a paused mission up again. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const resume = Command.make(
   "resume",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Mission id: an id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.mission.resume), Output.answer(json)),
-).pipe(Command.withDescription("Pick a paused mission up again. Moves the mission from paused to running."));
+).pipe(Command.withDescription("Pick a paused mission up again. Moves a mission from paused to running."));

@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Accept an invitation and become a member of its organisation. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const accept = Command.make(
   "accept",
-  { invitation: Flag.String("invitation").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (inv_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { invitation: Flag.String("invitation").pipe(Flag.withMetavar("id"), Flag.withDescription("Invitation id: an id (inv_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.invitation.accept), Output.answer(json)),
-).pipe(Command.withDescription("Accept an invitation and become a member of its organisation. Moves the invitation from pending to accepted."));
+).pipe(Command.withDescription("Accept an invitation and become a member of its organisation. Moves an invitation from pending to accepted."));

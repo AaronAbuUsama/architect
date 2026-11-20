@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Not sure yet: turn the question into a spike task on its subject. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const spike = Command.make(
   "spike",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), question: Flag.String("question").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (qst_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Question mission: an id (msn_...).")), question: Flag.String("question").pipe(Flag.withMetavar("id"), Flag.withDescription("Question id: an id (qst_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.question.spike), Output.answer(json)),
-).pipe(Command.withDescription("Not sure yet: turn the question into a spike task on its subject. Moves the question from asked to spiked."));
+).pipe(Command.withDescription("Not sure yet: turn the question into a spike task on its subject. Moves a question from asked to spiked."));

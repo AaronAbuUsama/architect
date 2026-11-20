@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Close the mission: every task is closed by a fact up to its target. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const finish = Command.make(
   "finish",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Mission id: an id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.mission.finish), Output.answer(json)),
-).pipe(Command.withDescription("Close the mission: every task is closed by a fact up to its target. Moves the mission from running to done."));
+).pipe(Command.withDescription("Close the mission: every task is closed by a fact up to its target. Moves a mission from running to done."));

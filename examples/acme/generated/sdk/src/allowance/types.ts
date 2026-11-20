@@ -6,7 +6,7 @@ type Declared = Extract<(typeof Source)[keyof typeof Source], { readonly kind: "
 /** What a field or value holds, as the blueprint's own schema decodes it. */
 type Of<F> = F extends { readonly value: { readonly schema: { readonly Type: infer T } } } ? T : F extends { readonly schema: { readonly Type: infer T } } ? T : never;
 
-/** The states a allowance moves between, as its machine declares them. */
+/** The states an allowance moves between, as its machine declares them. */
 export type AllowanceState = "active" | "exhausted" | "revoked";
 
 /** Money a member may spend from their organisation, up to a limit each month. A field not every caller is shown (secret, or private to roles) may be missing from what a call returns. */
@@ -19,18 +19,18 @@ export type Allowance = {
   readonly "state": AllowanceState;
 };
 
-/** The event AllowanceGranted: what it carries when a allowance moves. */
+/** The event AllowanceGranted: what it carries when an allowance moves. */
 export type AllowanceGranted = {
   readonly "allowance": Of<(typeof Events)["AllowanceGranted"]["fields"]["allowance"]>;
   readonly "limit": Of<(typeof Events)["AllowanceGranted"]["fields"]["limit"]>;
 };
 
-/** The event AllowanceRevoked: what it carries when a allowance moves. */
+/** The event AllowanceRevoked: what it carries when an allowance moves. */
 export type AllowanceRevoked = {
   readonly "allowance": Of<(typeof Events)["AllowanceRevoked"]["fields"]["allowance"]>;
 };
 
-/** The event AllowanceSpent: what it carries when a allowance moves. */
+/** The event AllowanceSpent: what it carries when an allowance moves. */
 export type AllowanceSpent = {
   readonly "allowance": Of<(typeof Events)["AllowanceSpent"]["fields"]["allowance"]>;
   readonly "amount": Of<(typeof Events)["AllowanceSpent"]["fields"]["amount"]>;

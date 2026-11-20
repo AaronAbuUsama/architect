@@ -53,6 +53,12 @@ describe("the SDK's types", () => {
     expect(sdkTypes(acme).exports.join("\n")).toMatch(/export type \{ Allowance, AllowanceState, [^}]*AllowanceGranted[^}]*\} from "\.\/allowance\/types\.ts";/);
   });
 
+  it("use the article that fits the thing's name", () => {
+    expect(types(acme)).toContain("The states an allowance moves between");
+    expect(types(acme)).not.toContain("a allowance");
+    expect(sdkTypes(acme).files.map((f) => f.content).join("\n")).not.toMatch(/\ba (allowance|organization|invitation|api-key|[aeiou]\w+) moves/);
+  });
+
   it("put a field's description in a doc comment that a comment's end cannot cut short", () => {
     const text = types(saying("closes */ early\nand breaks a line"));
     const line = text.split("\n").find((l) => l.includes("closes"))!;
@@ -77,6 +83,26 @@ describe("the CLI's flags", () => {
   it("carry the operation's description and the states of its move in --help", () => {
     const grant = command("generated/cli/src/allowance/grant.ts");
     expect(grant).toContain(acme.operations["allowance.grant"]!.description);
-    expect(grant).toMatch(/Command\.withDescription\(".*Moves the allowance into being to /);
+    expect(grant).toMatch(/Command\.withDescription\(".*Creates an allowance, which starts [a-z]+\./);
+    expect(grant).not.toContain("into being");
+    expect(command("generated/cli/src/allowance/revoke.ts")).toMatch(/Moves an allowance from [a-z, ]+ to [a-z]+\./);
+  });
+
+  it("say something of every flag, from its field when it has no description, and never a bare \"Text.\"", () => {
+    for (const f of renderCli(acme, "acme").filter((f) => f.path.includes("/cli/src/") && f.content.includes("Flag.withDescription"))) {
+      expect(f.content, f.path).not.toMatch(/Flag\.withDescription\("Text\."\)/);
+    }
+    expect(command("generated/cli/src/person/sign-up.ts")).toMatch(/Flag\.withDescription\("Person email: text of up to 254 characters\."\)/);
+  });
+
+  it("give the device sign-in commands their descriptions and typed, described flags too", () => {
+    for (const file of ["generated/cli/src/session/sign-in.ts", "generated/cli/src/session/show.ts"]) {
+      const text = command(file);
+      expect(text, file).toContain("Command.withDescription(");
+      expect(text, file).toContain('Flag.withDescription("');
+      expect(text, file).toContain('Flag.String("env").pipe(Flag.withMetavar("env")');
+      expect(text, file).not.toContain("Every flag is text");
+    }
+    expect(command("generated/cli/src/session/sign-in.ts")).toContain('Flag.withMetavar("password")');
   });
 });

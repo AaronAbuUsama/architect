@@ -6,7 +6,7 @@ type Declared = Extract<(typeof Source)[keyof typeof Source], { readonly kind: "
 /** What a field or value holds, as the blueprint's own schema decodes it. */
 type Of<F> = F extends { readonly value: { readonly schema: { readonly Type: infer T } } } ? T : F extends { readonly schema: { readonly Type: infer T } } ? T : never;
 
-/** The states a attention moves between, as its machine declares them. */
+/** The states an attention moves between, as its machine declares them. */
 export type AttentionState = "open" | "approved" | "declined";
 
 /** Something waiting on you: a promote, money past the cap, a credential, a question mid-mission. A field not every caller is shown (secret, or private to roles) may be missing from what a call returns. */
@@ -20,18 +20,18 @@ export type Attention = {
   readonly "state": AttentionState;
 };
 
-/** The event AttentionApproved: what it carries when a attention moves. */
+/** The event AttentionApproved: what it carries when an attention moves. */
 export type AttentionApproved = {
   readonly "attention": Of<(typeof Events)["AttentionApproved"]["fields"]["attention"]>;
 };
 
-/** The event AttentionDeclined: what it carries when a attention moves. */
+/** The event AttentionDeclined: what it carries when an attention moves. */
 export type AttentionDeclined = {
   readonly "attention": Of<(typeof Events)["AttentionDeclined"]["fields"]["attention"]>;
   readonly "why": Of<(typeof Events)["AttentionDeclined"]["fields"]["why"]>;
 };
 
-/** The event AttentionRaised: what it carries when a attention moves. */
+/** The event AttentionRaised: what it carries when an attention moves. */
 export type AttentionRaised = {
   readonly "attention": Of<(typeof Events)["AttentionRaised"]["fields"]["attention"]>;
   readonly "mission": Of<(typeof Events)["AttentionRaised"]["fields"]["mission"]>;

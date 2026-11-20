@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Start the mission once intake is done. From here the manager only orchestrates. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const start = Command.make(
   "start",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Mission id: an id (msn_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.mission.start), Output.answer(json)),
-).pipe(Command.withDescription("Start the mission once intake is done. From here the manager only orchestrates. Moves the mission from intake to running."));
+).pipe(Command.withDescription("Start the mission once intake is done. From here the manager only orchestrates. Moves a mission from intake to running."));

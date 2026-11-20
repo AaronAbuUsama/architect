@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Answer a question with one of its letters. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const answer = Command.make(
   "answer",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), question: Flag.String("question").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (qst_...).")), picked: Flag.String("picked").pipe(Flag.withMetavar("letter"), Flag.withDescription("Text.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("Question mission: an id (msn_...).")), question: Flag.String("question").pipe(Flag.withMetavar("id"), Flag.withDescription("Question id: an id (qst_...).")), picked: Flag.String("picked").pipe(Flag.withMetavar("letter"), Flag.withDescription("A letter: text of up to 2 characters.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.question.answer), Output.answer(json)),
-).pipe(Command.withDescription("Answer a question with one of its letters. Moves the question from asked to answered."));
+).pipe(Command.withDescription("Answer a question with one of its letters. Moves a question from asked to answered."));

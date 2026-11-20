@@ -1,33 +1,13 @@
 // generated/cli: `<project> <thing> <verb> --<field> ...`, one command per operation, calling the SDK.
-import type { FieldModel, Model, OperationModel } from "@orthograph/compiler";
+import type { Model, OperationModel } from "@orthograph/compiler";
+import { flagCode, helpOf } from "./words.ts";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
 import { GENERATED, camel, exportedAs, lines, local, opVar, type RenderedFile } from "@orthograph/projections/shared";
-
-const refAny = (f: FieldModel) => f.value.type === "schema" && f.value.format === "ref-any";
-
-/** What a text flag takes, in the words a caller uses: a wide number is a `uint` (kept as text, so no digit is lost), an id says what it names, a named value its own name. */
-const metavar = (f: FieldModel): string =>
-  f.value.type === "uint" ? "uint" : f.value.type === "id" ? "id" : refAny(f) ? "json" : f.named !== undefined ? f.named.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase() : "text";
-
-/** A flag's help: the field's own description, then what kind of value it takes (a plain schema's rules are the declaration's: it says if the text is refused). */
-const flagNote = (f: FieldModel): string => {
-  const kind = f.value.type === "uint" ? `A whole number below 2^${f.value.bits}.` : f.value.type === "id" ? `An id (${f.value.prefix}_...).` : refAny(f) ? "A JSON object with the declaration and the id." : "Text.";
-  return f.description === undefined ? kind : `${f.description} ${kind}`;
-};
-
-/** The operation's description, then the states a move runs between, so `--help` says what the command does and what it changes. */
-const helpOf = (op: OperationModel): string =>
-  !op.move ? op.description
-    : `${op.description} Moves the ${op.thing} ${op.move.from.length > 0 ? `from ${op.move.from.join(" or ")}` : "into being"} to ${op.move.to.join(" or ")}.`;
 
 const command = (op: OperationModel): RenderedFile => {
   const optional = Object.values(op.payload).some((f) => f.optional);
   const flags = Object.entries(op.payload).map(([k, f]) => {
-    // A number that fits is a number flag (handed on as the digits the declaration decodes); a wider one stays text, so no digit is lost.
-    const small = f.value.type === "uint" && f.value.bits <= 53;
-    const text = small
-      ? `Flag.Int("${k}").pipe(Flag.map(String), Flag.withDescription(${JSON.stringify(flagNote(f))}))`
-      : `Flag.String("${k}").pipe(Flag.withMetavar(${JSON.stringify(metavar(f))}), Flag.withDescription(${JSON.stringify(flagNote(f))}))`;
+    const text = flagCode(k, f);
     const flag = f.value.type === "schema" && f.value.format === "ref-any" ? `${text}.pipe(Flag.withSchema(Schema.fromJsonString(Schema.Unknown)))` : text;
     return `${k}: ${f.optional ? `Flag.optional(${flag})` : flag}`;
   });

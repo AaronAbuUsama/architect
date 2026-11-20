@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Free your name and take its public page offline. Anyone may claim the name afterwards. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const release = Command.make(
   "release",
-  { handle: Flag.String("handle").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (hdl_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { handle: Flag.String("handle").pipe(Flag.withMetavar("id"), Flag.withDescription("Handle id: an id (hdl_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.handle.release), Output.answer(json)),
-).pipe(Command.withDescription("Free your name and take its public page offline. Anyone may claim the name afterwards. Moves the handle from claimed to released."));
+).pipe(Command.withDescription("Free your name and take its public page offline. Anyone may claim the name afterwards. Moves a handle from claimed to released."));

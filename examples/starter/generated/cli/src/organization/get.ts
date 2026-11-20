@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Read one organization by its id: name, owner, state. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const get = Command.make(
   "get",
-  { id: Flag.String("id").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (org_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { id: Flag.String("id").pipe(Flag.withMetavar("id"), Flag.withDescription("Organization id: an id (org_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.organization.get), Output.answer(json)),
 ).pipe(Command.withDescription("Read one organization by its id: name, owner, state."));

@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Take a sheet down. Nobody can join it after this. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const close = Command.make(
   "close",
-  { sheet: Flag.String("sheet").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (sht_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { sheet: Flag.String("sheet").pipe(Flag.withMetavar("id"), Flag.withDescription("Sheet id: an id (sht_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.sheet.close), Output.answer(json)),
-).pipe(Command.withDescription("Take a sheet down. Nobody can join it after this. Moves the sheet from open or full to closed."));
+).pipe(Command.withDescription("Take a sheet down. Nobody can join it after this. Moves a sheet from open or full to closed."));

@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Withdraw an invitation that hasn't been accepted. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const revoke = Command.make(
   "revoke",
-  { invitation: Flag.String("invitation").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (inv_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { invitation: Flag.String("invitation").pipe(Flag.withMetavar("id"), Flag.withDescription("Invitation id: an id (inv_...).")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.invitation.revoke), Output.answer(json)),
-).pipe(Command.withDescription("Withdraw an invitation that hasn't been accepted. Moves the invitation from pending to revoked."));
+).pipe(Command.withDescription("Withdraw an invitation that hasn't been accepted. Moves an invitation from pending to revoked."));

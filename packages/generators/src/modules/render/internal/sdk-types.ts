@@ -1,5 +1,6 @@
 // generated/sdk/src/<thing>/types.ts: what a caller can name. The thing as the SDK hands it back, the union of its machine's states, and its events.
 import type { FieldsModel, Model, ThingModel } from "@orthograph/compiler";
+import { article } from "./words.ts";
 import { GENERATED, lines, thingFileAt, type RenderedFile } from "@orthograph/projections/shared";
 
 // A sentence inside a doc comment: its own comment end would close the comment early.
@@ -32,12 +33,12 @@ const typesOf = (t: ThingModel): RenderedFile => {
       "/** What a field or value holds, as the blueprint's own schema decodes it. */",
       "type Of<F> = F extends { readonly value: { readonly schema: { readonly Type: infer T } } } ? T : F extends { readonly schema: { readonly Type: infer T } } ? T : never;",
       "",
-      t.machine ? [`/** The states a ${t.name} moves between, as its machine declares them. */`, `export type ${state} = ${t.machine.states.map((s) => JSON.stringify(s)).join(" | ")};`, ""] : [],
+      t.machine ? [`/** The states ${article(t.name)} ${t.name} moves between, as its machine declares them. */`, `export type ${state} = ${t.machine.states.map((s) => JSON.stringify(s)).join(" | ")};`, ""] : [],
       `/** ${comment(t.description)} A field not every caller is shown (secret, or private to roles) may be missing from what a call returns. */`,
       `export type ${t.identifier} = {`,
       ...members(t.fields, "Declared", t.machine && !("state" in t.fields) ? [`  readonly "state": ${state};`] : []),
       "};",
-      ...events.flatMap((e) => ["", `/** The event ${e}: what it carries when a ${t.name} moves. */`, `export type ${e} = {`, ...members(t.events[e]!, `(typeof Events)[${JSON.stringify(e)}]["fields"]`), "};"]),
+      ...events.flatMap((e) => ["", `/** The event ${e}: what it carries when ${article(t.name)} ${t.name} moves. */`, `export type ${e} = {`, ...members(t.events[e]!, `(typeof Events)[${JSON.stringify(e)}]["fields"]`), "};"]),
     ),
   };
 };
