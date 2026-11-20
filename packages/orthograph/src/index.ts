@@ -11,6 +11,7 @@ import { Errors } from "#modules/errors/service.js";
 import { Events } from "#modules/events/service.js";
 import { Checks, Journeys } from "#modules/journeys/service.js";
 import { NotAllowed } from "#modules/errors/types.js";
+import { Invariants } from "#modules/invariants/service.js";
 import { Machines } from "#modules/machines/service.js";
 import { Operations } from "#modules/operations/service.js";
 import { Plugins, Stand } from "#modules/plugins/service.js";
@@ -28,6 +29,7 @@ export const Blueprint = Object.freeze({
   ...Events,
   ...Errors,
   ...Machines,
+  ...Invariants,
   ...Roles,
   ...Operations,
   ...Journeys,
@@ -50,7 +52,8 @@ export type { Thing, Field, FieldInput, FieldsInput, Lives, StoreKind, NotFound 
 export type { Store } from "#modules/stores/types.js";
 export type { Event } from "#modules/events/types.js";
 export type { BlueprintError, ErrorClass, AnyErrorClass } from "#modules/errors/types.js";
-export type { Machine, Move, NotFrom } from "#modules/machines/types.js";
+export type { Unique, Invariant, KeyOf, UniqueOptions } from "#modules/invariants/types.js";
+export type { Machine, Move, NotFrom, State } from "#modules/machines/types.js";
 export type { Role, RoleOf, Allowed, Principal, InstanceOf } from "#modules/roles/types.js";
 export type { Operation, Read, ReadAnswer, Order, Page, ListPayload, ListItem, Steps, OperationSpec, Step, CallStep, StepKind, Runs, TestKind, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
 export type { Blank } from "#modules/blanks/types.js";

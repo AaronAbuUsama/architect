@@ -1,7 +1,7 @@
 // One attempt at a call: reads go to the store and their versions are remembered; writes are held back, merged per
 // instance, until the call commits them with its move.
 import { Effect } from "effect";
-import type { Thing } from "orthograph";
+import type { Thing, Unique } from "orthograph";
 import { holds } from "./unique.ts";
 import type { Instance, Store, Unit, Write } from "../types.ts";
 
@@ -31,8 +31,10 @@ export const makeUnit = (store: Store["Service"]): Effect.Effect<Unit> =>
       });
 
     /** The holder of `value` in a unique field: the store's candidate as this call left it, or an instance this call wrote. */
-    const findBy = (thing: Thing, field: string, value: unknown) =>
+    const findBy = (thing: Thing | Unique, field: string, value: unknown) =>
       Effect.gen(function* () {
+        // G5's `findBy(rule, value)` is the runtime's (ST1.16), which holds the rules; until then it says so.
+        if (thing.kind === "invariant") return yield* Effect.die(new Error("findBy(rule, value) arrives with the runtime's invariants (ST1.16)"));
         const scope = thing.unique[field];
         if (!scope) return yield* Effect.die(new Error(`${field} is not declared unique on this thing`));
         for (const state of scope.while ?? [undefined]) {

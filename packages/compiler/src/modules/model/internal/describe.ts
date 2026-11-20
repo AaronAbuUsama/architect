@@ -86,10 +86,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     );
     const m = t.machine;
     blankIn(name, {
-      description: t.thing.description, states: m?.states,
+      description: t.thing.description, states: m?.declared,
       ...Object.fromEntries([...t.roles].map(([r, role]) => [`role ${r}`, (role as { rule?: unknown }).rule])),
     });
-    const states = m && !Blanks.isBlank(m.states) ? m.states : [];
+    const states = m && !Blanks.isBlank(m.declared) ? m.declared : [];
     const machine = m
       ? {
           states,

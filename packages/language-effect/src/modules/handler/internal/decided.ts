@@ -2,7 +2,7 @@
 // And the logs' side of the one visibility rule: a value the telemetry audience is not shown never reaches a logger.
 import { Effect, Logger } from "effect";
 import { CurrentLogAnnotations } from "effect/References";
-import type { FieldsInput, Thing } from "orthograph";
+import type { FieldsInput, Thing, Unique } from "orthograph";
 import type { Records } from "#modules/records/types.js";
 import { traceable } from "orthograph/server";
 
@@ -57,7 +57,11 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
   };
   const watching = (records: Records["Service"]): Records["Service"] => ({
     find: (thing, id) => records.find(thing, id).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); }))),
-    findBy: (thing, field, value) => records.findBy(thing, field, value).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); }))),
+    findBy: ((first: Thing | Unique, ...rest: ReadonlyArray<unknown>) => {
+      // G4's `findBy(thing, field, value)`, or G5's `findBy(rule, value)`: the thing is the first, or the rule's key's.
+      const thing = first.kind === "thing" ? first : first.fields[0].of;
+      return (records.findBy as (...args: ReadonlyArray<unknown>) => ReturnType<Records["Service"]["findBy"]>)(first, ...rest).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); })));
+    }) as Records["Service"]["findBy"],
     insert: (thing, values, state) => { learn(thing, values); return records.insert(thing, values, state); },
     update: (thing, id, changes) => { learn(thing, changes); return records.update(thing, id, changes); },
   });

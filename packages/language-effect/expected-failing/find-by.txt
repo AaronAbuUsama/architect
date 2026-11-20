@@ -1,7 +1,6 @@
 src/modules/records/find-by.test.ts > Records.findBy(rule, value) (G5) > a composite key takes an object of its fields, and a rule with no `while` holds in every state
 src/modules/records/find-by.test.ts > Records.findBy(rule, value) (G5) > returns the instance holding the value within the rule's scope, and undefined otherwise
 src/modules/records/find-by.test.ts > Records.findBy(rule, value) (G5) > sees this call's own writes first: an insert, a rename, and a move out of the scope
-src/modules/records/find-by.test.ts > findBy type-checks only for a rule, and the key's own type (G5) > compiles: a rule and its key are accepted; a wrong key type and a wrong key shape are type errors (G4's `findBy(thing, field, value)` goes at ST1.20, so it is not judged here)
 src/modules/records/find-by.test.ts > the store enforces a rule at commit (G5) > a rule over a structured field compares by what it holds, not as `[object Object]`
 src/modules/records/find-by.test.ts > the store enforces a rule at commit (G5) > a second rule on the same thing refuses on its own key: the same person and name twice is a conflict even in `released`
 src/modules/records/find-by.test.ts > the store enforces a rule at commit (G5) > the scope frees the name: a released holder and a new claim live together, and a release makes room

@@ -1,6 +1,6 @@
 // Machines: a thing's states and the moves between them. Moves take their names from their keys.
 import type { Event } from "#modules/events/types.js";
-import type { Thing } from "#modules/things/types.js";
+import type { FieldsInput, Thing } from "#modules/things/types.js";
 import type { Assertion } from "#modules/journeys/types.js";
 
 export interface MoveSpec<S extends string> {
@@ -28,13 +28,25 @@ export interface NotFrom {
   readonly exit: number;
 }
 
+/** One state of a machine, as a reference a rule names (`machine.states.claimed`); `F` is its thing's fields, type only (G5). */
+export interface State<S extends string = string, F extends FieldsInput = FieldsInput> {
+  readonly kind: "state";
+  readonly machine: Machine;
+  readonly key: S;
+  readonly "~thing"?: F;
+}
+
 export interface Machine<
   S extends string = string,
   Mv extends Record<string, MoveSpec<S>> = Record<string, MoveSpec<S>>,
+  F extends FieldsInput = FieldsInput,
 > {
   readonly kind: "machine";
   readonly thing: Thing;
-  readonly states: ReadonlyArray<S>;
+  /** The states as references, by name (G5). Empty when the declaration is a blank; `declared` holds the blank. */
+  readonly states: { readonly [K in S]: State<K, F> };
+  /** What the declaration wrote: its array of state names, or the blank (`Blueprint.todo`). The compiler reads this. */
+  readonly declared: ReadonlyArray<S>;
   readonly moves: { readonly [K in keyof Mv]: Move<S, ToOf<Mv[K]["to"]> & S, Mv[K]["from"]> };
   readonly notFrom: NotFrom;
   /** A journey check: the instance with this id is in `state` once the step's call has come back. */
@@ -44,8 +56,8 @@ export interface Machine<
 type ToOf<T> = T extends ReadonlyArray<infer X> ? X : T;
 
 export interface MachinesApi {
-  readonly machine: <const S extends string, const Mv extends Record<string, MoveSpec<S>>>(
-    thing: Thing,
+  readonly machine: <const S extends string, const Mv extends Record<string, MoveSpec<S>>, F extends FieldsInput = FieldsInput>(
+    thing: Thing<F>,
     spec: { readonly states: ReadonlyArray<S>; readonly moves: Mv; readonly notFrom: { readonly exit: number } },
-  ) => Machine<S, Mv>;
+  ) => Machine<S, Mv, F>;
 }

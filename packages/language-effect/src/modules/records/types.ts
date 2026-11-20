@@ -1,7 +1,7 @@
 // Records: a thing's stored instances. Two sides: the host's `Store`, which reads and commits, and the handler's
 // `Records`, which reads through the store and holds its writes back until the call commits them with its move.
 import { Context, type Effect } from "effect";
-import type { InstanceOf, Thing } from "orthograph";
+import type { InstanceOf, Thing, Unique } from "orthograph";
 import type { Entry } from "#modules/journal/types.js";
 
 /** A thing's fields, decoded: what a handler stores. */
@@ -77,7 +77,12 @@ export class Records extends Context.Service<Records, {
    * The one instance of `thing` holding `value` in a field it declares unique, within that field's scope, or undefined:
    * what this call's own writes left it as, else the store's (G4). The store enforces the same rule at commit.
    */
-  readonly findBy: <T extends Thing, K extends keyof T["unique"] & keyof FieldsOf<T>>(thing: T, field: K, value: FieldsOf<T>[K]) => Effect.Effect<Instance | undefined>;
+  readonly findBy: {
+    /** G5: the one instance holding `value` under the unique `rule`, within the rule's scope. The value is the key's own type, or an object of the fields for a composite key. */
+    <R extends Unique<any, any>>(rule: R, value: NonNullable<R["~key"]>): Effect.Effect<Instance | undefined>;
+    /** G4's spelling, until ST1.20 retires it. */
+    <T extends Thing, K extends keyof T["unique"] & keyof FieldsOf<T>>(thing: T, field: K, value: FieldsOf<T>[K]): Effect.Effect<Instance | undefined>;
+  };
   /** A new instance, in `state` when the thing has a machine (a move sets it otherwise). */
   readonly insert: <T extends Thing>(thing: T, fields: FieldsOf<T>, state?: string) => Effect.Effect<void>;
   /** Change some fields of an instance. Guarded by the version this call read it at. */

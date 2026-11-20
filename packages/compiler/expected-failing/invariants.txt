@@ -1,5 +1,4 @@
 src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a `while` naming a state the machine does not have
-src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a `while` on a thing with no machine
 src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a file in a thing's folder with another name stays refused, and the message lists `invariants`
 src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a key that is not a field of the thing
 src/modules/model/invariants.test.ts > G5: the compiler refuses a rule that cannot hold, naming the file > a refusal carrying a field that is not in the key
