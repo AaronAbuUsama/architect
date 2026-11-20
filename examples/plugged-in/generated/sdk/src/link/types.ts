@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/sdk.ts. Do not edit.
 import type * as Source from "../../../../blueprint/things/link/thing.ts";
 import type * as Events from "../../../../blueprint/things/link/events.ts";
 

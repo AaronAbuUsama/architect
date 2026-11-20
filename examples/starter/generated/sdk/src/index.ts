@@ -1,5 +1,6 @@
 // Generated from the blueprint. Do not edit.
-export { Starter, layer } from "./client.ts";
+export { Starter, layer, Credential, InvalidPayload } from "./client.ts";
+export type { CallOptions } from "./client.ts";
 export { Errors } from "../../api/src/index.ts";
 export * as apiKey from "./api-key/index.ts";
 export * as invitation from "./invitation/index.ts";

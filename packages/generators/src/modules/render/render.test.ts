@@ -117,8 +117,9 @@ describe("render", () => {
     expect(onlyApi.some((f) => f.path.startsWith("generated/server/")), "no server mount").toBe(false);
     expect(onlyApi.some((f) => f.path.startsWith("generated/model/")), "no model mount").toBe(false);
     expect(onlyApi.some((f) => f.path === "generated/api/src/index.ts")).toBe(true);
-    // What the fixed list still makes, not yet mounted (M1.12, M1.13).
-    expect(onlyApi.some((f) => f.path === "generated/sdk/src/index.ts" || f.path.startsWith("generated/sdk/"))).toBe(true);
+    expect(onlyApi.some((f) => f.path.startsWith("generated/sdk/")), "no sdk mount").toBe(false);
+    expect(onlyApi.some((f) => f.path.startsWith("generated/cli/")), "no cli mount").toBe(false);
+    expect(onlyApi.some((f) => f.path.startsWith("generated/mcp/")), "no mcp mount").toBe(false);
   });
 
   it("gives a project that mounts no projection the model, the api and the server as they were, headers and all", async () => {

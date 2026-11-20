@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/cli.ts. Do not edit.
 import { Effect, Schema } from "effect";
 import { Command, Flag } from "effect/cli";
 import { declaration as Declaration } from "../../../api/src/handle/release.ts";

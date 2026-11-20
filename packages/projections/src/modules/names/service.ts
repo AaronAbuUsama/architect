@@ -4,6 +4,7 @@ import type { Model } from "@orthograph/compiler";
 import { MountedElsewhere, type RenderedFile } from "./types.ts";
 
 export * from "./internal/names.ts";
+export * from "./internal/words.ts";
 
 /** The model a projection renders from: the compiler's, which `orthograph` types as unknown. */
 export const modelOf = (input: { readonly model: unknown }): Model => input.model as Model;

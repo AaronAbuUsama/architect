@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/cli.ts. Do not edit.
 import { Effect, Option, Schema } from "effect";
 import { Command, Flag } from "effect/cli";
 import { declaration } from "../../../api/src/session/sign-in.ts";
