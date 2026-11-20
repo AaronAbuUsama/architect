@@ -41,7 +41,7 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
 | Dependent | Change |
 |---|---|
 | `design/milestones.md`, the table of slices whose `needs` names an old gate | M6.01 is read as "none: started 20 November 2026 (K26, Aaron's exception)" |
-| M6.10 to M6.17 (stage 2 and 3's chain slices) | may start once their own `needs` are met and Goal 3 has landed (item 4), before the stage 2 or 3 gate |
+| M6.02, M6.07, M6.09 and M6.10 to M6.18 (stage 2 and 3's chain slices: the journeys, the relayer, the follower, the contracts and the key checks) | may start once their own `needs` are met and Goal 3 has landed (item 4), before the stage 2 or 3 gate |
 | M6.21 (moves made by time in Solidity) | not freed: it also needs M8.09, the time work, which is not pulled forward |
 | `AGENTS.md`, "How work flows" | one line points here, so the gate rule there names its exception |
 | The kanban board (`.agents/skills/kanban/data/`, `STATE.md`) | not edited by hand: its saved files are snapshots of the live board, which the conductor updates and saves again |
