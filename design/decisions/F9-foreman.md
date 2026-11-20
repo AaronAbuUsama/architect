@@ -114,8 +114,8 @@ Decided by Aaron: Foreman's state is not files in the repository and not a separ
 framework. The project, the board, the requirements and the journeys are an Orthograph app, declared in a blueprint,
 and Foreman's own state is built with Orthograph.
 
-That app already has a design: the work system (F5), reshaped into the work board (K11). K11 even names Foreman's role
-in it, as the manager:
+That app already has a design: the work system (F5), reshaped into the work board (K11). K11's manager is the role Foreman
+fills in version zero:
 
 ```md
 <!-- design/decisions/K11-work-board.md:163-165, on main -->
@@ -139,12 +139,15 @@ section 8. Its memory is the work app's things:
 | who the person is | `profile`: new (section 4) | this record |
 | the journeys | stay in the app's own blueprint, as code; items point at them by path | the canon |
 
+**It plugs into what the generated app already has.** The app's model says what is declared, `ortho prove` says what
+passes, and the logbook keeps the verdicts. Foreman's state points at those, and never copies them.
+
 **Status is never stored.** Whether a journey is green, how many blanks are open and what is stale are read fresh from
 the app's model, `ortho prove` and the logbook (F5 call 4: "Facts stay in the logbook"). A status someone typed drifts,
 as the board did (lesson 18); a status read from the tools can't.
 
-**"Held in a Durable Object", made exact.** The work app's things are database rows, not actors, because the board
-needs list reads:
+**"Held in a Durable Object", made exact.** Aaron said Durable Object; the rows stay in the database, because the board
+needs list reads, and only Foreman's own loop is a Durable Object. F5 found this when the compiler refused:
 
 ```md
 <!-- design/decisions/F5-work-blueprint.md:50, on main -->
@@ -169,13 +172,13 @@ and K11's board is an extension of the one portal, with "Needs you" pinned on to
 | Piece | Today | Where it is planned | Version zero needs it? |
 |---|---|---|---|
 | The work blueprint in K11's shape (goal, milestone, item, claim, board, question, attention) | F5's shape is declared: 26 operations in `examples/work` on `goal/stage-1` | M3.05 makes it a feature package | yes, as declarations only: K11 already decided the shape |
-| The work app's handlers | "None is written yet" (`examples/work/README.md:13` on `goal/stage-1`) | M3.05 | yes: question 2 |
+| The work app's handlers | "None is written yet" (`examples/work/README.md:13` on `goal/stage-1`) | M3.06 | yes: question 2 |
 | `project`, `decision`, `profile` | not declared | this record | yes; three small things |
-| Facts from the logbook | a blank waiting on L3.01 (F5 call 4) | L3.01 | no: Foreman reads `ortho` on the machine until then |
+| Facts from the logbook | a blank waiting on declared dependencies between apps (L3.01; F5 call 4) | L3.01 | no: Foreman reads `ortho` on the machine until then |
 | An agent acting for a person | `Principal` is `anonymous` or `person` (F5, "Open, for the language") | M2.01, M2.03 | no: version zero runs with test people locally |
 | Somewhere the work app runs | `runs: "on this machine"`, a local database (`examples/work/blueprint/environments/local.ts:3-8` on `goal/stage-1`) | staging, later | yes, locally: question 3 |
 | The board inside the portal | designed (K11, `spikes/kanban-components`) | M3 | no: the work app's generated portal pages first |
-| The always-on agent | Pi Durable behind H1's seam; durability proven in workerd (`H1-agent-harness.md:28`) | H1's A1 to A7, the manager workflow M3.10, the join M4.13 | no |
+| The always-on agent | Pi Durable behind H1's seam; durability proven in workerd (`H1-agent-harness.md:28`) | the harness's build steps (H1's A1 to A7, from wrapping Pi Durable to recorded runs), the manager workflow M3.10, the join M4.13 | no |
 
 ## 6. Proactivity: why a plugin, not a skill
 
@@ -195,10 +198,13 @@ without being asked. Version zero does the basic version now and builds nothing 
 {
   "hooks": {
     "SessionStart": [{ "hooks": [{ "type": "command", "command": "echo 'Run the foreman skill before anything else.'" }] }],
-    "Stop": [{ "hooks": [{ "type": "command", "command": "test -z \"$(git log @{u}.. --oneline 2>/dev/null)\" || { echo 'Commits not pushed.' >&2; exit 2; }" }] }]
+    "Stop": [{ "hooks": [{ "type": "command", "command": "jq -e '.stop_hook_active' >/dev/null && exit 0; test -z \"$(git log @{u}.. --oneline 2>/dev/null)\" || { echo 'Commits not pushed.' >&2; exit 2; }" }] }]
   }
 }
 ```
+
+The `Stop` hook lets the second stop through (`stop_hook_active` in the hook's input), so a push that fails can't
+trap the session in a loop.
 
 **The wake routine**, the same every time: read the person's profile; read the project's goals, items, claims,
 questions and attention from the work app; gather the facts (`ortho check`, `ortho model --json`, `ortho impact`, the
@@ -307,16 +313,16 @@ becomes a `decision` the same turn.
 
 ## 11. Its tools
 
-| Tool | What Foreman uses it for | Today |
+| Tool | What Foreman uses it for | Today (`packages/cli/src/main.ts` on `goal/stage-1`) |
 |---|---|---|
-| `ortho model --json` | what is declared | built (`packages/cli/src/main.ts:23`) |
-| `ortho add thing`, `operation`, `read`, `journey` | declaring | built (`packages/cli/src/main.ts:139`) |
-| `ortho check` | blanks, types, rules, drift | built (`packages/cli/src/main.ts:145`) |
-| `ortho generate` | outputs and scaffolds | built (`packages/cli/src/main.ts:157`) |
-| `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`packages/cli/src/main.ts:65`) |
-| `ortho impact` | what a change made stale | built (`packages/cli/src/main.ts:169`), local only |
-| `ortho brief <operation>` | a climber's brief | built (`packages/cli/src/main.ts:235`) |
-| `ortho dev` and the portal | running an app, its world and its portal | built (`packages/cli/src/main.ts:37`) |
+| `ortho model --json` | what is declared | built (`packages/cli/src/main.ts:24`) |
+| `ortho add thing`, `operation`, `read`, `journey` | declaring | built (`packages/cli/src/main.ts:187`) |
+| `ortho check` | blanks, types, rules, drift | built (`packages/cli/src/main.ts:195`) |
+| `ortho generate` | outputs and scaffolds | built (`packages/cli/src/main.ts:207`) |
+| `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`packages/cli/src/main.ts:66`) |
+| `ortho impact` | what a change made stale | built (`packages/cli/src/main.ts:219`), local only |
+| `ortho brief <operation>` | a climber's brief | built (`packages/cli/src/main.ts:268`) |
+| `ortho dev` and the portal | running an app, its world and its portal | built (`packages/cli/src/main.ts:38`) |
 | the work app's `work` CLI and MCP tools | Foreman's own state | generated; handlers not written (section 5) |
 | the factory | builder agents | version zero: Claude Code subagents and sessions in their own worktrees; later `agents.run.start` (`K10-factory.md:209-216`) |
 | `gh` | pull requests and CI | the person's own GitHub sign-in |
@@ -456,8 +462,8 @@ Foreman can't keep its state in an app that doesn't run, and you've said the sta
 |---|---|
 | when Foreman can start on Capxul | it needs somewhere to keep asks and decisions |
 | the kanban board and `design/handoff.md` | carry today's state by hand |
-| M3.05 and M3.10 | the milestone plan builds the work feature and the manager in M3 |
-| the gate rule in `AGENTS.md` | nothing in a milestone starts before the previous gate passes |
+| M3.05, M3.06 and M3.10 | the milestone plan builds the work feature, its handlers and the manager in M3 |
+| the gate rule (`AGENTS.md:33-34`) | "Nothing in a milestone starts until the previous milestone's gate passes on `main`" |
 
 **The options**
 
@@ -483,6 +489,7 @@ ortho prove --root examples/work
 **B · Wait for the milestone plan**
 ```text
 M3.05  the work feature as a package
+M3.06  its handlers
 M3.10  the manager as a declared workflow
 # Foreman starts after Gate M2 and these two land; the conductor carries on as now until then
 ```
@@ -499,7 +506,7 @@ foreman/state.json   asks, decisions, plan; imported into the work app later
 | You ask Foreman about Capxul next week | it runs, with the board as its state | no Foreman yet | it runs |
 | The work app hits a framework gap | found by Foreman's own first project | found in M3 | found later |
 | The state's shape changes | the blueprint changes, everything regenerates | the same | a hand migration |
-| Milestone order | an example app's handlers, which the gate rule allows | strictly in order | in order |
+| Milestone order | pulls the work app's handlers (M3.06) ahead of Gate M2, so it needs an exception recorded as its own decision | strictly in order | in order |
 
 **Rubric**
 
@@ -509,10 +516,12 @@ foreman/state.json   asks, decisions, plan; imported into the work app later
 | Reversibility | ✅ an example app | ✅ | ⚠️ a second store to retire |
 | Blast radius | ✅ `examples/work` only | ✅ none | ⚠️ every project's repository |
 | Correctness | ✅ one store, status read fresh | ✅ | ❌ you ruled it out |
-| Fit | ✅ dogfood: Orthograph built with Orthograph | ⚠️ | ❌ |
+| Fit | ⚠️ dogfood, but breaks the gate rule unless an exception is recorded | ✅ the gate rule as written | ❌ |
 
-**Recommendation: A.** It is the smallest real thing, it makes Foreman's first user Orthograph itself, and the board
-already carries the state in the meantime.
+**Recommendation: A, with the exception recorded.** It is the smallest real thing, it makes Foreman's first user
+Orthograph itself, and the board carries the state in the meantime. The cost is plain: the work app's handlers are
+milestone 3 work (M3.06), so A sets the gate rule aside for this one example app, in a decision of its own that says
+why. If you'd rather keep the rule whole, B is the honest alternative, and Foreman waits.
 
 ## Q3 — Where does the work app run until the durable agent?
 
@@ -548,8 +557,12 @@ counts against the cap:
 
 **The options**
 
-**Today** — `ortho dev` serves an app and its world on this machine (`packages/cli/src/main.ts:45-47` on
-`goal/stage-1`).
+**Today** — `ortho dev` serves an app and its world on this machine, and says so:
+
+```ts
+// packages/cli/src/main.ts:47, on goal/stage-1
+Effect.tap(({ url, log }) => Console.log(`running at ${url}  (world at ${url}/_world, wrangler output in ${log})`)),
+```
 
 **A · Local only**
 ```bash

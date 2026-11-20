@@ -16,7 +16,7 @@ How to read the cites: Capxul's files are given from its repository root; Orthog
 ## 1. The wake
 
 Foreman starts by reading where things stand. Capxul has no project in the work app yet, so this is a first wake. Aaron's
-profile is already known (he listens, works at the design level and reads code for now), so the wake routine would say,
+profile is already known (he listens, and reads code for now), so the wake routine would say,
 for the ear:
 
 > We're starting Capxul on Orthograph. Capxul already has its own blueprint, written by hand in its own format, and a
