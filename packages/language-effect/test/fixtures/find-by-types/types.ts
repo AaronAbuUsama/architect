@@ -19,8 +19,6 @@ export const program = Effect.gen(function* () {
   const name: string | undefined = held ? String(held["name"]) : undefined;
   // A composite key takes an object of its fields.
   yield* records.findBy(onePerPair, { owner: "o1", name: "ada" });
-  // @ts-expect-error a field is not a rule: G4's `findBy(thing, "name", value)` is gone
-  yield* records.findBy(Handle, "name", "ada");
   // @ts-expect-error the value is the key's own type, not a number
   yield* records.findBy(oneHolderPerName, 7);
   // @ts-expect-error a composite key takes its fields as an object, not one value

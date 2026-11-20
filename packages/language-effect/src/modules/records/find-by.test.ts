@@ -196,7 +196,7 @@ describe("the store enforces a rule at commit (G5)", () => {
 describe("findBy type-checks only for a rule, and the key's own type (G5)", () => {
   const repo = resolve(import.meta.dirname, "../../../../..");
   const fixture = join(repo, "packages/language-effect/test/fixtures/find-by-types");
-  it("compiles: a rule and its key are accepted; a field, a string name, another type's key and a wrong key shape are type errors", { timeout: 60_000 }, () => {
+  it("compiles: a rule and its key are accepted; a wrong key type and a wrong key shape are type errors (G4's `findBy(thing, field, value)` goes at ST1.20, so it is not judged here)", { timeout: 60_000 }, () => {
     const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
     const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
     expect(errors, "the fixture's `@ts-expect-error` lines must each hide exactly one error, and its other lines none").toEqual([]);
