@@ -20,6 +20,8 @@ export const specifiersOf = (source: string): ReadonlyArray<string> =>
 
 /** `import(x)` or `require(x)` whose argument is not a string literal: where it goes cannot be read. */
 const DYNAMIC = /\b(?:import|require)\s*\(\s*(?!['"])/;
+/** A file that reads files at runtime (`readFileSync(new URL("./x", import.meta.url))`, `fs`, a glob): what it reads is no import, so it rests on every file. */
+const READS = /\bimport\.meta\.(?:url|dirname|filename|glob|resolve)\b|\b(?:readFile|readFileSync|readdir|readdirSync|createReadStream|readFileSync)\s*\(|\bfs\.promises\b|\bnew URL\(/;
 
 /** The aliases a tsconfig's `paths` declares, as the prefix before their `*`: a specifier that starts with one is the project's, not a package's. */
 const aliasesIn = (snap: Snapshot): ReadonlyArray<string> =>
@@ -54,8 +56,9 @@ export const graphOf = (snap: Snapshot) => {
     if (known !== undefined) return known;
     const source = snap.sources.get(file);
     const found = (source === undefined ? [] : specifiersOf(source)).map((spec) => resolve(snap, aliases, file, spec));
-    const wild = source !== undefined && DYNAMIC.test(source);
-    const made = { deps: found.flatMap((f) => (f.kind === "file" ? [f.path] : [])), opaque: wild || found.some((f) => f.kind === "unknown"), wild };
+    const dynamic = source !== undefined && DYNAMIC.test(source);
+    const wild = dynamic || (source !== undefined && READS.test(source));
+    const made = { deps: found.flatMap((f) => (f.kind === "file" ? [f.path] : [])), opaque: dynamic || found.some((f) => f.kind === "unknown"), wild };
     memo.set(file, made);
     return made;
   };

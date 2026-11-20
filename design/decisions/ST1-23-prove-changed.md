@@ -57,7 +57,11 @@ file, the starting worlds it stands on and their closures, and the operations th
 lies in some such closure. Any other changed, added or removed file cannot be placed, and neither can a file whose imports could not
 all be followed (an alias, a `#` import, a path outside the project, a file that is not there): `--changed` then proves every journey
 and names the file. A file that imports or requires by a specifier that is not a literal is opaque too, and whatever rests on it
-rests on every file, since its target could be any. So unknown means prove everything, and `generated/` (the server, the model) is never placed. A journey is keyed
+rests on every file, since its target could be any; so does a file that reads files at run time (`readFileSync`, `new URL(...)` with
+`import.meta.url`, a glob), since what it reads is no import. A package the project runs from source (declared `workspace:`,
+`link:` or `file:` in its `package.json` or its workspace's, or reached through a symlink that leaves the package store, and what
+those depend on in turn) has its files hashed as `<package:name>/...`, tests, notes and `node_modules` aside; no closure reaches
+them, so a change there proves everything and names the package. So unknown means prove everything, and `generated/` (the server, the model) is never placed. A journey is keyed
 by its file, since two may share a name. A record that cannot be read (not JSON, not a ledger, a malformed section) is no record.
 The check plants the config, `package.json`, the lockfile, `tsconfig.json`, an env file, `generated/`, a new helper, a helper
 edited and deleted, and a handler imported by another.

@@ -1,8 +1,9 @@
 // One reading of the project's files: a content hash by relative path, and the source of each code file, taken once so that
 // what a proof is recorded against is what was read when it began, never what is on disk when it ends.
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { digest } from "./digest.ts";
+import { linkedFiles } from "./linked.ts";
 
 export interface Snapshot {
   readonly root: string;
@@ -10,7 +11,7 @@ export interface Snapshot {
   readonly sources: Map<string, string>;
 }
 
-export const digest = (text: string | Uint8Array) => createHash("sha256").update(text).digest("hex");
+export { digest };
 
 /** Folders whose every file can change a proof. generated/ is in: the server and the model are made there, and a change to either is not a thing the model places. */
 const FOLDERS = ["blueprint", "src", "journeys", "generated"];
@@ -52,6 +53,8 @@ export const scan = (root: string): Snapshot => {
   for (const path of paths) take(snap, path, join(root, path));
   const workspace = workspaceOf(root);
   if (workspace !== undefined) for (const name of LOCKS) if (existsSync(join(workspace, name))) take(snap, `${WORKSPACE}/${name}`, join(workspace, name));
+  // Packages linked from source (workspace siblings, `link:`, `file:`) are not in any lockfile's hashes: their files are, unplaceable.
+  for (const [key, hash] of linkedFiles(root, workspace)) snap.hashes.set(key, hash);
   return snap;
 };
 

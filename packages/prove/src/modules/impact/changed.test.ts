@@ -1,5 +1,5 @@
 // `prove --changed`'s selection, from a record and today's files: what it reruns, what it skips, when it cannot tell.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { Effect } from "effect";
@@ -148,6 +148,16 @@ describe("what an operation reaches by importing", () => {
     }
   });
 
+  it("proves everything when a handler reads a file at runtime that another handler imports: it rests on every file", () => {
+    const root = project();
+    write(root, "src/box/data.json", "{}\n");
+    write(root, OPEN, 'import data from "./data.json";\nexport default data;\n');
+    write(root, SHUT, 'import { readFileSync } from "node:fs";\nexport default readFileSync(new URL("./data.json", import.meta.url));\n');
+    const record = proven(root);
+    write(root, "src/box/data.json", '{ "changed": true }\n');
+    expect(choose(root, record)).toEqual({ rerun: [A, B], skipped: [], judge: ["box.open", "box.shut"], fellBack: null });
+  });
+
   it("sees a file outside the usual folders that a handler imports", () => {
     const root = project();
     write(root, SHUT, 'import { x } from "../../lib/x.ts";\nexport default x;\n');
@@ -198,5 +208,56 @@ describe("the record", () => {
     expect(record.files["src/box/notes.md"]).toBeDefined();
     write(root, "src/box/open.test.ts", "// changed\n");
     expect(choose(root, record).rerun).toEqual([]);
+  });
+});
+
+describe("a package the project runs from source", () => {
+  const linked = (spec: string, link = true) => {
+    const root = project();
+    const sibling = join(dirname(root), "sibling");
+    write(sibling, "package.json", '{ "name": "sibling" }\n');
+    write(sibling, "src/index.ts", "export const x = 1;\n");
+    write(sibling, "src/index.test.ts", "// a test\n");
+    write(sibling, "README.md", "# notes\n");
+    write(root, "package.json", JSON.stringify({ dependencies: { sibling: spec } }));
+    mkdirSync(join(root, "node_modules"), { recursive: true });
+    if (link) symlinkSync(sibling, join(root, "node_modules/sibling"));
+    else write(root, "node_modules/sibling/src/index.ts", "export const x = 1;\n");
+    return { root, sibling };
+  };
+
+  it("proves everything, naming the package, when a workspace sibling linked through node_modules changed", () => {
+    const { root, sibling } = linked("workspace:*");
+    const record = proven(root);
+    expect(Object.keys(record.files)).toContain("<package:sibling>/src/index.ts");
+    expect(Object.keys(record.files).filter((f) => f.startsWith("<package") && (f.endsWith(".test.ts") || f.endsWith(".md")))).toEqual([]);
+    expect(choose(root, record).rerun).toEqual([]);
+    write(sibling, "src/index.ts", "export const x = 2;\n");
+    expect(choose(root, record).fellBack).toEqual({ reason: "cannot place <package:sibling>/src/index.ts", files: ["<package:sibling>/src/index.ts"] });
+  });
+
+  it("does the same for any symlink that leaves the package store, whatever the project declares", () => {
+    const { root, sibling } = linked("^1.0.0");
+    const record = proven(root);
+    write(sibling, "src/index.ts", "export const x = 3;\n");
+    expect(choose(root, record).fellBack?.files).toEqual(["<package:sibling>/src/index.ts"]);
+  });
+
+  it("hashes a file: dependency that was copied in", () => {
+    const { root } = linked("file:../sibling", false);
+    const record = proven(root);
+    write(root, "node_modules/sibling/src/index.ts", "export const x = 4;\n");
+    expect(choose(root, record).fellBack?.files).toEqual(["<package:sibling>/src/index.ts"]);
+  });
+
+  it("leaves an installed package alone: a symlink into the store is the lockfile's to say", () => {
+    const root = project();
+    const store = join(dirname(root), "store/node_modules/.pnpm/dep@1.0.0/node_modules/dep");
+    write(store, "index.js", "export {};\n");
+    write(root, "package.json", JSON.stringify({ dependencies: { dep: "1.0.0" } }));
+    mkdirSync(join(root, "node_modules"), { recursive: true });
+    symlinkSync(store, join(root, "node_modules/dep"));
+    const record = proven(root);
+    expect(Object.keys(record.files).filter((f) => f.startsWith("<package"))).toEqual([]);
   });
 });
