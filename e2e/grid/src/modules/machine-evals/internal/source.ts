@@ -51,7 +51,14 @@ export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
   const named = new RegExp(`^${thing.identifier}(State|States|Status)$`);
   const ofThing = (t: { readonly name: string }) => t.name === thing.identifier;
   const all = (literals: ReadonlyArray<string>) => machine.states.every((s) => literals.includes(s));
-  return exported.some((t) => (named.test(t.name) && all(t.literals)) || (ofThing(t) && all(t.stateLiterals))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  // Exactly the states: no value that is not one (`| number`, an extra literal), written as string literals; a named type is judged where it is declared.
+  const exact = (literals: ReadonlyArray<string>, written: string) =>
+    all(literals) && literals.every((l) => machine.states.includes(l)) && Reading.typeKinds(written).every((k) => k === "string-literal" || k === "reference");
+  const stated = exported.filter((t) => (named.test(t.name) && all(t.literals)) || (ofThing(t) && all(t.stateLiterals)));
+  if (stated.length === 0) return [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  const written = (t: { readonly aliasOf: string; readonly memberTypes: Readonly<Record<string, { readonly type: string }>> }) => (t.aliasOf !== "" ? t.aliasOf : (t.memberTypes["state"]?.type ?? ""));
+  return stated.some((t) => exact(named.test(t.name) ? t.literals : t.stateLiterals, written(t))) ? []
+    : [`the SDK's type for ${thing.name}'s states holds a value that is not one of them (${machine.states.join(" | ")}): ${stated.map(written).join("; ")}`];
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */

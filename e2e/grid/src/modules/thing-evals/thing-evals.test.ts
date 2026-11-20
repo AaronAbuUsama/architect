@@ -93,7 +93,8 @@ describe("a wrong output is red, and says what", () => {
     const path = "generated/sdk/src/link/index.ts";
     /** `Link` with each field of the model written as `types[field]`, a string when it is not given: an id, a text or a named schema as a caller holds it. */
     const linkWith = (types: Record<string, string> = {}, form: "interface" | "alias" = "interface") => {
-      const members = Object.keys(link.fields).map((f) => `readonly ${JSON.stringify(f)}: ${types[f] ?? "string"}`).join("; ");
+      // A type written `?T` is an optional member (`"f"?: T`).
+      const members = Object.keys(link.fields).map((f) => ((t) => `readonly ${JSON.stringify(f)}${t.startsWith("?") ? "?" : ""}: ${t.replace(/^\?/, "")}`)(types[f] ?? "string")).join("; ");
       return editFile(pluggedIn, path, (t) => `${t}${form === "interface" ? `export interface Link { ${members} }` : `export type Link = { ${members} }`}\n`);
     };
     const first = Object.keys(link.fields)[0]!;
@@ -121,9 +122,29 @@ describe("a wrong output is red, and says what", () => {
       expect(check("sdk", "link", linkWith({ [first]: `${own}[]` })).why).toEqual([`${path}'s Link.${first} is ${own}[] (holds array), but the model's ${type} is string`]);
       expect(check("sdk", "link", linkWith({ [first]: `${own} | number` })).why).toEqual([`${path}'s Link.${first} is ${own} | number (holds number), but the model's ${type} is string`]);
     });
-    it("green: a union of the right primitive, a literal and undefined", () => {
-      expect(check("sdk", "link", linkWith({ [first]: '"a" | "b" | undefined' })).ok).toBe(true);
+    it("green: a union of string literals, and a parenthesised primitive", () => {
+      expect(check("sdk", "link", linkWith({ [first]: '"a" | "b"' })).ok).toBe(true);
       expect(check("sdk", "link", linkWith({ [first]: "(string)" })).ok).toBe(true);
+    });
+    it("matrix SDK type x value-less: a required field typed undefined (or optional, or | undefined) is red", () => {
+      const own = `${path}'s Link.${first}`;
+      expect(check("sdk", "link", linkWith({ [first]: "undefined" })).why).toEqual([`${own} is typed "undefined", which holds no value`]);
+      expect(check("sdk", "link", linkWith({ [first]: "?string" })).why).toEqual([`${own} is optional or may be undefined, but every call carries it`]);
+      expect(check("sdk", "link", linkWith({ [first]: "string | undefined" })).why).toEqual([`${own} is optional or may be undefined, but every call carries it`]);
+      expect(check("sdk", "link", linkWith({ [first]: "never" })).why).toEqual([`${own} is typed "never", which does not say what the field holds`]);
+      expect(check("sdk", "link", linkWith({ [first]: "{}" })).why).toEqual([`${own} is typed "{}", which does not say what the field holds`]);
+    });
+    describe("matrix SDK type x optional: a field the model lets a call leave out may be absent", () => {
+      const field = Object.keys(link.fields).find((f) => link.fields[f]!.value.type === "text")!;
+      const loose = { ...pluggedIn, model: { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, fields: { ...link.fields, [field]: { ...link.fields[field]!, optional: true } } } } } };
+      const typed = (type: string) => editFile(loose, path, (t) => `${t}export interface Link { ${Object.keys(link.fields).map((f) => ((x) => `readonly ${JSON.stringify(f)}${x.startsWith("?") ? "?" : ""}: ${x.replace(/^\?/, "")}`)(f === field ? type : "string")).join("; ")} }\n`);
+      it("red: written as a required string", () => {
+        expect(check("sdk", "link", typed("string")).why).toEqual([`${path}'s Link.${field} is not optional, but the model says a call may leave it out`]);
+      });
+      it("green: written optional, or with undefined", () => {
+        expect(check("sdk", "link", typed("?string")).ok).toBe(true);
+        expect(check("sdk", "link", typed("string | undefined")).ok).toBe(true);
+      });
     });
     it("red: a uint field typed true, a boolean literal; green: typed 1, bigint or a number or bigint", () => {
       const counted = { ...pluggedIn, model: { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, fields: { ...link.fields, [first]: { ...link.fields[first]!, value: { type: "uint", bits: 32 } } } } } } };

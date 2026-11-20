@@ -33,6 +33,8 @@ interface RefusalSample {
   readonly value: Readonly<Record<string, unknown>>;
   /** The values each of its fields must be refused: every JSON kind the field is not. */
   readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>;
+  /** The fields every such refusal carries, so the schema must require each: the envelope's four and the declared public ones the schema types. Empty for the role-visible shape (its extra fields may be absent). */
+  readonly required: ReadonlyArray<string>;
 }
 
 /**
@@ -51,7 +53,11 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
       const envelope = { refusal: wrongValues("string"), code: wrongValues("string"), exit: wrongValues("integer"), status: wrongValues("integer") };
       return [false, true].flatMap((withMore) => {
         const own = fieldsOf(model, name, withMore);
-        return withMore && !own.more ? [] : [{ value: { ...own.values, refusal: name, code: row["code"], exit: row["exit"], status: row["status"] }, probes: { ...Object.fromEntries(Object.entries(own.probes).filter(([key]) => mentions(schema, key))), ...envelope } }];
+        return withMore && !own.more ? [] : [{
+          value: { ...own.values, refusal: name, code: row["code"], exit: row["exit"], status: row["status"] },
+          probes: { ...Object.fromEntries(Object.entries(own.probes).filter(([key]) => mentions(schema, key))), ...envelope },
+          required: withMore ? [] : ["refusal", "code", "exit", "status", ...own.required.filter((key) => mentions(schema, key))],
+        }];
       });
     }),
     problems: rows.filter(([, row]) => row === undefined).map(([name]) => `${op.name}'s refusal ${name} has no row in ${TABLE}`),
@@ -62,7 +68,7 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
  * The fields a refusal carries beside its table row, as the runtime's `refusalOf` writes them: a declared error's public fields (`AllowanceExceeded.remaining`) and, for a caller holding a role, its role-private ones (never a secret),
  * a machine's wrong-state refusal's `state`, a generated not-found's `id`. A field whose value the model does not say is left out.
  */
-const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>; readonly more: boolean } => {
+const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>; readonly more: boolean; readonly required: ReadonlyArray<string> } => {
   const things = Object.values(model.things);
   const declared = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
   const text = { value: { type: "text" } };
@@ -75,6 +81,7 @@ const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { reado
   return {
     values: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, key === "state" && machine != null ? (machine.states[0] ?? "x") : (fromModel(f) ?? "x")])),
     probes: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, probesOf(f, undefined)])),
+    required: Object.entries(fields).filter(([, f]) => f.visibility === undefined && f.optional !== true).map(([key]) => key),
     more: Object.values(declared?.fields ?? {}).some((f) => f.visibility !== undefined && f.visibility !== "secret" && fromModel(f) !== undefined),
   };
 };
@@ -106,6 +113,8 @@ export const OutputSchema: OutputSchemaApi = {
       ...samples.flatMap((sample, index) => ofSample(sample, index)),
       ...refusals.problems,
       ...(accepts({}).valid ? [] : refusals.samples.flatMap((refusal) => Object.entries(refusal.probes).flatMap(([name, wrong]) => accepted(accepts, (value) => ({ ...refusal.value, [name]: value }), wrong, `${op.name}'s output schema accepts %s for the refusal field ${name}, so its type is not the field's`)))),
+      // Every field every refusal has must be required: the refusal without it is refused (a branch requiring only `refusal` would pass `{}` alone).
+      ...(accepts({}).valid ? [] : refusals.samples.flatMap((refusal) => refusal.required.filter((name) => accepts(Object.fromEntries(Object.entries(refusal.value).filter(([key]) => key !== name))).valid).map((name) => `${op.name}'s output schema does not require the refusal field ${name} of ${String(refusal.value["refusal"])}: a refusal without it is accepted`))),
       ...refusals.samples.flatMap(({ value: refusal }) => (accepts(refusal).valid ? [] : [`${op.name}'s output schema refuses the refusal ${shown(refusal)}, so the SDK client rejects every refused call`])),
       ...(Object.keys(samples[0]!.answer).length > 0 && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
     ])];
@@ -120,6 +129,7 @@ export const OutputSchema: OutputSchemaApi = {
     const missing = sample.unknown.filter((name) => name !== "state");
     if (missing.length > 0) return unjudged(op, missing);
     return [
+      ...(!accepts(rest).valid || op.answer["state"]!.optional === true || op.answer["state"]!.visibility !== undefined ? [] : [`${op.name}'s output schema does not require the answer field state: an answer without it is accepted`]),
       ...states.filter((state) => !accepts({ ...rest, state }).valid).map((state) => `${op.name}'s output schema refuses the answer with state "${state}", which the machine declares`),
       ...accepted(accepts, (value) => ({ ...rest, state: value }), wrongValues("string"), `${op.name}'s output schema accepts %s as the state, so it does not type it as a string`),
       ...(accepts({ ...rest, state: "not-a-state" }).valid ? [`${op.name}'s output schema accepts "not-a-state" as the state, so it does not type it as the machine's states`] : []),

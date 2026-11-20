@@ -30,6 +30,8 @@ export interface ExportedType {
   readonly members: ReadonlyArray<string>;
   /** Each property's type as written (spacing collapsed) and whether it is optional (`?`), by property name. */
   readonly memberTypes: Readonly<Record<string, { readonly type: string; readonly optional: boolean }>>;
+  /** The type an alias of a non-object type is written as (`"listed" | "removed"`), spacing collapsed; empty for the rest. */
+  readonly aliasOf: string;
 }
 
 /** The exported types of a TypeScript source: aliases, interfaces and enums alike. */
@@ -39,11 +41,11 @@ export const exportedTypes = (source: string): ReadonlyArray<ExportedType> =>
     const ofMembers = (name: string, members: ReadonlyArray<ts.TypeElement>, literals: ReadonlyArray<string>): ExportedType => {
       const props = membersOf(members);
       const memberTypes = Object.fromEntries(props.map((m) => [nameOf(m.name) ?? "", { type: m.type === undefined ? "" : m.type.getText().replace(/\s+/g, " "), optional: m.questionToken !== undefined }] as const));
-      return { name, literals, stateLiterals: props.filter((m) => nameOf(m.name) === "state").flatMap((m) => literalsOf(m.type)), members: props.map((m) => nameOf(m.name) ?? ""), memberTypes };
+      return { name, literals, stateLiterals: props.filter((m) => nameOf(m.name) === "state").flatMap((m) => literalsOf(m.type)), members: props.map((m) => nameOf(m.name) ?? ""), memberTypes, aliasOf: "" };
     };
-    if (ts.isTypeAliasDeclaration(s)) return [ts.isTypeLiteralNode(s.type) ? ofMembers(s.name.text, s.type.members, literalsOf(s.type)) : { name: s.name.text, literals: literalsOf(s.type), stateLiterals: [], members: [], memberTypes: {} }];
+    if (ts.isTypeAliasDeclaration(s)) return [ts.isTypeLiteralNode(s.type) ? ofMembers(s.name.text, s.type.members, literalsOf(s.type)) : { name: s.name.text, literals: literalsOf(s.type), stateLiterals: [], members: [], memberTypes: {}, aliasOf: s.type.getText().replace(/\s+/g, " ") }];
     if (ts.isInterfaceDeclaration(s)) return [ofMembers(s.name.text, s.members, [])];
-    if (ts.isEnumDeclaration(s)) return [{ name: s.name.text, literals: s.members.flatMap((m) => stringOf(m.initializer) ?? []), stateLiterals: [], members: s.members.map((m) => nameOf(m.name) ?? ""), memberTypes: {} }];
+    if (ts.isEnumDeclaration(s)) return [{ name: s.name.text, literals: s.members.flatMap((m) => stringOf(m.initializer) ?? []), stateLiterals: [], members: s.members.map((m) => nameOf(m.name) ?? ""), memberTypes: {}, aliasOf: "" }];
     return [];
   });
 

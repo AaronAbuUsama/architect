@@ -81,3 +81,37 @@ describe("a role-private field on a declared refusal is sampled and probed too",
     expect(run(digits)).toEqual([]);
   });
 });
+
+describe("matrix: a refusal's fields are required, not just typed", () => {
+  const claim = pluggedIn.model.operations["handle.claim"]!;
+  const run = (refusal: unknown) => OutputSchema.answers({
+    model: pluggedIn.model, op: claim, spans: pluggedIn.spans, files: pluggedIn.files,
+    schema: { type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" } }, required: ["handle"] }, refusal] },
+  });
+
+  it("R3/R5 x drop one: a refusal branch requiring only `refusal` is red, naming each field it does not require", () => {
+    const why = run({ ...refusalBranch, required: ["refusal"] });
+    expect(why).toContain("handle.claim's output schema does not require the refusal field code of HandleTaken: a refusal without it is accepted");
+    expect(why).toContain("handle.claim's output schema does not require the refusal field exit of HandleTaken: a refusal without it is accepted");
+    expect(why).toContain("handle.claim's output schema does not require the refusal field status of HandleTaken: a refusal without it is accepted");
+  });
+  it("R3/R5 x drop one: requiring all four is green", () => {
+    expect(run(refusalBranch)).toEqual([]);
+  });
+  it("R3 x drop one, a declared field the schema types: `remaining` typed but not required is red", () => {
+    const exceeding = { ...acme.model.operations["system.health"]!, refusals: ["AllowanceExceeded"] } as OperationModel;
+    const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
+    const others = { ...refusalBranch, properties: { ...refusalBranch.properties, refusal: { type: "string", not: { const: "AllowanceExceeded" } } } };
+    const only = (required: ReadonlyArray<string>) => ({ ...refusalBranch, properties: { ...refusalBranch.properties, refusal: { const: "AllowanceExceeded" }, remaining: { type: "string", pattern: "^-?\\d+$" } }, required });
+    const run2 = (required: ReadonlyArray<string>) => OutputSchema.answers({ model: acme.model, op: exceeding, spans: [{ name: "system.health", attrs: { "answer.status": "ok" } }], files: acme.files, schema: { type: "object", anyOf: [answer, others, only(required)] } });
+    expect(run2(refusalBranch.required)).toEqual(["system.health's output schema does not require the refusal field remaining of AllowanceExceeded: a refusal without it is accepted"]);
+    expect(run2([...refusalBranch.required, "remaining"])).toEqual([]);
+  });
+  it("R6 x drop one: an answer `state` that is typed but not required is red", () => {
+    const moved = { ...claim, answer: { state: { value: { type: "text", max: 64 } } } } as OperationModel;
+    const schema = (required: ReadonlyArray<string>) => ({ type: "object", anyOf: [{ type: "object", properties: { state: { enum: ["a", "b"] } }, required }, refusalBranch] });
+    const run3 = (required: ReadonlyArray<string>) => OutputSchema.states({ model: pluggedIn.model, op: moved, schema: schema(required), spans: [], files: pluggedIn.files, states: ["a", "b"] });
+    expect(run3([])).toEqual(["handle.claim's output schema does not require the answer field state: an answer without it is accepted"]);
+    expect(run3(["state"])).toEqual([]);
+  });
+});

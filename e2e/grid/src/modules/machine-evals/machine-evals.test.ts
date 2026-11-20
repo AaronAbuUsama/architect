@@ -92,11 +92,25 @@ describe("a wrong output is red, and says what", () => {
       const none = { ...pluggedIn, mcp: withMeta(right).mcp!.map((t) => (t.name === "link.add" ? { ...t, _meta: undefined } : t)) };
       expect(check("mcp", "link", none).why).toEqual(["link.add sends no _meta.move, so a client cannot read the move (add) from the tool"]);
     });
+    it("matrix move x drop one: a move with its key, from, to or emits missing is red", () => {
+      const { key, from, to, emits } = right;
+      const missing = (move: Record<string, unknown>) => check("mcp", "link", withMeta(move)).why;
+      expect(missing({ from, to, emits })).toEqual([`link.add's _meta.move.key is undefined, not "add"`]);
+      expect(missing({ key, to, emits })).toEqual([`link.add's _meta.move.from is undefined, not the list []`]);
+      expect(missing({ key, from, emits })).toEqual([`link.add's _meta.move.to is undefined, not the list ["listed"]`]);
+      expect(missing({ key, from, to })).toEqual([`link.add's _meta.move.emits is undefined, not "LinkAdded"`]);
+    });
     it("red: a list written as a string, a wrong state and another event", () => {
       expect(check("mcp", "link", withMeta({ ...right, to: "listed" })).why).toEqual([`link.add's _meta.move.to is "listed", not the list ["listed"]`]);
       expect(check("mcp", "link", withMeta({ ...right, to: ["removed"] })).why).toEqual([`link.add's _meta.move.to is ["removed"], not the list ["listed"]`]);
       expect(check("mcp", "link", withMeta({ ...right, emits: "LinkRemoved" })).why).toEqual([`link.add's _meta.move.emits is "LinkRemoved", not "LinkAdded"`]);
     });
+  });
+
+  it("matrix State type x wrong kinds and values: the union holds exactly the states", () => {
+    const typed = (type: string) => editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => `${t}export type LinkState = ${type};\n`);
+    expect(check("sdk", "link", typed('"listed" | "removed"'))).toEqual({ ok: true, why: [] });
+    for (const bad of ['"listed" | "removed" | number', '"listed" | "removed" | "ghost"', '"listed" | "removed" | null', 'string']) expect(check("sdk", "link", typed(bad)).ok, bad).toBe(false);
   });
 
   it("docs: a machine section that lost a state, the refusal or a move's row", () => {
