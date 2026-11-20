@@ -353,6 +353,7 @@ and two exits for it.
 
 **Applies it:** a builder thread, from a brief the conductor writes.
 **Applied, 19 November:** [PR 134](https://github.com/AaronAbuUsama/architect/pull/134) (quotes by name, `e2e:totals`, the refusal-code check) and the skill half in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129). `e2e/m1`'s totals markers are with the Goal 3 lead; HAN-12 with its owner.
+**Update, 20 November:** the committed, generated block still conflicted on `goal/stage-1`, twelve hand-merged catch-ups in one day. [PR 193](https://github.com/AaronAbuUsama/architect/pull/193) (G9) took it further: `nx run e2e:totals` prints the totals and CI shows them in the `e2e-m1` job summary, nothing is committed, and the ratchet list is one file per check. The step this proposal missed: a generated copy that is committed is still a file every pull request edits.
 
 ## 11. One records suite runs against both stores
 
