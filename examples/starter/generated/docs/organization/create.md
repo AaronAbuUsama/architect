@@ -35,6 +35,7 @@ Found an organisation. Whoever founds it owns it, and is its first member.
 | refusal | exit | code | when |
 |---|---|---|---|
 | NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## How to call
 

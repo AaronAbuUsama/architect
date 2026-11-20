@@ -2,6 +2,7 @@
   "refusals": {
     "AttentionNotFound": "AT-901",
     "AttentionNotOpen": "AT-900",
+    "IdempotencyConflict": "AR-002",
     "MilestoneNotActive": "ML-900",
     "MilestoneNotFound": "ML-901",
     "MissionClosed": "MS-005",
@@ -1412,7 +1413,8 @@
       ],
       "refusals": [
         "MissionNotRunning",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -1437,7 +1439,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "a20a17481ce7e319"
+      "hash": "03066524d86e3afc"
     },
     "milestone.add": {
       "kind": "operation",
@@ -1511,7 +1513,8 @@
       ],
       "refusals": [
         "MissionClosed",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -1536,7 +1539,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "9b2856be0d57609f"
+      "hash": "24dc94f8f150cc71"
     },
     "milestone.drop": {
       "kind": "operation",
@@ -1956,7 +1959,8 @@
       },
       "errors": [],
       "refusals": [
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -1976,7 +1980,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "b5f0a0c2fc873a57"
+      "hash": "c3aa421dc35ca37e"
     },
     "mission.pause": {
       "kind": "operation",
@@ -2456,7 +2460,8 @@
       ],
       "refusals": [
         "MissionNotInIntake",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -2481,7 +2486,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "eed24817e94402b5"
+      "hash": "5ecd531639beea5d"
     },
     "question.list": {
       "kind": "read",
@@ -3043,7 +3048,8 @@
         "RunOverBudget",
         "RunAgentCannot",
         "RunTaskClaimed",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -3068,7 +3074,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "83d9ff9ccca96a62"
+      "hash": "9d9c8d6c1469858f"
     },
     "run.stop": {
       "kind": "operation",

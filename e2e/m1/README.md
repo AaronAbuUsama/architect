@@ -43,7 +43,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 <!-- totals:start -->
 <!-- Written by `nx run e2e:totals` from the tests and expected-failing.txt. Do not edit by hand. -->
 
-402 tests in all; 361 pass; 41 expected to fail, listed in `expected-failing.txt`.
+402 tests in all; 363 pass; 39 expected to fail, listed in `expected-failing.txt`.
 
 | File | Tests | Expected to fail |
 |---|---|---|
@@ -59,7 +59,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `09-wallet-journeys.test.ts` | 7 | 0 |
 | `10-empty-and-scaffold.test.ts` | 6 | 0 |
 | `11-client-operations.test.ts` | 8 | 0 |
-| `12-projections.test.ts` | 7 | 2 |
+| `12-projections.test.ts` | 7 | 0 |
 | `13-live-steps.test.ts` | 6 | 0 |
 | `14-clients.test.ts` | 24 | 16 |
 | `15-portal-ui-seam.test.ts` | 15 | 0 |
@@ -76,7 +76,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `26-k19-server-client-line.test.ts` | 20 | 0 |
 | `27-k19-no-licence.test.ts` | 3 | 0 |
 | `28-st1-22-rules-in-the-portal.test.ts` | 59 | 8 |
-| **All** | 402 | 41 |
+| **All** | 402 | 39 |
 
 <!-- totals:end -->
 

@@ -38,6 +38,7 @@ Take places on a sheet, for yourself and anyone with you.
 | SheetFull | 71 | SH-001 | declared in errors.ts, carrying left |
 | SheetNotOpen | 70 | SH-900 | the sheet is in a state join can't start from; carries `state` |
 | SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## How to call
 
