@@ -2,7 +2,8 @@
 
 A projection is a plugin that makes the description real in one form. The server, the SDK, the CLI, the MCP server,
 the docs, the portal and the keeper are all projections. None of them is the system; each is a view of the model.
-Contracts are not a projection: the Solidity language writes them, and `Host.chain` runs them (K27, section 3.9). Part of the frame in [`README.md`](README.md); everything here is proposed.
+Contracts are not a projection: the Solidity language writes them, and `Host.chain` runs them (K27, section 3.9).
+Part of the frame in [`README.md`](README.md); everything here is proposed.
 
 ## Today, in code
 
