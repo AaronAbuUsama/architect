@@ -1,0 +1,32 @@
+{"check":"Date keeps its shape (instanceof both ways, a subclass keeps its prototype, parse, UTC, Date(), structuredClone)","ok":true,"evidence":{"realInstanceofDate":true,"worldInstanceofReal":true,"subclassReadsWorld":true,"subclassKeepsPrototype":true,"parse":1767225600000,"utc":1767225600000,"dateCall":"string","isDateCtor":true,"protoSame":true,"toStringTag":"[object Date]","structuredCloneOk":true,"hrtimeBigint":"function () {\n        return BigInt(Date.now()) * 1000000n;\n    }","hrtimeNs":"1793523600000000000","perfNow":1795193115391,"realNow":1795193115391}}
+{"check":"Better Auth session made at the start is refused after 8 days","ok":true,"evidence":{"signedUpAt":"2026-11-01T09:00:00.000Z","start":{"valid":true,"expiresAt":"2026-11-08T09:00:00.000Z"},"after":{"valid":false}}}
+{"check":"Better Auth session made at the start is refused after a month","ok":true,"evidence":{"signedUpAt":"2026-11-01T09:00:00.000Z","start":{"valid":true,"expiresAt":"2026-11-08T09:00:00.000Z"},"after":{"valid":false}}}
+{"check":"control without the patch: the session survives the world's month (the gap)","ok":true,"evidence":{"signedUpAtReal":"2026-11-20T16:45:15.737Z","after":{"valid":true,"expiresAt":"2026-11-27T16:45:15.736Z"}}}
+{"check":"Better Auth invitation (48 h): re-inviting is refused at the start, allowed once it expired 3 days on (adapter.mjs:774)","ok":true,"evidence":{"made":{"organizationId":"wwcIi836o67JEcPgNG42RDp6s1uPNdbt","invitationExpiresAt":"2026-11-03T09:00:00.000Z"},"before":{"invited":false,"refusal":"USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION"},"after":{"invited":true,"expiresAt":"2026-11-06T09:00:00.000Z"}}}
+{"check":"jose: valid at the start, valid 20 s past exp (tolerance 30 s), expired a month on","ok":true,"evidence":{"v0":{"ok":true,"exp":1793527200},"vTol":{"ok":true,"exp":1793527200},"v1":{"ok":false,"code":"ERR_JWT_EXPIRED"}}}
+{"measure":"jose: a world-made token checked outside the world (real clock)","value":{"ok":false,"code":"ERR_JWT_EXPIRED"}}
+{"check":"AsyncLocalStorage: 100 concurrent requests in two worlds a month apart never read the other's time","ok":true,"evidence":{"requests":100,"leaks":0,"sample":{"world":"west","before":1796115600000,"after":1796115600000,"newDate":1796115600000,"effect":{"millis":1796115600000,"nanosAsMillis":1796115600000},"durableObjectUnwrapped":1795193116102}}}
+{"measure":"Effect default Clock.currentTimeNanos vs the world (ms off, max)","value":0}
+{"check":"a Durable Object called from inside the world reads real time unless its own entry sets the world's","ok":true,"evidence":{"durableObjectUnwrapped":"2026-11-20T16:45:16.102Z"}}
+{"check":"break it: the naive global swap leaks time between worlds under concurrency","ok":true,"evidence":{"requests":100,"leaks":100,"example":{"want":"2026-11-01T09:00:00.000Z","got":"2026-12-01T09:00:00.000Z"}}}
+{"check":"Effect's default Clock, millis and nanos, exact for two worlds 400 ms apart (hrtime on workerd reads Date)","ok":true,"evidence":{"millisOffMax":0,"nanosOffMaxMs":0,"hrtimeBigint":"function () {\n        return BigInt(Date.now()) * 1000000n;\n    }"}}
+{"check":"Effect code that yields, each request its own runPromise (default scheduler), never leaks","ok":true,"evidence":{"requests":100,"leaks":0}}
+{"check":"try to break it: the same on one isolate-wide MixedScheduler still never leaks (a dispatcher per root fiber)","ok":true,"evidence":{"requests":100,"leaks":0}}
+{"check":"the same shared load on MixedScheduler(\"sync\") never leaks","ok":true,"evidence":{"requests":100,"leaks":0}}
+{"check":"viem without the patch: a 4 s block-number cache refetches after 4.5 real seconds","ok":true,"evidence":{"realA":{"block":1,"rpcCalls":1},"realB":{"block":2,"rpcCalls":2}}}
+{"check":"viem in a stepped world: the same cache never ages while the world stands still (stale block)","ok":true,"evidence":{"stepA":{"block":3,"rpcCalls":3},"stepB":{"block":3,"rpcCalls":3}}}
+{"check":"viem: a module-level client shared by two worlds serves the later world's cached block to the earlier one (negative age)","ok":true,"evidence":{"later":{"block":4,"rpcCalls":4},"earlier":{"block":4,"rpcCalls":4}}}
+{"check":"waitUntil after the response reads the world's time","ok":true,"evidence":{"at":1793523600000}}
+{"check":"scaled world at 720x gains about 12 minutes per real second; fixed within a request","ok":true,"evidence":{"worldSecondsGained":765.36,"sameWithinRequest":true}}
+{"measure":"per request /ping, round 1: no patch","value":{"n":2000,"meanMs":3.825,"p50":2.889,"p95":8.505,"p99":20.149}}
+{"measure":"per request /ping, round 1: patch, instant given","value":{"n":2000,"meanMs":3.012,"p50":2.311,"p95":6.125,"p99":17.945}}
+{"measure":"per request /ping, round 1: patch + read the world's DO","value":{"n":2000,"meanMs":3.662,"p50":2.604,"p95":9.967,"p99":20.618}}
+{"measure":"per request /ping, round 1: naive swap, instant given","value":{"n":2000,"meanMs":3.797,"p50":2.632,"p95":10.083,"p99":19.911}}
+{"measure":"per request /ping, round 2: no patch","value":{"n":2000,"meanMs":6.122,"p50":3.586,"p95":19.86,"p99":39.507}}
+{"measure":"per request /ping, round 2: patch, instant given","value":{"n":2000,"meanMs":15.66,"p50":7.411,"p95":51.93,"p99":131.707}}
+{"measure":"per request /ping, round 2: patch + read the world's DO","value":{"n":2000,"meanMs":4.09,"p50":2.994,"p95":8.322,"p99":22.998}}
+{"measure":"per request /ping, round 2: naive swap, instant given","value":{"n":2000,"meanMs":3.406,"p50":2.579,"p95":7.739,"p99":19.349}}
+{"measure":"per call, one new Date() + one Date.now() (ns, median of 7 x 1e6)","value":{"real":137.7,"world":365,"extraNs":227.3}}
+{"measure":"one read of the world's instant from its Durable Object, inside a request (µs, median of 7 x 2000)","value":30.2}
+{"measure":"one AsyncLocalStorage.run around a Date.now() (ns, median of 7 x 1e6)","value":1353.9}
+{"failed":0}
