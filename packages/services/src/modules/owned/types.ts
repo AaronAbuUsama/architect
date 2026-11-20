@@ -2,7 +2,8 @@
 // (K10 section 8, M1.33). The same markers `@orthograph/prove` leaves for its Collector, so one sweep finds them all.
 import { Data, type Effect, type Scope } from "effect";
 
-export class ProcessFailed extends Data.TaggedError("ProcessFailed")<{ readonly message: string }> {}
+/** `exited`: the process ended before it answered (a port taken since it was picked, a bad config), not a slow start. */
+export class ProcessFailed extends Data.TaggedError("ProcessFailed")<{ readonly message: string; readonly exited?: boolean }> {}
 
 /** A claim, not proof: this PID was started with this command by this owner. A PID is only signalled while `ps` still agrees. */
 export interface Marker {
