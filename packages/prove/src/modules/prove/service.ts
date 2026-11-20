@@ -18,6 +18,7 @@ import { fingerprint } from "#modules/warm/internal/source.js";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
 import { proveReport } from "./internal/structured.ts";
+import { detail, headline, narrowed } from "./internal/changed-run.ts";
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
@@ -38,21 +39,41 @@ const unfinishedIn = (project: { readonly unfinished?: ReadonlyArray<string> }) 
   (project.unfinished ?? []).map((file) => `journey ${file} skipped: it still has blanks (ortho check names them)`);
 
 export const Prove: ProveApi = {
-  run: ({ root, port, empty = false, only, env }) =>
+  run: ({ root, port, empty = false, only, env, changed = false, say }) =>
     Effect.gen(function* () {
-      const { model, project } = yield* load(root, empty);
+      const { model, project: loaded } = yield* load(root, empty);
+      // `--changed`: what the last proof's record and today's files say to run; with nothing to run or judge, no world is made at all.
+      // What a proof rests on is read once, before anything runs, and is what the run is recorded against.
+      const stamp = !empty && only === undefined ? yield* Impact.stamp(root, model) : undefined;
+      const selection = changed && stamp !== undefined ? yield* Impact.select(root, model, stamp) : undefined;
+      const judging = selection !== undefined && selection.fellBack === null ? new Set(selection.judge) : undefined;
+      const project = selection !== undefined && judging !== undefined ? narrowed(loaded, selection.rerun) : loaded;
+      const said = selection === undefined ? [] : headline(model, selection, project.journeys.length, loaded.journeys.length);
+      if (say !== undefined) for (const line of said) yield* say(line);
+      const report = selection === undefined ? undefined : detail(model, selection, project.journeyFiles ?? []);
+      if (selection !== undefined && judging !== undefined && project.journeys.length === 0 && judging.size === 0) {
+        yield* Impact.settle(root, model, { journeys: [], operations: [] }, stamp!);
+        const lines = [...said, ...unfinishedIn(loaded), "prove ✔"];
+        return { lines, passed: true, structured: proveReport([], 0, 0, lines, true, report), ...(say === undefined ? {} : { said: said.length }) };
+      }
       const journeys = only === undefined ? project.journeys : project.journeys.filter((journey) => journey.name === only);
-      if (journeys.length === 0 && !(empty && only === undefined)) return yield* new ProveFailed({ message: `no journey named "${only}"` });
+      if (journeys.length === 0 && !(empty && only === undefined) && !(judging !== undefined && judging.size > 0)) return yield* new ProveFailed({ message: `no journey named "${only}"` });
       const bodies = handlerHashes(root, model);
       const world = empty ? yield* emptyWorld(root, model) : root;
       const stand = yield* standWorld({ root, world, model, port, empty, env });
-      const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, stand.url, stand.collector, undefined, stand.otlp, undefined, empty, bodies, stand.device));
+      const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, stand.url, stand.collector, undefined, stand.otlp, undefined, empty, bodies, stand.device, judging));
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
-      if (!empty && only === undefined) yield* Impact.record(root, model, done.judged, done.results);
+      if (stamp !== undefined) {
+        yield* Impact.record(root, model, done.judged, judging === undefined ? done.results : done.results.filter((r) => judging.has(r.operation)));
+        yield* Impact.settle(root, model, {
+          journeys: done.journeys.details.flatMap((d, i) => (project.journeyFiles?.[i] === undefined ? [] : [{ file: project.journeyFiles[i]!, passed: d.verdict === "pass" }])),
+          operations: [...new Set(done.judged.flatMap((v) => (v.operation === undefined ? [] : [v.operation])))].map((operation) => ({ operation, passed: done.judged.every((v) => v.operation !== operation || v.failures.length === 0) })),
+        }, stamp);
+      }
       const verdict = closing(done);
-      const lines = [...stand.notes, ...unfinishedIn(project), ...done.journeys.lines, ...done.evals.lines, verdict.line];
+      const lines = [...said, ...stand.notes, ...unfinishedIn(loaded), ...done.journeys.lines, ...done.evals.lines, verdict.line];
       const seconds = Math.round(Duration.toMillis(took)) / 1000;
-      return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed) };
+      return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed, report), ...(say === undefined ? {} : { said: said.length }) };
     }),
   dev: ({ root, port, env, pid }) =>
     Effect.gen(function* () {

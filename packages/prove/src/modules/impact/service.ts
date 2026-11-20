@@ -1,8 +1,12 @@
+import { existsSync } from "node:fs";
+import { Names } from "orthograph/server";
 import { Effect } from "effect";
 import { Compare, type Depends, type Model, type Versioned } from "@orthograph/compiler";
 import type { Impact as Impacted, ImpactApi, Shipped } from "./types.ts";
 import { evidenceHolds, modelHash, storyHash } from "#modules/verdicts/internal/proof.js";
-import { readLedger, writeLedger } from "./internal/ledger.ts";
+import { ledgerPath, readLedger, writeLedger } from "./internal/ledger.ts";
+import { select as selectChanged, settle as settleChanged } from "./internal/changed.ts";
+import { stampOf } from "./internal/files.ts";
 
 const holds = (model: Model, depends: Depends) => Object.entries(depends).every(([key, hash]) => Compare.hashOf(model, key) === hash);
 
@@ -29,7 +33,21 @@ const record: ImpactApi["record"] = (root, model, verdicts, results) =>
       const evidence = prior?.verdicts?.[op];
       if (evidence) proofs.set(op, evidence);
     }
-    writeLedger(root, { model, proven, ...(proofs.size === 0 ? {} : { verdicts: Object.fromEntries(proofs) }) });
+    writeLedger(root, { model, proven, ...(proofs.size === 0 ? {} : { verdicts: Object.fromEntries(proofs) }), ...(prior?.changed ? { changed: prior.changed } : {}) });
+  });
+
+const stamp: ImpactApi["stamp"] = (root, model) => Effect.sync(() => stampOf(root, model));
+
+const select: ImpactApi["select"] = (root, model, taken) =>
+  Effect.sync(() => {
+    const prior = readLedger(root)?.changed;
+    return selectChanged(taken, model, prior, existsSync(ledgerPath(root)) && prior === undefined ? `no record of an earlier prove (${Names.folder}/evidence/proven.json holds none that can be read)` : undefined);
+  });
+
+const settle: ImpactApi["settle"] = (root, model, ran, taken) =>
+  Effect.sync(() => {
+    const ledger = readLedger(root);
+    if (ledger !== undefined) writeLedger(root, { ...ledger, changed: settleChanged(taken, ledger.changed, ran) });
   });
 
 const of: ImpactApi["of"] = (root, model) =>
@@ -83,4 +101,4 @@ const lines: ImpactApi["lines"] = (impact, shipped) => [...(impact.edges ?? []),
         ...(impact.unproven.length > 0 ? [`unproven ${list(impact.unproven)}`] : []),
       ])];
 
-export const Impact: ImpactApi = { record, of, lines };
+export const Impact: ImpactApi = { record, stamp, select, settle, of, lines };

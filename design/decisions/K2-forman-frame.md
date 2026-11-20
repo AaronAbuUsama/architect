@@ -33,7 +33,7 @@ go with your recommendation"), plus the calls he made himself in the same conver
 | Q2 | Long work: **Pi Durable** for agent runs (H1); **Effect Workflow** (`@effect/platform-cloudflare`) for declared processes, including the factory's manager loop |
 | Q3 | Codex's `layer/4`: **harvested** into the recut; its kit decision and six end-to-end checks are kept, renamed (kits become features and adapters) |
 | Q4 | Packages: **one front door**, `@formants/forman`, plus one package per plugin, language and host (`@formants/auth`, `@formants/language-effect`, `@formants/host-cloudflare`) |
-| Q5 | Roles: the code's **rule** is the model; the organizations plugin exports `holds` as a shortcut that produces one |
+| Q5 | Roles: the code's **rule** is the model; the organizations plugin exports `holds` as a shortcut that produces one (Superseded by K20, 20 November 2026: `holds` is declared in `orthograph` itself) |
 
 ## Decided in the walkthrough
 

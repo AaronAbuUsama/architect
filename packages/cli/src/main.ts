@@ -70,12 +70,16 @@ const prove = Command.make(
     port: Flag.Int("port").pipe(Flag.withDefault(0)),
     empty: Flag.Boolean("empty").pipe(Flag.withDefault(false)),
     only: Flag.String("only").pipe(Flag.optional),
+    // Only the journeys a change since the last proof's record touches; everything, saying why, when it cannot tell (ST1.23).
+    changed: Flag.Boolean("changed").pipe(Flag.withDefault(false)),
     // The run as data (per journey, per step: verdict, expected, got, handler and declaration files; totals; timings).
     json: Flag.Boolean("json").pipe(Flag.withDefault(false)),
     report: Flag.String("report").pipe(Flag.optional),
   },
-  ({ env, root, port, empty, only, json, report }) => {
+  ({ env, root, port, empty, only, changed, json, report }) => {
     if (env === "test" && (empty || Option.isSome(only))) return fail("--empty and --only require --env local", 2);
+    if (env === "test" && changed) return fail("--changed requires --env local", 2);
+    if (changed && (empty || Option.isSome(only))) return fail("--changed can't be combined with --empty or --only", 2);
     if (env === "test" && (json || Option.isSome(report))) return fail("--json and --report require --env local", 2);
     const proved = env === "test"
       ? attestation(root).pipe(
@@ -86,10 +90,10 @@ const prove = Command.make(
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
-      : Effect.scoped(Prove.run({ root, port, empty, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
+      : Effect.scoped(Prove.run({ root, port, empty, changed, env: process.env, ...(changed && !json ? { say: (line: string) => Console.log(line) } : {}), ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
           Effect.tap((proved) => Effect.sync(() => {
             if (Option.isSome(report)) writeFileSync(report.value, JSON.stringify(proved.structured, null, 2) + "\n");
-            process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.join("\n") + "\n");
+            process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.slice(proved.said ?? 0).join("\n") + "\n");
           })),
           Effect.tap((proved) => Effect.sync(() => (process.exitCode = proved.passed ? 0 : 1))),
         );
