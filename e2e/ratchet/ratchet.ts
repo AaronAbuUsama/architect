@@ -79,6 +79,16 @@ export const parseList = (text: string): ReadonlyArray<string> =>
     .map((line) => line.trim())
     .filter((line) => line !== "" && !line.startsWith("#"));
 
+/**
+ * The list is a folder of files, one per check file, each named after the check it lists (`21-portal-viewer.txt` holds `m1/21-portal-viewer.test.ts > ...`). Every entry of every file, and the
+ * entries filed under another check's name: a key belongs to the file named after its own test file, so a line can only conflict with a change to the same check.
+ */
+export const parseFolder = (files: ReadonlyArray<{ readonly name: string; readonly text: string }>): { readonly keys: ReadonlyArray<string>; readonly misfiled: ReadonlyArray<string> } => {
+  const keys = files.flatMap((file) => parseList(file.text));
+  const misfiled = files.flatMap((file) => parseList(file.text).filter((key) => `${(key.split(" > ")[0] ?? "").split("/").pop()?.replace(/\.test\.ts$/, "")}.txt` !== file.name).map((key) => `${file.name}: ${key}`));
+  return { keys, misfiled };
+};
+
 export const compare = (report: Report, list: ReadonlyArray<string>, root: string): Verdict => {
   const seen = outcomes(report, root);
   const expected = new Set(list);

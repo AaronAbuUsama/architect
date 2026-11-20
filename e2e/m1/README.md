@@ -40,45 +40,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `24-idempotency-conflict` | HAN-10 (#95's finding) | a request key reused with another payload is a typed built-in refusal, `IdempotencyConflict` at `AR-002`, exit 120, status 409, like `NotAllowed`: a row of the generated refusals table and the model (listed by idempotent operations only), exits 120 to 125 reserved by the compiler (declared exits are 5 to 119, G3), an HTTP 409 `{ _tag, code }`, a typed SDK failure, the CLI's `[AR-002] IdempotencyConflict` and exit 120, `refusal.code` on the span, counted as a refusal; it commits nothing (real workerd world, a key-fixing proxy for the SDK and CLI) | 12 tests: 4 controls pass (a replay with the same payload answers the first answer and commits once; a conflict commits nothing; the counter counts it as refused), 10 red until HAN-10 is built. MCP takes no request key, so it is judged by the table row only. No Docker |
 | `28-st1-22-rules-in-the-portal` | ST1.22 (G5) | the portal shows rules, in headless Chromium over `e2e/served-portal` as check 21 reads it: a Rules section under a thing's lifecycle, every refusal a rule owns read as the rule's sentence (generated from the model, or the rule's own description verbatim) and linked to its row, a "rules" stop on the spine between the move and the commit. Plugged In's three one-line unique rules as they stand, and a planted wire with the rules renamed and re-worded so no text can be written in; controls run the judge on a reference page and a written-in page. Hooks in the file header | 59 tests: 51 controls pass (the fixture and the wire, a reference page, a written-in page, a broken page, and one planted fault for each way a page could still pass: left out, added, repeated, two to one target, hidden, wider, null, right for one input and wrong for another, expected values taken from the page, an attribute that says it where the page does not, and a link that leaves the portal), 8 red until ST1.17 and ST1.22 (four calls on each of two wires). No Docker, a headless Chromium, the client built in CI |
 
-<!-- totals:start -->
-<!-- Written by `nx run e2e:totals` from the tests and expected-failing.txt. Do not edit by hand. -->
-
-402 tests in all; 394 pass; 8 expected to fail, listed in `expected-failing.txt`.
-
-| File | Tests | Expected to fail |
-|---|---|---|
-| `00-controls.test.ts` | 7 | 0 |
-| `01-mounting.test.ts` | 16 | 0 |
-| `02-runtime-and-closures.test.ts` | 9 | 0 |
-| `03-adapter-mounting.test.ts` | 8 | 0 |
-| `04-adapter-calls.test.ts` | 6 | 0 |
-| `05-graph.test.ts` | 10 | 0 |
-| `06-collisions-and-needs.test.ts` | 16 | 0 |
-| `07-descriptors.test.ts` | 4 | 0 |
-| `08-verbs.test.ts` | 10 | 0 |
-| `09-wallet-journeys.test.ts` | 7 | 0 |
-| `10-empty-and-scaffold.test.ts` | 6 | 0 |
-| `11-client-operations.test.ts` | 8 | 0 |
-| `12-projections.test.ts` | 7 | 0 |
-| `13-live-steps.test.ts` | 6 | 0 |
-| `14-clients.test.ts` | 24 | 0 |
-| `15-portal-ui-seam.test.ts` | 15 | 0 |
-| `16-visibility-types.test.ts` | 1 | 0 |
-| `16-visibility.test.ts` | 27 | 0 |
-| `17-telemetry-model.test.ts` | 8 | 0 |
-| `18-confirmation-depth.test.ts` | 14 | 0 |
-| `19-scaffold-explains.test.ts` | 19 | 0 |
-| `20-plugged-in-loop.test.ts` | 27 | 0 |
-| `21-portal-viewer.test.ts` | 33 | 0 |
-| `22-k16-review.test.ts` | 9 | 0 |
-| `24-idempotency-conflict.test.ts` | 14 | 0 |
-| `25-unique-fields.test.ts` | 9 | 0 |
-| `26-k19-server-client-line.test.ts` | 20 | 0 |
-| `27-k19-no-licence.test.ts` | 3 | 0 |
-| `28-st1-22-rules-in-the-portal.test.ts` | 59 | 8 |
-| **All** | 402 | 8 |
-
-<!-- totals:end -->
+The numbers (tests in all, how many pass, how many are expected to fail, per file) are not kept here: run `nx run e2e:totals`; CI prints them in the e2e-m1 job's summary.
 
 A **control** passes today and keeps passing: it proves the instrument (the fixture, a closure check, a held-request
 observation) or the non-regression (acme without a feature or adapter mount: its three projection mounts, check 12, are expected). A **readiness-red** test fails today because the framework

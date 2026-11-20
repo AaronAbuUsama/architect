@@ -21,10 +21,11 @@ repo() { # a fresh repository with a base commit; prints its path
   git -C "$dir" init -q -b base
   git -C "$dir" config user.email ci@example.invalid
   git -C "$dir" config user.name ci
-  mkdir -p "$dir/e2e/m1" "$dir/examples/acme/journeys" "$dir/packages/wallets/blueprint/journeys" \
+  mkdir -p "$dir/e2e/m1/expected-failing" "$dir/examples/acme/journeys" "$dir/packages/wallets/blueprint/journeys" \
     "$dir/packages/prove/src/modules/evals" "$dir/packages/prove/src/modules/journeys" "$dir/src"
-  printf 'm1/a.test.ts > a\nm1/b.test.ts > b\n' > "$dir/e2e/m1/expected-failing.txt"
-  printf '# m1\n\nprose\n\n<!-- totals:start -->\n2 expected to fail\n<!-- totals:end -->\n\nmore prose\n' > "$dir/e2e/m1/README.md"
+  printf 'm1/a.test.ts > a\nm1/a.test.ts > a2\n' > "$dir/e2e/m1/expected-failing/a.txt"
+  printf 'm1/b.test.ts > b\n' > "$dir/e2e/m1/expected-failing/b.txt"
+  printf '# m1\n\nprose\n' > "$dir/e2e/m1/README.md"
   mkdir -p "$dir/e2e/grid"
   grid "$dir" a b
   echo j > "$dir/examples/acme/journeys/signup.ts"
@@ -74,12 +75,20 @@ r=$(repo); mkdir -p "$r/e2e/m1" && echo t > "$r/e2e/m1/30-new.test.ts"; commit "
 expect "a new e2e check fails" 1 guard "$r"
 r=$(repo); git -C "$r" mv packages/prove/src/modules/evals/service.ts src/evals.ts; commit "$r"
 expect "moving an eval out fails" 1 guard "$r"
-r=$(repo); printf 'm1/a.test.ts > a\n' > "$r/e2e/m1/expected-failing.txt"; commit "$r"
-expect "taking a line off the ratchet list passes" 0 guard "$r"
-r=$(repo); printf 'm1/a.test.ts > a\nm1/b.test.ts > b\nm1/c.test.ts > c\n' > "$r/e2e/m1/expected-failing.txt"; commit "$r"
-expect "adding a line to the ratchet list fails" 1 guard "$r"
-r=$(repo); printf 'm1/a.test.ts > a\nm1/c.test.ts > c\n' > "$r/e2e/m1/expected-failing.txt"; commit "$r"
+r=$(repo); printf 'm1/a.test.ts > a\n' > "$r/e2e/m1/expected-failing/a.txt"; commit "$r"
+expect "deleting a line from a check's ratchet file passes" 0 guard "$r"
+r=$(repo); git -C "$r" rm -q e2e/m1/expected-failing/b.txt; commit "$r"
+expect "deleting a check's ratchet file passes" 0 guard "$r"
+r=$(repo); git -C "$r" rm -q e2e/m1/expected-failing/a.txt e2e/m1/expected-failing/b.txt; commit "$r"
+expect "deleting every ratchet file passes" 0 guard "$r"
+r=$(repo); printf 'm1/a.test.ts > a\nm1/a.test.ts > a2\nm1/a.test.ts > a3\n' > "$r/e2e/m1/expected-failing/a.txt"; commit "$r"
+expect "adding a line to a check's ratchet file fails" 1 guard "$r"
+r=$(repo); printf 'm1/c.test.ts > c\n' > "$r/e2e/m1/expected-failing/c.txt"; commit "$r"
+expect "adding a ratchet file fails" 1 guard "$r"
+r=$(repo); printf 'm1/a.test.ts > a\nm1/a.test.ts > swapped\n' > "$r/e2e/m1/expected-failing/a.txt"; commit "$r"
 expect "swapping a ratchet line fails" 1 guard "$r"
+r=$(repo); printf '' > "$r/e2e/m1/expected-failing/c.txt"; commit "$r"
+expect "adding an empty ratchet file fails" 1 guard "$r"
 r=$(repo); grid "$r" a; commit "$r"
 expect "taking a pair off the grid's list passes" 0 guard "$r"
 r=$(repo); grid "$r" b; commit "$r"
@@ -92,22 +101,8 @@ r=$(repo); echo '{' > "$r/e2e/grid/expected-red.json"; commit "$r"
 expect "a broken grid list fails" 1 guard "$r"
 r=$(repo); git -C "$r" rm -q e2e/grid/expected-red.json; commit "$r"
 expect "deleting the grid list fails" 1 guard "$r"
-r=$(repo); sed -i.bak 's/2 expected to fail/1 expected to fail/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
-expect "rewriting only the totals block passes" 0 guard "$r"
-r=$(repo); sed -i.bak 's/^prose$/other prose/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
-expect "editing a README outside the totals block fails" 1 guard "$r"
-r=$(repo); sed -i.bak 's/2 expected/1 expected/; s/^more prose$/changed/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
-expect "a totals change with an edit outside the block fails" 1 guard "$r"
-r=$(repo); sed -i.bak '/totals:/d' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
-expect "deleting the totals markers fails" 1 guard "$r"
-r=$(repo); sed -i.bak 's/<!-- totals:end -->/<!-- totals:end -->\nnew line/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
-expect "a line added after the block fails" 1 guard "$r"
-r=$(repo); printf 'names `<!-- totals:start -->` and `<!-- totals:end -->` in prose\nbody\n' > "$r/e2e/m1/NOTES.md"; git -C "$r" add -A; git -C "$r" commit -qm notes -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/NOTES.md"; commit "$r"
-expect "a markdown file that is not a suite README fails" 1 guard "$r"
-r=$(repo); printf '# m1\n\nnames `<!-- totals:start -->` in prose\nbody\n' > "$r/e2e/m1/README.md"; git -C "$r" add -A; git -C "$r" commit -qm prose -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/README.md"; commit "$r"
-expect "a marker named in prose is not a block" 1 guard "$r"
-r=$(repo); mkdir -p "$r/e2e/totals/fixture/demo"; printf '<!-- totals:start -->\nx\n<!-- totals:end -->\n' > "$r/e2e/totals/fixture/demo/README.md"; git -C "$r" add -A; git -C "$r" commit -qm nested -q; git -C "$r" branch -qf base; sed -i.bak 's/^x$/y/' "$r/e2e/totals/fixture/demo/README.md" && rm "$r/e2e/totals/fixture/demo/README.md.bak"; commit "$r"
-expect "a nested README's block fails" 1 guard "$r"
+r=$(repo); echo changed >> "$r/e2e/m1/README.md"; commit "$r"
+expect "editing a suite README fails: it holds no totals now, so it is a check file like the rest" 1 guard "$r"
 
 # docs-only: the flag that lets a docs-only pull request skip the layer gates
 docs() { # <repo> <wanted flag>
@@ -123,7 +118,7 @@ expect "docs-only: one code file among docs is not" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/packages/wallets/src/modules/send"; echo d > "$r/packages/wallets/src/modules/send/README.md"; commit "$r"
 expect "docs-only: a module's README is one of its slots, not docs" 0 docs "$r" false
 r=$(repo); echo d > "$r/e2e/m1/README.md"; commit "$r"
-expect "docs-only: an e2e README carries generated totals, not docs" 0 docs "$r" false
+expect "docs-only: an e2e README is part of the checks, not docs" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/examples/acme"; echo d > "$r/examples/acme/README.md"; commit "$r"
 expect "docs-only: an example's README is not docs" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/.github/workflows"; echo d > "$r/.github/workflows/ci.yml"; commit "$r"
