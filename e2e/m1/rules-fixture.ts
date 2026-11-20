@@ -101,7 +101,6 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     if (page.strays > 0) out.section.push(`/portal/things/${thing}: ${page.strays} rule rows sit outside the Rules section`);
     const dupIds = page.ids.filter((id, i) => id !== "" && page.ids.indexOf(id) !== i);
     for (const id of new Set(dupIds)) out.section.push(`/portal/things/${thing}: id "${id}" is on ${page.ids.filter((i) => i === id).length} elements: a link's fragment must reach one`);
-    const machineThing = Boolean((wire.model.things[thing] as { machine?: unknown }).machine);
     if (page.lifecycles > 1) out.section.push(`/portal/things/${thing} has ${page.lifecycles} lifecycles, it needs one`);
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
     for (const [rule, n] of Object.entries(page.rules.reduce<Record<string, number>>((all, r) => ({ ...all, [r.rule]: (all[r.rule] ?? 0) + 1 }), {}))) if (n > 1) out.section.push(`/portal/things/${thing} shows ${rule} ${n} times: one row per rule`);
