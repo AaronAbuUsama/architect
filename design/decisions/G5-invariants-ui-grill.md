@@ -18,7 +18,9 @@ is **1A 2A 3A 4A**. He can still override any one of them. Two findings from dra
   every rule with its refusal and count.
 
 The error codes in this file are Plugged In's: `HandleTaken` HN-001 exit 10, `HandleNotClaimed` HN-900 exit 11 (the
-machine's generated refusal), `HandleAlreadyOwned` HN-002 exit 12, `HandleNotFound` HN-003 exit 13.
+machine's generated refusal), `HandleAlreadyOwned` HN-002 exit 12, `HandleNotFound` HN-003 exit 13. `portal.md`'s
+thing-page sketch on `goal/stage-1` still says `HandleNotClaimed HN-002`; it is corrected on `main` and arrives with
+the next merge from `main`. Code is cited at `goal/stage-1` `7c7f9fcc`.
 
 **Terms, once for the round.**
 
@@ -39,12 +41,12 @@ machine's generated refusal), `HandleAlreadyOwned` HN-002 exit 12, `HandleNotFou
 portal's thing page drops it entirely: the wire's `Thing` has no field for it.
 
 ```ts
-// packages/generators/src/modules/render/internal/docs.ts:70
+// packages/generators/src/modules/render/internal/docs.ts:87
 Object.keys(t.unique ?? {}).length ? ["", "## Unique", "", ...Object.entries(t.unique ?? {}).map(([k, u]) => `- ${k}: unique ${u.while ? `while ${u.while.join(", ")}` : "in every state"}`)] : [],
 
-// packages/portal/src/modules/site/internal/detail.ts:51-60, thingPage: fields, machine, roles; nothing else
-    thing.machine ? `<h2>Machine</h2><p>States: ${esc(thing.machine.states.join(", "))}.</p>${table(...)}` : "",
-    thing.roles.length ? `<h2>Roles</h2><ul>${thing.roles.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : "",
+// packages/portal/src/modules/pages/internal/thing.tsx:15-22, the thing page: fields, machine, roles; nothing else
+      {thing.machine ? ( … <p>{`States: ${thing.machine.states.join(", ")}.`}</p> … ) : null}
+      {thing.roles.length > 0 ? <><h2>Roles</h2><ul>{thing.roles.map((r) => <li key={r}>{r}</li>)}</ul></> : null}
 ```
 
 If nobody decides, the builder of ST1.22 picks a place, and the next kind (`requires`, which spans two things) finds no
@@ -56,7 +58,7 @@ room in it.
 |---|---|
 | `portal.md` "A thing's page" (`:208-245`) | its section order: lifecycle, operations, events, errors, roles, notes |
 | ⌘K and the icon rail (`portal.md:158-170`) | a rule with its own page is a declaration ⌘K finds; a section is not |
-| The generated docs page (`docs.ts:66-72`) | it follows the portal's order, so the two read the same |
+| The generated docs page (`docs.ts:82-89`) | it follows the portal's order, so the two read the same |
 | `requires`, later (G5 §7) | a rule across two things must show on one page or both |
 
 **The options**
@@ -129,10 +131,11 @@ order. ⌘K can still index sections, which covers B's one real advantage.
 the runtime refuses for a rule, that is wrong on all four surfaces at once.
 
 ```ts
-// packages/portal/src/modules/site/internal/detail.ts:43, the operation page's refusals
-`<h3>Refusals</h3><ul>${op.refusals.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>`,
+// packages/portal/src/modules/pages/internal/operation.tsx:32-33, the operation page's refusals
+      <h3>Refusals</h3>
+      <ul>{op.refusals.map((r) => <li key={r}>{r}</li>)}</ul>
 
-// packages/generators/src/modules/render/internal/docs.ts:22, the docs page
+// packages/generators/src/modules/render/internal/docs.ts:38, the docs page
 if (declared) return `| ${r} | ${declared.exit} | ${code} | declared in errors.ts${…} |`;
 ```
 
@@ -149,14 +152,14 @@ person reads.
 | Dependent | Why it cares |
 |---|---|
 | The operation's in-and-out band (`portal.md:257-258`) | it lists `refusals: HandleTaken HN-001 ×31 · …` |
-| The generated docs page (`docs.ts:16-26`) | its refusals table has a "means" column |
+| The generated docs page (`docs.ts:32-44`) | its refusals table has a "means" column |
 | The scaffold header (`projections/.../handlers/internal/words.ts:84-104`) | the builder reads who refuses what |
 | MCP's tool description (`render/internal/mcp.ts:21`) | the agent reads it before calling |
 | K18's alerts (`K18-monitoring-falls-out.md:60`) | they key on `refusal.code`; the span also gets `refusal.invariant` |
 
 **The options**
 
-**Today** — the docs page for `handle.claim` (from `docs.ts:22`):
+**Today** — the docs page for `handle.claim` (from `docs.ts:38`):
 
 ```text
 | HandleTaken | 10 | HN-001 | declared in errors.ts |
@@ -220,7 +223,7 @@ no `description` gets the generated sentence.
 already the top of the thing's page. Today the diagram knows nothing of rules.
 
 ```ts
-// packages/generators/src/modules/render/internal/docs.ts:67-69, the machine section of the docs page
+// packages/generators/src/modules/render/internal/docs.ts:83-85, the machine section of the docs page
 t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. …`, "", "| move | from | to | emits |", …] : [],
 ```
 
