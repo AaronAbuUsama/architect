@@ -9,7 +9,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 
 | Pattern | Entries | Failures | Status | Proposal |
 |---|---|---|---|---|
-| Checks a wrong output can pass | 3 | 2 | partly covered | 14 |
+| Checks a wrong output can pass | 3 | 2 | partly covered | 14 (applied) |
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
 | Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
 | CI that can't tell us anything | 11 | 8 | partly covered | 4 (applied) |
@@ -22,7 +22,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | One fact, many hand-kept copies | 4 | 4 | partly covered | 10 (applied) |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 (applied) |
-| Fixes that don't reach the working branch | 1 | 1 | open | 15 |
+| Fixes that don't reach the working branch | 1 | 1 | partly covered | 15 (applied) |
 | Rules with no check behind them | 1 | 1 | partly covered | 13 (applied) |
 | Briefs that miss context | 2 | 0 | open, small | none yet |
 | Secrets in output | 1 | 0 | open, small | none yet |
@@ -43,10 +43,10 @@ Entries:
 
 **Covers it today:** the `author` skill's proof 5, "It can't be passed hollow" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)), which asks for one
 cheapest wrong implementation, on `goal/stage-1` only since 06:47 on 20 November, after both loops began; planting each
-review finding as a failing case.
+review finding as a failing case. Proposal 14 in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169): a table of what the check reads against five ways a wrong
+output passes, a hostile pass before Codex, and a family rewritten, not patched, once it repeats.
 
-**Gap:** one wrong implementation is named, where the holes Codex found came in families. Nothing asks for every way
-a wrong output could pass, a pass by someone hostile before Codex, or a rewrite once a family repeats.
+**Gap:** untested until the next checks pull request; its Codex rounds with findings are the measure.
 
 ## Reviews miss runtime defects
 
@@ -295,10 +295,11 @@ have it yet.
 Entries:
 - 2026-11-20 · The author skill reached the goal branch eight hours after it merged, after both checks were written (failure)
 
-**Covers it today:** nothing; `main` is merged into a goal branch when its lead chooses.
+**Covers it today:** the conductor skill has `main` merged into each live goal and milestone branch within the hour
+of a process change (proposal 15, [PR 169](https://github.com/AaronAbuUsama/architect/pull/169)).
 
-**Gap:** "applied" means "merged on `main`". The `author` skill took eight hours to reach `goal/stage-1`;
-`builder-paths` and `cancel-closed` took two and still haven't reached `m1`.
+**Gap:** it's a rule with no check. `m1` still lacks `builder-paths` and `cancel-closed`. The Scribe logs where each
+change reached.
 
 ## Rules with no check behind them
 
