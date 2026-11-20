@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Wire } from "./service.ts";
 import { acmeDocs, acmeModel, blueprintOf, withBudget } from "./testing.ts";
+import type { ModelWire } from "./types.ts";
 
 const decode = (json: unknown) => Effect.runPromise(Effect.result(Wire.decode(json)));
 
@@ -35,6 +36,22 @@ describe("the blueprint wire", () => {
     const wire = blueprintOf();
     const decoded = await decode(JSON.parse(JSON.stringify(wire)));
     expect(decoded._tag, JSON.stringify(decoded)).toBe("Success");
+  });
+
+  it("carries a thing's rules and the refusals an operation makes for them, and decoding keeps both (G5)", async () => {
+    const model = acmeModel();
+    const rule = { kind: "unique" as const, fields: ["name"], while: ["open"], refuse: "AllowanceTaken", description: "that name is taken" };
+    const ruled: ModelWire = {
+      ...model,
+      things: { ...model.things, allowance: { ...model.things["allowance"]!, invariants: { oneHolderPerName: rule }, hash: "with-a-rule" } },
+      operations: { ...model.operations, "allowance.spend": { ...model.operations["allowance.spend"]!, invariants: { AllowanceTaken: "allowance.oneHolderPerName" }, hash: "with-its-refusal" } },
+    };
+    const wire = blueprintOf(ruled);
+    expect(wire.digest).not.toBe(blueprintOf().digest);
+    const decoded = await Effect.runPromise(Wire.decode(JSON.parse(JSON.stringify(wire))));
+    expect(decoded.model.things["allowance"]?.invariants).toEqual({ oneHolderPerName: rule });
+    expect(decoded.model.operations["allowance.spend"]?.invariants).toEqual({ AllowanceTaken: "allowance.oneHolderPerName" });
+    expect(decoded.model.things["person"]).not.toHaveProperty("invariants");
   });
 
   it("rejects an unknown schema version, naming it", async () => {

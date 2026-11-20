@@ -1,3 +1,1 @@
-m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the docs page, the MCP tool's description and the portal's data carry both rules, each by its sentence
-m1/25-unique-fields.test.ts > 25 G5: the outputs say the rule, in the generated sentence or its written description > the scaffold's header says the runtime refuses each, by which rule and where; the body has no blank for them
 m1/25-unique-fields.test.ts > 25 G5: `ortho add thing` writes an empty invariants.ts that compiles and declares no rule > the file is written, a comment and no rule or blank, and the model builds with it and carries no rule
