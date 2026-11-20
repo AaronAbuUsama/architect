@@ -49,9 +49,16 @@ export const Banner = ({ snapshot }: { readonly snapshot: PortalSnapshot }) => {
 
 const detailOf = (f: FieldWire) => Object.entries(f.value).filter(([k]) => k !== "type").map(([k, v]) => `${k} ${JSON.stringify(v)}`).join(", ");
 
-export const FieldRows = ({ fields }: { readonly fields: Readonly<Record<string, FieldWire>> }) => (
-  <Table head={["Field", "Type", "Detail"]} rows={Object.entries(fields).map(([name, f]) => [`${name}${f.optional ? " (optional)" : ""}`, f.ref ?? f.named ?? String(f.value["type"] ?? "?"), detailOf(f)])} />
-);
+/** A Description column appears only when a field has one (M1.42), so a thing that declares none looks as it did. */
+export const FieldRows = ({ fields }: { readonly fields: Readonly<Record<string, FieldWire>> }) => {
+  const described = Object.values(fields).some((f) => f.description !== undefined);
+  return (
+    <Table
+      head={["Field", "Type", "Detail", ...(described ? ["Description"] : [])]}
+      rows={Object.entries(fields).map(([name, f]) => [`${name}${f.optional ? " (optional)" : ""}`, f.ref ?? f.named ?? String(f.value["type"] ?? "?"), detailOf(f), ...(described ? [f.description ?? ""] : [])])}
+    />
+  );
+};
 
 /** Who may call an operation, in words. */
 export const who = (op: OperationWire): string =>

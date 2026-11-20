@@ -64,8 +64,8 @@ The SDK is one function per operation, and the CLI is built on it:
 
 ```ts file=examples/signup/generated/sdk/src/sheet/join.ts name=join lines=7-9
 /** Take places on a sheet, for yourself and anyone with you. */
-export const join = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
+export const join = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call(declaration, payload, options, true, Effect.flatMap(Signup, (client) => client.sheet.join({ payload })));
 ```
 
 ```ts file=examples/signup/generated/cli/src/sheet/join.ts name=join lines=9-13
@@ -150,18 +150,27 @@ that is `.notVia(Via.agent)` is never one ([roles](roles.mdx)).
 
 ### The SDK contract
 
-Today the caller's token is set once, on the client's layer, and an SDK function takes only a payload. The Worker
-already keeps an answer under a request key, read from the `idempotency-key` header
-(`examples/signup/generated/server/main.ts:41-42`), but no generated client sends one yet. M1.12 makes the SDK the
-contract every other door builds on:
+The Worker keeps an answer under a request key, read from the `idempotency-key` header
+(`examples/signup/generated/server/main.ts:41-42`), and since M1.12 the generated SDK sends one: it is the contract
+every other door builds on. The `call` each function goes through encodes the payload first (a payload the schema
+refuses is `InvalidPayload`, and nothing is sent), makes a key when the call starts, and tries an `idempotent: "request"`
+operation again, with the same key, when the connection was cut before the answer came:
 
-```ts planned=M1.12 path=examples/signup/caller.ts
-// the caller is the client's, not the call's
-const client = Signup.layer({ url, credential: Credential.session(cookie) });
+```ts file=examples/signup/generated/sdk/src/client.ts name=Credential lines=11
+export type Credential = { readonly kind: "session"; readonly token: string };
+```
 
-// typed refusals in the error channel; one request key across retries
-const joined = yield* Sdk.sheet.join({ sheet, people: 2n }, { requestKey });
-//    Effect<{ left }, SheetFull | SheetNotOpen | InvalidPayload, Signup>
+```ts file=examples/signup/generated/sdk/src/client.ts name=layer lines=84-86
+/** `layer({ url, credential })`, or `layer(url, token)`: the same client, the token being a session's. */
+export const layer = (options: string | Options, token?: string) =>
+  typeof options === "string" ? connect(options, token === undefined || token === "" ? undefined : Credential.session(token)) : connect(options.url, options.credential);
+```
+
+Every function takes the key as its second parameter, and the error channel carries the declared refusals and `InvalidPayload`:
+
+```ts file=examples/signup/generated/sdk/src/sheet/join.ts name=join lines=8-9
+export const join = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call(declaration, payload, options, true, Effect.flatMap(Signup, (client) => client.sheet.join({ payload })));
 ```
 
 - **The caller** is set once, on the client's layer: a session, a key, the device flow or an agent's OAuth token.
@@ -169,6 +178,7 @@ const joined = yield* Sdk.sheet.join({ sheet, people: 2n }, { requestKey });
 - **The request key** is the caller's, or the SDK makes one when the call starts and keeps it across its own retries.
   A screen makes one when its form opens, and an agent tool uses its tool call's id. For an operation declared
   `idempotent: "request"`, the same key from the same caller is one call ([operations](operations.mdx)).
+  A call wrapped in your own `Effect.retry` makes a new key on each try unless you pass `requestKey`.
 - **Typed refusals**: every declared error is a class in the error channel, with its refusal code. A defect is a die.
 
 A chain operation's SDK call returns a submission, with its confirmation later, once K7 has settled how a chain call
@@ -239,7 +249,7 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 | the HTTP endpoint | `examples/signup/generated/api/src/sheet/join.ts:7` | built |
 | the SDK and its client | `examples/signup/generated/sdk/src/client.ts:10` | built |
 | the CLI, on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` | built |
-| the SDK contract | `@orthograph/language-effect` and the sdk projection | planned, M1.12 |
+| the SDK contract | `@orthograph/projections`' sdk | built, M1.12 |
 | `defineAction`, ported | `orthograph`'s `actions` module | planned, M1.23 |
 | the actions projection | `generated/actions/` | planned, M1.22 |
 | a contract as the enforcer | `language-solidity` | waits on K7, then M6.10 |
