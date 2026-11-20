@@ -1,12 +1,14 @@
 # M7.01: the cloud pass for staging
 
 Decided 20 November 2026 by the Goal 3 lead, under "Who decides" in `AGENTS.md`, for staging alone (K10 section 8;
-`design/milestones.md`, M7.01). Production, npm and the rest of M7 still wait on the stage 4 gate.
+`design/milestones.md`, M7.01). Production, npm and the rest of M7 still wait on the stage 4 gate. M7.01's row
+needs Gate M2; Goal 3 puts staging inside stage 1 and orders M7.01 first, so it is taken now (G10).
 
 ## Aaron's yes
 
-- K10, round 2, Q7 = A, his written yes: "a new account for Orthograph staging, with a token scoped to it", on
-  Workers Paid ($5 a month).
+- K10, round 2, Q7 = A ("All recommended."): a new account for Orthograph staging alone, on Workers Paid ($5 a
+  month), with a token scoped to that account, which he creates himself (`K10-factory.md`, section 8 and its
+  answers).
 - Goal 3, 19 November 2026: "This should also include a staging deployment", on `workers.dev` with no domain. He set
   the `CLOUDFLARE_ACCOUNT_ID` repository variable and the `CLOUDFLARE_API_TOKEN` repository secret that day.
 
@@ -14,14 +16,16 @@ No other cloud credential is made. If staging needs one, the work stops and asks
 
 ## The account and the token
 
-- **Account:** the one `CLOUDFLARE_ACCOUNT_ID` names, Orthograph's staging account (K10's `orthograph-staging`).
+- **Account:** the one `CLOUDFLARE_ACCOUNT_ID` names, assumed to be K10's `orthograph-staging` account. The value is
+  never read, so this rests on Aaron setting it for Goal 3's staging.
 - **Token:** `CLOUDFLARE_API_TOKEN`, scoped by Aaron to that account. K10 asks for Workers Scripts, D1, Durable
   Objects, R2 and Containers, all edit.
 - **Where they are used:** only inside GitHub Actions, as `secrets.CLOUDFLARE_API_TOKEN` and
   `vars.CLOUDFLARE_ACCOUNT_ID`. No agent reads, prints, copies or writes either value. No local run uses them, and no
   file or log holds them.
 - **Checking the scope:** the token's scope is not read from the token. It is shown by what a run can and cannot do:
-  the first staging pass records each call the account refused, if any.
+  the first staging pass records each call the account refused, if any. So this decision records the scope K10 asks
+  for, not the scope the token has; `spikes/staging-pass` records what it was allowed to do.
 
 ## Which secret store `Cloudflare.secrets` means
 
@@ -36,14 +40,18 @@ them anywhere but on the Worker, so destroying the Worker leaves nothing. This a
 
 ## Cost under the cap
 
-| What | Cost |
-|---|---|
-| Workers Paid, the account's plan | $5 a month, already Aaron's |
-| One staging run: a few thousand requests, a few D1 databases and Durable Object namespaces, minutes long | inside the plan's included use, so about $0 |
-| R2, if a run makes a bucket | inside the free tier for a run's size |
+Known: the account is on Workers Paid, $5 a month (K10), already Aaron's. Estimated, not measured: a run's own use.
+
+| What | Cost | Known or estimated |
+|---|---|---|
+| Workers Paid, the account's plan | $5 a month | known (K10) |
+| One staging run: a few thousand requests, a few D1 databases and Durable Object namespaces, minutes long | about $0, inside the plan's included requests, D1 rows and Durable Object use ([Cloudflare's Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/)) | estimated |
+| R2, if a run makes a bucket | about $0 for a run's size, inside R2's free tier | estimated |
+| Containers | not used: Plugged In needs no container in staging. Containers bills by memory, CPU and disk used, so any later use is costed before it runs | known |
 
 The cap is $10 a day across everything. Staging runs only by hand or from Goal 3's lead, at most ten a day, and each
-one destroys what it made. The job fails when anything of Plugged In is left in the account.
+one destroys what it made. The job fails when anything of Plugged In is left in the account. A run's spend is seen
+afterwards on the account's billing page, which only Aaron can open; the first staging pass asks him to look once.
 
 ## How a run goes
 

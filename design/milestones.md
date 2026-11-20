@@ -459,7 +459,7 @@ Capxul's first feature runs in its staging.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M7.01 ✅ | The cloud pass for staging (K10 section 8): the `orthograph-staging` account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
+| M7.01 ✅ | The cloud pass for staging (K10 section 8): the `orthograph-staging` account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential **Proof:** [`decisions/M7-cloud.md`](decisions/M7-cloud.md), passed by a 🔍 reviewer; the token's scope is recorded as asked, and `spikes/staging-pass` shows what it allows | S |
 | M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.13 | build | `npm view orthograph` shows the release | S |
 | M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
 | M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing in the account | M |
