@@ -55,3 +55,7 @@ Every place that said "5 to 125", found by `git grep 125` on `5d2887ca`, moves i
 
 No canon page states the range. Before HAN-10 merges, `git grep "5 to 125"` on its head finds only dated records.
 - HAN-10's check (`e2e/m1/24-idempotency-conflict.test.ts`) asserts exit 120, code `AR-002`, status 409.
+
+## The scaffold header does not list it (HAN-10 review, K16 a.4)
+
+K16 a.4 says a scaffold's header lists `op.refusals` in order. `IdempotencyConflict` is in `op.refusals` of every idempotent operation, but it is raised by the runtime before the handler runs, so a handler can neither make nor avoid it. Check 19's golden for `allowance.spend` (idempotent by request) lists `AllowanceExceeded`, `AllowanceNotActive` and `NotAllowed` and no fourth, and a builder never edits a golden. The code is right and K16 a.4 is read as "every refusal a handler can make or meet": `refusalsOf` leaves `IdempotencyConflict` out on purpose, and a signup-style operation with no other refusal shows `Refusals: none.` The model, the API, the SDK, the CLI and MCP all list it. Recorded 20 November 2026 by the outputs builder; revisit only if a later golden says otherwise.
