@@ -3,6 +3,10 @@
 # Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
+# K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
+m1/12-projections.test.ts > 12 M1.11: acme mounts the model, the api and the server > generates generated/server and generated/api as before, the model as before plus its mounts, and check passes
+m1/12-projections.test.ts > 12 controls: the baseline and the instrument > acme's checked-in generated/server, generated/api and model are what the baseline records
+m1/12-projections.test.ts > 12 controls: the baseline and the instrument > the comparison sees a changed byte, an extra file and a missing one, but not a different header line
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
@@ -18,6 +22,8 @@ m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is never a 
 m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once on the layer: two layers in one program are two people, and a layer with no credential is anonymous
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
+m1/14-clients.test.ts > 14 controls: the baseline and the instruments > the baseline records acme's 44 client files, and what acme has now still matches it where it must not change
+m1/14-clients.test.ts > 14 controls: the baseline and the instruments > the comparison sees a changed byte, an extra file and a missing one, and allows what carries the options
 m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
@@ -31,7 +37,8 @@ m1/21-portal-viewer.test.ts > 21 D: no leak > a raw statement, a `principal.pers
 m1/21-portal-viewer.test.ts > 21 D: no leak > the trace page shows the answered call's structure and timing, and how many logs its span has, with none of the four
 m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > `now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time
 m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same bytes for the home page, every thing's page and a trace
-m1/21-portal-viewer.test.ts > 21 F: the portal's pages are drawn from `@orthograph/portal-ui` > `@orthograph/portal` depends on portal-ui and its site imports it
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same pixels: the screenshots of the home page, a thing's page and a trace are byte-identical, and a later `now` is not
+m1/21-portal-viewer.test.ts > 21 F: the portal's pages are drawn from `@orthograph/portal-ui` > `@orthograph/portal`'s client imports portal-ui, as a build input, and its shipped dependencies hold no React, no portal-ui and no HeroUI
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > each declared environment has a page with its summary, its declared fields and a proof column for every environment, this one in focus
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > every kind of page carries the environment in its top bar
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > the picker lists the declared environments and marks the current one; each page is the environment's own portal
@@ -44,6 +51,15 @@ m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls tabl
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > a metrics source that fails gives a page with no numbers and no guess
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the refusal-codes page counts every refusal by name and code, and says `no span` for the door's
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table
-m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 control: acme's docs are the baseline, and the instruments are sound > acme's checked-in docs are the recorded bytes, and `ortho generate` in a copy writes the same
+m1/21-portal-viewer.test.ts > 21 control: the served portal > serves acme's `/portal` and a thing's page to a browser, twice with the same bytes
+m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > `@orthograph/portal` exports `./server`, and nothing reachable from it imports react, portal-ui or HeroUI
+m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > the generated portal entry imports the portal's server half and nothing else of the portal
+m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > is on for the portal's server half too: a planted copy of the server entry with a React import is reported, the entry itself is clean
+m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean
+m1/27-k19-no-licence.test.ts > 27 K19: a generated project builds with no HeroUI licence > the revision ships the portal's prebuilt client as static assets, byte for byte what this repository built
+m1/27-k19-no-licence.test.ts > 27 K19: the project runs locally with no licence, and the portal is drawn in a browser > `/portal` is a shell with a script, `/_portal/v1/*` is the data, and a browser draws every thing from it
