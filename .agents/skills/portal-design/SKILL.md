@@ -33,7 +33,8 @@ slop on 19 November 2026.
 4. **Grill Aaron before drawing.** Information architecture and UX choices are his. Ask in the grill format in
    `~/.claude/CLAUDE.md`: the problem with real code and `file:line`, what it touches, each option as code, a "you do
    X" table, the rubric, a recommendation, and an at-a-glance table with an answer key. Batch the questions. He
-   listens rather than reads, so say each problem plainly first.
+   listens rather than reads, so say each problem plainly first. Every generated fact in a grill or a mock is quoted
+   from the generated file (below, "Generated facts").
 5. **Render and look.** Run `spikes/console-mock/tools/shoot.sh <Name>` and open the PNG. Check it at 1440 wide
    against every rule in the style guide below. Fix and look again until nothing breaks a rule.
 6. **Publish to the canvas.** Copy the artboard into `spikes/console-mock/canvas/`, publish to the Design artifact (the
@@ -63,6 +64,12 @@ slop on 19 November 2026.
 
 ### Content
 
+- **Generated facts.** In a mock, a brief or a grill, a refusal's code, its HTTP status and its CLI exit, and any other
+  fact the generators write, are quoted only from the example's own generated files
+  (`examples/<name>/generated/api/src/errors.ts`, `examples/<name>/generated/cli/src/` or the generated docs), naming
+  the file. Never copy one from `design/portal.md`, another design page or an earlier mock: those copies go stale. A
+  grill on 19 November showed the wrong code for one refusal (HandleNotClaimed) that way. Regenerate first if the
+  example changed.
 - **Numbers are data, not sentences.** A number goes in a stat block (`KPI`, `KPIGroup`) or a chart, with its unit and
   what it is out of. Prose may tell the story but never carries a number the page doesn't also show
   (`design/portal.md`, numbers as data).

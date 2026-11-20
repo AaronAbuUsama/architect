@@ -67,16 +67,18 @@ into parts, each with its own status and the check that proves it.
 
 ## Fences that quote code
 
-Not a component, but the same rule. A fence that quotes a file says which lines:
+Not a component, but the same rule. A fence that quotes code says which file and which declaration (`lines=` is a hint that `--fix` keeps fresh):
 
 ````mdx
-```ts file=packages/language-effect/src/modules/records/types.ts lines=40-41
+```ts file=packages/language-effect/src/modules/records/types.ts name=Committed lines=40-41
 /** `conflict`: an update's version had moved on, so nothing was written and the call runs again. */
 export type Committed = "committed" | "conflict";
 ```
 ````
 
-The check compares the fence with those lines, ignoring only leading and trailing whitespace on each line. Code that
+The check compares the fence with that declaration (all of it, or a run of its lines), ignoring only leading and trailing
+whitespace on each line; `node docs/canon/check.mjs --fix` rewrites a quote that has drifted. A file that isn't code
+(JSON, SQL, markdown) is quoted with `lines=a-b` alone. Code that
 is designed but not built yet says which slice builds it, and is not compared:
 
 ````mdx

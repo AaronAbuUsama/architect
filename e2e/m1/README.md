@@ -39,7 +39,43 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `25-unique-fields` | Goal 3, S-04 (G4) | a field declared unique while some states hold it, and `Records.findBy` (fixture `e2e/fixtures/m1/unique-fields`, a `handle` whose `name` is unique while `claimed`, on acme): the model carries `unique`; `ortho model` refuses, naming the thing's file, a unique field on actors, a `while` naming a missing state and a unique name that isn't a field; in a real workerd world claim ada, claim ada again (`HandleTaken`), release, claim ada again; concurrent first claims of one name end with one owner and the rest the declared refusal; the docs say "unique while claimed" and the portal's data carries `unique`. Package halves: compiler `unique.test.ts`, language-effect `records/find-by.test.ts` (and `test/fixtures/find-by-types/`), host-cloudflare `store/unique.test.ts` (migration `0005_handles.sql`) | 9 tests: 1 control passes, 8 red until G4 is built (25.5: the generated migration has the partial unique index). No Docker, port from the OS |
 | `24-idempotency-conflict` | HAN-10 (#95's finding) | a request key reused with another payload is a typed built-in refusal, `IdempotencyConflict` at `AR-002`, exit 120, status 409, like `NotAllowed`: a row of the generated refusals table and the model (listed by idempotent operations only), exits 120 to 125 reserved by the compiler (declared exits are 5 to 119, G3), an HTTP 409 `{ _tag, code }`, a typed SDK failure, the CLI's `[AR-002] IdempotencyConflict` and exit 120, `refusal.code` on the span, counted as a refusal; it commits nothing (real workerd world, a key-fixing proxy for the SDK and CLI) | 12 tests: 4 controls pass (a replay with the same payload answers the first answer and commits once; a conflict commits nothing; the counter counts it as refused), 10 red until HAN-10 is built. MCP takes no request key, so it is judged by the table row only. No Docker |
 
-Seventy-seven tests pass on `main` (fifty-nine controls, check 10's six, which the M1.16 and M1.26 builder run made pass, check 20's eleven cells that already hold, and check 21's Plugged In docs) and a hundred and eighty-six are red, two hundred and sixty-three in all (check 19 adds three controls and sixteen red, check 20 three controls, eleven passing cells and thirteen red, check 21 six passing and twenty-five red, check 22 four controls and five red).
+<!-- totals:start -->
+<!-- Written by `nx run e2e:totals` from the tests and expected-failing.txt. Do not edit by hand. -->
+
+328 tests in all; 283 pass; 45 expected to fail, listed in `expected-failing.txt`.
+
+| File | Tests | Expected to fail |
+|---|---|---|
+| `00-controls.test.ts` | 7 | 0 |
+| `01-mounting.test.ts` | 16 | 0 |
+| `02-runtime-and-closures.test.ts` | 9 | 0 |
+| `03-adapter-mounting.test.ts` | 8 | 0 |
+| `04-adapter-calls.test.ts` | 6 | 0 |
+| `05-graph.test.ts` | 10 | 0 |
+| `06-collisions-and-needs.test.ts` | 16 | 0 |
+| `07-descriptors.test.ts` | 4 | 0 |
+| `08-verbs.test.ts` | 10 | 0 |
+| `09-wallet-journeys.test.ts` | 7 | 0 |
+| `10-empty-and-scaffold.test.ts` | 6 | 0 |
+| `11-client-operations.test.ts` | 8 | 0 |
+| `12-projections.test.ts` | 7 | 0 |
+| `13-live-steps.test.ts` | 6 | 0 |
+| `14-clients.test.ts` | 23 | 16 |
+| `15-portal-ui-seam.test.ts` | 15 | 0 |
+| `16-visibility-types.test.ts` | 1 | 0 |
+| `16-visibility.test.ts` | 27 | 0 |
+| `17-telemetry-model.test.ts` | 8 | 0 |
+| `18-confirmation-depth.test.ts` | 14 | 0 |
+| `19-scaffold-explains.test.ts` | 19 | 0 |
+| `20-plugged-in-loop.test.ts` | 27 | 3 |
+| `21-portal-viewer.test.ts` | 33 | 25 |
+| `22-k16-review.test.ts` | 9 | 0 |
+| `25-unique-fields.test.ts` | 9 | 0 |
+| `26-k19-server-client-line.test.ts` | 20 | 1 |
+| `27-k19-no-licence.test.ts` | 3 | 0 |
+| **All** | 328 | 45 |
+
+<!-- totals:end -->
 
 A **control** passes today and keeps passing: it proves the instrument (the fixture, a closure check, a held-request
 observation) or the non-regression (acme without a feature or adapter mount: its three projection mounts, check 12, are expected). A **readiness-red** test fails today because the framework
