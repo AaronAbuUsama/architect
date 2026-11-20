@@ -9,7 +9,7 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **627 items**: 514 open, 57 fixed and 56 superseded.
+- **628 items**: 515 open, 57 fixed and 56 superseded.
 - **186 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
 - **59 open items are marked high.** A canon page can't be written correctly until each one is settled.
@@ -87,7 +87,7 @@ to v1.0, and its stage slices (ST1.01 to ST4.08) now own the React hooks, the br
 | 1 | plugins | 14 | 5 | 2 | 3 |
 | 1 | data | 1 | 0 | 0 | 1 |
 | 1 | doors | 3 | 1 | 1 | 1 |
-| 2 | things | 6 | 3 | 0 | 0 |
+| 2 | things | 7 | 3 | 0 | 0 |
 | 2 | machines | 6 | 3 | 1 | 1 |
 | 2 | operations | 13 | 6 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
@@ -714,6 +714,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `THI-01` | A value carries only its schema; its Solidity type is added in a later slice. | packages/orthograph/src/modules/values/types.ts:1 | open | M6.10 |
 | `THI-04` | On chain, a relayer actor and a chain follower actor are not built, and reads through the follower and the no-person's-key check are not built either. | design/frame/examples/allowance-on-chain.md:104 | open | M6.07, M6.09, M6.18 |
 | `THI-05` | There is to be one vault per organisation (S27); nothing is built. | design/frame/questions.md:423 | open | M6.01, M6.16 |
+| `THI-07` | Money has no value. Values today are `Blueprint.uint(bits)`, `text`, `email`, `id` and a raw Schema: no signed integer, no decimal, no fixed-point amount, and no amount that knows its currency or token and its decimals; M6.10 plans only Solidity types for the values that exist. Capxul's Payment, Budget, Invoice and Ledger entry each need an amount that knows its token or currency and its decimals, can go negative in a ledger, and means the same in Effect and in Solidity. Capxul Next rolls its own (a decimal string of up to six places beside a one-asset literal), and the Capxul-on-Orthograph sketches write `tokens.Amount`, which doesn't exist. Recorded as a known gap by Aaron, 20 November 2026; waits for a design pass. | packages/orthograph/src/modules/values/types.ts:14-18<br>design/milestones.md:426<br>capxul-next packages/blueprint/src/common/values.ts:78-81 (at 50851875)<br>capxul-next packages/blueprint/src/things/budget/refusals.ts:18-27 (at 50851875) | open | later |
 
 ### machines
 

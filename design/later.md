@@ -26,6 +26,9 @@ belongs to, and why it waits.
   naming until then.
 - **An intent key on actors** (K21): `idempotent: { by }` for things that `lives: "actor"` waits with idempotency by
   request on actors, below.
+- **Money as a value** (ledger THI-07; a known gap, Aaron, 20 November 2026): a signed or fixed-point amount that knows
+  its currency or token and its decimals, can go negative in a ledger, and means the same in Effect and in Solidity.
+  Capxul's Payment, Budget, Invoice and Ledger entry each need one. Waits for a design pass; no slice until then.
 
 ## From stage two (layer one)
 
