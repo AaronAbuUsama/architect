@@ -4,6 +4,7 @@
     "AllowanceLimitTooHigh": "AL-003",
     "AllowanceNotActive": "AL-900",
     "AllowanceNotFound": "AL-002",
+    "IdempotencyConflict": "AR-002",
     "InvitationNotPending": "IN-900",
     "NotAllowed": "AR-001",
     "OrganizationNotActive": "OR-900",
@@ -775,7 +776,8 @@
       "refusals": [
         "AllowanceLimitTooHigh",
         "PersonNotFound",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -804,7 +806,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "d2f210c83b7094aa"
+      "hash": "05d96c688a802279"
     },
     "allowance.revoke": {
       "kind": "operation",
@@ -927,7 +929,8 @@
       "refusals": [
         "AllowanceExceeded",
         "AllowanceNotActive",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -954,7 +957,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "39c4ea1843aba087"
+      "hash": "1a96511a5550edcd"
     },
     "api-key.create": {
       "kind": "operation",
@@ -1356,7 +1359,8 @@
       },
       "errors": [],
       "refusals": [
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -1380,7 +1384,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "519d37f5d362cc26"
+      "hash": "31321a24dbb25334"
     },
     "organization.get": {
       "kind": "read",

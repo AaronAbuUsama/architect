@@ -284,7 +284,7 @@ A declared step the handler never calls compiles: the frame's type can't tell. T
 Whoever the brief names. `ortho brief <thing>.<verb>` prints everything needed to write one handler: the files to
 read, the one file to write, the files never to touch, and the checks that must pass:
 
-```ts file=packages/cli/src/modules/brief/service.ts name=forbidden lines=3-5
+```ts file=packages/cli/src/modules/brief/service.ts name=forbidden lines=4-6
 const forbidden = [
   "blueprint/**", "blueprint/journeys/**", "blueprint/starting-worlds/**", "journeys/**", "generated/**", "test/**",
 ] as const;

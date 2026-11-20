@@ -5,7 +5,7 @@
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
 # K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
 # HAN-10 (#116), the checks author's change: check 24's ten red tests, and the two expectations G3 moves (19: a declared exit of 130; 22.5: the control for 130, now 'outside 5 to 119'). They pass when HAN-10 is built (#117).
-# HAN-10's scaffold header (the lead's call): allowance-spend.ts.golden lists IdempotencyConflict last, as the runtime's; it passes when HAN-10 is built (#117) and the builder drops the filter in handlers/internal/words.ts.
+# ST1.22 (G5's portal screens), the checks author's change: check 28's eight red tests, two variants of the wire times four calls. They pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
@@ -22,7 +22,6 @@ m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
 m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
-m1/19-scaffold-explains.test.ts > M1.44: the scaffold explains itself > ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles
 m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
@@ -64,3 +63,11 @@ m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the CLI > prints [AR-002
 m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is a typed failure in the error channel with its tag and code, never a die; the first payload still gets its answer
 m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is catchable by its tag, as NotAllowed is: the program type-checks
 m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > a thing's page has a Rules section under its lifecycle, one row per rule of the model and none for a thing with no rules
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > each rule says one sentence, generated from its model or its own description verbatim
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > every refusal a rule owns reads as that sentence and links to its rule's row, on every page that shows one
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > handle.claim's spine has a rules stop between the move and the commit naming both rules, and handle.release's has none
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: the same rules renamed and re-worded in the wire: nothing is written in > a thing's page has a Rules section under its lifecycle, one row per rule of the model and none for a thing with no rules
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: the same rules renamed and re-worded in the wire: nothing is written in > each rule says one sentence, generated from its model or its own description verbatim
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: the same rules renamed and re-worded in the wire: nothing is written in > every refusal a rule owns reads as that sentence and links to its rule's row, on every page that shows one
+m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: the same rules renamed and re-worded in the wire: nothing is written in > handle.claim's spine has a rules stop between the move and the commit naming both rules, and handle.release's has none

@@ -24,6 +24,7 @@ repo() { # a fresh repository with a base commit; prints its path
   mkdir -p "$dir/e2e/m1" "$dir/examples/acme/journeys" "$dir/packages/wallets/blueprint/journeys" \
     "$dir/packages/prove/src/modules/evals" "$dir/packages/prove/src/modules/journeys" "$dir/src"
   printf 'm1/a.test.ts > a\nm1/b.test.ts > b\n' > "$dir/e2e/m1/expected-failing.txt"
+  printf '# m1\n\nprose\n\n<!-- totals:start -->\n2 expected to fail\n<!-- totals:end -->\n\nmore prose\n' > "$dir/e2e/m1/README.md"
   mkdir -p "$dir/e2e/grid"
   grid "$dir" a b
   echo j > "$dir/examples/acme/journeys/signup.ts"
@@ -91,6 +92,49 @@ r=$(repo); echo '{' > "$r/e2e/grid/expected-red.json"; commit "$r"
 expect "a broken grid list fails" 1 guard "$r"
 r=$(repo); git -C "$r" rm -q e2e/grid/expected-red.json; commit "$r"
 expect "deleting the grid list fails" 1 guard "$r"
+r=$(repo); sed -i.bak 's/2 expected to fail/1 expected to fail/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
+expect "rewriting only the totals block passes" 0 guard "$r"
+r=$(repo); sed -i.bak 's/^prose$/other prose/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
+expect "editing a README outside the totals block fails" 1 guard "$r"
+r=$(repo); sed -i.bak 's/2 expected/1 expected/; s/^more prose$/changed/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
+expect "a totals change with an edit outside the block fails" 1 guard "$r"
+r=$(repo); sed -i.bak '/totals:/d' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
+expect "deleting the totals markers fails" 1 guard "$r"
+r=$(repo); sed -i.bak 's/<!-- totals:end -->/<!-- totals:end -->\nnew line/' "$r/e2e/m1/README.md" && rm "$r/e2e/m1/README.md.bak"; commit "$r"
+expect "a line added after the block fails" 1 guard "$r"
+r=$(repo); printf 'names `<!-- totals:start -->` and `<!-- totals:end -->` in prose\nbody\n' > "$r/e2e/m1/NOTES.md"; git -C "$r" add -A; git -C "$r" commit -qm notes -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/NOTES.md"; commit "$r"
+expect "a markdown file that is not a suite README fails" 1 guard "$r"
+r=$(repo); printf '# m1\n\nnames `<!-- totals:start -->` in prose\nbody\n' > "$r/e2e/m1/README.md"; git -C "$r" add -A; git -C "$r" commit -qm prose -q; git -C "$r" branch -qf base; echo changed >> "$r/e2e/m1/README.md"; commit "$r"
+expect "a marker named in prose is not a block" 1 guard "$r"
+r=$(repo); mkdir -p "$r/e2e/totals/fixture/demo"; printf '<!-- totals:start -->\nx\n<!-- totals:end -->\n' > "$r/e2e/totals/fixture/demo/README.md"; git -C "$r" add -A; git -C "$r" commit -qm nested -q; git -C "$r" branch -qf base; sed -i.bak 's/^x$/y/' "$r/e2e/totals/fixture/demo/README.md" && rm "$r/e2e/totals/fixture/demo/README.md.bak"; commit "$r"
+expect "a nested README's block fails" 1 guard "$r"
+
+# docs-only: the flag that lets a docs-only pull request skip the layer gates
+docs() { # <repo> <wanted flag>
+  local got; got=$(cd "$1" && "$here/docs-only.sh" base x-build)
+  [ "$got" = "docs_only=$2" ] || { echo "got $got"; return 1; }
+}
+r=$(repo); mkdir -p "$r/design/decisions"; echo d > "$r/design/decisions/X1.md"; echo d > "$r/design/board.json"; commit "$r"
+expect "docs-only: anything under design/ is docs" 0 docs "$r" true
+r=$(repo); echo d > "$r/AGENTS.md"; mkdir -p "$r/.agents/skills/x"; echo d > "$r/.agents/skills/x/SKILL.md"; commit "$r"
+expect "docs-only: markdown outside the code folders is docs" 0 docs "$r" true
+r=$(repo); echo d > "$r/README.md"; echo t >> "$r/src/handler.ts"; commit "$r"
+expect "docs-only: one code file among docs is not" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/packages/wallets/src/modules/send"; echo d > "$r/packages/wallets/src/modules/send/README.md"; commit "$r"
+expect "docs-only: a module's README is one of its slots, not docs" 0 docs "$r" false
+r=$(repo); echo d > "$r/e2e/m1/README.md"; commit "$r"
+expect "docs-only: an e2e README carries generated totals, not docs" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/examples/acme"; echo d > "$r/examples/acme/README.md"; commit "$r"
+expect "docs-only: an example's README is not docs" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/.github/workflows"; echo d > "$r/.github/workflows/ci.yml"; commit "$r"
+expect "docs-only: a workflow is not docs" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/notes.md"; commit "$r"; git -C "$r" mv design/notes.md src/notes.ts; commit "$r"
+expect "docs-only: moving a file out of design/ is not docs" 0 docs "$r" false
+r=$(repo)
+expect "docs-only: an empty diff is not docs" 0 docs "$r" false
+r=$(repo); echo d > "$r/README.md"; commit "$r"
+expect "docs-only: a base that does not exist fails, never skips" 128 \
+  bash -c "cd '$r' && '$here/docs-only.sh' no-such-base x-build"
 
 # supersedes
 decisions() { # <repo> <decision body>; writes design/decisions/G9.md and a stale doc

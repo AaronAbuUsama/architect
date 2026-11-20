@@ -73,7 +73,8 @@ Green in every subject: `error.{model,api,server,sdk,docs}`, `operation.{model,a
 | `step.api` | the API package names a step where a caller can read it (an absence check, K14 Q1): today each endpoint file exports `steps`; M1.42 moves it beside the handler's wiring in `generated/server/main.ts`. K14's `step.api` row is the cell | `packages/projections/src/modules/api/internal/api.ts` |
 | `machine.telemetry` | `move.name` and `move.to` land on the record step's span, because `chooseOutcome` annotates the current span | `packages/language-effect/src/modules/handler/internal/move.ts:46` |
 | `event.docs`, `event.portal` | a thing's page names its events only in the move table: no section documents their fields | `packages/generators/src/modules/render/internal/docs.ts`, the portal's thing page |
-| `journey.docs`, `journey.portal` | no operation page lists the journeys that cover it | same two |
+| `journey.docs` | no operation page has a `## Worked examples` section: each journey that calls it as an entry, with the starting world and, for every step that calls the operation, who calls (cast name and kind), the payload with the journey's values (a value from the world in words from its reference), and the refusal by name and code or the answer checked (W2, `design/decisions/W2-docs-worked-examples.md`; the eval holds the content, not the markup, and looks in the journey's own entry) | `packages/generators/src/modules/render/internal/docs.ts` |
+| `journey.portal` | no operation page lists the journeys that cover it | the portal's operation page (M1.13) |
 
 ## The portal's pages (K19, 19 November 2026)
 

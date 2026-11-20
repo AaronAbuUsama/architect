@@ -2008,7 +2008,7 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/docs.ts:1",
       "todayNote": "Docs render things and operations only; the journeys that exercise an operation are not rendered as examples or pages, though the model holds them.",
-      "greenMeans": "Each operation's page lists the journeys that cover it, as worked examples drawn from the model.",
+      "greenMeans": "Each operation's page shows each journey that calls it as a worked example: every step that calls the operation, with who calls, the payload and the answer or refusal, drawn from the model's journeys (W2).",
       "evidence": [
         {
           "kind": "check",

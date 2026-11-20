@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Does Codex's review of one commit still cover the pull request's head? (design/decisions/CI-branch-protection.md)
+# It feeds the advisory `codex-finished` status (design/decisions/CI-codex-advisory.md); no branch requires it.
 #   tools/ci/codex-covers.sh <reviewed> <head> <base>
 # Exit 0 when the head is the reviewed commit, or when every commit on the head's first-parent line back to the reviewed
 # commit is a merge from <base> that changes nothing beyond the merge itself: its first parent is the line before it,

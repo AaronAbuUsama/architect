@@ -2,7 +2,7 @@
 // where a declaration's file is, and every refusal with who gives it. Every word is a name from the model or a fixed
 // phrase about Orthograph itself; nothing names the domain unless the blueprint does.
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
-import { NOT_ALLOWED_EXIT } from "#modules/names/service.js";
+import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT } from "#modules/names/service.js";
 
 /** The exit of a generated `<Thing>NotFound` (K16 g, M1.46); a thing that declares one keeps its own. */
 export const NOT_FOUND_EXIT = 4;
@@ -91,6 +91,10 @@ export const refusalsOf = (model: Model, op: OperationModel): ReadonlyArray<Refu
     if (thing?.machine && r === thing.machine.notFrom.error) {
       const from = op.move?.from.length ? op.move.from : thing.machine.states;
       return { name: r, exit: thing.machine.notFrom.exit, code: code(r), giver: "runtime", fields: ["state"], fieldModels: {}, file: thingFile(model, op.thing, "machine"), said: `the runtime's, when the ${op.thing} isn't in ${from.join(" or ")}, carrying state` };
+    }
+    if (r === IDEMPOTENCY_CONFLICT) {
+      // The runtime's, before the handler runs (G3): a handler can neither make nor avoid it, as NotAllowed; the header still says it, from where the operation says `idempotent`.
+      return { name: r, exit: IDEMPOTENCY_CONFLICT_EXIT, code: code(r), giver: "runtime", fields: [], fieldModels: {}, file: op.file, said: "the runtime's, when the same request key comes with another payload" };
     }
     if (r === "NotAllowed") {
       const first = op.allowed[0];
