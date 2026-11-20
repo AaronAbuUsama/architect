@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { FileSource } from "@orthograph/prove";
 import { ServedPortals } from "../../../../served-portal/service.ts";
 import type { ProjectPorts } from "../project-evidence/types.ts";
+import { proveFresh } from "./internal/prove.ts";
 import { toolsList } from "./internal/mcp.ts";
 import type { WorldApi } from "./types.ts";
 
@@ -13,6 +14,7 @@ const json = <A>(text: string | undefined): A | undefined => {
 };
 
 export const World: WorldApi = {
+  proveFresh,
   ports: ({ project, report, telemetry, node, serve, onUnavailable }): ProjectPorts => {
     // K19: the portal's page is what a person reads: the project's blueprint served (data API plus the prebuilt client) and the route
     // opened in headless Chromium. One served portal per project, opened on the first route; `main.ts` closes the browser.

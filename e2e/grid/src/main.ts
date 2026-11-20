@@ -5,7 +5,7 @@
 //                                                           --prove runs `ortho prove` first, so the spans and the report are this commit's
 //   tsx e2e/grid/src/main.ts touched --journey "<name>" --report <prove output> [--write]
 //                                                           the rows and cells a green journey touches; --write switches them on
-//   tsx e2e/grid/src/main.ts capture --out <file>          write the evidence the row evals judge from, for a test's fixture
+//   tsx e2e/grid/src/main.ts capture --out <folder> [--run]  copy the project's outputs (and a run) for the tests to judge
 //
 // Options: --project <dir> (default examples/plugged-in), --list <file> (default e2e/grid/switched-on.json),
 // --expected <file> (default e2e/grid/expected-red.json: the pairs allowed to be red today, G7), --held <file> (default e2e/grid/held-off.json: the cells `touched --write` never switches on, with what each waits for),
@@ -13,7 +13,7 @@
 // default <project>/.ortho/grid/observed.json), --report <file> (prove's `--report` JSON; default <project>/.ortho/grid/prove.json),
 // --revision <sha> (default GITHUB_SHA, else git HEAD).
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { Effect } from "effect";
 import { ServedPortals } from "../../served-portal/service.ts";
@@ -52,7 +52,8 @@ const readJson = <A>(path: string): A | undefined => { const t = text(path); ret
 const node: Primitives = {
   read: text,
   list: (dir) => (existsSync(dir) ? readdirSync(dir, { recursive: true, withFileTypes: true }).filter((e) => e.isFile()).map((e) => join(e.parentPath, e.name).slice(dir.length + 1)) : []),
-  run: (cmd, args, cwd) => { const ran = spawnSync(cmd, [...args], { cwd, encoding: "utf8", timeout: 120_000 }); return { status: ran.status, stdout: ran.stdout, stderr: ran.stderr }; },
+  run: (cmd, args, cwd) => { const ran = spawnSync(cmd, [...args], { cwd, encoding: "utf8", timeout: 600_000 }); return { status: ran.status, stdout: ran.stdout, stderr: ran.stderr }; },
+  remove: (path) => rmSync(path, { recursive: true, force: true }),
   load: (path) => import(path) as Promise<Record<string, unknown>>,
 };
 
@@ -109,12 +110,13 @@ const refusalPorts = (observedFile: string): Ports => ({
 
 const revision = () => option("revision") ?? process.env["GITHUB_SHA"] ?? spawnSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).stdout.trim();
 
-/** A prove run of this commit, so the spans and the report the cells read are not left over from another one. */
+/** A prove run of this commit: the last report and spans are deleted first, and a prove that wrote no report stops the grid, with its own status. */
 const proveFirst = () => {
   mkdirSync(dirname(reportPath), { recursive: true });
-  const ran = spawnSync("node", [join(repo, "packages/cli/src/main.ts"), "prove", "--root", project, "--env", "local", "--report", reportPath], { cwd: repo, encoding: "utf8" });
-  writeFileSync(join(dirname(reportPath), "prove.txt"), `${ran.stdout}${ran.stderr}`);
-  say([`prove ${ran.status === 0 ? "✔" : "✘"} (exit ${String(ran.status)}); its output is in ${join(dirname(reportPath), "prove.txt")}`]);
+  const ran = World.proveFresh({ repo, project, report: reportPath, telemetry: telemetryPath, node });
+  writeFileSync(join(dirname(reportPath), "prove.txt"), ran.output);
+  say([`prove ${ran.status === 0 ? "✔" : "✘"} (status ${String(ran.status)}); its output is in ${join(dirname(reportPath), "prove.txt")}`]);
+  if (!ran.fresh) fail([`grid ✘ ${ran.problems.join("; ")}`]);
 };
 
 const runCommand = async () => {
@@ -166,12 +168,29 @@ const touchedCommand = () => {
   return process.exit(0);
 };
 
+/**
+ * `capture --out <folder> [--run]`: the project as the tests read it: its `generated/` files in `files.json`, the portal's pages in `portal.json`
+ * and, with `--run`, the CLI help, MCP tools, prove's report and one span of each shape in `run.json`. The tests judge these copies, never the
+ * live outputs, so a builder who changes a generator cannot break one by fixing a cell; recapture to make the copies today's.
+ */
 const captureCommand = async () => {
-  const out = option("out") ?? fail(["capture needs --out <file>"]);
-  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node, onUnavailable: unavailable }), wanted: new Set(["portal", "cli", "mcp"]) }));
-  writeFileSync(resolve(out), `${JSON.stringify(evidence, null, 1)}\n`);
-  say([`evidence written to ${resolve(out)}`]);
+  const out = resolve(option("out") ?? fail(["capture needs --out <folder>"]));
+  const withRun = argv.includes("--run");
+  const wanted = new Set<OutputId>(withRun ? ["portal", "cli", "mcp"] : ["portal"]);
+  const evidence = await Effect.runPromise(ProjectEvidenceService.gather({ ports: World.ports({ project, report: reportPath, telemetry: telemetryPath, node, onUnavailable: unavailable }), wanted }));
+  if (evidence === undefined) return fail([`no generated/model/model.json in ${project}`]);
+  rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+  writeFileSync(join(out, "files.json"), `${JSON.stringify(evidence.files, null, 1)}\n`);
+  writeFileSync(join(out, "portal.json"), `${JSON.stringify(evidence.portal, null, 1)}\n`);
+  if (withRun) {
+    const seen = new Set<string>();
+    const shape = (s: SpanView) => [s.name, Object.keys(s.attrs).sort().join(","), s.attrs["refusal"], s.attrs["event.name"], s.attrs["journey.step"]].join("|");
+    const spans = (evidence.spans ?? []).filter((s) => s.name !== "BATCH" && s.name !== "sqlite" && !seen.has(shape(s)) && seen.add(shape(s)));
+    writeFileSync(join(out, "run.json"), `${JSON.stringify({ cli: evidence.cli, mcp: evidence.mcp, spans, prove: evidence.prove }, null, 1)}\n`);
+  }
   await ServedPortals.closeAll();
+  return say([`captured ${Object.keys(evidence.files).length} files, the portal${withRun ? " and a run" : ""} into ${out}`]);
 };
 
 if (command === "run") await runCommand();

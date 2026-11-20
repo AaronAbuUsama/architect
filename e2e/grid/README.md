@@ -17,9 +17,13 @@ first journey that touches it**; CI runs every switched-on cell on every push; a
 - `tsx e2e/grid/src/main.ts touched --journey "<name>" --report <prove output> [--write]`: the rows and cells a **green** journey
   touched, from the compiled model's journey steps and prove's `journey <name> ✔ n/n steps` line (its stdout, not `--report`'s JSON);
   `--write` switches them on, leaving out `held-off.json`'s cells.
-- `tsx e2e/grid/src/main.ts capture --out <file>`: the project's evidence as the evals read it. `fixtures/plugged-in-run.json` is the
-  CLI help, MCP tools, spans and prove report of one real run, trimmed to one span per shape; the tests read the rest (model, docs,
-  portal) from Plugged In's and acme's checked-in `generated/`.
+- `tsx e2e/grid/src/main.ts capture --out <folder> [--run]`: copies the project's outputs for the tests: `files.json` (everything under
+  `generated/`), `portal.json` (the portal's pages) and, with `--run`, `run.json` (CLI help, MCP tools, prove's report, one span per shape).
+  **The unit tests judge these copies in `fixtures/plugged-in` and `fixtures/acme`, never the live outputs**, and every red a test asserts is
+  today's captured output. A builder who changes a generator to turn a cell green breaks no test: they take the pair off
+  `expected-red.json`. Recapture only to move the tests on deliberately, not to make a cell green.
+- `run --prove` deletes the last report and spans first, and stops the grid ("prove wrote no report (status N)") when prove writes none;
+  a prove that reports red journeys is a fresh run and is judged.
 - `--project` defaults to `examples/plugged-in`; `--observed <file>` is the refused calls the client journeys recorded
   (`{ "<Refusal>": { cli: { status, stdout, stderr }, mcp: { isError, text } } }`).
 
@@ -79,8 +83,8 @@ API from `@orthograph/portal/server`, client from `packages/portal/dist/client`)
 no page can be read, `main.ts` says why once on stderr (`portal: K19: …`), and every portal pair is red with its page "could not be read"
 (or the finding it had before); the 13 `thing.portal` and `step.portal` pairs that were green on the old server-rendered HTML joined the
 list for that reason, and leave it with the rest. Each eval's assertions are unchanged. The evals' own unit tests judge their logic on
-`fixtures/portal-pages.json`, the pages as the portal rendered them on the server on 19 November: re-record it from the served portal
-when the client exists, and change the evals' words with the page.
+`fixtures/<project>/portal.json`, the pages as the portal rendered them on the server: `capture` re-records them, from the served portal once
+the client exists, and the evals' words change with the page.
 
 ## Not done, and what it waits for
 

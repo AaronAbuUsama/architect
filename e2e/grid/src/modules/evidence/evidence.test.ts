@@ -6,7 +6,8 @@ import { Evidence } from "./service.ts";
 import type { Ports } from "./types.ts";
 import type { ModelView } from "../refusal-evals/types.ts";
 
-const model = JSON.parse(readFileSync(join(import.meta.dirname, "../../../../../examples/acme/generated/model/model.json"), "utf8")) as ModelView;
+// Acme's captured outputs (`e2e/grid/fixtures/acme`), not its live ones.
+const model = JSON.parse((JSON.parse(readFileSync(join(import.meta.dirname, "../../../fixtures/acme/files.json"), "utf8")) as Record<string, string>)["generated/model/model.json"]!) as ModelView;
 
 describe("the evidence of a refusal", () => {
   it("asks each declaring operation's docs and portal page, the spans and the clients' outcomes, and nothing else", () => {

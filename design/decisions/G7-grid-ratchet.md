@@ -52,7 +52,7 @@ CI: the `e2e-grid` job now runs `run --prove` through the nx target (`e2e/projec
 ## The evidence
 
 239 of 316 pairs green, 77 red, 53 cells on, 10 held off, from one `nx run e2e:grid --skip-nx-cache` on the branch (exit 0, ratchet ✔). The 77
-by slice (a pair that names two counts under each): M1.42 52 (the 5 MCP pairs now counted here, M1.37's output schema pulled from M3), M1.13 38, M2.08 7, M1.36 3 (operation.cli's journeys half).
+by slice (a pair that names two counts under each): M1.42 52 (the 5 MCP pairs now counted here, M1.37's output schema pulled from M3), M1.13 38, M2.08 7, M1.36 3 (`error.telemetry` for NotAllowed, `machine.telemetry` for handle and link). M2.08's 7 are `operation.cli`'s journeys half.
 By file, the builders' list is in `e2e/grid/README.md`, "Where Plugged In stands".
 
 Not decided here: `error.cli`, `error.mcp` (`prove --through`, S-11, S-20) and the eight not-needed event and journey cells (K14 Q2, Q3)

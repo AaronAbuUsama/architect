@@ -1,36 +1,22 @@
-// Real evidence for the row evals' tests: a project's checked-in `generated/` folder, the portal's recorded pages (`fixtures/portal-pages.json`), and, for Plugged
-// In, the CLI help, MCP tools, spans and prove report a real run wrote (`e2e/grid/fixtures/plugged-in-run.json`, captured by `main.ts capture`).
-import { readdirSync, readFileSync } from "node:fs";
+// Captured evidence for the row evals' tests: a project's `generated/` files, the portal's pages and, for Plugged In, the CLI help, MCP tools,
+// spans and prove report of one real run, copied into `e2e/grid/fixtures/<project>/` by `main.ts capture`. The tests judge these copies and
+// never the live outputs: a builder who changes a generator to turn a cell green must not break a test, so every red a test asserts is a defect
+// planted in today's captured output. Recapture with `capture --out e2e/grid/fixtures/plugged-in --run` (acme: no `--run`) to move the copies on.
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Effect } from "effect";
 import type { Eval, Finding } from "../grid/types.ts";
-import { ProjectEvidenceService } from "./service.ts";
-import type { ProjectEvidence, ProjectModel, ProjectPorts } from "./types.ts";
+import type { ProjectEvidence, ProjectModel } from "./types.ts";
 
-const root = join(import.meta.dirname, "../../../../..");
-const run = JSON.parse(readFileSync(join(root, "e2e/grid/fixtures/plugged-in-run.json"), "utf8")) as Pick<ProjectEvidence, "cli" | "mcp" | "spans" | "prove">;
+const fixtures = join(import.meta.dirname, "../../../fixtures");
 
-const recorded = JSON.parse(readFileSync(join(root, "e2e/grid/fixtures/portal-pages.json"), "utf8")) as Record<string, Record<string, string> | string>;
-/** A page from the recording (`fixtures/portal-pages.json`): the evals' own tests judge their logic on fixed pages; the run reads the served portal (K19). */
-const portalOf = (name: string) => (route: string): Effect.Effect<string | undefined> => Effect.succeed((recorded[name] as Record<string, string>)[route]);
+const json = <A>(path: string): A => JSON.parse(readFileSync(path, "utf8")) as A;
 
-const tree = (dir: string, from = dir): ReadonlyArray<string> =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? tree(join(dir, e.name), from) : [join(dir, e.name).slice(from.length + 1)]));
-
-/** A project's real evidence: what its checked-in outputs say. A project with no captured run has no CLI, MCP, spans or prove report. */
+/** The captured evidence of a project. Acme has no captured run, so it has no CLI, MCP, spans or prove report. */
 export const evidenceOf = (name: "plugged-in" | "acme"): Promise<ProjectEvidence> => {
-  const project = join(root, "examples", name);
-  const captured = name === "plugged-in";
-  const ports: ProjectPorts = {
-    model: Effect.sync(() => JSON.parse(readFileSync(join(project, "generated/model/model.json"), "utf8")) as ProjectModel),
-    generated: Effect.sync(() => Object.fromEntries(tree(join(project, "generated")).map((path) => [`generated/${path}`, readFileSync(join(project, "generated", path), "utf8")]))),
-    portal: portalOf(name),
-    cliHelp: (words) => Effect.succeed(captured ? run.cli[words.join(" ")] : undefined),
-    mcpTools: Effect.succeed(captured ? run.mcp : undefined),
-    spans: Effect.succeed(captured ? run.spans : undefined),
-    prove: Effect.succeed(captured ? run.prove : undefined),
-  };
-  return Effect.runPromise(ProjectEvidenceService.gather({ ports, wanted: new Set(["portal", "cli", "mcp"]) })).then((e) => e!);
+  const dir = join(fixtures, name);
+  const files = json<Readonly<Record<string, string>>>(join(dir, "files.json"));
+  const run = name === "plugged-in" ? json<Pick<ProjectEvidence, "cli" | "mcp" | "spans" | "prove">>(join(dir, "run.json")) : { cli: {}, mcp: undefined, spans: undefined, prove: undefined };
+  return Promise.resolve({ model: JSON.parse(files["generated/model/model.json"]!) as ProjectModel, files, portal: json<ProjectEvidence["portal"]>(join(dir, "portal.json")), ...run });
 };
 
 /** One eval's finding for one subject: a missing eval is a red finding that names it, never a throw. */

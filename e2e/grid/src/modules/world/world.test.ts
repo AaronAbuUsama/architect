@@ -15,6 +15,7 @@ const node = (overrides: Partial<Primitives> = {}): Primitives => ({
   read: (path) => (path.startsWith(pluggedIn) ? real(path) : undefined),
   list: () => [],
   run: () => ({ status: 0, stdout: "help", stderr: "" }),
+  remove: () => undefined,
   load: () => Promise.reject(new Error("no module")),
   ...overrides,
 });
@@ -79,5 +80,38 @@ document.getElementById("r").innerHTML = '<main data-portal="page" data-ready="t
     expect(Effect.runSync(ports(node()).spans)).toBeUndefined();
     expect(Effect.runSync(ports(node()).prove)).toBeUndefined();
     expect(Effect.runSync(ports(node({ read: () => JSON.stringify({ journeys: [], lines: ["x ✔"] }) })).prove)).toEqual({ journeys: [], lines: ["x ✔"] });
+  });
+});
+
+describe("a fresh prove run", () => {
+  // A disk the primitives share: a stale report and spans from an earlier run, and what prove does when it runs.
+  const disk = (prove: (files: Map<string, string>) => { readonly status: number | null; readonly stdout: string; readonly stderr: string }) => {
+    const files = new Map<string, string>([["/r.json", '{"stale":true}'], ["/telemetry/traces.jsonl", "stale"]]);
+    const events: Array<string> = [];
+    const primitives = node({
+      read: (path) => files.get(path),
+      remove: (path) => { events.push(`remove ${path}`); for (const key of files.keys()) if (key === path || key.startsWith(`${path}/`)) files.delete(key); },
+      run: (...args) => { events.push(`run ${args[1]?.[1]}`); return prove(files); },
+    });
+    return { files, events, run: () => World.proveFresh({ repo: "/repo", project: "/p", report: "/r.json", telemetry: "/telemetry", node: primitives }) };
+  };
+
+  it("deletes the last report and spans before prove runs, so a prove that dies before writing leaves nothing to judge", () => {
+    const d = disk(() => ({ status: 1, stdout: "", stderr: "the blueprint does not compile: handle.claim\nsecond line" }));
+    const ran = d.run();
+    expect(d.events).toEqual(["remove /r.json", "remove /telemetry", "run prove"]);
+    expect(d.files.size).toBe(0);
+    expect(ran.fresh).toBe(false);
+    expect(ran.problems).toEqual(["prove wrote no report (status 1), so there is no run to judge: the blueprint does not compile: handle.claim / second line"]);
+  });
+
+  it("says so when prove printed nothing, or was killed (no status)", () => {
+    expect(disk(() => ({ status: null, stdout: "", stderr: "" })).run().problems).toEqual(["prove wrote no report (status null), so there is no run to judge: it printed nothing"]);
+  });
+
+  it("is a fresh run when prove reports red journeys: the cells judge them", () => {
+    const d = disk((files) => { files.set("/r.json", '{"journeys":[],"lines":[]}'); return { status: 1, stdout: "journey x ✘ 0/3 steps", stderr: "" }; });
+    expect(d.run()).toMatchObject({ status: 1, fresh: true, problems: [] });
+    expect(d.files.get("/r.json")).toBe('{"journeys":[],"lines":[]}');
   });
 });

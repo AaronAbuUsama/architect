@@ -12,7 +12,7 @@ expect() { # <name> <wanted exit> <command...>
   local name="$1" wanted="$2"; shift 2
   local got=0
   "$@" > "$scratch/out" 2>&1 || got=$?
-  if [ "$got" = "$wanted" ]; then echo "ok   $name"; else
+  if [ "$got" = "$wanted" ]; then echo "ok   $name${SHOW:+: $(tail -1 "$scratch/out")}"; else
     echo "FAIL $name: exit $got, wanted $wanted"; sed 's/^/     /' "$scratch/out"; failures=$((failures + 1)); fi
 }
 
@@ -24,6 +24,8 @@ repo() { # a fresh repository with a base commit; prints its path
   mkdir -p "$dir/e2e/m1" "$dir/examples/acme/journeys" "$dir/packages/wallets/blueprint/journeys" \
     "$dir/packages/prove/src/modules/evals" "$dir/packages/prove/src/modules/journeys" "$dir/src"
   printf 'm1/a.test.ts > a\nm1/b.test.ts > b\n' > "$dir/e2e/m1/expected-failing.txt"
+  mkdir -p "$dir/e2e/grid"
+  grid "$dir" a b
   echo j > "$dir/examples/acme/journeys/signup.ts"
   echo j > "$dir/packages/wallets/blueprint/journeys/send.ts"
   echo e > "$dir/packages/prove/src/modules/evals/service.ts"
@@ -41,6 +43,11 @@ repo() { # a fresh repository with a base commit; prints its path
 }
 
 guard() { (cd "$1" && "$here/builder-paths.sh" base x-build); }
+grid() { # <repo> <subject...>; writes the grid's expected-red list with one error.portal pair per subject
+  local dir="$1"; shift
+  printf '%s\n' "$@" | jq -R '{cell: "error.portal", subject: ., reason: "red", waitsOn: "M1.13"}' | jq -s '{pairs: .}' \
+    > "$dir/e2e/grid/expected-red.json"
+}
 commit() { git -C "$1" add -A && git -C "$1" commit -qm change; }
 
 # builder-paths
@@ -72,6 +79,18 @@ r=$(repo); printf 'm1/a.test.ts > a\nm1/b.test.ts > b\nm1/c.test.ts > c\n' > "$r
 expect "adding a line to the ratchet list fails" 1 guard "$r"
 r=$(repo); printf 'm1/a.test.ts > a\nm1/c.test.ts > c\n' > "$r/e2e/m1/expected-failing.txt"; commit "$r"
 expect "swapping a ratchet line fails" 1 guard "$r"
+r=$(repo); grid "$r" a; commit "$r"
+expect "taking a pair off the grid's list passes" 0 guard "$r"
+r=$(repo); grid "$r" b; commit "$r"
+expect "taking the first pair off the grid's list passes" 0 guard "$r"
+r=$(repo); grid "$r" a b c; commit "$r"
+expect "adding a pair to the grid's list fails" 1 guard "$r"
+r=$(repo); grid "$r" a c; commit "$r"
+expect "swapping a grid pair fails" 1 guard "$r"
+r=$(repo); echo '{' > "$r/e2e/grid/expected-red.json"; commit "$r"
+expect "a broken grid list fails" 1 guard "$r"
+r=$(repo); git -C "$r" rm -q e2e/grid/expected-red.json; commit "$r"
+expect "deleting the grid list fails" 1 guard "$r"
 
 # supersedes
 decisions() { # <repo> <decision body>; writes design/decisions/G9.md and a stale doc
@@ -111,7 +130,66 @@ expect "codex: pages from --slurp are read" 0 codex "[[{$bot,\"updated_at\":\"1\
 expect "codex: running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary '\"in_progress\"' null)\"}]" pending
 expect "codex: a security review still running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary '\"completed\"' '\"in_progress\"')\"}]" pending
 expect "codex: no review at all is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary null null)\"}]" pending
+codex_sha() { # <json>; wants <reviewed commit>
+  local got; got=$(printf '%s' "$1" | "$here/codex-state.sh" | cut -f2)
+  [ "$got" = "$2" ] || { echo "got $got"; return 1; }
+}
+security_only='<!-- codex-review-state:v1 {\"code_review\":null,\"security_review\":{\"commit_sha\":\"5ec0r1ty00\",\"status\":\"completed\"}} -->'
+expect "codex: the code review's commit is the reviewed one" 0 codex_sha "[{$bot,\"updated_at\":\"1\",\"body\":\"$done_body\"}]" 2596f9d204
+expect "codex: a security review alone is success" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$security_only\"}]" success
+expect "codex: a security review alone names its own commit" 0 codex_sha "[{$bot,\"updated_at\":\"1\",\"body\":\"$security_only\"}]" 5ec0r1ty00
 expect "codex: someone else's copy of the line is ignored" 0 codex "[{\"user\":{\"login\":\"someone\",\"type\":\"User\"},\"updated_at\":\"1\",\"body\":\"$done_body\"}]" pending
+
+# codex-covers: does Codex's review of one commit still cover the head?
+pr_repo() { # base has b1; the pull request branch `pr` adds its own commit R (reviewed); prints the path
+  local dir; dir="$(mktemp -d "$scratch/pr.XXXX")"
+  git -C "$dir" init -q -b base
+  git -C "$dir" config user.email ci@example.invalid
+  git -C "$dir" config user.name ci
+  printf 'one\ntwo\nthree\n' > "$dir/shared.txt"; echo b > "$dir/base.txt"
+  git -C "$dir" add -A && git -C "$dir" commit -qm b1
+  git -C "$dir" checkout -qb pr
+  echo r > "$dir/pr.txt"; git -C "$dir" add -A && git -C "$dir" commit -qm R
+  git -C "$dir" tag reviewed
+  echo "$dir"
+}
+on_base() { # <repo> <file> <text>: a new commit on base
+  git -C "$1" checkout -q base; echo "$3" >> "$1/$2"; git -C "$1" add -A; git -C "$1" commit -qm "base: $2"; git -C "$1" checkout -q pr
+}
+merge_base_in() { git -C "$1" merge -q --no-edit base > /dev/null 2>&1; }
+covers() { (cd "$1" && "$here/codex-covers.sh" reviewed HEAD base); }
+
+r=$(pr_repo)
+expect "covers: the head is the reviewed commit" 0 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; merge_base_in "$r"
+expect "covers: one clean merge from base" 0 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; merge_base_in "$r"; on_base "$r" base.txt b3; merge_base_in "$r"
+expect "covers: two clean merges from base" 0 covers "$r"
+r=$(pr_repo); echo new >> "$r/pr.txt"; git -C "$r" commit -qam "new code"
+expect "covers: a new commit after the review is not covered" 1 covers "$r"
+r=$(pr_repo); echo new >> "$r/pr.txt"; git -C "$r" commit -qam "new code"; on_base "$r" base.txt b2; merge_base_in "$r"
+expect "covers: new code hidden behind a later merge is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" merge -q --no-commit base > /dev/null 2>&1; echo sneak >> "$r/pr.txt"
+git -C "$r" add -A; git -C "$r" commit -qm "merge base, plus an edit"
+expect "covers: a merge with an extra edit is not covered" 1 covers "$r"
+r=$(pr_repo); git -C "$r" checkout -qb other base; echo o > "$r/other.txt"; git -C "$r" add -A; git -C "$r" commit -qm other
+git -C "$r" checkout -q pr; git -C "$r" merge -q --no-edit other > /dev/null 2>&1
+expect "covers: a merge from another branch is not covered" 1 covers "$r"
+r=$(pr_repo); printf 'ONE\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" commit -qam "pr edits line one"; git -C "$r" tag -f reviewed > /dev/null
+git -C "$r" checkout -q base; printf 'uno\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" commit -qam "base edits line one"; git -C "$r" checkout -q pr
+git -C "$r" merge -q --no-edit base > /dev/null 2>&1 || true; printf 'ONE\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" add -A; git -C "$r" commit -qm "merge base, conflict resolved"
+expect "covers: a merge that resolves a conflict is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" rebase -q base
+expect "covers: a rebase that drops the reviewed commit is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" checkout -qb other base~1; echo o > "$r/other.txt"; git -C "$r" add -A
+git -C "$r" commit -qm other; git -C "$r" checkout -q pr; git -C "$r" merge -q --no-edit base other > /dev/null 2>&1
+expect "covers: an octopus merge is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" checkout -q base; git -C "$r" merge -q --no-edit pr > /dev/null 2>&1
+git -C "$r" checkout -q -B pr base
+expect "covers: a merge made from the base side is not covered" 1 covers "$r"
+r=$(pr_repo)
+expect "covers: a reviewed commit not in the repository is not covered" 1 \
+  bash -c "cd '$r' && '$here/codex-covers.sh' 0123456789abcdef0123456789abcdef01234567 HEAD base"
 
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi
 echo "all tools/ci cases pass"

@@ -6,6 +6,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Effect, Schedule } from "effect";
 import { Collectors } from "#modules/telemetry/service.js";
+import { Worlds } from "#modules/world/service.js";
 import { telemetryDir } from "./collector.ts";
 
 export const files = (dir: string) => ({
@@ -76,15 +77,6 @@ export const isFree = (port: number) =>
     server.listen(port, "127.0.0.1", () => server.close(() => resume(Effect.succeed(true))));
   });
 
-/** A port the system says is free. */
-export const anyPort = Effect.callback<number>((resume) => {
-  const server = createServer();
-  server.listen(0, "127.0.0.1", () => {
-    const { port } = server.address() as { port: number };
-    server.close(() => resume(Effect.succeed(port)));
-  });
-});
-
 /** Stop only a verified environment process, remove its derived collector, and forget stale or foreign markers. */
 export const reap = (dir: string) =>
   Effect.gen(function* () {
@@ -102,7 +94,7 @@ export const choosePort = (dir: string, wanted: number | undefined) =>
       return wanted;
     }
     const last = readPort(dir);
-    return last !== undefined && (yield* isFree(last)) ? last : yield* anyPort;
+    return last !== undefined && (yield* isFree(last)) ? last : yield* Worlds.anyPort.pipe(Effect.mapError((e) => e.message));
   });
 
 /** Run a command detached in its own process group, its output appended to `log`, its pid written at once. */

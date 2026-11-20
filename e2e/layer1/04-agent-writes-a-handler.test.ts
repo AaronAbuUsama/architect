@@ -102,7 +102,7 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
       cpSync(join(root, "..", "journeys"), join(root, "journeys"), { recursive: true });
       expect(readFileSync(join(root, SPEND), "utf8")).not.toContain("Handlers.blank");
       expect(ortho(root, "check").stdout).toContain("check ✔");
-      const prove = ortho(root, "prove", "--env", "local", "--port", "8864");
+      const prove = ortho(root, "prove", "--env", "local", "--port", "0");
       expect(prove.stdout).toMatch(/^allowance\.spend 9 evals ✔/m);
       for (const j of ["revoke then spend", "spend twice with one request", "spend within an allowance"]) expect(prove.stdout).toContain(`journey ${j} ✔`);
       expect(prove.stdout.trimEnd().split("\n").at(-1)).toBe("prove ✔");

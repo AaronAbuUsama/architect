@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { Issuer } from "@orthograph/services";
+import { freePort } from "../../../test/ports.ts";
 import { afterAll, describe, expect, it } from "vitest";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
@@ -51,7 +52,7 @@ const stopSentinel = async (child: ChildProcess) => {
   child.kill("SIGTERM"); // Only the fresh child handle this test created, never the PID from a file.
   await exited;
 };
-const marker = (project: string, name: string, pid: number, port = 9160, hints: object = {}) => {
+const marker = (project: string, name: string, pid: number, port = freePort(), hints: object = {}) => {
   const at = dir(project, name);
   mkdirSync(at, { recursive: true });
   writeFileSync(join(at, "pid"), `${pid}\n`);
@@ -89,7 +90,7 @@ describe("persisted environment process ownership", () => {
     const at = dir(shadow, "staging");
     const child = await sentinel(["wrangler", "dev", "--config", join(at, "wrangler.jsonc"), "--persist-to", join(at, "state")]);
     try {
-      marker(shadow, "staging", child.pid!, 9161, { config: join(at, "wrangler.jsonc"), persistTo: join(at, "state") });
+      marker(shadow, "staging", child.pid!, freePort(), { config: join(at, "wrangler.jsonc"), persistTo: join(at, "state") });
       expect(await run(Environments.status({ root: shadow, name: "staging" }))).toEqual({ state: "down", name: "staging" });
       await run(Environments.down({ root: shadow, name: "staging" }));
       await new Promise((done) => setTimeout(done, 100));
@@ -104,7 +105,7 @@ describe("persisted environment process ownership", () => {
     const child = await sentinel();
     try {
       marker(root, "production", child.pid!);
-      const owned = await run(Environments.up({ root, name: "production", port: 9160 }));
+      const owned = await run(Environments.up({ root, name: "production" }));
       expect(alive(child)).toBe(true);
       expect(owned.pid).not.toBe(child.pid);
       expect(await run(Environments.status({ root, name: "production" }))).toMatchObject({ state: "up", pid: owned.pid });
@@ -120,7 +121,7 @@ describe("persisted environment process ownership", () => {
 
   it("another environment's genuine wrangler survives stale markers that point at it", { timeout: 180_000 }, async () => {
     project();
-    const owned = await run(Environments.up({ root, name: "production", port: 9160 }));
+    const owned = await run(Environments.up({ root, name: "production" }));
     try {
       marker(shadow, "production", owned.pid, owned.port, { config: join(dir(root, "production"), "wrangler.jsonc"), persistTo: join(dir(root, "production"), "state") });
       expect(await run(Environments.status({ root: shadow, name: "production" }))).toEqual({ state: "down", name: "production" });
@@ -131,9 +132,9 @@ describe("persisted environment process ownership", () => {
   });
 
   it("recognizes its real logbook and preserves another logbook sharing the config but using different state", { timeout: 180_000 }, async () => {
-    const { url: issuer } = await run(Issuer.start({ port: 9163 }).pipe(Scope.provide(services)));
+    const { url: issuer } = await run(Issuer.start({ port: freePort() }).pipe(Scope.provide(services)));
     const policy = { issuer, repository: "ownership/ownership", refs: ["refs/heads/main"], workflows: ["ownership"] };
-    const owned = await run(Environments.up({ root, name: "logbook", port: 9162, policy }));
+    const owned = await run(Environments.up({ root, name: "logbook", policy }));
     try {
       expect(await run(Environments.status({ root, name: "logbook" }))).toMatchObject({ state: "up", pid: owned.pid });
       marker(shadow, "logbook", owned.pid, owned.port, { persistTo: join(dir(root, "logbook"), "state") });

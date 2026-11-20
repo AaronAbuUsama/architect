@@ -34,7 +34,7 @@ afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
 describe("the starter", () => {
   it("proves: five journeys, eleven operations with nine evals each", { timeout: 180_000 }, async () => {
-    const report = await prove(starter, 8810);
+    const report = await prove(starter, 0);
     expect(report.lines.filter((l) => l.startsWith("journey ") && l.includes(" ✔ "))).toHaveLength(5);
     expect(report.lines.filter((l) => / 9 evals ✔ p50 /.test(l))).toHaveLength(11);
     expect(report.lines.at(-1)).toBe("prove ✔");
@@ -45,10 +45,10 @@ describe("the starter", () => {
     ["accept-without-membership", "invitation/accept.ts", "src/invitation/accept.ts", "journey invite and accept ✘", '✘ "olga reads her membership'],
     ["owner-step-skipped", "organization/create.ts", "src/organization/create.ts", "journey an owner makes an api key ✘", "organization.create steps ✘"],
   ] as const;
-  cases.forEach(([name, from, to, journey, detail], i) => {
+  cases.forEach(([name, from, to, journey, detail]) => {
     it(`fails on ${name}`, { timeout: 180_000 }, async () => {
       const root = copy(name, [[from, to]]);
-      const report = await prove(root, 8811 + i);
+      const report = await prove(root, 0);
       expect(report.passed).toBe(false);
       // A failed run proves nothing, even operations whose own evals passed (D2 #80).
       expect(JSON.parse(readFileSync(join(root, ".ortho/evidence/proven.json"), "utf8")).proven).toEqual({});
