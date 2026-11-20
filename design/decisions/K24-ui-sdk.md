@@ -71,8 +71,12 @@ one package for that reason).
 ## What doesn't change
 
 - Work in flight carries on with HeroUI until step 3 reaches it. Goal 3's portal work is not paused.
-- The seam stays: only `@orthograph/portal-ui` imports a component library for the portal. Generated code imports
-  UI SDK directly, which is open source (Apache-2.0), so no licence seam is needed there.
+- The seam stays: only `@orthograph/portal-ui` imports a component library for the portal. Its lint rule, which
+  bans `@heroui-pro/*` outside it, is dropped with HeroUI in step 4.
+- Generated code still imports only the language's runtime, `orthograph`, the host and project code (`AGENTS.md`,
+  package rules). Letting generated screens import `@ui-sdk/*` (open source, Apache-2.0, so no licence seam) is not
+  in force yet: it is added to that rule, in `AGENTS.md` and the module boundaries, in the same change that lands the
+  first generated screen after the second spike passes.
 - The free HeroUI 3 primitives F7 allowed anywhere (`Button`, `Chip`, `Card`) are not used in new code.
 
 ## Gaps it raises
