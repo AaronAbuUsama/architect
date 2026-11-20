@@ -2,7 +2,7 @@
 import type { FieldsModel, Model, ThingModel } from "@orthograph/compiler";
 import { GENERATED, lines, thingFileAt, type RenderedFile } from "@orthograph/projections/shared";
 
-/** A sentence inside a `/** */` comment: `*/` would end it early. */
+// A sentence inside a doc comment: its own comment end would close the comment early.
 export const comment = (text: string) => text.replace(/\*\//g, "*\\/").replace(/\s*\n\s*/g, " ");
 
 /** The fields of one type, each with its sentence as a doc comment and its type from the blueprint's own value. */
