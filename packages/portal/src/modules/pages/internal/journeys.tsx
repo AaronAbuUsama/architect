@@ -18,10 +18,14 @@ export const JourneysPage = ({ data }: { readonly data: PortalData }) => {
           <p className="meta">{`Cast: ${Object.keys(j.cast).join(", ") || "none"}. Starts in: ${j.starts ?? "an empty world"}.`}</p>
           <ol>
             {j.steps.map((s, i) => (
-              <li key={i} data-portal="journey-step" data-title={s.title} data-operation={s.call?.operation ?? ""}>
-                {`${s.title}${s.call === undefined ? "" : ` (${s.call.actor} calls ${s.call.operation})`} `}
-                <NotYet hole="step-verdict" what="step verdicts are not on the wire yet" />
-              </li>
+              "call" in s ? (
+                <li key={i} data-portal="journey-step" data-title={s.title} data-operation={s.call.operation}>
+                  {`${s.title} (${s.call.actor} calls ${s.call.operation}) `}
+                  <NotYet hole="step-verdict" what="step verdicts are not on the wire yet" />
+                </li>
+              ) : (
+                <li key={i} data-portal="journey-step" data-title={s.title} data-skipped={s.skipped}>{`${s.title}: skipped, ${s.skipped}`}</li>
+              )
             ))}
           </ol>
         </section>

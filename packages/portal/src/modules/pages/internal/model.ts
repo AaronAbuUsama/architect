@@ -16,7 +16,7 @@ export const mountsOf = (b: BlueprintWire): ReadonlyArray<readonly [string, Moun
 export const eventsOf = (thing: ThingWire): ReadonlyArray<readonly [string, Readonly<Record<string, FieldWire>>]> => Object.entries(thing.events ?? {});
 
 /** The operations a journey calls in the steps that run (a skipped step runs nothing). */
-export const callsOf = (j: JourneyRow): ReadonlyArray<string> => [...new Set(j.steps.filter((s) => s.skipped === undefined && s.call !== undefined).map((s) => s.call!.operation))];
+export const callsOf = (j: JourneyRow): ReadonlyArray<string> => [...new Set(j.steps.flatMap((s) => ("call" in s ? [s.call.operation] : [])))];
 export const journeysCalling = (b: BlueprintWire, operation: string): ReadonlyArray<JourneyRow> => journeysOf(b).filter((j) => callsOf(j).includes(operation));
 
 /** The refusals the model declares for an operation, each with its code. */
