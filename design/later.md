@@ -136,6 +136,7 @@ belongs to, and why it waits.
 - **Our own tests by what changed** (proposal B2, B3): tests that only need prove's result call it in process, and suites that start `ortho` carry a tag; CI then picks suites from a table of changed path to tag. It waits because nothing in CI may use `vitest --changed` before B2 (it would skip the climbability check).
 - **Vitest for this repository** (proposal C2; spike `spikes/vitest-fixtures`, #189): world-starting checks on shared fixtures and report matchers, one config with named projects, the ratchet as a reporter, a slow-file budget. The checks author's work, after stage 1.
 - **Vitest as a generated output for users** (proposal C1): each journey a suite, each step a test, run by prove's engine, with an Orthograph reporter and the journey checks as matchers. It waits for the framework session with Aaron.
+- **One Cloudflare account per environment** (`decisions/M7-cloud.md`, addendum): today one account holds every environment, each resource prefixed by app, environment and run. When production holds real data, each environment gets its own account and token. It waits because nothing in that account matters yet (Aaron, 20 November 2026).
 
 ## From Codex's review of #159 (website builder, 20 November 2026)
 
