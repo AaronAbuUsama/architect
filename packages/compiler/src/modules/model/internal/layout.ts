@@ -1,5 +1,5 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Environment, Event, Journey, Machine, Mount, Operation, Read, Role, StartingWorld, Store, Thing, Value } from "orthograph";
+import type { AnyErrorClass, Environment, Event, Journey, Machine, Mount, Operation, Read, Role, StartingWorld, Store, Thing, Unique, Value } from "orthograph";
 import type { LoadedFile } from "#modules/source/types.js";
 import type { CallReach } from "#modules/mounts/types.js";
 
@@ -31,6 +31,8 @@ export interface ThingFiles {
   readonly events: Map<string, Event>;
   readonly errors: Map<string, AnyErrorClass>;
   readonly roles: Map<string, Role>;
+  /** Its rules (G5), by the name each export gives them: `handle.oneHolderPerName` is `oneHolderPerName`. */
+  readonly invariants: Map<string, Unique>;
   readonly verbs: Map<string, { readonly file: string; readonly declaration: Operation | Read }>;
 }
 
@@ -80,7 +82,7 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) 
   const thingFiles = (name: string): ThingFiles => {
     const found = layout.things.get(name);
     if (found) return found;
-    const fresh: ThingFiles = { name, base: at(`things/${name}`), from: { kind: "app" }, events: new Map(), errors: new Map(), roles: new Map(), verbs: new Map() };
+    const fresh: ThingFiles = { name, base: at(`things/${name}`), from: { kind: "app" }, events: new Map(), errors: new Map(), roles: new Map(), invariants: new Map(), verbs: new Map() };
     layout.things.set(name, fresh);
     return fresh;
   };
@@ -152,6 +154,8 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) 
       for (const [k, v] of Object.entries(exports)) if (isErrorClass(v)) t.errors.set(k, v);
     } else if (file === "roles") {
       for (const [k, v] of each("role")) t.roles.set(k, v as Role);
+    } else if (file === "invariants") {
+      for (const [k, v] of each("invariant")) t.invariants.set(k, v as Unique);
     } else if (parts[2] === "verbs" && parts.length === 4) {
       const verb = parts[3]!;
       if (!NAME.test(verb)) layout.problems.push(`${at(path)}: verb "${verb}" must be lowercase words joined by dashes`);
@@ -160,7 +164,7 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) 
       if (kind !== "operation" && kind !== "read") layout.problems.push(`${at(path)}: the default export must be a Blueprint.operation or a Blueprint.read`);
       else t.verbs.set(verb, { file: at(path), declaration: d as Operation | Read });
     } else {
-      layout.problems.push(`${at(path)}: not a file a thing has (thing, machine, events, errors, roles, verbs/<verb>)`);
+      layout.problems.push(`${at(path)}: not a file a thing has (thing, machine, events, errors, roles, invariants, verbs/<verb>)`);
     }
   }
   for (const t of layout.things.values()) if (!t.thing) layout.problems.push(`${t.base}: has no thing.ts`);

@@ -13,3 +13,9 @@ Builds the model, the one description every generator reads, from a loaded bluep
   and steps write to more than one store is refused with the operation, its file and what writes where. An
   environment's `stores:` may bind only declared database stores. A project with no store has none in its model.
   Tests: `stores.test.ts`; `vault.test.ts` runs the real fixture feature beside acme.
+- Rules (G5): `things/<thing>/invariants.ts` is read like `errors.ts`; each `Blueprint.invariant.unique` export is
+  `things.<thing>.invariants.<name>` (`kind`, `fields`, and `while`, `refuse`, `description` when written), hashed with
+  the thing. The compiler adds each rule's refusal to `refusals` of every operation that can break it (`internal/invariants.ts`,
+  decision G5 section 3) and maps it back in `operations.<op>.invariants` (refusal to `<thing>.<rule>`), never in `errors`;
+  the exit-clash scan reads them too. A thing or operation with no rule carries neither field, so its hash is unchanged.
+  Tests: `invariants.test.ts`.

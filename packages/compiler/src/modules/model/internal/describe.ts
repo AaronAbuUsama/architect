@@ -13,6 +13,7 @@ import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
 import { uniqueOf } from "./unique.ts";
+import { breakersOf, declaredErrors, invariantsOf } from "./invariants.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
 /** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
@@ -78,6 +79,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   // A thing some operation's payload names where no role check reads it gets a `<Thing>NotFound` (K16, M1.46).
   const missable = new Set([...layout.things.values()].flatMap((t) => [...t.verbs.values()].flatMap(({ declaration: d }) => missedBy(d, Blanks.isBlank))));
   const things: Record<string, ThingModel> = {};
+  const verbs = [...layout.things.values()].flatMap((t) => [...t.verbs.values()].map(({ file, declaration: d }) => ({ file, errors: d.kind === "operation" ? declaredErrors(d.errors) : [] })));
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     if (!t.thing) continue;
     const where = t.base;
@@ -101,9 +103,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
     const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
+    const invariants = invariantsOf(t, { thingNames, errorNames, verbs }, problems);
     const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), machine,
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), ...(invariants ? { invariants } : {}), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
       errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),
@@ -163,8 +166,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     }
     const allowed = op.allowed.map((a) => allowedModel(a, file));
     const found = foundModel(op, (x) => thingNames.get(x), (x) => things[x]?.notFound?.error);
+    const steps = Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k,
+      Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)]));
+    // The refusals the runtime makes for the rules this operation can break (G5), never among its `errors`.
+    const broken = breakersOf({ thing, move, steps }, things);
+    if (op.runs === "client" && broken.breaks.length > 0) problems.push(`${file}: ${thing}.${verb} runs on the device, which has no store, and can break ${broken.breaks.join(", ")}`);
     const refusals = [
       ...errors,
+      ...Object.keys(broken.refusals),
       ...(move && move.from.length > 0 && machine ? [machine.notFrom.error] : []),
       ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
@@ -177,9 +186,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     const entry = {
       kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from, description: op.description,
-      payload, answer, move, errors, refusals, allowed, ...found, ...(mints !== undefined ? { mints } : {}),
-      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k,
-        Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)])),
+      payload, answer, move, errors, ...(Object.keys(broken.refusals).length > 0 ? { invariants: broken.refusals } : {}), refusals, allowed, ...found, ...(mints !== undefined ? { mints } : {}),
+      steps,
       ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
       idempotent: op.idempotent ?? null,
       runs: (onDevice ? "client" : "server") as "server" | "client", test: op.test,
