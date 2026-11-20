@@ -112,3 +112,10 @@ belongs to, and why it waits.
 
 - **Plain elements today.** The portal's pages are plain elements with `data-portal` hooks (and `Card` for cards), because the grid's evals and check 21 read the rendered DOM by its headings, tables, list items and hooks, and the HeroUI Pro licence is only in CI. `design/portal.md`'s component inventory maps every data shape to a named component (Widget, `CallsMeter`, `CallsBars`, DataGrid and so on), so the pages are a gap from the design.
 - **Next:** swap each block for its component, one page at a time, built where the licence is. The `data-portal` hooks and the headings, tables and list items the evals read must survive each swap; check 21 and the grid are the guard.
+
+## From prove's coverage (the eval 8 line, G3)
+
+- **A "reachable from a journey" flag on the model's refusals.** Prove's coverage line leaves out the runtime refusals no journey can cause by name:
+  every refusal coded under the runtime's prefix (`AR`) except `NotAllowed` (`packages/prove/src/modules/evals/internal/run.ts`, `unreachable`). That is
+  inferred, so the next runtime refusal is classed by its prefix, right or wrong. When one arrives, the model should say per refusal whether a journey can
+  cause it, and prove should read that. Waits on the next runtime refusal (121 to 125 are held for them, G3).
