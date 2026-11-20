@@ -54,7 +54,7 @@ const Table = ({ data, op }: { readonly data: PortalData; readonly op: Operation
   const options: Readonly<Record<keyof Chosen, ReadonlyArray<readonly [string, string]>>> = {
     environment: [...new Set(held.map((c) => c.environment))].map((e) => [e, e] as const),
     caller: [...new Set(held.map((c) => c.caller))].map((e) => [e, e] as const),
-    outcome: [["answered", "answered"], ["refused", "refused"], ["defect", "defect"]],
+    outcome: [["answered", "answered"], ["refused", "refused"], ["defect", "defect"], ["unknown", "unknown"]],
     "over-budget": [["true", "over budget"], ["false", "within budget"]],
   };
   return (
@@ -81,8 +81,8 @@ const Table = ({ data, op }: { readonly data: PortalData; readonly op: Operation
       <table>
         <thead><tr>{COLUMNS.map(([col, label]) => <th key={col} data-portal="calls-col" data-col={col}>{label}</th>)}</tr></thead>
         <tbody>
-          {rows.map((c) => (
-            <tr key={c.trace} data-portal="call-row" data-trace={c.trace} data-operation={c.operation} data-outcome={c.outcome} {...(c.refusal === null ? {} : { "data-refusal": c.refusal })}
+          {rows.map((c, i) => (
+            <tr key={`${c.trace}:${c.start}:${i}`} data-portal="call-row" data-trace={c.trace} data-operation={c.operation} data-outcome={c.outcome} {...(c.refusal === null ? {} : { "data-refusal": c.refusal })}
               data-caller-kind={c.caller} data-attempts={String(c.attempts)} data-duration-ms={String(c.durationMs)} data-over-budget={String(c.overBudget)}
               data-environment={c.environment} data-start={String(c.start)} data-request-key="not yet" data-role-held="not yet">
               <td><a href={`/portal/traces/${c.trace}`}>{new Date(c.start).toISOString()}</a></td>

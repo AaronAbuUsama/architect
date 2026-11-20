@@ -1,7 +1,9 @@
-// The calls of a window, from its spans. Pure. A call is one operation's attempt spans in one trace: a retry is one call. A journey's own
+// The calls of a window, from its spans. Pure. A call is one operation's attempts, grouped by the `call.id` the runtime wrote on each (`group.ts`): a retry
+// is one call, and two calls to one operation under one trace (a client reusing its traceparent) are two. A journey's own
 // span, a step span and a commit span are not attempts. Nothing is read from a span but a whitelist of structural attributes.
 import type { CallerKind, CallsView, Outcome, TelemetryCall, WindowSpan, WindowTrace } from "../types.ts";
 import { ROWS_MAX } from "../types.ts";
+import { groupCalls, numberOf, type CallGroup } from "./group.ts";
 import { isAttempt, spanKind, type OperationKinds } from "./spans.ts";
 
 const text = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
@@ -12,8 +14,6 @@ export const callerOf = (span: WindowSpan): CallerKind | undefined => {
   const kind = text(span.attrs["principal.kind"]);
   return kind === "agent" ? "agent" : kind === "anonymous" ? "anyone" : kind === "person" ? "person" : undefined;
 };
-
-const numberOf = (span: WindowSpan) => (typeof span.attrs["attempt"] === "number" ? span.attrs["attempt"] : 1);
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
 
@@ -28,13 +28,13 @@ const outcomeOf = (last: WindowSpan, spans: ReadonlyArray<WindowSpan>): { readon
   return { outcome: last.status === 2 || conflicted ? "defect" : "answered", refusal: null };
 };
 
-const callOf = (trace: string, operation: string, attempts: ReadonlyArray<WindowSpan>, all: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
+const callOf = (trace: string, operation: string, { spans: attempts, unresolved }: CallGroup, all: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
   const ordered = [...attempts].sort((a, b) => numberOf(a) - numberOf(b) || a.start - b.start);
   const first = ordered.reduce((a, b) => (b.start < a.start ? b : a));
   const end = Math.max(...ordered.map((s) => s.start + s.ms));
   const durationMs = round(end - first.start);
   return {
-    trace, operation, start: first.start, ...outcomeOf(ordered[ordered.length - 1]!, all),
+    trace, operation, start: first.start, ...(unresolved ? { outcome: "unknown" as const, refusal: null } : outcomeOf(ordered[ordered.length - 1]!, all)),
     caller: ordered.map(callerOf).find((k) => k !== undefined) ?? "unknown",
     attempts: new Set(ordered.map(numberOf)).size,
     durationMs,
@@ -44,13 +44,19 @@ const callOf = (trace: string, operation: string, attempts: ReadonlyArray<Window
   };
 };
 
-/** Which of the call's attempts committed a move: an answered call whose attempt span carries `move.name`. */
-const moved = (attempts: ReadonlyArray<WindowSpan>) => attempts.some((s) => typeof s.attrs["move.name"] === "string");
+/**
+ * A move counts when the attempt that selected it did not lose its commit race. An attempt that selects a move and conflicts took none: its retry may
+ * answer with an existing id and no move of its own. A commit span says `conflict`; no commit span at all (the attempt never got that far, or a
+ * source that keeps none) is not a lost race.
+ */
+const moved = (attempts: ReadonlyArray<WindowSpan>, all: ReadonlyArray<WindowSpan>) =>
+  attempts.some((a) => typeof a.attrs["move.name"] === "string"
+    && !all.some((s) => s.parentSpanId === a.spanId && s.attrs["step.kind"] === "commit" && s.attrs["commit.outcome"] === "conflict"));
 
 /** Calls with a span that were refused, per operation and refusal name, with the newest such trace. */
 export type SpanRefusals = ReadonlyMap<string, { readonly operation: string; readonly name: string; readonly count: number; readonly trace: string; readonly start: number }>;
 
-export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
+export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds, window: { readonly since: number; readonly now: number }): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
   const all: Array<TelemetryCall> = [];
   const moves: Record<string, number> = {};
   const journeys: Record<string, Set<string>> = {};
@@ -58,11 +64,15 @@ export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: s
     const journey = spans.map((s) => text(s.attrs["journey"])).find((j) => j !== undefined) ?? null;
     const byOperation = new Map<string, Array<WindowSpan>>();
     for (const span of spans.filter((span) => isAttempt(spanKind(span, kinds)))) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
-    for (const [operation, attempts] of byOperation) {
-      const call = callOf(trace, operation, attempts, spans, journey, environment, budgets[operation]);
-      all.push(call);
-      if (call.outcome === "answered" && moved(attempts)) moves[operation] = (moves[operation] ?? 0) + 1;
-      if (journey !== null) (journeys[operation] ??= new Set()).add(journey);
+    for (const [operation, every] of byOperation) {
+      for (const group of groupCalls(every, spans)) {
+        const call = callOf(trace, operation, group, spans, journey, environment, budgets[operation]);
+        // The window is the call's: a source hands back whole traces, and a long trace holds calls from before it (and, at a fixed `now`, after it).
+        if (call.start < window.since || call.start > window.now) continue;
+        all.push(call);
+        if (call.outcome === "answered" && moved(group.spans, spans)) moves[operation] = (moves[operation] ?? 0) + 1;
+        if (journey !== null) (journeys[operation] ??= new Set()).add(journey);
+      }
     }
   }
   // Newest first; a tie falls to the trace and the operation, so two reads of the same window are the same bytes.

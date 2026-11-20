@@ -7,11 +7,11 @@ Lives in the database.
 
 ## Fields
 
-| field | value |
-|---|---|
-| id | id |
-| name | HandleName |
-| owner | id |
+| field | value | description |
+|---|---|---|
+| id | id | The handle's own id. |
+| name | HandleName | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |
+| owner | id | The person who holds the name. |
 
 ## Machine
 
@@ -24,8 +24,8 @@ States: claimed, released. A move from the wrong state is refused HandleNotClaim
 
 ## Events
 
-- `HandleClaimed`: carries handle (handle.id), name (handle.name); emitted by the move claim
-- `HandleReleased`: carries handle (handle.id), name (handle.name); emitted by the move release
+- `HandleClaimed`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move claim
+- `HandleReleased`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move release
 
 ## Unique
 

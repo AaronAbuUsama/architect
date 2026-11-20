@@ -6,26 +6,7 @@
 # K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
 # HAN-10 (#116), the checks author's change: check 24's ten red tests, and the two expectations G3 moves (19: a declared exit of 130; 22.5: the control for 130, now 'outside 5 to 119'). They pass when HAN-10 is built (#117).
 # ST1.22 (G5's portal screens), the checks author's change: check 28's eight red tests, two variants of the wire times four calls. They pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
-m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
-m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
-m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
-m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries with the key it made when the caller gave none, and the call commits once
-m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > sends the key the caller gave, as idempotency-key, and makes a different one for each call that gave none
-m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > generates the clients as the fixed renderers did apart from the options, exports all it did, and check passes
-m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > mounts each from @orthograph/projections in its own file
-m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > records the three mounts in the model as projections, beside the first three
-m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > writes no generated/cli when its mount is removed, and still writes the sdk and the mcp
-m1/14-clients.test.ts > 14 M1.12: refusals and defects in the error channel > a payload the schema refuses is InvalidPayload, and nothing is sent
-m1/14-clients.test.ts > 14 M1.12: refusals and defects in the error channel > a server defect is a die, not a typed failure
-m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is never a call's: a credential in a call's options does not type-check, and the key, the refusals and the old shapes do
-m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once on the layer: two layers in one program are two people, and a layer with no credential is anonymous
-m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
-m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
-m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
 m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x portal ~: each field's description and visibility are in the portal's data file (M1.42)
 m1/22-k16-review.test.ts > 22.5 (P2): a declared exit is a whole number from 5 to 119 > control: 130 is already refused, as outside 5 to 119
 m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > has a code in the model, and an idempotent operation (not another) lists it
 m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > is one row of generated errors.ts beside NotAllowed's, which the CLI, HTTP and MCP read, and is a wire class every idempotent endpoint lists
