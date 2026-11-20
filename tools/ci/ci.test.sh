@@ -199,5 +199,19 @@ r=$(pr_repo)
 expect "covers: a reviewed commit not in the repository is not covered" 1 \
   bash -c "cd '$r' && '$here/codex-covers.sh' 0123456789abcdef0123456789abcdef01234567 HEAD base"
 
+# gate: one required check passes only when every job behind it did (design/decisions/CI-speed.md)
+gate() { DOCS_ONLY="$1" "$here/gate.sh" "${@:2}"; }
+expect "gate: every job passed" 0 gate false check-static=success docs:prove-tests=success
+expect "gate: a failed job fails it" 1 gate false check-static=failure docs:prove-tests=success
+expect "gate: a failed shard fails it" 1 gate false check-static=success docs:prove-tests=failure
+expect "gate: a cancelled job fails it" 1 gate false check-static=cancelled docs:prove-tests=success
+expect "gate: a skip on a docs-only pull request passes" 0 gate true check-static=success docs:prove-tests=skipped
+expect "gate: a skip on a code pull request fails" 1 gate false check-static=success docs:prove-tests=skipped
+expect "gate: a job not marked docs may never skip" 1 gate true check-static=skipped docs:prove-tests=skipped
+expect "gate: docs-only does not excuse a failure" 1 gate true check-static=success docs:prove-tests=failure
+expect "gate: no jobs is a usage error" 2 gate false
+expect "gate: a bad DOCS_ONLY is a usage error" 2 gate yes check-static=success
+expect "gate: an argument without a result is a usage error" 2 gate false check-static
+
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi
 echo "all tools/ci cases pass"
