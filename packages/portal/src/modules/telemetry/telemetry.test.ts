@@ -1,6 +1,7 @@
 // M1.13's data clauses (check 21 C, D, E, J, K, L), judged at the server, over Plugged In's own wire and a staged window.
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { createServer } from "node:http";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { PortalServer } from "#modules/server/service.js";
@@ -130,5 +131,33 @@ describe("no leak, and now is the only clock", () => {
     expect([await rows(NOW), await rows(NOW + 27 * 60_000)]).toEqual([3, 1]);
     const bare = await Effect.runPromise(PortalServer.handle({ blueprint: bp, reader: null, bundleRevision: null }, new Request(`http://portal/_portal/v1/snapshot?digest=${bp.digest}`)));
     expect(((await bare.json()) as { telemetry: unknown }).telemetry).toBeNull();
+  });
+});
+
+describe("a feed that fails", () => {
+  const rawWire = () => JSON.parse(readFileSync(join(resolve(import.meta.dirname, "../../../../.."), "examples/plugged-in/generated/portal/blueprint.json"), "utf8")) as { digest: string };
+  const ask = async (feed: string) => {
+    const raw = rawWire();
+    const response = await Effect.runPromise(PortalServer.serve(raw, new Request(`http://portal/_portal/v1/snapshot?digest=${raw.digest}`), { ORTHO_PORTAL_FEED: feed }));
+    return (await response.json()) as { observedAt: string; telemetry: { now: number; since: number; metrics: { state: string; reason?: string }; calls: { state: string } } };
+  };
+  const notEpoch = (snapshot: Awaited<ReturnType<typeof ask>>) => {
+    expect(new Date(snapshot.observedAt).getUTCFullYear(), "observedAt is the clock's").toBeGreaterThan(2020);
+    expect(snapshot.telemetry.now).toBeGreaterThan(0);
+    expect(snapshot.telemetry.since).toBeGreaterThan(0);
+    expect(snapshot.telemetry.metrics.state).toBe("unavailable");
+    expect(snapshot.telemetry.metrics.reason).toMatch(/feed/);
+    expect(snapshot.telemetry.calls.state).toBe("unavailable");
+  };
+
+  it("one that is down says so, and the snapshot is stamped with the clock, not the epoch", async () => {
+    notEpoch(await ask("http://127.0.0.1:1/"));
+  });
+
+  it("one that answers garbage says so too", async () => {
+    const server = createServer((_, response) => { response.writeHead(200, { "content-type": "application/json" }).end('{"nope":true}'); });
+    await new Promise<void>((done) => { server.listen(0, "127.0.0.1", done); });
+    try { notEpoch(await ask(`http://127.0.0.1:${(server.address() as { port: number }).port}/`)); }
+    finally { server.close(); }
   });
 });

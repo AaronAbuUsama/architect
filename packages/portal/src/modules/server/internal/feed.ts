@@ -1,7 +1,7 @@
 // A world's telemetry, read by its Worker (M1.13). The Worker runs in workerd and cannot open the collector's files, so whoever started the world
 // (`ortho prove`) answers `GET <ORTHO_PORTAL_FEED>` with the window as it stands at that process's clock: its `now`, and the window's traces and
 // metric points. The portal takes that `now` as the only clock there is, and scrubs everything itself (`Telemetry`); the feed is loopback only.
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import type { MetricPoint, PortalLive, WindowFailure, WindowTrace } from "#modules/telemetry/types.js";
 
 /** What the feed answers. */
@@ -19,8 +19,12 @@ const isFeed = (value: unknown): value is PortalFeed => {
     && typeof feed.traces === "object" && feed.traces !== null && Array.isArray(feed.points);
 };
 
-const failing = (environment: string, message: string): PortalLive => ({
-  environment, now: 0, windowMs: 0,
+/** The window a portal reads when its feed said none. */
+const DEFAULT_WINDOW_MS = 30 * 60_000;
+
+/** A feed that could not be read still has a time: the clock's, never a sentinel (`0` would stamp the snapshot 1970). */
+const failing = (environment: string, message: string, now: number): PortalLive => ({
+  environment, now, windowMs: DEFAULT_WINDOW_MS,
   source: { window: () => Effect.fail<WindowFailure>({ message }), find: () => Effect.fail<WindowFailure>({ message }) },
   metrics: { window: () => Effect.fail<WindowFailure>({ message }) },
 });
@@ -31,8 +35,8 @@ export const feedLive = (url: string, environment: string): Effect.Effect<Portal
     Effect.flatMap((response) => response.status === 200
       ? Effect.tryPromise({ try: () => response.json() as Promise<unknown>, catch: String })
       : Effect.fail(`it answered ${response.status}`)),
+    Effect.flatMap((found) => isFeed(found) ? Effect.succeed(found) : Effect.fail("the telemetry feed did not answer a window")),
     Effect.map((found): PortalLive => {
-      if (!isFeed(found)) return failing(environment, "the telemetry feed did not answer a window");
       const traces = new Map(Object.entries(found.traces));
       return {
         environment: found.environment, now: found.now, windowMs: found.windowMs,
@@ -40,5 +44,5 @@ export const feedLive = (url: string, environment: string): Effect.Effect<Portal
         metrics: { window: () => Effect.succeed(found.points) },
       };
     }),
-    Effect.catch((reason) => Effect.succeed(failing(environment, `the telemetry feed could not be read: ${reason}`))),
+    Effect.catch((reason) => Clock.currentTimeMillis.pipe(Effect.map((now) => failing(environment, `the telemetry feed could not be read: ${reason}`, now)))),
   );

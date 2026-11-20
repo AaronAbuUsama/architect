@@ -37,6 +37,8 @@ const growth = (series: ReadonlyArray<Sample>, from: number, now: number): numbe
   const sorted = [...series].filter((s) => s.at <= now).sort((a, b) => a.at - b.at);
   if (sorted.length === 0) return 0;
   if (sorted[0]!.delta) return sorted.filter((s) => s.at > from).reduce((n, s) => n + s.value, 0);
+  // With no sample before the window the series is counted from zero. That is exact in a prove world: its collector is made fresh and its
+  // counters start with it, so nothing was counted before its first sample. An older series would need history, which is M7.14's.
   let previous = [...sorted].reverse().find((s) => s.at <= from)?.value ?? 0;
   let total = 0;
   for (const sample of sorted.filter((s) => s.at > from)) {
