@@ -45,23 +45,21 @@ forum's one call and one event the app may reach, and nothing else of the forum 
 - the adapter brings typed calls, events in through `on:`, a stand-in for worlds, and a conformance test;
 - the portal shows an origin badge on every thing and operation that came from a plugin.
 
-Acme mounts the model, the api and the server (M1.11), one file each in `blueprint/projections/`, and what a mount makes is
-what is written: take `server.ts` away and `generated/server/` is gone. A project that mounts no projection, signup
-included, gets those three as if it had. What is still a fixed list in the generator, for every project, is the rest:
+Acme mounts the model, the api, the server (M1.11), the sdk, the cli and the mcp (M1.12), one file each in
+`blueprint/projections/`, and what a mount makes is what is written: take `server.ts` away and `generated/server/` is
+gone. A project that mounts no projection, signup included, gets those six as if it had. What is still a fixed list in
+the generator, for every project, is the rest:
 
-```ts file=packages/generators/src/modules/render/service.ts lines=1-9
+```ts file=packages/generators/src/modules/render/service.ts lines=1-6
 import { Effect } from "effect";
-import { emptyServer, renderHandlerScaffold, serverModel } from "@orthograph/projections/shared";
+import { emptyServer, renderHandlerScaffold } from "@orthograph/projections/shared";
 import { PortalRender } from "#modules/portal/service.js";
 import type { RenderApi } from "./types.ts";
-import { renderCli } from "./internal/cli.ts";
 import { renderDocs } from "./internal/docs.ts";
 import { filesOf, mountedIn } from "./internal/mounted.ts";
-import { renderMcp } from "./internal/mcp.ts";
-import { renderSdk } from "./internal/sdk.ts";
 ```
 
-The SDK, the CLI, MCP, the docs and the portal become projections the blueprint mounts when M1.12 and M1.13 land.
+The docs and the portal become projections the blueprint mounts when M1.13 lands.
 
 ## How it works
 

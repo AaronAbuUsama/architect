@@ -64,8 +64,8 @@ The SDK is one function per operation, and the CLI is built on it:
 
 ```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=7-9
 /** Take places on a sheet, for yourself and anyone with you. */
-export const join = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
+export const join = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call(declaration, payload, options, true, Effect.flatMap(Signup, (client) => client.sheet.join({ payload })));
 ```
 
 ```ts file=examples/signup/generated/cli/src/sheet/join.ts lines=9-13
@@ -150,10 +150,11 @@ that is `.notVia(Via.agent)` is never one ([roles](roles.mdx)).
 
 ### The SDK contract
 
-Today the caller's token is set once, on the client's layer, and an SDK function takes only a payload. The Worker
-already keeps an answer under a request key, read from the `idempotency-key` header
-(`examples/signup/generated/server/main.ts:41-42`), but no generated client sends one yet. M1.12 makes the SDK the
-contract every other door builds on:
+The Worker keeps an answer under a request key, read from the `idempotency-key` header
+(`examples/signup/generated/server/main.ts:41-42`), and since M1.12 the generated SDK sends one: it is the contract
+every other door builds on. The `call` each function goes through encodes the payload first (a payload the schema
+refuses is `InvalidPayload`, and nothing is sent), makes a key when the call starts, and tries an `idempotent: "request"`
+operation again, with the same key, when the connection was cut before the answer came:
 
 ```ts planned=M1.12 path=examples/signup/caller.ts
 // the caller is the client's, not the call's
