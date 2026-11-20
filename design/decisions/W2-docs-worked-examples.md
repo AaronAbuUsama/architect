@@ -53,7 +53,12 @@ Starts from the world `claimed`.
 - **the same request again answers the same handle and claims nothing.** `aaron` (signed in) calls with
   name `claimedname` and request key `first-claim`, and gets back the world's handle.
 - **a taken name is refused.** `bob` (signed in) calls with name `claimedname`, and is refused with HandleTaken, HN-001.
+- **another person's request key is not aaron's: still refused.** `bob` (signed in) calls with name `claimedname` and
+  request key `first-claim`, and is refused with HandleTaken, HN-001.
 ```
+
+A value the journey takes from its starting world is held in the model as a reference (`{ "ref": ["world", "handle"] }`),
+not a value. The page names it in words from the reference's path ("the world's handle"), never as an invented value.
 
 The exact layout is the builder's. The eval holds the content, not the markup.
 
