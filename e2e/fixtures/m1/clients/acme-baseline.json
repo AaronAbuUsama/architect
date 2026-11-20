@@ -28,7 +28,7 @@
     "cli/src/allowance/get.ts": "fb62335c18f423f44a4bfa801dbcaa25a722c58f55b16dca80013942e588786b",
     "cli/src/allowance/grant.ts": "02bcac18045dc2da8b841fa2aa46d86218b0a9a29ad221ed4c7c750e2a46a787",
     "cli/src/allowance/revoke.ts": "280947275c0d75e8fa38792ffa3e777380465ba336daa4d48d078c3613ee475d",
-    "cli/src/allowance/spend.ts": "5361fa7141e0ca903d105e375a331d73c2c4e7c4fd2b672348b38990c339b101",
+    "cli/src/allowance/spend.ts": "91d5db1f3662abc829808c753914ea0068e5f5b1d7b7c1fb9dab7243bd0b4b39",
     "cli/src/api-key/create.ts": "7cbaa7563b7f74ab85effe1872feb0dc2ffb5c764449248c4a2363e0f12485cd",
     "cli/src/invitation/accept.ts": "39bcd41374c87c833bad1c7b85a3fba324baa1c0493baac8a54701355ffab1aa",
     "cli/src/invitation/revoke.ts": "c0fc6d53da2ea2fb40288621d7b89136912095c5bf311e86e43b79e45de52485",
@@ -38,12 +38,12 @@
     "cli/src/organization/create.ts": "ccdab7a6dc148559da8156f65c63c15833655cdfdd3d6080b7aa851c1b5e5f97",
     "cli/src/organization/get.ts": "94127d3c3fdede190c51a742c3ea44c415a282cf9660f81264a5dfd4774c77c1",
     "cli/src/output.ts": "aed843d3347553728f974bfa5e9f77371faff76bdc4dc4d204763fd79b48ed15",
-    "cli/src/person/sign-up.ts": "44a0ad2b2dc7db44d9220bf9de0316c448fcc2161cb72d3fb4be3d4e4dc032b5",
+    "cli/src/person/sign-up.ts": "7ec64581f13b9cae742d7afad1d7e331d4e9d1052fcec25793e642343d375b0d",
     "cli/src/session/device.ts": "7bea7360679f47596888b122fb46162620c44e1e7d176cb57b6558912580f9ce",
     "cli/src/session/show.ts": "2854fbf562e50ef57c1eda02cfcca5034334549c189841a2c1f580e31c94bdc2",
     "cli/src/session/sign-in.ts": "8d29a4e0faf49de50f2632d91ab49c5c63b9a237788f87f664c2af6a3b755361",
     "cli/src/system/health.ts": "b97d1ed83a8efe243431e0e4655bb3c530d0a31721c186695855a27df74883b6",
-    "mcp/src/index.ts": "2390257fa9df0800dcca8d5758b8b572413610aa828b664b5aac90adf9de1212"
+    "mcp/src/index.ts": "aab84a095de7e935e5f472cf596c64937d188db941174ea06589939ff3ee39db"
   },
   "exports": {
     "top": [
