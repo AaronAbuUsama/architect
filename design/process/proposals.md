@@ -410,8 +410,10 @@ Turn each on as `warn` first, ratchet the existing breaches into a list like `e2
 
 **Fixes:** two entries from 20 November, both checks pull requests into `goal/stage-1` with no product bug found:
 PR 154 (sixteen Codex rounds, 22 findings, four hours) and PR 166 (three rounds, four findings, the third a repeat of
-the second's kind). The `author` skill's proof 5 asks for "the cheapest wrong implementation": one. PR 154's author
-planted a long list and Codex still found the next one, every round.
+the second's kind). Neither author had the `author` skill in their checkout (proposal 15), so these loops don't show
+proof 5 failing. They show that a long list of planted cases, without a method, didn't stop Codex: PR 154's author
+planted many before the first review, and Codex found the next one every round. Proof 5 as written asks for one
+cheapest wrong implementation, which is less than that list.
 
 **Does it hold up?** The 22 wrong outputs that passed, across both pull requests, each fall in one row of this table:
 
@@ -425,17 +427,23 @@ planted a long list and Codex still found the next one, every round.
 | sets the value the check expects (the expected value came from the output judged) | 1 | 0 | 1 |
 | is misread by the check (`null` read as the text `"null"`) | 1 | 0 | 1 |
 
-Five generic ways cover 20 of the 22. The two in the last rows are about where the check gets its evidence. That the
-table catches a family is shown; that an author working through it would have planted these exact cases is not, and
-the next checks pull request is the test. The repeats are what cost the time. Seven of PR 154's findings were one
-family (a type wider than the model) across fourteen rounds, and six were another (one sample of many) across sixteen.
+Five generic ways cover 20 of the 22. The two in the last rows are about where the check gets its evidence. The
+table is drawn from these same findings, so it's a hypothesis: that an author working through it, and a hostile pass
+after, would have planted these cases is not shown. The next checks pull request is the test, and its entry records
+the Codex rounds with findings. The repeats are what cost the time. Seven of PR 154's findings were one
+family (a type wider than the model) in rounds 1 to 15, and six were another (one sample of many) in rounds 1 to 16.
 Each family ended only when the check was rewritten to judge the whole: the whole type against the model, every
-recorded answer. A hostile pass before Codex already worked once: a 🔍 found the unique-field checks could pass on a
+recorded answer. PR 166's loop ended the same way: its third fix asked for exactly one wherever the contract says one,
+and the next review was clean. A hostile pass before Codex already worked once: a 🔍 found the unique-field checks could pass on a
 hand-written index, before any build.
 
 **Change:** `.agents/skills/author/SKILL.md`:
 
 ```diff
+@@ before you hand a check to a builder
+-Prove all five, and paste the runs into your pull request:
++Prove all six, and paste the runs into your pull request:
+@@ proof 5, and a new proof 6
 -5. **It can't be passed hollow.** Name the cheapest wrong implementation that would pass it (an app-level lookup
 -   instead of the generated index, an answer hard-coded for the journey's one input) and make the check refuse it.
 +5. **It can't be passed hollow.** List what the check reads: each field, element, row, link and type, and each input
@@ -447,10 +455,12 @@ hand-written index, before any build.
 +   - something added: an extra member, field, row or signature
 +   - something repeated, or two pointing at one target
 +   The check's expected values come from the model or a recording, never from the output it judges. Paste the table,
-+   each thing read against each way, with the planted case or "doesn't apply", in the pull request.
++   each thing read against each way, with the planted case or "doesn't apply", in the pull request. Where things of
++   one kind repeat (twenty fields of one type), plant each way once for the kind and say which it stands for.
 +6. **A hostile pass, before Codex.** A subagent that didn't write the check gets the table and tries to pass the
 +   check with a wrong output. Each one that passes becomes a row, planted, before the first "@codex review".
 
+@@ review findings
  ## Review findings
 
  A review finding becomes one planted check that fails first. Then the builder fixes it, and a fresh 🔍 reviews the fix.
@@ -460,7 +470,8 @@ hand-written index, before any build.
 +(every input, the whole type against the model), then plant the row again.
 ```
 
-And "Finished when" says "the six proofs".
+And "the five proofs" becomes "the six proofs" in "Finished when" and in the ✍️ Author row of
+`.agents/skills/threads/SKILL.md`.
 
 **Applies it:** the conductor, or the thread that owns the skills, with the Goal 3 lead. The test: on the next checks
 pull request, count the Codex rounds with findings.
@@ -478,6 +489,7 @@ on 20 November, after both checks above were written. `builder-paths` and `cance
 +  into each live goal branch the same hour, and tell its lead to have open branches merge their base.
 ```
 
-And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `goal/stage-1` at …".
+And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `goal/stage-1` at …; on `m1` at …".
+`m1` still lacks PR 130's guards.
 
 **Applies it:** the conductor. The Scribe's half is in this change.

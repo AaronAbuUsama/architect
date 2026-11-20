@@ -16,15 +16,15 @@ gave was checked against its source; where the seed was wrong, the entry says so
   22:57 on 19 November, and the Scribe logged proposal 7 as applied. Goal 3's authors work from `goal/stage-1`. A
   session reads its skills from its own checkout, and `goal/stage-1` didn't have the skill until the next merge of
   `main`, at 06:47 on 20 November. Both checks pull requests that looped through Codex were cut from `goal/stage-1`
-  before then: PR 154 from 7c7f9fcc (05:50) and PR 166 from 852a6eab (06:23). Neither branch has the skill, and
-  neither description shows the five proofs. Whether their authors read the skill some other way isn't known.
+  before then: PR 154 from 32166979 (01:18) and PR 166 from 852a6eab (06:23). No commit Codex reviewed on either had
+  the skill, and neither description shows the five proofs. Whether their authors read the skill some other way isn't known.
 - **Evidence:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129) merged as 84882931 (19 November 22:57); `goal/stage-1` first contains it at 18227b4f,
-  [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) (20 November 06:47); `git cat-file -e origin/<branch>:.agents/skills/author/SKILL.md` fails on
-  `goal-3/grid-evals-mcp-schema` and `goal-3/st1-22-check`.
+  [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) (20 November 06:47); `git cat-file -e <commit>:.agents/skills/author/SKILL.md` fails on every commit
+  Codex reviewed: 743a5136 to 4ab11ac2 on PR 154, 4cb6dc19 to 3f921a19 on PR 166.
 - **Cost:** not measurable on its own; it overlaps the two entries below.
 - **Found by:** the Scribe, checking why proof 5 didn't bite before Codex.
-- **Recovery:** [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) merged `main` into `goal/stage-1`. The two open branches still lack the skill until they
-  merge their base.
+- **Recovery:** [PR 165](https://github.com/AaronAbuUsama/architect/pull/165) merged `main` into `goal/stage-1`. `goal-3/st1-22-check` took it in at 06:52 (d7c225b1);
+  `goal-3/grid-evals-mcp-schema` hadn't when this was written.
 - **What changed:** nothing yet. The Scribe's "applied" meant "merged on `main`", not "in force where the work runs".
   The same gap held for `builder-paths` and `cancel-closed`, which reached `goal/stage-1` two hours after `main` and
   haven't reached `m1`.
@@ -39,10 +39,11 @@ gave was checked against its source; where the seed was wrong, the entry says so
   rows sharing one fragment id passed, so a refusal linked to the wrong rule. The last two are the same hole: the check
   trusted an element existed, not that it was unique and pointed to its own target. None was a product bug.
 - **Evidence:** [PR 166](https://github.com/AaronAbuUsama/architect/pull/166): Codex at 06:32 (two findings, on 4cb6dc19), 06:39 (on 3363aa75) and 06:43 (on 3f921a19);
-  fixes 3363aa75 and 3f921a19, each with planted controls. The third finding was unanswered when this was written.
-- **Cost:** three review rounds and two fix commits so far, on a first commit of 331 lines.
+  fixes 3363aa75 and 3f921a19, each with planted controls. The third was fixed in 30f923d0 (06:50), which asks for
+  exactly one wherever the contract says one: a fix of the whole family. Codex's next review, of d7c225b1, was clean.
+- **Cost:** three rounds with findings and three fix commits, on a first commit of 331 lines.
 - **Found by:** Codex.
-- **Recovery:** each finding planted as a failing control, then fixed.
+- **Recovery:** each finding planted as a failing control, then fixed; the third with a rule for its whole family.
 - **What changed:** nothing yet; proposal 14.
 - **Pattern:** checks a wrong output can pass.
 

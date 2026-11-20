@@ -42,7 +42,8 @@ Entries:
 - 2026-11-19 · A 🔍 found that the unique-field checks could be passed without the real index (win)
 
 **Covers it today:** the `author` skill's proof 5, "It can't be passed hollow" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)), which asks for one
-cheapest wrong implementation; planting each review finding as a failing case.
+cheapest wrong implementation, on `goal/stage-1` only since 06:47 on 20 November, after both loops began; planting each
+review finding as a failing case.
 
 **Gap:** one wrong implementation is named, where the holes Codex found came in families. Nothing asks for every way
 a wrong output could pass, a pass by someone hostile before Codex, or a rewrite once a family repeats.
