@@ -108,6 +108,12 @@ belongs to, and why it waits.
 - **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
   item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.
 
+## From prove's coverage (the eval 8 line, G3)
+
+- **A "reachable from a journey" flag on the model's refusals.** Prove's coverage line leaves out the runtime refusals no journey can cause by name:
+  every refusal coded under the runtime's prefix (`AR`) except `NotAllowed` (`packages/prove/src/modules/evals/internal/run.ts`, `unreachable`). That is
+  inferred, so the next runtime refusal is classed by its prefix, right or wrong. When one arrives, the model should say per refusal whether a journey can
+  cause it, and prove should read that. Waits on the next runtime refusal (121 to 125 are held for them, G3).
 ## From the grid (error.portal, #168)
 
 - **`error.portal` can't see whether the portal really has a metrics source.** A page that always shows the `not-yet` marker

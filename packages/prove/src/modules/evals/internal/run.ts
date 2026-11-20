@@ -32,11 +32,24 @@ const reachedIn = (model: Model, evidence: ReadonlyArray<Evidence>) => {
   };
 };
 
-const required = (op: OperationModel) => ({
+/**
+ * The runtime's own refusals no journey can cause: every refusal the model codes under the runtime's prefix (`AR`, read from `NotAllowed`'s
+ * code) except `NotAllowed`, which a step reaches by naming a caller who may not. `IdempotencyConflict` is one: it needs a second payload under
+ * a held request key, and a journey step cannot send one. Counting it would leave it uncovered for ever (G3). The names come from the model.
+ *
+ * This is inferred from names ("every AR- refusal except NotAllowed"). When the next runtime refusal arrives, the model should carry a
+ * "reachable from a journey" flag per refusal and this should read it (design/later.md, "From prove's coverage").
+ */
+const unreachable = (model: Model): ReadonlySet<string> => {
+  const prefix = model.refusals?.["NotAllowed"]?.split("-")[0];
+  return new Set(prefix === undefined ? [] : Object.entries(model.refusals).filter(([name, code]) => name !== "NotAllowed" && code.startsWith(`${prefix}-`)).map(([name]) => name));
+};
+
+const required = (op: OperationModel, skip: ReadonlySet<string> = new Set()) => ({
   move: op.move ? [`${op.thing}.${op.move.key}`] : [],
   outcomes: op.move ? op.move.to.map((s) => `${op.thing}:${s}`) : [],
   errors: op.errors.map((x) => `${op.name}:${x}`),
-  runtime: op.refusals.filter((r) => !op.errors.includes(r)).map((r) => `${op.name}:${r}`),
+  runtime: op.refusals.filter((r) => !op.errors.includes(r) && !skip.has(r)).map((r) => `${op.name}:${r}`),
 });
 
 const gaps = (op: OperationModel, sets: Sets) => {
@@ -51,7 +64,7 @@ const gaps = (op: OperationModel, sets: Sets) => {
 
 /**
  * 8. Coverage, per operation: called by some journey or starting world, its move made, every outcome reached and every
- * declared error refused. The runtime's own refusals (NotAllowed, the machine's) are counted but never required.
+ * declared error refused. The runtime's own refusals (NotAllowed, the machine's) are counted but never required; the run's line counts only those a journey can cause (not `IdempotencyConflict`: see `unreachable`).
  */
 export const coverage: PerOperation = (op, _mine, { project, all }) => {
   const failures = gaps(op, reachedIn(project.model, all));
@@ -61,9 +74,11 @@ export const coverage: PerOperation = (op, _mine, { project, all }) => {
 /** The run's coverage in one line: what was reached of everything declared. It never fails; each operation's does. */
 export const coverageSummary = (model: Model, evidence: ReadonlyArray<Evidence>): Verdict => {
   const sets = reachedIn(model, evidence);
-  const all = Object.values(model.operations).map(required);
+  const skip = unreachable(model);
+  const all = Object.values(model.operations).map((op) => required(op, skip));
   const count = (xs: ReadonlyArray<string>, hit: ReadonlySet<string>) => `${xs.filter((x) => hit.has(x)).length}/${xs.length}`;
+  const left = [...skip].filter((name) => Object.values(model.operations).some((op) => op.refusals.includes(name) && !op.errors.includes(name)));
   const flat = (k: keyof ReturnType<typeof required>) => [...new Set(all.flatMap((r) => r[k]))];
-  const notes = [`moves ${count(flat("move"), sets.moved)} · outcomes ${count(flat("outcomes"), sets.reached)} · refusals ${count(flat("errors"), sets.refused)} · runtime refusals ${count(flat("runtime"), sets.refused)}`];
+  const notes = [`moves ${count(flat("move"), sets.moved)} · outcomes ${count(flat("outcomes"), sets.reached)} · refusals ${count(flat("errors"), sets.refused)} · runtime refusals ${count(flat("runtime"), sets.refused)}${left.length ? ` (not counted: ${left.join(", ")}, which no journey can cause: a step cannot send a second payload under a held request key)` : ""}`];
   return { eval: "coverage", operation: undefined, failures: [], notes };
 };
