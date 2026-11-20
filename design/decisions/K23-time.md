@@ -121,8 +121,9 @@ export default Blueprint.environment({ runs: "cloudflare", clock: Blueprint.cloc
 - **Scaled**: time flows by itself at a speed, one second per second by default, and can also be jumped forward.
   `ortho dev` runs a local or test environment's clock this way (Aaron, Q2): `ortho clock advance "1 month"` or the
   portal's control jumps it, settling exactly as a journey's step does, and `ortho dev --speed 720` (a month an hour)
-  or `ortho clock speed 720` makes it run fast (Aaron, Q3). At any speed but one, a ticker sets the chain's next
-  block time to the world's every real second, so blocks between ticks share a time. `ortho prove` always runs the
+  or `ortho clock speed 720` makes it run fast (Aaron, Q3). At every speed, one second per second included, a ticker
+  sets the chain's next block time to the world's every real second, since Anvil started still never follows the wall
+  clock by itself; blocks between ticks share a time. `ortho prove` always runs the
   same environment stepped.
 
 A world's own lifetime and the portal's "observed at" are real time, never the world's: they are about the machine,
