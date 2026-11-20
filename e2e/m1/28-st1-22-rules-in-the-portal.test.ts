@@ -174,10 +174,45 @@ describe.each([
   ["a refusal listed twice on its operation's page", "refusals", "is shown 2 times", [["o.refusals.map((e) =>", "o.refusals.concat(o.refusals).map((e) =>"]]],
   ["a refusal its operation does not have", "refusals", "not one of its refusals", [["o.refusals.map((e) =>", `o.refusals.concat(["HandleNotClaimed"]).map((e) =>`], [`return "<span>" + esc(e) + "</span>";`, `return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="">' + esc(e) + "</span>";`]]],
   ["a rules stop naming a rule twice", "spine", "names a rule twice", [[SPINE_RULES, `data-rules="' + rules.concat(rules).join(",")`]]],
+  // the five proofs' other ways (SKILL.md, proof 5), one planted fault each
+  ["a sentence right for one rule and wrong for another", "sentences", "does not carry", [[`r.fields.join(' and '))`, `(thing === 'profile' ? 'x' : r.fields.join(' and ')))`]]],
+  ["a scope wider than the model's", "section", `while "claimed,released"`, [[`'" data-while="' + r.while.join(",")`, `'" data-while="' + r.while.concat(["released"]).join(",")`]]],
+  ["a rule's row left out", "section", "lists rules", [["rules.map(([n, r]) =>", "rules.slice(1).map(([n, r]) =>"]]],
+  ["a refusal's sentence left out", "refusals", "0 `refusal-sentence`", [[`<i data-portal="refusal-sentence">`, `<i>`]]],
+  ["a row for a rule the model does not have", "section", "lists rules", [["rules.map(([n, r]) =>", `rules.concat([["ghost", { fields: ["x"], while: [], refuse: "HandleTaken" }]]).map(([n, r]) =>`]]],
+  ["a rules stop on an operation that can break no rule", "spine", "can break no rule", [["(rules.length ? '<div data-portal=\"spine-stop\" data-stop=\"rules\"", "(true ? '<div data-portal=\"spine-stop\" data-stop=\"rules\""]]],
+  ["a missing attribute read as null", "section", `refuses "undefined"`, [[`(r.refuse ?? "")`, `String(r.refuse)`]]],
+  ["a missing description printed as a sentence", "sentences", "does not carry", [[`r.description ?? (`, `(r.description ? r.description : r.refuse ? "undefined" : `]]],
+  ["a Rules section on a thing with no rules", "section", "declares no rule", [[`(rules.length ? '<section data-portal="rules">'`, `(rules.length || name === "link" ? '<section data-portal="rules">'`]]],
+  ["a row with no id", "section", "has no id", [[`id="rule-' + n + '"`, ``]]],
+  ["a link to a fragment nothing answers to", "refusals", "is 0 elements", [[`'#rule-' + n`, `'#rule-nowhere'`]]],
+  ["the rules before the lifecycle", "section", "before the lifecycle", [[`+ (t.machine ? '<div data-portal="lifecycle">' + t.machine.states.join(" > ") + "</div>" : "")`, ``], [`+ "</p>").join("");`, `+ "</p>").join("") + (t.machine ? '<div data-portal="lifecycle">x</div>' : "");`]]],
+  ["the rules after the operations", "section", "after the operations", [[`+ (rules.length ? '<section data-portal="rules">'`, `+ Object.values(m.operations).filter((o) => o.thing === name).map((o) => '<div data-portal="operation-row" data-operation="' + o.name + '">' + o.name + "</div>").join("") + (rules.length ? '<section data-portal="rules">'`]]],
+  ["a generated sentence repeating another rule's description", "sentences", "repeats another rule's description", [[`' holds this '`, `' holds this you already hold a name '`]]],
+  // visibility: every element the judge counts must be visible
+  ["a rule's row hidden with display:none", "section", "lists rules", [[`'<div data-portal="rule" id=`, `'<div style="display:none" data-portal="rule" id=`]]],
+  ["the Rules section hidden", "section", "0 Rules sections", [[`'<section data-portal="rules">'`, `'<section hidden data-portal="rules">'`]]],
+  ["a rule's sentence hidden", "sentences", "does not carry", [[`<i data-portal="rule-sentence">`, `<i style="visibility:hidden" data-portal="rule-sentence">`]]],
+  ["a refusal hidden from the page (aria-hidden)", "refusals", "is shown 0 times", [[`'<span data-portal="refusal" data-refusal="'`, `'<span aria-hidden="true" data-portal="refusal" data-refusal="'`]]],
+  ["a rule link at opacity 0", "refusals", "0 `rule-link`", [[`<a data-portal="rule-link"`, `<a style="opacity:0" data-portal="rule-link"`]]],
+  ["the lifecycle hidden", "section", "has a machine and no", [[`'<div data-portal="lifecycle">'`, `'<div hidden data-portal="lifecycle">'`]]],
+  ["the rules stop hidden", "spine", "the spine has no", [[`'<div data-portal="spine-stop" data-stop="rules"`, `'<div style="display:none" data-portal="spine-stop" data-stop="rules"`]]],
   ["a spine stop twice", "spine", "more than once", [[`+ '<div data-portal="spine-stop" data-stop="commit">commit</div>'`, `+ '<div data-portal="spine-stop" data-stop="commit">commit</div><div data-portal="spine-stop" data-stop="commit">commit</div>'`]]],
 ] as ReadonlyArray<readonly [string, keyof Verdicts, string, ReadonlyArray<readonly [string, string]>]>)("28 control: the judge asks for exactly one", (_, group, said, changes) => {
   it(`names ${_}`, { timeout: 120_000 }, async () => {
     const found = (await judgedWith(changes))[group];
     expect(found.some((p) => p.includes(said)), `${said}\n${found.join("\n")}`).toBe(true);
+  });
+});
+
+describe("28 control: the judge's expected values come from the model, not from the page", () => {
+  it("a page that serves one wire, judged against another, is refused", { timeout: 120_000 }, async () => {
+    const served = await withRules(pluggedIn, PLANTED, false);
+    const expected = await withRules(pluggedIn, AS_THEY_STAND, true);
+    const portal = await ServedPortals.open({ context: context(served), clientDir: clientDir(false), server: standInServer, run });
+    try {
+      const found = await judge(portal, expected.wire, expected.rules);
+      expect(found.section.length + found.sentences.length, "the page's own names and words are not the model's").toBeGreaterThan(0);
+    } finally { await portal.close(); }
   });
 });

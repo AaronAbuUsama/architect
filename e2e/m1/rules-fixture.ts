@@ -50,21 +50,23 @@ export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: 
 /** In the page: every hook this check reads, as plain data. `__NAMES__` is the refusals the rules own. */
 const SCAN = `(() => {
   const names = __NAMES__;
-  const q = (s) => [...document.querySelectorAll(s)];
+  // Only what a person can see counts: not display:none, visibility:hidden, opacity 0, \`hidden\` or aria-hidden.
+  const vis = (e) => e.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true }) && !e.closest('[hidden],[aria-hidden="true"]');
+  const q = (s, from = document) => [...from.querySelectorAll(s)].filter(vis);
   const a = (e, n) => e.getAttribute(n) ?? "";
-  const text = (e, s) => (e.querySelector(s)?.textContent ?? "").trim();
+  const text = (e, s) => (q(s, e)[0]?.innerText ?? "").trim();
   const bare = [];
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n = walk.nextNode(); n; n = walk.nextNode()) {
-    if (["SCRIPT", "STYLE"].includes(n.parentElement?.tagName ?? "")) continue;
+    if (["SCRIPT", "STYLE"].includes(n.parentElement?.tagName ?? "") || !n.parentElement || !vis(n.parentElement)) continue;
     for (const name of names) if (n.data.includes(name) && !n.parentElement?.closest('[data-portal="refusal"]')) bare.push({ name, text: n.data.trim().slice(0, 80) });
   }
   return {
     order: q("[data-portal]").map((e) => a(e, "data-portal")).filter((h) => ["lifecycle", "rules", "operation-row"].includes(h)),
     sections: q('[data-portal="rules"]').length,
     strays: q('[data-portal="rule"]').filter((e) => !e.closest('[data-portal="rules"]')).length,
-    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]'), sentences: e.querySelectorAll('[data-portal="rule-sentence"]').length })),
-    refusals: q('[data-portal="refusal"]').map((e) => { const l = e.querySelector('a[data-portal="rule-link"]'); return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: e.querySelectorAll('[data-portal="refusal-sentence"]').length, links: e.querySelectorAll('a[data-portal="rule-link"]').length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, href: l === null ? null : a(l, "href") }; }),
+    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]'), sentences: q('[data-portal="rule-sentence"]', e).length })),
+    refusals: q('[data-portal="refusal"]').map((e) => { const l = q('a[data-portal="rule-link"]', e)[0] ?? null; return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: q('[data-portal="refusal-sentence"]', e).length, links: q('a[data-portal="rule-link"]', e).length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, href: l === null ? null : a(l, "href") }; }),
     lifecycles: q('[data-portal="lifecycle"]').length,
     bare,
     stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules") })),
