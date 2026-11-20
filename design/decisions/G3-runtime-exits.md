@@ -43,6 +43,15 @@ server already holds, as the machine's not-from refusal), no fields (the stored 
 caller's to read), listed on idempotent operations only. MCP can't reach it yet: a tool call carries no request key
 (ledger `HAN-10`'s note, snag S-16).
 
+## In the scaffold's header
+
+A scaffold header lists `IdempotencyConflict` on an idempotent operation, as the last of its `refusals` (the model's order: the declared
+errors, the machine's, then the runtime's own in the order the runtime tries them, `NotAllowed` and then `IdempotencyConflict`), as the runtime's:
+exit 120, `AR-002`, "the runtime's, when the same request key comes with another payload", `from` the operation's own file, where it declares
+`idempotent`. K16 a.4 lists `op.refusals` in order and that list already holds `NotAllowed`; this record's own reason, that a handler can
+neither make nor avoid it, applies to `NotAllowed` as much, so the header says it and does not filter it out. `allowance-spend.ts.golden` is
+the only golden of an idempotent operation's header; the columns widen by one (`IdempotencyConflict` is the longest name, `exit 120` the longest exit).
+
 ## What changes
 
 Every place that said "5 to 125", found by `git grep 125` on `5d2887ca`, moves in the same change as HAN-10:
