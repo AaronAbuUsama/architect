@@ -16,8 +16,8 @@ No other cloud credential is made. If staging needs one, the work stops and asks
 
 ## The account and the token
 
-- **Account:** the one `CLOUDFLARE_ACCOUNT_ID` names, assumed to be K10's `orthograph-staging` account. The value is
-  never read, so this rests on Aaron setting it for Goal 3's staging.
+- **Account:** the one `CLOUDFLARE_ACCOUNT_ID` names. It was assumed here to be K10's dedicated staging account; it is
+  not (see the addendum below).
 - **Token:** `CLOUDFLARE_API_TOKEN`, scoped by Aaron to that account. K10 asks for Workers Scripts, D1, Durable
   Objects, R2 and Containers, all edit.
 - **Where they are used:** only inside GitHub Actions, as `secrets.CLOUDFLARE_API_TOKEN` and
@@ -68,6 +68,29 @@ the cloud snags before M7.03 and M7.04 are built.
 **Final pass, at the end:** `ortho env up staging` and `ortho env destroy staging` (M7.03, M7.04), for the
 evidence.
 
+## Addendum, 20 November 2026: one account for every environment, for now
+
+The first staging pass (`spikes/staging-pass`, #198) found the account already holding 18 Workers, 12 Durable Object
+namespaces and 6 R2 buckets. Aaron, asked through the conductor: "it's not just staging... Staging, production's going
+to be there... for now, nothing important is actually working there anyway... It's all like experimentation right
+now." So the account is the one Orthograph uses for every environment, for now. The conductor's rule:
+
+1. **One prefix, from one place.** Everything Orthograph makes there carries a prefix naming Orthograph, the app and the
+   environment, then the run: `ortho-pluggedin-stg-<run>`. The prefix is computed in one place in code, from the
+   app's name, the environment and the run, and never typed by hand.
+2. **Destroy touches only its own run.** Destroy deletes only what carries its own run's prefix. Its account listing
+   afterwards fails the job if a resource with that prefix is left, and nothing deletes or changes a resource without
+   it. A check covers both: a planted leftover fails the job, and a planted unprefixed resource is untouched.
+3. **What was there before is not ours.** The 18 Workers, 12 Durable Object namespaces and 6 buckets present before
+   Goal 3 are never touched, read only by the listing.
+4. **Later, one account per environment.** When production holds real data, each environment gets its own account
+   (`design/later.md`).
+
+Still Aaron's to do: move the account id from a repository variable to a secret (the repository is public, so the id
+shows in Actions logs), and give staging an Axiom dataset and ingest token for its traces. Until then staging runs
+without traces.
+
 ## Supersedes
 
 - design/frame/secrets.md: "which one `Cloudflare.secrets` means is a" → "`Cloudflare.secrets` means each Worker's own secrets, not the account-level Secrets Store"
+- design/milestones.md: "orthograph-staging" → "the Cloudflare account Aaron uses for every environment for now, every resource prefixed"
