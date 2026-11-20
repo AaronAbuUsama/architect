@@ -57,10 +57,10 @@ $ ortho impact
 allowance lives: database → chain              major, next 2.0.0
   payload of allowance.spend gains a signature   (signed by the caller's wallet)
   stale: allowance.grant, .spend, .revoke, .get in every environment
-  mounts added: projection solidity (automatic), adapter chain (needed by lives: chain)
+  mounts added: language solidity and host evm (automatic, needed by the chain store)
 ```
 
-The Solidity projection mounts itself, because a thing on chain can't exist without it ([`../projections.md`](../projections.md)
+The Solidity language and the EVM host mount themselves (K27), because a thing on chain can't exist without them ([`../projections.md`](../projections.md)
 section 3.9). The chain adapter mounts too; its stand-in is Anvil.
 
 ```ts
@@ -95,7 +95,7 @@ transaction.
 
 ## Blanks and handlers
 
-The Solidity projection writes `src/Budgets.sol` once, with blanks, beside the generated machine
+The Solidity language writes `src/Budgets.sol` once, with blanks, beside the generated machine
 (`generated/solidity/AllowanceMachine.sol`, whose `_step` is the compiled machine). The blank is the same blank as the
 Effect handler's: the limit check.
 
@@ -129,7 +129,7 @@ reorg is corrected rather than silently wrong.
 
 ## Conformance: the two machines against each other
 
-The proof that Solidity and Effect agree is a fuzz test the Solidity projection generates:
+The proof that Solidity and Effect agree is a fuzz test the Solidity language generates:
 
 1. Generate random sequences of moves (grant, spend with random amounts, revoke) from random signers.
 2. Run each sequence through the Effect machine and through the contract on Anvil.
