@@ -27,13 +27,20 @@ One line changes in the thing. Everything else, the machine, the roles, the erro
 (`examples/acme/blueprint/things/allowance/machine.ts:5-13` on `origin/layer/3`).
 
 ```ts
+// blueprint/stores/vault.ts: a chain store, the contract "Vault", named by its path (K25)
+export default Blueprint.store.chain.evm({ per: Organization });
+
 // blueprint/things/allowance/thing.ts
+import vault from "../../stores/vault.ts";
 export const Allowance = Blueprint.thing({
   description: "Money a member may spend from their organisation, up to a limit each month.",
-  fields: { id: Blueprint.id("alw"), organization: Organization.fields.id, member: Person.fields.id, limit: Amount, spent: Amount },
-  lives: Blueprint.chain({ contract: "AllowanceVault", per: "organization" }),   // was: the database
+  fields: { id: Blueprint.id("alw"), organization: Organization.fields.id, member: Blueprint.account(), limit: Amount, spent: Amount },
+  lives: vault,   // was: the database
 });
 ```
+
+The member is an account, not a person id: on chain, the signer is compared with it, and person ids never go on chain
+(K25).
 
 ```ts
 // blueprint/values/money.ts: a value says what it is in every language
@@ -155,7 +162,7 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 | | Today (`origin/layer/3`) | Proposed (layer 4) |
 |---|---|---|
-| Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds `Blueprint.chain({ contract, per })` |
+| Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds chain stores, `Blueprint.store.chain.evm({ per })` (K25) |
 | Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@orthograph/language-solidity` plus the solidity projection |
 | Relayer, follower | not built (L3.06, L3.08 on layer 3) | two actors |
 | Conformance between languages | none | generated fuzz, Effect machine against contract |

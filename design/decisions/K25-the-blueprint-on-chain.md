@@ -1,0 +1,150 @@
+# K25: the blueprint on chain
+
+Decided 20 November 2026 by Aaron, from the 📐 on-chain designer's grill on the first step of the on-chain lifecycle,
+what a blueprint author writes for a thing that lives on chain. Question 1 option A ("agreed"), question 3 option A
+("agreed"). For question 2, the "roles on chain" follow-up, he took option A ("A, OZ interface"). It came after his own
+reframe: "why can't we adopt a standard like OZ roles … this should work cross chains or does it matter? the authority
+is the chain". Grounded at `origin/goal/stage-1` `eaf7a10e`. The options, drawn as code, are on the session's whiteboard
+(https://claude.ai/artifact/Awa6ahjAfYiLQXsUyXY9Ht, section "Step 1, the blueprint").
+
+This record amends K7 Q4 (the inline `lives` spelling) and K7's decided item 2 (how roles are generated). Everything
+else in K7 stands.
+
+## The problem, in code
+
+K7 put the contract inline, its names written as strings:
+
+```ts
+// design/decisions/K7-chain-languages.md:284
+lives: Blueprint.chain.evm({ contract: "Governance", per: "workshop" })
+```
+
+Meanwhile, stores became files, each named by its path, and their kind was left open:
+
+```ts
+// packages/orthograph/src/modules/stores/types.ts:19
+readonly kind: <const K extends string>(of: K) => Store<K>;
+```
+
+`AGENTS.md:66` says that a declared name is never written as a string. A caller is a person id:
+
+```ts
+// packages/orthograph/src/modules/roles/types.ts:6-8
+export type Principal =
+  | { readonly kind: "anonymous" }
+  | { readonly kind: "person"; readonly person: string; readonly email?: string };
+```
+
+A contract, though, only sees an address. A value also carries only what TypeScript needs
+(`packages/orthograph/src/modules/values/types.ts:21-25`), so nothing says what it becomes in Solidity, and nothing
+stops a secret field from being generated into public storage. Ledger `STO-19` records that the inline shape was
+written three different ways.
+
+## Decided
+
+1. **A chain store is a file, and a thing lives in it.** The contract's name comes from the file's path. Several
+   things may share one store, and so one contract, which is how a `holds` role (K20) can read another thing's rows
+   on chain. The environment binds the store to a network, the same way it binds a database store.
+
+   ```ts
+   // blueprint/stores/vault.ts: the contract is "Vault"
+   export default Blueprint.store.chain.evm({ per: Organization });
+
+   // blueprint/things/allowance/thing.ts
+   import vault from "../../stores/vault.ts";
+   export const Allowance = Blueprint.thing({ /* … */ lives: vault });
+
+   // blueprint/environments/staging.ts
+   stores: { vault: Chain.evm.network("base-sepolia") },
+   ```
+
+   `.solana(...)` and `.aztec(...)` follow when those languages are built (K7 F3). There is no inline form.
+   `per` names a thing, never a string. What `per` deploys (one contract per instance, or one keyed contract) is the
+   next step's question.
+
+2. **A person on chain is an account.** A field that holds whoever acts on chain is `Blueprint.account()`, a CAIP-10
+   account (`eip155:8453:0x…`), as the wallets plugin already writes them. Person ids never go on chain. The server
+   finds a person's accounts through wallet linking (M2.13). A Safe or an ERC-7702 account is just an account.
+
+3. **The chain is the authority.** For a thing that lives on chain, the contract alone decides who may act. The server
+   and the SDK only check ahead of time by simulating (K7 Q5 item 3), and read roles back through the follower.
+
+4. **Roles show up through OpenZeppelin's interface, and stay ours.** A declared role (`who` or `holds`, K20) is
+   compiled behind `IAccessControl` (`@openzeppelin/contracts` 5.x, `access/IAccessControl.sol`):
+
+   ```solidity
+   // one role id per instance: "a director of this company"
+   bytes32 role = keccak256(abi.encode("director", company));
+   function hasRole(bytes32 role, address account) external view returns (bool);   // answers every declared role
+   // when a holding row moves into the role's states
+   emit RoleGranted(role, person, msg.sender);
+   // grantRole and revokeRole revert NotAllowed unless the blueprint declares who grants the role
+   ```
+
+   This replaces K7's "OpenZeppelin-style `onlyRole`, generated rather than imported". The modifier stays, but the
+   standard interface and events are added, so wallets, Safe apps and explorers can read who holds what. A `rule`
+   role still can't go on chain (K20). Each chain renders the same blueprint role in its own idiom:
+   - Solana: one account per holding, at seeds `["<role>", <instance>, <person>]`, with `emit_cpi!` events.
+   - Aztec: one private note per holding, checked on the caller's device, with no public `hasRole`, which would undo
+     the privacy.
+
+   None of these is built here.
+
+5. **A value's Solidity type is worked out from the value.** On an EVM chain store:
+
+   | Value | Solidity |
+   |---|---|
+   | `uint(bits)` | `uint<bits>` (bits a multiple of 8, at most 256) |
+   | `id(prefix)` | `bytes32`, the id's own text padded, so it round-trips |
+   | `text({ max })` | `string` |
+   | `account()` | `address`, its chain part checked against the store's chain |
+   | `email()`, `visibility.secret(...)`, `visibility.private(...)` | refused: "a public chain shows every field" |
+   | `schema(...)` | refused unless it declares its Solidity type |
+
+   Money is not in this table. It gets its own round with Aaron (ledger `THI-07`).
+
+6. **An operation on a thing that lives on chain runs on chain.** Its `runs` is worked out, and an author never writes
+   `runs: "chain"`. This is the building agent's call, offered to Aaron in the round and not objected to.
+
+## Not chosen, and why
+
+- **The inline form** (K7's spelling): it writes names as strings and repeats them on every thing.
+- **One contract per thing**: a `holds` role whose rows sit in another contract can't be checked.
+- **Person ids plus a registry the server writes**: the contract would trust the server again, which is what living
+  on chain is meant to avoid.
+- **Swapping in the linked wallet**: a second or new wallet would strand what the old address held.
+- **OpenZeppelin `AccessControl` imported as it is, or `AccessManager`**: both have one role list for the whole
+  contract, with no "director of this company", and grants become a second truth beside the holding rows.
+  `AccessManager`'s delayed grants are worth another look with time (K23), not here.
+- **Solidity types written by hand on each value, or a thing stored as bytes**: the first drifts, and the second
+  leaves the contract unable to check a limit or a role.
+
+## What it touches
+
+| Dependent | Change |
+|---|---|
+| `orthograph`: stores, things, values, roles | `Blueprint.store.chain.evm`, `Blueprint.account()`, and a Solidity type on `ValueMeta` (M6.10). Nothing is built here. Goal 3 owns `packages/orthograph` until it lands |
+| compiler `environments.ts:30` | binds a chain store as well as a database store (M6.10, M6.17) |
+| `language-solidity` (M6.11) | renders roles behind `IAccessControl` |
+| The allowance and private-membership examples, `frame/projections.md` | rewritten to the store form in this change |
+| K20 | its Solidity sketch (`K20-roles-across-things.md:209-234`) gains `hasRole` and the events; its rule that a chain role's holding thing lives in the same store now reads "the same chain store" |
+
+## Ledger
+
+- `STO-19` (three spellings of `Blueprint.chain`): decided here. Built in M6.10.
+- `THI-01` (a value's Solidity type): decided here. Built in M6.10.
+
+## Supersedes
+
+- design/decisions/K7-chain-languages.md (Q4): "`lives: Blueprint.chain.evm({ contract: "Governance", per: "workshop" })`, and likewise `.solana(...)` and `.aztec(...)`. `Blueprint.chain({...})` alone means `evm`" → "`lives: governance`, a chain store declared in `blueprint/stores/governance.ts` as `Blueprint.store.chain.evm({ per: Workshop })` (K25)"
+- design/decisions/K7-chain-languages.md (decided item 2): "OpenZeppelin-style `onlyRole`, generated rather than imported" → "generated behind OpenZeppelin's `IAccessControl`, one role id per instance (K25)"
+- design/decisions/K3-stores-and-sources.md (decided item 1): "`lives: Blueprint.chain({ … })` from L4.01" → "a chain store file, `Blueprint.store.chain.evm({ per })` (K25)"
+- design/decisions/K5-the-whole-shape.md: "`lives: Blueprint.chain({ contract: "Governance", per: "workshop" })`" → "`lives: governance` (K25)"
+- design/decisions.md: "switched on by `lives: Blueprint.chain({ contract, key, per })`" → "switched on by a thing living in a chain store (K25)"
+- design/build-plan.md (L4.01): "`lives: Blueprint.chain({ contract, per })`" → "a chain store file (K25)"
+- design/milestones.md (M6.10): "`lives: Blueprint.chain.evm(...)`" → "chain stores (`Blueprint.store.chain.evm({ per })`, K25), `Blueprint.account()`"
+- design/milestones.md (M6.11): "roles generated in (OpenZeppelin-style `onlyRole`, generated, not imported)" → "roles generated in behind OpenZeppelin's `IAccessControl` (K25)"
+- .agents/skills/kanban/data/tasks.json (M6.10, M6.11): the same two phrases → the same new words
+- design/frame/examples/allowance-on-chain.md: "`lives: Blueprint.chain({ contract: "AllowanceVault", per: "organization" })`" → "`lives: vault`, with `blueprint/stores/vault.ts`"; "`member: Person.fields.id`" → "`member: Blueprint.account()`"; "adds `Blueprint.chain({ contract, per })`" → "adds chain stores (K25)"
+- design/frame/examples/private-membership.md: "`lives: Blueprint.chain({ contract: "RolePool", per: "organization", network: Aztec })`" → "`lives: rolePool`, with `Blueprint.store.chain.aztec({ per: Organization })`"
+- design/frame/projections.md (3.9): "every thing that `lives: Blueprint.chain(...)`" → "every thing that lives in a chain store"

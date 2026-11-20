@@ -3892,7 +3892,7 @@
   "title": "Values with Solidity types and lives",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "Values with Solidity types and lives: Blueprint.chain.evm(...) (chain as a family of store kinds, K7 Q4); the compiler accepts runs: \"chain\" (L4.01; describe.ts:108 refuses it today); blueprint/refusals.lock for every language, so codes no longer come from declaration order (describe.ts:79; K7 Q5)"
+  "what": "Values with Solidity types, chain stores (Blueprint.store.chain.evm({ per }), chain as a family of store kinds, K7 Q4, K25) and Blueprint.account(); the compiler accepts runs: \"chain\" (L4.01; describe.ts:108 refuses it today); blueprint/refusals.lock for every language, so codes no longer come from declaration order (describe.ts:79; K7 Q5)"
  },
  "M6-11": {
   "doneWhen": "forge build compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning",
@@ -3914,7 +3914,7 @@
   "title": "language-solidity, no longer a placeholder",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "language-solidity, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in (OpenZeppelin-style onlyRole, generated, not imported), and generated/solidity/surface.json listing every external function for the clients; ortho check warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1)"
+  "what": "language-solidity, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in behind OpenZeppelin's IAccessControl, one role id per instance (K25), and generated/solidity/surface.json listing every external function for the clients; ortho check warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1)"
  },
  "M6-12": {
   "doneWhen": "the scaffold gives 0 passed · 24 failed: NotWritten",

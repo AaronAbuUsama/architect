@@ -711,7 +711,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 
 | id | item | source | status | slice |
 |---|---|---|---|---|
-| `THI-01` | A value carries only its schema; its Solidity type is added in a later slice. | packages/orthograph/src/modules/values/types.ts:1 | open | M6.10 |
+| `THI-01` | A value carries only its schema; its Solidity type is added in a later slice. | packages/orthograph/src/modules/values/types.ts:1 | open: decided by K25 (worked out from the value, 20 November 2026); built in M6.10 | M6.10 |
 | `THI-04` | On chain, a relayer actor and a chain follower actor are not built, and reads through the follower and the no-person's-key check are not built either. | design/frame/examples/allowance-on-chain.md:104 | open | M6.07, M6.09, M6.18 |
 | `THI-05` | There is to be one vault per organisation (S27); nothing is built. | design/frame/questions.md:423 | open | M6.01, M6.16 |
 
@@ -952,7 +952,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `STO-16` | The generated `wrangler.jsonc` uses a placeholder D1 database id until a deploy names a real one. | packages/generators/src/modules/render/internal/worker-config.ts:14<br>design/milestones.md:387 | open | M7.04 |
 | `STO-17` | The local database is rebuilt on every `forman dev` and no versioned migrations exist (the generated comment still says 'stage three'); K3 wants migrations generated per store from the model diff, ordered per environment. | design/decisions.md:127<br>design/frame/delta.md:73<br>design/decisions/D2.md:111<br>packages/generators/src/modules/render/internal/worker-config.ts:60<br>design/decisions/K3-stores-and-sources.md:90 | open | M1.17 |
 | `STO-18` | The private-membership example writes `Blueprint.chain({ contract, per, network: Aztec })`, but K3 makes Noir on Aztec a later store kind, so the example's chain wording has to change when Noir is built. | design/frame/examples/private-membership.md:39<br>design/decisions/K3-stores-and-sources.md:68<br>design/milestones.md:399<br>design/later.md:12 | open | later |
-| `STO-19` | The shape of `Blueprint.chain(...)` is written three ways (`{contract, key, per}`, `{contract, per}`, `{contract, per, network}`), and K3 still cites the step that builds it by its old name L4.01 (now M6.10). | design/decisions.md:103<br>design/frame/examples/private-membership.md:39<br>design/decisions/K3-stores-and-sources.md:37<br>design/milestones.md:362 | open | M6.10 |
+| `STO-19` | The shape of `Blueprint.chain(...)` is written three ways (`{contract, key, per}`, `{contract, per}`, `{contract, per, network}`), and K3 still cites the step that builds it by its old name L4.01 (now M6.10). | design/decisions.md:103<br>design/frame/examples/private-membership.md:39<br>design/decisions/K3-stores-and-sources.md:37<br>design/milestones.md:362 | open: decided by K25 (a chain store file, 20 November 2026); built in M6.10 | M6.10 |
 | `STO-20` | When a handler awaits a chain call, the actor must hold its lock across the whole call, not only the commit. | design/decisions/D2-stage-two.md:30<br>design/later.md:23 | open | later |
 | `STO-21` | `packages.md` has no `blueprint/stores/` folder in the project layout and describes mounts in one line. | design/packages.md:71<br>design/decisions/K3-stores-and-sources.md:36 | open | M1.17 |
 | `STO-22` | `packages.md` says `language-effect` holds 'locks, outbox', but the actor store has neither today. | design/packages.md:19 | open | M5.04 |

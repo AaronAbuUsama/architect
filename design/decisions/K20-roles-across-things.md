@@ -350,7 +350,7 @@ The rules are already decided across K3, K7 and N1; this gathers them, with role
 
 1. **You never write a blueprint for a language.** It says what the app keeps, who may do what, the moves and the
    refusals. A thing's `lives` picks where it is kept, and the language follows from that: the project's database or an
-   actor is TypeScript on the Worker, `Blueprint.chain.evm(...)` is Solidity, `.aztec(...)` is Noir, `.solana(...)` is
+   actor is TypeScript on the Worker, `Blueprint.chain.evm(...)` is Solidity (superseded by K25, 20 November 2026: a chain store, `Blueprint.store.chain.evm`), `.aztec(...)` is Noir, `.solana(...)` is
    Rust (K7 Q4). One app may use several at once, and moving a thing is one line.
 2. **Every language renders the same contract**: the same checks in the same order (role, then machine, then the body),
    the same refusal codes from one `refusals.lock`, the same events (K7 Q5, Q8). The SDK, CLI and MCP sit on top and
