@@ -2,7 +2,8 @@
 // `@orthograph/portal/server`, or from any generated code, may import `react`, `@orthograph/portal-ui` or HeroUI Pro. Three things are judged:
 //   1. the graph walker itself, on planted in-memory graphs (a control: it passes today);
 //   2. the real import graph: the server entry's, and every generated file's;
-//   3. the lint rule a builder writes: `ortho/no-ui-in-worker`, tried on a planted breach and its expected diagnostics.
+//   3. the lint rule a builder writes: `ortho/no-ui-in-worker`, tried on a planted breach and its expected diagnostics: each names the
+//      module in quotes ('react'), and says K19.
 // What a builder owes (K19, "The decision"): `packages/portal/package.json` exports `./server` (the data API for `/_portal/v1/*`, no
 // React); the generated portal entry imports only that; `.oxlintrc.json` turns the rule on for `generated/` folders and for the server
 // half of `packages/portal`. The pieces of the licensed package's name are joined here: check 15 allows the whole name only in portal-ui.

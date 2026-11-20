@@ -68,8 +68,8 @@
 //     unproven, unavailable), and `unavailable` only where no logbook is configured, as here.
 //  8. Journey steps come from `JourneyModel`, never from spans. Plugged In's wire now carries its journeys (N, with their steps), so
 //     `/portal/journeys` draws `journey` N times and `journey-step` once for each declared step, with no `journeys-empty`, whatever the
-//     window's traces hold; on a copy of the wire with `journeys` removed it shows the declared-none state (`journeys-empty`) and no
-//     step. The step-verdict hole (PRJ-47) is asserted once M1.42 brings step verdicts: not in this file yet.
+//     window's traces hold; on a copy of the wire with `journeys` empty (`{}`) it shows the declared-none state (`journeys-empty`) and no
+//     step. One page, `/portal/journeys`, lists every journey and its steps: the author's choice, not K19's text. The step-verdict hole (PRJ-47) is asserted once M1.42 brings step verdicts: not in this file yet.
 //  9. The reference panel is pinned to portal.md's order: Access, Refusal codes, Events, Values, Machines (not sorted).
 // 10. K19: every page, once drawn, carries `page[data-ready="true"][data-status]` (200, or 404 for a route that is not a page: the shell is always
 //     a 200), which the harness waits for and reads a page's status from (`e2e/served-portal/README.md`).
@@ -757,9 +757,10 @@ describe("21 L: what the portal cannot fill yet says `not yet`", () => {
   });
 
   it("with no journey declared the page says so and draws no step, whatever the window's traces hold", async () => {
-    const raw = structuredClone(pluggedInWire()) as { model: { journeys?: unknown } };
-    delete raw.model.journeys;
-    const wire = await decode(raw);
+    // The digest is over the whole document, so a changed wire is signed again, as the generator would sign it.
+    const { digest: _, ...unsigned } = structuredClone(pluggedInWire()) as { model: { journeys?: unknown }; digest: string };
+    unsigned.model.journeys = {};
+    const wire = await decode({ ...unsigned, digest: Wire.digestOf(unsigned) });
     const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
     expect(status).toBe(200);
     expect(parts(text, "journeys-empty").length, "the declared-none state").toBe(1);
