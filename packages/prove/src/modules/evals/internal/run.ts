@@ -36,6 +36,9 @@ const reachedIn = (model: Model, evidence: ReadonlyArray<Evidence>) => {
  * The runtime's own refusals no journey can cause: every refusal the model codes under the runtime's prefix (`AR`, read from `NotAllowed`'s
  * code) except `NotAllowed`, which a step reaches by naming a caller who may not. `IdempotencyConflict` is one: it needs a second payload under
  * a held request key, and a journey step cannot send one. Counting it would leave it uncovered for ever (G3). The names come from the model.
+ *
+ * This is inferred from names ("every AR- refusal except NotAllowed"). When the next runtime refusal arrives, the model should carry a
+ * "reachable from a journey" flag per refusal and this should read it (design/later.md, "From prove's coverage").
  */
 const unreachable = (model: Model): ReadonlySet<string> => {
   const prefix = model.refusals?.["NotAllowed"]?.split("-")[0];

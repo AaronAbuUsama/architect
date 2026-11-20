@@ -108,6 +108,9 @@ describe("evals on evidence", () => {
     const note = coverageSummary(model, refused).notes[0]!;
     expect(note, "two NotAllowed counted, the idempotent operation's IdempotencyConflict not").toContain("runtime refusals 0/2");
     expect(note).toContain("(not counted: IdempotencyConflict, which no journey can cause");
+    const own = { ...idempotent, errors: ["IdempotencyConflict"] } as unknown as OperationModel;
+    const declared = { ...model, operations: { "allowance.spend": own } } as unknown as Model;
+    expect(coverageSummary(declared, refused).notes[0], "an operation that declares it in its own errors: it is its own to refuse, so nothing is left out").toBe("moves 0/0 · outcomes 0/0 · refusals 0/1 · runtime refusals 0/1");
     const without = { ...model, refusals: { NotAllowed: "AR-001" }, operations: { "allowance.get": plain } } as unknown as Model;
     expect(coverageSummary(without, []).notes[0], "nothing left out, nothing said").toBe("moves 0/0 · outcomes 0/0 · refusals 0/0 · runtime refusals 0/1");
   });
