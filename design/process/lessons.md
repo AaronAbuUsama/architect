@@ -1,26 +1,12 @@
 # Lessons: what the build taught us about working
 
-The Scribe's log (`log.md`) records 72 events from 17 to 20 November 2026: where building Orthograph with agent threads
-broke, how it was noticed and how it recovered. `patterns.md` groups them into 18 families, and `proposals.md` turns
-the gaps into changes. This page boils all of that down into lessons: the working practices that would have prevented
-each failure, whether a skill or a check already holds that practice, and who needs it.
+The Scribe's log (`log.md`) records 72 events from 17 to 20 November 2026; `patterns.md` groups them into 18 families
+and `proposals.md` turns the gaps into changes. This page boils them down to lessons, written on 20 November 2026 as
+the first input to Foreman (`design/decisions/F9-foreman.md`). It cites the log and never changes it.
 
-It was written on 20 November 2026 as the first input to Foreman, the agent people build with on Orthograph
-(`design/decisions/F-foreman.md`). Foreman's working practices are these lessons, carried to people building their own
-apps. The log stays the Scribe's: this page cites it and never changes it.
-
-## How to read it
-
-Each lesson has four parts.
-
-- **The failure.** What went wrong, cited to `log.md` by line, so you can read the full entry.
-- **The practice.** What prevents it, as one instruction an agent can follow.
-- **Held by.** The skill, rule or check that already enforces it, cited by file and line, or "nothing yet".
-- **Who needs it.** *Building Orthograph* (the conductor and its threads), *building on Orthograph* (Foreman and the
-  people it works with), or *both*.
-
-A practice "held by a check" is enforced: a machine refuses the wrong move. "Held by a skill" means it is written where
-an agent reads it, and is kept on trust. "Nothing yet" means it lives only in someone's memory.
+Each lesson gives **the failure** (cited to `log.md` by line), **the practice** that prevents it, what it is **held by**
+(a check refuses the wrong move; a skill is kept on trust; "nothing yet" lives in someone's memory), and **who needs
+it**: building Orthograph, building on Orthograph, or both.
 
 ## At a glance
 
@@ -242,7 +228,7 @@ the real components before showing it.
 ## 18. The person must always be able to see where things stand
 
 **The failure.** The board went stale and Aaron asked "where are we?" (log.md:946). After the account switch, nobody
-could say what was being built (log.md:1016). Aaron, 20 November: he gets lost following the multi-thread build.
+could say what was being built (log.md:1016). Aaron, 20 November (from the brief, not the log): he gets lost following the multi-thread build.
 **The practice.** One page, kept current by whoever changes the state, says where everything stands in plain words:
 what is decided, what is moving, what waits on the person, and what is next.
 **Held by.** The `kanban` skill keeps a board and a snapshot in the repository, and the conductor keeps
@@ -304,8 +290,6 @@ all, then resume.
 **Held by.** `AGENTS.md`, "Standing rules", and the `threads` skill (`.agents/skills/threads/SKILL.md:52`). No check.
 **Who needs it.** Both.
 
----
-
 ## What this means for Foreman
 
 Three lessons are not yet held anywhere and land squarely on Foreman: walking a path before claiming it is clear (2),
@@ -313,7 +297,5 @@ always being able to see where things stand (18), and arguing on the design befo
 only in part, and Foreman's whole job depends on them: speaking from the big picture down and checking claims (16),
 and making a brief carry its blockers (19).
 
-The rest are already enforced for building Orthograph. Most carry over to building on it unchanged, because Foreman
-runs the same roles (journey author, checks author, climber, builder, reviewer) for the person's app. The ones that
-only exist because many agents share one Mac and one CI (8, and much of 10) matter less for a single person's repository,
-and Foreman inherits them through generated CI rather than teaching them.
+The rest carry over unchanged, because Foreman runs the same roles for the person's app. Those that exist because many
+agents share one Mac and one CI (8, much of 10) matter less there, and come through generated CI.

@@ -1,6 +1,6 @@
 # Test drive: Foreman on Capxul's first slice
 
-Written 20 November 2026. Foreman isn't built, so this plays it by hand: the skills in `design/decisions/F-foreman.md`
+Written 20 November 2026. Foreman isn't built, so this plays it by hand: the skills in `design/decisions/F9-foreman.md`
 section 3, followed as written, on the idea the whole project started from. The input is Capxul Next
 (`/Users/abuusama/projects/capxul-next`, read only, at commit `50851875`). The slice is Capxul's first: a company, its
 members, invitations, and signing in with a wallet. It stops where the ideation loop stops: a blueprint and the questions,
@@ -69,7 +69,8 @@ Orthograph has today:
 | Story | Can it be walked? | Why |
 |---|---|---|
 | 1, 2 | yes | a unique handle (`unique:` on the thing, goal/stage-1) and a database step that also writes the founder's membership (`Blueprint.step.database({ writes: [...] })`, `packages/orthograph/src/modules/operations/types.ts:171` on goal/stage-1) |
-| 3, 4 | yes | the starter already walks send and accept (`examples/starter/blueprint/starting-worlds/invited.ts`) |
+| 3 | yes | the starter already walks send and accept (`examples/starter/blueprint/starting-worlds/invited.ts`) |
+| 4 | yes | the starter has no decline, but it is one more move on the machine, the same shape as `revoke` (`examples/starter/blueprint/things/invitation/verbs/revoke.ts`) |
 | 5 | yes | the founder is a rule over one company (`examples/starter/blueprint/things/organization/roles.ts:5`) |
 | 6 | **no** | "one pending invitation per company and email" is uniqueness over two fields; Orthograph's unique keys are one field each (finding 4) |
 | 7 | yes | the starter's `revoke` (`examples/starter/blueprint/things/invitation/verbs/revoke.ts`) |
@@ -81,7 +82,9 @@ and carry on with the six it can walk.
 ## 3. The slice Foreman would propose
 
 Spelled as on `goal/stage-1` (the unique fields, the list read and `code:` are there, not on `main`). No handlers: those
-are the climber's. Each blank is a `Blueprint.todo` that `ortho check` names until it is filled. Capxul's word is
+are the climber's. Each blank is a `Blueprint.todo` that `ortho check` names until it is filled. **None of this was
+compiled:** it was written against the API as read on `goal/stage-1`, and the first thing the climber does is run
+`ortho check` on it. Capxul's word is
 "company", so the app says company; question 3 asks how that meets Orthograph's planned organisations plugin.
 
 ```ts
@@ -178,7 +181,8 @@ export default Blueprint.operation(Company, {
     handle: Company.fields.handle,
     name: Company.fields.name,
     country: Company.fields.country,
-    directors: Blueprint.todo("the other founding Directors, by person; waits on question 6"),
+    // The other founding Directors join the payload once question 6 is answered: Orthograph has no value for a list of
+    // people yet (finding 11), and a `Blueprint.todo` here would leave the starting world below unable to compile.
   },
   answer: { company: Company.fields.id },
   move: machine.moves.found,
@@ -234,11 +238,13 @@ import { founder } from "../../company/roles.ts";
 
 // Everyone in a company. Capxul lets any of its people list them (`member list`); "a member of the company named in
 // the filter" is the same gap as the Director role (finding 3), so this slice lets only the founder list.
+// A list read's payload is its `where` fields plus `cursor`, so the role's path is the `company` filter. The filter is
+// optional, so a call that leaves it out has no company to check and is refused: listing always names a company.
 export default Blueprint.read(Membership, {
   where: ["company"],
   order: "oldest",
   page: 50,
-  allowed: [founder.of("membership.company")],
+  allowed: [founder.of("company")],
   budget: { p95: "100 millis" },
 });
 ```
@@ -375,7 +381,7 @@ import found from "../things/company/verbs/found.ts";
 /** Dana has founded Northwind and is its only Director. */
 export default Blueprint.startingWorld("founded", {
   cast: { dana: Blueprint.signedIn },
-  makes: (s) => [s.dana.run(found, { handle: "northwind", name: "Northwind Trading", country: "NL", directors: [] })],
+  makes: (s) => [s.dana.run(found, { handle: "northwind", name: "Northwind Trading", country: "NL" })],
   gives: (s) => ({ company: s.last.company }),
 });
 ```
@@ -431,7 +437,8 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
    company's people is founder-only.
 4. **No uniqueness over two fields.** Unique keys are one field each (`packages/orthograph/src/modules/things/types.ts:46`
    on goal/stage-1), though the decision designs a tuple of fields for a composite key
-   (`design/decisions/G4-unique-fields.md:90` on goal/stage-1). One seat per person per company, and one pending
+   (`design/decisions/G5-invariants.md:90` on goal/stage-1, which replaces the per-field `unique:` spelling this slice
+   uses with `Blueprint.invariant.unique`). One seat per person per company, and one pending
    invitation per company and email, both need it. Story 6 can't be walked without a handler doing the store's job.
 5. **No "nothing changed" move.** Capxul's machine answers accepting an accepted invitation with no change
    (`packages/blueprint/src/things/invitation/lifecycle.ts:39`). Orthograph's `notFrom` refuses every move from a wrong
@@ -442,7 +449,7 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
    replays by request key (`packages/orthograph/src/modules/operations/types.ts:56` on goal/stage-1).
 7. **Every Capxul refusal's exit code collides.** Capxul's refusals use exits 2 and 4
    (`packages/blueprint/src/things/company/refusals.ts:11`, `:58`). Orthograph keeps 0 to 4, and 120 to 125, for the
-   runtime (`design/process/log.md:343`), so each moves.
+   runtime (`design/decisions/G3-runtime-exits.md:1`, `:28` on goal/stage-1), so each moves to 5 to 119.
 8. **No declared signing by several people.** Capxul's founding answers the approvals its Directors must sign, and a
    later `approval.sign` collects them (`packages/blueprint/src/things/company/verbs/create.ts:147-149`). Orthograph's
    nearest is an action that asks its own caller first (`needsApproval`, M1.23); the Safe, hats and budgets are stage 3
@@ -451,12 +458,12 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
    (`packages/orthograph/src/modules/plugins/service.ts:36-39` on goal/stage-1), and `ortho add feature --as <name>`
    names the mount, not its things (`packages/cli/src/modules/mounting/README.md:3` on goal/stage-1), so a plugin's
    "organisation" can't be an app's "company".
-10. **A mount is app-wide.** It can't be limited to the development environment (`F-foreman.md`, question 3).
+10. **A mount is app-wide.** It can't be limited to the development environment (`F9-foreman.md`, question 3).
 11. **No list of references in a payload.** Field values are an id, a number, text or a raw schema
     (`packages/orthograph/src/modules/values/types.ts:22-25` on goal/stage-1), so "the founding Directors, by person" is
     a blank.
 12. **An app gets no builder guard.** Orthograph's own CI refuses a builder branch that edits checks (`builder-paths`);
-    an app made by the preset has no such job, so lesson 5 rests on briefs alone (`F-foreman.md`, section 8).
+    an app made by the preset has no such job, so lesson 5 rests on briefs alone (`F9-foreman.md`, section 8).
 13. **What Capxul has that Orthograph might borrow.** Each Capxul operation carries its promises, in prose, each with
     its starting world and where it came from (kept, rewritten or dropped from the old stack)
     (`packages/blueprint/src/things/company/verbs/create.ts:122-198`), and its budget says what it leaves out and why
@@ -473,12 +480,12 @@ Each answer becomes a file in `foreman/decisions/`, and the blanks it closes are
 3. **The walk-it check needs a "blocked by the framework" outcome.** Two stories can't be walked because of Orthograph,
    not the blueprint. The skill should record those as framework snags and let the rest of the slice proceed, rather
    than call the slice "not ready" as a whole.
-4. **The `ask` skill's format is too heavy for product questions.** `F-foreman.md` section 7 says asks go in the grill
+4. **The `ask` skill's format is too heavy for product questions.** `F9-foreman.md` section 7 says asks go in the grill
    format in writing. That suits design forks; the eight product questions above are better as one numbered list for
-   the ear, with the grill kept for a fork with code to compare. Changed in `F-foreman.md` section 7 in the same pull
+   the ear, with the grill kept for a fork with code to compare. Changed in `F9-foreman.md` section 7 in the same pull
    request.
 5. **The role skills are written for this repository.** The checks author would have to read past branch suffixes and
-   ratchet files that Capxul doesn't have (question 1 of `F-foreman.md`).
+   ratchet files that Capxul doesn't have (question 1 of `F9-foreman.md`).
 6. **Nothing covers an outside system in the first slice.** Capxul's founding makes the company's business site on its
    Frappe bench. Orthograph designs that as a source through an adapter (`design/decisions/K3-stores-and-sources.md`),
    but no Foreman skill says how to cut it out of a slice or put it back.

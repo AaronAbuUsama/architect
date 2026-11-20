@@ -1,4 +1,4 @@
-# F-foreman: Foreman, version zero
+# F9: Foreman, version zero
 
 Proposed 20 November 2026, as a draft for Aaron. Nothing here is built. The architecture is the building agent's to
 decide (`AGENTS.md`, "Who decides"); the five forks at the end are the ones where the goal itself is Aaron's.
@@ -62,7 +62,7 @@ Aaron's view. Foreman does the same jobs at a smaller scale, for a different per
 | Gate | milestone gates on `main` | each slice's journeys green, with a 🔍 pass |
 
 **Do they share a core?** They should share the role skills, not the persona. The lessons show the same practices hold
-both ways: 21 of 24 are marked "both" (`design/process/lessons.md`, "At a glance"). The roles that carry those practices
+both ways: 23 of 24 are marked "both" (`design/process/lessons.md`, "At a glance"). The roles that carry those practices
 (author, reviewer) are the same jobs whether the app is Orthograph or Capxul. The persona differs: the conductor talks
 to Aaron about milestones and threads; Foreman talks to a person about their idea. Question 1 at the end puts this to
 Aaron, with the sketch.
@@ -285,7 +285,7 @@ wallet. The blueprint compiles with four open blanks. Nothing is built yet.
 
 **I need from you.** Two answers, both blocking the membership journeys. My recommendation is first in each.
 1. Can a company have more than one owner? I'd say yes: directors are co-owners.
-2. Does an invitation expire? I'd say yes, after seven days.
+2. Can an invitation be withdrawn, and does it expire? I'd say the founder can revoke it, and it doesn't expire.
 
 **Moving.** Nothing running.
 
@@ -327,8 +327,8 @@ fixes that keep a proved contract, merging its own pull requests in the app's re
 passed, if the person has said yes to that once (a decision file).
 
 **How it asks:** batched, each question with a recommendation first, as one short numbered list for the ear. A design
-fork with code to compare also goes in writing in the grill format (the person's `CLAUDE.md`, "Batch-grill question
-format"); a product question doesn't need it (the Capxul test drive, "Where the skills fell short", 4). An answer becomes
+fork with code to compare also goes in writing in the grill format, which the plugin's `ask` skill holds as its own copy
+(Orthograph's copy lives in a private file of Aaron's, which an app's repository can't read); a product question doesn't need it (the Capxul test drive, "Where the skills fell short", 4). An answer becomes
 a decision file the same turn.
 
 **Money.** Each subagent run carries a budget. Before starting runs, Foreman checks the day's spend against
@@ -368,12 +368,12 @@ framework finding in the test drive.
 - No live document's words change, so this record has no `## Supersedes` section. The agent kit
   (`design/frame/skills.md`) stands: Foreman is the persona and loops over it, and takes the kit's skill names where
   they overlap.
-- `design/handoff.md`'s decision list gains `F-foreman`.
+- `design/handoff.md`'s decision list gains `F9`.
 - Building it is a goal of its own, after Aaron's answers: the plugin folder, its hooks, and a first run on Capxul with
   Aaron as the person.
 
 **On the name.** "Foreman" read aloud is the same sound as "Forman", the framework's retired name, which is still in
-dated records 137 times (`design/naming.md:45`). The name search already noted that "heard aloud it is 'foreman'"
+its dated records (`design/naming.md:45`). The name search already noted that "heard aloud it is 'foreman'"
 (`design/naming-search.md:139`). Aaron listens to text-to-speech, so in a sentence about the old design the two can't be
 told apart. It is his name to keep; this record keeps it.
 
@@ -473,7 +473,7 @@ was lost (log.md:1016), and the board went stale while the work moved (log.md:94
 the board into the repository:
 
 ```md
-<!-- .agents/skills/kanban/SKILL.md, "Where things are" -->
+<!-- .agents/skills/kanban/SKILL.md:17-18, on main -->
 | `STATE.md` | Where the project stands, in words, at the last snapshot: read it first |
 | `data/tasks.json`, `threads.json`, `lanes.json`, `meta.json` | The board's whole database at the last snapshot, `{id: document}` |
 ```
@@ -489,7 +489,13 @@ the board into the repository:
 
 **The options**
 
-**Today** — nothing for an app. For Orthograph: `design/handoff.md` and the kanban board, both hand-updated.
+**Today** — nothing for an app. For Orthograph, the conductor keeps it by hand:
+```md
+<!-- .agents/skills/conductor/SKILL.md:45-48, on main -->
+- **Plan and decisions:** `design/build-plan.md` (mark each step done, with its proof, in the pull request that lands
+  it), `design/decisions.md` and `design/decisions/`. `design/handoff.md`, which you keep, says where each piece of work
+  stands, so a fresh conductor can take over.
+```
 
 **A · A `foreman/` folder of files, one writer** (recommended)
 ```text
@@ -505,14 +511,14 @@ foreman/journal.jsonl
 ## Decided
 - 20 Nov: directors are co-owners
 ## Waiting on you
-- Does an invitation expire?
+- Can an invitation be withdrawn, and does it expire?
 ## Plan
 1. company and members (in progress)
 ```
 
 **C · GitHub issues and a project board**
 ```bash
-gh issue create --title "Ask: does an invitation expire?" --label foreman:ask
+gh issue create --title "Ask: can an invitation be withdrawn, and does it expire?" --label foreman:ask
 gh project item-add 3 --owner <person> --url <issue>
 ```
 
@@ -639,7 +645,15 @@ person is back to asking "where are we". Claude Code's hooks can start a turn's 
 
 **The options**
 
-**Today** — the conductor wakes when Aaron speaks, or when a thread's message arrives.
+**Today** — the conductor has no waker of its own: it acts when Aaron speaks or a thread's message arrives, and its
+skill says what to do then, not how to be woken:
+```md
+<!-- .agents/skills/conductor/SKILL.md:53-55, on main -->
+## While threads run
+
+- **Read before you answer Aaron about a thread.** Read its last turns, not your memory of it.
+- **Unblock them.** When a thread waits on a prompt or an answer, tell Aaron which thread and what, with its link.
+```
 
 **A · Session start, finished subagents, the person, and a save check on stop** (recommended)
 ```text
@@ -687,7 +701,7 @@ are native.
 asks about every field; too loose and it decides what the app does. This repository drew the line for the conductor:
 
 ```md
-<!-- AGENTS.md, "Who decides" -->
+<!-- AGENTS.md:28-29, on main -->
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
   or irreversible, or a fork where the goal itself is unclear.
 ```
@@ -711,7 +725,12 @@ the person has read the stories back and said yes (a person's step, never the ag
 
 **The options**
 
-**Today** — the conductor decides architecture and asks Aaron for product, money, credentials and production.
+**Today** — the conductor decides architecture and routes the rest to Aaron:
+```md
+<!-- .agents/skills/conductor/SKILL.md:56-57, on main -->
+- **Route decisions.** Aaron decides in designer threads or with you. Pass each decision to every thread it touches,
+  word for word.
+```
 
 **A · Foreman decides how; you decide what, and say yes to the stories** (recommended)
 ```text
