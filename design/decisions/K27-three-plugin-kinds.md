@@ -99,7 +99,8 @@ the walkthrough.
 6. **Effect moves first, and nothing visible changes.**
    - `language-effect` becomes the Effect language, served by `host-cloudflare` and, for the CLI, `Host.node`.
    - The server projection keeps only its face, and the deploy moves to `host-cloudflare`.
-   - This is slice 1 of Goal 4 (`design/goals/04-on-chain.md`, on `goal/on-chain`). Its check: acme's generated
+   - This is slice 1 of Goal 4. Goal 4's file, `design/goals/04-on-chain.md`, is written when its branch
+     `goal/on-chain` is cut, after K25 and K26 land (K26 item 4). Its check: acme's generated
      files come out byte-identical.
    - Solidity is the second language on the same seam.
 
@@ -126,7 +127,7 @@ the walkthrough.
 | `frame/projections.md` 3.9, the allowance example, the walkthrough, `design/state` | rewritten in this change |
 | ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
 
-Left for their owners, and named in Goal 4's file:
+Left for their owners. Goal 4's file copies this list into slice 1 when it is written:
 
 - **The canon thread**, `docs/canon/languages-and-hosts.mdx`: line 145 still has `chain` "supplied by
   `language-solidity`", and line 139 quotes the package's "the Solidity target". It adds `Blueprint.language`,
@@ -134,6 +135,8 @@ Left for their owners, and named in Goal 4's file:
 - **Goal 4, slice 1**: `packages/language-solidity` (its `README.md` and the comment in `src/index.ts`) still say
   "The Solidity target"; the slice rewrites them with the package, and the walkthrough's quote of that file
   (`design/walkthrough/journey.md:1684`) with them. Ledger `G-02` tracks the word.
+- **Dated records keep their words.** K20 (line 169, "the Solidity target is an empty package") gains a dated note
+  here. `design/noir/spike-1-member-note.md:440` is a spike's dated note, quoted as run, and stands.
 
 ## Ledger
 

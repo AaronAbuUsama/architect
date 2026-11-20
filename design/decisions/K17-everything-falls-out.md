@@ -304,8 +304,8 @@ A check is proposed for the story check (K14). Generate every environment, and a
 Nothing here starts outside its milestone. On the critical path, K16 comes first (the scaffold and Aaron's
 pre-handling list), then:
 
-1. **The target interface, with one implementation.** (Superseded by K27, 20 November 2026: the language and host seam, Goal 4's first slice.) This fits M1.12 and M1.13, which already move renderers onto
-   projections. It means `TargetSpec` in `orthograph`, `language-effect` implementing it, and the guard list printed
+1. **The target interface, with one implementation.** (Superseded by K27, 20 November 2026: the language and
+   host seam, Goal 4's first slice.) This fits M1.12 and M1.13, which already move renderers onto projections. It means `TargetSpec` in `orthograph`, `language-effect` implementing it, and the guard list printed
    by the scaffold. Done when the existing outputs come out byte-identical through the new seam. No new language yet.
 2. **Fields declared but reaching nothing**, wired up:
    - `allowed`, `idempotent` and `budget` into the clients (M1.42 and M2.03);
