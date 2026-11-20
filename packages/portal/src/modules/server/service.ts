@@ -6,6 +6,7 @@ import { Wire } from "#modules/wire/service.js";
 import type { BlueprintRejected, BlueprintWire } from "#modules/wire/types.js";
 import type { PortalContext, PortalEnv, ServerApi } from "./types.ts";
 import { client } from "./internal/client.ts";
+import { feedLive } from "./internal/feed.ts";
 
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
   Response.json(body, { status, headers: { "cache-control": "no-store", ...headers } });
@@ -73,7 +74,11 @@ const serve: ServerApi["serve"] = (blueprint, request, env: PortalEnv) => {
   if (request.method !== "GET" && request.method !== "HEAD") return Effect.succeed(refused(isData));
   if (!isData) return client(env.PORTAL_ASSETS, request);
   const logbook = env.ORTHO_LOGBOOK_URL;
-  return handle({ blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.ORTHO_REVISION ?? null }, request);
+  const context = { blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.ORTHO_REVISION ?? null };
+  // A world whose starter feeds it its telemetry: read once for the calls that use it (the snapshot and a trace), at the feed's own `now`.
+  const feed = env.ORTHO_PORTAL_FEED;
+  if (feed === undefined || !(url.pathname.startsWith("/_portal/v1/snapshot") || url.pathname.startsWith("/_portal/v1/traces/"))) return handle(context, request);
+  return feedLive(feed, env.ORTHO_ENVIRONMENT ?? "local").pipe(Effect.flatMap((live) => handle({ ...context, live }, request)));
 };
 
 export const PortalServer: ServerApi = { owns, handle, serve };

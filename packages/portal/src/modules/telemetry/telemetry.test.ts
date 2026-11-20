@@ -1,6 +1,7 @@
 // M1.13's data clauses (check 21 C, D, E, J, K, L), judged at the server, over Plugged In's own wire and a staged window.
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { createServer } from "node:http";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { PortalServer } from "#modules/server/service.js";
@@ -67,6 +68,32 @@ describe("calls: one row per call, newest first", () => {
   });
 });
 
+describe("the spans the real handler writes", () => {
+  it("a read has one span and no attempt: it is a call of one attempt; a door refusal's `.refused` span is never a call", async () => {
+    const extra = new Map<string, WindowTrace>([
+      ["r", { spans: [span("r1", "r", "handle.resolve", at(1), { operation: "handle.resolve", "principal.kind": "anonymous" })], logs: [] }],
+      ["v", { spans: [span("v1", "v", "link.add", at(1), { operation: "link.add", "principal.kind": "anonymous" })], logs: [] }],
+      ["x", { spans: [span("x1", "x", "handle.claim.refused", at(1), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", refusal: "NotAllowed" })], logs: [] }],
+    ]);
+    const t = await read({ source: { window: () => Effect.succeed(new Map([...traces(), ...extra])), find: () => Effect.succeed(undefined) } });
+    const rows = ok(t.calls).rows;
+    expect(rows.map((r) => r.trace)).toContain("r");
+    expect(rows.find((r) => r.trace === "r")).toMatchObject({ operation: "handle.resolve", attempts: 1, outcome: "answered" });
+    expect(rows.find((r) => r.trace === "v"), "a device operation's span is the same").toMatchObject({ operation: "link.add", attempts: 1 });
+    expect(rows.map((r) => r.trace), "a door refusal is a count and never a row").not.toContain("x");
+    expect(ok(t.metrics).refusals["NotAllowed"]!.door, "and no span accounts for it").toBe(3);
+  });
+});
+
+describe("InvalidPayload is a refusal the runtime makes", () => {
+  it("it is in no model's refusal table, and its calls are counted by name as door refusals, never rows", async () => {
+    const withInvalid = [...points, point("handle.claim", "refused", 2, "InvalidPayload")];
+    const { operations, refusals } = ok((await read({ metrics: { window: () => Effect.succeed(withInvalid) } })).metrics);
+    expect(operations["handle.claim"]).toMatchObject({ calls: 7, refused: 6, doorRefusals: 5, refusals: { InvalidPayload: 2 } });
+    expect(refusals["InvalidPayload"]).toEqual({ count: 2, door: 2, trace: null });
+  });
+});
+
 describe("counts: from ortho.calls, door refusals counted and named, never a row", () => {
   it("counts every outcome, and names the refusals that opened no span", async () => {
     const { operations, refusals } = ok((await read()).metrics);
@@ -117,3 +144,50 @@ describe("no leak, and now is the only clock", () => {
     expect(((await bare.json()) as { telemetry: unknown }).telemetry).toBeNull();
   });
 });
+
+describe("a feed that fails", () => {
+  const rawWire = () => JSON.parse(readFileSync(join(resolve(import.meta.dirname, "../../../../.."), "examples/plugged-in/generated/portal/blueprint.json"), "utf8")) as { digest: string };
+  const ask = async (feed: string) => {
+    const raw = rawWire();
+    const response = await Effect.runPromise(PortalServer.serve(raw, new Request(`http://portal/_portal/v1/snapshot?digest=${raw.digest}`), { ORTHO_PORTAL_FEED: feed }));
+    return (await response.json()) as { observedAt: string; telemetry: { now: number; since: number; metrics: { state: string; reason?: string }; calls: { state: string } } };
+  };
+  const notEpoch = (snapshot: Awaited<ReturnType<typeof ask>>) => {
+    expect(new Date(snapshot.observedAt).getUTCFullYear(), "observedAt is the clock's").toBeGreaterThan(2020);
+    expect(snapshot.telemetry.now).toBeGreaterThan(0);
+    expect(snapshot.telemetry.since).toBeGreaterThan(0);
+    expect(snapshot.telemetry.metrics.state).toBe("unavailable");
+    expect(snapshot.telemetry.metrics.reason).toMatch(/feed/);
+    expect(snapshot.telemetry.calls.state).toBe("unavailable");
+  };
+
+  it("one that is down says so, and the snapshot is stamped with the clock, not the epoch", async () => {
+    notEpoch(await ask("http://127.0.0.1:1/"));
+  });
+
+  it("one that answers garbage says so too", async () => {
+    const server = createServer((_, response) => { response.writeHead(200, { "content-type": "application/json" }).end('{"nope":true}'); });
+    await new Promise<void>((done) => { server.listen(0, "127.0.0.1", done); });
+    try { notEpoch(await ask(`http://127.0.0.1:${(server.address() as { port: number }).port}/`)); }
+    finally { server.close(); }
+  });
+});
+
+describe("one source down leaves the other's numbers", () => {
+  it("the feed carries each source's availability: broken metrics with readable traces still serve the traces", async () => {
+    const raw = JSON.parse(readFileSync(join(resolve(import.meta.dirname, "../../../../.."), "examples/plugged-in/generated/portal/blueprint.json"), "utf8")) as { digest: string };
+    const feed = { environment: "local", now: NOW, windowMs: WINDOW, traces: { state: "available", value: Object.fromEntries(traces()) }, points: { state: "unavailable", reason: "metrics.jsonl is unreadable" } };
+    const server = createServer((_, response) => { response.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(feed)); });
+    await new Promise<void>((done) => { server.listen(0, "127.0.0.1", done); });
+    try {
+      const env = { ORTHO_PORTAL_FEED: `http://127.0.0.1:${(server.address() as { port: number }).port}/` };
+      const answer = (path: string) => Effect.runPromise(PortalServer.serve(raw, new Request(`http://portal${path}`), env));
+      const snapshot = (await (await answer(`/_portal/v1/snapshot?digest=${raw.digest}`)).json()) as PortalTelemetryAnswer;
+      expect(snapshot.telemetry.metrics).toEqual({ state: "unavailable", reason: "metrics.jsonl is unreadable" });
+      expect(snapshot.telemetry.calls.state).toBe("available");
+      expect(snapshot.telemetry.now).toBe(NOW);
+      expect((await answer("/_portal/v1/traces/a")).status, "and the trace pages").toBe(200);
+    } finally { server.close(); }
+  });
+});
+interface PortalTelemetryAnswer { readonly telemetry: { readonly now: number; readonly metrics: { state: string; reason?: string }; readonly calls: { state: string } } }

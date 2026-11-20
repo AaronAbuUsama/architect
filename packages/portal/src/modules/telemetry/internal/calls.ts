@@ -2,6 +2,7 @@
 // span, a step span and a commit span are not attempts. Nothing is read from a span but a whitelist of structural attributes.
 import type { CallerKind, CallsView, Outcome, TelemetryCall, WindowSpan, WindowTrace } from "../types.ts";
 import { ROWS_MAX } from "../types.ts";
+import { isAttempt, spanKind, type OperationKinds } from "./spans.ts";
 
 const text = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
 
@@ -12,7 +13,7 @@ export const callerOf = (span: WindowSpan): CallerKind | undefined => {
   return kind === "agent" ? "agent" : kind === "anonymous" ? "anyone" : kind === "person" ? "person" : undefined;
 };
 
-const isAttempt = (span: WindowSpan) => typeof span.attrs["operation"] === "string" && typeof span.attrs["attempt"] === "number";
+const numberOf = (span: WindowSpan) => (typeof span.attrs["attempt"] === "number" ? span.attrs["attempt"] : 1);
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
 
@@ -22,14 +23,14 @@ const outcomeOf = (last: WindowSpan): { readonly outcome: Outcome; readonly refu
 };
 
 const callOf = (trace: string, operation: string, attempts: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
-  const ordered = [...attempts].sort((a, b) => Number(a.attrs["attempt"]) - Number(b.attrs["attempt"]) || a.start - b.start);
+  const ordered = [...attempts].sort((a, b) => numberOf(a) - numberOf(b) || a.start - b.start);
   const first = ordered.reduce((a, b) => (b.start < a.start ? b : a));
   const end = Math.max(...ordered.map((s) => s.start + s.ms));
   const durationMs = round(end - first.start);
   return {
     trace, operation, start: first.start, ...outcomeOf(ordered[ordered.length - 1]!),
     caller: ordered.map(callerOf).find((k) => k !== undefined) ?? "unknown",
-    attempts: new Set(ordered.map((s) => Number(s.attrs["attempt"]))).size,
+    attempts: new Set(ordered.map(numberOf)).size,
     durationMs,
     environment: ordered.map((s) => text(s.attrs["environment"])).find((e) => e !== undefined) ?? environment,
     overBudget: budget !== undefined && durationMs > budget,
@@ -43,14 +44,14 @@ const moved = (attempts: ReadonlyArray<WindowSpan>) => attempts.some((s) => type
 /** Calls with a span that were refused, per operation and refusal name, with the newest such trace. */
 export type SpanRefusals = ReadonlyMap<string, { readonly operation: string; readonly name: string; readonly count: number; readonly trace: string; readonly start: number }>;
 
-export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
+export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
   const all: Array<TelemetryCall> = [];
   const moves: Record<string, number> = {};
   const journeys: Record<string, Set<string>> = {};
   for (const [trace, { spans }] of traces) {
     const journey = spans.map((s) => text(s.attrs["journey"])).find((j) => j !== undefined) ?? null;
     const byOperation = new Map<string, Array<WindowSpan>>();
-    for (const span of spans.filter(isAttempt)) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
+    for (const span of spans.filter((span) => isAttempt(spanKind(span, kinds)))) byOperation.set(String(span.attrs["operation"]), [...(byOperation.get(String(span.attrs["operation"])) ?? []), span]);
     for (const [operation, attempts] of byOperation) {
       const call = callOf(trace, operation, attempts, journey, environment, budgets[operation]);
       all.push(call);

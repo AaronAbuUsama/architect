@@ -104,4 +104,14 @@ describe("what the compiler writes is what the decoder keeps (M1.13)", () => {
     }
     expect(model["operations"]["handle.claim"]).toMatchObject({ test: "unit", runs: "server", from: { kind: "app" } });
   });
+
+  it("decodes a journey step the compiler skipped (its operation is outside the model): a title and why, no call and no checks", async () => {
+    const file = join(resolve(import.meta.dirname, "../../../../.."), "examples/plugged-in/generated/portal/blueprint.json");
+    const { digest: _, ...unsigned } = JSON.parse(readFileSync(file, "utf8")) as { model: { journeys: Record<string, { steps: Array<unknown> }> }; digest: string };
+    const first = Object.values(unsigned.model.journeys)[0]!;
+    first.steps.push({ title: "a step of an operation the model lacks", skipped: "operation is outside the model" });
+    const wire = await Effect.runPromise(Wire.decode({ ...unsigned, digest: Wire.digestOf(unsigned) }));
+    const steps = Object.values((wire.model as unknown as { journeys: Record<string, { steps: ReadonlyArray<unknown> }> }).journeys)[0]!.steps;
+    expect(steps[steps.length - 1]).toEqual({ title: "a step of an operation the model lacks", skipped: "operation is outside the model" });
+  });
 });
