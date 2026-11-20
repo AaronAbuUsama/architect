@@ -433,7 +433,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712; one budgets module per network, enabled by each organisation's Safe, is settled by K25) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for the chain: contracts, the relayer and the follower (Codex's planned files `06` to `08`; the wallet's are M1.28 and M2.13) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | Moved to M1.29 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.04 | Moved to M2.13 (K7 F4: the wallet is the first plugin) | | | | |

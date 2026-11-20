@@ -188,4 +188,8 @@ written three different ways.
 - design/frame/examples/private-membership.md: "`lives: Blueprint.chain({ contract: "RolePool", per: "organization", network: Aztec })`" → "`lives: rolePool`, with `Blueprint.store.chain.aztec()`"
 - design/milestones.md (M6.16): "Worlds with a chain: a vault per organisation" → "Worlds with a chain: a Safe per organisation with the budgets module enabled (K25)"
 - design/milestones.md (M6, ships): "one vault per organisation (S27)" → "one budgets module per network, enabled by each organisation's Safe (S27, K25)"
+- design/milestones.md (M6.01): "`signedBy` as EIP-712, one vault per organisation)" → "`signedBy` as EIP-712; one budgets module per network, enabled by each organisation's Safe, is settled by K25)"
+- design/build-plan.md (D5): "(3) One vault per organisation from a factory, deployed by the starting world." → "(3) One budgets module per network, which each organisation's Safe enables, deployed by the starting world (K25)."
+- design/build-plan.md (L4.07): "The starting world deploys a vault per organisation and funds it with TestUSD" → "The starting world deploys a Safe per organisation, enables the budgets module (K25) and funds the Safe with TestUSD"
+- design/goals/01-the-whole-framework-locally.md: "worlds with a vault per organisation on Anvil" → "worlds with a Safe per organisation, enabling the budgets module (K25), on Anvil"
 - design/frame/projections.md (3.9): "every thing that `lives: Blueprint.chain(...)`" → "every thing that lives in a chain store"

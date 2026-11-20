@@ -3685,7 +3685,7 @@
     "raisedAt": "2026-11-19T09:38:00Z",
     "source": "M6.01",
     "status": "open",
-    "text": "D5: values across languages, signedBy as EIP-712, one vault per organisation?"
+    "text": "D5: values across languages, signedBy as EIP-712 (K25 settled where the money sits: in each Safe)"
    },
    {
     "answer": null,
@@ -3704,7 +3704,7 @@
   "title": "Starts from decisions/K7-chain-languages.md, which settles the operation-to-chain ma…",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "Starts from decisions/K7-chain-languages.md, which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and confirmed. What is left: D5 (values across languages, signedBy as EIP-712, one vault per organisation) and the exact schema of surface.json and refusals.lock"
+  "what": "Starts from decisions/K7-chain-languages.md, which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and confirmed. What is left: D5 (values across languages, signedBy as EIP-712; one budgets module per network, enabled by each organisation's Safe, is settled by K25) and the exact schema of surface.json and refusals.lock"
  },
  "M6-02": {
   "doneWhen": "they fail on empty handlers",

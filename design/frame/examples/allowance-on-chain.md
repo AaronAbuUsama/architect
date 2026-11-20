@@ -33,7 +33,7 @@ export default Blueprint.store.chain.evm();
 
 // blueprint/things/allowance/thing.ts
 import budgets from "../../stores/budgets.ts";
-import { Safe } from "@orthograph/safe";   // someone else's contract, behind the safe adapter
+import { Safe } from "@orthograph/safe";   // sketch: the safe adapter (K9 stage 3); its package is set when it is built
 export const Allowance = Blueprint.thing({
   description: "Money a member may spend from their organisation's Safe, up to a limit each month.",
   fields: { id: Blueprint.id("alw"), safe: Safe.fields.account, member: Blueprint.account(), limit: Amount, spent: Amount },
@@ -104,9 +104,11 @@ Effect handler's: the limit check.
 function _spend(Allowance storage a, uint128 amount) internal override {
   if (a.spent + amount > a.limit) revert AllowanceExceeded(a.limit - a.spent);   // its stable refusal code, the same in both languages
   a.spent += amount;
-  token.transfer(a.member, amount);
 }
 ```
+
+The hook decides; it moves no money. The generated base pays after it, from the allowance's Safe, through the account
+adapter (on a Safe, `execTransactionFromModule`), because the module never holds the money (K25 item 7).
 
 The Effect handler shrinks: it no longer decides anything. The SDK fetches the EIP-712 typed data to sign, the caller's
 signer signs it, and the relayer submits it (L4.06). The server checks the signature and passes it on.
