@@ -182,18 +182,19 @@ Three rules decide what a step is (K5, seam 3):
 - **A step is a span inside one attempt.** It is not durable work, and nothing resumes it. Durable work is a workflow.
 - **The handler chooses which steps run.** The declaration names the parts; the handler's own code takes the path.
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
-  and all, up to a fixed number of times:
+  and all, up to a fixed number of times. The call is named once, before its first attempt, and each attempt's span carries that name
+  as `call.id`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=155-163
-const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key, number).pipe(
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=158-166
+const loop = (number: number, callId: string): Effect.Effect<object, unknown, unknown> =>
+  attempt(payload, principal, key, number, callId).pipe(
     Effect.catch((e) =>
       !(e instanceof Conflict) ? Effect.fail(e)
-      : number < ATTEMPTS ? loop(number + 1)
+      : number < ATTEMPTS ? loop(number + 1, callId)
       : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
     ),
   );
-return loop(1);
+return Effect.flatMap(newCallId, (callId) => loop(1, callId));
 ```
 
 An operation may declare no steps at all (`packages/orthograph/src/modules/operations/types.ts:46`). A step's kind says
@@ -281,7 +282,7 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=97-105
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=98-106
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -295,7 +296,7 @@ answers what it answered the first time and changes nothing. No step runs, no ev
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=152-154
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=153-155
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
