@@ -33,8 +33,9 @@ Prove all six, and paste the runs into your pull request:
    The check's expected values come from the model or a recording, never from the output it judges. Paste the table,
    each thing read against each way, with the planted case or "doesn't apply", in the pull request. Where things of
    one kind repeat (twenty fields of one type), plant each way once for the kind and say which it stands for.
-6. **A hostile pass, before Codex.** A subagent that didn't write the check gets the table and tries to pass the
-   check with a wrong output. Each one that passes becomes a row, planted, before the first "@codex review".
+6. **A hostile pass, before the first review.** A subagent that didn't write the check gets the table and tries to pass
+   the check with a wrong output. Each one that passes becomes a row, planted, before any reviewer (🔍 or Codex) is
+   asked to look.
 
 ## Review findings
 

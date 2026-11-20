@@ -48,14 +48,15 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet list,
   `e2e/m1/expected-failing.txt`. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
   check changed stops and asks its author.
-- **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
-  until actually blocked. GitHub enforces it, admins included (`design/decisions/CI-branch-protection.md`): `main`,
-  `m1` and `goal/stage-1` require their CI jobs, every conversation resolved, and `codex-finished`, which passes when
-  Codex has reviewed the head or everything since is a clean merge from the base (otherwise comment "@codex review").
-  `main` and `goal/stage-1` also require `builder-paths`: a `-build` pull request may not touch journeys, evals or
-  checks. A docs-only pull request skips `e2e-layer1` and `e2e-layer2`, and a skip passes
-  (`design/decisions/CI-docs-fast-path.md`). Bring a branch up to date by merging its base in, never by rebasing,
-  since a rebase needs a fresh Codex review.
+- **Merge your own pull requests when CI is green,** every review thread is resolved and a 🔍 reviewer that wrote none
+  of it has passed it. The 🔍 pass is the gate. Codex is advisory (`design/decisions/CI-codex-advisory.md`): comment
+  "@codex review" when it is available, and answer any finding it posts before the merge, but nobody waits on it; if
+  Codex is down or slow, the pull request merges without it. Push on until actually blocked. GitHub enforces CI and
+  threads, admins included (`design/decisions/CI-branch-protection.md`): `main`, `m1` and `goal/stage-1` require their
+  CI jobs and every conversation resolved. `main` and `goal/stage-1` also require `builder-paths`: a `-build` pull
+  request may not touch journeys, evals or checks. A docs-only pull request skips `e2e-layer1` and `e2e-layer2`, and a
+  skip passes (`design/decisions/CI-docs-fast-path.md`). Bring a branch up to date by merging its base in, never by
+  rebasing, so the commits a reviewer already read keep their identity.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
 
