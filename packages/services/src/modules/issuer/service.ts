@@ -17,21 +17,28 @@ export const Issuer: IssuerApi = {
         Effect.sync(() => mkdtempSync(join(tmpdir(), "ortho-issuer-"))),
         (made) => Effect.sync(() => rmSync(made, { recursive: true, force: true })),
       ));
-      const port = options.port ?? (yield* Owned.freePort);
       const config = options.config ?? {};
       const file = join(dir, "issuer.json");
       writeFileSync(file, JSON.stringify(config));
-      const url = `http://127.0.0.1:${port}/${config.tokenCallbacks?.[0]?.issuerId ?? "ortho"}`;
-      const owning = yield* Owned.start({
-        kind: "issuer",
-        binary: process.execPath,
-        args: [entry, "issuer", "--port", String(port), "--config", file],
-        log: join(dir, "issuer.log"),
-        ready: Effect.tryPromise({
-          try: () => fetch(`${url}/.well-known/openid-configuration`).then((r) => (r.ok ? r : Promise.reject(new Error(String(r.status))))),
-          catch: () => "waiting",
-        }),
-      });
-      return { url, port, pid: owning.pid };
+      const on = (port: number) => {
+        const url = `http://127.0.0.1:${port}/${config.tokenCallbacks?.[0]?.issuerId ?? "ortho"}`;
+        return Owned.start({
+          kind: "issuer",
+          binary: process.execPath,
+          args: [entry, "issuer", "--port", String(port), "--config", file],
+          log: join(dir, "issuer.log"),
+          ready: Effect.tryPromise({
+            try: () => fetch(`${url}/.well-known/openid-configuration`).then((r) => (r.ok ? r : Promise.reject(new Error(String(r.status))))),
+            catch: () => "waiting",
+          }),
+        }).pipe(Effect.map((owning) => ({ url, port, pid: owning.pid })));
+      };
+      // A port picked here is free when picked, not when the issuer listens: under load another process can take it first,
+      // and the issuer exits (main.ts says why). Then pick again, up to three ports. A port the caller gave is never swapped.
+      if (options.port !== undefined) return yield* on(options.port);
+      return yield* Owned.freePort.pipe(
+        Effect.flatMap(on),
+        Effect.retry({ times: 2, while: (e) => e._tag === "ProcessFailed" && e.exited === true }),
+      );
     }),
 };

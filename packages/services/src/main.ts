@@ -17,4 +17,10 @@ const port = Number(flag("port"));
 const file = flag("config");
 const config: IssuerConfig = file === undefined ? {} : JSON.parse(readFileSync(file, "utf8"));
 
-Effect.runFork(Effect.scoped(serve(config, port).pipe(Effect.andThen(Effect.never))));
+// A failure (the port was taken before it listened) is written to the log the owner reads, and the exit says it failed.
+Effect.runFork(Effect.scoped(serve(config, port).pipe(Effect.andThen(Effect.never))).pipe(
+  Effect.catch((error) => Effect.sync(() => {
+    process.stderr.write(`issuer: ${error.message}\n`);
+    process.exit(1);
+  })),
+));
