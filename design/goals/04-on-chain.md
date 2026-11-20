@@ -101,10 +101,14 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
     reads `declared`; `model.json` still carries `machine.states` as a list. After each merge-in, grep the chain store,
     the Solidity language and the chain host for direct `machine.states` reads. `Records.findBy(rule, value)` fails at
     runtime until ST1.16, so use the old form until then;
-  - ST1.15 (in progress, the compiler slice for invariants): the model gains `things.<t>.invariants` (with hashes) and
-    `operations.<op>.invariants`, and the rules' refusals fold into `refusals`. A blueprint with no invariants keeps a
-    byte-identical digest. The Solidity language and the SDK's chain path must read `refusals` and walk things and
-    operations without assuming those keys are absent; the conductor forwards the exact fields before it merges;
+  - ST1.15 (#233, the invariants in the model): `things.<t>.invariants.<rule>` is `{ kind: "unique", fields,
+    while?, refuse?, description? }`, and `operations.<op>.invariants` maps a refusal to its rule's full name
+    (`"HandleTaken": "handle.oneHolderPerName"`); both appear only when there are rules, and the hashes cover them.
+    `operations.<op>.refusals` now lists the rule refusals right after the `errors`, never inside them. A blueprint
+    without `invariants.ts` is byte-identical. Until a slice builds an on-chain index with a revert carrying the
+    rule's refusal, the Solidity language refuses to compile a chain-stored thing that has `invariants`, naming it,
+    rather than ignore the rule;
+  - ST1.16 (next, the runtime and the stores) touches `language-effect`; Goal 3 warns before it merges;
   - ST1.14: the front door gains `machine.states.<state>` as references, fields whose type carries their key and
     thing, `Blueprint.invariant.unique`, and the type of `Records.findBy(rule, value)`. Slice 1's `Blueprint.language`
     and `Blueprint.host` sit beside them in `orthograph`, so merge before touching the plugins module;
