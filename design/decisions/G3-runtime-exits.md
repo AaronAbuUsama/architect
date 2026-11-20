@@ -52,7 +52,7 @@ The call (the lead, 20 November 2026): runtime-refusal coverage counts only the 
 caller who may not call). Every refusal the model codes under the runtime's prefix (`AR`, read from `NotAllowed`'s code) other than `NotAllowed` is left
 out, so `IdempotencyConflict` is, and the names come from the model, not a list in prove. The line keeps its totals and says what it left out, after
 them: `runtime refusals 14/17 (not counted: IdempotencyConflict, which no journey can cause: …)`, only when an operation lists one. `InvalidPayload` is
-in no operation's `refusals`, so there is nothing to leave out. Checks 02 and 08 keep their totals and accept the line with or without that suffix.
+in no operation's `refusals`, so there is nothing to leave out. Checks 02 and 08 keep their totals and build the expected line from the model (`coverageLine`): the suffix is required exactly when an operation lists `IdempotencyConflict`, and forbidden otherwise, and they pin that literal name besides.
 
 ## In the scaffold's header
 
