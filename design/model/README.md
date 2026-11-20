@@ -11,8 +11,9 @@ Every claim carries a mark:
 - **designed**: written down, not built, with the design file.
 - **open**: nobody has decided it yet.
 
-The words are the canon's (`docs/canon/outline.md`). Nothing new is invented here, except where a question names an
-option.
+The words are the canon's (`docs/canon/outline.md`). Three working words sort packages into buckets: **core**, **standard
+library** and **ours** (Capxul's own). They are not canon words; the canon's plugin kinds are feature, adapter and
+projection.
 
 ## 1. What Orthograph is
 
@@ -207,8 +208,8 @@ export const Organization = Blueprint.thing({
 (`packages/wallets/blueprint/journeys/`). Three projections are real plugins: model, API and server
 (`packages/projections/src/main.ts:4-6`).
 
-**What doesn't.** No example app mounts a feature. Wallets is mounted only by tests, into a copy of acme, by hand
-(`e2e/m1/09-wallet-journeys.test.ts:75`; `packages/prove/test/device-journeys.ts:65`). `ortho new feature`, a plugin's
+**What doesn't.** No example app mounts a feature. Wallets is mounted only by tests: a fixture copy of it (`@fixture/wallets`) into a copy of acme, by hand
+(`e2e/m1/09-wallet-journeys.test.ts:75`), and the package itself into a test project (`packages/prove/test/device-journeys.ts:65`). `ortho new feature`, a plugin's
 own CI and publishing a plugin are M2.10. So the extraction loop has never been run end to end.
 
 **The next candidate after auth** is already on the plan: `@orthograph/handles`, Plugged In's own `handle` thing made a
@@ -306,7 +307,8 @@ Every package in `packages/` today, by bucket:
 ## 5. Rough edges that block the loops
 
 Grouped by what they block. Sources are the snags file (`design/goals/03-snags.md`), the demo
-(`.claude/worktrees/invariant-screens-c4a7f1/demo-out/README.md`, outside this repository) and CI.
+(`.claude/worktrees/invariant-screens-c4a7f1/demo-out/README.md`, in another worktree, not in this repository, so each
+fact used here is said in place) and CI.
 
 **Starting an app.**
 
@@ -340,7 +342,7 @@ Grouped by what they block. Sources are the snags file (`design/goals/03-snags.m
 - A step can't compare with the answer before it, and no journey can send a malformed payload or reach the
   request-key conflict (snags, 53-66).
 - A handler scaffold doesn't learn about declarations added after it was written (snags, 68-71).
-- Machine states are written as strings (snags, 237-248), which G5 also fixes for rules.
+- Machine states are written as strings (snags, 237-248); the planned fix is a generated constant per state.
 - Prove prints about 400 lines, and `--only` still fails on coverage for the journeys it left out (snags, 217-220).
 
 **Proving every client.** Journeys call the server over plain HTTP
@@ -377,7 +379,7 @@ into two sets of skills.
 3. **Probe every door.** A review lists every way a call reaches the code (HTTP, device, SDK, CLI, MCP, replay) and
    sends one probe through each (`design/process/proposals.md:27-60`). In `reviewer`.
 4. **The ratchet.** A checked-in list of expected failures turns known red into a real gate; lines only come off
-   (`design/process/patterns.md:142-159`). In `conductor`; the M1 list has 68 entries today
+   (`design/process/patterns.md:104-113`). In `conductor`; the M1 list has 68 entries today
    (`e2e/m1/expected-failing.txt`).
 5. **Parallel only when nothing is shared**, decision ids from one list (`design/process/patterns.md:72-91`). In
    `conductor` and `threads`.

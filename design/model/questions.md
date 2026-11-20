@@ -11,6 +11,9 @@ numbers are at `origin/goal/stage-1` `06097ecf`, as in the README.
 - **extract**: move code from an app into a plugin package, then mount it back.
 - **ledger**: the file the last full prove wrote, which `ortho impact` reads.
 
+Core, standard library and ours are this draft's working words for buckets, not canon words. The canon's words are the
+plugin kinds: feature, adapter and projection (`docs/canon/outline.md`, layer 1).
+
 ### Q1 — Where does the core end?
 
 **The problem, in code.** The client projections are still built into the generators, while model, API and server are
@@ -34,7 +37,8 @@ If nobody decides, each projection slice picks its own home, and the core keeps 
 
 | Dependent | Why it cares |
 |---|---|
-| M1.12 and M1.13 | they re-home the SDK, CLI, MCP, docs and portal as plugins |
+| the clients' move (M3.22) | the SDK, CLI and MCP move from the generators into `@orthograph/projections`; this decides whether that is core or standard library |
+| docs and the portal (M1.13, M3.21) | the portal as a viewer now, its faces later; both need a home |
 | `packages/projections` | where those projections land |
 | the repo split (Q2) | the core's edge is the split's edge |
 | HeroUI Pro's licence | the portal needs it; a core that needs a paid licence can't be open |
@@ -81,7 +85,7 @@ export default Blueprint.use(server, (s) => [s.choose(s.choices.host.cloudflare)
 | Correctness | ✅ outputs only where mounted | ❌ an unmounted MCP still serves | ✅ |
 | Fit | ✅ `design/frame/projections.md` already says this | ❌ against the frame | ⚠️ one host only, today |
 
-**Recommendation: A.** It finishes what M1.11 started, and keeps a paid licence out of the core.
+**Recommendation: A.** It carries the pattern built for model, API and server (M1.11) over to the clients when they move (M3.22), and keeps a paid licence out of the core.
 
 ### Q2 — How should the repositories split?
 
@@ -89,7 +93,7 @@ export default Blueprint.use(server, (s) => [s.choose(s.choices.host.cloudflare)
 overlap with Plugged In's stage 3 plugins.
 
 ```ts
-// capxul-next, packages/core/src/handlers.ts:21 (read only): Capxul's own registry, one file per domain
+// capxul-next, packages/core/src/handlers.ts:2 (read only): Capxul's own registry, one file per domain
 // "A new domain is one import here and one entry in each group it serves"
 ```
 
@@ -156,7 +160,7 @@ const add = Command.make("add").pipe(
   Command.withSubcommands([addOne("thing"), addOne("operation"), addOne("read"), addOne("journey"), addJourneys, …]),
 ```
 
-If nobody decides, every new app starts with five commands and a round of hand edits, and agents learn the commands
+If nobody decides, every new app starts with four or more commands and a round of hand edits, and agents learn the commands
 instead of the blueprint.
 
 **What it touches**
@@ -174,6 +178,7 @@ instead of the blueprint.
 ortho add thing handle
 ortho add operation handle.claim
 ortho add operation handle.release
+ortho add operation handle.resolve
 # then edit machine.ts by hand: states are a blank
 ```
 
@@ -283,7 +288,7 @@ ortho new feature budgets   # before any app uses it
 never in CI.
 
 ```bash
-# tools/ci/docs-only.sh:23-26
+# tools/ci/docs-only.sh:24-26
 case "$file" in
   design/*) ;;
   packages/* | e2e/* | examples/*) docs_only=false ;;
@@ -313,8 +318,10 @@ If nobody decides, CI keeps proving everything on every push, and users' own CI 
 
 **B · CI asks the logbook what is proven at the base, and proves only the stale**
 ```bash
-ortho impact --json > stale.json   # needs a JSON output and the logbook's ledger in CI
-ortho prove --only "$(jq -r '.stale[]' stale.json)"
+# needs what doesn't exist yet: a JSON output from impact, the ledger in CI (from the logbook),
+# and the journeys each stale operation appears in. `--only` takes one journey, so it loops.
+ortho impact --json > stale.json
+for j in $(jq -r '.journeys[]' stale.json); do ortho prove --only "$j"; done
 ```
 
 **C · Keep running everything; add shards**
@@ -329,7 +336,7 @@ pnpm nx run prove:test -- --shard=1/6
 | Change a doc comment in `compiler` | compiler's dependents rerun | every app operation using it reruns | everything reruns |
 | Change one handler in acme | prove's tests rerun, not portal-ui's | one operation reproves | everything reruns |
 | Impact has a bug | a test may skip that should have run | a proof is skipped silently | nothing skipped |
-| An app author's own CI | unchanged | gets `ortho prove --stale`: the product | unchanged |
+| An app author's own CI | unchanged | could get a new way to prove only what is stale: the product | unchanged |
 
 **Rubric**
 
