@@ -67,7 +67,7 @@ const prove = Command.make(
   {
     env: Flag.Literals("env", ["local", "test"]).pipe(Flag.withDefault("local")),
     root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
-    port: Flag.Int("port").pipe(Flag.withDefault(8799)),
+    port: Flag.Int("port").pipe(Flag.withDefault(0)),
     empty: Flag.Boolean("empty").pipe(Flag.withDefault(false)),
     only: Flag.String("only").pipe(Flag.optional),
     // The run as data (per journey, per step: verdict, expected, got, handler and declaration files; totals; timings).

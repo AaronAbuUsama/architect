@@ -231,7 +231,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Needs: prove runs on free ports and refuses a world it didn't start. Lint-hygiene's #133 on main moves prove to
   `--port 0` / `Worlds.anyPort`; check whether that covers the Collector too, after main next merges into goal/stage-1.
 - Owner: Goal 3 lead.
-- Status: building (#148: `ortho prove --port` defaults to 0, a free port)
+- Status: fixed (#148: `ortho prove --port` defaults to 0, a free port)
 
 ## S-26 · names · a handler or journey can name a machine state only as a string
 - Hit: the 🔍 reviewer of #142, on the climber's handlers and the journey author's journeys.

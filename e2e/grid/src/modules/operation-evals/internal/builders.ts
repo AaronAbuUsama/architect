@@ -18,12 +18,15 @@ export const docs = over("operation.docs", (op, e) => {
   const payload = Reading.mdSection(page, "Payload");
   const answer = Reading.mdSection(page, "Answer");
   const refusals = Reading.mdSection(page, "Refusals");
+  // What the page says as words: emphasis, code spans and links taken off, so `**Budget:**` and `Budget:` are the same statement.
+  // A code fence is an example, not the page's statement, so it is left out too.
+  const said = Reading.plain(page.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")).replace(/\s+/g, " ");
   return [
-    ...(page.includes(`# ${op.name}\n`) ? [] : [`${path} has no heading "# ${op.name}"`]),
-    ...(page.includes(op.description ?? "\0") ? [] : [`${path} does not carry the description`]),
-    ...(page.includes("**Who may call:**") ? [] : [`${path} does not say who may call`]),
-    ...(page.includes(`**Budget:** ${budget(op)}`) ? [] : [`${path} does not show the budget "${budget(op)}"`]),
-    ...((op.idempotent === null || op.idempotent === undefined) === !page.includes("**Idempotent by") ? [] : [`${path} ${op.idempotent == null ? "claims" : "does not state"} idempotency, and the model ${op.idempotent == null ? "has none" : "has some"}`]),
+    ...(Reading.mdTitle(page) === op.name ? [] : [`${path} has no heading "# ${op.name}"`]),
+    ...(said.includes(Reading.plain(op.description ?? "\0").replace(/\s+/g, " ")) ? [] : [`${path} does not carry the description`]),
+    ...(said.includes("Who may call:") ? [] : [`${path} does not say who may call`]),
+    ...(said.includes(`Budget: ${budget(op)}`) ? [] : [`${path} does not show the budget "${budget(op)}"`]),
+    ...((op.idempotent === null || op.idempotent === undefined) === !said.includes("Idempotent by") ? [] : [`${path} ${op.idempotent == null ? "claims" : "does not state"} idempotency, and the model ${op.idempotent == null ? "has none" : "has some"}`]),
     ...(payload === undefined ? [`${path} has no Payload section`] : missingOrExtra("the Payload table", names(Reading.mdRows(payload)), Object.keys(op.payload))),
     ...(answer === undefined ? [`${path} has no Answer section`] : Object.keys(op.answer).length === 0 ? (answer.includes("(none)") ? [] : ["the Answer section does not say (none)"]) : missingOrExtra("the Answer table", names(Reading.mdRows(answer)), Object.keys(op.answer))),
     ...(refusals === undefined ? [`${path} has no Refusals section`] : missingOrExtra("the Refusals table", names(Reading.mdRows(refusals)), op.refusals ?? [])),
@@ -44,14 +47,14 @@ export const portal = over("operation.portal", (op, e) => {
   // Home's operations matrix counts each operation's calls, refusals and defects and its p95 against the budget (K14, operation.portal).
   const matrix = Reading.htmlText(Reading.htmlSection(home, 2, "Operations") ?? "");
   return [
-    ...(own.includes(`<h1>${op.name}</h1>`) ? [] : [`${route} has no heading ${op.name}`]),
+    ...(Reading.htmlHeadings(own, 1).includes(op.name) ? [] : [`${route} has no heading ${op.name}`]),
     ...(Reading.htmlText(own).includes(op.description ?? "\0") ? [] : [`${route} does not carry the description`]),
     ...(Reading.htmlText(contract).includes("Who may call") ? [] : [`${route}'s contract does not say who may call`]),
     ...(Reading.htmlText(contract).includes(`Budget: ${budget(op)}`) ? [] : [`${route}'s contract does not show the budget "${budget(op)}"`]),
     ...(payload === undefined ? [`${route} has no Payload table`] : missingOrExtra("the Payload table", names(Reading.htmlRows(payload)), Object.keys(op.payload))),
     ...(answer === undefined ? [`${route} has no Answer table`] : missingOrExtra("the Answer table", names(Reading.htmlRows(answer)), Object.keys(op.answer))),
     ...(refusals === undefined ? [`${route} has no Refusals list`] : missingOrExtra("the Refusals list", Reading.htmlItems(refusals), op.refusals ?? [])),
-    ...(home.includes(`href="${route}"`) ? [] : [`home's operations table does not link ${route}`]),
+    ...(new RegExp(`href\\s*=\\s*["']${route.replace(/\./g, "\\.")}["']`).test(home) ? [] : [`home's operations table does not link ${route}`]),
     ...["Calls", "Refused", "Defects", "p95"].filter((column) => !matrix.includes(column)).map((column) => `home's operations matrix has no ${column} column: the portal does not yet count calls from telemetry (M1.13)`),
   ];
 });

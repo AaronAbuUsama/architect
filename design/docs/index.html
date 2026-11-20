@@ -509,7 +509,7 @@ refused after the read.</li>
 <li><b><code>request.replayed=true</code></b> is a retry that changed nothing.</li>
 <li><b>Step widths against the operation's <code>budget</code></b> show which step is slow.</li>
 </ul>
-<p>Calls refused before any span, a bad payload or a wrong role, are still counted: <code>ortho.calls</code> and
+<p>A bad payload is refused before any span, and a wrong role in its own <code>&lt;operation&gt;.refused</code> span; both are still counted: <code>ortho.calls</code> and
 <code>ortho.call.duration</code> are metrics for every call. An environment's <code>telemetry</code> list says where
 it all goes: <code>Telemetry.sink.local()</code> (the Collector and the local viewer) or <code>Telemetry.sink.axiom({ group })</code>.</p>
 <div class="today"><b>Today.</b> Operation and step spans, the public-only allowlist and refusals ending OK run on
