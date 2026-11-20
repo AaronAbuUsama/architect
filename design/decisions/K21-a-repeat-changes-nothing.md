@@ -184,6 +184,7 @@ the same truth reached another way. Settle needs the second, founding needs the 
 ## Supersedes
 
 - design/frame/adapters.md: "the door uses `idempotent: \"request\"` keyed by the event's id. Whether that is enough for every vendor's retry rules is unchecked." → "the door uses `idempotent: \"request\"` keyed by the event's id, and a move that may arrive twice by another path declares `unchanged` (K21)."
+- design/frame/examples/notifications.md: `idempotent: { by: "cause" }` → `idempotent: { by: ["cause"] }`
 - design/frame/examples/notifications.md: "also `idempotent: { by: <field> }`" → "also `idempotent: { by: [<payload key>] }` (K21), and `unchanged` on a move"
 
 The proposal in `notifications.md` is where `by` first appeared; K21 gives it its shape.

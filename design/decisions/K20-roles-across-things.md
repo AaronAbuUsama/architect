@@ -207,26 +207,27 @@ refused:      NotAllowed [AR-001], and the <operation>.refused span, as every ro
 ```
 
 **Solidity (EVM).** The contract can't read the database, so the compiler refuses a chain operation whose role's
-holding thing lives in another store. When both live on the chain, the generator keeps the role's index in storage,
-set and cleared by the holding thing's moves, never by hand:
+holding thing lives in another store. When both live on the chain, the generator keeps the role's index in storage, a
+count raised and lowered by the holding thing's moves, never by hand:
 
 ```solidity
 // generated/solidity/CompanyRoles.sol
 // Generated from blueprint/things/company/roles.ts. Do not edit.
 abstract contract CompanyRoles {
-    /// One flag per held row: true while a membership of `company` held by `person` is active with seat director.
-    mapping(bytes32 company => mapping(address person => bool)) internal _director;
+    /// How many matching rows `person` holds on `company` (active, seat director): a count, not a flag, because
+    /// `holds` asks no uniqueness, and removing one of two rows must leave the role held, as it does in Effect and Noir.
+    mapping(bytes32 company => mapping(address person => uint256)) internal _director;
     error NotAllowed(); // AR-001
 
     modifier onlyDirector(bytes32 company) {
-        if (!_director[company][msg.sender]) revert NotAllowed();
+        if (_director[company][msg.sender] == 0) revert NotAllowed();
         _;
     }
 }
 
 // generated/solidity/Membership.sol, inside the generated moves
-function _enterActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] = true; }
-function _leaveActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] = false; }
+function _enterActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] += 1; }
+function _leaveActive(bytes32 company, address person, Seat seat) internal { if (seat == Seat.Director) _director[company][person] -= 1; }
 
 // the operation's entry: role, machine, then the developer's body (K7)
 function createBudget(bytes32 company, uint256 limit) external onlyDirector(company) { _createBudget(company, limit); }
@@ -373,6 +374,7 @@ The rules are already decided across K3, K7 and N1; this gathers them, with role
 - design/milestones.md (M2 ships): "roles as rules with `holds`" → "roles as rules, or declared with `who` and `holds` (K20)"
 - design/milestones.md (M2.07): "owner, member, `holds`" → "owner and member as `holds` roles (K20)"
 - .agents/skills/kanban/data/lanes.json (M2 ships): "roles as rules with holds" → "roles as rules, or declared with who and holds (K20)"
+- design/docs/index.html ("Use their roles in your own things"): "organizations exports holds as a shortcut that makes one" and `organizations.roles.holds(Organization, ["owner"])` → "a role is a rule, or declared with who or holds (K20)" and `Blueprint.role(Organization, { holds: Membership.fields.organization, ... })`
 - .agents/skills/kanban/STATE.md and design/ledger.md (ROL-02): "the organizations plugin's `holds` is a shortcut that produces a rule" → "decided by K20: a role is a `rule`, or declared with `who` or `holds` in `orthograph` itself"
 
 ## Aaron's answers

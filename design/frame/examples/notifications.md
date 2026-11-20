@@ -50,7 +50,7 @@ export default Blueprint.operation(Notification, {
   allowed: [Blueprint.system],                                  // only the system delivers our own events
   on: [Blueprint.on(InvitationSent, (e, meta) => ({ invitation: e.invitation, to: e.email, cause: meta.id }))],
   steps: { send: Blueprint.step.call(email.calls.send), insert: Blueprint.step.database() },
-  idempotent: { by: "cause" },                                  // one email per event, however often it is delivered
+  idempotent: { by: ["cause"] },                                // one email per event, however often it is delivered
   budget: { p95: "2 seconds" },
 });
 ```
