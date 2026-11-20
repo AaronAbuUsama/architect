@@ -1,5 +1,7 @@
 # F7: HeroUI Pro behind one package, `@orthograph/portal-ui`
 
+> **Amended by K24 (20 November 2026):** UI SDK replaces HeroUI Pro behind this same seam, one export at a time, and HeroUI is then removed. The seam, its names and its lint rule stay. See `K24-ui-sdk.md`.
+
 Decided 19 November 2026. Aaron said "Yes, add the seam" (relayed by the conductor). The shape below is the 📐 portal
 thread's, under "Who decides" in `AGENTS.md`. It refines M1.25's Q8 answer (`design/portal.md`, "Aaron's answers").
 
