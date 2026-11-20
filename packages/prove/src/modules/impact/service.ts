@@ -3,6 +3,7 @@ import { Compare, type Depends, type Model, type Versioned } from "@orthograph/c
 import type { Impact as Impacted, ImpactApi, Shipped } from "./types.ts";
 import { evidenceHolds, modelHash, storyHash } from "#modules/verdicts/internal/proof.js";
 import { readLedger, writeLedger } from "./internal/ledger.ts";
+import { select as selectChanged, settle as settleChanged } from "./internal/changed.ts";
 
 const holds = (model: Model, depends: Depends) => Object.entries(depends).every(([key, hash]) => Compare.hashOf(model, key) === hash);
 
@@ -29,7 +30,15 @@ const record: ImpactApi["record"] = (root, model, verdicts, results) =>
       const evidence = prior?.verdicts?.[op];
       if (evidence) proofs.set(op, evidence);
     }
-    writeLedger(root, { model, proven, ...(proofs.size === 0 ? {} : { verdicts: Object.fromEntries(proofs) }) });
+    writeLedger(root, { model, proven, ...(proofs.size === 0 ? {} : { verdicts: Object.fromEntries(proofs) }), ...(prior?.changed ? { changed: prior.changed } : {}) });
+  });
+
+const select: ImpactApi["select"] = (root, model) => Effect.sync(() => selectChanged(root, model, readLedger(root)?.changed));
+
+const settle: ImpactApi["settle"] = (root, model, ran) =>
+  Effect.sync(() => {
+    const ledger = readLedger(root);
+    if (ledger !== undefined) writeLedger(root, { ...ledger, changed: settleChanged(root, model, ledger.changed, ran) });
   });
 
 const of: ImpactApi["of"] = (root, model) =>
@@ -83,4 +92,4 @@ const lines: ImpactApi["lines"] = (impact, shipped) => [...(impact.edges ?? []),
         ...(impact.unproven.length > 0 ? [`unproven ${list(impact.unproven)}`] : []),
       ])];
 
-export const Impact: ImpactApi = { record, of, lines };
+export const Impact: ImpactApi = { record, select, settle, of, lines };

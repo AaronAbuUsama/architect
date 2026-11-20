@@ -4,7 +4,7 @@ import { Data, type Effect, type Scope } from "effect";
 import type { Result, TokenSource } from "#modules/verdicts/types.js";
 import type { ProveReport } from "./internal/structured.ts";
 
-export type { FailureDetail, JourneyDetail, ProveReport, StepDetail } from "./internal/structured.ts";
+export type { ChangedDetail, FailureDetail, JourneyDetail, ProveReport, StepDetail } from "./internal/structured.ts";
 
 export class ProveFailed extends Data.TaggedError("ProveFailed")<{ readonly message: string }> {}
 
@@ -29,6 +29,11 @@ export interface ProveApi {
     readonly empty?: boolean;
     /** Run one journey by its declared name, without recording proof verdicts. */
     readonly only?: string;
+    /**
+     * Run only the journeys a change since the last proof's record touches (and judge the evals of what changed), naming each
+     * it skipped; run everything, saying why, when it cannot tell. The proof it leaves is recorded as a full run's is.
+     */
+    readonly changed?: boolean;
     /** The process environment, for the sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */
     readonly env?: Readonly<Record<string, string | undefined>>;
   }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;

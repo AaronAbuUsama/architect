@@ -30,6 +30,8 @@ export interface Exercised {
 export const exercise = (
   model: Model, project: Project, url: string, collector: TraceSource, people?: "world" | "sign-up", otlp?: string, facts?: Facts, empty = false,
   handlers?: ReturnType<typeof handlerHashes>, device?: DeviceHost,
+  /** `prove --changed`: judge the evals of these operations only (what changed); the rest keep their recorded verdicts. */
+  judging?: ReadonlySet<string>,
 ): Effect.Effect<Exercised> =>
   Effect.gen(function* () {
     const bodies = handlers ?? handlerHashes(project.root, model);
@@ -43,15 +45,16 @@ export const exercise = (
     const journeys = journeyLines(runs, traces, empty, model);
     if (empty) return { journeys, evals: { lines: [], failed: 0 }, verdicts: [], judged: [], results: [], failedTraces: journeys.failedTraces };
     const evidence = Evals.gather(calls, traces);
-    const verdicts = Evals.judge(project, evidence);
+    const everything = Evals.judge(project, evidence);
+    const verdicts = judging === undefined ? everything : everything.filter((v) => v.operation !== undefined && judging.has(v.operation));
     const judged = journeys.failed === 0 ? verdicts : verdicts.map((v) => ({ ...v, failures: [...v.failures, "a journey failed"] }));
     // The traces of what went wrong: a journey's own, and the calls an eval named by their `where`.
     const named = calls.filter((c) => verdicts.some((v) => v.failures.some((f) => f.startsWith(`${Evals.where(c)}:`))));
     const failedTraces = [...journeys.failedTraces, ...named.map((c) => ({ trace: c.trace, what: `${c.journey} "${c.step}"` }))]
       .filter((f, i, all) => all.findIndex((o) => o.trace === f.trace) === i);
-    const evals = evalLines(model, verdicts);
+    const evals = evalLines(judging === undefined ? model : { ...model, operations: Object.fromEntries(Object.entries(model.operations).filter(([name]) => judging.has(name))) }, verdicts);
     const results = proofVerdicts(project, runs, traces, judged, bodies);
-    return { journeys, evals: { ...evals, lines: [...evals.lines, ...optionalStepLines(model, runs, evidence)] }, verdicts, judged, results, failedTraces };
+    return { journeys, evals: { ...evals, lines: [...evals.lines, ...(judging === undefined ? optionalStepLines(model, runs, evidence) : [])] }, verdicts, judged, results, failedTraces };
   });
 
 /** The last line: every journey and every eval passed, or how many did not. */

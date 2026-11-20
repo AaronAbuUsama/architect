@@ -13,6 +13,42 @@ export interface Ledger {
     readonly storyHash: string;
     readonly journeys: ReadonlyArray<JourneyVerdict>;
   }>>;
+  /** What `prove --changed` measures from: see `Proof`. */
+  readonly changed?: Proof;
+}
+
+/** What a journey or an operation rested on when it was last judged, and whether it passed. */
+export interface Judged {
+  readonly inputs: string;
+  readonly passed: boolean;
+}
+
+/**
+ * The record of the last proof that `prove --changed` reads: a content hash, by relative path, of every file that can
+ * change a proof (blueprint/, src/, journeys/, the config, package.json, the lockfile, tsconfig, .env), and per journey
+ * and per operation the hash of the files it rests on with its last verdict.
+ */
+export interface Proof {
+  readonly files: Readonly<Record<string, string>>;
+  readonly journeys: Readonly<Record<string, Judged>>;
+  readonly operations: Readonly<Record<string, Judged>>;
+}
+
+/** What `prove --changed` will do, from the record and today's files. */
+export interface Selection {
+  /** The journeys to run, by name. */
+  readonly rerun: ReadonlyArray<string>;
+  readonly skipped: ReadonlyArray<string>;
+  /** The operations whose evals are judged again. */
+  readonly judge: ReadonlyArray<string>;
+  /** Set when it could not tell: every journey and every operation is then in `rerun` and `judge`. */
+  readonly fellBack: null | { readonly reason: string; readonly files: ReadonlyArray<string> };
+}
+
+/** What a run judged: each journey it ran and each operation whose evals it judged. */
+export interface Ran {
+  readonly journeys: ReadonlyArray<{ readonly name: string; readonly passed: boolean }>;
+  readonly operations: ReadonlyArray<{ readonly operation: string; readonly passed: boolean }>;
 }
 
 export interface Impact {
@@ -41,6 +77,10 @@ export interface Shipped {
 export interface ImpactApi {
   /** After a prove: operations whose evals all passed become proven at today's hashes; failing ones are dropped. */
   readonly record: (root: string, model: Model, verdicts: ReadonlyArray<Verdict>, results?: ReadonlyArray<Result>) => Effect.Effect<void>;
+  /** Which journeys and evals `prove --changed` runs: what changed since the last proof's record, or everything with the reason. */
+  readonly select: (root: string, model: Model) => Effect.Effect<Selection>;
+  /** After a prove: the record `--changed` measures from, with what the run judged as it judged it and the rest as it was. */
+  readonly settle: (root: string, model: Model, ran: Ran) => Effect.Effect<void>;
   /** Today's model against the ledger. With no ledger every operation is unproven. */
   readonly of: (root: string, model: Model) => Effect.Effect<Impact>;
   /**
