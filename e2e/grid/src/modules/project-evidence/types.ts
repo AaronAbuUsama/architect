@@ -55,7 +55,7 @@ export interface JourneyModel {
   readonly name: string;
   readonly starts?: string | null;
   readonly cast?: Readonly<Record<string, { readonly kind: string; readonly role?: string }>>;
-  readonly steps: ReadonlyArray<{ readonly title: string; readonly skipped?: string; readonly call?: { readonly actor: string; readonly operation: string }; readonly checks?: ReadonlyArray<{ readonly kind: string }> }>;
+  readonly steps: ReadonlyArray<{ readonly title: string; readonly skipped?: string; readonly call?: { readonly actor: string; readonly operation: string; readonly payload?: Readonly<Record<string, unknown>>; readonly request?: string }; readonly checks?: ReadonlyArray<{ readonly kind: string; readonly error?: string; readonly value?: unknown; readonly match?: string }> }>;
 }
 export interface ProjectModel {
   readonly refusals: Readonly<Record<string, string>>;

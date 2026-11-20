@@ -36,11 +36,91 @@ export const model = over("journey.model", (journey, e) => {
 export const server = over("journey.server", (journey, e) =>
   Object.entries(e.files).filter(([path, text]) => path.startsWith("generated/server/") && text.includes(journey.name)).map(([path]) => `${path} names "${journey.name}": the server carries a journey`));
 
-/** journey.docs: each operation the journey calls lists it, as a worked example, on its page. */
+/** A value the journey takes from its starting world (or an earlier step) is a reference in the model: `{ ref: ["world", "handle"] }`. */
+const refOf = (value: unknown): ReadonlyArray<string> | undefined =>
+  typeof value === "object" && value !== null && Array.isArray((value as { ref?: unknown }).ref) ? (value as { ref: ReadonlyArray<unknown> }).ref.map(String) : undefined;
+/** An id as the runtime makes one (`hdl_9f31ab42`): the page never shows one for a value the journey does not write. */
+const INVENTED = /\b[a-z]{2,5}_[0-9a-z]{6,}\b/;
+const hasWords = (text: string, words: ReadonlyArray<string>) => words.every((w) => Reading.hasName(text, w));
+
+/** The words under a `###` (or deeper) heading that is the journey's name, up to the next heading of the same or a higher level. */
+const entryOf = (section: string, name: string): string | undefined => {
+  const lines = section.split("\n");
+  const level = (l: string) => /^(#{1,6})\s/.exec(l)?.[1]?.length;
+  const start = lines.findIndex((l) => (level(l) ?? 0) >= 3 && Reading.plain(l.replace(/^#{1,6}\s+/, "").replace(/\s+#+\s*$/, "")).trim() === name);
+  if (start < 0) return undefined;
+  const mine = level(lines[start]!)!;
+  const end = lines.findIndex((l, i) => i > start && (level(l) ?? 99) <= mine);
+  return Reading.plain(lines.slice(start + 1, end < 0 ? undefined : end).join("\n"));
+};
+
+/** The refusal a journey step names: a declared or runtime error by its name, or the machine's (`link.notFrom`) or the thing's own (`person.notFound`) by the thing. */
+export const refusalOf = (model: ProjectEvidence["model"], error: string): string => {
+  const [thing, kind] = error.split(".");
+  const t = thing === undefined ? undefined : model.things[thing];
+  return kind === "notFrom" ? t?.machine?.notFrom.error ?? error : kind === "notFound" ? t?.notFound?.error ?? error : error;
+};
+
+/** One step's example, judged in the stretch of the entry from its title to the next step's: who, what was sent, what came back. */
+const stepProblems = (step: JourneyModel["steps"][number], segment: string, journey: JourneyModel, e: ProjectEvidence) => {
+  const call = step.call!;
+  const who = journey.cast?.[call.actor];
+  const flat = segment.replace(/-/g, " ").toLowerCase();
+  const refusal = step.checks?.find((c) => c.kind === "refuses");
+  const refused = refusal?.error === undefined ? undefined : refusalOf(e.model, refusal.error);
+  return [
+    ...(Reading.hasName(segment, call.actor) ? [] : [`does not name the caller ${call.actor}`]),
+    ...(who === undefined || flat.includes(who.kind.replace(/-/g, " ").toLowerCase()) ? [] : [`does not say the caller is ${who.kind}`]),
+    ...(who?.role === undefined || Reading.hasName(segment, who.role) ? [] : [`does not say the caller's role ${who.role}`]),
+    ...Object.entries(call.payload ?? {}).flatMap(([field, value]) => {
+      const ref = refOf(value);
+      if (ref !== undefined) return [
+        ...(Reading.hasName(segment, field) && hasWords(segment, ref) ? [] : [`does not name ${field} by its reference, in the words ${ref.join(" ")}`]),
+        ...(INVENTED.test(segment) ? [`writes an id for ${field}, whose value the journey takes from ${ref.join(" ")}`] : []),
+      ];
+      const text = typeof value === "string" ? value : JSON.stringify(value);
+      return Reading.hasName(segment, field) && segment.includes(text) ? [] : [`does not show the payload ${field} ${text}`];
+    }),
+    ...(refused === undefined
+      ? (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").flatMap((c) => {
+        const ref = refOf(c.value);
+        const want = c.kind === "expect" ? c.match : ref === undefined ? (typeof c.value === "string" ? c.value : JSON.stringify(c.value)) : undefined;
+        return want !== undefined ? (segment.includes(want) ? [] : [`does not show the answer it checks (${want})`]) : hasWords(segment, ref ?? []) ? [] : [`does not name the answer it checks in the words ${(ref ?? []).join(" ")}`];
+      })
+      : [
+        ...(Reading.hasName(segment, refused) && segment.includes(e.model.refusals[refused] ?? "\0") ? [] : [`is not shown refused with ${refused}, ${e.model.refusals[refused] ?? "its code"}`]),
+        ...Object.keys(e.model.refusals).filter((other) => other !== refused && Reading.hasName(segment, other)).map((other) => `names ${other}, a refusal this step does not check`),
+      ]),
+  ];
+};
+
+/**
+ * journey.docs (W2): each operation's page shows each journey that calls it as a worked example. In the journey's own entry (titled with its name) the page names the
+ * starting world and, for every step of the journey that calls this operation and none that calls another, in order: the step's title, the caller by cast name and
+ * kind, every payload field with the journey's value (a value from the world or an earlier step in words from its reference, never an id), and the refusal by name and
+ * code or the answer the step checks. The content, not the markup; each piece is looked for within the journey's own entry, and each step's within its own stretch of it.
+ */
 export const docs = over("journey.docs", (journey, e) => calls(journey).flatMap((op) => {
   const model = e.model.operations[op];
   const path = model === undefined ? "" : `generated/docs/${model.thing}/${model.verb}.md`;
-  return (e.files[path] ?? "").includes(journey.name) ? [] : [`${path || op}'s page does not list the journey "${journey.name}" as a worked example`];
+  const page = e.files[path] ?? "";
+  const section = Reading.mdSection(page, "Worked examples");
+  if (section === undefined) return [`${path || op} has no "Worked examples" section`];
+  const entry = entryOf(section, journey.name);
+  if (entry === undefined) return [`${path}'s Worked examples have no entry titled "${journey.name}"`];
+  const mine = running(journey).filter((s) => s.call?.operation === op);
+  const others = running(journey).filter((s) => s.call !== undefined && s.call.operation !== op && !mine.some((m) => Reading.plain(m.title).includes(Reading.plain(s.title))));
+  const at = mine.map((s) => entry.indexOf(Reading.plain(s.title)));
+  return [
+    ...(journey.starts == null || Reading.hasName(entry, journey.starts) ? [] : [`${path}: the entry for "${journey.name}" does not name its starting world ${journey.starts}`]),
+    ...mine.flatMap((step, i) => {
+      if (at[i]! < 0) return [`${path}: the entry for "${journey.name}" leaves out the step "${step.title}"`];
+      const next = at.slice(i + 1).find((p) => p >= 0);
+      return stepProblems(step, entry.slice(at[i]!, next ?? undefined), journey, e).map((p) => `${path}: the step "${step.title}" ${p}`);
+    }),
+    ...(at.every((p) => p >= 0) && at.some((p, i) => i > 0 && p < at[i - 1]!) ? [`${path}: the steps of "${journey.name}" are not in the journey's order`] : []),
+    ...others.filter((s) => entry.includes(Reading.plain(s.title))).map((s) => `${path}: the entry for "${journey.name}" lists the step "${s.title}", which calls ${s.call!.operation}, not ${op}`),
+  ];
 }));
 
 /** journey.portal: each operation the journey calls shows it, in the portal's own part of its page (the proof tab), not in the docs it embeds. */

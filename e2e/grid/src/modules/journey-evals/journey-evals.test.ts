@@ -1,6 +1,8 @@
 // The journey row's evals over Plugged In's real journeys, model and run, and acme's. The same suite runs for every journey the model has.
 import { describe, expect, it } from "vitest";
+import type { JourneyModel } from "../project-evidence/types.ts";
 import { editFile, editPortal, editSpans, evidenceOf, judge } from "../project-evidence/testing.ts";
+import { refusalOf } from "./internal/surfaces.ts";
 import { JourneyEvals } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
@@ -17,9 +19,9 @@ describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", ()
     for (const journey of journeys(pluggedIn)) expect({ journey, ...check(cell, journey) }).toEqual({ journey, ok: true, why: [] });
   });
 
-  it("journey.docs and journey.portal are red: no operation's page lists the journeys that cover it", () => {
+  it("journey.docs and journey.portal are red: no operation's page shows the journeys that call it as worked examples, and none shows proof", () => {
     for (const journey of journeys(pluggedIn)) {
-      expect(check("docs", journey).why.every((w) => /does not list the journey/.test(w)), journey).toBe(true);
+      expect(check("docs", journey).why.every((w) => /has no "Worked examples" section/.test(w)), journey).toBe(true);
       expect(check("docs", journey).ok, journey).toBe(false);
       expect(check("portal", journey).why.every((w) => /shows no proof from the journey/.test(w)), journey).toBe(true);
       expect(check("portal", journey).ok, journey).toBe(false);
@@ -64,16 +66,10 @@ describe("a wrong output is red, and says what", () => {
     expect(check("server", journey, editFile(pluggedIn, "generated/server/main.ts", (t) => `${t}\n// ${journey}\n`)).why).toEqual([`generated/server/main.ts names "${journey}": the server carries a journey`]);
   });
 
-  it("docs and portal: pass once each operation the journey calls lists it", () => {
+  it("portal: passes once each operation the journey calls shows its proof", () => {
     const ops = ["profile.get", "link.add", "link.order", "link.remove"];
-    let docs = pluggedIn;
     let portal = pluggedIn;
-    for (const op of ops) {
-      const [thing, verb] = op.split(".");
-      docs = editFile(docs, `generated/docs/${thing}/${verb}.md`, (t) => `${t}\n## Worked examples\n\n- ${journey}\n`);
-      portal = editPortal(portal, `/portal/operations/${op}`, (h) => h.replace("<h2>Contract</h2>", `<h2>Proof</h2><p>${journey}</p><h2>Contract</h2>`));
-    }
-    expect(check("docs", journey, docs)).toEqual({ ok: true, why: [] });
+    for (const op of ops) portal = editPortal(portal, `/portal/operations/${op}`, (h) => h.replace("<h2>Contract</h2>", `<h2>Proof</h2><p>${journey}</p><h2>Contract</h2>`));
     expect(check("portal", journey, portal)).toEqual({ ok: true, why: [] });
     // The docs the portal embeds are not its own part: the journey only in the embedded docs is not proof.
     const embedded = editPortal(pluggedIn, "/portal/operations/link.add", (h) => h.replace("</pre>", `${journey}</pre>`));
@@ -83,5 +79,85 @@ describe("a wrong output is red, and says what", () => {
   it("telemetry: spans under another journey's name, and none", () => {
     expect(check("telemetry", journey, editSpans(pluggedIn, (s) => s.filter((x) => x.name !== `journey.${journey}`))).why).toEqual([`no span named journey.${journey}`]);
     expect(check("telemetry", journey, editSpans(pluggedIn, (s) => s.map((x) => (x.name === `journey.${journey}` ? { ...x, attrs: { ...x.attrs, journey: "another" } } : x)))).why).toEqual([`a journey.${journey} span has journey another`]);
+  });
+});
+
+// ---- journey.docs (W2): worked examples, in the content the decision holds ----
+//
+// `worked` writes the good page for every operation from the model's own journeys, in W2's layout (the layout is the builder's; the eval holds the
+// content). Each wrong page below changes one thing in it, and the eval must name that thing; the good page, and every other journey's, must pass.
+
+type Model = typeof pluggedIn.model;
+const words = (ref: ReadonlyArray<unknown>) => (ref[0] === "world" ? `the world's ${ref.slice(1).join(" ")}` : ref.join(" "));
+const shown = (value: unknown) => {
+  const ref = typeof value === "object" && value !== null ? (value as { ref?: ReadonlyArray<unknown> }).ref : undefined;
+  return ref === undefined ? (typeof value === "string" ? value : JSON.stringify(value)) : words(ref);
+};
+/** One step as a bullet: title, caller by cast name and kind, every payload field with its value, and the refusal or the answer checked. */
+const bullet = (model: Model, journey: JourneyModel, step: JourneyModel["steps"][number]) => {
+  const call = step.call!;
+  const kind = journey.cast![call.actor]!.kind.replace(/-/g, " ");
+  const payload = Object.entries(call.payload ?? {}).map(([k, v]) => `${k} ${shown(v)}`).join(", ");
+  const refusal = step.checks?.find((c) => c.kind === "refuses");
+  const answer = (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").map((c) => (c.kind === "expect" ? `something matching ${c.match}` : shown(c.value)));
+  const refused = refusal?.error === undefined ? undefined : refusalOf(model, refusal.error);
+  const outcome = refused !== undefined ? `is refused with ${refused}, ${model.refusals[refused]}` : answer.length > 0 ? `gets back ${answer.join(" and ")}` : "is answered";
+  return `- **${step.title}.** ${call.actor} (${kind}) calls with ${payload || "nothing"}, and ${outcome}.`;
+};
+const entries = (e: typeof pluggedIn, op: string, only?: (title: string) => boolean) => Object.values(e.model.journeys ?? {}).flatMap((journey) => {
+  const mine = journey.steps.filter((s) => s.skipped === undefined && s.call?.operation === op && (only === undefined || only(s.title)));
+  return mine.length === 0 ? [] : [`### ${journey.name}\n\nStarts from the world \`${journey.starts}\`.\n\n${mine.map((s) => bullet(e.model, journey, s)).join("\n")}\n`];
+});
+const worked = (e: typeof pluggedIn, change: (page: string, op: string) => string = (page) => page) => Object.values(e.model.operations).reduce((acc, op) => {
+  const path = `generated/docs/${op.thing}/${op.verb}.md`;
+  return editFile(acc, path, (text) => change(`${text}\n## Worked examples\n\n${entries(acc, op.name).join("\n")}`, op.name));
+}, e);
+const claimed = "a name is claimed once";
+const swap = (from: string | RegExp, to: string) => (page: string, op: string) => (op === "handle.claim" ? page.replace(from, to) : page);
+
+describe("journey.docs holds the worked example's content (W2)", () => {
+  it("passes the page written from the model for every journey, and its other journeys' entries do not rescue a wrong one", () => {
+    const good = worked(pluggedIn);
+    for (const journey of journeys(pluggedIn)) expect({ journey, ...check("docs", journey, good) }).toEqual({ journey, ok: true, why: [] });
+  });
+
+  it("names a journey whose entry leaves out one of its steps", () => {
+    const why = check("docs", claimed, worked(pluggedIn, swap(/- \*\*a taken name is refused\.\*\*[^\n]*\n/, ""))).why;
+    expect(why).toEqual([`generated/docs/handle/claim.md: the entry for "${claimed}" leaves out the step "a taken name is refused"`]);
+  });
+
+  it("names a wrong refusal, the other refusal named beside it, and a refusal's code that is left out", () => {
+    expect(check("docs", claimed, worked(pluggedIn, swap("HandleTaken, HN-001", "HandleAlreadyOwned, HN-002"))).why.join("\n")).toMatch(/is not shown refused with HandleTaken, HN-001[\s\S]*names HandleAlreadyOwned/);
+    expect(check("docs", claimed, worked(pluggedIn, swap("HandleTaken, HN-001", "HandleTaken"))).why[0]).toMatch(/is not shown refused with HandleTaken, HN-001/);
+  });
+
+  it("names a step that calls a different operation", () => {
+    const why = check("docs", claimed, worked(pluggedIn, swap(/(- \*\*a taken name is refused)/, "- **the name still resolves to aaron's handle.** visitor (anyone) calls with name claimedname.\n$1"))).why;
+    expect(why).toEqual([`generated/docs/handle/claim.md: the entry for "${claimed}" lists the step "the name still resolves to aaron's handle", which calls handle.resolve, not handle.claim`]);
+  });
+
+  it("names a payload value that was changed, a caller and kind that were changed", () => {
+    expect(check("docs", claimed, worked(pluggedIn, swap(/claimedname/g, "othername"))).why[0]).toMatch(/does not show the payload name claimedname/);
+    expect(check("docs", claimed, worked(pluggedIn, swap("bob (signed in)", "carol (admin)"))).why.join("\n")).toMatch(/does not name the caller bob[\s\S]*does not say the caller is signed-in/);
+  });
+
+  it("holds a value from the world to the words of its reference, and never an id", () => {
+    const why = check("docs", claimed, worked(pluggedIn, swap("gets back the world's handle", "gets back hdl_9f31ab42"))).why.join("\n");
+    expect(why).toMatch(/does not name the answer it checks in the words world handle/);
+    const payloadRef = Object.values(pluggedIn.model.journeys!).flatMap((j) => j.steps.flatMap((s) => Object.values(s.call?.payload ?? {}))).some((v) => typeof v === "object" && v !== null);
+    expect(payloadRef, "the model has a payload value taken from the world").toBe(true);
+  });
+
+  it("looks only in the journey's own entry: the same words under another journey's title, or in the Refusals table, do not count", () => {
+    const moved = worked(pluggedIn, (page, op) => (op === "handle.claim" ? page.replace(`### ${claimed}`, "### some other journey") : page));
+    expect(check("docs", claimed, moved).why[0]).toBe(`generated/docs/handle/claim.md's Worked examples have no entry titled "${claimed}"`);
+    const elsewhere = worked(pluggedIn, (page, op) => (op === "handle.claim" ? page.replace("a taken name is refused", "a name is refused") : page));
+    const borrowed = editFile(elsewhere, "generated/docs/handle/claim.md", (t) => t.replace("## Worked examples", "## Refusals\n\n| HandleTaken | HN-001 | a taken name is refused |\n\n## Worked examples"));
+    expect(check("docs", claimed, borrowed).why[0]).toMatch(/leaves out the step "a taken name is refused"/);
+  });
+
+  it("names a starting world that is missing, and a page with no Worked examples section", () => {
+    expect(check("docs", claimed, worked(pluggedIn, swap("Starts from the world `claimed`.", "Starts from nowhere."))).why).toEqual([`generated/docs/handle/claim.md: the entry for "${claimed}" does not name its starting world claimed`]);
+    expect(check("docs", claimed).why).toEqual([`generated/docs/handle/claim.md has no "Worked examples" section`, `generated/docs/handle/resolve.md has no "Worked examples" section`]);
   });
 });
