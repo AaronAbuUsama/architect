@@ -3,3 +3,4 @@
 // lint rule `ortho/no-ui-in-worker` holds it to that.
 export { PortalServer } from "#modules/server/service.js";
 export type { PortalAssets, PortalContext, PortalEnv } from "#modules/server/types.js";
+export type { PortalLive } from "#modules/telemetry/types.js";

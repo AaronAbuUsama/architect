@@ -38,6 +38,8 @@ export interface ServedPortal {
   readonly page: (route: string) => Promise<RenderedPage>;
   /** The same route as a PNG: a fixed viewport, no animation, no caret. */
   readonly shoot: (route: string) => Promise<Uint8Array>;
+  /** Run an expression in the opened route's page, once it is ready, and return what it gives (JSON). For a check that must walk the DOM. */
+  readonly evaluate: <T>(route: string, expression: string) => Promise<T>;
   /** A data request, straight to the Worker (`/_portal/v1/blueprint`), no browser. */
   readonly data: (path: string) => Promise<DataAnswer>;
   readonly close: () => Promise<void>;
