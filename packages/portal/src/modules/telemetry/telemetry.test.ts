@@ -85,6 +85,44 @@ describe("the spans the real handler writes", () => {
   });
 });
 
+describe("calls are the operation's own spans, not the trace", () => {
+  const link = (id: string, trace: string, start: number, attrs: Record<string, unknown> = {}, over: Partial<WindowSpan> = {}) =>
+    span(id, trace, "link.add", start, { operation: "link.add", attempt: 1, "principal.kind": "anonymous", ...attrs }, over);
+  const only = (map: Map<string, WindowTrace>, over: Partial<PortalLive> = {}) => read({ source: { window: () => Effect.succeed(map), find: () => Effect.succeed(undefined) }, ...over });
+
+  it("three calls to one operation under one distributed trace are three calls, and a retry inside one is still one", async () => {
+    const trace = new Map<string, WindowTrace>([["T", { spans: [
+      link("c1", "T", at(9)), link("c2", "T", at(8)), link("c3a", "T", at(7)), link("c3b", "T", at(6), { attempt: 2 }),
+    ], logs: [] }]]);
+    const { rows } = ok((await only(trace)).calls);
+    expect(rows.map((r) => [r.start, r.attempts]).sort()).toEqual([[at(9), 1], [at(8), 1], [at(7), 2]].sort());
+  });
+
+  it("the window is each call's: a trace that reaches out of it brings only the calls inside", async () => {
+    const trace = new Map<string, WindowTrace>([["T", { spans: [link("old", "T", at(90)), link("in", "T", at(5))], logs: [] }]]);
+    const { rows, moves } = ok((await only(trace)).calls);
+    expect(rows.map((r) => r.start)).toEqual([at(5)]);
+    expect(moves).toEqual({});
+  });
+
+  it("a move is counted for the attempt that committed it: one that selected it and lost its race took none", async () => {
+    const lost = new Map<string, WindowTrace>([["L", { spans: [
+      link("a1", "L", at(4), { "move.name": "add" }),
+      span("k1", "L", "link.add.commit", at(4) + 1, { "step.kind": "commit", "commit.outcome": "conflict" }, { parentSpanId: "a1" }),
+      link("a2", "L", at(3), { attempt: 2 }),
+      span("k2", "L", "link.add.commit", at(3) + 1, { "step.kind": "commit", "commit.outcome": "committed" }, { parentSpanId: "a2" }),
+    ], logs: [] }]]);
+    const won = new Map<string, WindowTrace>([["W", { spans: [
+      link("b1", "W", at(4), { "move.name": "add" }),
+      span("k3", "W", "link.add.commit", at(4) + 1, { "step.kind": "commit", "commit.outcome": "conflict" }, { parentSpanId: "b1" }),
+      link("b2", "W", at(3), { attempt: 2, "move.name": "add" }),
+      span("k4", "W", "link.add.commit", at(3) + 1, { "step.kind": "commit", "commit.outcome": "committed" }, { parentSpanId: "b2" }),
+    ], logs: [] }]]);
+    expect(ok((await only(lost)).calls).moves, "the retry answered with what exists: no move").toEqual({});
+    expect(ok((await only(won)).calls).moves, "the retry that committed its own move counts it once").toEqual({ "link.add": 1 });
+  });
+});
+
 describe("a call whose commit never won", () => {
   it("is a defect, not an answer, and takes no move", async () => {
     const lost = new Map<string, WindowTrace>([["z", { spans: [
