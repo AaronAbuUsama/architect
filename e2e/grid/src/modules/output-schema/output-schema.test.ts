@@ -155,6 +155,26 @@ describe("an optional public field is judged too", () => {
   });
 });
 
+describe("a field private to roles is judged too, and a secret is not", () => {
+  const claim = pluggedIn.model.operations["handle.claim"]!;
+  const field = (visibility: unknown) => ({ value: { type: "text", max: 80 }, visibility });
+  const withField = (visibility: unknown) => ({ ...claim, answer: { handle: claim.answer["handle"]!, note: field(visibility) } }) as OperationModel;
+  const run = (op: OperationModel, schema: unknown) => OutputSchema.answers({ model: pluggedIn.model, op, schema, spans: [], files: pluggedIn.files });
+  const schemaWith = (note: unknown) => ({ type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" }, ...(note === undefined ? {} : { note }) }, required: ["handle"] }, refusalBranch] });
+  const priv = { private: ["linkOwner"] };
+
+  it("red: a role-private text typed integer", () => {
+    expect(run(withField(priv), schemaWith({ type: "integer" }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer {"handle":"hdl_abc123","note":"x"}/);
+  });
+  it("green: a role-private text typed string", () => {
+    expect(run(withField(priv), schemaWith({ type: "string" }))).toEqual([]);
+  });
+  it("a secret is not in any sample: the schema need not name it, and a wrong type for it is not judged", () => {
+    expect(run(withField("secret"), schemaWith(undefined))).toEqual([]);
+    expect(run(withField("secret"), schemaWith({ type: "integer" }))).toEqual([]);
+  });
+});
+
 describe("a refusal carries its declared public fields", () => {
   const exceeding = { ...health, refusals: ["AllowanceExceeded"] } as OperationModel;
   const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };

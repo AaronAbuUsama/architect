@@ -53,12 +53,13 @@ const answerConst = (schema: unknown, name: string): unknown => {
 };
 
 /**
- * What every caller is shown of an answer: the fields with no visibility rule. A private field is optional and a secret is never named, so neither is in a
- * sample. A field the model declares optional is in the sample only when `withOptional` (a second sample, so both shapes are judged).
+ * What an answer shows: the fields every caller sees, and nothing secret (a secret never leaves through MCP). The fuller sample (`withMore`) also has the fields
+ * the model declares optional and the ones private to roles, which a caller holding a role does receive (`Visibility.sees`), so both shapes are judged.
  */
-const shown = (op: OperationModel, withOptional: boolean): ReadonlyArray<[string, FieldModel]> => Object.entries(op.answer).filter(([, f]) => f.visibility === undefined && (withOptional || f.optional !== true));
+const shown = (op: OperationModel, withMore: boolean): ReadonlyArray<[string, FieldModel]> =>
+  Object.entries(op.answer).filter(([, f]) => f.visibility !== "secret" && (withMore || (f.visibility === undefined && f.optional !== true)));
 
-/** Does the operation's answer declare a public field that is optional? */
+/** Does the operation's answer declare a field that only the fuller sample carries: an optional one, or one private to roles? */
 export const hasOptional = (op: OperationModel): boolean => shown(op, true).length > shown(op, false).length;
 
 export interface Sample {
@@ -73,12 +74,12 @@ export interface Sample {
 }
 
 /** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's, else (a refusal's name only) the answer branch's own constant. */
-export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined, withOptional = false): Sample => {
+export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined, withMore = false): Sample => {
   const answer: Record<string, unknown> = {};
   const unknown: Array<string> = [];
   const scalars: Array<string> = [];
   const numeric: Array<string> = [];
-  for (const [name, field] of shown(op, withOptional)) {
+  for (const [name, field] of shown(op, withMore)) {
     const real = observed(spans, op.name, name, field);
     const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real ?? fromModel(field));
     const value = known ?? ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
