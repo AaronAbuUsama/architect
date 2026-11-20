@@ -39,13 +39,14 @@ export const server = over("journey.server", (journey, e) =>
 /** A value the journey takes from its starting world (or an earlier step) is a reference in the model: `{ ref: ["world", "handle"] }`. */
 const refOf = (value: unknown): ReadonlyArray<string> | undefined =>
   typeof value === "object" && value !== null && Array.isArray((value as { ref?: unknown }).ref) ? (value as { ref: ReadonlyArray<unknown> }).ref.map(String) : undefined;
-/** What a structured value is made of, wherever a reference sits in it (an array, an object, however deep): each reference's path, and each literal's text. */
-const leavesOf = (value: unknown): { readonly refs: ReadonlyArray<ReadonlyArray<string>>; readonly literals: ReadonlyArray<string> } => {
+/** What a structured value is made of, wherever a reference sits in it (an array, an object, however deep): each reference's path, and each literal's text (a number or a boolean is bare: a token, never a part of a word or a number). */
+interface Leaves { readonly refs: ReadonlyArray<ReadonlyArray<string>>; readonly literals: ReadonlyArray<{ readonly text: string; readonly bare: boolean }> }
+const leavesOf = (value: unknown): Leaves => {
   const ref = refOf(value);
   if (ref !== undefined) return { refs: [ref], literals: [] };
-  if (Array.isArray(value)) return value.map(leavesOf).reduce((all, one) => ({ refs: [...all.refs, ...one.refs], literals: [...all.literals, ...one.literals] }), { refs: [], literals: [] });
+  if (Array.isArray(value)) return value.map(leavesOf).reduce<Leaves>((all, one) => ({ refs: [...all.refs, ...one.refs], literals: [...all.literals, ...one.literals] }), { refs: [], literals: [] });
   if (typeof value === "object" && value !== null) return leavesOf(Object.values(value));
-  return { refs: [], literals: value === undefined || value === null ? [] : [String(value)] };
+  return { refs: [], literals: value === undefined || value === null ? [] : [{ text: String(value), bare: typeof value !== "string" }] };
 };
 /** An id as the runtime makes one (`hdl_9f31ab42`): the page never shows one for a value the journey does not write. */
 const INVENTED = /\b[a-z]{2,5}_[0-9a-z]{6,}\b/;
@@ -55,7 +56,7 @@ const valueProblems = (segment: string, value: unknown, label: string): Readonly
   const { refs, literals } = leavesOf(value);
   return [
     ...refs.filter((r) => !hasWords(segment, r)).map((r) => `does not name ${label} in the words ${r.join(" ")}`),
-    ...literals.filter((text) => !segment.includes(text)).map((text) => `does not show ${label} ${text}`),
+    ...literals.filter((l) => !(l.bare ? Reading.hasName(segment, l.text) : segment.includes(l.text))).map((l) => `does not show ${label} ${l.text}`),
     ...(refs.length > 0 && INVENTED.test(segment) ? [`writes an id where ${label} is the journey's ${refs.map((r) => r.join(" ")).join(", ")}`] : []),
   ];
 };
@@ -85,20 +86,28 @@ const stepProblems = (step: JourneyModel["steps"][number], segment: string, jour
   const flat = segment.replace(/-/g, " ").toLowerCase();
   const refusal = step.checks?.find((c) => c.kind === "refuses");
   const refused = refusal?.error === undefined ? undefined : refusalOf(e.model, refusal.error);
+  // What comes back is looked for after what was sent: the title, the caller, the payload and the request key come first, so a stray 1 up there is no answer.
+  const sent = [call.actor, call.request, ...Object.keys(call.payload ?? {}), ...leavesOf(call.payload ?? {}).literals.map((l) => l.text), ...leavesOf(call.payload ?? {}).refs.map((r) => r[r.length - 1]!)]
+    .flatMap((piece) => (piece === undefined ? [] : [segment.indexOf(piece) < 0 ? 0 : segment.indexOf(piece) + piece.length]));
+  const outcome = segment.slice(Math.max(0, ...sent));
+  const answers = (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect");
   return [
     ...(Reading.hasName(segment, call.actor) ? [] : [`does not name the caller ${call.actor}`]),
-    ...(who === undefined || flat.includes(who.kind.replace(/-/g, " ").toLowerCase()) ? [] : [`does not say the caller is ${who.kind}`]),
-    ...(who?.role === undefined || Reading.hasName(segment, who.role) ? [] : [`does not say the caller's role ${who.role}`]),
+    ...(who === undefined ? [] : who.kind === "role"
+      ? (who.role === undefined || Reading.hasName(segment, who.role) ? [] : [`does not name the role ${who.role} the caller holds`])
+      : flat.includes(who.kind.replace(/-/g, " ").toLowerCase()) ? [] : [`does not say the caller is ${who.kind}`]),
+    ...(call.request === undefined || Reading.hasName(segment, call.request) ? [] : [`does not show the request key ${call.request}`]),
     ...Object.entries(call.payload ?? {}).flatMap(([field, value]) => [
       ...(Reading.hasName(segment, field) ? [] : [`does not name the payload field ${field}`]),
       ...valueProblems(segment, value, `the payload ${field}`),
     ]),
     ...(refused === undefined
-      ? (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").flatMap((c) =>
-        c.kind === "expect" ? (c.match === undefined || segment.includes(c.match) ? [] : [`does not show the answer it checks (${c.match})`]) : valueProblems(segment, c.value, "the answer it checks"))
+      ? (answers.length === 0
+        ? (/\banswer(ed|s)?\b/i.test(outcome) ? [] : ["does not say it is answered (it checks no answer)"])
+        : answers.flatMap((c) => c.kind === "expect" ? (c.match === undefined || outcome.includes(c.match) ? [] : [`does not show the answer it checks (${c.match})`]) : valueProblems(outcome, c.value, "the answer it checks")))
       : [
-        ...(Reading.hasName(segment, refused) && segment.includes(e.model.refusals[refused] ?? "\0") ? [] : [`is not shown refused with ${refused}, ${e.model.refusals[refused] ?? "its code"}`]),
-        ...valueProblems(segment, refusal?.fields ?? {}, "the refusal's fields"),
+        ...(Reading.hasName(outcome, refused) && outcome.includes(e.model.refusals[refused] ?? "\0") ? [] : [`is not shown refused with ${refused}, ${e.model.refusals[refused] ?? "its code"}`]),
+        ...valueProblems(outcome, refusal?.fields ?? {}, "the refusal's fields"),
         ...Object.keys(e.model.refusals).filter((other) => other !== refused && Reading.hasName(segment, other)).map((other) => `names ${other}, a refusal this step does not check`),
       ]),
   ];

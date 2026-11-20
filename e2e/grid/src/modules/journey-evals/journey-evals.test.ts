@@ -2,7 +2,6 @@
 import { describe, expect, it } from "vitest";
 import type { JourneyModel } from "../project-evidence/types.ts";
 import { editFile, editPortal, editSpans, evidenceOf, judge } from "../project-evidence/testing.ts";
-import { refusalOf } from "./internal/surfaces.ts";
 import { JourneyEvals } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
@@ -97,16 +96,26 @@ const shown = (value: unknown): string => {
   if (typeof value === "object" && value !== null) return Object.values(value).map(shown).filter((t) => t !== "").join(", ");
   return value === undefined || value === null ? "" : String(value);
 };
-/** One step as a bullet: title, caller by cast name and kind, every payload field with its value, and the refusal or the answer checked. */
+/** The refusal a step names, found here without the eval's own helper: a declared or runtime error as it is, the machine's (`link.notFrom`) or the thing's own (`person.notFound`) by the thing. */
+const refusalNamed = (model: Model, error: string): string => {
+  const [thing, rest] = error.split(".");
+  if (rest === "notFrom") return model.things[thing!]!.machine!.notFrom.error;
+  if (rest === "notFound") return model.things[thing!]!.notFound!.error;
+  return error;
+};
+/** One step as a bullet, as W2 describes it: title, caller by cast name and kind (a role by its name), the payload with its values and the request key, and what comes back. */
 const bullet = (model: Model, journey: JourneyModel, step: JourneyModel["steps"][number]) => {
   const call = step.call!;
-  const kind = journey.cast![call.actor]!.kind.replace(/-/g, " ");
+  const who = journey.cast![call.actor]!;
+  const kind = who.kind === "role" ? `${who.role!.split(".").at(-1)}, as ${who.role}` : who.kind.replace(/-/g, " ");
   const payload = Object.entries(call.payload ?? {}).map(([k, v]) => `${k} ${shown(v)}`).join(", ");
+  const key = call.request === undefined ? "" : ` and request key ${call.request}`;
   const refusal = step.checks?.find((c) => c.kind === "refuses");
-  const answer = (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").map((c) => (c.kind === "expect" ? `something matching ${c.match}` : shown(c.value)));
-  const refused = refusal?.error === undefined ? undefined : refusalOf(model, refusal.error);
-  const outcome = refused !== undefined ? `is refused with ${refused}, ${model.refusals[refused]}${refusal?.fields !== undefined && shown(refusal.fields) !== "" ? ` (${shown(refusal.fields)})` : ""}` : answer.length > 0 ? `gets back ${answer.join(" and ")}` : "is answered";
-  return `- **${step.title}.** ${call.actor} (${kind}) calls with ${payload || "nothing"}, and ${outcome}.`;
+  const answer = (step.checks ?? []).filter((c) => c.kind === "expect-equal" || c.kind === "expect").map((c) => (c.kind === "expect" ? `something matching \`${c.match}\`` : shown(c.value)));
+  const refused = refusal?.error === undefined ? undefined : refusalNamed(model, refusal.error);
+  const fields = refusal?.fields !== undefined && shown(refusal.fields) !== "" ? ` (${shown(refusal.fields)})` : "";
+  const outcome = refused !== undefined ? `is refused with ${refused}, ${model.refusals[refused]}${fields}` : answer.length > 0 ? `gets back ${answer.join(" and ")}` : "is answered";
+  return `- **${step.title}.** ${call.actor} (${kind}) calls with ${payload || "nothing"}${key}, and ${outcome}.`;
 };
 const entries = (e: typeof pluggedIn, op: string, only?: (title: string) => boolean) => Object.values(e.model.journeys ?? {}).flatMap((journey) => {
   const mine = journey.steps.filter((s) => s.skipped === undefined && s.call?.operation === op && (only === undefined || only(s.title)));
@@ -166,6 +175,26 @@ describe("journey.docs holds the worked example's content (W2)", () => {
     const ref = (field[1] as { ref: ReadonlyArray<string> }).ref;
     const asId = worked(pluggedIn, swapOp(withRef.st.call!.operation, `${field[0]} ${words(ref)}`, `${field[0]} hdl_9f31ab42`));
     expect(check("docs", withRef.j.name, asId).why.join("\n"), "an id where the journey takes the value from the world").toMatch(new RegExp(`the payload ${field[0]} in the words ${ref.join(" ")}`));
+  });
+
+  it("holds the content of an answer, not its JSON: a dropped leaf fails, prose passes, a stray number is no answer", () => {
+    const journey2 = "add, order and remove a link";
+    const prose = worked(pluggedIn);
+    expect(check("docs", journey2, prose), "the lists are shown by their values, in prose").toEqual({ ok: true, why: [] });
+    expect(check("docs", journey2, worked(pluggedIn, (page) => page.replace("gets back Newsletter, Blog, Talks, GitHub", "gets back Newsletter, Blog, GitHub"))).why.join("\n")).toMatch(/does not show the answer it checks Talks/);
+    // A bare 1 is an answer only where the answer is: not in the title, the caller, the payload or the key.
+    expect(check("docs", "a stranger cannot edit a page", prose)).toEqual({ ok: true, why: [] });
+    const stray = worked(pluggedIn, (page) => page.replace(/gets back 1(?!\d)/g, "gets back some count 10"));
+    expect(check("docs", "a stranger cannot edit a page", stray).why.join("\n")).toMatch(/does not show the answer it checks 1/);
+  });
+
+  it("holds the role a caller holds, the request key a step gives, and a step that checks no answer shown as answered", () => {
+    const acmeWorked = worked(acme);
+    const role = "an invitation is used once";
+    expect(check("docs", role, acmeWorked)).toEqual({ ok: true, why: [] });
+    expect(check("docs", role, worked(acme, (page) => page.replace("owner, as organization.owner", "member, as organization.member"))).why.join("\n")).toMatch(/does not name the role organization.owner the caller holds/);
+    expect(check("docs", claimed, worked(pluggedIn, swap(" and request key first-claim", ""))).why.join("\n")).toMatch(/does not show the request key first-claim/);
+    expect(check("docs", claimed, worked(pluggedIn, swap("is answered", "gets back nothing special"))).why.join("\n")).toMatch(/does not say it is answered \(it checks no answer\)/);
   });
 
   it("looks only in the journey's own entry: the same words under another journey's title, or in the Refusals table, do not count", () => {
