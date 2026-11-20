@@ -1,8 +1,8 @@
 # F9: Foreman, version zero
 
-Proposed 20 November 2026 as a draft for Aaron, and revised twice the same day after he read it (his answers relayed by
+Proposed 20 November 2026 as a draft for Aaron, and revised three times the same day after he read it (his answers relayed by
 the conductor; his own phrases are quoted). Nothing here is built. The architecture is the building agent's to decide
-(`AGENTS.md`, "Who decides"); the three forks at the end are the ones his answers left open.
+(`AGENTS.md`, "Who decides"); the two forks at the end are the ones his answers left open.
 
 **The name is open.** Aaron keeps "Foreman" for now, because it fits the blueprint theme, and floated "who makes an
 Orthograph?" as a way to find a better one. Nothing is renamed here. Read aloud, "Foreman" sounds like "Forman", the
@@ -47,161 +47,160 @@ skips the blueprint for real work. A spike may skip it, because a spike is throw
 ## 3. How a project moves: a loop, not a line
 
 Building doesn't go in a straight line. You go backwards and forwards: have an idea, spike something, get it working,
-then maybe make a plugin, or maybe not; "everything doesn't have to be a plugin." So the project's life is a machine
-whose moves go both ways, and spikes and ideas are things that can happen in any state:
+then maybe make a plugin, or maybe not; "everything doesn't have to be a plugin." Foreman doesn't need a new machine
+for that. The board already carries it (section 5):
 
-```ts
-// @orthograph/foreman/blueprint/things/project/machine.ts: proposed
-import { Blueprint } from "orthograph";
-import { Project } from "./thing.ts";
-import * as Events from "./events.ts";
-
-export const machine = Blueprint.machine(Project, {
-  states: ["exploring", "shaping", "building", "live"],
-  moves: {
-    start:   { from: [], to: "exploring", emits: Events.ProjectStarted },                                // made by `ortho new`
-    shape:   { from: ["exploring", "building", "live"], to: "shaping", emits: Events.ShapingStarted },   // back to the blueprint
-    build:   { from: ["shaping"], to: "building", emits: Events.BuildingStarted },                       // needs an agreed blueprint
-    ship:    { from: ["building"], to: "live", emits: Events.ProjectShipped },
-    rethink: { from: ["shaping", "building", "live"], to: "exploring", emits: Events.RethinkStarted },  // back to ideas
-  },
-  notFrom: { exit: 60 },
-});
-// Every move is the person's: the operations that take them are `allowed: [owner]` (section 10).
-```
-
-| State | What Foreman does there | What can happen in it without a move |
-|---|---|---|
-| **Exploring** | turns ideas into questions and spikes; on a new project, asks the profile questions first (section 4) | ideas, spikes, questions, decisions |
-| **Shaping** | declares things and operations; reads journeys back as stories; open points are `Blueprint.todo` | spikes, to settle a fork with code |
-| **Building** | walks each journey before calling a slice ready (lesson 2); runs builders until `ortho prove` is green; merges | spikes; fixes; new ideas parked for later |
-| **Live** | watches the app; turns what it sees into ideas | the same |
-
-**A spike** is code that answers one question and is thrown away, as this repository already does (the `spike` skill).
-**A plugin** is not a state: at any point Foreman may propose cutting a piece out as a feature, at its second real user,
-never its first; or not.
+- **The milestones are the lanes.** The brief's "where it is" names the current one and what "done" means right now.
+  Going back is ordinary: a task can be filed in an earlier milestone's lane at any time.
+- **A task moves back as easily as forward.** Its stages today are backlog, decide, checks, build, review and done
+  (`.agents/skills/kanban/SKILL.md:31`, on main), and a review that fails sends it back to build.
+- **Ideas and spikes are tasks.** An idea is a task in the backlog. A spike is a task whose done-when is a question
+  answered, and its throwaway code follows the `spike` skill.
+- **A plugin is a task, not a stage.** At a piece's second real user, Foreman may propose cutting it out as a feature,
+  as a task like any other; or not.
 
 ## 4. It knows the person
 
-Foreman is stateful about the person as well as the project. It keeps their technical level and what they need to
-hear, and goes low-level or high-level for each person. It learns that by asking, as the first part of intake on a new
-project, then shows the person what it kept and says out loud whenever it changes it. Today that knowledge is
-hand-written, for one person:
+Foreman keeps the person's technical level and what they need to hear, and goes low-level or high-level for each
+person. It learns that by asking, as the first part of intake on a new project, writes it into the brief as a short
+section, "Working with you", and says out loud whenever it changes it. Today that knowledge is hand-written, for one
+person:
 
 ```md
 <!-- AGENTS.md:91, on main -->
 - Aaron listens rather than reads: write to him as the `threads` skill says, "Talking to Aaron".
 ```
 
-Foreman holds it as a thing (section 5):
-
-```ts
-// @orthograph/foreman/blueprint/things/profile/thing.ts: proposed
-import { Blueprint, Schema } from "orthograph";
-
-/** How deep to go by default: the code itself, the design (things, machines, rules), or only outcomes. */
-export const Depth = Blueprint.value(Schema.Literals(["code", "design", "outcome"]));
-/** How the person takes things in: heard (text-to-speech, often on a phone), seen (pictures, the portal), or read. */
-export const Channel = Blueprint.value(Schema.Literals(["voice", "visual", "text"]));
-
-export const Profile = Blueprint.thing({
-  description: "How one person wants to work with Foreman: how deep to go, how to tell them, what they check.",
-  code: "PF",
-  fields: {
-    id: Blueprint.id("prf"),
-    person: Blueprint.id("per"),
-    depth: Depth,
-    channel: Channel,
-    readsCode: Blueprint.value(Schema.Literals(["yes", "for now", "no"])), // Aaron: "for now"
-    notes: Blueprint.text({ max: 2000 }), // what they care about, in their words; shown to them, never hidden
-  },
-});
-```
-
 The intake questions, asked once and in this order before anything else: do you want to read the code, see the design,
-or just hear what it does; will you mostly listen, look or read; and what do you never want to be surprised by. Every
-routine reads the profile before it speaks.
+or just hear what it does; will you mostly listen, look or read; and what do you never want to be surprised by. For
+Aaron the answers are already on record: he listens, and reads code "for now". Every routine reads that section before
+it speaks.
 
-## 5. Its state: a feature in the app it is building
+## 5. Its state: the brief and the board
 
-Aaron's architecture: Foreman's state is not a separate app. It is a feature, `@orthograph/foreman`, mounted into each
-app when `ortho new` makes it, so it "generates and plugs into the state of the app itself that it is generating".
-Orthograph apps are composable, so Foreman's things sit beside the app's own, one set per project, and the portal shows
-them as part of that app's portal.
+Aaron, on the third draft's set of new things: "this is a bit too much. And it's just the thing that was already
+planned. It's like a goal with milestones and tasks." Foreman's state is two things, both already half-built.
 
-```ts
-// capxul/blueprint/features/foreman.ts: written by `ortho new`
-import { Blueprint } from "orthograph";
-import foreman from "@orthograph/foreman";
+### The brief
 
-export default Blueprint.use(foreman);
-```
+What we are building, in depth: the document a new teammate reads to understand the product. Not a one-liner. One per
+project; Foreman writes it from intake, and the person agrees it.
 
-| Thing | What it holds | Where it came from |
-|---|---|---|
-| `project` | the one project this app is, its state in the machine above, the agreed blueprint's revision | new |
-| `idea` | something the person or Foreman wants, not yet work | new; K11's inbox, made per project |
-| `spike` | one question, its throwaway branch, what it found | new; the `spike` skill's README as a thing |
-| `question` | what Foreman needs the person to decide | F5 call 6 |
-| `decision` | what was decided, by whom, and why | new |
-| `profile` | who the person is (section 4) | new |
-| `item`, `claim`, `attention` | the plan, who is working on what, what waits on the person | K11's board shape, kept |
+| Section | What it holds |
+|---|---|
+| **The idea** | a few paragraphs: the problem, who has it, and what changes for them |
+| **The concept** | how the product works, in its own words: the core loop, the experience |
+| **The high-level abstractions** | the handful of ideas the product is made of (for Capxul: company, authority, budget, payment, banking, agents as users), each in plain words, and the blueprint things it maps to once they exist |
+| **Principles and non-goals** | what it will always do, and what it deliberately won't |
+| **Where it is** | the current milestone and what "done" means right now, read from the board |
+| **Decisions** | each agreed call: what, who, when and why, linking the task or thread it came from |
+| **Open questions** | what isn't settled, each with who owns it |
+| **Working with you** | the person's level and channel (section 4) |
 
-**Kept from F5 and K11:** the board's shape (items with one done-when check, claims, "Needs you" on top), and **status
-is never stored**: whether a journey is green, how many blanks are open and what is stale are read fresh from the app's
-model, `ortho prove` and the logbook (F5 call 4). A status someone typed drifts, as the board did (lesson 18).
+**The agreed revision of the brief and the blueprint** is what Foreman builds within without asking (section 10). A
+change to either is a new agreement. Capxul already has most of a brief, `capxul-next/docs/grounding.md`; Orthograph's
+is the model draft. The format fits both. Where the brief lives is question 1.
 
-**Where it is held.** Aaron said a Durable Object you instantiate when you first start the project. One rule bends
-that: a thing that lives as an actor can't be listed, and the board needs lists:
+### The board
+
+The goal, its milestones and their tasks, each task with its history, its threads, its blockers, and the critical path.
+The shape exists and is in use: the `kanban` skill's board, a claude.ai artifact with a shared database, snapshotted
+into the repository. Its tasks today:
 
 ```md
-<!-- design/decisions/F5-work-blueprint.md:50, on main -->
-| 3 | **Missions and runs are database rows, not actors.** The compiler refuses a list read on a thing that lives as
-actors, and the board and sidebar need lists. The manager's Durable Object (one per mission) and the run's (one per
-run) are agents keyed by those ids that call these operations over MCP. They hold a conversation or a harness, never
-the mission's state. |
+<!-- .agents/skills/kanban/SKILL.md:29-33, on main -->
+- **`tasks/<id>`.** The id is the slice with a dash (`M1-35`, `ST1-07`), or `X-…` for work outside the milestones.
+  - Identity and copy: `ref` (`M1.35`), `lane` (`M1` … `M7`, `ST1` … `ST4`, `X`), `title`, `plain` (one plain line), `what`, `needs[]` (refs, `M1.11` form), `doneWhen`.
+  - Where it stands: `stage` (`backlog`, `decide`, `checks`, `build`, `review` or `done`), `thread` (a `threads` id), `waiting` (`"aaron"` or null), `pr` (number or null), `updatedAt`.
+  - `history[]`: `{stage, thread, at, note}`, appended, never rewritten.
+  - `questions[]`: `{id, text, status: open|answered, owner, answer, raisedAt, answeredAt?, source}`.
 ```
 
-So the project's rows sit in a database, and Foreman's own always-on loop, when it comes, is the project's Durable
-Object, keyed by the project and calling the feature's operations. Which database is question 1: an app has one per
-environment, and Foreman's state must not be wiped when a local world is reset, nor shipped into production.
+What Aaron asked for, against what it has:
 
-**What it plugs into.** The app's model says what is declared, `ortho prove` what passes, and the logbook keeps the
-verdicts. Foreman's things point at those, and never copy them.
-
-**How Foreman reads and writes it.** Through the app's own generated tools: its CLI and MCP server gain Foreman's
-operations when the feature is mounted, as they gain any feature's. Foreman asks a question with `question.ask`; the
-person answers in the portal, or by voice through Foreman.
-
-### What this costs, against the separate work app
-
-The previous draft put Foreman's state in one separate work app for every project. Graded honestly:
-
-| | A feature in each app (this draft) | One separate work app (previous draft) |
+| Aaron asked | The board today | Change |
 |---|---|---|
-| Composes with the app | ✅ the app's portal, tools and journeys include it | ❌ a second app beside it |
-| Starts with the project | ✅ `ortho new` mounts it | ⚠️ the project must be added to another app |
-| List reads | ✅ rows, as F5 call 3 requires | ✅ the same |
-| A view across projects | ❌ none: each app sees only itself, until something reads several | ✅ one board |
-| Orthograph itself as a project | ❌ Orthograph is not an Orthograph app; it needs a small app of its own that mounts only Foreman | ✅ a row like any other |
-| Production carries it | ⚠️ a mount is app-wide today: `use` takes the plugin and its verbs, and no environment (`packages/orthograph/src/modules/plugins/service.ts:31` on `goal/stage-1`) | ✅ never |
-| Which environment's data | ❌ open: question 1 | ✅ one app, one environment |
-| Ready today | ❌ no feature has been mounted end to end (the model draft, section 3) | ⚠️ declared, with no handlers |
+| goal, then milestones, then tasks | a lane per milestone; a task per slice | keep; add the goal explicitly |
+| when the task was created, and by whom | the first `history` entry, when there is one | `createdAt` and `createdBy` on every task |
+| who has touched the task | `history[]`: `{stage, thread, at, note}` | every change appends who made it: a person, Foreman or a thread |
+| which thread is on it now | `thread`, one id | keep; plus every thread ever linked, in order |
+| where that thread is | the thread's `sessionId`, `branch` and `pr` (`SKILL.md:34`) | a link that opens the session, and its live state: working, idle, waiting on you, or done |
+| when to check back, and its progress | not held | each linked thread gets `lastCheckIn`, `progress` (one plain line) and `nextCheckIn` |
+| blockers | `needs[]`, other slices only | explicit: a task is blocked by another task, a question or a person |
+| the critical path | `meta/critical`, "curated by the conductor" (`SKILL.md:36`) | **derived** from blockers and milestone gates, never hand-written |
+| links | `pr` | the task links its milestone, pull requests, journeys, grid cells and decisions |
 
-The feature is the right architecture: it is what "Orthograph apps are composable" means, and it is how K11 already
-mounts the work feature into an app (`K11-work-board.md:51-58`). The red rows are what has to be built, below.
+**Ideas, spikes and questions are tasks, or notes on them** (the board already has `questions[]` on each task);
+**decisions go in the brief**. Nothing else needs a thing of its own.
 
-### What has to exist
+**Status is never stored.** Whether a task's check is green, whether its pull request merged and whether a journey
+passes are read fresh from CI, `ortho prove` and the logbook. That carries over from the work system (F5 call 4). A
+typed-in status drifts, as the board's ticks did (lesson 18).
 
-| Piece | Today | Version zero needs it? |
-|---|---|---|
-| Mounting a feature end to end | built in parts; no example app has mounted one end to end (the model draft, section 3) | not at first: Foreman's things can start as app code (question 3) |
-| A store per project that every environment reads, not wiped with a local world | the logbook already is one per project: "one logbook is one project's" (`design/decisions/D3.md:858`) | yes: question 1 |
-| A feature whose operations aren't served in production | a mount is app-wide (`plugins/service.ts:31` on `goal/stage-1`) | no, if its things live in the project store |
-| A small Orthograph app for Orthograph's own project | `examples/work` is declared, with no handlers (`examples/work/README.md:13` on `goal/stage-1`) | after Capxul: question 3 |
-| A view across projects | nothing | no: the portal can list projects later |
-| An agent acting for a person | `Principal` is `anonymous` or `person` (F5, "Open, for the language"); planned in M2.01 and M2.03 | no: version zero runs with test people locally |
-| The always-on agent | Pi Durable behind the harness's seam; its durability proven in workerd (`H1-agent-harness.md:28`) | no |
+**How Foreman uses it.**
+
+- **Starting work:** it creates or picks the task, starts a thread, links it with the session link, and the task's
+  history records who and when.
+- **Checking in:** on a schedule or a hook (section 6), it reads each working thread, writes one check-in (progress and
+  next check-in), and moves or unblocks tasks.
+- **"Where are we":** the brief, then the current milestone, the critical path, what's blocked, and what waits on you.
+  Every answer is read from the board and the tools, never from memory.
+- **The portal** shows the brief and the board side by side, with "Needs you" on top (section 7).
+
+### Where it lives, floor first
+
+- **Now:** the kanban board as it is, with the fields above added. It works today and Aaron already uses it.
+- **Next, when Capxul starts:** the same shape, declared as Orthograph things in Capxul's own blueprint, as ordinary app
+  code, built once and used. The board's data moves over with one import.
+- **Later:** extracted as a feature when a second app (Orthograph's own project) needs it. The always-on loop is then a
+  Durable Object calling those operations. K11's work board is the design that extraction meets.
+
+Declared in Capxul, the task would look like this. The board's history becomes the task's events, so nobody keeps it by
+hand:
+
+```ts
+// capxul/blueprint/things/task/thing.ts: proposed, Capxul's own code
+import { Blueprint } from "orthograph";
+import { Milestone } from "../milestone/thing.ts";
+
+export const Task = Blueprint.thing({
+  description: "One piece of work in a milestone, with one check that says it's done.",
+  code: "TK",
+  fields: {
+    id: Blueprint.id("tsk"),
+    milestone: Milestone.fields.id,
+    title: Blueprint.text({ max: 140 }),
+    doneWhen: Blueprint.text({ max: 500 }), // the one check, in words and as a command
+    createdBy: Blueprint.id("per"),         // a person; Foreman and threads need a principal of their own (M2.01)
+  },
+});
+
+// capxul/blueprint/things/task/events.ts: the history is the journal, never a hand-kept array
+export const TaskFiled = Blueprint.event({ task: Task.fields.id, by: Blueprint.id("per") });
+export const ThreadLinked = Blueprint.event({ task: Task.fields.id, thread: Blueprint.text({ max: 200 }) }); // the session link
+export const CheckedIn = Blueprint.event({ task: Task.fields.id, progress: Blueprint.text({ max: 200 }) });
+export const Blocked = Blueprint.event({ task: Task.fields.id, by: Blueprint.refAny() }); // a task, a question or a person
+export const Unblocked = Blueprint.event({ task: Task.fields.id, by: Blueprint.refAny() });
+```
+
+Declaring it finds two gaps. **There is no time value**, so `createdAt`, `lastCheckIn` and `nextCheckIn` can't be
+fields, and the journal keeps order and the trace, not a clock time:
+
+```sql
+-- packages/host-cloudflare/test/migrations-vault/0001_vault.sql:7-15, on goal/stage-1
+CREATE TABLE "_journal" (
+  "seq" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "trace" TEXT NOT NULL,
+  "operation" TEXT NOT NULL,
+  "move" TEXT NOT NULL,
+  "subject" TEXT NOT NULL,
+  "event" TEXT NOT NULL,
+  "fields" TEXT NOT NULL
+);
+```
+
+And **Foreman and its threads aren't principals yet**: a principal is anonymous or a person (F5, "Open, for the
+language"), with agents planned for milestone 2 (M2.01, M2.03). Neither blocks the floor, which is the kanban artifact.
 
 ## 6. Proactivity: why a plugin, not a skill
 
@@ -229,8 +228,8 @@ without being asked. Version zero does the basic version now and builds nothing 
 The `Stop` hook lets the second stop through (`stop_hook_active` in the hook's input), so a push that fails can't
 trap the session in a loop.
 
-**The wake routine**, the same every time: read the person's profile; read the project, its open ideas, spikes,
-questions, items and attention; gather the facts (`ortho check`, `ortho model --json`, `ortho impact`, the last prove
+**The wake routine**, the same every time: read the brief, its "Working with you" first; read the board: the current
+milestone, its tasks, their threads and blockers; gather the facts (`ortho check`, `ortho model --json`, `ortho impact`, the last prove
 report, open pull requests and CI); record what changed; tell the person, at their height, in their channel; then drive.
 
 **Later**, the durable agent wakes on events and alarms instead of hooks, as K11's manager does: it waits "on durable
@@ -242,7 +241,7 @@ deferreds and a daily clock" (M3.10), and finished runs come back through `runFi
 ## 7. The portal is central
 
 People don't know what's happening because there is no portal; the portal is the fix. It is how a person who never
-reads code still knows the app is correct, and with Foreman as a feature, the project's state is in the same portal:
+reads code still knows the app is correct, and it shows the brief and the board beside the app:
 
 | The person wants to know | What shows it |
 |---|---|
@@ -250,27 +249,28 @@ reads code still knows the app is correct, and with Foreman as a feature, the pr
 | What can happen to an invitation? | the thing's machine, drawn; a journey walked across it, animated by the `machine-journey` skill (`.agents/skills/machine-journey/SKILL.md:3`, on main) |
 | Who may do what? | roles and refusals on each operation's page |
 | Did a change break anything? | the grid, and what `ortho impact` made stale |
-| Where are we, and what do you need from me? | the project's state, its board, and "Needs you" on top: Foreman's things, in this app's portal |
+| Where are we, and what do you need from me? | the brief and the board side by side, with "Needs you" on top |
 
 Version zero is honest about the gap: the portal shows live calls only during a prove (the model draft, section 5), and
-the board extension is milestone 3 work (K11). Until then Foreman says it, and draws it when the profile says visual.
+the board is the kanban artifact until Capxul declares it (section 5). Until then Foreman says it, and draws it when the
+brief's "Working with you" says visual.
 
 ## 8. Personality is routines
 
 Aaron: personality means routines and workflows, and structuring and driving the conversation, the same way every
-time. The routines follow the project's state (section 3), not a fixed order:
+time. The routines follow where the board is (section 3), not a fixed order:
 
 | Routine | Runs when | What it does |
 |---|---|---|
-| **Intake** | a new project, before anything else | the profile questions (section 4), then the idea in one sentence in the person's words, who uses it, what must never happen, what exists already |
-| **Explore** | the project is exploring, or a fork needs code to settle | turns ideas into questions and spikes; each spike ends with what it found and the decision it supports |
-| **Shape** | shaping | declares; unknowns become `Blueprint.todo`, never guesses; reads journeys back as stories; asks the person to agree the blueprint |
-| **Climb** | building | walks each journey with a throwaway handler before building it; one slice at a time unless nothing is shared (lesson 9); a 🔍 that wrote none of it; merges |
-| **Watch** | live | turns what the running app shows into ideas |
+| **Intake** | a new project, before anything else | the questions about the person (section 4), then the brief: the idea, the concept, the abstractions, principles and non-goals, what exists already; then the person agrees it |
+| **Explore** | ideas in the backlog, or a fork that needs code to settle | turns ideas into tasks and spikes; each spike ends with what it found, and the decision goes in the brief |
+| **Shape** | a milestone's tasks need declarations | declares; unknowns become `Blueprint.todo`, never guesses; reads journeys back as stories; asks the person to agree the blueprint |
+| **Climb** | a task is ready to build | walks each journey with a throwaway handler before building it; one slice at a time unless nothing is shared (lesson 9); a 🔍 that wrote none of it; merges |
+| **Watch** | the app is live | turns what the running app shows into ideas |
 | **Extract** | a piece has its second real user, and the person says yes | cuts it out as a feature; or leaves it, because not everything has to be a plugin |
 | **Where are we** | every wake | the four parts below, at the person's height |
 
-**How it explains.** By the profile's channel. For voice, the rules in "Talking to Aaron"
+**How it explains.** By the channel in "Working with you". For voice, the rules in "Talking to Aaron"
 (`.agents/skills/threads/SKILL.md:55-76`): short sentences, answer first, no bare IDs. For visual, the house skills:
 `machine-journey` for a lifecycle, `trace-waterfall` for one call in time, `visuals` for the rest, and the portal.
 
@@ -282,7 +282,7 @@ time. The routines follow the project's state (section 3), not a fixed order:
 4. Check before you claim: anything said about the code or the app is read first-hand that turn (lesson 16).
 5. Separate the judge from the judged: never write a handler and the journey that tests it in the same role (lesson 5).
 6. Push before you report (lesson 11).
-7. Decide inside what's agreed, record a `decision`, and say so. Ask only for what section 10 lists.
+7. Decide inside what's agreed, record the call in the brief's Decisions, and say so. Ask only for what section 10 lists.
 
 ## 9. Its parts, as a plugin
 
@@ -291,13 +291,13 @@ plugins/foreman/
   .claude-plugin/plugin.json      name, version, description
   skills/
     foreman/SKILL.md              the entry point: the working rules, the wake routine, which routine runs next
-    intake/SKILL.md               the profile questions and the idea
+    intake/SKILL.md               the questions about the person, then the brief
     explore/SKILL.md              ideas, questions and spikes
     shape/SKILL.md                declarations, journeys read back, the blueprint agreed
     climb/SKILL.md                build, prove, review, merge
     watch/SKILL.md                the live app, turned into ideas
     extract/SKILL.md              a piece cut out as a feature, or left
-    explain/SKILL.md              Orthograph and this app, at the profile's height and channel
+    explain/SKILL.md              Orthograph and this app, at the person's height and in their channel
     author/SKILL.md               moved from .agents/skills, one copy
     reviewer/SKILL.md             moved from .agents/skills, one copy
   agents/
@@ -309,8 +309,7 @@ plugins/foreman/
   hooks/hooks.json                session start and stop (section 6)
 ```
 
-The plugin is the harness side: the routines and the wakers. The `@orthograph/foreman` feature is the state side: the
-things in section 5, mounted in the app. One installs into the person's agent, the other into their app.
+The plugin is the harness side: the routines and the wakers. The brief and the board are the state side (section 5).
 
 **One entry point.** Decided by Aaron: the conductor and Foreman are the same thing. On Orthograph's own repository
 Foreman runs the same routines as on Capxul's. What the conductor skill holds today moves: starting and briefing
@@ -327,18 +326,18 @@ The split between journey author and climber is the one rule Foreman never bends
 ## 10. Who decides: Foreman owns the project
 
 Aaron: Foreman owns the project, the code and the pipeline. It needs permission for very few things. Inside the agreed
-blueprint "it can do what it wants. It can merge what it wants."
+brief and blueprint "it can do what it wants. It can merge what it wants."
 
 **It asks, and waits, for two things only:**
 
 | Before | How it is held |
 |---|---|
-| **Moving the project to another state** (section 3), backwards or forwards, shipping included | every move of the project's machine is an operation `allowed: [owner]`; Foreman proposes it as a question |
-| **Changing the agreed blueprint** | the person agrees a blueprint revision: a `decision` naming the model's revision, which the logbook already keeps (`design/decisions/D3.md:227-229`). A later change to what is declared (things, operations, roles, refusals) needs a new agreement. Telling that a change crossed the agreed revision is new work: `ortho impact` reports what a change made stale today, not what it changed against an agreement |
+| **Moving to another stage**: the next milestone, back to an earlier one, or shipping | the brief's "where it is" changes only with the person's yes; Foreman proposes it as a question |
+| **Changing the agreed brief or blueprint** | the person agrees a revision of each, recorded in the brief's Decisions: the brief's commit, and the model's revision, which the logbook already keeps (`design/decisions/D3.md:227-229`). A later change to the brief's principles and non-goals, or to what is declared (things, operations, roles, refusals), needs a new agreement. Telling that a change crossed the agreed revision is new work: `ortho impact` reports what a change made stale today, not what it changed against an agreement |
 
 **Everything else is Foreman's:** handlers, the wording of journeys within the agreed stories, tests, spikes, the order
 of work, which role does what, branches, and merging its own pull requests once CI is green and a 🔍 has passed. It
-records each choice as a `decision` and says so in the next "where are we".
+records each call that matters in the brief's Decisions and says so in the next "where are we".
 
 **What still holds, because it isn't the project's to give:** the standing rules every agent here works under:
 spending past the person's cap and anything in the cloud (`AGENTS.md:82`) and creating a credential (`AGENTS.md:86`).
@@ -346,22 +345,23 @@ The harness adds its own: it asks before sending a message to anyone on the pers
 around every agent, not the project's permissions.
 
 **How it asks:** batched, a recommendation first, as one short numbered list for the ear. A fork with code to compare
-also goes in writing in the grill format, which the plugin holds its own copy of. Each answer becomes a `decision`.
+also goes in writing in the grill format, which the plugin holds its own copy of. Each answer goes in the brief's
+Decisions.
 
 ## 11. Its tools
 
 | Tool | What Foreman uses it for | Today (`packages/cli/src/main.ts` on `goal/stage-1`) |
 |---|---|---|
-| `ortho new` | instantiating a project, with the Foreman feature mounted | the Nx preset today; `ortho new` is M2.09 |
+| `ortho new` | instantiating a project | the Nx preset today; `ortho new` is M2.09 |
 | `ortho model --json` | what is declared | built (`main.ts:24`) |
 | `ortho add thing`, `operation`, `read`, `journey` | declaring | built (`main.ts:187`) |
 | `ortho check` | blanks, types, rules, drift | built (`main.ts:195`) |
 | `ortho generate` | outputs and scaffolds | built (`main.ts:207`) |
 | `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`main.ts:66`) |
 | `ortho impact` | what a change made stale; comparing against the agreed revision is new work | built (`main.ts:219`), local only |
-| `ortho brief <operation>` | a climber's brief | built (`main.ts:268`) |
+| `ortho brief <operation>` | a climber's brief for one operation; not the project's brief, which shares the word | built (`main.ts:268`) |
 | `ortho dev` and the portal | running the app, its world and its portal | built (`main.ts:38`) |
-| the app's own CLI and MCP tools | Foreman's state, once the feature is mounted | not built |
+| the kanban board, through the artifact's database | Foreman's board (section 5) | built; the new fields are not |
 | the factory | builder agents | version zero: Claude Code subagents and sessions in their own worktrees; later `agents.run.start` (`K10-factory.md:209-216`) |
 | `gh` | pull requests and CI | the person's own GitHub sign-in |
 
@@ -380,252 +380,171 @@ is never patched in the app. It becomes a framework item with a journey that can
 
 ## The forks for Aaron
 
-Settled by Aaron's answers and dropped: whether the conductor and Foreman share a core (one thing, section 9), whether
-state is files (no), what wakes it (hooks and a schedule now, section 6), who decides (Foreman owns the project,
-section 10), how it learns the person (by asking, at intake, section 4), and whether its state is a separate app (a
-feature in each app, section 5). Three remain, all about making that last one work.
+Aaron's answers have settled the rest, and those forks are dropped:
+
+| What was asked | What was settled | Where |
+|---|---|---|
+| shared core | one thing | section 9 |
+| state as files | no | |
+| what wakes it | hooks and a schedule now | section 6 |
+| who decides | Foreman owns the project | section 10 |
+| learning the person | by asking, at intake | section 4 |
+| the shape of its state | the brief and the board | section 5 |
+| which store holds it, where it runs, where it first lives | answered by the floor: the kanban artifact now, Capxul's blueprint next | section 5 |
+
+Two remain. Aaron may still amend the direction in section 5, so these are asked against it.
 
 Shared terms for this round:
 
-- **The Foreman feature:** `@orthograph/foreman`, the things in section 5, mounted in each app at `ortho new`.
-- **An environment's database:** each environment (local, test, staging, production) has its own.
-- **The project store:** a store that belongs to one project and outlives every environment, as the logbook does.
+- **The brief:** what we are building, in depth, one per project (section 5).
+- **The board:** the kanban skill's board, with the fields section 5 adds.
+- **Agreed revision:** the version of the brief and the blueprint the person said yes to; Foreman builds within it
+  without asking.
 - **Floor:** the smallest version that does the real thing now.
 
-## Q1 — Which store holds the Foreman feature's things?
+## Q1 — Where does the brief live, and how is it agreed?
 
-**The problem, in code.** An app's environments each have their own database. The local one is on the machine and is
-reset with its world:
+**The problem, in code.** The brief is what Foreman builds within, so it has to be versioned and agreed, and readable
+by the person in their channel. Capxul's nearest thing today is a file in its repository:
 
+```md
+<!-- capxul-next/docs/grounding.md:13, at 50851875 (read only) -->
+**Capxul is an on-chain company:** one complete business system with Capxul's money and authority built in.
+```
+
+Orthograph's is the model draft, also a file (`design/model/README.md` on draft PR 185). Neither has an "agreed"
+mark, so nothing says which version Foreman may build within.
+
+**What it touches**
+
+| Dependent | Why it cares |
+|---|---|
+| section 10 | "the agreed revision of the brief and the blueprint" is the line Foreman builds within |
+| the portal | shows the brief beside the board, or links out to it |
+| intake and shape | write and revise it |
+| Capxul's `grounding.md` and the model draft | become briefs, or stay beside one |
+
+**The options**
+
+**Today** — briefs exist as files with no agreement on them: `capxul-next/docs/grounding.md`, and
+`design/model/README.md` on draft PR 185.
+
+**A · A file in the repository, agreed by a commit** (recommended)
+```bash
+docs/brief.md                    # Capxul: grounding.md becomes it; Orthograph: design/brief.md
+git log -1 --format=%h -- docs/brief.md   # the revision the person agreed is recorded in the brief's Decisions:
+                                          # "20 Nov: brief agreed at 3f2a9c1, by Aaron"
+```
+
+**B · A thing in the app, shown in the portal**
 ```ts
-// examples/work/blueprint/environments/local.ts:3-8, on goal/stage-1
-export default Blueprint.environment({
-  runs: "on this machine",
-  identity: Identity.testPrincipals,
-  database: Cloud.d1.local(),
-  telemetry: [Telemetry.sink.local()],
+// capxul/blueprint/things/brief/thing.ts: proposed
+export const Brief = Blueprint.thing({
+  description: "What we are building, in depth: one per project, agreed by the person.",
+  code: "BR",
+  fields: { id: Blueprint.id("brf"), idea: Blueprint.text({ max: 5000 }), concept: Blueprint.text({ max: 5000 }) /* … */ },
 });
 ```
 
-If Foreman's ideas and decisions live in whichever environment is running, they are lost with a local reset, split
-between local and staging, and shipped into production. One store already belongs to the project rather than to an
-environment, the logbook:
-
-```md
-<!-- design/decisions/D3.md:857-858, on main -->
-137. **Left for later, and said where the portal says it.** The traces route is a JSON 404 (O1's TraceSource). Per-eval results, journey outcomes and the
-    release comparison are `unavailable` with the reason. There is no repository filter (one logbook is one project's here), no pull-request scope,
-```
-
-**What it touches**
-
-| Dependent | Why it cares |
-|---|---|
-| every Foreman routine | reads and writes the project's state |
-| the portal | shows the project's state in every environment's portal, or only one |
-| the logbook (D3) | the project store would sit beside it, or in it |
-| production | carries Foreman's data, or doesn't |
-
-**The options**
-
-**Today** — the logbook is the only per-project store; it is found through `ARCHITECT_LOGBOOK_URL` or the running
-`logbook` environment (`design/decisions/D3.md:355`).
-
-**A · The project store, beside the logbook** (recommended)
-```ts
-// @orthograph/foreman/blueprint/stores/project.ts: proposed. The language already takes a declared store of any kind
-// (`Blueprint.store.kind`, packages/orthograph/src/modules/stores/types.ts:18-19 on goal/stage-1); what is new is a
-// host that supplies the kind "project": one store per project, in the logbook's worker, read by every environment.
-export default Blueprint.store.kind("project");
-
-// @orthograph/foreman/blueprint/things/idea/thing.ts
-import project from "../../stores/project.ts";
-export const Idea = Blueprint.thing({
-  description: "Something the person or Foreman wants, not yet work.",
-  code: "ID",
-  lives: project, // `lives` takes a declared store (packages/orthograph/src/modules/things/types.ts:64 on goal/stage-1)
-  fields: { id: Blueprint.id("ida"), says: Blueprint.text({ max: 500 }), from: Blueprint.id("per") },
-});
-```
-
-**B · Each environment's own database**
-```ts
-// no `lives:`: the default. Local ideas stay local; staging starts empty; production gets a copy of the tables.
-export const Idea = Blueprint.thing({ description: "…", code: "ID", fields: { /* … */ } });
-```
-
-**C · One chosen environment's database, staging**
-```ts
-// proposed: a choice the feature would need to offer; every environment's Foreman calls point at staging's database
-export default Blueprint.use(foreman, (f) => [f.choose(f.choices.store.environment("staging"))]);
+**C · A document in the kanban artifact's database**
+```jsonc
+// meta/brief, beside meta/critical
+{ "idea": "…", "concept": "…", "abstractions": ["…"], "agreedAt": "2026-11-20T14:05:00Z" }
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Project store | B · Each environment's database | C · Staging's database |
+| Scenario | A · A file, agreed by a commit | B · A thing in the app | C · In the board's database |
 |---|---|---|---|
-| You reset your local world | Foreman's state survives | ideas and decisions are gone | survives |
-| You open the staging portal | the same project state as locally | a different, emptier state | the state |
-| Capxul goes to production | production carries none of it | production gets Foreman's tables | production calls staging |
-| You work offline | works while the store runs locally | works | doesn't |
+| You listen to the brief on your phone | Foreman reads the file to you | the portal or Foreman reads it | Foreman reads it |
+| Foreman wants to change a principle | a pull request you can read as a diff | an operation; the change is in the journal | an edit; versions only in the snapshot |
+| A new teammate joins | reads one file in the repository | opens the portal | opens the board |
+| The portal shows it | linked until the portal renders documents | built in | not in the portal |
+| Capxul starts | `grounding.md` becomes the brief, today | waits for the app to run | copied in |
 
 **Rubric**
 
-| Axis | A · Project store | B · Each environment's | C · Staging's |
+| Axis | A · File | B · Thing | C · Board database |
 |---|---|---|---|
-| Floor-first | ⚠️ the host must supply a new store kind, "project" | ✅ works the day mounting works | ⚠️ needs staging and a credential |
-| Composes with the app | ⚠️ the things are the app's, but their rows sit beside the logbook, not in the app's own database | ✅ fully: the app's own database | ⚠️ one environment's database |
-| Reversibility | ✅ one store kind | ⚠️ data to merge later | ⚠️ |
-| Blast radius | ✅ beside the logbook | ❌ every environment | ⚠️ couples environments |
-| Correctness | ✅ one state per project | ❌ several states that disagree | ✅ one state |
-| Fit | ✅ the logbook's pattern | ⚠️ the default, but wrong for project state | ❌ environments shouldn't call each other |
+| Floor-first | ✅ today | ❌ waits on Capxul running | ✅ today |
+| Reversibility | ✅ a file | ⚠️ a declared thing | ✅ |
+| Blast radius | ✅ one file per project | ⚠️ the app's model | ✅ |
+| Correctness | ✅ every revision kept; the agreed one named | ✅ | ⚠️ versions only when snapshotted |
+| Fit | ✅ how Capxul and the model draft already work | ⚠️ prose fields in a model | ⚠️ a long document in a board |
 
-**Recommendation: A.** The logbook already proves a project can own a store that outlives its environments; Foreman's
-state belongs there. B is acceptable only as the first week's floor, with the move to A planned.
+**Recommendation: A.** A brief is long prose that people read and argue over, and git already versions and diffs it;
+the agreed revision is one line in its own Decisions. The portal can show it later, the way the canon's docs are shown.
 
-## Q2 — Where does the project store run, until the durable agent?
+## Q2 — Where does the board live first?
 
-**The problem, in code.** The logbook, and so the project store beside it, runs as an environment on the machine
-today:
+**The problem, in code.** The board works today, but it lives outside the repository, and its critical path is
+written by hand:
 
 ```md
-<!-- design/decisions/D3.md:355-357, on main -->
-64. **Where the logbook is: `ARCHITECT_LOGBOOK_URL`, else the running `logbook` environment.** The variable wins when set. Otherwise
-    `Environments.status({ name: "logbook" })`, which reads the pid and the port that `architect env up logbook` keeps under
-    `.architect/environments/logbook/`; this works however L2.02 starts it, so long as it keeps them where every environment does. The
+<!-- .agents/skills/kanban/SKILL.md:36, on main -->
+- **`meta/critical`.** The critical path to Gate M2, curated by the conductor: `{goal, summary, steps[{title, note, tasks[{id, critical}]}], updatedAt}`. Re-curate it when a step lands or the path changes.
 ```
 
-Local means no cost and no credential, but nothing reaches it from your phone, and it is down when the Mac sleeps.
-Hosted means you can hear where things stand from anywhere, but it needs a cloud credential and counts against the
-cap (`AGENTS.md:82`: "Spend at most $10 a day on cloud resources, across everything").
+Declared as Orthograph things instead, it gets generated tools, a portal and a journal for its history, but it needs an
+app that runs, and Capxul doesn't run on Orthograph yet.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| the scheduled check | it must run where the store is reachable |
-| voice on your phone | needs the store reachable from outside the Mac |
-| the cloud cap and credentials | hosting spends and needs your written yes |
+| the conductor and Aaron | use the board every day |
+| the kanban skill and its snapshot | gain the new fields, or are retired |
+| Capxul's blueprint | gains a goal, milestones and tasks, or not yet |
+| the gate rule (`AGENTS.md:33-34`) | an Orthograph app in this repository would be milestone 3 work |
 
 **The options**
 
-**Today** — the logbook runs locally, as an environment of the project.
+**Today** — the board is a claude.ai artifact with a shared database, snapshotted into
+`.agents/skills/kanban/data/` (`.agents/skills/kanban/SKILL.md:8-21`, on main).
 
-**A · Local only**
+**A · The kanban artifact now, with the new fields; declared in Capxul when Capxul starts** (recommended)
+```text
+this week   tasks gain createdAt, createdBy, threads[] with session link, live state, lastCheckIn, progress,
+            nextCheckIn, blockedBy[], links; meta/critical is derived by a script from blockedBy and the gates
+Capxul      the same shape as Capxul's own things; the board's data moves over with one import
+later       extracted as a feature when Orthograph's own project app is the second user
+```
+
+**B · Declared as an Orthograph app straight away**
 ```bash
-ortho dev            # the app, its world, and the project store beside the logbook, on your Mac
-```
-
-**B · Hosted now**
-```text
-the project store on Cloudflare, next to a hosted logbook; every machine and your phone reach it
-```
-
-**C · Local until Foreman's things prove, then hosted** (recommended)
-```text
-now:   A
-then:  B, once the Foreman feature's journeys pass and you've said yes to the credential
+ortho add thing task --root examples/work   # Orthograph's project app now: its handlers are milestone 3 work,
+                                            # so this needs a recorded exception to the gate rule
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Local | B · Hosted now | C · Local, then hosted |
-|---|---|---|---|
-| You ask from your phone where Capxul stands | only through a session on the Mac | answered | answered, once it proves |
-| The Mac sleeps overnight | the check doesn't run | it runs | as A, then as B |
-| Cost when idle | nothing | a little, daily | nothing, then a little |
+| Scenario | A · Artifact now, Capxul next | B · An app now |
+|---|---|---|
+| You ask where a thread is, next week | the task links the session and its last check-in | the same, once the app runs |
+| Foreman checks in on threads overnight | writes check-ins to the artifact | writes them through the app's tools |
+| The critical path changes | recomputed from blockers | derived by a read |
+| Milestone order | untouched | an exception recorded |
+| Capxul starts | the shape is proven by use; one import | already declared |
 
 **Rubric**
 
-| Axis | A · Local | B · Hosted now | C · Local, then hosted |
-|---|---|---|---|
-| Floor-first | ✅ | ⚠️ a credential first | ✅ |
-| Reversibility | ✅ | ⚠️ a cloud resource to destroy | ✅ |
-| Blast radius | ✅ | ⚠️ cloud spend | ✅ |
-| Correctness | ⚠️ down when the Mac is | ✅ | ✅ in the end |
-| Fit | ✅ layer one needs no cloud | ⚠️ hosted before it proves | ✅ prove, then promote |
+| Axis | A · Artifact now, Capxul next | B · An app now |
+|---|---|---|
+| Floor-first | ✅ this week, on a board in use | ⚠️ weeks before it runs |
+| Reversibility | ✅ fields added to documents | ⚠️ an app to retire if the shape is wrong |
+| Blast radius | ✅ the kanban skill | ⚠️ the milestone plan |
+| Correctness | ⚠️ history kept by hand until declared | ✅ history is the journal |
+| Fit | ✅ build it once, use it, then extract | ⚠️ against the gate rule |
 
-**Recommendation: C.** Nothing goes to the cloud until it proves, and you get it on your phone as soon as it's worth it.
-
-## Q3 — Where do Foreman's things first live, while mounting a feature isn't proved?
-
-**The problem, in code.** `Blueprint.use` exists, but no example app has mounted a feature end to end (the model draft,
-section 3), and `ortho new feature` is planned, not built (M2.10). Your own rule says build a thing in an app, use it,
-then extract it; and Orthograph itself has no blueprint to mount anything into. The work app that could become
-Orthograph's own project app has nothing in it yet:
-
-```md
-<!-- examples/work/README.md:13, on goal/stage-1 -->
-- `src/` holds the handler scaffolds. None is written yet; journeys come first, from another agent.
-```
-
-**What it touches**
-
-| Dependent | Why it cares |
-|---|---|
-| when Foreman can start on a real project | it needs its things somewhere that runs |
-| the gate rule (`AGENTS.md:33-34`) | "Nothing in a milestone starts until the previous milestone's gate passes on `main`" |
-| Orthograph as a project | needs a small app of its own |
-| the kanban board and `design/handoff.md` | carry today's state until then |
-
-**The options**
-
-**Today** — the conductor keeps the state by hand:
-
-```md
-<!-- .agents/skills/conductor/SKILL.md:46-48, on main -->
-- **Plan and decisions:** `design/build-plan.md` (mark each step done, with its proof, in the pull request that lands
-  it), `design/decisions.md` and `design/decisions/`. `design/handoff.md`, which you keep, says where each piece of work
-  stands, so a fresh conductor can take over.
-```
-
-**A · In Capxul first, as Capxul's own code; extracted at the second project** (recommended)
-```text
-capxul/blueprint/things/{project,idea,spike,question,decision,profile}/   app code, in Capxul's repository
-# Capxul isn't bound by Orthograph's milestone gates. When Orthograph's own project app is the second user,
-# the things are cut out as @orthograph/foreman, and both mount it.
-```
-
-**B · In an Orthograph project app first, in this repository**
-```bash
-ortho add thing project --root examples/work   # Orthograph's own project app; its handlers are milestone 3 work (M3.06),
-                                               # so this needs a recorded exception to the gate rule
-```
-
-**C · As the `@orthograph/foreman` feature package straight away**
-```text
-packages/foreman/   a feature package, mounted by Capxul; waits on mounting proved end to end and on M2.10
-```
-
-**You do X → what happens**
-
-| Scenario | A · Capxul first | B · Orthograph's app first | C · Feature package now |
-|---|---|---|---|
-| You ask Foreman where Capxul stands next week | answered, from Capxul's own portal | answered, from another app | not yet |
-| You ask where Orthograph stands | the board and handoff, as now | answered | not yet |
-| A framework gap turns up | found by a real app | found by a real app | found in a package with no user |
-| Milestone order | untouched | an exception recorded | untouched, but waits |
-
-**Rubric**
-
-| Axis | A · Capxul first | B · Orthograph's app first | C · Feature package now |
-|---|---|---|---|
-| Floor-first | ✅ a real app, soon | ✅ | ❌ waits on mounting |
-| Reversibility | ✅ app code, cut out later | ✅ | ⚠️ a published shape to change |
-| Blast radius | ✅ Capxul's repository | ⚠️ the milestone plan | ✅ |
-| Correctness | ✅ shaped by real use | ✅ | ⚠️ shaped by guesses |
-| Fit | ✅ your rule: build in an app, then extract | ⚠️ against the gate rule | ❌ a plugin before its first user |
-
-**Recommendation: A.** It is your build-then-extract rule, it needs no exception, and Orthograph's own project app
-becomes the second user that makes Foreman a feature.
+**Recommendation: A.** It answers "where is that thread, and when do I check on it?" this week, on the board Aaron
+already uses, and Capxul's declaration then starts from a shape proved by use.
 
 ## At a glance
 
 | # | Joint | Recommendation |
 |---|---|---|
-| 1 | Which store holds Foreman's things | A · a project store beside the logbook, one per project, outliving every environment |
-| 2 | Where that store runs | C · locally until Foreman's things prove, then hosted with your yes |
-| 3 | Where Foreman's things first live | A · in Capxul as app code, extracted when Orthograph's own project app is the second user |
+| 1 | Where the brief lives, and how it is agreed | A · a file in the repository, the agreed revision recorded in its Decisions |
+| 2 | Where the board lives first | A · the kanban artifact with the new fields now; declared in Capxul when Capxul starts |
 
-**Answer key.** Reply with the question number and a letter, for example "1 A, 2 C, 3 A". Anything you don't answer
-takes the recommendation.
+**Answer key.** Reply with the question number and a letter, for example "1 A, 2 A". Anything you don't answer takes
+the recommendation.
