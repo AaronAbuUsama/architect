@@ -68,6 +68,23 @@ export interface TraceSource {
   readonly window: (since: number, now?: number) => Effect.Effect<ReadonlyMap<string, Trace>, SourceFailed>;
 }
 
+/** One series of a metric over a window: its labels, and how much it grew in the window. */
+export interface MetricPoint {
+  readonly name: string;
+  readonly labels: Readonly<Record<string, string>>;
+  readonly value: number;
+}
+
+/** Where metrics are read from, beside `TraceSource` (portal.md hole 2): `ortho.calls` counted in the last `since` ms before `now`. History past the window is M7.14. */
+export interface MetricsSource {
+  readonly window: (since: number, now: number) => Effect.Effect<ReadonlyArray<MetricPoint>, SourceFailed>;
+}
+
+export interface FileMetricsApi {
+  /** Read the counters in `metrics.jsonl` of these folders, as one source. Missing files are no points, not a failure. */
+  readonly open: (dirs: string | ReadonlyArray<string>) => MetricsSource;
+}
+
 export interface Collector extends TraceSource {
   /** The OTLP/HTTP base URL the Worker exports to. */
   readonly url: string;

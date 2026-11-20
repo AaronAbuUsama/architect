@@ -86,6 +86,7 @@ const open: ServedPortalsApi["open"] = async (options) => {
       const { kept } = await visit(route, (page) => page.screenshot({ animations: "disabled", caret: "hide", fullPage: true }));
       return kept ?? new Uint8Array();
     },
+    evaluate: async <T>(route: string, expression: string) => (await visit(route, (page) => page.evaluate(expression) as Promise<T>)).kept as T,
     data: async (path) => {
       const response = await answer(new Request(`http://127.0.0.1${path}`));
       return { status: response.status, text: await response.text() };
