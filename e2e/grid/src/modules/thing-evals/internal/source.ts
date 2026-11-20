@@ -1,5 +1,5 @@
-import type { FieldModel } from "../../project-evidence/types.ts";
 import { Reading } from "../../reading/service.ts";
+import { SdkTypes } from "../../sdk-types/service.ts";
 import { operationsOf, over, typeName } from "./over.ts";
 
 /** thing.model: the thing is in the model with its description, and every field with its value type; a reference or named value says which. */
@@ -33,47 +33,16 @@ export const server = over("thing.server", (thing, e) => {
   ];
 });
 
-/** What a model value type is as a TypeScript primitive: a caller holds an id or a text as a string, a count as a number or a bigint. */
-const PRIMITIVE_OF: Readonly<Record<string, ReadonlyArray<string>>> = { id: ["string"], text: ["string"], uint: ["number", "bigint"], int: ["number", "bigint"], boolean: ["boolean"], bool: ["boolean"] };
-
 /**
- * What is wrong with one property's type against the field it stands for: a type derived from the declaration (`Of<Declared["title"]>`) must be derived from this
- * field and no other; a type that says nothing (`any`, `unknown`, `never`, `object`, `{}`) is wrong for every field; a primitive must be the one the value is.
+ * thing.sdk: the SDK exports a type for the thing (`Link`) whose every member resolves, in the TypeScript checker, to what the model says the field is (`SdkTypes`):
+ * a string for an id or text, a number or bigint for a uint, a boolean for a boolean, a real value for a named schema, optional exactly when a call may leave it out.
  */
-const typeProblem = (name: string, field: FieldModel, written: string, optionalMember: boolean): string | undefined => {
-  const type = written.trim();
-  const derivedFrom = [...type.matchAll(/\[\s*["']([^"']+)["']\s*\]/g)].map((m) => m[1]!);
-  if (derivedFrom.length > 0 && !derivedFrom.includes(name)) return `is derived from ${derivedFrom.join(", ")}, not from ${name}`;
-  const kinds = type === "" ? ["other"] : Reading.typeKinds(type);
-  if (kinds.some((k) => ["any", "unknown", "never", "object", "other"].includes(k)) || (kinds.length === 1 && ["shape", "function"].includes(kinds[0]!))) return `is typed "${type}", which does not say what the field holds`;
-  // A type must hold a value: `undefined` alone is a field no call can fill, whatever the field is.
-  if (kinds.every((k) => k === "undefined")) return `is typed "${type}", which holds no value`;
-  // A field every call carries is required (never `?`, never `| undefined`); one that may be missing (optional, or private to roles) may be absent, for a type written out.
-  const required = field.visibility === undefined && field.optional !== true;
-  const derived = kinds.some((k) => k === "reference" || k === "indexed");
-  const absent = optionalMember || kinds.includes("undefined");
-  if (required && absent) return `is optional or may be undefined, but every call carries it`;
-  if (!required && !derived && !absent) return `is not optional, but the model says a call may leave it out`;
-  const want = PRIMITIVE_OF[field.value.type];
-  if (want === undefined) return undefined;
-  // A union's every member must be what the value is: only a named or indexed type (`Of<Declared["id"]>`) is trusted, wherever it sits in the union, and an array of one is still an array; `undefined` is an optional field, a literal must be of the value's kind.
-  const allowed = new Set([...want, "reference", "indexed", "undefined", ...(want.includes("string") ? ["string-literal"] : []), ...(want.includes("number") ? ["number-literal"] : []), ...(want.includes("boolean") ? ["boolean-literal"] : []), ...(want.includes("bigint") ? ["bigint-literal"] : [])]);
-  const wrong = [...new Set(kinds.filter((k) => !allowed.has(k)))];
-  return wrong.length === 0 ? undefined : `is ${type}${wrong.length === 1 && wrong[0] === type ? "" : ` (holds ${wrong.join(", ")})`}, but the model's ${field.value.type} is ${want.join(" or ")}`;
-};
-
-/** thing.sdk: the SDK exports a type for the thing (`Link`) that names each of its fields with the type the model gives it, so a caller can name it and hold what a call returns. */
 export const sdk = over("thing.sdk", (thing, e) => {
   // An interface, or an alias of an object type: the type a caller writes, with a member for each field.
   const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
     Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
   if (declared === undefined) return [`the SDK exports no type ${thing.identifier}: a caller cannot name a ${thing.name}`];
-  return Object.entries(thing.fields).flatMap(([name, field]) => {
-    const member = declared.memberTypes[name];
-    if (member === undefined) return [`${declared.path}'s ${thing.identifier} leaves out the field ${name}`];
-    const wrong = typeProblem(name, field, member.type, member.optional);
-    return wrong === undefined ? [] : [`${declared.path}'s ${thing.identifier}.${name} ${wrong}`];
-  });
+  return SdkTypes.fieldProblems({ files: e.files, model: e.model, thing, path: declared.path });
 });
 
 /** thing.telemetry: a thing's public fields appear on its operations' spans as `payload.*` and `answer.*` (text only when `traced`), and no others do. */

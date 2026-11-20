@@ -83,3 +83,30 @@ describe("R8 answer state", () => {
     expect(run({})[0]).toMatch(/accepts .* as the state/);
   });
 });
+
+describe("R1/R2 x B, C and D: a schema-typed answer field is probed from its recorded value's own shape", () => {
+  const profile = pluggedIn.model.operations["profile.get"]!;
+  const item = (url: unknown, required: ReadonlyArray<string> = ["id", "title", "url"]) => ({ type: "object", properties: { id: { type: "string" }, title: { type: "string" }, url }, required });
+  const run = (links: unknown, handle: unknown = { type: "string" }) => OutputSchema.answers({
+    model: pluggedIn.model, op: profile, spans: pluggedIn.spans, files: pluggedIn.files,
+    schema: { type: "object", anyOf: [{ type: "object", properties: { handle, links }, required: ["handle", "links"] }, envelope] },
+  });
+  const array = (items: unknown) => ({ type: "array", items });
+
+  it("green: links as an array of exact items", () => {
+    expect(run(array(item({ type: "string" })))).toEqual([]);
+  });
+  it.each([
+    ["links: {}", {}],
+    ["links: { type: array } with no items", { type: "array" }],
+    ["links: array of {}", array({})],
+    ["an item's url: {}", array(item({}))],
+    ["an item that does not require url", array(item({ type: "string" }, ["id", "title"]))],
+    ["an item's url typed number or string", array(item({ type: ["string", "number"] }))],
+  ])("red: %s", (_name, links) => {
+    expect(run(links).length).toBeGreaterThan(0);
+  });
+  it("red: handle typed as any scalar", () => {
+    expect(run(array(item({ type: "string" })), { type: ["string", "number", "boolean", "null"] }).length).toBeGreaterThan(0);
+  });
+});

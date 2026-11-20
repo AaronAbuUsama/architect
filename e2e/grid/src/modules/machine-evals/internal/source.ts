@@ -1,4 +1,5 @@
 import { Reading } from "../../reading/service.ts";
+import { SdkTypes } from "../../sdk-types/service.ts";
 import { over } from "./over.ts";
 import { moveProblems, refusalProblems, stateProblems } from "./rows.ts";
 
@@ -39,26 +40,14 @@ export const server = over("machine.server", ({ moves }, e) => moves.flatMap((op
 const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]`).test(text);
 
 /**
- * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, interface (its `state`) or enum, declared in the thing's own
- * folder or named for the thing, whose own type names every state as a string literal. The source is parsed as TypeScript, so a missing
- * semicolon, a comment that quotes a state, or the next declaration's literals cannot make a type pass or fail.
+ * machine.sdk: the SDK exports a type for the thing whose `state` member, and each exported `<Thing>State`, resolves in the TypeScript checker to exactly the
+ * machine's states: a union of those string literals and nothing else (`SdkTypes`). A `string`, a derived type, another thing's state or an extra literal is red.
  */
 export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
-  const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
-    Reading.exportedTypes(text).map((t) => ({ path, ...t })));
-  // The state type belongs to the thing: a type named for its states (`LinkState`, `LinkStates`, `LinkStatus`) that is the union, or a type of the thing
-  // (named for it: `Link`) whose own `state` property is the union. A union named for something else (`Linkage`) is not its state.
-  const named = new RegExp(`^${thing.identifier}(State|States|Status)$`);
-  const ofThing = (t: { readonly name: string }) => t.name === thing.identifier;
-  const all = (literals: ReadonlyArray<string>) => machine.states.every((s) => literals.includes(s));
-  // Exactly the states: no value that is not one (`| number`, an extra literal), written as string literals; a named type is judged where it is declared.
-  const exact = (literals: ReadonlyArray<string>, written: string) =>
-    all(literals) && literals.every((l) => machine.states.includes(l)) && Reading.typeKinds(written).every((k) => k === "string-literal" || k === "reference");
-  const stated = exported.filter((t) => (named.test(t.name) && all(t.literals)) || (ofThing(t) && all(t.stateLiterals)));
-  if (stated.length === 0) return [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
-  const written = (t: { readonly aliasOf: string; readonly memberTypes: Readonly<Record<string, { readonly type: string }>> }) => (t.aliasOf !== "" ? t.aliasOf : (t.memberTypes["state"]?.type ?? ""));
-  return stated.some((t) => exact(named.test(t.name) ? t.literals : t.stateLiterals, written(t))) ? []
-    : [`the SDK's type for ${thing.name}'s states holds a value that is not one of them (${machine.states.join(" | ")}): ${stated.map(written).join("; ")}`];
+  const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
+    Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
+  if (declared === undefined) return [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  return SdkTypes.stateProblems({ files: e.files, model: e.model, thing, path: declared.path, states: machine.states });
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */

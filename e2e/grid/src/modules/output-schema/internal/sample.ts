@@ -63,10 +63,30 @@ const kindOf = (field: FieldModel): Kind | undefined =>
   : field.value.type === "boolean" || field.value.type === "bool" ? "boolean"
   : undefined;
 
-/** The values a field must refuse: every other JSON kind where the model types it; for a named schema with a recorded scalar, an object. */
+/** Every JSON kind a recorded value is not: the other scalars, null, an array and an object. */
+const kindsNot = (value: unknown): ReadonlyArray<unknown> =>
+  typeof value === "string" ? [1, 1.5, true, null, [], { wrong: "type" }]
+  : typeof value === "number" ? ["x", true, null, [], { wrong: "type" }]
+  : typeof value === "boolean" ? ["x", 1, null, [], { wrong: "type" }]
+  : Array.isArray(value) ? ["x", 1, true, null, { wrong: "type" }]
+  : isObject(value) ? ["x", 1, true, null, []]
+  : [];
+
+/**
+ * Every way a recorded value can be wrong, from the value's own shape: each kind it is not; for an array, an item of each wrong kind and an item missing each key
+ * every recorded item has; for an object, each key dropped and each key given a wrong value (recursively). A schema typing the value loosely accepts one of them.
+ * A recorded null says nothing of what else is allowed (a nullable cursor), so it gives none.
+ */
+const mutations = (value: unknown): ReadonlyArray<unknown> => {
+  if (Array.isArray(value)) return [...kindsNot(value), ...(value.length === 0 ? [] : mutations(value[0]).map((item) => [item]))];
+  if (isObject(value)) return [...kindsNot(value), ...Object.keys(value).flatMap((key) => [Object.fromEntries(Object.entries(value).filter(([k]) => k !== key)), ...mutations(value[key]).map((v) => ({ ...value, [key]: v }))])];
+  return kindsNot(value);
+};
+
+/** The values a field must refuse: every other JSON kind where the model types it; for a named schema, what its recorded value's own shape gives. */
 export const probesOf = (field: FieldModel, known: unknown): ReadonlyArray<unknown> => {
   const kind = kindOf(field);
-  return kind !== undefined ? wrongValues(kind) : ["string", "number", "boolean"].includes(typeof known) ? [{ wrong: "type" }] : [];
+  return kind !== undefined ? wrongValues(kind) : mutations(known);
 };
 
 /** The constant an answer branch of an `anyOf` gives a field (`status: { const: "ok" }`): the branch that is not the refusal's own names it as the answer's. */

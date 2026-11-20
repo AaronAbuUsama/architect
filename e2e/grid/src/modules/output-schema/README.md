@@ -33,4 +33,9 @@ type or the run's span, never from the schema being judged; a field with neither
 | R8 answer `state` | "R8 x A" and `output-schema.test.ts` "a state an answer carries" | "R8 x B and D" | `-kinds.test.ts` "R6 x drop one: an answer `state`" | by B | n/a: a moving answer always has it |
 | R9 the move, `_meta.move` (machine.mcp) | `machine-evals.test.ts` "green: the move as the model has it" | "a list written as a string, a wrong state and another event" | "matrix move x drop one" and "a tool that sends no _meta.move" | n/a: not a typed schema, each key is compared with the model's | n/a: all four keys are always sent |
 
+A schema-typed answer field (a named schema, whose type the model does not spell out) is probed from its recorded value's own shape, recursively: each JSON kind
+it is not; for an array, an item of each wrong kind and an item missing each key every recorded item has; for an object, each key dropped and each key given a
+wrong value (`output-schema-matrix.test.ts`, "R1/R2 x B, C and D": `links: {}`, an array with no `items`, `items: {}`, an item `url: {}`, an item not requiring `url`).
+A recorded `null` gives none (a nullable cursor allows other kinds).
+
 Not in the matrix: a list read's items and cursor. No generator emits one and the model has no list marker (`design/later.md`, "From the grid (#154)").

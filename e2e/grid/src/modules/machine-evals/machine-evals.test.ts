@@ -1,6 +1,7 @@
 // The machine row's evals over Plugged In's real model and outputs, and acme's. The same suite runs for every thing that has a machine.
 import { describe, expect, it } from "vitest";
 import { editFile, editPortal, editSpans, evidenceOf, judge, withoutProveLine } from "../project-evidence/testing.ts";
+import { withLinkTypes, LINK_TYPES } from "../sdk-types/testing.ts";
 import { MachineEvals } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
@@ -66,7 +67,7 @@ describe("a wrong output is red, and says what", () => {
   });
 
   it("sdk, cli, mcp: pass once the states are named", () => {
-    const sdk = editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => `${t}export type LinkState = "listed" | "removed";\n`);
+    const sdk = withLinkTypes(pluggedIn);
     expect(check("sdk", "link", sdk)).toEqual({ ok: true, why: [] });
     const cli = { ...pluggedIn, cli: { ...pluggedIn.cli, "link add": "Moves a link from nothing to listed", "link remove": "Moves a link from listed to removed" } };
     expect(check("cli", "link", cli)).toEqual({ ok: true, why: [] });
@@ -107,10 +108,25 @@ describe("a wrong output is red, and says what", () => {
     });
   });
 
-  it("matrix State type x wrong kinds and values: the union holds exactly the states", () => {
-    const typed = (type: string) => editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => `${t}export type LinkState = ${type};\n`);
-    expect(check("sdk", "link", typed('"listed" | "removed"'))).toEqual({ ok: true, why: [] });
-    for (const bad of ['"listed" | "removed" | number', '"listed" | "removed" | "ghost"', '"listed" | "removed" | null', 'string']) expect(check("sdk", "link", typed(bad)).ok, bad).toBe(false);
+  describe("matrix State type: the thing's state, and an exported LinkState, resolve to exactly the machine's states", () => {
+    const red = (text: string) => check("sdk", "link", withLinkTypes(pluggedIn, text));
+    it("green: the real file", () => {
+      expect(check("sdk", "link", withLinkTypes(pluggedIn))).toEqual({ ok: true, why: [] });
+    });
+    it.each([
+      ["Link.state as string", 'readonly "state": string;'],
+      ["Link.state derived from the declaration", 'readonly "state": Of<Declared["state"]>;'],
+      ["Link.state as another type", 'readonly "state": LinkAdded;'],
+      ["Link.state as one of the states", 'readonly "state": "listed";'],
+      ["Link.state with an extra literal", 'readonly "state": LinkState | "ghost";'],
+      ["Link.state that may be undefined", 'readonly "state": LinkState | undefined;'],
+    ])("red: %s", (_name, line) => {
+      expect(red(LINK_TYPES.replace('readonly "state": LinkState;', line)).ok).toBe(false);
+    });
+    it("red: an exported LinkState holding a value that is not a state, or a plain string", () => {
+      expect(red(LINK_TYPES.replace('"listed" | "removed";', '"listed" | "removed" | number;')).ok).toBe(false);
+      expect(red(LINK_TYPES.replace('"listed" | "removed";', "string;")).ok).toBe(false);
+    });
   });
 
   it("docs: a machine section that lost a state, the refusal or a move's row", () => {
