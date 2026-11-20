@@ -1,5 +1,5 @@
 // A warm world's record: when it is found, and when it is not (ST1.24). The end-to-end check is e2e/m1/30-st1-24-warm-world.test.ts.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -109,9 +109,11 @@ describe("warm", () => {
     const telemetry = join(root, ".ortho/dev-telemetry");
     mkdirSync(telemetry, { recursive: true });
     writeFileSync(join(telemetry, "traces.jsonl"), "{}\n");
+    const before = statSync(join(telemetry, "traces.jsonl")).ino;
     // The world's door is not there to answer (the Worker's own test covers it), so the reset fails, after the folder is emptied.
     const result = await Effect.runPromise(Effect.result(Warm.reset(record({ url: "http://127.0.0.1:1" }))));
     expect(result._tag).toBe("Failure");
-    expect(existsSync(join(telemetry, "traces.jsonl"))).toBe(false);
+    expect(readFileSync(join(telemetry, "traces.jsonl"), "utf8"), "emptied").toBe("");
+    expect(statSync(join(telemetry, "traces.jsonl")).ino, "a file of its own: on Linux a removed file's inode comes back, and a reader that compares them would take the new file for the old one grown").not.toBe(before);
   });
 });

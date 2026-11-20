@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect, Option } from "effect";
 import { Names } from "orthograph/server";
@@ -68,9 +68,19 @@ export const Warm: WarmApi = {
       return newestChange(root) > record.startedAt || fingerprint(root) !== record.sources ? undefined : record;
     }),
   reset: ({ url, telemetry, nonce }) =>
-    // The collector's files too: a run reads them whole, and the last run's spans would only be in its way.
+    // The collector's files too: a run reads them whole, and the last run's spans would only be in its way. Each is replaced by an
+    // empty one made while the old still exists, so the new file never has the old one's inode (a file removed and made again can
+    // get the number back, and then a reader that tells files apart by it cannot tell a fresh file from the old one grown).
     Effect.try({
-      try: () => { if (existsSync(telemetry)) for (const entry of readdirSync(telemetry)) rmSync(join(telemetry, entry), { recursive: true, force: true }); },
+      try: () => {
+        if (!existsSync(telemetry)) return;
+        for (const entry of readdirSync(telemetry)) {
+          const file = join(telemetry, entry);
+          const fresh = join(telemetry, `.${entry}.fresh`);
+          writeFileSync(fresh, "");
+          renameSync(fresh, file);
+        }
+      },
       catch: (e) => new WarmFailed({ message: `couldn't empty ${telemetry}: ${String(e)}` }),
     }).pipe(Effect.andThen(Effect.tryPromise({
       try: () => fetch(`${url}/_world/reset`, { method: "POST", headers: { "x-ortho-world": nonce } }).then((r) => (r.ok ? undefined : Promise.reject(new Error(`answered ${r.status}`)))),
