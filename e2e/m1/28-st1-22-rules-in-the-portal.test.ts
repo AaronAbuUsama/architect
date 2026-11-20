@@ -48,6 +48,21 @@ afterAll(() => { for (const d of dirs) rmSync(d, { recursive: true, force: true 
 const real = (built: Built): Promise<ServedPortal> => ServedPortals.open({ context: context(built) });
 const standing = (built: Built, hardcoded: boolean): Promise<ServedPortal> => ServedPortals.open({ context: context(built), clientDir: clientDir(hardcoded), server: standInServer, run });
 
+/** The reference page with some of its text changed, and what the judge says of it. */
+const judgedWith = async (changes: ReadonlyArray<readonly [string, string]>): Promise<Verdicts> => {
+  const built = await withRules(pluggedIn, AS_THEY_STAND, true);
+  const dir = mkdtempSync(join(tmpdir(), "rules-broken-"));
+  dirs.push(dir);
+  let html = standIn(false);
+  for (const [from, to] of changes) {
+    if (!html.includes(from)) throw new Error(`the stand-in has no ${from}: the control is out of date`);
+    html = html.replace(from, to);
+  }
+  writeFileSync(join(dir, "index.html"), html);
+  const portal = await ServedPortals.open({ context: context(built), clientDir: dir, server: standInServer, run });
+  try { return await judge(portal, built.wire, built.rules); } finally { await portal.close(); }
+};
+
 const verdicts = async (open: () => Promise<ServedPortal>, built: Built): Promise<Verdicts> => {
   const portal = await open();
   try { return await judge(portal, built.wire, built.rules); } finally { await portal.close(); }
@@ -103,7 +118,7 @@ describe("28 control: the fixture and the judge are sound", () => {
     const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));
     expect(outside.section.some((p) => p.includes("outside the Rules section")), outside.section.join("\n")).toBe(true);
     const dropped = await judged((h) => h.replace("o.refusals.map((e) =>", `o.refusals.filter((e) => e !== "HandleAlreadyOwned").map((e) =>`));
-    expect(dropped.refusals.some((p) => p.includes("/portal/operations/handle.claim") && p.includes("HandleAlreadyOwned") && p.includes("is not shown")), dropped.refusals.join("\n")).toBe(true);
+    expect(dropped.refusals.some((p) => p.includes("/portal/operations/handle.claim") && p.includes("HandleAlreadyOwned") && p.includes("is shown 0 times")), dropped.refusals.join("\n")).toBe(true);
   });
 
   it("the judge names a plain-text refusal, a missing link and a rules stop out of place", { timeout: 120_000 }, async () => {
@@ -140,5 +155,29 @@ describe.each([
 
   it("handle.claim's spine has a rules stop between the move and the commit naming both rules, and handle.release's has none", { timeout: 300_000 }, async () => {
     expect(await said("spine")).toEqual([]);
+  });
+});
+
+// One control for every uniqueness or resolution the judge asks of the page: each plants the one fault in a page that is otherwise right (the
+// reference page passes the judge, in the control above), and the judge must name it, in its own group.
+const SPINE_RULES = `data-rules="' + rules.join(",")`;
+describe.each([
+  ["a second Rules section", "section", "2 Rules sections", [[`"</section>" : "")`, `"</section><section data-portal=\\"rules\\"></section>" : "")`]]],
+  ["a rule's row shown twice", "section", "2 times", [["rules.map(([n, r]) =>", "rules.concat(rules).map(([n, r]) =>"]]],
+  ["two rows sharing one id", "section", "is on 2 elements", [[`id="rule-' + n + '"`, `id="rule-x"`]]],
+  ["a second lifecycle", "section", "2 lifecycles", [[`'<div data-portal="lifecycle">' + t.machine.states.join(" > ") + "</div>"`, `'<div data-portal="lifecycle">' + t.machine.states.join(" > ") + '</div><div data-portal="lifecycle"></div>'`]]],
+  ["a row with two sentences", "sentences", "2 `rule-sentence`", [[`"</i></div>").join("")`, `"</i><i data-portal=\\"rule-sentence\\">x</i></div>").join("")`]]],
+  ["a link to another rule's row", "refusals", "not exactly its rule's row", [[`'#rule-' + n`, `'#rule-' + (n === "oneHolderPerName" ? "oneNamePerPerson" : n)`]]],
+  ["a link whose fragment two elements answer to", "refusals", "is 2 elements", [[`id="rule-' + n + '"`, `id="rule-x"`], [`'#rule-' + n`, `'#rule-x'`]]],
+  ["a refusal with two sentences", "refusals", "2 `refusal-sentence`", [[`'</i> <a data-portal="rule-link"`, `'</i><i data-portal="refusal-sentence">z</i> <a data-portal="rule-link"`]]],
+  ["a refusal with two links", "refusals", "2 `rule-link`", [[`'">rule</a></span>'`, `'">rule</a><a data-portal="rule-link" href="/x">r</a></span>'`]]],
+  ["a refusal listed twice on its operation's page", "refusals", "is shown 2 times", [["o.refusals.map((e) =>", "o.refusals.concat(o.refusals).map((e) =>"]]],
+  ["a refusal its operation does not have", "refusals", "not one of its refusals", [["o.refusals.map((e) =>", `o.refusals.concat(["HandleNotClaimed"]).map((e) =>`], [`return "<span>" + esc(e) + "</span>";`, `return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="">' + esc(e) + "</span>";`]]],
+  ["a rules stop naming a rule twice", "spine", "names a rule twice", [[SPINE_RULES, `data-rules="' + rules.concat(rules).join(",")`]]],
+  ["a spine stop twice", "spine", "more than once", [[`+ '<div data-portal="spine-stop" data-stop="commit">commit</div>'`, `+ '<div data-portal="spine-stop" data-stop="commit">commit</div><div data-portal="spine-stop" data-stop="commit">commit</div>'`]]],
+] as ReadonlyArray<readonly [string, keyof Verdicts, string, ReadonlyArray<readonly [string, string]>]>)("28 control: the judge asks for exactly one", (_, group, said, changes) => {
+  it(`names ${_}`, { timeout: 120_000 }, async () => {
+    const found = (await judgedWith(changes))[group];
+    expect(found.some((p) => p.includes(said)), `${said}\n${found.join("\n")}`).toBe(true);
   });
 });

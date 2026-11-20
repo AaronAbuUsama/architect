@@ -63,16 +63,17 @@ const SCAN = `(() => {
     order: q("[data-portal]").map((e) => a(e, "data-portal")).filter((h) => ["lifecycle", "rules", "operation-row"].includes(h)),
     sections: q('[data-portal="rules"]').length,
     strays: q('[data-portal="rule"]').filter((e) => !e.closest('[data-portal="rules"]')).length,
-    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]') })),
-    refusals: q('[data-portal="refusal"]').map((e) => { const l = e.querySelector('a[data-portal="rule-link"]'); return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), href: l === null ? null : a(l, "href") }; }),
+    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]'), sentences: e.querySelectorAll('[data-portal="rule-sentence"]').length })),
+    refusals: q('[data-portal="refusal"]').map((e) => { const l = e.querySelector('a[data-portal="rule-link"]'); return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: e.querySelectorAll('[data-portal="refusal-sentence"]').length, links: e.querySelectorAll('a[data-portal="rule-link"]').length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, href: l === null ? null : a(l, "href") }; }),
+    lifecycles: q('[data-portal="lifecycle"]').length,
     bare,
     stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules") })),
     ids: q("[id]").map((e) => e.id),
   };
 })()`;
 interface Seen {
-  order: Array<string>; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string }>;
-  refusals: Array<{ name: string; rule: string; sentence: string; href: string | null }>; bare: Array<{ name: string; text: string }>;
+  order: Array<string>; lifecycles: number; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string; sentences: number }>;
+  refusals: Array<{ name: string; rule: string; sentence: string; sentences: number; links: number; inSpine: boolean; href: string | null }>; bare: Array<{ name: string; text: string }>;
   stops: Array<{ stop: string; rules: string }>; ids: Array<string>;
 }
 const scan = (portal: ServedPortal, route: string, names: ReadonlyArray<string>) => portal.evaluate<Seen>(route, SCAN.replace("__NAMES__", JSON.stringify(names)));
@@ -98,6 +99,10 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     if (mine.length === 0) { if (page.sections > 0 || page.strays > 0) out.section.push(`/portal/things/${thing} has a Rules section but declares no rule`); continue; }
     if (page.sections !== 1) out.section.push(`/portal/things/${thing} has ${page.sections} Rules sections (\`[data-portal="rules"]\`), it needs one, holding its rows`);
     if (page.strays > 0) out.section.push(`/portal/things/${thing}: ${page.strays} rule rows sit outside the Rules section`);
+    const dupIds = page.ids.filter((id, i) => id !== "" && page.ids.indexOf(id) !== i);
+    for (const id of new Set(dupIds)) out.section.push(`/portal/things/${thing}: id "${id}" is on ${page.ids.filter((i) => i === id).length} elements: a link's fragment must reach one`);
+    const machineThing = Boolean((wire.model.things[thing] as { machine?: unknown }).machine);
+    if (page.lifecycles > 1) out.section.push(`/portal/things/${thing} has ${page.lifecycles} lifecycles, it needs one`);
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
     for (const [rule, n] of Object.entries(page.rules.reduce<Record<string, number>>((all, r) => ({ ...all, [r.rule]: (all[r.rule] ?? 0) + 1 }), {}))) if (n > 1) out.section.push(`/portal/things/${thing} shows ${rule} ${n} times: one row per rule`);
     if ([...seen.keys()].sort().join() !== mine.map(full).sort().join()) out.section.push(`/portal/things/${thing} lists rules [${[...seen.keys()]}], the wire declares [${mine.map(full)}]: a Rules section of one row per rule, each \`[data-portal="rule"][data-rule]\``);
@@ -110,6 +115,7 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
       const row = seen.get(full(r));
       if (row === undefined) continue;
       if (row.fields !== r.fields.join(",") || row.while !== r.while.join(",") || row.refuse !== (r.refuse ?? "")) out.section.push(`${full(r)}: the row says fields "${row.fields}", while "${row.while}", refuses "${row.refuse}"; the model says "${r.fields}", "${r.while}", "${r.refuse ?? ""}"`);
+      if (row.sentences !== 1) out.sentences.push(`${full(r)}: its row has ${row.sentences} \`rule-sentence\` elements, it needs one`);
       if (row.id === "") out.section.push(`${full(r)}: the row has no id, so no refusal can link to it`);
     }
   }
@@ -130,27 +136,40 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
   }
 
   const routes = ["/portal", ...Object.keys(wire.model.things).map((t) => `/portal/things/${t}`), ...Object.keys(wire.model.operations).map((o) => `/portal/operations/${o}`), "/portal/reference/refusals"];
-  const checkRefusal = (route: string, f: Seen["refusals"][number]) => {
+  const checkRefusal = async (route: string, f: Seen["refusals"][number]) => {
     const rule = rules.find((r) => r.refuse === f.name);
-    if (rule === undefined) { if (f.rule !== "" || f.href !== null) out.refusals.push(`${route}: ${f.name} is no rule's refusal and still links to "${f.rule}"`); return; }
+    if (rule === undefined) { if (f.rule !== "" || f.href !== null || f.links > 0) out.refusals.push(`${route}: ${f.name} is no rule's refusal and still links to "${f.rule}"`); return; }
     const row = rows.get(full(rule));
     if (f.rule !== full(rule)) out.refusals.push(`${route}: ${f.name} names rule "${f.rule}", the model gives "${full(rule)}"`);
+    if (f.sentences !== 1) out.refusals.push(`${route}: ${f.name} has ${f.sentences} \`refusal-sentence\` elements, it needs one`);
+    if (f.links !== 1) out.refusals.push(`${route}: ${f.name} has ${f.links} \`rule-link\` anchors, it needs one`);
     if (row === undefined || f.sentence !== row.sentence) out.refusals.push(`${route}: ${f.name} reads "${f.sentence}", its rule's row reads "${row?.sentence}": one sentence on every surface`);
     const path = f.href?.replace(/^https?:\/\/[^/]+/, "") ?? "";
-    if (row === undefined || path !== `/portal/things/${rule.thing}#${row.id}`) out.refusals.push(`${route}: ${f.name} links to ${f.href ?? "nothing"}, not to its rule's row (/portal/things/${rule.thing}#${row?.id})`);
+    const [target, fragment = ""] = path.split("#");
+    if (target !== `/portal/things/${rule.thing}` || fragment === "") { out.refusals.push(`${route}: ${f.name} links to ${f.href ?? "nothing"}, not to a row of ${rule.thing}'s page`); return; }
+    const there = await read(target!).catch(() => undefined);
+    const owners = (there?.ids ?? []).filter((id) => id === fragment).length;
+    const landed = there?.rules.find((r) => r.id === fragment);
+    if (owners !== 1 || landed?.rule !== full(rule)) out.refusals.push(`${route}: ${f.name} links to #${fragment}, which is ${owners} elements and ${landed === undefined ? "no rule row" : `the row of ${landed.rule}`}, not exactly its rule's row (${full(rule)})`);
   };
   for (const route of routes) {
     // The reference page is an optional surface: a portal with no such route is not a portal that hides a refusal.
     const page = await read(route).catch((error: unknown) => { if (route === "/portal/reference/refusals") return undefined; throw error; });
     if (page === undefined) continue;
     for (const b of page.bare) out.refusals.push(`${route}: "${b.name}" is shown as plain text ("${b.text}"), not as a \`[data-portal="refusal"]\` that carries its rule's sentence and a link`);
-    for (const f of page.refusals) checkRefusal(route, f);
+    for (const f of page.refusals) await checkRefusal(route, f);
   }
-  // And each operation's own page, against its own contract: every refusal a rule owns there is on that page, as its rule's sentence, linked.
+  // And each operation's own page, against its own contract: every refusal a rule owns there is shown once in the page's own list (the spine's
+  // rules stop may name them again, inside the stop), as its rule's sentence, linked; and none the operation does not have.
   for (const [name, op] of Object.entries(wire.model.operations)) {
     const page = await read(`/portal/operations/${name}`).catch(() => undefined);
-    for (const refusal of Object.keys(op.invariants ?? {})) {
-      if (page === undefined || !page.refusals.some((f) => f.name === refusal)) out.refusals.push(`/portal/operations/${name}: its refusal ${refusal} (owned by ${op.invariants![refusal]}) is not shown as a \`[data-portal="refusal"]\` on this page`);
+    for (const [refusal, owner] of Object.entries(op.invariants ?? {})) {
+      const listed = page?.refusals.filter((f) => f.name === refusal && !f.inSpine).length ?? 0;
+      if (listed !== 1) out.refusals.push(`/portal/operations/${name}: its refusal ${refusal} (owned by ${owner}) is shown ${listed} times in the page's own list, it needs one \`[data-portal="refusal"]\` there`);
+    }
+    for (const f of page?.refusals ?? []) {
+      if (!op.refusals.includes(f.name)) out.refusals.push(`/portal/operations/${name}: shows ${f.name}, which is not one of its refusals`);
+      if (f.inSpine && !Object.keys(op.invariants ?? {}).includes(f.name)) out.refusals.push(`/portal/operations/${name}: its rules stop shows ${f.name}, which no rule of this operation owns`);
     }
   }
 
@@ -163,7 +182,9 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     const [move, commit] = [stops.findIndex((s) => s.stop === "move"), stops.findIndex((s) => s.stop === "commit")];
     if (at < 0) { out.spine.push(`${name}: the spine has no \`[data-portal="spine-stop"][data-stop="rules"]\``); continue; }
     if (!(move >= 0 && move < at && at < commit)) out.spine.push(`${name}: the rules stop is not between the move and the commit (stops: ${stops.map((s) => s.stop)})`);
-    if (stops[at]!.rules.split(",").filter(Boolean).sort().join() !== attached.join()) out.spine.push(`${name}: the rules stop lists "${stops[at]!.rules}", the model attaches [${attached}]`);
+    const listed = stops[at]!.rules.split(",").filter(Boolean);
+    if (new Set(listed).size !== listed.length) out.spine.push(`${name}: the rules stop names a rule twice ("${stops[at]!.rules}")`);
+    if ([...new Set(listed)].sort().join() !== attached.join()) out.spine.push(`${name}: the rules stop lists "${stops[at]!.rules}", the model attaches [${attached}]`);
   }
   return out;
 };
