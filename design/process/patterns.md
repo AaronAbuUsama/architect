@@ -299,8 +299,10 @@ Entries:
 **Covers it today:** the conductor skill has `main` merged into each live goal and milestone branch within the hour
 of a process change (proposal 15, [PR 169](https://github.com/AaronAbuUsama/architect/pull/169)).
 
-**Gap:** it's a rule with no check. `m1` still lacks `builder-paths` and `cancel-closed`. The Scribe logs where each
-change reached.
+**Gap:** it's a rule with no check. Its first run started within a minute but landed in 1 hour 47 minutes: new merges
+restarted its CI three times, and two pull requests merged into `goal/stage-1` in the meantime without the change.
+"Within the hour" bounds when the merge starts more reliably than when it lands. `m1` still lacks PRs 130 and 169. The Scribe logs
+where each change reached.
 
 ## Rules with no check behind them
 
