@@ -98,3 +98,5 @@ without traces.
 - design/milestones.md: "acme up on a dedicated" → "acme up on the shared, prefixed"
 - design/milestones.md: "the account listing nothing after" → "the account listing nothing of the run's after"
 - design/milestones.md: "leaves nothing in the account" → "leaves nothing with its run's prefix in the account and changes nothing without it"
+- design/goals/03-stage-1-hill-climbed.md: "and the account empty afterwards" → "and the listing showing nothing with the run's prefix afterwards"
+- .agents/skills/kanban/data/lanes.json: "a dedicated staging account under the $10 a day cap" → "the shared, prefixed Cloudflare account under the $10 a day cap"

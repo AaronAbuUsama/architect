@@ -205,7 +205,7 @@ It passes only when all of these hold, in CI on `goal/stage-1`:
   - a browser video, recorded by Playwright, of the story from sign-up to the public page, with each call opening in
     the portal;
   - a screenshot, at desktop width, of every portal page the story touches;
-  - the staging job's log: deploy, the story, destroy, and the account empty afterwards.
+  - the staging job's log: deploy, the story, destroy, and the listing showing nothing with the run's prefix afterwards.
 - **One page.** The conductor publishes it as an artifact and adds each journey to it as it turns green.
 
 ## Landing
