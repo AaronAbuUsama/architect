@@ -89,14 +89,6 @@ export const probesOf = (field: FieldModel, known: unknown): ReadonlyArray<unkno
   return kind !== undefined ? wrongValues(kind) : mutations(known);
 };
 
-/** The constant an answer branch of an `anyOf` gives a field (`status: { const: "ok" }`): the branch that is not the refusal's own names it as the answer's. */
-const answerConst = (schema: unknown, name: string): unknown => {
-  if (!isObject(schema) || !Array.isArray(schema["anyOf"])) return undefined;
-  const branches = (schema["anyOf"] as ReadonlyArray<unknown>).filter((b) => !(isObject(b) && Array.isArray(b["required"]) && ENVELOPE.every((n) => (b["required"] as ReadonlyArray<string>).includes(n))));
-  const property = branches.map((b) => (isObject(b) && isObject(b["properties"]) ? b["properties"][name] : undefined)).find((p) => isObject(p) && ("const" in p || Array.isArray(p["enum"])));
-  return isObject(property) ? ("const" in property ? property["const"] : (property["enum"] as ReadonlyArray<unknown>)[0]) : undefined;
-};
-
 /**
  * What an answer shows: the fields every caller sees, and nothing secret (a secret never leaves through MCP). The fuller sample (`withMore`) also has the fields
  * the model declares optional and the ones private to roles, which a caller holding a role does receive (`Visibility.sees`), so both shapes are judged.
@@ -116,15 +108,15 @@ export interface Sample {
   readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>;
 }
 
-/** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's, else (a refusal's name only) the answer branch's own constant. */
-export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined, withMore = false): Sample => {
+/** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's; a field with neither is unjudged, never filled from the schema being judged. */
+export const sampleOf = (op: OperationModel, spans: ReadonlyArray<SpanView> | undefined, withMore = false): Sample => {
   const answer: Record<string, unknown> = {};
   const unknown: Array<string> = [];
   const probes: Record<string, ReadonlyArray<unknown>> = {};
   for (const [name, field] of shown(op, withMore)) {
     const real = observed(spans, op.name, name, field);
     const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real !== undefined ? real : fromModel(field));
-    const value = known !== undefined ? known : ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
+    const value = known;
     if (value === undefined) unknown.push(name);
     else answer[name] = value;
     probes[name] = probesOf(field, known);

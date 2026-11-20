@@ -60,6 +60,19 @@ describe("R6 wrong-state refusal (`state`) and R7 not-found (`id`)", () => {
   it("R6 x C: `state` typed but not required is red", () => {
     expect(withState({ state: { type: "string" } }, [])).toEqual(["system.health's output schema does not require the refusal field state of AllowanceNotActive: a refusal without it is accepted"]);
   });
+  it("R6 x A: every state the move does not start from is a real wrong-state refusal, and each must be accepted", () => {
+    // allowance.spend starts from `active`; the machine's states are active, exhausted, revoked.
+    const spend = { ...acme.model.operations["allowance.spend"]!, answer: acme.model.operations["system.health"]!.answer, refusals: ["AllowanceNotActive"] } as OperationModel;
+    const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
+    const others = { ...envelope, properties: { ...envelope.properties, refusal: { type: "string", not: { const: "AllowanceNotActive" } } } };
+    const run = (state: unknown) => OutputSchema.answers({ model: acme.model, op: spend, spans: [{ name: "allowance.spend", attrs: { "answer.status": "ok" } }], files: acme.files, schema: { type: "object", anyOf: [answer, others, only("AllowanceNotActive", { state }, ["state"])(envelope)] } });
+    expect(run({ enum: ["exhausted", "revoked"] })).toEqual([]);
+    expect(run({ type: "string" })).toEqual([]);
+    const pinned = run({ const: "active" });
+    expect(pinned).toHaveLength(2);
+    expect(pinned.every((w) => /refuses the refusal {"state":"(exhausted|revoked)","refusal":"AllowanceNotActive"/.test(w))).toBe(true);
+    expect(run({ enum: ["revoked"] })).toHaveLength(1);
+  });
   const notFound = acme.model.things["person"]!.notFound!.error;
   const withId = (extra: Record<string, unknown>, required: ReadonlyArray<string>) => refusing(notFound, only(notFound, extra, required), acme.model, "person");
   it("R7 x A: a branch typing and requiring `id` is green", () => {

@@ -8,7 +8,9 @@ program (the checker, not a parser), with the blueprint modules they import stoo
 opaque object). So the generator's own helpers (`Declared`, `Of<…>`) are run, and one that is tampered with (`Of<F> = never`, `= F`,
 `Declared = any`) makes every member that uses it resolve to the wrong thing.
 
-A member must resolve to a string (id, text), a number or bigint (uint, int), a boolean, or for a named schema anything that is not
-`any`, `unknown`, `never`, an index signature, a `Promise`, a function or a boxed `Number`/`String`/`Boolean`. A field every call carries may not
-be optional or `| undefined`; one a call may leave out must be. The thing's `state` must resolve to exactly the machine's states, and so must an
+A member is judged by **identity**, not by carrying a marker. A type derived from the declaration (`Of<Declared["id"]>`) must be mutually assignable with its own
+field's stand-in, which is tagged `<thing>.<field>`: another field's, a narrowed one, or one with anything intersected or unioned in (`& { wrong: number }`, `& "x"`,
+`& Record<string, any>`, `| number`) is red. A type the SDK spells out must be mutually assignable with the primitive the model's kind is (`string` for an id or text,
+`bigint` or `number` for a uint, `boolean`), so a literal such as `5n`, `"a"` or `true` is red. A named schema must be derived. `any`, `unknown`, `never` and `null` are red.
+A field every call carries may not be optional or `| undefined`; one a call may leave out must be. The thing's `state` must resolve to exactly the machine's states, and so must an
 exported `<Thing>State`. The matrix of shapes and rules is in `../thing-evals/README.md`.

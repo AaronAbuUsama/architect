@@ -45,9 +45,9 @@ describe("a member typed as something that holds no usable value", () => {
   it("red: an index signature on the type", () => {
     expect(judged(change('readonly "state": LinkState;', 'readonly "state": LinkState; readonly [key: string]: unknown;')).fields[0]).toMatch(/has an index signature/);
   });
-  it("green: a string, a string literal union, or a bigint-free primitive spelled out", () => {
+  it("green: the primitive the model's kind is, spelled out; red: a literal or a union of them (narrowing is not the field's type)", () => {
     expect(judged(member("string")).fields).toEqual([]);
-    expect(judged(member('"a" | "b"')).fields).toEqual([]);
+    for (const narrowed of ['"a" | "b"', '"a"']) expect(judged(member(narrowed)).fields, narrowed).toHaveLength(1);
   });
 });
 
@@ -102,8 +102,8 @@ describe("the kinds the old parser tests planted, now judged by what they resolv
   });
   it("red: a uint typed true, a string or a boolean; green: bigint, number, or both", () => {
     const counted = { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, fields: { ...link.fields, title: { ...link.fields["title"]!, value: { type: "uint", bits: 32 } } } } } };
-    for (const bad of ["true", "string", "boolean"]) expect(judged(member(bad), counted).fields, bad).toHaveLength(1);
-    for (const ok of ["bigint", "number", "number | bigint", "1"]) expect(judged(member(ok), counted).fields, ok).toEqual([]);
+    for (const bad of ["true", "string", "boolean", "5n", "1", "number | bigint"]) expect(judged(member(bad), counted).fields, bad).toHaveLength(1);
+    for (const ok of ["bigint", "number"]) expect(judged(member(ok), counted).fields, ok).toEqual([]);
   });
 });
 
@@ -136,9 +136,11 @@ describe("a member derived from another field of the same kind is red", () => {
     expect(run({ url: 'Of<Declared["alt"]>', alt: 'Of<Declared["url"]>' })).toHaveLength(2);
   });
   it("red: a derived type intersected with something that takes any key, or is a Promise", () => {
-    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & Record<string, any>')).fields[0]).toMatch(/Link\.title resolves to .*index signature/);
-    expect(judged(change('"url": Of<Declared["url"]>', '"url": Of<Declared["url"]> & Record<string, any>')).fields[0]).toMatch(/Link\.url resolves to .*index signature/);
-    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & Number')).fields[0]).toMatch(/Link\.title resolves to .*Number/);
-    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & { extra: 1 }')).fields[0]).toMatch(/intersected with another type/);
+    const not = (field: string) => new RegExp(`Link\\.${field} resolves to .*(which is not the type the declaration gives link\\.${field}|an index signature and so takes any key)$`);
+    for (const extra of ["Record<string, any>", "Number", "{ extra: 1 }", "{ readonly wrong: number }", '"x"', "Promise<void>"]) {
+      expect(judged(change('"title": Of<Declared["title"]>', `"title": Of<Declared["title"]> & ${extra}`)).fields[0], `title & ${extra}`).toMatch(not("title"));
+      expect(judged(change('"url": Of<Declared["url"]>', `"url": Of<Declared["url"]> & ${extra}`)).fields[0], `url & ${extra}`).toMatch(not("url"));
+    }
+    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> | number')).fields).toHaveLength(1);
   });
 });

@@ -24,11 +24,18 @@ const decoded = (field: FieldModel, tag: string): string => {
   return field.optional === true ? `(${tagged}) | undefined` : tagged;
 };
 
+/** The alias a field's stand-in is exported under. */
+export const standInName = (field: string) => `Field_${field.replace(/\W/g, "_")}`;
+
 const fieldsText = (fields: Fields, prefix: string) =>
   Object.entries(fields).map(([name, f]) => `readonly ${JSON.stringify(name)}: { readonly value: { readonly schema: { readonly Type: ${decoded(f, `${prefix}.${name}`)} } } };`).join(" ");
 
 /** What `import type * as Source from "…/thing.ts"` and `* as Events from "…/events.ts"` give: the thing's fields and each event's, as the generator reads them. */
-const thingModule = (model: ProjectModel, name: string) => `export declare const thing: { readonly kind: "thing"; readonly fields: { ${fieldsText(model.things[name]?.fields ?? {}, name)} } };`;
+const thingModule = (model: ProjectModel, name: string) => [
+  `export declare const thing: { readonly kind: "thing"; readonly fields: { ${fieldsText(model.things[name]?.fields ?? {}, name)} } };`,
+  // Each field's stand-in by name, so a member can be compared with the type its own declaration decodes to.
+  ...Object.entries(model.things[name]?.fields ?? {}).map(([field, f]) => `export type ${standInName(field)} = ${decoded({ ...f, optional: false }, `${name}.${field}`)};`),
+].join("\n");
 const eventsModule = (model: ProjectModel, name: string) =>
   Object.entries(model.things[name]?.events ?? {}).map(([event, fields]) => `export declare const ${event}: { readonly fields: { ${fieldsText(fields, `${name}.${event}`)} } };`).join("\n");
 
@@ -83,5 +90,8 @@ export const programOf = (files: Readonly<Record<string, string>>, model: Projec
   cache.set(files, { things: model.things, built });
   return built;
 };
+
+/** The synthetic module a thing's fields are written in, by path from the root. */
+export const syntheticPath = (thing: string) => `__blueprint/${thing}/thing.ts`;
 
 export const virtualPath = (path: string) => `${ROOT}${path}`;

@@ -38,9 +38,15 @@ describe("the false green of #153: a refusal's fields spread over an answer fiel
     expect(onHealth(right)).toEqual([]);
   });
 
-  it("is green as anyOf [answer, refusal] with no value from the run: the answer branch's own constant is the value", () => {
-    const right = { type: "object", anyOf: [{ type: "object", properties: { status: { const: "ok" } }, required: ["status"] }, refusalBranch] };
-    expect(onHealth(right, [])).toEqual([]);
+  it("with no value from the run the field is unjudged, whatever the schema says: a sample never comes from the schema being judged", () => {
+    const unjudged = ["system.health's answer field status has no recorded value (the run's span carries none and the model does not say one), so the schema cannot be shown to accept it"];
+    const branch = (status: unknown) => ({ type: "object", anyOf: [{ type: "object", properties: { status }, required: ["status"] }, refusalBranch] });
+    expect(onHealth(branch({ const: "ok" }), [])).toEqual(unjudged);
+    expect(onHealth(branch({ const: "broken" }), [])).toEqual(unjudged);
+  });
+  it("red: an answer branch whose status is const \"broken\" refuses the real answer { status: ok }", () => {
+    const wrong = { type: "object", anyOf: [{ type: "object", properties: { status: { const: "broken" } }, required: ["status"] }, refusalBranch] };
+    expect(onHealth(wrong)[0]).toMatch(/refuses its own answer {"status":"ok"}/);
   });
 
   it("is red when the refusal branch pins the status to 400: the runtime's rows are 403, 404, 409 and 422", () => {
@@ -81,7 +87,7 @@ describe("Plugged In's tools, with the output schema M1.42 emits (captured from 
 
   it("a schema with no branch for a refusal is red, naming the refusal", () => {
     const why = onClaim({ type: "object", properties: { handle: { type: "string" } }, required: ["handle"] });
-    expect(why).toHaveLength(claim.refusals!.length + 1);
+    expect(why.length).toBeGreaterThan(claim.refusals!.length);
     expect(why.some((w) => w.includes("HandleNotClaimed"))).toBe(true);
     expect(why[0]).toBe(`handle.claim's output schema refuses the refusal {"refusal":"HandleTaken","code":"HN-001","exit":10,"status":422}, so the SDK client rejects every refused call`);
     expect(why.every((w) => w.includes("refuses the refusal"))).toBe(true);

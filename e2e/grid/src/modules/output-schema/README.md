@@ -11,7 +11,8 @@ of PR #154's first round: a refusal's `status` spread over an answer field also 
 
 Every shape the evals judge (rows) against every rule (columns). Each cell is **enforced**, with the planted red or green that names it
 (`R<row> x <column>`), or **n/a** with its reason. A new rule or shape fills a whole row or column, never one cell. Values come from the model's
-type or the run's span, never from the schema being judged; a field with neither is reported unjudged.
+type or the run's span, never from the schema being judged (not even its `const`); a field with neither is reported unjudged. The wrong-state refusal is sampled once for each state
+the move does not start from, and the schema must accept every one.
 
 | Column | Rule |
 |---|---|

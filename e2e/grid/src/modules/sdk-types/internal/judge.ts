@@ -5,30 +5,20 @@ import { virtualPath } from "./program.ts";
 
 const F = ts.TypeFlags;
 
-/** Types a value can never usefully be: they hold anything, or nothing. */
-const HOLLOW = F.Any | F.Unknown | F.Never | F.Void | F.Null | F.NonPrimitive | F.ESSymbolLike;
-/** Wrapper and callable types that are not the value they look like (`Number` is not `number`). */
-const BOXED = new Set(["Number", "String", "Boolean", "BigInt", "Symbol", "Object", "Function", "Promise", "PromiseLike"]);
+/** Types a value can never usefully be: they hold anything, or nothing. (`null` is judged on its own.) */
+const HOLLOW = F.Any | F.Unknown | F.Never | F.Void | F.NonPrimitive | F.ESSymbolLike;
 
 export type Kind = "string" | "number" | "boolean" | "opaque";
 
 const KIND_OF: Readonly<Record<string, Kind>> = { id: "string", text: "string", uint: "number", int: "number", boolean: "boolean", bool: "boolean" };
 export const kindOf = (modelType: string): Kind => KIND_OF[modelType] ?? "opaque";
 
-const WANT: Readonly<Record<Kind, string>> = { string: "a string", number: "a number or bigint", boolean: "a boolean", opaque: "a value" };
+const WANT: Readonly<Record<Kind, string>> = { string: "exactly string", number: "exactly bigint or number", boolean: "exactly boolean", opaque: "a type derived from its own declaration" };
 
 export const membersOf = (type: ts.Type): ReadonlyArray<ts.Type> => (type.isUnion() ? type.types : [type]);
 
 /** Does the checker's type allow `undefined`? */
 export const allowsUndefined = (type: ts.Type): boolean => membersOf(type).some((m) => (m.flags & F.Undefined) !== 0);
-
-/** The type without `undefined`: what a present value is. */
-const present = (type: ts.Type): ReadonlyArray<ts.Type> => membersOf(type).filter((m) => (m.flags & F.Undefined) === 0);
-
-const symbolName = (type: ts.Type): string | undefined => type.getSymbol()?.getName();
-
-/** The parts an intersection is made of (`string & { __field }`), or the type itself. */
-const componentsOf = (type: ts.Type): ReadonlyArray<ts.Type> => (type.isIntersection() ? type.types : [type]);
 
 /** The `__field` tag a type carries, as the program's stand-in for a declaration wrote it. */
 const tagOf = (b: Built, type: ts.Type): string | undefined => {
@@ -37,36 +27,34 @@ const tagOf = (b: Built, type: ts.Type): string | undefined => {
   return tag !== undefined && (tag.flags & F.StringLiteral) !== 0 ? (tag as ts.StringLiteralType).value : undefined;
 };
 
+/** The same type: each assignable to the other. (`any` is, to everything, so it is refused before this.) */
+const same = (b: Built, x: ts.Type, y: ts.Type): boolean => b.checker.isTypeAssignableTo(x, y) && b.checker.isTypeAssignableTo(y, x);
+
+/** What the model's kind is as a TypeScript primitive, as the generator emits it: a uint is a bigint (a number is accepted too). */
+const primitives = (b: Built, kind: Kind): ReadonlyArray<ts.Type> =>
+  kind === "string" ? [b.checker.getStringType()] : kind === "number" ? [b.checker.getBigIntType(), b.checker.getNumberType()] : kind === "boolean" ? [b.checker.getBooleanType()] : [];
+
 /**
- * Why a type is not a value of `kind` (`undefined` when it is): hollow, not the type the declaration's schema for THIS field decodes to (another field's, or none), the wrong
- * primitive, or intersected with a boxed, callable or index-signature type that makes it take more than the field's value. The tag is the field's own `<thing>.<field>`.
+ * Why a member's type is not the field's (`undefined` when it is). A type derived from the declaration must be IDENTICAL to this field's own stand-in (`expected`, mutually
+ * assignable), so another field's, a narrowed one, or one with anything intersected or unioned in is red. A type the SDK spells out must be identical to the primitive the model's
+ * kind is (`string`, `bigint`), so a literal or a union is red. `undefined` is the field's optionality, judged by the caller; `null` and anything hollow are red.
  */
-export const kindProblem = (b: Built, kind: Kind, type: ts.Type, tag: string): string | undefined => {
-  const parts = present(type);
-  if (parts.length === 0) return "holds no value";
-  for (const part of parts) {
-    const shown = b.checker.typeToString(part);
-    if ((part.flags & HOLLOW) !== 0) return `resolves to ${shown}, which holds no usable value`;
-    const found = tagOf(b, part);
-    // A primitive or literal the SDK spells out (`string`, `"a" | "b"` for a text) carries no tag and is judged as the kind it is; a derived type must be this field's own.
-    const spelled = found === undefined && kind !== "opaque" && !componentsOf(part).some((c) => (c.flags & F.Object) !== 0);
-    if (!spelled && found === undefined) return `resolves to ${shown}, which is not the type the declaration's schema decodes to`;
-    if (found !== undefined && found !== tag) return `resolves to ${shown}, which is derived from ${found}, not from ${tag}`;
-    const components = componentsOf(part);
-    const primitive = components.filter((c) => (c.flags & F.Object) === 0);
-    if (kind === "string" && !primitive.some((c) => (c.flags & F.StringLike) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    if (kind === "number" && !primitive.some((c) => (c.flags & (F.NumberLike | F.BigIntLike)) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    if (kind === "boolean" && !primitive.some((c) => (c.flags & F.BooleanLike) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    // Every part of an intersection is checked, not only an object type: `Of<…> & Record<string, any>` takes any key.
-    for (const component of components.filter((c) => (c.flags & F.Object) !== 0)) {
-      const name = symbolName(component);
-      if (name !== undefined && BOXED.has(name)) return `resolves to ${shown}, which includes a ${name}`;
-      if (b.checker.getIndexInfosOfType(component).length > 0) return `resolves to ${shown}, which includes a type with an index signature and so takes any key`;
-      if (component.getCallSignatures().length > 0) return `resolves to ${shown}, which includes a function`;
-      if (component.getProperty("__field") === undefined) return `resolves to ${shown}, which is intersected with another type`;
-    }
+export const kindProblem = (b: Built, kind: Kind, type: ts.Type, tag: string, expected: ts.Type | undefined): string | undefined => {
+  const parts = membersOf(type);
+  if (parts.every((p) => (p.flags & F.Undefined) !== 0)) return "holds no value";
+  const shown = b.checker.typeToString(type);
+  if (parts.some((p) => (p.flags & F.Null) !== 0)) return `resolves to ${shown}, which may be null`;
+  if (parts.some((p) => (p.flags & HOLLOW) !== 0)) return `resolves to ${shown}, which holds no usable value`;
+  const value = b.checker.getNonNullableType(type);
+  const found = parts.map((p) => tagOf(b, p)).find((t) => t !== undefined);
+  if (found !== undefined) {
+    if (found !== tag) return `resolves to ${shown}, which is derived from ${found}, not from ${tag}`;
+    // `{ [k: string]: any }` is assignable both ways to a branded value, so identity cannot see an index signature intersected in: every part is looked at.
+    const withIndex = (value.isIntersection() ? value.types : [value]).some((c) => (c.flags & F.Object) !== 0 && b.checker.getIndexInfosOfType(c).length > 0);
+    if (withIndex) return `resolves to ${shown}, which includes a type with an index signature and so takes any key`;
+    return expected !== undefined && same(b, value, expected) ? undefined : `resolves to ${shown}, which is not the type the declaration gives ${tag}`;
   }
-  return undefined;
+  return primitives(b, kind).some((p) => same(b, value, p)) ? undefined : `resolves to ${shown}, which is not ${WANT[kind]}`;
 };
 
 /** The type a name is exported as from an SDK file (an alias or an interface), `undefined` when it is not. */

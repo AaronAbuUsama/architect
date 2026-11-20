@@ -1,6 +1,6 @@
 import ts from "typescript";
 import { allowsUndefined, exactStates, exportedType, kindOf, kindProblem, stateTypeNames } from "./internal/judge.ts";
-import { programOf, virtualPath } from "./internal/program.ts";
+import { programOf, standInName, syntheticPath, virtualPath } from "./internal/program.ts";
 import type { SdkTypesApi } from "./types.ts";
 
 export const SdkTypes: SdkTypesApi = {
@@ -19,7 +19,7 @@ export const SdkTypes: SdkTypesApi = {
         const type = b.checker.getTypeOfSymbolAtLocation(property, property.valueDeclaration ?? file);
         const absent = (property.flags & ts.SymbolFlags.Optional) !== 0 || allowsUndefined(type);
         const required = field.visibility === undefined && field.optional !== true;
-        const wrong = kindProblem(b, kindOf(field.value.type), type, `${thing.name}.${name}`);
+        const wrong = kindProblem(b, kindOf(field.value.type), type, `${thing.name}.${name}`, exportedType(b, syntheticPath(thing.name), standInName(name)));
         return wrong !== undefined ? [`${at}.${name} ${wrong}`]
           : required && absent ? [`${at}.${name} is optional or may be undefined, but every call carries it`]
           : !required && !absent ? [`${at}.${name} is not optional, but the model says a call may leave it out`]

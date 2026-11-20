@@ -51,14 +51,17 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
     samples: rows.flatMap(([name, row]): ReadonlyArray<RefusalSample> => {
       if (row === undefined) return [];
       const envelope = { refusal: wrongValues("string"), code: wrongValues("string"), exit: wrongValues("integer"), status: wrongValues("integer") };
-      return [false, true].flatMap((withMore) => {
-        const own = fieldsOf(model, name, withMore);
+      // The wrong-state refusal is given when the thing is in a state the move does not start from: every such state is a real refusal, and the schema must take each.
+      const thing = model.things[op.thing];
+      const wrong = thing?.machine?.notFrom.error === name && op.move !== null ? thing.machine.states.filter((state) => !op.move!.from.includes(state)) : [];
+      return (wrong.length > 0 ? wrong : [undefined]).flatMap((state) => [false, true].flatMap((withMore) => {
+        const own = fieldsOf(model, name, withMore, state);
         return withMore && !own.more ? [] : [{
           value: { ...own.values, refusal: name, code: row["code"], exit: row["exit"], status: row["status"] },
           probes: { ...Object.fromEntries(Object.entries(own.probes).filter(([key]) => mentions(schema, key))), ...envelope },
           required: withMore ? [] : ["refusal", "code", "exit", "status", ...own.required.filter((key) => mentions(schema, key))],
         }];
-      });
+      }));
     }),
     problems: rows.filter(([, row]) => row === undefined).map(([name]) => `${op.name}'s refusal ${name} has no row in ${TABLE}`),
   };
@@ -68,7 +71,7 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
  * The fields a refusal carries beside its table row, as the runtime's `refusalOf` writes them: a declared error's public fields (`AllowanceExceeded.remaining`) and, for a caller holding a role, its role-private ones (never a secret),
  * a machine's wrong-state refusal's `state`, a generated not-found's `id`. A field whose value the model does not say is left out.
  */
-const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>; readonly more: boolean; readonly required: ReadonlyArray<string> } => {
+const fieldsOf = (model: ProjectModel, name: string, withMore: boolean, state?: string): { readonly values: Readonly<Record<string, unknown>>; readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>; readonly more: boolean; readonly required: ReadonlyArray<string> } => {
   const things = Object.values(model.things);
   const declared = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
   const text = { value: { type: "text" } };
@@ -79,7 +82,7 @@ const fieldsOf = (model: ProjectModel, name: string, withMore: boolean): { reado
     : {};
   const machine = things.find((t) => t.machine?.notFrom.error === name)?.machine;
   return {
-    values: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, key === "state" && machine != null ? (machine.states[0] ?? "x") : (fromModel(f) ?? "x")])),
+    values: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, key === "state" && machine != null ? (state ?? machine.states[0] ?? "x") : (fromModel(f) ?? "x")])),
     probes: Object.fromEntries(Object.entries(fields).map(([key, f]) => [key, probesOf(f, undefined)])),
     required: Object.entries(fields).filter(([, f]) => f.visibility === undefined && f.optional !== true).map(([key]) => key),
     more: Object.values(declared?.fields ?? {}).some((f) => f.visibility !== undefined && f.visibility !== "secret" && fromModel(f) !== undefined),
@@ -98,7 +101,7 @@ export const OutputSchema: OutputSchemaApi = {
     const accepts = checkerOf(schema);
     const refusals = refusalsOf(model, op, schema, files);
     // Two shapes of answer: the fields every answer has, and (when the model declares some optional) the answer that carries them too.
-    const samples = [sampleOf(op, schema, spans), ...(hasOptional(op) ? [sampleOf(op, schema, spans, true)] : [])];
+    const samples = [sampleOf(op, spans), ...(hasOptional(op) ? [sampleOf(op, spans, true)] : [])];
     const ofSample = (sample: ReturnType<typeof sampleOf>, index: number): ReadonlyArray<string> => {
       const answer = sample.answer;
       return [
@@ -124,7 +127,7 @@ export const OutputSchema: OutputSchemaApi = {
     if (!("state" in op.answer) || states.length === 0) return [];
     if (!objectSchema(schema)) return [`${op.name}'s output schema is not a JSON Schema object`];
     const accepts = checkerOf(schema);
-    const sample = sampleOf(op, schema, spans);
+    const sample = sampleOf(op, spans);
     const rest = Object.fromEntries(Object.entries(sample.answer).filter(([name]) => name !== "state"));
     const missing = sample.unknown.filter((name) => name !== "state");
     if (missing.length > 0) return unjudged(op, missing);
