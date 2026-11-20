@@ -1,29 +1,27 @@
-# W1: a count with no metrics source is `not yet`, except where an eval forces a digit
+# W1: a count with no metrics source is `not yet`
 
-Decided 20 November 2026 by the website builder, on the 🔍's block of PR #159.
+Decided 20 November 2026 by the website builder, on the 🔍's block of PR #159. Updated the same day when #168 changed the `error.portal` eval.
 
 ## The rule
 
 The telemetry contract says an unavailable source reads as unavailable, never as zero. So on every page, a figure that comes from
 the metrics (`ortho.calls`) or the calls (the window's spans) is drawn only when its source was read. When it was not, the page says
-`not yet` with the source's reason, carries no `data-*` attribute for the figure, and never writes `0`:
+`not yet` with the source's reason (a `not-yet` element, `data-hole="metrics"` or `"calls"`), carries no `data-*` attribute for the
+figure, and never writes `0`:
 
 - the reference page's refusal rows (`reference.tsx`): `not yet`, no `data-count`, no `data-span`;
+- the operation page's Refusals list (`operation.tsx`): no `data-count` on a `refusal-code`, and a `not-yet` metrics element above it;
 - the calls footer (`calls.tsx`): `data-shown`, `data-total` and `data-door-refusals` are each left off when unread;
 - lit rows and arrows (`live.ts` `litOf`, `moveLit`): `data-lit="unknown"` when there is no source, so an unread window is never read as "no run".
 
 A zero that remains is a count from a source that was read (the window held no call of that operation).
 
-## The one exception, and why
+## History
 
-`error.portal` (`e2e/grid/src/modules/refusal-evals/internal/surfaces.ts:40`) requires `data-count` to match `/^\d+$/` on every
-`refusal-code` of an operation's page, and the grid serves the portal with **no** live source. So the Refusals list of the operation
-page (`operation.tsx`) writes `data-count="0"` when there is no source. It also writes `data-counted="false"` beside it, so a reader of
-the page can tell a counted zero from an unread one.
-
-That zero exists only because the eval forces it. The lead has flagged the eval to the checks author (the builder never edits evals).
-The moment the eval accepts an absent count, `operation.tsx` drops `data-count` (and `data-counted`) when `refusalCount` is `null`,
-the same as the reference page.
+Until #168 the `error.portal` eval required `data-count` to be a digit even with no source, so the operation page wrote
+`data-count="0"` and `data-counted="false"` (recorded here on 20 November 2026). #168 made the eval accept a page that says its metrics
+are unavailable (a `not-yet` element with `data-hole="metrics"`) and show no count, and judge the digit against the spans when there is
+a source. The forced zero and `data-counted` are gone.
 
 ## Also recorded
 
