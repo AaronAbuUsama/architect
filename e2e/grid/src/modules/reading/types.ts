@@ -1,7 +1,7 @@
 // What the row evals read, and how: pure functions over the text the outputs wrote. Nothing here reads a file.
 import type { CellId, Eval, Finding } from "../grid/types.ts";
 import type { ProjectEvidence, ProveReport } from "../project-evidence/types.ts";
-import type { ExportedType } from "./internal/code.ts";
+import type { ExportedName, ExportedType } from "./internal/code.ts";
 import type { SpanView } from "../refusal-evals/types.ts";
 
 export interface ReadingApi {
@@ -40,8 +40,10 @@ export interface ReadingApi {
   readonly exportedTypes: (source: string) => ReadonlyArray<ExportedType>;
   /** What a TypeScript source exports as a value (`export const f`, `export function f`), with the doc comment above it. */
   readonly exportedValues: (source: string) => ReadonlyArray<{ readonly name: string; readonly doc: string | undefined }>;
-  /** Every name a TypeScript source exports: its own declarations, `export { a } from` and `export * as ns from`. */
-  readonly exportedNames: (source: string) => ReadonlyArray<string>;
+  /** Every name a TypeScript source exports, with what it is in the module it comes from and which module: `export { a as b } from "./a.ts"` is `{ exported: "b", local: "a", from: "./a.ts" }`. */
+  readonly exportedNames: (source: string) => ReadonlyArray<ExportedName>;
+  /** The text of every `<h<level>>` heading of an HTML fragment, whole and in order. */
+  readonly htmlHeadings: (html: string, level: number) => ReadonlyArray<string>;
   /** An exported class as code without comments, on one line however it is laid out; `undefined` when there is none. */
   readonly classText: (source: string, name: string) => string | undefined;
   /** The rows of `export const <name> = { Row: { a: 1, b: "x" } }`: each row's literal properties, in any layout. */

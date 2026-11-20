@@ -73,7 +73,7 @@ export const sdk = over("error.sdk", (f, e) => {
   const errors = e.files["generated/api/src/errors.ts"] ?? "";
   const cls = Reading.classText(errors, f.name);
   return [
-    ...(Reading.exportedNames(e.files["generated/sdk/src/index.ts"] ?? "").includes("Errors") ? [] : ["the SDK does not export the errors"]),
+    ...(Reading.exportedNames(e.files["generated/sdk/src/index.ts"] ?? "").some((n) => n.exported === "Errors") ? [] : ["the SDK does not export the errors"]),
     ...(cls === undefined ? [`errors.ts has no class ${f.name}`] : /extends Schema\.TaggedError</.test(cls) && /static readonly code = /.test(cls) ? [] : [`${f.name} is not a tagged error with a static code`]),
     ...f.operations.filter((name) => !Reading.hasName(listedErrors(e.files[`generated/api/src/${e.model.operations[name]!.thing}/${e.model.operations[name]!.verb}.ts`] ?? ""), f.name)).map((name) => `${name}'s call does not have ${f.name} in its error channel`),
   ];

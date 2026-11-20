@@ -22,8 +22,10 @@ const membersOf = (members: ReadonlyArray<ts.TypeElement>) => members.flatMap((m
 
 export interface ExportedType {
   readonly name: string;
-  /** What the type names: the literals of an alias's type, of an interface's `state` property, or of an enum's values. */
+  /** What the type names: the literals of an alias's type, or of an enum's values. */
   readonly literals: ReadonlyArray<string>;
+  /** The literals of the type's own `state` property (an interface, or an alias of an object type); empty when it has none. */
+  readonly stateLiterals: ReadonlyArray<string>;
   /** The property names of an interface or an alias of an object type. */
   readonly members: ReadonlyArray<string>;
 }
@@ -32,12 +34,13 @@ export interface ExportedType {
 export const exportedTypes = (source: string): ReadonlyArray<ExportedType> =>
   parse(source).statements.flatMap((s): ReadonlyArray<ExportedType> => {
     if (!isExported(s)) return [];
-    if (ts.isTypeAliasDeclaration(s)) return [{ name: s.name.text, literals: literalsOf(s.type), members: ts.isTypeLiteralNode(s.type) ? membersOf(s.type.members).map((m) => nameOf(m.name) ?? "") : [] }];
-    if (ts.isInterfaceDeclaration(s)) {
-      const props = membersOf(s.members);
-      return [{ name: s.name.text, literals: props.filter((m) => nameOf(m.name) === "state").flatMap((m) => literalsOf(m.type)), members: props.map((m) => nameOf(m.name) ?? "") }];
-    }
-    if (ts.isEnumDeclaration(s)) return [{ name: s.name.text, literals: s.members.flatMap((m) => stringOf(m.initializer) ?? []), members: s.members.map((m) => nameOf(m.name) ?? "") }];
+    const ofMembers = (name: string, members: ReadonlyArray<ts.TypeElement>, literals: ReadonlyArray<string>): ExportedType => {
+      const props = membersOf(members);
+      return { name, literals, stateLiterals: props.filter((m) => nameOf(m.name) === "state").flatMap((m) => literalsOf(m.type)), members: props.map((m) => nameOf(m.name) ?? "") };
+    };
+    if (ts.isTypeAliasDeclaration(s)) return [ts.isTypeLiteralNode(s.type) ? ofMembers(s.name.text, s.type.members, literalsOf(s.type)) : { name: s.name.text, literals: literalsOf(s.type), stateLiterals: [], members: [] }];
+    if (ts.isInterfaceDeclaration(s)) return [ofMembers(s.name.text, s.members, [])];
+    if (ts.isEnumDeclaration(s)) return [{ name: s.name.text, literals: s.members.flatMap((m) => stringOf(m.initializer) ?? []), stateLiterals: [], members: s.members.map((m) => nameOf(m.name) ?? "") }];
     return [];
   });
 
@@ -72,16 +75,32 @@ export const exportedValues = (source: string): ReadonlyArray<{ readonly name: s
     return [];
   });
 
-/** The names a source makes available: its own exports, `export { a, b as c } from "…"`, `export * as ns from "…"` and `export { a }`. */
-export const exportedNames = (source: string): ReadonlyArray<string> =>
-  parse(source).statements.flatMap((s) => {
+/** One name a source makes available: how it is exported, what it is in the module it comes from, and that module (`undefined` when it is declared here). */
+export interface ExportedName {
+  readonly exported: string;
+  /** The name in the module it comes from; `*` for a whole module (`export * as ns`, `export *`). */
+  readonly local: string;
+  /** The module specifier, as written (`./remove.ts`). */
+  readonly from: string | undefined;
+}
+
+/**
+ * The names a source makes available: its own exports; `export { a, b as c } from "…"`, each with the name it has in that module; `export * as ns from "…"`,
+ * the whole module as `ns`; and `export * from "…"`, whose names are not known here, as the name `*`.
+ */
+export const exportedNames = (source: string): ReadonlyArray<ExportedName> =>
+  parse(source).statements.flatMap((s): ReadonlyArray<ExportedName> => {
     if (ts.isExportDeclaration(s)) {
-      if (s.exportClause === undefined) return [];
-      return ts.isNamedExports(s.exportClause) ? s.exportClause.elements.map((e) => e.name.text) : [s.exportClause.name.text];
+      const from = stringOf(s.moduleSpecifier);
+      if (s.exportClause === undefined) return [{ exported: "*", local: "*", from }];
+      return ts.isNamedExports(s.exportClause)
+        ? s.exportClause.elements.map((e) => ({ exported: e.name.text, local: (e.propertyName ?? e.name).text, from }))
+        : [{ exported: s.exportClause.name.text, local: "*", from }];
     }
     if (!isExported(s)) return [];
-    if ((ts.isFunctionDeclaration(s) || ts.isClassDeclaration(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s) || ts.isEnumDeclaration(s)) && s.name !== undefined) return [s.name.text];
-    return ts.isVariableStatement(s) ? s.declarationList.declarations.flatMap((d) => (ts.isIdentifier(d.name) ? [d.name.text] : [])) : [];
+    const own = (name: string): ExportedName => ({ exported: name, local: name, from: undefined });
+    if ((ts.isFunctionDeclaration(s) || ts.isClassDeclaration(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s) || ts.isEnumDeclaration(s)) && s.name !== undefined) return [own(s.name.text)];
+    return ts.isVariableStatement(s) ? s.declarationList.declarations.flatMap((d) => (ts.isIdentifier(d.name) ? [own(d.name.text)] : [])) : [];
   });
 
 /** An exported class as code without its comments, however it is broken over lines; `undefined` when there is none. */

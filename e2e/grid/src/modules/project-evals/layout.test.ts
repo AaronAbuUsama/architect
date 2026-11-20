@@ -227,7 +227,52 @@ describe("presentation forms: the same content written another way (#150 round f
     expect(check(asFunction)).toEqual({ ok: true, why: [] });
     expect(check(editFile(asFunction, "generated/sdk/src/link/index.ts", () => 'export { remove as remove } from "./remove.ts"\nexport * from "./add.ts"\n'))).toEqual({ ok: true, why: [] });
     expect(check(editFile(asFunction, fn, (t) => t.replace(described, "Something else"))).why[0]).toMatch(/does not export remove under the doc comment/);
-    expect(check(editFile(asFunction, "generated/sdk/src/link/index.ts", () => "// export { remove }\n")).why).toEqual(["the link group does not export remove"]);
+    expect(check(editFile(asFunction, "generated/sdk/src/link/index.ts", () => "// export { remove }\n")).why).toEqual(["the link group does not export remove from ./remove.ts"]);
+  });
+  it("operation.sdk: a re-export must come from the verb's own file, and the root must export the thing's own group", () => {
+    const check = (group: string, root?: string) => {
+      const base = editFile(pluggedIn, "generated/sdk/src/link/index.ts", () => group);
+      return judge(OperationEvals.evals, "operation.sdk", "link.remove", root === undefined ? base : editFile(base, "generated/sdk/src/index.ts", () => root));
+    };
+    const real = 'export { remove } from "./remove.ts"\n';
+    expect(check(real)).toEqual({ ok: true, why: [] });
+    expect(check('export * from "./remove.ts"\n')).toEqual({ ok: true, why: [] });
+    expect(check('export { remove as remove } from "./remove.ts"\n')).toEqual({ ok: true, why: [] });
+    // The three planted defects: another file's name under the verb's name, another function renamed to it, another thing's group under this one's name.
+    expect(check('export { remove } from "./order.ts"\n').why).toEqual(["the link group does not export remove from ./remove.ts"]);
+    expect(check('export { add as remove } from "./add.ts"\n').why).toEqual(["the link group does not export remove from ./remove.ts"]);
+    expect(check(real, 'export * as link from "./profile/index.ts"\n').why).toEqual(["the SDK does not export the link group as link from ./link/index.ts"]);
+    expect(check(real, 'export * as link from "./link/index.ts"\n')).toEqual({ ok: true, why: [] });
+  });
+  it("machine.docs: a move-table cell lists exactly the model's names: an extra state or event is red", () => {
+    const table = (to: string, emits: string, from = "listed") => judge(MachineEvals.evals, "machine.docs", "link", editFile(pluggedIn, docsPath, (t) => t.replace(/## Machine[\s\S]*?(?=## Roles)/, `## Machine\n\nStates: listed, removed. LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | ${from} | ${to} | ${emits} |\n\n`)));
+    expect(table("removed", "LinkRemoved")).toEqual({ ok: true, why: [] });
+    expect(table("`removed`, nonexistent", "LinkRemoved").why).toEqual(["the move table has no correct row for remove"]);
+    expect(table("removed", "LinkRemoved, Bogus").why).toEqual(["the move table has no correct row for remove"]);
+    expect(table("removed", "LinkAdded, LinkRemoved").why).toEqual(["the move table has no correct row for remove"]);
+    expect(table("removed", "LinkRemoved", "listed, removed").why).toEqual(["the move table has no correct row for remove"]);
+    expect(table("removed", "LinkRemoved", "listed or removed").ok).toBe(false);
+  });
+  it("operation.portal and thing.portal: the heading is the whole name, not a prefix of a longer one", () => {
+    const op = (h: (html: string) => string) => judge(OperationEvals.evals, "operation.portal", "link.remove", editPortal(pluggedIn, "/portal/operations/link.remove", h)).why;
+    expect(op((h) => h.replace("<h1>link.remove</h1>", "<h1>link.remove.x</h1>"))).toContain("/portal/operations/link.remove has no heading link.remove");
+    expect(op((h) => h.replace("<h1>link.remove</h1>", '<h1 id="t"><code>link.remove</code></h1>')).filter((w) => w.includes("heading"))).toEqual([]);
+    const thing = (h: (html: string) => string) => judge(ThingEvals.evals, "thing.portal", "link", editPortal(pluggedIn, "/portal/things/link", h)).why;
+    expect(thing((h) => h.replace("<h1>link</h1>", "<h1>linkage</h1>"))).toEqual(["/portal/things/link has no heading link"]);
+  });
+  it("machine.sdk: a union named for something else does not belong to the thing", () => {
+    const check = (decl: string) => judge(MachineEvals.evals, "machine.sdk", "link", editFile(pluggedIn, index, (t) => `${t}${decl}\n`));
+    expect(check('export type Linkage = "listed" | "removed"').ok).toBe(false);
+    expect(check('export type LinkState = "listed" | "removed"')).toEqual({ ok: true, why: [] });
+    expect(check('export type LinkStatus = "listed" | "removed"')).toEqual({ ok: true, why: [] });
+    expect(check('export type Link = { state: "listed" | "removed" }')).toEqual({ ok: true, why: [] });
+    expect(check('export interface Other { state: "listed" | "removed" }').ok).toBe(false);
+  });
+  it("operation.docs: a description that appears only inside a code fence does not count", () => {
+    const description = pluggedIn.model.operations["link.remove"]!.description!;
+    const check = (t: (text: string) => string) => judge(OperationEvals.evals, "operation.docs", "link.remove", editFile(pluggedIn, "generated/docs/link/remove.md", t));
+    expect(check((t) => t.replace(`\n${description}\n`, `\n\`\`\`\n${description}\n\`\`\`\n`)).why).toEqual(["generated/docs/link/remove.md does not carry the description"]);
+    expect(check((t) => t.replace(`\n${description}\n`, `\n_${description}_\n`))).toEqual({ ok: true, why: [] });
   });
   it("operation.api: the declaration's schemas in a comment are not the endpoint's", () => {
     const check = (t: (text: string) => string) => judge(OperationEvals.evals, "operation.api", "link.remove", editFile(pluggedIn, "generated/api/src/link/remove.ts", t));

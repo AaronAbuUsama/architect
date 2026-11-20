@@ -36,9 +36,13 @@ describe("formatting and whole names", () => {
   });
   it("TypeScript is read as TypeScript: types, exports and classes in any syntax, comments never", () => {
     expect(Reading.exportedTypes('export interface A { state: "x" | "y"; id: string }\nexport enum B { C = "z" }\n// export type D = "q"\nexport type E = "r"')).toEqual([
-      { name: "A", literals: ["x", "y"], members: ["state", "id"] }, { name: "B", literals: ["z"], members: ["C"] }, { name: "E", literals: ["r"], members: [] },
+      { name: "A", literals: [], stateLiterals: ["x", "y"], members: ["state", "id"] }, { name: "B", literals: ["z"], stateLiterals: [], members: ["C"] }, { name: "E", literals: ["r"], stateLiterals: [], members: [] },
     ]);
-    expect(Reading.exportedNames('export { a as b } from "./a.ts"\nexport * as c from "./c.ts"\nexport const d = 1\nexport function e() {}')).toEqual(["b", "c", "d", "e"]);
+    expect(Reading.exportedNames('export { a as b } from "./a.ts"\nexport * as c from "./c.ts"\nexport * from "./s.ts"\nexport const d = 1\nexport function e() {}')).toEqual([
+      { exported: "b", local: "a", from: "./a.ts" }, { exported: "c", local: "*", from: "./c.ts" }, { exported: "*", local: "*", from: "./s.ts" },
+      { exported: "d", local: "d", from: undefined }, { exported: "e", local: "e", from: undefined },
+    ]);
+    expect(Reading.htmlHeadings("<h1 class='x'>a <code>b</code></h1><h2>c</h2><h1>d</h1>", 1)).toEqual(["a b", "d"]);
     expect(Reading.exportedValues("/** One. */\nexport const f = 1\n/**\n * Two\n * lines.\n */\nexport function g() {}").map((v) => v.doc)).toEqual(["One.", "Two\nlines."]);
     expect(Reading.objectRows('export const r = {\n  A: { code: "X", exit: 3 },\n  B: {\n    code: \'Y\',\n  },\n} as const', "r")).toEqual({ A: { code: "X", exit: 3 }, B: { code: "Y" } });
     expect(Reading.code("const a = 1 // note\n/* b */ const c = 2")).not.toMatch(/note|\/\*/);

@@ -30,6 +30,9 @@ export const htmlRecords = (html: string): ReadonlyArray<Readonly<Record<string,
   return htmlRows(table).map((row) => Object.fromEntries(row.map((c, i) => [head[i] ?? String(i), c])));
 };
 
+export const htmlHeadings = (html: string, level: number): ReadonlyArray<string> =>
+  [...html.matchAll(new RegExp(`<h${level}\\b[^>]*>([\\s\\S]*?)</h${level}>`, "g"))].map((m) => htmlText(m[1]!));
+
 /**
  * The entries of an HTML fragment, one line each, marked as markdown marks them (a list item or a definition term `- `, a table row `| `, a heading
  * `# `) so one reader serves both. Only an entry's start makes a new line: every tag inside an entry (`p`, `div`, `span`, `strong`, `code`, `br`, a

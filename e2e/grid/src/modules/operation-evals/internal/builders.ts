@@ -19,7 +19,8 @@ export const docs = over("operation.docs", (op, e) => {
   const answer = Reading.mdSection(page, "Answer");
   const refusals = Reading.mdSection(page, "Refusals");
   // What the page says as words: emphasis, code spans and links taken off, so `**Budget:**` and `Budget:` are the same statement.
-  const said = Reading.plain(page).replace(/\s+/g, " ");
+  // A code fence is an example, not the page's statement, so it is left out too.
+  const said = Reading.plain(page.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")).replace(/\s+/g, " ");
   return [
     ...(Reading.mdTitle(page) === op.name ? [] : [`${path} has no heading "# ${op.name}"`]),
     ...(said.includes(Reading.plain(op.description ?? "\0").replace(/\s+/g, " ")) ? [] : [`${path} does not carry the description`]),
@@ -46,7 +47,7 @@ export const portal = over("operation.portal", (op, e) => {
   // Home's operations matrix counts each operation's calls, refusals and defects and its p95 against the budget (K14, operation.portal).
   const matrix = Reading.htmlText(Reading.htmlSection(home, 2, "Operations") ?? "");
   return [
-    ...(Reading.htmlLines(own).some((l) => l.startsWith("# ") && Reading.hasName(l.slice(2, 2 + op.name.length + 1), op.name)) ? [] : [`${route} has no heading ${op.name}`]),
+    ...(Reading.htmlHeadings(own, 1).includes(op.name) ? [] : [`${route} has no heading ${op.name}`]),
     ...(Reading.htmlText(own).includes(op.description ?? "\0") ? [] : [`${route} does not carry the description`]),
     ...(Reading.htmlText(contract).includes("Who may call") ? [] : [`${route}'s contract does not say who may call`]),
     ...(Reading.htmlText(contract).includes(`Budget: ${budget(op)}`) ? [] : [`${route}'s contract does not show the budget "${budget(op)}"`]),

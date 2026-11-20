@@ -50,6 +50,9 @@ export const api = over("operation.api", (op, e) => {
   ];
 });
 
+/** A module specifier as a path from the folder it is written in: `./remove.ts` is `remove.ts`. */
+const module = (specifier: string | undefined) => specifier?.replace(/^\.\//, "");
+
 /** operation.sdk: one function named for the verb, the description as its doc comment, exported through its thing's group. */
 export const sdk = over("operation.sdk", (op, e) => {
   const path = `generated/sdk/src/${op.thing}/${op.verb}.ts`;
@@ -66,7 +69,9 @@ export const sdk = over("operation.sdk", (op, e) => {
   const said = (text: string | undefined) => Reading.plain(text ?? "").replace(/\s+/g, " ").trim();
   return [
     ...(documented !== undefined && said(documented.doc) === said(op.description) ? [] : [`${path} does not export ${fn} under the doc comment "${op.description ?? ""}"`]),
-    ...(Reading.exportedNames(group).includes(fn) ? [] : [`the ${op.thing} group does not export ${fn}`]),
-    ...(Reading.exportedNames(root).includes(groupName) ? [] : [`the SDK does not export the ${op.thing} group as ${groupName}`]),
+    // The group takes `fn` from the verb's own file (`export { fn } from "./verb.ts"`, with or without an `as fn`, or `export * from "./verb.ts"`); the
+    // root takes the whole of the thing's group (`export * as group from "./thing/index.ts"`). A name exported from another module is not the function.
+    ...(Reading.exportedNames(group).some((n) => module(n.from) === `${op.verb}.ts` && ((n.exported === fn && n.local === fn) || n.exported === "*")) ? [] : [`the ${op.thing} group does not export ${fn} from ./${op.verb}.ts`]),
+    ...(Reading.exportedNames(root).some((n) => n.exported === groupName && n.local === "*" && module(n.from) === `${op.thing}/index.ts`) ? [] : [`the SDK does not export the ${op.thing} group as ${groupName} from ./${op.thing}/index.ts`]),
   ];
 });

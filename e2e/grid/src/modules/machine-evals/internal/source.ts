@@ -46,8 +46,12 @@ const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]
 export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
   const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
     Reading.exportedTypes(text).map((t) => ({ path, ...t })));
-  const ofThing = exported.filter((t) => t.path.startsWith(`generated/sdk/src/${thing.name}/`) || t.name.startsWith(thing.identifier));
-  return ofThing.some((t) => machine.states.every((s) => t.literals.includes(s))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  // The state type belongs to the thing: a type named for its states (`LinkState`, `LinkStates`, `LinkStatus`) that is the union, or a type of the thing
+  // (named for it: `Link`) whose own `state` property is the union. A union named for something else (`Linkage`) is not its state.
+  const named = new RegExp(`^${thing.identifier}(State|States|Status)$`);
+  const ofThing = (t: { readonly name: string }) => t.name === thing.identifier;
+  const all = (literals: ReadonlyArray<string>) => machine.states.every((s) => literals.includes(s));
+  return exported.some((t) => (named.test(t.name) && all(t.literals)) || (ofThing(t) && all(t.stateLiterals))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */

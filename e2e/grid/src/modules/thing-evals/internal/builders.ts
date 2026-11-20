@@ -27,7 +27,7 @@ export const docs = over("thing.docs", (thing, e) => {
   const fields = Reading.mdSection(page, "Fields");
   return [
     ...(Reading.mdTitle(page) === thing.name ? [] : [`${path} has no heading "# ${thing.name}"`]),
-    ...(Reading.plain(page).replace(/\s+/g, " ").includes(Reading.plain(thing.description ?? "\0")) ? [] : [`${path} does not carry the description`]),
+    ...(Reading.plain(page.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")).replace(/\s+/g, " ").includes(Reading.plain(thing.description ?? "\0")) ? [] : [`${path} does not carry the description`]),
     ...(fields === undefined ? [`${path} has no Fields section`] : rowProblems("the Fields table", thing, Reading.mdRows(fields))),
   ];
 });
@@ -42,7 +42,7 @@ export const portal = over("thing.portal", (thing, e) => {
   const things = Reading.htmlItems(Reading.htmlSection(e.portal["/portal"] ?? "", 2, "Things") ?? "");
   return [
     ...(things.some((t) => t.startsWith(thing.name) && t.includes(thing.description ?? "\0")) ? [] : [`home shows no card for ${thing.name} with its description`]),
-    ...(Reading.htmlLines(own).some((l) => l.startsWith("# ") && Reading.hasName(l.slice(2, 2 + thing.name.length + 1), thing.name)) ? [] : [`${route} has no heading ${thing.name}`]),
+    ...(Reading.htmlHeadings(own, 1).includes(thing.name) ? [] : [`${route} has no heading ${thing.name}`]),
     ...(Reading.htmlText(own).includes(thing.description ?? "\0") ? [] : [`${route} does not carry the description`]),
     ...(fields === undefined ? [`${route} has no Fields table`] : rowProblems("the Fields table", thing, Reading.htmlRows(fields))),
   ];
