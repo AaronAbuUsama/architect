@@ -143,7 +143,6 @@ written three different ways.
 - design/decisions/K7-chain-languages.md (decided item 2): "OpenZeppelin-style `onlyRole`, generated rather than imported" → "generated behind OpenZeppelin's `IAccessControl`, one role id per instance (K25)"
 - design/decisions/K7-chain-languages.md (milestone slices it changed, M6.10): "Also lands `Blueprint.chain.evm(...)`" → "chain store files (K25)"
 - design/decisions/K20-roles-across-things.md (the rules, item 1): "`Blueprint.chain.evm(...)` is Solidity" → "a chain store, `Blueprint.store.chain.evm`, is Solidity (K25)"
-- design/decisions/K20-roles-across-things.md (Solidity sketch): `onlyDirector` alone → "also `hasRole`, `RoleGranted` and `RoleRevoked` behind `IAccessControl` (K25)"
 - design/decisions/K20-roles-across-things.md (the rules, item 6): "it lives on the same chain" → "it lives in the same chain store (K25)"
 - design/decisions/K3-stores-and-sources.md (decided item 1): "`lives: Blueprint.chain({ … })` from L4.01" → "a chain store file, `Blueprint.store.chain.evm({ per })` (K25)"
 - design/decisions/K5-the-whole-shape.md: "`lives: Blueprint.chain({ contract: "Governance", per: "workshop" })`" → "`lives: governance` (K25)"
@@ -151,7 +150,6 @@ written three different ways.
 - design/build-plan.md (L4.01): "`lives: Blueprint.chain({ contract, per })`" → "a chain store file (K25)"
 - design/milestones.md (M6.10): "`lives: Blueprint.chain.evm(...)`" → "chain stores (`Blueprint.store.chain.evm({ per })`, K25), `Blueprint.account()`"
 - design/milestones.md (M6.11): "roles generated in (OpenZeppelin-style `onlyRole`, generated, not imported)" → "roles generated in behind OpenZeppelin's `IAccessControl` (K25)"
-- .agents/skills/kanban/data/tasks.json (M6.10, M6.11): the same two phrases → the same new words
 - design/frame/examples/allowance-on-chain.md: "`lives: Blueprint.chain({ contract: "AllowanceVault", per: "organization" })`" → "`lives: vault`, with `blueprint/stores/vault.ts`"; "`member: Person.fields.id`" → "`member: Blueprint.account()`"; "adds `Blueprint.chain({ contract, per })`" → "adds chain stores (K25)"
 - design/frame/examples/private-membership.md: "`lives: Blueprint.chain({ contract: "RolePool", per: "organization", network: Aztec })`" → "`lives: rolePool`, with `Blueprint.store.chain.aztec({ per: Organization })`"
 - design/frame/projections.md (3.9): "every thing that `lives: Blueprint.chain(...)`" → "every thing that lives in a chain store"
