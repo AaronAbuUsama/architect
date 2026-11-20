@@ -7,13 +7,13 @@ Lives in the database.
 
 ## Fields
 
-| field | value |
-|---|---|
-| id | id |
-| profile | profile.id |
-| owner | handle.owner |
-| title | LinkTitle |
-| url | LinkUrl |
+| field | value | description |
+|---|---|---|
+| id | id | The link's own id. |
+| profile | profile.id | The page the link is on. |
+| owner | handle.owner | The person whose page the link is on. |
+| title | LinkTitle | What the link shows on the page, up to 120 characters. |
+| url | LinkUrl | Where the link goes: a web address starting with http:// or https://, up to 2048 characters. |
 
 ## Machine
 
@@ -26,8 +26,8 @@ States: listed, removed. A move from the wrong state is refused LinkNotListed (e
 
 ## Events
 
-- `LinkAdded`: carries link (link.id); emitted by the move add
-- `LinkRemoved`: carries link (link.id); emitted by the move remove
+- `LinkAdded`: carries link (link.id: The link's own id.); emitted by the move add
+- `LinkRemoved`: carries link (link.id: The link's own id.); emitted by the move remove
 
 ## Roles
 

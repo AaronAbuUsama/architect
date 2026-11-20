@@ -9,15 +9,15 @@ Find the handle that holds a claimed name. A released or unclaimed name has none
 
 ## Payload
 
-| field | value |
-|---|---|
-| name | handle.name |
+| field | value | description |
+|---|---|---|
+| name | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |
 
 ## Answer
 
-| field | value |
-|---|---|
-| handle | handle.id |
+| field | value | description |
+|---|---|---|
+| handle | handle.id | The handle's own id. |
 
 ## Steps
 

@@ -1,8 +1,10 @@
 // generated/sdk: a typed client. One function per operation; refusals arrive as their own classes.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot, type RenderedFile } from "@orthograph/projections/shared";
-import { sdkTypes } from "./sdk-types.ts";
+import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot } from "#modules/names/service.js";
+import type { RenderedFile } from "#modules/names/types.js";
+import { sdkTypes } from "./types.ts";
+import { clientSource } from "./client.ts";
 
 /** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
 const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);
@@ -17,12 +19,12 @@ const server = (o: OperationModel, client: string): RenderedFile => ({
     GENERATED,
     `import { Effect } from "effect";`,
     `import type { PayloadOf } from "${Names.frontDoor}";`,
-    `import type { declaration } from "../../../api/src/${o.thing}/${o.verb}.ts";`,
-    `import { ${client} } from "../client.ts";`,
+    `import { declaration } from "../../../api/src/${o.thing}/${o.verb}.ts";`,
+    `import { ${client}, call, type CallOptions } from "../client.ts";`,
     "",
     `/** ${o.description} */`,
-    `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>) =>`,
-    `  Effect.flatMap(${client}, (client) => client${member(o.thing)}${member(o.verb)}({ payload }));`,
+    `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>`,
+    `  call(declaration, payload, options, ${o.idempotent === "request"}, Effect.flatMap(${client}, (client) => client${member(o.thing)}${member(o.verb)}({ payload })));`,
     exportedAs(o.verb),
   ),
 });
@@ -78,45 +80,7 @@ const sdkPackage = (ops: ReadonlyArray<OperationModel>): RenderedFile => {
 const clientFile = (name: string, client: string, hasDevice: boolean): RenderedFile => ({
   path: "generated/sdk/src/client.ts",
   scaffold: false,
-  content: lines(
-    GENERATED,
-    `import { Context, Layer } from "effect";`,
-    `import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";`,
-    `import { HttpApiClient } from "effect/http-api";`,
-    hasDevice ? `import type { DeviceWhere } from "${Names.pkg("language-effect")}/device";` : [],
-    `import { Api } from "../../api/src/index.ts";`,
-    "",
-    `export class ${client} extends Context.Service<${client}, HttpApiClient.ForApi<typeof Api>>()("${name}/Client") {}`,
-    "",
-    hasDevice ? [
-      "/** Where the spans of an operation that runs on this device go, and the service they say they are from. */",
-      `export class ${client}Spans extends Context.Service<${client}Spans, DeviceWhere>()("${name}/Spans") {}`,
-      "",
-      "/** The standard variable, read where the SDK is made: a program that names no collector gets the one its environment does. */",
-      `const ambient = () => (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.["OTEL_EXPORTER_OTLP_ENDPOINT"];`,
-      "",
-      "/** A client for the server at `baseUrl`, signed in with `token` when there is one; the spans of operations that run here go to `otlp`. */",
-      `export const layer = (baseUrl: string, token?: string, otlp: string | undefined = ambient()) =>`,
-      "  Layer.mergeAll(",
-      `    Layer.effect(${client}, HttpApiClient.make(Api, {`,
-      "      transformClient: HttpClient.mapRequest((request) => {",
-      "        const at = HttpClientRequest.prependUrl(request, baseUrl);",
-      "        return token ? HttpClientRequest.bearerToken(at, token) : at;",
-      "      }),",
-      "    })).pipe(Layer.provide(FetchHttpClient.layer)),",
-      `    Layer.succeed(${client}Spans, { otlp, service: "${name}" }),`,
-      "  );",
-    ] : [
-      "/** A client for the server at `baseUrl`, signed in with `token` when there is one. */",
-      `export const layer = (baseUrl: string, token?: string) =>`,
-      `  Layer.effect(${client}, HttpApiClient.make(Api, {`,
-      "    transformClient: HttpClient.mapRequest((request) => {",
-      "      const at = HttpClientRequest.prependUrl(request, baseUrl);",
-      "      return token ? HttpClientRequest.bearerToken(at, token) : at;",
-      "    }),",
-      "  })).pipe(Layer.provide(FetchHttpClient.layer));",
-    ],
-  ),
+  content: clientSource(name, client, hasDevice),
 });
 
 export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFile> => {
@@ -131,7 +95,8 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
     scaffold: false,
     content: lines(
       GENERATED,
-      `export { ${client}, layer } from "./client.ts";`,
+      `export { ${client}, layer, Credential, InvalidPayload } from "./client.ts";`,
+      `export type { CallOptions } from "./client.ts";`,
       `export { Errors } from "../../api/src/index.ts";`,
       things.map((t) => `export * as ${camel(t)} from "./${t}/index.ts";`),
       types.exports,

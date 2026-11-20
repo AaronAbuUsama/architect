@@ -98,6 +98,8 @@ And the conductor skill's landing list:
 
 **Applies it:** the conductor. Branch protection changes how Aaron's own merges behave, so tell him in the next report.
 **Applied, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) by the ci-guards thread (`design/decisions/CI-branch-protection.md`), on `main`, `m1` and `goal/stage-1`, with a `codex-finished` status as the Codex gate. One change from the diff above: `enforce_admins` is on, because every agent merges through Aaron's admin account and with it off the protection binds no one.
+**Superseded in part by CI-codex-advisory, 20 November:** Codex is advisory and `codex-finished` is required on no
+branch ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)). CI, resolved threads and a 🔍 pass are the gate.
 
 ## 3. Cut slices so two builders never share a contract; one allocator for decision IDs
 
@@ -476,7 +478,9 @@ And "the five proofs" becomes "the six proofs" in "Finished when" and in the ✍
 **Applies it:** the conductor, or the thread that owns the skills, with the Goal 3 lead. The test: on the next checks
 pull request, count the Codex rounds with findings.
 **Applied, 20 November:** by the Scribe at the conductor's request, the skills' owner being archived, in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169). On `main`;
-reaches `goal/stage-1` when `main` is next merged into it.
+reached `goal/stage-1` at 09:09 through [PR 172](https://github.com/AaronAbuUsama/architect/pull/172); not yet `m1`.
+**Superseded in part by CI-codex-advisory, 20 November:** proof 6's hostile pass runs before the first review of any
+kind, 🔍 or Codex, not before Codex in particular ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)).
 
 ## 15. Applied means it reached the branches where the work runs
 
@@ -497,4 +501,5 @@ And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `
 **Applies it:** the conductor. The Scribe's half is in this change.
 **Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169),
 widened to milestone branches (`m1` lacks PR 130's guards) and worded "within the hour, by its lead". On `main`;
-reaches `goal/stage-1` and `m1` when `main` is next merged into them.
+reached `goal/stage-1` at 09:09 through [PR 172](https://github.com/AaronAbuUsama/architect/pull/172) (opened a minute after, landed 1 hour 47 minutes after, its CI
+restarted three times by new merges); not yet `m1`.

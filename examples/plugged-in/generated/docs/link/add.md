@@ -11,16 +11,16 @@ Append a link to your own public page. You need a claimed name first.
 
 ## Payload
 
-| field | value |
-|---|---|
-| title | link.title |
-| url | link.url |
+| field | value | description |
+|---|---|---|
+| title | link.title | What the link shows on the page, up to 120 characters. |
+| url | link.url | Where the link goes: a web address starting with http:// or https://, up to 2048 characters. |
 
 ## Answer
 
-| field | value |
-|---|---|
-| link | link.id |
+| field | value | description |
+|---|---|---|
+| link | link.id | The link's own id. |
 
 ## Move
 

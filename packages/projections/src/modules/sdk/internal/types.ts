@@ -1,7 +1,8 @@
 // generated/sdk/src/<thing>/types.ts: what a caller can name. The thing as the SDK hands it back, the union of its machine's states, and its events.
 import type { FieldsModel, Model, ThingModel } from "@orthograph/compiler";
-import { article } from "./words.ts";
-import { GENERATED, lines, thingFileAt, type RenderedFile } from "@orthograph/projections/shared";
+import { article } from "#modules/names/service.js";
+import { GENERATED, lines, thingFileAt } from "#modules/names/service.js";
+import type { RenderedFile } from "#modules/names/types.js";
 
 // A sentence inside a doc comment: its own comment end would close the comment early.
 export const comment = (text: string) => text.replace(/\*\//g, "*\\/").replace(/\s*\n\s*/g, " ");

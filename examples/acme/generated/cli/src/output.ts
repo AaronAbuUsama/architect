@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/cli.ts. Do not edit.
 import { Console, Context, Effect, Option } from "effect";
 import { Errors } from "../../sdk/src/index.ts";
 

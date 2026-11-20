@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Does a pull request change only docs? CI's `changes` job runs this and, when it does, skips the layer gates
-# (e2e-layer1, e2e-layer2) through a job-level `if:`; a skipped job counts as passed where it is required
-# (design/decisions/CI-docs-fast-path.md). `check` and `e2e-m0` always run: they lint the docs, total the e2e
-# READMEs, run canon:check over the design docs and the supersedes guard.
+# (e2e-layer1, e2e-layer2) and prove-tests through a job-level `if:`; a skipped job counts as passed where it is required,
+# and the `check` gate accepts the skipped shards only on this flag (design/decisions/CI-docs-fast-path.md, CI-speed.md).
+# check-static and `e2e-m0` always run: they lint the docs, total the e2e READMEs, run canon:check over the design docs
+# and the supersedes guard.
 #   tools/ci/docs-only.sh <base> <head>
 # Prints `docs_only=true` or `docs_only=false` (append it to $GITHUB_OUTPUT) and exits 0; any git failure exits non-zero,
 # so a broken diff never skips a gate.
@@ -28,6 +29,17 @@ if [ -n "$changed" ]; then
     esac
     [ "$docs_only" = false ] && { echo "docs-only: no, $file is not a doc." >&2; break; }
   done <<< "$changed"
+fi
+
+# Check 15 (e2e/m1/15-portal-ui-seam.test.ts) scans every tracked file, docs included, for a path named for HeroUI Pro and
+# a literal licence token. A docs-only pull request skips it, so one that names a path for Pro or adds a line naming the
+# token runs everything (design/decisions/CI-speed.md).
+if [ "$docs_only" = true ]; then
+  if grep -qi 'heroui-pro' <<< "$changed"; then
+    docs_only=false; echo "docs-only: no, a changed path is named for HeroUI Pro." >&2
+  elif git diff --no-renames -U0 "$base...$head" | grep '^+' | grep -q 'HEROUI_AUTH_TOKEN'; then
+    docs_only=false; echo "docs-only: no, an added line names HEROUI_AUTH_TOKEN." >&2
+  fi
 fi
 
 echo "docs_only=$docs_only"

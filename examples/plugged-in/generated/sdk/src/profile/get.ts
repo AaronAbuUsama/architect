@@ -1,9 +1,9 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/sdk.ts. Do not edit.
 import { Effect } from "effect";
 import type { PayloadOf } from "orthograph";
-import type { declaration } from "../../../api/src/profile/get.ts";
-import { PluggedIn } from "../client.ts";
+import { declaration } from "../../../api/src/profile/get.ts";
+import { PluggedIn, call, type CallOptions } from "../client.ts";
 
 /** Read a claimed name's public page and its links in display order. */
-export const get = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(PluggedIn, (client) => client.profile.get({ payload }));
+export const get = (payload: PayloadOf<typeof declaration>, options?: CallOptions) =>
+  call(declaration, payload, options, false, Effect.flatMap(PluggedIn, (client) => client.profile.get({ payload })));

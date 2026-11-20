@@ -7,11 +7,11 @@ Lives in the database.
 
 ## Fields
 
-| field | value |
-|---|---|
-| id | id |
-| handle | handle.id |
-| links | schema |
+| field | value | description |
+|---|---|---|
+| id | id | The page's own id. |
+| handle | handle.id | The handle the page belongs to. |
+| links | schema | The ids of the page's links, in the order they show. |
 
 ## Unique
 

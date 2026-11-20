@@ -1,5 +1,6 @@
 // Generated from the blueprint. Do not edit.
-export { Work, layer } from "./client.ts";
+export { Work, layer, Credential, InvalidPayload } from "./client.ts";
+export type { CallOptions } from "./client.ts";
 export { Errors } from "../../api/src/index.ts";
 export * as attention from "./attention/index.ts";
 export * as milestone from "./milestone/index.ts";

@@ -9,9 +9,9 @@ Free your name and take its public page offline. Anyone may claim the name after
 
 ## Payload
 
-| field | value |
-|---|---|
-| handle | handle.id |
+| field | value | description |
+|---|---|---|
+| handle | handle.id | The handle's own id. |
 
 ## Answer
 

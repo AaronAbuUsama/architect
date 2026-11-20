@@ -179,7 +179,7 @@ describe("ortho publish", () => {
     const installed = spawnSync("npm", ["install", "@acme/sdk@1.1.0", "@acme/cli@1.1.0", "--registry", registry, "--ignore-scripts", "--no-audit", "--no-fund", "--cache", join(parent, "npm-cache"), "--userconfig", join(parent, "npmrc-empty")], { cwd: fresh, encoding: "utf8", timeout: 600_000 });
     expect(installed.status, installed.stdout + installed.stderr).toBe(0);
     const sdk = spawnSync(process.execPath, ["--input-type=module", "-e", "import * as sdk from '@acme/sdk'; console.log(Object.keys(sdk).sort().join(','))"], { cwd: fresh, encoding: "utf8" });
-    expect(sdk.stdout.trim(), sdk.stderr).toContain("Acme,Errors,allowance");
+    expect(sdk.stdout.trim(), sdk.stderr).toContain("Acme,Credential,Errors,InvalidPayload,allowance");
     const version = spawnSync(join(fresh, "node_modules/.bin/acme"), ["--version"], { encoding: "utf8" });
     expect(version.stdout.trim(), version.stderr).toBe("acme 1.1.0");
     // The SDK's declarations resolve for a consumer: the real thing is typed, and a name it doesn't have is an error.

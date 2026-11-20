@@ -42,19 +42,22 @@
             "value": {
               "type": "id",
               "prefix": "hdl"
-            }
+            },
+            "description": "The handle's own id."
           },
           "name": {
             "value": {
               "type": "schema"
             },
-            "named": "HandleName"
+            "named": "HandleName",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           },
           "owner": {
             "value": {
               "type": "id",
               "prefix": "per"
-            }
+            },
+            "description": "The person who holds the name."
           }
         },
         "lives": "database",
@@ -106,14 +109,16 @@
                 "type": "id",
                 "prefix": "hdl"
               },
-              "ref": "handle.id"
+              "ref": "handle.id",
+              "description": "The handle's own id."
             },
             "name": {
               "value": {
                 "type": "schema"
               },
               "named": "HandleName",
-              "ref": "handle.name"
+              "ref": "handle.name",
+              "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
             }
           },
           "HandleReleased": {
@@ -122,14 +127,16 @@
                 "type": "id",
                 "prefix": "hdl"
               },
-              "ref": "handle.id"
+              "ref": "handle.id",
+              "description": "The handle's own id."
             },
             "name": {
               "value": {
                 "type": "schema"
               },
               "named": "HandleName",
-              "ref": "handle.name"
+              "ref": "handle.name",
+              "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
             }
           }
         },
@@ -159,7 +166,7 @@
         "from": {
           "kind": "app"
         },
-        "hash": "d4373dffabc64321"
+        "hash": "946e824182d49eb9"
       },
       "link": {
         "name": "link",
@@ -171,34 +178,39 @@
             "value": {
               "type": "id",
               "prefix": "lnk"
-            }
+            },
+            "description": "The link's own id."
           },
           "profile": {
             "value": {
               "type": "id",
               "prefix": "prf"
             },
-            "ref": "profile.id"
+            "ref": "profile.id",
+            "description": "The page the link is on."
           },
           "owner": {
             "value": {
               "type": "id",
               "prefix": "per"
             },
-            "ref": "handle.owner"
+            "ref": "handle.owner",
+            "description": "The person whose page the link is on."
           },
           "title": {
             "value": {
               "type": "text",
               "max": 120
             },
-            "named": "LinkTitle"
+            "named": "LinkTitle",
+            "description": "What the link shows on the page, up to 120 characters."
           },
           "url": {
             "value": {
               "type": "schema"
             },
-            "named": "LinkUrl"
+            "named": "LinkUrl",
+            "description": "Where the link goes: a web address starting with http:// or https://, up to 2048 characters."
           }
         },
         "lives": "database",
@@ -238,7 +250,8 @@
                 "type": "id",
                 "prefix": "lnk"
               },
-              "ref": "link.id"
+              "ref": "link.id",
+              "description": "The link's own id."
             }
           },
           "LinkRemoved": {
@@ -247,7 +260,8 @@
                 "type": "id",
                 "prefix": "lnk"
               },
-              "ref": "link.id"
+              "ref": "link.id",
+              "description": "The link's own id."
             }
           }
         },
@@ -272,7 +286,7 @@
         "from": {
           "kind": "app"
         },
-        "hash": "ca7d6cf9cfa7b97e"
+        "hash": "72c22f92188f5790"
       },
       "profile": {
         "name": "profile",
@@ -284,19 +298,22 @@
             "value": {
               "type": "id",
               "prefix": "prf"
-            }
+            },
+            "description": "The page's own id."
           },
           "handle": {
             "value": {
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle the page belongs to."
           },
           "links": {
             "value": {
               "type": "schema"
-            }
+            },
+            "description": "The ids of the page's links, in the order they show."
           }
         },
         "lives": "database",
@@ -317,7 +334,7 @@
         "from": {
           "kind": "app"
         },
-        "hash": "b89674ece8f1cbdc"
+        "hash": "26f5277746d573c1"
       }
     },
     "operations": {
@@ -338,7 +355,8 @@
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           }
         },
         "answer": {
@@ -347,7 +365,8 @@
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle's own id."
           }
         },
         "move": {
@@ -390,7 +409,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "d8ae940c849ad466"
+        "hash": "2c184f936278b420"
       },
       "handle.release": {
         "kind": "operation",
@@ -409,7 +428,8 @@
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle's own id."
           }
         },
         "answer": {},
@@ -449,7 +469,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "94a513d256283355"
+        "hash": "2e2a0634cc287ac4"
       },
       "handle.resolve": {
         "kind": "operation",
@@ -468,7 +488,8 @@
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           }
         },
         "answer": {
@@ -477,7 +498,8 @@
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle's own id."
           }
         },
         "move": null,
@@ -504,7 +526,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "8e923d24a0e4f5d2"
+        "hash": "ec35f5ac1d996508"
       },
       "link.add": {
         "kind": "operation",
@@ -524,14 +546,16 @@
               "max": 120
             },
             "named": "LinkTitle",
-            "ref": "link.title"
+            "ref": "link.title",
+            "description": "What the link shows on the page, up to 120 characters."
           },
           "url": {
             "value": {
               "type": "schema"
             },
             "named": "LinkUrl",
-            "ref": "link.url"
+            "ref": "link.url",
+            "description": "Where the link goes: a web address starting with http:// or https://, up to 2048 characters."
           }
         },
         "answer": {
@@ -540,7 +564,8 @@
               "type": "id",
               "prefix": "lnk"
             },
-            "ref": "link.id"
+            "ref": "link.id",
+            "description": "The link's own id."
           }
         },
         "move": {
@@ -581,7 +606,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "5bb31f1aa3a1dfa8"
+        "hash": "852d172add3d2ea9"
       },
       "link.order": {
         "kind": "operation",
@@ -600,14 +625,16 @@
               "type": "id",
               "prefix": "lnk"
             },
-            "ref": "link.id"
+            "ref": "link.id",
+            "description": "The link's own id."
           },
           "position": {
             "value": {
               "type": "uint",
               "bits": 32
             },
-            "named": "LinkPosition"
+            "named": "LinkPosition",
+            "description": "Its place in the page's list of links: 0 is first."
           }
         },
         "answer": {},
@@ -644,7 +671,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "8fda9f06f6165b50"
+        "hash": "4382439fbc661685"
       },
       "link.remove": {
         "kind": "operation",
@@ -663,7 +690,8 @@
               "type": "id",
               "prefix": "lnk"
             },
-            "ref": "link.id"
+            "ref": "link.id",
+            "description": "The link's own id."
           }
         },
         "answer": {},
@@ -703,7 +731,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "f319a63a9f1bd796"
+        "hash": "7f27cb775ec09be1"
       },
       "profile.get": {
         "kind": "operation",
@@ -722,7 +750,8 @@
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           }
         },
         "answer": {
@@ -731,7 +760,8 @@
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           },
           "links": {
             "value": {
@@ -763,7 +793,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ee1eb946c4673c40"
+        "hash": "f6e1480cfdff97f8"
       }
     },
     "journeys": {
@@ -2945,9 +2975,36 @@
         "chosen": {},
         "hash": "b12620c3b456db98"
       },
+      "cli": {
+        "kind": "projection",
+        "file": "blueprint/projections/cli.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
+      "mcp": {
+        "kind": "projection",
+        "file": "blueprint/projections/mcp.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
       "model": {
         "kind": "projection",
         "file": "blueprint/projections/model.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "chosen": {},
+        "hash": "b12620c3b456db98"
+      },
+      "sdk": {
+        "kind": "projection",
+        "file": "blueprint/projections/sdk.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
         "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
@@ -2967,52 +3024,52 @@
   },
   "dependsOnByOperation": {
     "handle.claim": {
-      "operation:handle.claim": "d8ae940c849ad466",
-      "thing:handle": "d4373dffabc64321"
+      "operation:handle.claim": "2c184f936278b420",
+      "thing:handle": "946e824182d49eb9"
     },
     "handle.release": {
-      "operation:handle.release": "94a513d256283355",
-      "thing:handle": "d4373dffabc64321"
+      "operation:handle.release": "2e2a0634cc287ac4",
+      "thing:handle": "946e824182d49eb9"
     },
     "handle.resolve": {
-      "operation:handle.resolve": "8e923d24a0e4f5d2",
-      "thing:handle": "d4373dffabc64321"
+      "operation:handle.resolve": "ec35f5ac1d996508",
+      "thing:handle": "946e824182d49eb9"
     },
     "link.add": {
-      "operation:link.add": "5bb31f1aa3a1dfa8",
-      "thing:handle": "d4373dffabc64321",
-      "thing:link": "ca7d6cf9cfa7b97e",
-      "thing:profile": "b89674ece8f1cbdc"
+      "operation:link.add": "852d172add3d2ea9",
+      "thing:handle": "946e824182d49eb9",
+      "thing:link": "72c22f92188f5790",
+      "thing:profile": "26f5277746d573c1"
     },
     "link.order": {
-      "operation:link.order": "8fda9f06f6165b50",
-      "thing:handle": "d4373dffabc64321",
-      "thing:link": "ca7d6cf9cfa7b97e",
-      "thing:profile": "b89674ece8f1cbdc"
+      "operation:link.order": "4382439fbc661685",
+      "thing:handle": "946e824182d49eb9",
+      "thing:link": "72c22f92188f5790",
+      "thing:profile": "26f5277746d573c1"
     },
     "link.remove": {
-      "operation:link.remove": "f319a63a9f1bd796",
-      "thing:handle": "d4373dffabc64321",
-      "thing:link": "ca7d6cf9cfa7b97e",
-      "thing:profile": "b89674ece8f1cbdc"
+      "operation:link.remove": "7f27cb775ec09be1",
+      "thing:handle": "946e824182d49eb9",
+      "thing:link": "72c22f92188f5790",
+      "thing:profile": "26f5277746d573c1"
     },
     "profile.get": {
-      "operation:profile.get": "ee1eb946c4673c40",
-      "thing:handle": "d4373dffabc64321",
-      "thing:profile": "b89674ece8f1cbdc"
+      "operation:profile.get": "f6e1480cfdff97f8",
+      "thing:handle": "946e824182d49eb9",
+      "thing:profile": "26f5277746d573c1"
     }
   },
   "docs": {
-    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of your public page, with its profile.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n| HandleAlreadyOwned | 12 | HN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### a name is claimed once\n\nStarts from the world `claimed`.\n\n- **the same request again answers the same handle and claims nothing.** `aaron` (signed in) calls and sends name `claimedname`, with the request key `first-claim`, and gets back the world's handle.\n- **a taken name is refused.** `bob` (signed in) calls and sends name `claimedname`, with the request key `bobs-claim`, and is refused with HandleTaken, HN-001.\n- **another person's request key is not aaron's: still refused.** `bob` (signed in) calls and sends name `claimedname`, with the request key `first-claim`, and is refused with HandleTaken, HN-001.\n- **the refusal left bob free to claim a name of his own.** `bob` (signed in) calls and sends name `bobspage`, and is answered.\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **someone who is not signed in cannot claim a name.** `visitor` (anyone) calls and sends name `visitorpage`, and is refused with NotAllowed, AR-001.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **aaron claims the free name.** `aaron` (signed in) calls and sends name `firstpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **aaron cannot claim a second name while he holds one.** `aaron` (signed in) calls and sends name `secondpage`, and is refused with HandleAlreadyOwned, HN-002.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **someone else claims the released name.** `bob` (signed in) calls and sends name `releasepage`, and is answered.\n- **aaron can claim again: a released handle does not count as one he holds.** `aaron` (signed in) calls and sends name `aaronspage`, and is answered.\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **aaron claims @aaron.** `aaron` (signed in) calls and sends name `aaron`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
-    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name that belongs to one person until they release it, and is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n| owner | id |\n\n## Machine\n\nStates: claimed, released. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n| release | claimed | released | HandleReleased |\n\n## Events\n\n- `HandleClaimed`: carries handle (handle.id), name (handle.name); emitted by the move claim\n- `HandleReleased`: carries handle (handle.id), name (handle.name); emitted by the move release\n\n## Unique\n\n- name: unique while claimed\n- owner: unique while claimed\n\n## Roles\n\n- handleOwner\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of your public page, with its profile.\n- [handle.release](release.md): Free your name and take its public page offline. Anyone may claim the name afterwards.\n- [handle.resolve](resolve.md): Find the handle that holds a claimed name. A released or unclaimed name has none.\n",
-    "handle/release.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.release\n\nFree your name and take its public page offline. Anyone may claim the name afterwards.\n\n**Who may call:** the handleOwner of the handle.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`release`: from claimed to released, emitting HandleReleased.\n\n## Steps\n\n- `handle.release.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotClaimed | 11 | HN-900 | the handle is in a state release can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the handleOwner of the handle; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot release aaron's name.** `bob` (signed in) calls and sends handle the last call's handle, and is refused with NotAllowed, AR-001.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **bob cannot release aaron's name.** `bob` (signed in) calls and sends handle the world's handle, and is refused with NotAllowed, AR-001.\n- **aaron releases his name.** `aaron` (signed in) calls and sends handle the world's handle, and is answered.\n- **he cannot release it twice.** `aaron` (signed in) calls and sends handle the world's handle, and is refused with HandleNotClaimed, HN-900, carrying state `released`.\n- **the old handle is not bob's: he cannot release it, and it stays released.** `bob` (signed in) calls and sends handle the world's handle, and is refused with NotAllowed, AR-001.\n\n## How to call\n\n```sh\nplugged-in handle release --handle <handle>\n```\n\nHTTP: `POST /handle/release` with the payload as JSON. SDK: `Sdk.handle.release(payload)`.\n",
-    "handle/resolve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.resolve\n\nFind the handle that holds a claimed name. A released or unclaimed name has none.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Steps\n\n- `handle.resolve.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotFound | 13 | HN-003 | declared in errors.ts |\n\n## Worked examples\n\n### a name is claimed once\n\nStarts from the world `claimed`.\n\n- **the name still resolves to aaron's handle.** `visitor` (anyone) calls and sends name `claimedname`, and gets back the world's handle.\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **aaron's name resolves, for anyone.** `visitor` (anyone) calls and sends name `guardpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n\n### anyone reads a public page\n\nStarts from the world `page-with-links`.\n\n- **a visitor resolves the name to a handle.** `visitor` (anyone) calls and sends name `linkpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **a name nobody claimed does not resolve.** `visitor` (anyone) calls and sends name `nosuchpage`, and is refused with HandleNotFound, HN-003.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **a name nobody has claimed does not resolve.** `visitor` (anyone) calls and sends name `firstpage`, and is refused with HandleNotFound, HN-003.\n- **the name now resolves to a handle.** `visitor` (anyone) calls and sends name `firstpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **the refused second name is still free.** `visitor` (anyone) calls and sends name `secondpage`, and is refused with HandleNotFound, HN-003.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **the released name no longer resolves.** `visitor` (anyone) calls and sends name `releasepage`, and is refused with HandleNotFound, HN-003.\n\n## How to call\n\n```sh\nplugged-in handle resolve --name <name>\n```\n\nHTTP: `POST /handle/resolve` with the payload as JSON. SDK: `Sdk.handle.resolve(payload)`.\n",
-    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to your own public page. You need a claimed name first.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob has no page, so he has nowhere to add a link.** `bob` (signed in) calls and sends title `Spam`, url `https://bob.example.com`, and is refused with LinkNeedsHandle, LN-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron adds a fourth link.** `aaron` (signed in) calls and sends title `Newsletter`, url `https://aaron.example.com/news`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **aaron cannot add a link before he has a page.** `aaron` (signed in) calls and sends title `GitHub`, url `https://github.com/aaron`, and is refused with LinkNeedsHandle, LN-001.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **aaron puts a link on his page before he lets the name go.** `aaron` (signed in) calls and sends title `Old link`, url `https://aaron.example.com/old`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n- **aaron has no page to add a link to any more.** `aaron` (signed in) calls and sends title `Too late`, url `https://aaron.example.com/late`, and is refused with LinkNeedsHandle, LN-001.\n- **aaron can add a link again, to his new page.** `aaron` (signed in) calls and sends title `New link`, url `https://aaron.example.com/new`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **aaron adds his GitHub.** `aaron` (signed in) calls and sends title `GitHub`, url `https://github.com/aaron`, and is answered.\n- **aaron adds his blog.** `aaron` (signed in) calls and sends title `Blog`, url `https://aaron.example.com/blog`, and is answered.\n- **aaron adds his talks.** `aaron` (signed in) calls and sends title `Talks`, url `https://aaron.example.com/talks`, and is answered.\n\n## How to call\n\n```sh\nplugged-in link add --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
-    "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| profile | profile.id |\n| owner | handle.owner |\n| title | LinkTitle |\n| url | LinkUrl |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Events\n\n- `LinkAdded`: carries link (link.id); emitted by the move add\n- `LinkRemoved`: carries link (link.id); emitted by the move remove\n\n## Roles\n\n- linkOwner\n\n## Operations\n\n- [link.add](add.md): Append a link to your own public page. You need a claimed name first.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
-    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot move aaron's link, and the handler never runs.** `bob` (signed in) calls and sends link the world's lastLink, position `0`, and is refused with NotAllowed, AR-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron moves the newsletter to the top.** `aaron` (signed in) calls and sends link the last call's links 3 id, position `0`, and is answered.\n- **a position past the end puts a link last.** `aaron` (signed in) calls and sends link the last call's links 1 id, position `99`, and is answered.\n- **he cannot move a removed link.** `aaron` (signed in) calls and sends link the world's lastLink, position `0`, and is refused with LinkAlreadyRemoved, LN-002.\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
-    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot remove aaron's link.** `bob` (signed in) calls and sends link the world's lastLink, and is refused with NotAllowed, AR-001.\n- **someone who is not signed in cannot remove it either.** `visitor` (anyone) calls and sends link the world's lastLink, and is refused with NotAllowed, AR-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron removes the talks link.** `aaron` (signed in) calls and sends link the world's lastLink, and is answered.\n- **he cannot remove it twice.** `aaron` (signed in) calls and sends link the world's lastLink, and is refused with LinkNotListed, LN-900, carrying state `removed`.\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
-    "profile/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile.get\n\nRead a claimed name's public page and its links in display order.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| links | schema |\n\n## Steps\n\n- `profile.get.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| ProfileNotFound | 20 | PR-001 | declared in errors.ts |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **aaron's page is exactly as he left it.** `visitor` (anyone) calls and sends handle `guardpage`, and gets back 1 and gets back [the world's lastLink, `GitHub`, `https://github.com/aaron`].\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **the page starts with the three links aaron put on it, in order.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`GitHub`, `Blog`, `Talks`] and gets back the world's lastLink.\n- **it goes at the end, with its title and address.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`GitHub`, `Blog`, `Talks`, `Newsletter`] and gets back [`Newsletter`, `https://aaron.example.com/news`].\n- **the page shows the new order.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `GitHub`, `Blog`, `Talks`].\n- **the page shows GitHub last.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `Talks`, `GitHub`].\n- **the page no longer lists it, and keeps the order of the rest.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `GitHub`].\n- **the page is as the removal left it.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `GitHub`].\n\n### anyone reads a public page\n\nStarts from the world `page-with-links`.\n\n- **a visitor reads the page: the name and every link, in order.** `visitor` (anyone) calls and sends handle `linkpage`, and gets back `linkpage` and gets back [`GitHub`, `Blog`, `Talks`] and gets back [`https://github.com/aaron`, `https://aaron.example.com/blog`, `https://aaron.example.com/talks`] and gets back [true, true, true] and gets back the world's lastLink and gets back [`id`, `title`, `url`].\n- **a signed-in person who is not the owner reads the same page.** `bob` (signed in) calls and sends handle `linkpage`, and gets back `linkpage` and gets back [`GitHub`, `Blog`, `Talks`].\n- **a name nobody claimed has no page.** `visitor` (anyone) calls and sends handle `nosuchpage`, and is refused with ProfileNotFound, PR-001.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **an unclaimed name has no public page.** `visitor` (anyone) calls and sends handle `firstpage`, and is refused with ProfileNotFound, PR-001.\n- **the claim made a public page, with no links yet.** `visitor` (anyone) calls and sends handle `firstpage`, and gets back { handle: `firstpage`, links: [] }.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **the released name has no public page.** `visitor` (anyone) calls and sends handle `releasepage`, and is refused with ProfileNotFound, PR-001.\n- **the new page has none of the old owner's links.** `visitor` (anyone) calls and sends handle `releasepage`, and gets back { handle: `releasepage`, links: [] }.\n- **his new page has only the new link, and the old name's page is still bob's and empty.** `visitor` (anyone) calls and sends handle `aaronspage`, and gets back [`New link`].\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **anyone sees his public page at @aaron: three links in the order he added them.** `visitor` (anyone) calls and sends handle `aaron`, and gets back `aaron` and gets back [[`GitHub`, `https://github.com/aaron`], [`Blog`, `https://aaron.example.com/blog`], [`Talks`, `https://aaron.example.com/talks`]].\n\n## How to call\n\n```sh\nplugged-in profile get --handle <handle>\n```\n\nHTTP: `POST /profile/get` with the payload as JSON. SDK: `Sdk.profile.get(payload)`.\n",
-    "profile/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile\n\nA claimed name's public page, with its links in the order they were put.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| handle | handle.id |\n| links | schema |\n\n## Unique\n\n- handle: unique in every state\n\n## Operations\n\n- [profile.get](get.md): Read a claimed name's public page and its links in display order.\n"
+    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of your public page, with its profile.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| name | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |\n\n## Answer\n\n| field | value | description |\n|---|---|---|\n| handle | handle.id | The handle's own id. |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n| HandleAlreadyOwned | 12 | HN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### a name is claimed once\n\nStarts from the world `claimed`.\n\n- **the same request again answers the same handle and claims nothing.** `aaron` (signed in) calls and sends name `claimedname`, with the request key `first-claim`, and gets back the world's handle.\n- **a taken name is refused.** `bob` (signed in) calls and sends name `claimedname`, with the request key `bobs-claim`, and is refused with HandleTaken, HN-001.\n- **another person's request key is not aaron's: still refused.** `bob` (signed in) calls and sends name `claimedname`, with the request key `first-claim`, and is refused with HandleTaken, HN-001.\n- **the refusal left bob free to claim a name of his own.** `bob` (signed in) calls and sends name `bobspage`, and is answered.\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **someone who is not signed in cannot claim a name.** `visitor` (anyone) calls and sends name `visitorpage`, and is refused with NotAllowed, AR-001.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **aaron claims the free name.** `aaron` (signed in) calls and sends name `firstpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **aaron cannot claim a second name while he holds one.** `aaron` (signed in) calls and sends name `secondpage`, and is refused with HandleAlreadyOwned, HN-002.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **someone else claims the released name.** `bob` (signed in) calls and sends name `releasepage`, and is answered.\n- **aaron can claim again: a released handle does not count as one he holds.** `aaron` (signed in) calls and sends name `aaronspage`, and is answered.\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **aaron claims @aaron.** `aaron` (signed in) calls and sends name `aaron`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
+    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name that belongs to one person until they release it, and is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value | description |\n|---|---|---|\n| id | id | The handle's own id. |\n| name | HandleName | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |\n| owner | id | The person who holds the name. |\n\n## Machine\n\nStates: claimed, released. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n| release | claimed | released | HandleReleased |\n\n## Events\n\n- `HandleClaimed`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move claim\n- `HandleReleased`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move release\n\n## Unique\n\n- name: unique while claimed\n- owner: unique while claimed\n\n## Roles\n\n- handleOwner\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of your public page, with its profile.\n- [handle.release](release.md): Free your name and take its public page offline. Anyone may claim the name afterwards.\n- [handle.resolve](resolve.md): Find the handle that holds a claimed name. A released or unclaimed name has none.\n",
+    "handle/release.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.release\n\nFree your name and take its public page offline. Anyone may claim the name afterwards.\n\n**Who may call:** the handleOwner of the handle.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| handle | handle.id | The handle's own id. |\n\n## Answer\n\n(none)\n\n## Move\n\n`release`: from claimed to released, emitting HandleReleased.\n\n## Steps\n\n- `handle.release.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotClaimed | 11 | HN-900 | the handle is in a state release can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the handleOwner of the handle; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot release aaron's name.** `bob` (signed in) calls and sends handle the last call's handle, and is refused with NotAllowed, AR-001.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **bob cannot release aaron's name.** `bob` (signed in) calls and sends handle the world's handle, and is refused with NotAllowed, AR-001.\n- **aaron releases his name.** `aaron` (signed in) calls and sends handle the world's handle, and is answered.\n- **he cannot release it twice.** `aaron` (signed in) calls and sends handle the world's handle, and is refused with HandleNotClaimed, HN-900, carrying state `released`.\n- **the old handle is not bob's: he cannot release it, and it stays released.** `bob` (signed in) calls and sends handle the world's handle, and is refused with NotAllowed, AR-001.\n\n## How to call\n\n```sh\nplugged-in handle release --handle <handle>\n```\n\nHTTP: `POST /handle/release` with the payload as JSON. SDK: `Sdk.handle.release(payload)`.\n",
+    "handle/resolve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.resolve\n\nFind the handle that holds a claimed name. A released or unclaimed name has none.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| name | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |\n\n## Answer\n\n| field | value | description |\n|---|---|---|\n| handle | handle.id | The handle's own id. |\n\n## Steps\n\n- `handle.resolve.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotFound | 13 | HN-003 | declared in errors.ts |\n\n## Worked examples\n\n### a name is claimed once\n\nStarts from the world `claimed`.\n\n- **the name still resolves to aaron's handle.** `visitor` (anyone) calls and sends name `claimedname`, and gets back the world's handle.\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **aaron's name resolves, for anyone.** `visitor` (anyone) calls and sends name `guardpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n\n### anyone reads a public page\n\nStarts from the world `page-with-links`.\n\n- **a visitor resolves the name to a handle.** `visitor` (anyone) calls and sends name `linkpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **a name nobody claimed does not resolve.** `visitor` (anyone) calls and sends name `nosuchpage`, and is refused with HandleNotFound, HN-003.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **a name nobody has claimed does not resolve.** `visitor` (anyone) calls and sends name `firstpage`, and is refused with HandleNotFound, HN-003.\n- **the name now resolves to a handle.** `visitor` (anyone) calls and sends name `firstpage`, and gets back an answer matching `^hdl_[0-9a-z]+$`.\n- **the refused second name is still free.** `visitor` (anyone) calls and sends name `secondpage`, and is refused with HandleNotFound, HN-003.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **the released name no longer resolves.** `visitor` (anyone) calls and sends name `releasepage`, and is refused with HandleNotFound, HN-003.\n\n## How to call\n\n```sh\nplugged-in handle resolve --name <name>\n```\n\nHTTP: `POST /handle/resolve` with the payload as JSON. SDK: `Sdk.handle.resolve(payload)`.\n",
+    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to your own public page. You need a claimed name first.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| title | link.title | What the link shows on the page, up to 120 characters. |\n| url | link.url | Where the link goes: a web address starting with http:// or https://, up to 2048 characters. |\n\n## Answer\n\n| field | value | description |\n|---|---|---|\n| link | link.id | The link's own id. |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob has no page, so he has nowhere to add a link.** `bob` (signed in) calls and sends title `Spam`, url `https://bob.example.com`, and is refused with LinkNeedsHandle, LN-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron adds a fourth link.** `aaron` (signed in) calls and sends title `Newsletter`, url `https://aaron.example.com/news`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **aaron cannot add a link before he has a page.** `aaron` (signed in) calls and sends title `GitHub`, url `https://github.com/aaron`, and is refused with LinkNeedsHandle, LN-001.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **aaron puts a link on his page before he lets the name go.** `aaron` (signed in) calls and sends title `Old link`, url `https://aaron.example.com/old`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n- **aaron has no page to add a link to any more.** `aaron` (signed in) calls and sends title `Too late`, url `https://aaron.example.com/late`, and is refused with LinkNeedsHandle, LN-001.\n- **aaron can add a link again, to his new page.** `aaron` (signed in) calls and sends title `New link`, url `https://aaron.example.com/new`, and gets back an answer matching `^lnk_[0-9a-z]+$`.\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **aaron adds his GitHub.** `aaron` (signed in) calls and sends title `GitHub`, url `https://github.com/aaron`, and is answered.\n- **aaron adds his blog.** `aaron` (signed in) calls and sends title `Blog`, url `https://aaron.example.com/blog`, and is answered.\n- **aaron adds his talks.** `aaron` (signed in) calls and sends title `Talks`, url `https://aaron.example.com/talks`, and is answered.\n\n## How to call\n\n```sh\nplugged-in link add --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
+    "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value | description |\n|---|---|---|\n| id | id | The link's own id. |\n| profile | profile.id | The page the link is on. |\n| owner | handle.owner | The person whose page the link is on. |\n| title | LinkTitle | What the link shows on the page, up to 120 characters. |\n| url | LinkUrl | Where the link goes: a web address starting with http:// or https://, up to 2048 characters. |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Events\n\n- `LinkAdded`: carries link (link.id: The link's own id.); emitted by the move add\n- `LinkRemoved`: carries link (link.id: The link's own id.); emitted by the move remove\n\n## Roles\n\n- linkOwner\n\n## Operations\n\n- [link.add](add.md): Append a link to your own public page. You need a claimed name first.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
+    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| link | link.id | The link's own id. |\n| position | LinkPosition | Its place in the page's list of links: 0 is first. |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot move aaron's link, and the handler never runs.** `bob` (signed in) calls and sends link the world's lastLink, position `0`, and is refused with NotAllowed, AR-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron moves the newsletter to the top.** `aaron` (signed in) calls and sends link the last call's links 3 id, position `0`, and is answered.\n- **a position past the end puts a link last.** `aaron` (signed in) calls and sends link the last call's links 1 id, position `99`, and is answered.\n- **he cannot move a removed link.** `aaron` (signed in) calls and sends link the world's lastLink, position `0`, and is refused with LinkAlreadyRemoved, LN-002.\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
+    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| link | link.id | The link's own id. |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **bob cannot remove aaron's link.** `bob` (signed in) calls and sends link the world's lastLink, and is refused with NotAllowed, AR-001.\n- **someone who is not signed in cannot remove it either.** `visitor` (anyone) calls and sends link the world's lastLink, and is refused with NotAllowed, AR-001.\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **aaron removes the talks link.** `aaron` (signed in) calls and sends link the world's lastLink, and is answered.\n- **he cannot remove it twice.** `aaron` (signed in) calls and sends link the world's lastLink, and is refused with LinkNotListed, LN-900, carrying state `removed`.\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
+    "profile/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile.get\n\nRead a claimed name's public page and its links in display order.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value | description |\n|---|---|---|\n| handle | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |\n\n## Answer\n\n| field | value | description |\n|---|---|---|\n| handle | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |\n| links | schema |  |\n\n## Steps\n\n- `profile.get.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| ProfileNotFound | 20 | PR-001 | declared in errors.ts |\n\n## Worked examples\n\n### a stranger cannot edit a page\n\nStarts from the world `page-to-guard`.\n\n- **aaron's page is exactly as he left it.** `visitor` (anyone) calls and sends handle `guardpage`, and gets back 1 and gets back [the world's lastLink, `GitHub`, `https://github.com/aaron`].\n\n### add, order and remove a link\n\nStarts from the world `page-to-edit`.\n\n- **the page starts with the three links aaron put on it, in order.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`GitHub`, `Blog`, `Talks`] and gets back the world's lastLink.\n- **it goes at the end, with its title and address.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`GitHub`, `Blog`, `Talks`, `Newsletter`] and gets back [`Newsletter`, `https://aaron.example.com/news`].\n- **the page shows the new order.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `GitHub`, `Blog`, `Talks`].\n- **the page shows GitHub last.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `Talks`, `GitHub`].\n- **the page no longer lists it, and keeps the order of the rest.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `GitHub`].\n- **the page is as the removal left it.** `visitor` (anyone) calls and sends handle `editpage`, and gets back [`Newsletter`, `Blog`, `GitHub`].\n\n### anyone reads a public page\n\nStarts from the world `page-with-links`.\n\n- **a visitor reads the page: the name and every link, in order.** `visitor` (anyone) calls and sends handle `linkpage`, and gets back `linkpage` and gets back [`GitHub`, `Blog`, `Talks`] and gets back [`https://github.com/aaron`, `https://aaron.example.com/blog`, `https://aaron.example.com/talks`] and gets back [true, true, true] and gets back the world's lastLink and gets back [`id`, `title`, `url`].\n- **a signed-in person who is not the owner reads the same page.** `bob` (signed in) calls and sends handle `linkpage`, and gets back `linkpage` and gets back [`GitHub`, `Blog`, `Talks`].\n- **a name nobody claimed has no page.** `visitor` (anyone) calls and sends handle `nosuchpage`, and is refused with ProfileNotFound, PR-001.\n\n### claim a handle\n\nStarts from an empty world.\n\n- **an unclaimed name has no public page.** `visitor` (anyone) calls and sends handle `firstpage`, and is refused with ProfileNotFound, PR-001.\n- **the claim made a public page, with no links yet.** `visitor` (anyone) calls and sends handle `firstpage`, and gets back { handle: `firstpage`, links: [] }.\n\n### release a handle\n\nStarts from the world `claimed-to-release`.\n\n- **the released name has no public page.** `visitor` (anyone) calls and sends handle `releasepage`, and is refused with ProfileNotFound, PR-001.\n- **the new page has none of the old owner's links.** `visitor` (anyone) calls and sends handle `releasepage`, and gets back { handle: `releasepage`, links: [] }.\n- **his new page has only the new link, and the old name's page is still bob's and empty.** `visitor` (anyone) calls and sends handle `aaronspage`, and gets back [`New link`].\n\n### a person claims a page and shares it\n\nStarts from an empty world.\n\n- **anyone sees his public page at @aaron: three links in the order he added them.** `visitor` (anyone) calls and sends handle `aaron`, and gets back `aaron` and gets back [[`GitHub`, `https://github.com/aaron`], [`Blog`, `https://aaron.example.com/blog`], [`Talks`, `https://aaron.example.com/talks`]].\n\n## How to call\n\n```sh\nplugged-in profile get --handle <handle>\n```\n\nHTTP: `POST /profile/get` with the payload as JSON. SDK: `Sdk.profile.get(payload)`.\n",
+    "profile/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile\n\nA claimed name's public page, with its links in the order they were put.\n\nLives in the database.\n\n## Fields\n\n| field | value | description |\n|---|---|---|\n| id | id | The page's own id. |\n| handle | handle.id | The handle the page belongs to. |\n| links | schema | The ids of the page's links, in the order they show. |\n\n## Unique\n\n- handle: unique in every state\n\n## Operations\n\n- [profile.get](get.md): Read a claimed name's public page and its links in display order.\n"
   },
   "extensions": {
     "journeys": {
@@ -3028,5 +3085,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "d41c7a91f54b762ceeb2071d6b9b8322eb2d52f5d44f7dd6f91877ec1ef92b0d"
+  "digest": "4a6a5d62d9650f25bc28800fa96e558cd0aa9f1ab5657cbee369bde2631c2a19"
 }
