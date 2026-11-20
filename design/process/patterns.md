@@ -11,7 +11,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 |---|---|---|---|---|
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
 | Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
-| CI that can't tell us anything | 10 | 8 | partly covered | 4 (applied) |
+| CI that can't tell us anything | 11 | 8 | partly covered | 4 (applied) |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 (applied) |
 | Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
 | Found before building, or after | 12 | 3 | partly covered | 7 (applied) |
@@ -78,6 +78,7 @@ about 182 runner-hours were spent: 90.5 in jobs that passed, 50.5 in jobs that f
 m1's longest red lasted 5 hours 47 minutes.
 
 Entries:
+- 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending (near miss)
 - 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes (failure)
 - 2026-11-19 · A lint boundary test timed out on a docs-only pull request (failure)
 - 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (win)
@@ -90,13 +91,14 @@ Entries:
 - 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
 **Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102) and on `m1`
-(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main`, reaching `m1` and `goal/stage-1` when `main` is merged in; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
-item 8.
+(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main` and, since
+[PR 145](https://github.com/AaronAbuUsama/architect/pull/145), on `goal/stage-1`; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); a docs-only pull request
+skips the layer gates, and the flaky lint test has a 30-second timeout ([PR 160](https://github.com/AaronAbuUsama/architect/pull/160)); reviewer item 8.
 
-**Gap:** `m1` has no ratchet. No flake list exists, so a flake is rerun rather than fixed or quarantined (the lint
-boundary test, 19 November). The `check` job has no ratchet, so it merged red six times in an hour. And `strict` on
-`main` reruns all of CI for every PR each time another lands, docs-only ones too: one docs PR ran five times. Raised
-with the conductor on 19 November.
+**Gap:** `m1` has no ratchet, and no `cancel-closed` until `main` is merged into it. No flake list exists, so the next
+flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it merged red six times in an hour.
+`strict` on `main` still reruns `check` and `e2e-m0` for every pull request each time another lands, and code pull
+requests still rerun everything.
 
 ## Shared machine and stray processes
 
@@ -191,10 +193,10 @@ Entries:
 - 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
 **Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks." The
-`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`.
+`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`, and
+on `goal/stage-1` since `main` was merged into it ([PR 145](https://github.com/AaronAbuUsama/architect/pull/145), 19 November 23:58).
 
-**Gap:** the guard reaches only branches named `-build`, and `m1` and `goal/stage-1` run it once `main` is merged into
-them. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
+**Gap:** the guard reaches only branches named `-build`, and `m1` doesn't run it until `main` is merged into it. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
 
 ## Talking to Aaron, and showing unchecked work
 

@@ -174,7 +174,7 @@ jobs:
 And merge `main` into `m1` (or cherry-pick 352f316a), so m1's pushes stop cancelling each other.
 
 **Applies it:** the conductor. **Partly applied, 19 November:** timeouts on `main` ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)); timeouts and
-per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), merged 21:05). **Applied, 19 November:** the closed-PR workflow, `cancel-closed`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). Merging `main` into `m1` is still to do.
+per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), merged 21:05). **Applied, 19 November:** the closed-PR workflow, `cancel-closed`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). Merging `main` into `m1` is still to do. `goal/stage-1` has it since [PR 145](https://github.com/AaronAbuUsama/architect/pull/145).
 
 ## 5. "Stop what you started, by PID" moves into AGENTS.md, with an end-of-turn step
 
@@ -240,7 +240,7 @@ And `AGENTS.md`, "How work flows":
 ```
 
 **Applies it:** the conductor, with the checks author owning the exact path list.
-**Applied, 19 November:** the `builder-paths` job in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130), for branches ending in `-build`. Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them.
+**Applied, 19 November:** the `builder-paths` job in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130), for branches ending in `-build`. Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them. **Update, 20 November:** `goal/stage-1` runs and requires it since [PR 145](https://github.com/AaronAbuUsama/architect/pull/145); `m1` not yet.
 
 ## 7. An `author` skill: prove each new check reachable, satisfiable and consistent first
 

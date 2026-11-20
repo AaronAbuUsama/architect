@@ -10,6 +10,23 @@ gave was checked against its source; where the seed was wrong, the entry says so
 
 ---
 
+### 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending
+- **Kind:** near miss.
+- **What happened:** `codex-finished` reads Codex's summary comment through `tools/ci/codex-state.sh`. When Codex ran
+  only a security review, the script reported success but named `-` as the reviewed commit, because it read only the
+  code review's commit. The workflow then found that `-` was not the head and left the required status pending, though
+  the review had finished. A pull request reviewed that way could not have merged until someone asked for a second
+  review. Codex found it at 23:17 while reviewing the merge of `main` into `goal/stage-1`, which carried the script
+  there. The fix took the commit from whichever review completed, with three new cases in `tools/ci/ci.test.sh`, one
+  of which fails on the old script. It was committed five minutes later and merged at 00:10.
+- **Evidence:** Codex's P2 comment on `tools/ci/codex-state.sh` in [PR 145](https://github.com/AaronAbuUsama/architect/pull/145) (23:17); the fix, commit 8d892163 (23:22),
+  in [PR 146](https://github.com/AaronAbuUsama/architect/pull/146), merged 20 November 00:10 as 5900f758.
+- **Cost:** none known; no pull request is recorded as stuck on it.
+- **Found by:** Codex, reviewing a merge pull request.
+- **Recovery:** fixed and merged within an hour.
+- **What changed:** the guard's own test now covers a security-only review.
+- **Pattern:** CI that can't tell us anything.
+
 ### 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes
 - **Kind:** failure.
 - **What happened:** Since 21:54 `main` requires a pull request to contain the current `main` before it merges. Most
@@ -33,6 +50,11 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet. Raised with the conductor at 22:50 (session only) with three options: a docs-only fast path that
   skips the heavy jobs as passing (the way `builder-paths` skips), `strict` off on `main`, or a merge queue.
 - **Pattern:** CI that can't tell us anything.
+- **Update, 20 November:** the first option applied in [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) (merged 06:11 as ac457483; record
+  `design/decisions/CI-docs-fast-path.md`). A new `changes` job flags a pull request whose every path is under `design/`,
+  or is a `*.md` outside `packages/`, `e2e/` and `examples/`. On that flag `e2e-layer1` and `e2e-layer2` skip, and a
+  skip passes a required check. `check` and `e2e-m0` still run, and `main` stays strict. A merge queue isn't offered
+  on a repository a person owns, only on one an organization owns.
 
 ### 2026-11-19 · A lint boundary test timed out on a docs-only pull request
 - **Kind:** failure.
@@ -47,6 +69,10 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** reran the failed job.
 - **What changed:** nothing yet. No flake list exists, so the next one is rerun too.
 - **Pattern:** CI that can't tell us anything.
+- **Update, 20 November:** it failed `check` a second time, on PR 147 (5216 ms, run
+  [44638137760](https://github.com/AaronAbuUsama/architect/actions/runs/44638137760)). [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) gives the test's
+  `describe` a 30-second timeout and runs `oxlint` directly instead of through `pnpm exec`, which started Node a
+  second time per case. Assertions and fixtures are unchanged. Still no flake list.
 
 ### 2026-11-19 · The first journey climbed from 0 to 8 of 8 steps in four recorded runs, each run written by the tool
 - **Kind:** win.
@@ -239,6 +265,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing general. Decision IDs are still picked by whoever writes one, on whatever branch.
 - **Pattern:** parallel work collides.
 - **Update, 19 November:** the conductor now hands out decision IDs from one list on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
+- **Update, 20 November:** PR 129 made the rule, but the list itself didn't exist until [PR 160](https://github.com/AaronAbuUsama/architect/pull/160) added it to
+  `design/handoff.md` under "Decision IDs", with every ID used on `main`, `m1`, `goal/stage-1` and the open branches.
 
 ### 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy
 - **Kind:** win, with a near miss inside it.
