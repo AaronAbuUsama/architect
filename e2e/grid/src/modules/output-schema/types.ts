@@ -9,6 +9,8 @@ export interface OutputSchemaInput {
   readonly schema: unknown;
   /** The spans of the prove run: an answer field's real value is read from `answer.<field>` on the operation's span. */
   readonly spans?: ReadonlyArray<SpanView> | undefined;
+  /** The generated files: the refusal table (`generated/api/src/errors.ts`) gives each refusal's code, exit and status. */
+  readonly files?: Readonly<Record<string, string>> | undefined;
 }
 
 export interface OutputSchemaApi {

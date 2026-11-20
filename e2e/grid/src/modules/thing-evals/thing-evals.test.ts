@@ -110,6 +110,15 @@ describe("a wrong output is red, and says what", () => {
     it("red: a field typed as a number when the model's value is an id or a text", () => {
       expect(check("sdk", "link", linkWith({ [first]: "number" })).why).toEqual([`${path}'s Link.${first} is number, but the model's ${link.fields[first]!.value.type} is string`]);
     });
+    it("red: an array, a union holding the wrong primitive, and null, for an id or a text", () => {
+      expect(check("sdk", "link", linkWith({ [first]: "string[]" })).why).toEqual([`${path}'s Link.${first} is string[] (holds array), but the model's ${link.fields[first]!.value.type} is string`]);
+      expect(check("sdk", "link", linkWith({ [first]: "string | number" })).why).toEqual([`${path}'s Link.${first} is string | number (holds number), but the model's ${link.fields[first]!.value.type} is string`]);
+      expect(check("sdk", "link", linkWith({ [first]: "string | null" })).why).toEqual([`${path}'s Link.${first} is string | null (holds null), but the model's ${link.fields[first]!.value.type} is string`]);
+    });
+    it("green: a union of the right primitive, a literal and undefined", () => {
+      expect(check("sdk", "link", linkWith({ [first]: '"a" | "b" | undefined' })).ok).toBe(true);
+      expect(check("sdk", "link", linkWith({ [first]: "(string)" })).ok).toBe(true);
+    });
     it("red: a field typed any, or unknown", () => {
       expect(check("sdk", "link", linkWith({ [first]: "any", [second]: "unknown" })).why).toEqual([`${path}'s Link.${first} is typed "any", which does not say what the field holds`, `${path}'s Link.${second} is typed "unknown", which does not say what the field holds`]);
     });

@@ -37,7 +37,7 @@ export const mcp = over("machine.mcp", ({ moves, machine }, e) => {
     return [
       ...(missing.length === 0 ? [] : [`${op.name}'s schemas and annotations do not name the states it moves between (${missing.join(", ")} missing)`]),
       ...(Object.keys(op.answer).includes("state") && tool.outputSchema === undefined ? [`${op.name} answers a state but offers no output schema typing it`] : []),
-      ...(tool.outputSchema === undefined ? [] : OutputSchema.states({ model: e.model, op, schema: tool.outputSchema, spans: e.spans, states: machine.states })),
+      ...(tool.outputSchema === undefined ? [] : OutputSchema.states({ model: e.model, op, schema: tool.outputSchema, spans: e.spans, files: e.files, states: machine.states })),
     ];
   });
 });

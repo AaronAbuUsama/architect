@@ -89,7 +89,7 @@ export const mcp = over("thing.mcp", (thing, e) => {
       ...Object.keys(properties).filter((name) => !want.some(([w]) => w === name)).map((name) => `${op.name}'s input schema shows ${name}, which is not a public payload field`),
       ...want.flatMap(([name, field]) => (field.description !== undefined && properties[name] !== undefined && properties[name]!.description !== field.description ? [`${op.name}'s input ${name} does not carry the field's description`] : [])),
       ...(Object.keys(op.answer).length > 0 && tool.outputSchema === undefined ? [`${op.name} offers no output schema, so an agent does not know the shape it gets back`] : []),
-      ...(tool.outputSchema === undefined ? [] : OutputSchema.answers({ model: e.model, op, schema: tool.outputSchema, spans: e.spans })),
+      ...(tool.outputSchema === undefined ? [] : OutputSchema.answers({ model: e.model, op, schema: tool.outputSchema, spans: e.spans, files: e.files })),
     ];
   });
 });

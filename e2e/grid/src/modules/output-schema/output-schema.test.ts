@@ -14,7 +14,7 @@ const refusalBranch = { type: "object", properties: { refusal: { type: "string" 
 // Acme's system.health answers `{ status: "ok" }`; acme has no captured run, so the run's own value is supplied as the span would carry it.
 const health = acme.model.operations["system.health"]!;
 const healthSpans = [{ name: "system.health", attrs: { "answer.status": "ok" } }];
-const onHealth = (schema: unknown, spans: ReadonlyArray<{ name: string; attrs: Record<string, unknown> }> | undefined = healthSpans) => OutputSchema.answers({ model: acme.model, op: health, schema, spans });
+const onHealth = (schema: unknown, spans: ReadonlyArray<{ name: string; attrs: Record<string, unknown> }> | undefined = healthSpans) => OutputSchema.answers({ model: acme.model, op: health, schema, spans, files: acme.files });
 
 /** What #153's output.ts built: the refusal's four properties spread over the answer's, so the later `status: integer` wins. */
 const spreadOverAnswer = {
@@ -30,13 +30,23 @@ describe("the false green of #153: a refusal's fields spread over an answer fiel
     expect(why[0]).toMatch(/^system\.health's output schema refuses its own answer {"status":"ok"}, so the SDK client rejects every successful call/);
   });
 
-  it("is red even with no value from the run: the field shares a refusal's name, so the schema's own word for it is not taken", () => {
-    expect(onHealth(spreadOverAnswer, [])).toEqual(["system.health's answer field status has a name a refusal also uses (refusal, code, exit, status) and the run recorded no value for it, so the schema cannot be shown to accept it"]);
+  it("is red even with no value from the run: a value is never taken from the schema being judged", () => {
+    expect(onHealth(spreadOverAnswer, [])).toEqual(["system.health's answer field status has no recorded value (the run's span carries none and the model does not say one), so the schema cannot be shown to accept it"]);
   });
 
   it("is green as anyOf [answer, refusal]", () => {
     const right = { type: "object", anyOf: [{ type: "object", properties: { status: { const: "ok" } }, required: ["status"], additionalProperties: true }, refusalBranch] };
     expect(onHealth(right)).toEqual([]);
+  });
+
+  it("is green as anyOf [answer, refusal] with no value from the run: the answer branch's own constant is the value", () => {
+    const right = { type: "object", anyOf: [{ type: "object", properties: { status: { const: "ok" } }, required: ["status"] }, refusalBranch] };
+    expect(onHealth(right, [])).toEqual([]);
+  });
+
+  it("is red when the refusal branch pins the status to 400: the runtime's rows are 403, 404, 409 and 422", () => {
+    const pinned = { type: "object", anyOf: [{ type: "object", properties: { status: { const: "ok" } }, required: ["status"] }, { ...refusalBranch, properties: { ...refusalBranch.properties, status: { const: 400 } } }] };
+    expect(onHealth(pinned)).toEqual([`system.health's output schema refuses the refusal {"refusal":"NotAllowed","code":"AR-001","exit":3,"status":403}, so the SDK client rejects every refused call`]);
   });
 });
 
@@ -48,7 +58,7 @@ describe("a schema that accepts anything is red", () => {
 
 describe("Plugged In's tools, with the output schema M1.42 emits (captured from #153's head on 20 November 2026)", () => {
   const claim = pluggedIn.model.operations["handle.claim"]!;
-  const onClaim = (schema: unknown, op: OperationModel = claim) => OutputSchema.answers({ model: pluggedIn.model, op, schema, spans: pluggedIn.spans });
+  const onClaim = (schema: unknown, op: OperationModel = claim) => OutputSchema.answers({ model: pluggedIn.model, op, schema, spans: pluggedIn.spans, files: pluggedIn.files });
   const emitted = (answer: Record<string, unknown>, required: ReadonlyArray<string>) => ({
     type: "object", additionalProperties: true, properties: { ...answer, ...refusalBranch.properties }, anyOf: [{ required }, { required: ["refusal", "code", "exit", "status"] }],
   });
@@ -59,7 +69,7 @@ describe("Plugged In's tools, with the output schema M1.42 emits (captured from 
 
   it("profile.get's schema is green with a link list the model does not spell out", () => {
     const links = { type: "array", items: { type: "object", properties: { id: { type: "string" }, title: { type: "string", minLength: 1 }, url: { type: "string" } }, required: ["id", "title", "url"] } };
-    expect(OutputSchema.answers({ model: pluggedIn.model, op: pluggedIn.model.operations["profile.get"]!, schema: emitted({ handle: { type: "string" }, links }, ["handle", "links"]), spans: pluggedIn.spans })).toEqual([]);
+    expect(OutputSchema.answers({ model: pluggedIn.model, op: pluggedIn.model.operations["profile.get"]!, schema: emitted({ handle: { type: "string" }, links }, ["handle", "links"]), spans: pluggedIn.spans, files: pluggedIn.files })).toEqual([]);
   });
 
   it("an answer field typed as an integer is red", () => {
@@ -72,8 +82,9 @@ describe("Plugged In's tools, with the output schema M1.42 emits (captured from 
 
   it("a schema with no branch for a refusal is red, naming the refusal", () => {
     const why = onClaim({ type: "object", properties: { handle: { type: "string" } }, required: ["handle"] });
-    expect(why).toHaveLength(claim.refusals!.length);
-    expect(why[0]).toBe(`handle.claim's output schema refuses the refusal {"refusal":"HandleTaken","code":"HN-001","exit":10,"status":400}, so the SDK client rejects every refused call`);
+    expect(why).toHaveLength(claim.refusals!.length + 1);
+    expect(why.some((w) => w.includes("HandleNotClaimed"))).toBe(true);
+    expect(why[0]).toBe(`handle.claim's output schema refuses the refusal {"refusal":"HandleTaken","code":"HN-001","exit":10,"status":422}, so the SDK client rejects every refused call`);
     expect(why.every((w) => w.includes("refuses the refusal"))).toBe(true);
   });
 
@@ -85,7 +96,7 @@ describe("Plugged In's tools, with the output schema M1.42 emits (captured from 
 describe("a state an answer carries", () => {
   const moved = { ...pluggedIn.model.operations["link.add"]!, answer: { link: pluggedIn.model.operations["link.add"]!.answer["link"]!, state: { value: { type: "schema" }, named: "LinkState" } } } as OperationModel;
   const states = ["listed", "removed"];
-  const run = (schema: unknown) => OutputSchema.states({ model: pluggedIn.model, op: moved, schema, spans: pluggedIn.spans, states });
+  const run = (schema: unknown) => OutputSchema.states({ model: pluggedIn.model, op: moved, schema, spans: pluggedIn.spans, files: pluggedIn.files, states });
   const shape = (state: unknown) => ({ type: "object", properties: { link: { type: "string" }, state }, required: ["link", "state"] });
 
   it("the machine's states as an enum is green", () => {
@@ -96,5 +107,29 @@ describe("a state an answer carries", () => {
   });
   it("an enum that leaves a state out is red", () => {
     expect(run(shape({ enum: ["listed"] }))).toEqual([`link.add's output schema refuses the answer with state "removed", which the machine declares`]);
+  });
+});
+
+describe("a number is judged from the model's type, never from the schema", () => {
+  const count = { ...pluggedIn.model.operations["handle.claim"]!, answer: { count: { value: { type: "uint", bits: 32 } } } } as OperationModel;
+  const run = (schema: unknown) => OutputSchema.answers({ model: pluggedIn.model, op: count, schema, spans: [], files: pluggedIn.files });
+  const withRefusal = (count: unknown) => ({ type: "object", anyOf: [{ type: "object", properties: { count }, required: ["count"] }, refusalBranch] });
+
+  it("red: a uint typed as any string, with no span", () => {
+    expect(run(withRefusal({ type: "string" }))).toEqual([`handle.claim's output schema accepts "not-a-number" for the answer field count, so it does not type it as a number`]);
+  });
+  it("red: a uint typed as an integer, since the wire carries its digits as text", () => {
+    expect(run(withRefusal({ type: "integer" }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer {"count":"1"}/);
+  });
+  it("green: a uint typed as digits", () => {
+    expect(run(withRefusal({ type: "string", pattern: "^-?\\d+$" }))).toEqual([]);
+  });
+  it("a field the model does not determine and the run did not record is unjudged, never filled in from the schema", () => {
+    const opaque = { ...count, answer: { links: { value: { type: "schema" }, named: "Links" } } } as OperationModel;
+    expect(OutputSchema.answers({ model: pluggedIn.model, op: opaque, schema: withRefusal({}), spans: [], files: pluggedIn.files })[0]).toMatch(/^handle\.claim's answer field links has no recorded value/);
+  });
+  it("states: a required field with no value makes the state unjudged, not every state refused", () => {
+    const moved = { ...count, answer: { links: { value: { type: "schema" }, named: "Links" }, state: { value: { type: "schema" }, named: "S" } } } as OperationModel;
+    expect(OutputSchema.states({ model: pluggedIn.model, op: moved, schema: {}, spans: [], files: pluggedIn.files, states: ["a"] })).toEqual(["handle.claim's answer field links has no recorded value (the run's span carries none and the model does not say one), so the schema cannot be shown to accept it"]);
   });
 });
