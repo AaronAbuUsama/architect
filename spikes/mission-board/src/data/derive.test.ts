@@ -76,7 +76,7 @@ test("filters by state, thread and output", () => {
   const cards = join(grid, moved).lanes.flatMap((l) => l.cards);
   equal(cards.filter((c) => matches(c, { states: ["red"] })).length, 35);
   equal(cards.filter((c) => matches(c, { thread: "codex-plugged-in" })).length, 1);
-  equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 5);
+  equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 6);
 });
 
 test("roles come from cellRole: 102 carry, 4 absence checks, 20 not needed; 14 red ones are proposed grey", () => {
