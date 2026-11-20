@@ -1,6 +1,6 @@
 // Reading the collector's file exporter: OTLP JSON, one export per line.
 import { existsSync, readFileSync } from "node:fs";
-import type { Log, Span, Trace } from "../types.ts";
+import type { Log, Span, Trace, Wanted } from "../types.ts";
 
 const value = (v: any): unknown =>
   v === undefined ? undefined
@@ -59,3 +59,7 @@ export const looksComplete = (trace: Trace | undefined, parent: string, rooted =
   const linked = trace.spans.some((s) => s.parentSpanId === parent) && trace.spans.every((s) => s.parentSpanId === "" || s.parentSpanId === parent || ids.has(s.parentSpanId));
   return linked && (!rooted || ids.has(parent));
 };
+
+/** Whether what a source holds of a wanted trace is all that will come: complete, or empty when it may be. */
+export const arrived = (trace: Trace | undefined, wanted: Wanted): boolean =>
+  (wanted.mayBeEmpty === true && (trace === undefined || trace.spans.length === 0)) || looksComplete(trace, wanted.parent, wanted.rooted);
