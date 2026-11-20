@@ -45,16 +45,19 @@ one package for that reason).
 
 ## Decided
 
-1. **A spike first** (`spike/ui-sdk`). The question: can a generated form on UI SDK carry a blueprint operation end
-   to end, and can a journey drive it through the agent bridge? It builds Plugged In's claim form from the
-   generated model and hooks (ST1.01), drives it once by a person's clicks and once through the agent bridge, and
-   shows a declared refusal on the field. It maps blueprint meaning onto the marks and records what doesn't fit:
+1. **Spikes first.** The first is done: `spikes/ui-sdk-verb-primitive` (PR #215) generated Plugged In's
+   `handle.claim` as one UI SDK primitive (73 lines) that renders in React and as custom elements; the agent bridge
+   lists it with only the actions the generator named, a call carries whether a person or an agent made it, and a
+   declared refusal fails the agent's step with its code. It ran against a stand-in server in jsdom. The second
+   (`spike/ui-sdk-real-world`) takes the same form through Plugged In's real generated SDK into a local world, in
+   Chromium, replays a real journey's claim step, and settles how blueprint meaning maps onto the agent marks:
    `Blueprint.issued` to `data-agent-secret`, private visibility to `data-agent-hidden`, an approval to
-   `data-agent-confirm`, and `source === "agent"` to a way in that a role can exclude. That mapping is the Capxul
-   session's sketch, not yet a decision; the spike settles it. Nothing in `packages/` depends on UI SDK until the
-   spike passes.
+   `data-agent-confirm`, and `source === "agent"` to a way in that a role can exclude (the Capxul session's sketch,
+   not yet a decision). Nothing in `packages/` depends on UI SDK until the second spike passes.
+   The first spike's finding is the rule: the page is generated from the blueprint onto UI SDK as its own output, and
+   never hand-written against UI SDK.
 2. **Everything new uses UI SDK from the start**, once the spike passes: generated forms, inputs, buttons, lists
-   and screens, and the example apps' hand-written screens. HeroUI never touches them.
+   and screens, and the example apps' screens, which become generated rather than hand-written. HeroUI never touches them.
 3. **The portal moves over piece by piece**, behind the same seam. `@orthograph/portal-ui` keeps its own names
    (F7, decision 2); their insides change from HeroUI Pro to UI SDK one export at a time. The data grid and the board
    go last, because UI SDK has neither: we build them on its behaviours, as F7's fallback already planned for the
