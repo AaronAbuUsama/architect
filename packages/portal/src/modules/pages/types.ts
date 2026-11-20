@@ -7,7 +7,15 @@ import type { BlueprintWire } from "#modules/wire/types.js";
 export type Route =
   | { readonly page: "home" }
   | { readonly page: "thing"; readonly name: string }
-  | { readonly page: "operation"; readonly name: string }
+  | { readonly page: "operation"; readonly name: string; readonly tab: string }
+  | { readonly page: "environment"; readonly name: string }
+  | { readonly page: "plugins" }
+  | { readonly page: "journeys" }
+  | { readonly page: "worlds" }
+  | { readonly page: "compare" }
+  | { readonly page: "reference"; readonly kind: "access" | "refusals" | "events" | "values" | "machines" }
+  | { readonly page: "trace"; readonly id: string }
+  | { readonly page: "monitor" }
   | { readonly page: "missing" };
 
 /** Everything a page is drawn from: the blueprint, and the snapshot taken for exactly that blueprint's digest. */
@@ -31,9 +39,9 @@ export type Loaded =
 
 export interface PagesApi {
   /** The whole client: the one component the browser entry mounts, with the path it was opened at. */
-  readonly App: (props: { readonly pathname: string }) => import("react").ReactElement;
-  /** The route of a path (`/portal/things/handle`), or `missing` for one that is not a page of the portal. */
-  readonly routeOf: (pathname: string) => Route;
+  readonly App: (props: { readonly pathname: string; readonly search?: string }) => import("react").ReactElement;
+  /** The route of a path (`/portal/things/handle`) and its query (`?tab=metrics`), or `missing` for one that is not a page of the portal. */
+  readonly routeOf: (pathname: string, search?: string) => Route;
   /** Read the blueprint and its snapshot from the data API. Fails with what could not be read. */
   readonly load: () => import("effect").Effect.Effect<PortalData, DataFailed>;
 }

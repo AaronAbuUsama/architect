@@ -3,10 +3,18 @@
 import type { ReactNode } from "react";
 import type { PortalProof, PortalSnapshot } from "#modules/snapshot/types.js";
 import type { FieldWire, OperationWire } from "#modules/wire/types.js";
+import type { PortalData } from "../types.ts";
+import { Chrome } from "./chrome.tsx";
 
 /** The page's one root: `data-ready` says it has drawn from the data API, `data-status` is its own verdict (404 for a route that is not a page). */
-export const Page = ({ status, ready = true, children }: { readonly status: number; readonly ready?: boolean; readonly children?: ReactNode }) => (
-  <main data-portal="page" data-ready={ready ? "true" : "false"} data-status={String(status)}>{children}</main>
+export const Page = ({ status, ready = true, data, scope = "all", operations, children }: {
+  readonly status: number; readonly ready?: boolean; readonly children?: ReactNode;
+  /** The data the frame is drawn from; a page with none (loading, a failure, not found) has no frame. */
+  readonly data?: PortalData; readonly scope?: string; readonly operations?: ReadonlyArray<string>;
+}) => (
+  <main data-portal="page" data-ready={ready ? "true" : "false"} data-status={String(status)}>
+    {data === undefined ? children : <Chrome data={data} scope={scope} {...(operations === undefined ? {} : { operations })}>{children}</Chrome>}
+  </main>
 );
 
 export const Table = ({ head, rows }: { readonly head: ReadonlyArray<string>; readonly rows: ReadonlyArray<ReadonlyArray<ReactNode>> }) => (
