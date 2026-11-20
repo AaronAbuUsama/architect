@@ -14,21 +14,21 @@ fetch("/_portal/v1/blueprint").then((x) => x.json()).then((b) => {
     const full = ownerOf(op, e);
     if (!full) return "<span>" + esc(e) + "</span>";
     const [t, n] = full.split(".");
-    return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="' + full + '"><b>' + e + '</b> <i data-portal="refusal-sentence">' + esc(sentence(t, n, m.things[t].invariants[n])) + '</i> <a data-portal="rule-link" href="/portal/things/' + t + '#rule-' + n + '">rule</a></span>';
+    return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="' + full + '"><b>' + e + '</b> <i data-portal="refusal-sentence">' + esc(sentence(t, n, m.things[t].invariants[n])) + '</i> <a data-portal="rule-link" href="/portal/things/' + t + '#rule-' + n + '">' + n + '</a></span>';
   };
   let body = "<p>home</p>";
   const [, kind, name] = route.split("/");
   if (kind === "things" && m.things[name]) {
     const t = m.things[name], rules = Object.entries(t.invariants ?? {});
     body = "<h1>" + name + "</h1>" + (t.machine ? '<div data-portal="lifecycle">' + t.machine.states.join(" > ") + "</div>" : "")
-      + (rules.length ? '<section data-portal="rules">' + rules.map(([n, r]) => '<div data-portal="rule" id="rule-' + n + '" data-rule="' + name + "." + n + '" data-fields="' + r.fields.join(",") + '" data-while="' + r.while.join(",") + '" data-refuse="' + (r.refuse ?? "") + '" data-described="' + (r.description ? "true" : "false") + '"><b>' + n + '</b> <i data-portal="rule-sentence">' + esc(sentence(name, n, r)) + "</i></div>").join("") + "</section>" : "")
+      + (rules.length ? '<section data-portal="rules">' + "<h2>Rules</h2>" + rules.map(([n, r]) => '<div data-portal="rule" id="rule-' + n + '" data-rule="' + name + "." + n + '" data-fields="' + r.fields.join(",") + '" data-while="' + r.while.join(",") + '" data-refuse="' + (r.refuse ?? "") + '" data-described="' + (r.description ? "true" : "false") + '"><b>' + n + '</b> <i data-portal="rule-sentence">' + esc(sentence(name, n, r)) + "</i>" + (r.refuse ? " refuses " + view({ invariants: { [r.refuse]: name + "." + n } }, r.refuse) : "") + "</div>").join("") + "</section>" : "")
       + Object.values(m.operations).filter((o) => o.thing === name).map((o) => '<div data-portal="operation-row" data-operation="' + o.name + '">' + o.name + "</div>").join("")
       + Object.keys(t.errors ?? {}).map((e) => "<p>" + view(Object.values(m.operations).find((o) => o.thing === name && ownerOf(o, e)) ?? {}, e) + "</p>").join("");
   } else if (kind === "operations" && m.operations[name]) {
     const o = m.operations[name], rules = [...new Set(Object.values(o.invariants ?? {}))];
     body = "<h1>" + name + "</h1><ul>" + o.refusals.map((e) => "<li>" + view(o, e) + "</li>").join("") + "</ul>"
       + (o.move ? '<div data-portal="spine-stop" data-stop="move">move</div>' : "")
-      + (rules.length ? '<div data-portal="spine-stop" data-stop="rules" data-rules="' + rules.join(",") + '">rules</div>' : "")
+      + (rules.length ? '<div data-portal="spine-stop" data-stop="rules" data-rules="' + rules.join(",") + '">rules: ' + rules.map((x) => x.split(".")[1]).join(", ") + '</div>' : "")
       + '<div data-portal="spine-stop" data-stop="commit">commit</div>';
   } else if (route !== "/" && route !== "/reference/refusals") body = "<p>not found</p>";
   document.getElementById("root").innerHTML = '<main data-portal="page" data-ready="true" data-status="200">' + body + "</main>";

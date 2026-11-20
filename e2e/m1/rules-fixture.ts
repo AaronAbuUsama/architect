@@ -62,21 +62,24 @@ const SCAN = `(() => {
     for (const name of names) if (n.data.includes(name) && !n.parentElement?.closest('[data-portal="refusal"]')) bare.push({ name, text: n.data.trim().slice(0, 80) });
   }
   return {
+    origin: location.origin,
+    sectionText: q('[data-portal="rules"]').map((e) => e.innerText).join(" "),
+    lifecycleText: q('[data-portal="lifecycle"]').map((e) => e.innerText).join(" "),
     order: q("[data-portal]").map((e) => a(e, "data-portal")).filter((h) => ["lifecycle", "rules", "operation-row"].includes(h)),
     sections: q('[data-portal="rules"]').length,
     strays: q('[data-portal="rule"]').filter((e) => !e.closest('[data-portal="rules"]')).length,
-    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]'), sentences: q('[data-portal="rule-sentence"]', e).length })),
-    refusals: q('[data-portal="refusal"]').map((e) => { const l = q('a[data-portal="rule-link"]', e)[0] ?? null; return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: q('[data-portal="refusal-sentence"]', e).length, links: q('a[data-portal="rule-link"]', e).length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, href: l === null ? null : a(l, "href") }; }),
+    rules: q('[data-portal="rules"] [data-portal="rule"]').map((e) => ({ rule: a(e, "data-rule"), fields: a(e, "data-fields"), while: a(e, "data-while"), refuse: a(e, "data-refuse"), described: a(e, "data-described"), id: e.id, sentence: text(e, '[data-portal="rule-sentence"]'), sentences: q('[data-portal="rule-sentence"]', e).length, text: e.innerText })),
+    refusals: q('[data-portal="refusal"]').map((e) => { const l = q('a[data-portal="rule-link"]', e)[0] ?? null; return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: q('[data-portal="refusal-sentence"]', e).length, links: q('a[data-portal="rule-link"]', e).length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, text: e.innerText, linkText: l === null ? "" : l.innerText.trim(), abs: l === null ? null : l.href, href: l === null ? null : a(l, "href") }; }),
     lifecycles: q('[data-portal="lifecycle"]').length,
     bare,
-    stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules") })),
+    stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules"), text: e.innerText })),
     ids: q("[id]").map((e) => e.id),
   };
 })()`;
 interface Seen {
-  order: Array<string>; lifecycles: number; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string; sentences: number }>;
-  refusals: Array<{ name: string; rule: string; sentence: string; sentences: number; links: number; inSpine: boolean; href: string | null }>; bare: Array<{ name: string; text: string }>;
-  stops: Array<{ stop: string; rules: string }>; ids: Array<string>;
+  origin: string; sectionText: string; lifecycleText: string; order: Array<string>; lifecycles: number; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string; sentences: number; text: string }>;
+  refusals: Array<{ name: string; rule: string; sentence: string; sentences: number; links: number; inSpine: boolean; text: string; linkText: string; abs: string | null; href: string | null }>; bare: Array<{ name: string; text: string }>;
+  stops: Array<{ stop: string; rules: string; text: string }>; ids: Array<string>;
 }
 const scan = (portal: ServedPortal, route: string, names: ReadonlyArray<string>) => portal.evaluate<Seen>(route, SCAN.replace("__NAMES__", JSON.stringify(names)));
 
@@ -103,6 +106,9 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     if (page.strays > 0) out.section.push(`/portal/things/${thing}: ${page.strays} rule rows sit outside the Rules section`);
     const dupIds = page.ids.filter((id, i) => id !== "" && page.ids.indexOf(id) !== i);
     for (const id of new Set(dupIds)) out.section.push(`/portal/things/${thing}: id "${id}" is on ${page.ids.filter((i) => i === id).length} elements: a link's fragment must reach one`);
+    if (page.sections === 1 && !/rules/i.test(page.sectionText)) out.section.push(`/portal/things/${thing}: the Rules section does not say Rules`);
+    const states = ((wire.model.things[thing] as { machine?: { states?: ReadonlyArray<string> } }).machine?.states) ?? [];
+    if (page.lifecycles === 1) for (const st of states) if (!page.lifecycleText.includes(st)) out.section.push(`/portal/things/${thing}: the lifecycle does not show the state ${st}`);
     if (page.lifecycles > 1) out.section.push(`/portal/things/${thing} has ${page.lifecycles} lifecycles, it needs one`);
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
     for (const [rule, n] of Object.entries(page.rules.reduce<Record<string, number>>((all, r) => ({ ...all, [r.rule]: (all[r.rule] ?? 0) + 1 }), {}))) if (n > 1) out.section.push(`/portal/things/${thing} shows ${rule} ${n} times: one row per rule`);
@@ -117,6 +123,8 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
       if (row === undefined) continue;
       if (row.fields !== r.fields.join(",") || row.while !== r.while.join(",") || row.refuse !== (r.refuse ?? "")) out.section.push(`${full(r)}: the row says fields "${row.fields}", while "${row.while}", refuses "${row.refuse}"; the model says "${r.fields}", "${r.while}", "${r.refuse ?? ""}"`);
       if (row.sentences !== 1) out.sentences.push(`${full(r)}: its row has ${row.sentences} \`rule-sentence\` elements, it needs one`);
+      if (!row.text.includes(r.name)) out.section.push(`${full(r)}: the row's data-rule says it, the page does not show its name "${r.name}"`);
+      if (r.refuse !== undefined && !row.text.includes(r.refuse)) out.section.push(`${full(r)}: the row's data-refuse says ${r.refuse}, the page does not show it`);
       if (row.id === "") out.section.push(`${full(r)}: the row has no id, so no refusal can link to it`);
     }
   }
@@ -137,16 +145,19 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
   }
 
   const routes = ["/portal", ...Object.keys(wire.model.things).map((t) => `/portal/things/${t}`), ...Object.keys(wire.model.operations).map((o) => `/portal/operations/${o}`), "/portal/reference/refusals"];
-  const checkRefusal = async (route: string, f: Seen["refusals"][number]) => {
+  const checkRefusal = async (route: string, page: Seen, f: Seen["refusals"][number]) => {
     const rule = rules.find((r) => r.refuse === f.name);
     if (rule === undefined) { if (f.rule !== "" || f.href !== null || f.links > 0) out.refusals.push(`${route}: ${f.name} is no rule's refusal and still links to "${f.rule}"`); return; }
     const row = rows.get(full(rule));
     if (f.rule !== full(rule)) out.refusals.push(`${route}: ${f.name} names rule "${f.rule}", the model gives "${full(rule)}"`);
+    if (!f.text.includes(f.name)) out.refusals.push(`${route}: the element says ${f.name} in data-refusal, the page does not show it`);
     if (f.sentences !== 1) out.refusals.push(`${route}: ${f.name} has ${f.sentences} \`refusal-sentence\` elements, it needs one`);
     if (f.links !== 1) out.refusals.push(`${route}: ${f.name} has ${f.links} \`rule-link\` anchors, it needs one`);
     if (row === undefined || f.sentence !== row.sentence) out.refusals.push(`${route}: ${f.name} reads "${f.sentence}", its rule's row reads "${row?.sentence}": one sentence on every surface`);
-    const path = f.href?.replace(/^https?:\/\/[^/]+/, "") ?? "";
-    const [target, fragment = ""] = path.split("#");
+    if (!f.linkText.includes(rule.name)) out.refusals.push(`${route}: ${f.name}'s link reads "${f.linkText}", it does not name its rule ${rule.name}`);
+    const dest = f.abs === null ? undefined : new URL(f.abs);
+    if (dest === undefined || dest.origin !== page.origin) { out.refusals.push(`${route}: ${f.name} links to ${f.abs ?? "nothing"}, which leaves the portal (${page.origin})`); return; }
+    const [target, fragment = ""] = [dest.pathname, dest.hash.slice(1)];
     if (target !== `/portal/things/${rule.thing}` || fragment === "") { out.refusals.push(`${route}: ${f.name} links to ${f.href ?? "nothing"}, not to a row of ${rule.thing}'s page`); return; }
     const there = await read(target!).catch(() => undefined);
     const owners = (there?.ids ?? []).filter((id) => id === fragment).length;
@@ -158,7 +169,7 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     const page = await read(route).catch((error: unknown) => { if (route === "/portal/reference/refusals") return undefined; throw error; });
     if (page === undefined) continue;
     for (const b of page.bare) out.refusals.push(`${route}: "${b.name}" is shown as plain text ("${b.text}"), not as a \`[data-portal="refusal"]\` that carries its rule's sentence and a link`);
-    for (const f of page.refusals) await checkRefusal(route, f);
+    for (const f of page.refusals) await checkRefusal(route, page, f);
   }
   // And each operation's own page, against its own contract: every refusal a rule owns there is shown once in the page's own list (the spine's
   // rules stop may name them again, inside the stop), as its rule's sentence, linked; and none the operation does not have.
@@ -183,7 +194,13 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     const [move, commit] = [stops.findIndex((s) => s.stop === "move"), stops.findIndex((s) => s.stop === "commit")];
     if (at < 0) { out.spine.push(`${name}: the spine has no \`[data-portal="spine-stop"][data-stop="rules"]\``); continue; }
     if (!(move >= 0 && move < at && at < commit)) out.spine.push(`${name}: the rules stop is not between the move and the commit (stops: ${stops.map((s) => s.stop)})`);
-    const listed = stops[at]!.rules.split(",").filter(Boolean);
+    const rulesStop = stops[at]!;
+    const everyRule = rules.map((r) => r.name);
+    const shownNames = everyRule.filter((n) => new RegExp(`\\b${n}\\b`).test(rulesStop.text));
+    const modelNames = attached.map((f) => f.split(".")[1]!).sort();
+    if (shownNames.slice().sort().join() !== modelNames.join()) out.spine.push(`${name}: the rules stop shows the rules [${shownNames}] but the model attaches [${modelNames}]: its data-rules is not what a person reads`);
+    for (const w of ["move", "commit"]) { const stop = stops.find((x) => x.stop === w); if (stop !== undefined && !new RegExp(w, "i").test(stop.text)) out.spine.push(`${name}: the ${w} stop's text says "${stop.text.trim()}", not ${w}`); }
+    const listed = rulesStop.rules.split(",").filter(Boolean);
     if (new Set(listed).size !== listed.length) out.spine.push(`${name}: the rules stop names a rule twice ("${stops[at]!.rules}")`);
     if ([...new Set(listed)].sort().join() !== attached.join()) out.spine.push(`${name}: the rules stop lists "${stops[at]!.rules}", the model attaches [${attached}]`);
   }

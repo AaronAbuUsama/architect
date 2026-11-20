@@ -115,7 +115,7 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect(twoCommits.spine.some((p) => p.includes("more than once")), twoCommits.spine.join("\n")).toBe(true);
     const noLifecycle = await judged((h) => h.replace(`'<div data-portal="lifecycle">'`, `'<div>'`));
     expect(noLifecycle.section.some((p) => p.includes("has a machine and no")), noLifecycle.section.join("\n")).toBe(true);
-    const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));
+    const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + "<h2>Rules</h2>" + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));
     expect(outside.section.some((p) => p.includes("outside the Rules section")), outside.section.join("\n")).toBe(true);
     const dropped = await judged((h) => h.replace("o.refusals.map((e) =>", `o.refusals.filter((e) => e !== "HandleAlreadyOwned").map((e) =>`));
     expect(dropped.refusals.some((p) => p.includes("/portal/operations/handle.claim") && p.includes("HandleAlreadyOwned") && p.includes("is shown 0 times")), dropped.refusals.join("\n")).toBe(true);
@@ -166,11 +166,11 @@ describe.each([
   ["a rule's row shown twice", "section", "2 times", [["rules.map(([n, r]) =>", "rules.concat(rules).map(([n, r]) =>"]]],
   ["two rows sharing one id", "section", "is on 2 elements", [[`id="rule-' + n + '"`, `id="rule-x"`]]],
   ["a second lifecycle", "section", "2 lifecycles", [[`'<div data-portal="lifecycle">' + t.machine.states.join(" > ") + "</div>"`, `'<div data-portal="lifecycle">' + t.machine.states.join(" > ") + '</div><div data-portal="lifecycle"></div>'`]]],
-  ["a row with two sentences", "sentences", "2 `rule-sentence`", [[`"</i></div>").join("")`, `"</i><i data-portal=\\"rule-sentence\\">x</i></div>").join("")`]]],
+  ["a row with two sentences", "sentences", "2 `rule-sentence`", [[`"</i>" + (r.refuse`, `"</i><i data-portal=\\"rule-sentence\\">x</i>" + (r.refuse`]]],
   ["a link to another rule's row", "refusals", "not exactly its rule's row", [[`'#rule-' + n`, `'#rule-' + (n === "oneHolderPerName" ? "oneNamePerPerson" : n)`]]],
   ["a link whose fragment two elements answer to", "refusals", "is 2 elements", [[`id="rule-' + n + '"`, `id="rule-x"`], [`'#rule-' + n`, `'#rule-x'`]]],
   ["a refusal with two sentences", "refusals", "2 `refusal-sentence`", [[`'</i> <a data-portal="rule-link"`, `'</i><i data-portal="refusal-sentence">z</i> <a data-portal="rule-link"`]]],
-  ["a refusal with two links", "refusals", "2 `rule-link`", [[`'">rule</a></span>'`, `'">rule</a><a data-portal="rule-link" href="/x">r</a></span>'`]]],
+  ["a refusal with two links", "refusals", "2 `rule-link`", [[`'">' + n + '</a></span>'`, `'">' + n + '</a><a data-portal="rule-link" href="/x">r</a></span>'`]]],
   ["a refusal listed twice on its operation's page", "refusals", "is shown 2 times", [["o.refusals.map((e) =>", "o.refusals.concat(o.refusals).map((e) =>"]]],
   ["a refusal its operation does not have", "refusals", "not one of its refusals", [["o.refusals.map((e) =>", `o.refusals.concat(["HandleNotClaimed"]).map((e) =>`], [`return "<span>" + esc(e) + "</span>";`, `return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="">' + esc(e) + "</span>";`]]],
   ["a rules stop naming a rule twice", "spine", "names a rule twice", [[SPINE_RULES, `data-rules="' + rules.concat(rules).join(",")`]]],
@@ -179,7 +179,7 @@ describe.each([
   ["a scope wider than the model's", "section", `while "claimed,released"`, [[`'" data-while="' + r.while.join(",")`, `'" data-while="' + r.while.concat(["released"]).join(",")`]]],
   ["a rule's row left out", "section", "lists rules", [["rules.map(([n, r]) =>", "rules.slice(1).map(([n, r]) =>"]]],
   ["a refusal's sentence left out", "refusals", "0 `refusal-sentence`", [[`<i data-portal="refusal-sentence">`, `<i>`]]],
-  ["a row for a rule the model does not have", "section", "lists rules", [["rules.map(([n, r]) =>", `rules.concat([["ghost", { fields: ["x"], while: [], refuse: "HandleTaken" }]]).map(([n, r]) =>`]]],
+  ["a row for a rule the model does not have", "section", "lists rules", [["rules.map(([n, r]) =>", `rules.concat([["ghost", { fields: ["x"], while: [] }]]).map(([n, r]) =>`]]],
   ["a rules stop on an operation that can break no rule", "spine", "can break no rule", [["(rules.length ? '<div data-portal=\"spine-stop\" data-stop=\"rules\"", "(true ? '<div data-portal=\"spine-stop\" data-stop=\"rules\""]]],
   ["a missing attribute read as null", "section", `refuses "undefined"`, [[`(r.refuse ?? "")`, `String(r.refuse)`]]],
   ["a missing description printed as a sentence", "sentences", "does not carry", [[`r.description ?? (`, `(r.description ? r.description : r.refuse ? "undefined" : `]]],
@@ -189,6 +189,18 @@ describe.each([
   ["the rules before the lifecycle", "section", "before the lifecycle", [[`+ (t.machine ? '<div data-portal="lifecycle">' + t.machine.states.join(" > ") + "</div>" : "")`, ``], [`+ "</p>").join("");`, `+ "</p>").join("") + (t.machine ? '<div data-portal="lifecycle">x</div>' : "");`]]],
   ["the rules after the operations", "section", "after the operations", [[`+ (rules.length ? '<section data-portal="rules">'`, `+ Object.values(m.operations).filter((o) => o.thing === name).map((o) => '<div data-portal="operation-row" data-operation="' + o.name + '">' + o.name + "</div>").join("") + (rules.length ? '<section data-portal="rules">'`]]],
   ["a generated sentence repeating another rule's description", "sentences", "repeats another rule's description", [[`' holds this '`, `' holds this you already hold a name '`]]],
+  // an attribute says it, the page does not (and a link that leaves the portal)
+  ["a rules stop with data-rules and no names", "spine", "is not what a person reads", [[`'">rules: ' + rules.map((x) => x.split(".")[1]).join(", ") + '</div>'`, `'">rules</div>'`]]],
+  ["a rules stop that shows only one of its rules", "spine", "is not what a person reads", [[`rules.map((x) => x.split(".")[1])`, `rules.slice(1).map((x) => x.split(".")[1])`]]],
+  ["a commit stop that says something else", "spine", "not commit", [[`data-stop="commit">commit</div>'`, `data-stop="commit">done</div>'`]]],
+  ["a row whose data-rule is not shown by name", "section", "does not show its name", [[`'"><b>' + n + '</b> <i data-portal="rule-sentence">'`, `'"><b></b> <i data-portal="rule-sentence">'`]]],
+  ["a row whose data-refuse is not shown", "section", "does not show it", [[`(r.refuse ? " refuses " + view({ invariants: { [r.refuse]: name + "." + n } }, r.refuse) : "")`, `""`]]],
+  ["a refusal whose data-refusal is not shown", "refusals", "the page does not show it", [[`'"><b>' + e + '</b> <i data-portal="refusal-sentence">'`, `'"><b></b> <i data-portal="refusal-sentence">'`]]],
+  ["a link that does not name its rule", "refusals", "does not name its rule", [[`'">' + n + '</a></span>'`, `'">rule</a></span>'`]]],
+  ["a lifecycle that shows none of its states", "section", "does not show the state", [[`t.machine.states.join(" > ")`, `"x"`]]],
+  ["a Rules section with no title", "section", "does not say Rules", [[`"<h2>Rules</h2>" + `, ``]]],
+  ["a sentence that omits the states its data-while carries", "sentences", "does not carry", [[`r.while.join(' or ')`, `''`]]],
+  ["a link that leaves the portal", "refusals", "leaves the portal", [[`href="/portal/things/'`, `href="https://wrong.example/portal/things/'`]]],
   // visibility: every element the judge counts must be visible
   ["a rule's row hidden with display:none", "section", "lists rules", [[`'<div data-portal="rule" id=`, `'<div style="display:none" data-portal="rule" id=`]]],
   ["the Rules section hidden", "section", "0 Rules sections", [[`'<section data-portal="rules">'`, `'<section hidden data-portal="rules">'`]]],

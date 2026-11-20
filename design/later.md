@@ -102,3 +102,11 @@ belongs to, and why it waits.
 - **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
   Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
   or its terms stop a framework importing it.
+
+## From the grid (error.portal, #168)
+
+- **`error.portal` can't see whether the portal really has a metrics source.** A page that always shows the `not-yet` marker
+  (`data-hole="metrics"`) and never writes a count passes, even when refused spans exist, because the grid has no metrics source at
+  M1.13 and the marker is not tied to a surface. When the portal gets a source in the grid, the eval must check the marker against
+  the source (a marker with a source is wrong), and require the marker to sit on, or be visible next to, the refusal surface it
+  excuses. Waits on a metrics source in the grid's portal data (M1.13's metrics reader, M7.14 for history).
