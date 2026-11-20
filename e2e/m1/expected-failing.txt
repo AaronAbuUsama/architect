@@ -48,4 +48,3 @@ m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not ye
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
-m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean
