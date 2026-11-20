@@ -142,9 +142,9 @@ export {};
 
 ### Where a chain fits
 
-A chain is a host, `Host.chain`, and `chain` is the store kind that runs on it, supplied by `language-solidity` (K3
-item 2). That much is decided. How an operation maps to a contract function, which contract functions clients may
-reach, and how Solidity, Noir and Solana fit together all wait on K7, the chain languages worked out together (Aaron,
+A chain is a host, `Host.chain`, and `chain` is the store kind that runs on it. The host supplies the kind, and
+`language-solidity` writes the code that lives in it (K3 item 2, K27 item 5). That much is decided.
+How an operation maps to a contract function, which contract functions clients may reach, and how Solidity, Noir and Solana fit together all wait on K7, the chain languages worked out together (Aaron,
 18 November 2026). This page says no more about them until K7 lands.
 
 ## Choices
@@ -215,7 +215,8 @@ The page is a draft because the chain half waits on K7. The Effect half is built
 are languages; Cloudflare and a chain are hosts.</Note>
 
 <Note kind="decision" decision="K3">A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it,
-supplied by `language-solidity` (K3 item 2, K5 decision 8). This answers ledger `LAH-04`.</Note>
+supplied by the host and written for by `language-solidity` (K3 item 2, K5 decision 8, K27 item 5). This answers
+ledger `LAH-04`.</Note>
 
 <Note kind="status" slice="M6.01">Everything about chain languages waits on K7: how an operation maps to a contract's
 ABI, what clients may reach, and how Solidity, Noir and Solana share one model. M6.01 starts from K7. Until then

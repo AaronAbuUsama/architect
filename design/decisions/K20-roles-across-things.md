@@ -167,7 +167,7 @@ Aaron asked (20 November 2026) how option A comes out through the stack: in Type
 declaration, the Director role above, renders to the same check in each, refused with the same `NotAllowed` (`AR-001`),
 in K7's order: the role, then the machine, then the developer's body. Only the Effect half is planned soon (M2); the
 Solidity target is an empty package today (`packages/language-solidity/src/index.ts`, M6.10 and M6.11), and Noir is a
-later target (N1). The chain sketches follow the shapes the chain spikes ran (`K7-chain-languages.md:97-124`,
+later target (N1). (Superseded by K27, 20 November 2026: Solidity and Noir are languages, not targets.) The chain sketches follow the shapes the chain spikes ran (`K7-chain-languages.md:97-124`,
 `design/noir/spike-2-role-gate-e2.md`).
 
 **The model**, which every generator reads:

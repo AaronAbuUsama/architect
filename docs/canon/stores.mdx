@@ -258,7 +258,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 | | `database` (the default) | `actor` | `chain` (waits on K7) |
 |---|---|---|---|
 | What it is | D1, one row per instance, with a version column | one Durable Object per instance: its own SQLite, its own outbox | a contract, generated in the Solidity language |
-| Supplied by | `@orthograph/host-cloudflare` | `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |
+| Supplied by | `@orthograph/host-cloudflare` | `@orthograph/host-cloudflare` | `Host.chain`, written for by `@orthograph/language-solidity` (K27) |
 | Lists and search | yes | no: declare a view | through views |
 | Contention | every call to any instance shares one database | one writer per instance, so instances never contend | one transaction at a time, and every write costs gas |
 | Pick it when | you need to list and search across many | an instance takes many writes and needs strict order, and nobody lists them | it is money or a public commitment |

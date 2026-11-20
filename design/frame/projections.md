@@ -1,8 +1,9 @@
 # Projections
 
 A projection is a plugin that makes the description real in one form. The server, the SDK, the CLI, the MCP server,
-the docs, the portal, the contracts and the keeper are all projections. None of them is the system; each is a view of
-the model. Part of the frame in [`README.md`](README.md); everything here is proposed.
+the docs, the portal and the keeper are all projections. None of them is the system; each is a view of the model.
+Contracts are not a projection: the Solidity language writes them, and `Host.chain` runs them (K27, section 3.9).
+Part of the frame in [`README.md`](README.md); everything here is proposed.
 
 ## Today, in code
 
@@ -351,9 +352,10 @@ export const portal = Blueprint.projection({
   environment's Worker.
 - **Replay:** none. Its proof is the digest check on the wire projection (D3 #130).
 
-### 3.9 Solidity contracts
+### 3.9 Solidity contracts: a language, not a projection (K27)
 
-For every thing that lives in a chain store (K25), this projection renders:
+Solidity is a language on `Host.chain`, not a projection. It is listed here because the SDK, CLI and MCP reach what it
+writes. For every thing that lives in a chain store (K25), the Solidity language renders:
 
 - its contract scaffold, with blanks;
 - the compiled machine (`_step`);
@@ -361,20 +363,21 @@ For every thing that lives in a chain store (K25), this projection renders:
 - Foundry tests: every move from every state, every write signed by the wrong signer, every signature replayed.
 
 ```ts
-export const solidity = Blueprint.projection({
-  host: [Host.chain],
-  takes: (op) => op.runs === "chain" || livesOnChain(op.thing),
-  render: ({ model }) => Effect.succeed([...machines(model), ...typedData(model), ...foundryTests(model), ...scaffolds(model)]),
-  replay: (step, world) => relayer(world.chain).submit(signed(step)),  // through the relayer, on the world's Anvil
-  ships: [Deploy.contract],   // redeployed only when bytecode changes
+export const solidity = Blueprint.language({
+  frame, scaffold, surface, refusal, guards,   // the contract, src/<Store>.sol, surface.json, refusals.lock
+  writesFor: ["chain.evm"],    // the store kind its code is written for
+});
+export const chain = Blueprint.host({   // Host.chain
+  supplies: ["chain.evm"], wire: "chain",
+  deploy,                     // redeployed only when the bytecode changes
 });
 ```
 
 - **Today:** `packages/language-solidity/src/index.ts` is a shell. Layer 4 builds it.
-- **Mounting:** it mounts automatically when a thing first `lives` on chain, because you cannot have one without the
-  other. The mount file is written for you, with no choices.
-- **Note:** this projection is the only one that renders scaffolds into `src/` (`<Thing>.sol`). Every other scaffold
-  is a handler.
+- **Mounting:** the language and the host mount automatically when a thing first lives in a chain store, because you
+  cannot have one without the other. The mount files are written for you, with no choices.
+- **Replay:** a world's journey step goes through the relayer, on the world's Anvil.
+- **Note:** its scaffold is `src/<Store>.sol`, named after the chain store. Every other scaffold is a handler.
 
 ### 3.10 The keeper
 
