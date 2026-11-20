@@ -18,7 +18,7 @@ export interface Report {
 
 export interface ProveApi {
   /**
-   * Prove the project at `root` on a local world served on `port`. Nothing is left running when the scope closes:
+   * Prove the project at `root` on a local world served on `port` (0: any free port). Nothing is left running when the scope closes:
    * wrangler is stopped and the collector is closed. A project that runs and fails its journeys or evals is a
    * report with `passed: false`.
    */
