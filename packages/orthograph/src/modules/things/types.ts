@@ -4,10 +4,13 @@ import type { Value } from "#modules/values/types.js";
 import type { Visibility } from "#modules/visibility/types.js";
 
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
-export interface Field<V extends Value = Value> {
+export interface Field<V extends Value = Value, K extends string = string, F extends FieldsInput = FieldsInput> {
   readonly kind: "field";
   readonly of: Thing;
-  readonly key: string;
+  /** The field's own key; its type too, so a rule can tell `name` from `owner` (G5). */
+  readonly key: K;
+  /** Type only, never present: the thing's fields, so a rule can tell one thing's field from another's (G5). */
+  readonly "~thing"?: F;
   readonly value: V;
   /** The field it was taken from, when declared as another thing's field: the model's edge. */
   readonly from: Field | undefined;
@@ -35,7 +38,9 @@ export interface UniqueScope {
 export interface Thing<F extends FieldsInput = FieldsInput, U extends string = string> {
   readonly kind: "thing";
   readonly description: string;
-  readonly fields: { readonly [K in keyof F]: Field<ValueOf<F[K]>> };
+  readonly fields: { readonly [K in keyof F]: Field<ValueOf<F[K]>, K & string, F> };
+  /** Type only, never present: the declared fields, so a machine and a rule can tell this thing from another (G5). */
+  readonly "~fields"?: F;
   /** The kind of place its state is kept: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: StoreKind;
   /** The declared store it lives in (K3), when `lives` named one; absent for the project's default store. */

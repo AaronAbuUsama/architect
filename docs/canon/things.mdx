@@ -124,12 +124,15 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/orthograph/src/modules/things/types.ts name=Field lines=6-22
+```ts file=packages/orthograph/src/modules/things/types.ts name=Field lines=6-25
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
-export interface Field<V extends Value = Value> {
+export interface Field<V extends Value = Value, K extends string = string, F extends FieldsInput = FieldsInput> {
   readonly kind: "field";
   readonly of: Thing;
-  readonly key: string;
+  /** The field's own key; its type too, so a rule can tell `name` from `owner` (G5). */
+  readonly key: K;
+  /** Type only, never present: the thing's fields, so a rule can tell one thing's field from another's (G5). */
+  readonly "~thing"?: F;
   readonly value: V;
   /** The field it was taken from, when declared as another thing's field: the model's edge. */
   readonly from: Field | undefined;
