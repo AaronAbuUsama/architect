@@ -11,3 +11,5 @@ export { Live } from "#modules/live/service.js";
 export type { JournalRow, LiveApi, LiveCall, LiveCommit, LiveEvent, LiveLog, LiveRead, LiveSource, LiveSpan, LiveStep } from "#modules/live/types.js";
 export { PortalServer } from "#modules/server/service.js";
 export type { PortalAssets, PortalContext, PortalEnv } from "#modules/server/types.js";
+export { Telemetry } from "#modules/telemetry/service.js";
+export type { CallerKind, CallsView, CountsView, MetricPoint, MetricsWindow, OperationCounts, Outcome, PortalLive, PortalTelemetry, RefusalCounts, TelemetryCall, TraceSpanView, TraceView, TraceWindow, WindowFailure, WindowLog, WindowSpan, WindowTrace } from "#modules/telemetry/types.js";
