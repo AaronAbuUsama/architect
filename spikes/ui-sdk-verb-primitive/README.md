@@ -20,7 +20,7 @@ over every such component on the page.
   (`origin/goal/stage-1` at `eaf7a10e`, `examples/plugged-in/generated/model/model.json`).
 - `src/generate.ts` (145 lines, string templates) reads it and writes three files into `generated/`: the primitive, its
   React parts and its custom elements.
-- `src/runtime.ts` (58 lines) is the one helper every generated verb would share, a stand-in for a future
+- `src/runtime.ts` (62 lines) is the one helper every generated verb would share, a stand-in for a future
   `@orthograph/ui`.
 - `src/world.ts` stands in for the generated SDK and its server. It keeps claimed names in memory and refuses as the
   declared errors do. It is not the real thing: the question is about the page, so the server half is out of scope.
@@ -64,6 +64,10 @@ Each number is a test in `test/`; the output quoted is in `evidence/`.
 8. **The same primitive works as custom elements.** Eleven generated lines register `<linkup-handle-claim>` and its
    parts. The bridge from `@ui-sdk/web/agent` lists the same component with the same actions, and the same two steps
    send the same call with `"via": "agent"`.
+9. **Break: a send that rejects no longer leaves the verb stuck.** Found in review of this spike: a rejected promise
+   left `pending` true for ever, so neither a person nor an agent could retry. A rejection now clears `pending` and
+   sets `error`; the step fails with `The call failed before it was answered.`, the button is live again, and the
+   retry claims the name.
 
 Three things the docs did not say and the spike had to find:
 
@@ -84,11 +88,11 @@ Three things the docs did not say and the spike had to find:
 | Generated React parts | 19 lines |
 | Generated custom elements | 11 lines |
 | Generator | 145 lines |
-| Shared helper | 58 lines |
+| Shared helper | 62 lines |
 | Type errors in generated code on the first run | 1 (the helper's own typing, not UI SDK's) |
-| Test run, 8 tests in jsdom | 2.4 s wall, 0.33 s in tests |
+| Test run, 9 tests in jsdom | 2.4 s wall, 0.33 s in tests |
 | UI SDK releases between 12 and 19 November | 13 |
-| The same generated code on `0.1.0-beta.13`, six releases later | type-checks and passes 8 of 8 |
+| The same generated code on `0.1.0-beta.13`, six releases later | type-checks and passed the 8 tests written at the time |
 
 ## The decision it supports
 

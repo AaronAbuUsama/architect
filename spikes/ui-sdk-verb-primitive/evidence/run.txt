@@ -118,3 +118,23 @@
  "message": "Needs a person: \"Claims the name firstpage for you\". Ask them to make this change themselves."
 }
 
+## 9 the send rejects
+{
+ "step": 1,
+ "message": "submit on Claim your name (c1) failed: The call failed before it was answered."
+}
+
+## 9 the retry
+{
+ "ok": true,
+ "steps": [
+  {
+   "step": 0,
+   "ref": "c1",
+   "result": "pending"
+  }
+ ],
+ "appeared": [],
+ "values": {}
+}
+

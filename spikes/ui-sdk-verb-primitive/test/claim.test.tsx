@@ -111,4 +111,28 @@ describe("a generated verb primitive", () => {
     expect(result.ok).toBe(false);
     expect(world.calls).toHaveLength(0);
   });
+  test("9. BREAK: a send that rejects must not leave the verb pending for ever", async () => {
+    const world = makeWorld();
+    let fail = true;
+    const send: typeof world.handleClaim = (payload, meta) => (fail ? Promise.reject(new Error("network down")) : world.handleClaim(payload, meta));
+    render(
+      <HandleClaim send={send} aria-label="Claim your name">
+        <HandleClaimName aria-label="Name" />
+        <HandleClaimSubmit>Claim</HandleClaimSubmit>
+      </HandleClaim>,
+    );
+    const steps = [
+      { ref: "Claim your name", action: "setName", args: ["firstpage"] },
+      { ref: "Claim your name", action: "submit" },
+    ];
+    const first = await agent.act({ steps });
+    note("9 the send rejects", first.error ?? first);
+    expect(first.ok).toBe(false);
+    expect(screen.getByText<HTMLButtonElement>("Claim").disabled).toBe(false);
+    fail = false;
+    const second = await agent.act({ steps: [{ ref: "Claim your name", action: "submit" }] });
+    note("9 the retry", second);
+    expect(second.ok).toBe(true);
+    expect(world.claimed.get("firstpage")).toBe("hdl_1");
+  });
 });

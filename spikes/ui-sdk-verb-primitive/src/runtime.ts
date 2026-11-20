@@ -54,5 +54,9 @@ export const submit = <State extends VerbState, Payload, Answer>(
     );
     if (outcome.ok) context.options().onDone?.(outcome.answer);
     return outcome;
+  }, () => {
+    // A rejected send is a defect, not a refusal: clear `pending` so a retry is possible, and say so in `error`.
+    context.store.set({ pending: false, error: "The call failed before it was answered." } as Partial<State>);
+    return undefined;
   });
 };
