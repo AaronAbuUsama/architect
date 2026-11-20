@@ -168,8 +168,9 @@ Each number is a test in `test/`. The quoted output is in `evidence/`.
      `"<details.name> (<errorCode>)"`. That mapping is a three-line function in one place, `runtime.ts`.
    - **What the seam did change.** Approval moved into `defineAction`, out of the page. The form always passes
      `approved: true`, because reaching `run` means a person pressed it, or the bridge's `allow` already asked one
-     (`data-agent-confirm`). 5d now proves the action never asks twice (`asked` stays 0 after the bridge's yes), and
-     that a host which never asked, such as an MCP tool call, is asked by the action itself, once. The caller is only
+     (`data-agent-confirm`). In 5d the form never asks (`asked` stays 0 after the bridge's yes; that is by
+     construction, since the form always passes `approved: true`), and the action asks only when a host passes
+     `approved: false`, as an MCP tool call would: then it asks once. The caller is only
      `person` or `agent` now. `mouse` against `keyboard` stops at the form, which is all a role should see.
    - So the three layers fit: the blueprint's action is the spine, the generated form is bound to one action, and UI
      SDK is the widgets underneath. Both workarounds are adapters between UI SDK and the action, and each lives in one

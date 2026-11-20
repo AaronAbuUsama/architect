@@ -10,14 +10,14 @@
  "title": "\"Inter Variable\", ui-sans-serif, system-ui, sans-serif",
  "code": "\"JetBrains Mono Variable\", ui-monospace, monospace",
  "requests": [
-  "200 /fonts/jetbrains-mono-latin-wght-normal-VBS632QH.woff2",
-  "200 /fonts/inter-latin-opsz-normal-KZ4OTMG4.woff2"
+  "200 /fonts/inter-latin-opsz-normal-KZ4OTMG4.woff2",
+  "200 /fonts/jetbrains-mono-latin-wght-normal-VBS632QH.woff2"
  ]
 }
 
 ## typed page
 {
- "slashMs": 126,
+ "slashMs": 117,
  "markdown": "# 💡 Spike notes\n\n## What we found\n\n- UI SDK carries a real editor\n- Fonts are bundled, not borrowed\n\n- [ ] Show Aaron\n\n> Declared once, generated everywhere.\n"
 }
 
