@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("accept", "/invitation/accept", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [InvitationNotPending, NotAllowed],
 });
-export const steps = ["invitation.accept.join"] as const;

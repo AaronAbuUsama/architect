@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("drop", "/milestone/drop", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [MilestoneNotActive, MilestoneNotFound, NotAllowed],
 });
-export const steps = ["milestone.drop.record"] as const;

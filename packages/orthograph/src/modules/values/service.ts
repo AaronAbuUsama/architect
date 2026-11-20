@@ -18,6 +18,8 @@ const id = <const P extends string>(prefix: P) =>
 
 export const Values: ValuesApi = {
   value,
+  // A copy, so a value shared elsewhere keeps its own words.
+  described: (x, description) => Object.freeze({ ...x, description }) as unknown as typeof x,
   id,
   uint: (bits) =>
     described(Schema.BigIntFromString.check(Schema.isGreaterThanOrEqualToBigInt(0n), Schema.isLessThanBigInt(1n << BigInt(bits))), {

@@ -17,6 +17,7 @@ export const Mcp: McpApi = {
         name: t.name,
         description: t.description,
         inputSchema: t.input as { type: "object" },
+        ...(t.output ? { outputSchema: t.output as { type: "object" } } : {}),
         ...(t.readOnly ? { annotations: { readOnlyHint: true } } : {}),
       })),
     }));

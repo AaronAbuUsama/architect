@@ -5,9 +5,9 @@ import { declaration as Declaration } from "../../../api/src/profile/get.ts";
 import * as Sdk from "../../../sdk/src/index.ts";
 import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash
 
-/** Read a claimed name's public page and its links in display order. Every flag is text; the declaration decodes it. `--json` prints the whole answer as JSON. */
+/** Read a claimed name's public page and its links in display order. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const get = Command.make(
   "get",
-  { handle: Flag.String("handle"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { handle: Flag.String("handle").pipe(Flag.withMetavar("json"), Flag.withDescription("A JSON value.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.profile.get), Output.answer(json)),
-);
+).pipe(Command.withDescription("Read a claimed name's public page and its links in display order."));

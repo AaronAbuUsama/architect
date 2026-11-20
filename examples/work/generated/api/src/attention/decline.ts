@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("decline", "/attention/decline", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [AttentionNotOpen, AttentionNotFound, NotAllowed],
 });
-export const steps = ["attention.decline.record"] as const;

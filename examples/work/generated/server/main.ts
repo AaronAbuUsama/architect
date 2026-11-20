@@ -184,6 +184,30 @@ export interface Env {
   readonly ORTHO_WORLDS?: string;
 }
 
+/** Which steps each operation runs, by the operation's name: the server's own record, never in the API package (the caller's contract names no step, K14). */
+export const steps = {
+  "attention.approve": ["attention.approve.record"],
+  "attention.decline": ["attention.decline.record"],
+  "attention.raise": ["attention.raise.insert"],
+  "milestone.add": ["milestone.add.insert"],
+  "milestone.drop": ["milestone.drop.record"],
+  "mission.finish": ["mission.finish.record"],
+  "mission.open": ["mission.open.insert"],
+  "mission.pause": ["mission.pause.record"],
+  "mission.resume": ["mission.resume.record"],
+  "mission.start": ["mission.start.record"],
+  "mission.stop": ["mission.stop.record"],
+  "mission.tasks": ["mission.tasks.plan", "mission.tasks.facts"],
+  "question.answer": ["question.answer.record"],
+  "question.ask": ["question.ask.insert"],
+  "question.spike": ["question.spike.record"],
+  "run.fail": ["run.fail.record"],
+  "run.finish": ["run.finish.record"],
+  "run.report": ["run.report.record"],
+  "run.start": ["run.start.claim"],
+  "run.stop": ["run.stop.record"],
+} as const;
+
 // Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
 // layer's instance, so a session either one issues is a person to both.
 let routes: ReturnType<typeof AuthD1.make> | undefined;

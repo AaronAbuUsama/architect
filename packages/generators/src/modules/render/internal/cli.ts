@@ -1,12 +1,31 @@
 // generated/cli: `<project> <thing> <verb> --<field> ...`, one command per operation, calling the SDK.
-import type { Model, OperationModel } from "@orthograph/compiler";
+import type { FieldModel, Model, OperationModel } from "@orthograph/compiler";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
 import { GENERATED, camel, exportedAs, lines, local, opVar, type RenderedFile } from "@orthograph/projections/shared";
+
+/** What a text flag takes, in the words a caller uses: a wide number is a `uint` (kept as text, so no digit is lost), an id says what it names. */
+const metavar = (f: FieldModel): string =>
+  f.value.type === "uint" ? "uint" : f.value.type === "id" ? "id" : f.value.type === "schema" ? "json" : "text";
+
+/** A flag's help: the field's own description, then what kind of value it takes. */
+const flagNote = (f: FieldModel): string => {
+  const kind = f.value.type === "uint" ? `A whole number below 2^${f.value.bits}.` : f.value.type === "id" ? `An id (${f.value.prefix}_...).` : f.value.type === "schema" ? "A JSON value." : "Text.";
+  return f.description === undefined ? kind : `${f.description} ${kind}`;
+};
+
+/** The operation's description, then the states a move runs between, so `--help` says what the command does and what it changes. */
+const helpOf = (op: OperationModel): string =>
+  !op.move ? op.description
+    : `${op.description} Moves the ${op.thing} ${op.move.from.length > 0 ? `from ${op.move.from.join(" or ")}` : "into being"} to ${op.move.to.join(" or ")}.`;
 
 const command = (op: OperationModel): RenderedFile => {
   const optional = Object.values(op.payload).some((f) => f.optional);
   const flags = Object.entries(op.payload).map(([k, f]) => {
-    const text = `Flag.String("${k}")`;
+    // A number that fits is a number flag (handed on as the digits the declaration decodes); a wider one stays text, so no digit is lost.
+    const small = f.value.type === "uint" && f.value.bits <= 53;
+    const text = small
+      ? `Flag.Int("${k}").pipe(Flag.map(String), Flag.withDescription(${JSON.stringify(flagNote(f))}))`
+      : `Flag.String("${k}").pipe(Flag.withMetavar(${JSON.stringify(metavar(f))}), Flag.withDescription(${JSON.stringify(flagNote(f))}))`;
     const flag = f.value.type === "schema" && f.value.format === "ref-any" ? `${text}.pipe(Flag.withSchema(Schema.fromJsonString(Schema.Unknown)))` : text;
     return `${k}: ${f.optional ? `Flag.optional(${flag})` : flag}`;
   });
@@ -21,12 +40,12 @@ const command = (op: OperationModel): RenderedFile => {
       `import * as Sdk from "../../../sdk/src/index.ts";`,
       `import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash`,
       "",
-      `/** ${op.description} Every flag is text${Object.values(op.payload).some((f) => f.value.type === "schema" && f.value.format === "ref-any") ? " (any-thing references are JSON objects)" : ""}; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
+      `/** ${op.description} Each flag is handed on as text${Object.values(op.payload).some((f) => f.value.type === "schema" && f.value.format === "ref-any") ? " (any-thing references are JSON objects)" : ""}; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
       `export const ${local(camel(op.verb))} = Command.make(`,
       `  "${op.verb}",`,
       `  { ${[...flags, `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
       `  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(${optional ? "Output.supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), Output.answer(json)),`,
-      ");",
+      `).pipe(Command.withDescription(${JSON.stringify(helpOf(op))}));`,
       exportedAs(op.verb),
     ),
   };

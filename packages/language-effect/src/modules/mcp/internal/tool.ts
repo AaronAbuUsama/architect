@@ -7,6 +7,7 @@ import { Audience, Visibility } from "#modules/visibility/service.js";
 import { Wire } from "#modules/wire/service.js";
 import type { McpEntry, McpOperation, McpRefusals, McpResult, McpServed, McpTool } from "../types.ts";
 import { hiddenInputs, inputSchema } from "./input.ts";
+import { outputSchema } from "./output.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
 type Fields = { readonly [field: string]: unknown };
@@ -78,5 +79,6 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
     );
   });
 
-  return { name, description: entry.description, input: inputSchema(op.payloadSchema as unknown as Schema.Top, op.payload), readOnly: op.kind === "read", call };
+  const output = outputSchema(op, items, entry.states);
+  return { name, description: entry.description, input: inputSchema(op.payloadSchema as unknown as Schema.Top, op.payload), ...(output ? { output } : {}), readOnly: op.kind === "read", call };
 };

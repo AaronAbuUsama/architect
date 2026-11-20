@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("release", "/handle/release", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [HandleNotClaimed, NotAllowed],
 });
-export const steps = ["handle.release.record"] as const;

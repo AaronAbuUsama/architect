@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("start", "/run/start", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [MissionNotRunning, RunOverBudget, RunAgentCannot, RunTaskClaimed, NotAllowed],
 });
-export const steps = ["run.start.claim"] as const;

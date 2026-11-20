@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("create", "/api-key/create", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [NotAllowed],
 });
-export const steps = ["api-key.create.issue", "api-key.create.insert"] as const;
