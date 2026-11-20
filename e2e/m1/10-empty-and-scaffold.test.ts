@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { freePorts } from "../ports.ts";
 import { copyOf, acme, fixtures, model, nothingRunning, removeAt, run, succeeds, textAt } from "./support.ts";
 
-const PORTS = freePorts("changed", "unchanged");
+const PORTS = freePorts("changed", "unchanged", "empty", "scaffold");
 const copies: Array<ReturnType<typeof copyOf>> = [];
 const fresh = () => {
   const copy = copyOf(acme);
@@ -36,7 +36,7 @@ describe("M1.16: ortho prove --empty", () => {
   it("runs acme's revoke then spend with two red steps and the role refusal proved by the description", () => {
     const root = fresh();
     const originals = [textAt(root, revoke), textAt(root, spend)];
-    revokeThenSpend(root, 19276);
+    revokeThenSpend(root, PORTS.empty);
     expect([textAt(root, revoke), textAt(root, spend)]).toEqual(originals);
   });
 });
@@ -54,7 +54,7 @@ describe("M1.26: the wired scaffold and optional steps", () => {
     expect(source).toMatch(/steps\.load\(Handlers\.blank[\s\S]*steps\.record\(Handlers\.blank[\s\S]*move\(/);
     expect(source).toMatch(/new AllowanceExceeded\(/);
     expect(textAt(root, revoke)).toMatch(/steps\.update\(Handlers\.blank/);
-    const result = revokeThenSpend(root, 19277);
+    const result = revokeThenSpend(root, PORTS.scaffold);
     expect(result).toMatch(/✘ "ada revokes it"[^\n]*BlankReached[^\n]*update/);
     expect(result).toMatch(/✘ "olga can't spend"[^\n]*BlankReached[^\n]*load/);
   });
