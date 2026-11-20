@@ -29,7 +29,7 @@ HAN-10-baselines and golden pull requests each at least once, almost always in t
    `e2e/m1/expected-failing/` or delete a file, and refuses an added line or an added file. Its README exception for totals blocks is gone,
    with its cases in `tools/ci/ci.test.sh`.
 
-Seeded from `goal/stage-1` at the branch point: the folder holds exactly the entries the file held, and the m1 ratchet reads the same set.
+Seeded from `goal/stage-1` when the folder landed (after #159, #171 and #184 had merged): the old file held eight lines, all of check 28, and the folder holds those eight in `28-st1-22-rules-in-the-portal.txt`; the m1 ratchet reads the same set. The grid's list was already empty.
 
 ## Not decided here
 

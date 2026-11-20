@@ -21,9 +21,10 @@ const { AllowanceExceeded } = Errors.declared;
  *   remaining  Amount
  *
  * Refusals:
- *   AllowanceExceeded   exit 41  AL-001  yours to refuse below, carrying remaining; from blueprint/things/allowance/errors.ts
- *   AllowanceNotActive  exit 40  AL-900  the runtime's, when the allowance isn't in active, carrying state; from blueprint/things/allowance/machine.ts
- *   NotAllowed          exit 3   AR-001  the runtime's, when the caller isn't the grantee of the allowance; from blueprint/things/allowance/roles.ts
+ *   AllowanceExceeded    exit 41   AL-001  yours to refuse below, carrying remaining; from blueprint/things/allowance/errors.ts
+ *   AllowanceNotActive   exit 40   AL-900  the runtime's, when the allowance isn't in active, carrying state; from blueprint/things/allowance/machine.ts
+ *   NotAllowed           exit 3    AR-001  the runtime's, when the caller isn't the grantee of the allowance; from blueprint/things/allowance/roles.ts
+ *   IdempotencyConflict  exit 120  AR-002  the runtime's, when the same request key comes with another payload; from blueprint/things/allowance/verbs/spend.ts
  *
  * Idempotent by request, from blueprint/things/allowance/verbs/spend.ts: the same request key from the same caller is one call.
  * Budget, from blueprint/things/allowance/verbs/spend.ts: p95 150ms.

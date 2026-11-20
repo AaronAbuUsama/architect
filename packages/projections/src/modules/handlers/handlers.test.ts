@@ -55,9 +55,10 @@ describe("K16: the scaffold explains itself (M1.44)", () => {
     for (const line of [
       "Who may call, from blueprint/things/allowance/roles.ts:",
       "Payload, from blueprint/things/allowance/verbs/spend.ts:",
-      "AllowanceExceeded   exit 41  AL-001",
-      "AllowanceNotActive  exit 40  AL-900",
-      "NotAllowed          exit 3   AR-001",
+      "AllowanceExceeded    exit 41   AL-001",
+      "AllowanceNotActive   exit 40   AL-900",
+      "NotAllowed           exit 3    AR-001",
+      "IdempotencyConflict  exit 120  AR-002  the runtime's, when the same request key comes with another payload; from blueprint/things/allowance/verbs/spend.ts",
       "The allowance's machine, from blueprint/things/allowance/machine.ts",
       "▶ active     spend   exhausted  AllowanceSpent",
       "remaining from the answer",
@@ -69,7 +70,7 @@ describe("K16: the scaffold explains itself (M1.44)", () => {
     expect(header, "no doc block yet").not.toBe("");
     const thing = model.things["allowance"]!;
     const fields = Object.values(model.operations).flatMap((o) => [...Object.values(o.payload), ...Object.values(o.answer)]);
-    const declared = new Set([...Object.keys(thing.errors), ...Object.keys(thing.events), thing.machine!.notFrom.error, "NotAllowed",
+    const declared = new Set([...Object.keys(thing.errors), ...Object.keys(thing.events), thing.machine!.notFrom.error, "NotAllowed", "IdempotencyConflict",
       ...fields.flatMap((f) => (f.named ? [f.named] : []))]);
     const names = [...header.matchAll(/\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b|\b(?:Amount|Memo)\b/g)].map((m) => m[0]);
     expect(names.length).toBeGreaterThan(0);

@@ -63,7 +63,7 @@ export const start = (options: StartOptions) =>
       );
       if (up !== "up") {
         yield* stop(marker);
-        return yield* new ProcessFailed({ message: `${options.kind} ${up === "exited" ? "exited before it answered" : "did not answer in time"}: ${tail(options.log)}` });
+        return yield* new ProcessFailed({ message: `${options.kind} ${up === "exited" ? "exited before it answered" : "did not answer in time"}: ${tail(options.log)}`, exited: up === "exited" });
       }
       return owning;
     }),

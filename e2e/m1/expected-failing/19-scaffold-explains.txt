@@ -1,2 +1,0 @@
-# HAN-10: the expectation G3 moves (a declared exit of 130).
-m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file

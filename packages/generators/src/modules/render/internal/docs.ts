@@ -2,6 +2,7 @@
 // out, its move, every refusal with its exit code, and how to call it). Markdown, read by people and by agents.
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
 // `who` is the scaffold's own sentence (K16 a), so the docs page and the handler's front matter never disagree.
+import { workedExamples } from "./examples.ts";
 import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
@@ -63,6 +64,7 @@ const operationPage = (model: Model, op: OperationModel, project: string): Rende
     op.move ? ["", "## Move", "", `\`${op.move.key}\`: from ${op.move.from.length ? op.move.from.join(" or ") : "nothing (it creates)"} to ${op.move.to.join(" or ")}, emitting ${op.move.emits}.`] : [],
     Object.keys(op.steps).length ? ["", "## Steps", "", ...Object.values(op.steps).map((s) => `- \`${s.name}\` (${s.type})`)] : [],
     "", "## Refusals", "", op.refusals.length ? ["| refusal | exit | code | when |", "|---|---|---|---|", ...refusals(model, op)] : ["(none)"],
+    workedExamples(model, op),
     "", "## How to call", "",
     "```sh", `${project} ${op.thing} ${op.verb} ${Object.entries(op.payload).map(([k, f]) => (f.optional ? `[--${k} <${k}>]` : `--${k} <${k}>`)).join(" ")}`.trimEnd(), "```",
     "", `HTTP: \`POST /${op.thing}/${op.verb}\` with the payload as JSON. SDK: \`Sdk.${op.thing}.${op.verb}(payload)\`.`,

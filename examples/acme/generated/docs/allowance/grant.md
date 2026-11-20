@@ -40,6 +40,17 @@ Let a member spend from the organisation, up to a limit each month.
 | NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |
 | IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
+## Worked examples
+
+### grant an allowance
+
+Starts from the world `founded`.
+
+- **ada grants olga 500.** `ada` (role organization.owner) calls and sends organization the world's organization, member the cast's olga person, limit `500`, and gets back an answer matching `^alw_[0-9a-z]+$`.
+- **bob is refused and the handler never runs.** `bob` (signed in) calls and sends organization the world's organization, member the cast's bob person, limit `500`, and is refused with NotAllowed, AR-001.
+- **a limit over the cap is refused.** `ada` (role organization.owner) calls and sends organization the world's organization, member the cast's olga person, limit `1001`, and is refused with AllowanceLimitTooHigh, AL-003, carrying cap `1000`.
+- **a member who is no one is refused PersonNotFound and the handler never runs.** `ada` (role organization.owner) calls and sends organization the world's organization, member `per_nobody`, limit `500`, and is refused with PersonNotFound, PE-901, carrying id `per_nobody`.
+
 ## How to call
 
 ```sh

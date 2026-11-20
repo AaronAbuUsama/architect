@@ -1,2 +1,0 @@
-# HAN-10: the control G3 moves ('outside 5 to 119').
-m1/22-k16-review.test.ts > 22.5 (P2): a declared exit is a whole number from 5 to 119 > control: 130 is already refused, as outside 5 to 119
