@@ -48,6 +48,13 @@ describe("FileMetrics.window", () => {
     expect(await Effect.runPromise(FileMetrics.open(join(dir, "nowhere")).window(1_800_000, NOW))).toEqual([]);
   });
 
+  it("a restart inside the window keeps what was counted before it", async () => {
+    const got = await read("reset", [
+      export_(2, [{ at: NOW - 3_600_000, value: 10, labels: claim }, { at: NOW - 1_200_000, value: 15, labels: claim }, { at: NOW - 600_000, value: 2, labels: claim }]),
+    ]);
+    expect(got).toEqual([{ name: "ortho.calls", labels: claim, value: 7 }]);
+  });
+
   it("a file that is not metrics is a failure that says so, never a guess", async () => {
     const folder = join(dir, "broken");
     mkdirSync(folder, { recursive: true });

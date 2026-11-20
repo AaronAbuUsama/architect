@@ -67,6 +67,21 @@ describe("calls: one row per call, newest first", () => {
   });
 });
 
+describe("the spans the real handler writes", () => {
+  it("a read has one span and no attempt: it is a call of one attempt; a door refusal's `.refused` span is never a call", async () => {
+    const extra = new Map<string, WindowTrace>([
+      ["r", { spans: [span("r1", "r", "handle.resolve", at(1), { operation: "handle.resolve", "principal.kind": "anonymous" })], logs: [] }],
+      ["x", { spans: [span("x1", "x", "handle.claim.refused", at(1), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", refusal: "NotAllowed" })], logs: [] }],
+    ]);
+    const t = await read({ source: { window: () => Effect.succeed(new Map([...traces(), ...extra])), find: () => Effect.succeed(undefined) } });
+    const rows = ok(t.calls).rows;
+    expect(rows.map((r) => r.trace)).toContain("r");
+    expect(rows.find((r) => r.trace === "r")).toMatchObject({ operation: "handle.resolve", attempts: 1, outcome: "answered" });
+    expect(rows.map((r) => r.trace), "a door refusal is a count and never a row").not.toContain("x");
+    expect(ok(t.metrics).refusals["NotAllowed"]!.door, "and no span accounts for it").toBe(3);
+  });
+});
+
 describe("counts: from ortho.calls, door refusals counted and named, never a row", () => {
   it("counts every outcome, and names the refusals that opened no span", async () => {
     const { operations, refusals } = ok((await read()).metrics);

@@ -32,15 +32,18 @@ const samplesIn = (dirs: ReadonlyArray<string>): Array<Sample> =>
 
 const keyOf = (s: Sample) => `${s.name}\u0000${JSON.stringify(Object.entries(s.labels).sort(([a], [b]) => (a < b ? -1 : 1)))}`;
 
-/** One series' growth in `(from, now]`. A total that fell is a restart: the new total counts whole. */
+/** One series' growth in `(from, now]`: its samples walked in order, each adding what it grew by, or its whole total after a restart (a total that fell). */
 const growth = (series: ReadonlyArray<Sample>, from: number, now: number): number => {
   const sorted = [...series].filter((s) => s.at <= now).sort((a, b) => a.at - b.at);
   if (sorted.length === 0) return 0;
   if (sorted[0]!.delta) return sorted.filter((s) => s.at > from).reduce((n, s) => n + s.value, 0);
-  const last = sorted[sorted.length - 1]!;
-  if (last.at <= from) return 0;
-  const before = [...sorted].reverse().find((s) => s.at <= from)?.value ?? 0;
-  return last.value >= before ? last.value - before : last.value;
+  let previous = [...sorted].reverse().find((s) => s.at <= from)?.value ?? 0;
+  let total = 0;
+  for (const sample of sorted.filter((s) => s.at > from)) {
+    total += sample.value >= previous ? sample.value - previous : sample.value;
+    previous = sample.value;
+  }
+  return total;
 };
 
 export const fileMetrics = (dirs: ReadonlyArray<string>): MetricsSource => ({

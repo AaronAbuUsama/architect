@@ -12,7 +12,13 @@ export const callerOf = (span: WindowSpan): CallerKind | undefined => {
   return kind === "agent" ? "agent" : kind === "anonymous" ? "anyone" : kind === "person" ? "person" : undefined;
 };
 
-const isAttempt = (span: WindowSpan) => typeof span.attrs["operation"] === "string" && typeof span.attrs["attempt"] === "number";
+/**
+ * An operation's own span: named for the operation, carrying `operation`. A served operation has one per attempt (`attempt`); a read and a device
+ * operation have one and no `attempt`. The journey's span, a step, a commit and `<operation>.refused` (the door's refusal, which is a count and
+ * never a call) are named otherwise.
+ */
+const isAttempt = (span: WindowSpan) => typeof span.attrs["operation"] === "string" && span.name === span.attrs["operation"];
+const numberOf = (span: WindowSpan) => (typeof span.attrs["attempt"] === "number" ? span.attrs["attempt"] : 1);
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
 
@@ -22,14 +28,14 @@ const outcomeOf = (last: WindowSpan): { readonly outcome: Outcome; readonly refu
 };
 
 const callOf = (trace: string, operation: string, attempts: ReadonlyArray<WindowSpan>, journey: string | null, environment: string, budget: number | undefined): TelemetryCall => {
-  const ordered = [...attempts].sort((a, b) => Number(a.attrs["attempt"]) - Number(b.attrs["attempt"]) || a.start - b.start);
+  const ordered = [...attempts].sort((a, b) => numberOf(a) - numberOf(b) || a.start - b.start);
   const first = ordered.reduce((a, b) => (b.start < a.start ? b : a));
   const end = Math.max(...ordered.map((s) => s.start + s.ms));
   const durationMs = round(end - first.start);
   return {
     trace, operation, start: first.start, ...outcomeOf(ordered[ordered.length - 1]!),
     caller: ordered.map(callerOf).find((k) => k !== undefined) ?? "unknown",
-    attempts: new Set(ordered.map((s) => Number(s.attrs["attempt"]))).size,
+    attempts: new Set(ordered.map(numberOf)).size,
     durationMs,
     environment: ordered.map((s) => text(s.attrs["environment"])).find((e) => e !== undefined) ?? environment,
     overBudget: budget !== undefined && durationMs > budget,
