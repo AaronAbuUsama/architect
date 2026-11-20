@@ -198,8 +198,9 @@ F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
 | K25 | the blueprint on chain (a chain store, `lives:`), superseding K7's inline chain | reserved 20 November 2026 for the 📐 Solidity session |
 | K26 | on chain pulled forward (M6 ahead of the gates for M3 to M5) | reserved 20 November 2026 for the 📐 Solidity session |
+| K27 | the three plugin kinds: language, host, projection; no target (replaces K17's TargetSpec) | reserved 20 November 2026 for the 📐 Solidity session, Goal 4 |
 
-**Next free:** D5, E2, F9, G9, H3, K27, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F9, G9, H3, K28, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered, and still go on this list.
 
