@@ -44,7 +44,7 @@ Entries:
 **Covers it today:** the `author` skill's proof 5, "It can't be passed hollow" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)), which asks for one
 cheapest wrong implementation, on `goal/stage-1` only since 06:47 on 20 November, after both loops began; planting each
 review finding as a failing case. Proposal 14 in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169): a table of what the check reads against five ways a wrong
-output passes, a hostile pass before Codex, and a family rewritten, not patched, once it repeats.
+output passes, a hostile pass before the first review (of any kind since PR 173), and a family rewritten, not patched, once it repeats.
 
 **Gap:** untested until the next checks pull request; its Codex rounds with findings are the measure.
 
@@ -143,7 +143,7 @@ tests and worlds on free ports and their own folders ([PR 133](https://github.co
 
 A PR merges while a review finding (Codex's, or a reviewer's) is still open, while its CI is still running, or without
 a 🔍 pass. Some were real defects at merge. From 20 November Codex is advisory, so a merge before Codex finished is no
-longer a miss; a merge with a Codex finding left unanswered, or without a 🔍 pass, is.
+longer a miss; a merge without a 🔍 pass is, and so is a Codex finding ignored (one outside a review thread, or posted after the merge).
 
 Entries:
 - 2026-11-19 · A screens pull request merged before its CI finished, because main requires no checks (near miss)
