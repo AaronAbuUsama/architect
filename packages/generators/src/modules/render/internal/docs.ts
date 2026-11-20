@@ -7,10 +7,26 @@ import { NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/pro
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 
+/** A sentence in a table cell: a `|` would end the cell, a line break the row. */
+const cell = (text: string) => text.replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ");
+
+const kindOf = (f: FieldModel) => f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type);
+const markOf = (f: FieldModel) => (f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : "");
+
 const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
-    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
+    : Object.values(fields).some((f) => f.description !== undefined)
+      ? ["| field | value | description |", "|---|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${kindOf(f)}${markOf(f)} | ${cell(f.description ?? "")} |`)]
+      : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${kindOf(f)}${markOf(f)} |`)];
+
+/** Each event the thing declares, with the fields it carries and the move that emits it. */
+const eventRows = (t: ThingModel) =>
+  Object.entries(t.events).map(([name, fields]) => {
+    const carries = Object.keys(fields).length === 0 ? "carries nothing" : `carries ${Object.entries(fields).map(([k, f]) => `${k} (${kindOf(f)}${markOf(f)}${f.description === undefined ? "" : `: ${f.description}`})`).join(", ")}`;
+    const by = Object.entries(t.machine?.moves ?? {}).filter(([, m]) => m.emits === name).map(([k]) => k);
+    return `- \`${name}\`: ${carries}${by.length > 0 ? `; emitted by the move ${by.join(", ")}` : ""}`;
+  });
 
 
 /** Every refusal the operation can give, with its exit code and what it means. */
@@ -67,6 +83,7 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
       t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. A move from the wrong state is refused ${t.machine.notFrom.error} (exit ${t.machine.notFrom.exit}).`, "",
         "| move | from | to | emits |", "|---|---|---|---|",
         ...Object.entries(t.machine.moves).map(([k, m]) => `| ${k} | ${m.from.join(", ") || "(creates)"} | ${m.to.join(", ")} | ${m.emits} |`)] : [],
+      Object.keys(t.events).length ? ["", "## Events", "", ...eventRows(t)] : [],
       Object.keys(t.unique ?? {}).length ? ["", "## Unique", "", ...Object.entries(t.unique ?? {}).map(([k, u]) => `- ${k}: unique ${u.while ? `while ${u.while.join(", ")}` : "in every state"}`)] : [],
       t.roles.length ? ["", "## Roles", "", ...t.roles.map((r) => `- ${r}`)] : [],
       "", "## Operations", "", ops.length ? ops.map((o) => `- [${o.name}](${o.verb}.md): ${o.description}`) : ["(none yet)"],

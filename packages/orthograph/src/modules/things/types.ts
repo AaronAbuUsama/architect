@@ -13,6 +13,8 @@ export interface Field<V extends Value = Value> {
   readonly from: Field | undefined;
   /** Who may see this field's value: its own mark, or that of the value or field it was made from. */
   readonly visibility: Visibility;
+  /** What the field is for, in a sentence a caller reads: its own, or that of the value or field it was made from (M1.42). */
+  readonly description?: string;
   /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
   readonly traced?: true;
   /** A secret answer field handed to its caller once (`Blueprint.issued`); the compiler refuses it on a thing's own field. */

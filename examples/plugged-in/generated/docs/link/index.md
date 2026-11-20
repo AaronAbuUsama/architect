@@ -24,6 +24,11 @@ States: listed, removed. A move from the wrong state is refused LinkNotListed (e
 | add | (creates) | listed | LinkAdded |
 | remove | listed | removed | LinkRemoved |
 
+## Events
+
+- `LinkAdded`: carries link (link.id); emitted by the move add
+- `LinkRemoved`: carries link (link.id); emitted by the move remove
+
 ## Roles
 
 - linkOwner
