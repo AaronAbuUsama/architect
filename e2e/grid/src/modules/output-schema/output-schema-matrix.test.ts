@@ -97,6 +97,49 @@ describe("R8 answer state", () => {
   });
 });
 
+describe("every recorded answer, not the first: each span's fields kept together, deduped, capped", () => {
+  const profile = pluggedIn.model.operations["profile.get"]!;
+  const links = (n: number) => JSON.stringify(Array.from({ length: n }, (_, i) => ({ id: `lnk_${i}`, title: "t", url: "https://x.example" })));
+  const span = (n: number) => ({ name: "profile.get", attrs: { "answer.handle": "hdl_abc", "answer.links": links(n) } });
+  const items = { type: "object", properties: { id: { type: "string" }, title: { type: "string" }, url: { type: "string" } }, required: ["id", "title", "url"] };
+  const run = (linksSchema: unknown, spans: ReadonlyArray<{ name: string; attrs: Record<string, unknown> }>) => OutputSchema.answers({
+    model: pluggedIn.model, op: profile, spans, files: pluggedIn.files,
+    schema: { type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" }, links: linksSchema }, required: ["handle", "links"] }, envelope] },
+  });
+
+  it("the fixture's profile.get answers more than once, with different numbers of links", () => {
+    const counts = pluggedIn.spans!.filter((s) => s.name === "profile.get" && s.attrs["answer.links"] !== undefined).map((s) => (JSON.parse(String(s.attrs["answer.links"])) as unknown[]).length);
+    expect(new Set(counts).size).toBeGreaterThan(1);
+  });
+  it("red: links with maxItems 1 fits the first answer and refuses the three-link one", () => {
+    expect(run({ type: "array", maxItems: 1, items }, [span(1), span(3)]).some((w) => /refuses its own answer/.test(w))).toBe(true);
+    expect(OutputSchema.answers({ model: pluggedIn.model, op: profile, spans: pluggedIn.spans, files: pluggedIn.files, schema: { type: "object", anyOf: [{ type: "object", properties: { handle: { type: "string" }, links: { type: "array", maxItems: 1, items } }, required: ["handle", "links"] }, envelope] } }).some((w) => /refuses its own answer/.test(w))).toBe(true);
+  });
+  it("green: links with no limit accepts every answer, and so does the same many times over (identical answers once, at most 24)", () => {
+    expect(run({ type: "array", items }, [span(1), span(3)])).toEqual([]);
+    expect(run({ type: "array", items }, Array.from({ length: 60 }, (_, i) => span((i % 40) + 1)))).toEqual([]);
+  });
+  it("red: a const that matches only the first answer", () => {
+    const health = acme.model.operations["system.health"]!;
+    const answers = (status: unknown) => OutputSchema.answers({ model: acme.model, op: health, files: acme.files, spans: [{ name: "system.health", attrs: { "answer.status": "ok" } }, { name: "system.health", attrs: { "answer.status": "up" } }], schema: { type: "object", anyOf: [{ type: "object", properties: { status }, required: ["status"] }, envelope] } });
+    expect(answers({ const: "ok" }).some((w) => /refuses its own answer {"status":"up"}/.test(w))).toBe(true);
+    expect(answers({ enum: ["ok", "up"] })).toEqual([]);
+  });
+  it("red: items that differ in shape, the schema loose on the key only a later item has", () => {
+    const two = { name: "profile.get", attrs: { "answer.handle": "hdl_abc", "answer.links": JSON.stringify([{ id: "a", title: "t", url: "u" }, { id: "b", title: "t", url: "u", note: "n" }]) } };
+    const loose = { type: "array", items: { ...items, properties: { ...items.properties, note: {} } } };
+    expect(run(loose, [two]).some((w) => /accepts .* for the answer field links/.test(w))).toBe(true);
+  });
+  it("a state is tried on every recorded answer, and a wrong-state refusal with no state outside the move's from has no sample", () => {
+    // allowance.revoke starts from active and exhausted; the third state, revoked, is the one wrong-state refusals come from.
+    const revoke = { ...acme.model.operations["allowance.revoke"]!, answer: acme.model.operations["system.health"]!.answer, refusals: ["AllowanceNotActive"] } as OperationModel;
+    const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
+    const run2 = (state: unknown) => OutputSchema.answers({ model: acme.model, op: revoke, spans: [{ name: "allowance.revoke", attrs: { "answer.status": "ok" } }], files: acme.files, schema: { type: "object", anyOf: [answer, { ...envelope, properties: { ...envelope.properties, refusal: { type: "string", not: { const: "AllowanceNotActive" } } } }, only("AllowanceNotActive", { state }, ["state"])(envelope)] } });
+    expect(run2({ const: "revoked" })).toEqual([]);
+    expect(run2({ const: "active" }).length).toBeGreaterThan(0);
+  });
+});
+
 describe("R1/R2 x B, C and D: a schema-typed answer field is probed from its recorded value's own shape", () => {
   const profile = pluggedIn.model.operations["profile.get"]!;
   const item = (url: unknown, required: ReadonlyArray<string> = ["id", "title", "url"]) => ({ type: "object", properties: { id: { type: "string" }, title: { type: "string" }, url }, required });

@@ -15,9 +15,16 @@ const unflattened = (value: unknown): unknown => {
   return Effect.runSync(Effect.try(() => JSON.parse(value) as unknown).pipe(Effect.orElseSucceed(() => value)));
 };
 
-/** A real value of the answer field `name`: the one the operation's span in the prove run recorded. */
-const observed = (spans: ReadonlyArray<SpanView> | undefined, op: string, name: string, field: FieldModel): unknown => {
-  const value = (spans ?? []).filter((s) => s.name === op).map((s) => s.attrs[`answer.${name}`]).find((v) => v !== undefined);
+/** The most answers the eval builds a sample from: a run records one per call, and a large one is cut here, not made to pass or fail by which came first. */
+const MAX_SAMPLES = 24;
+
+/** Every successful answer the prove run recorded for the operation, each span's fields kept together (a refusal's span has none of the answer's). */
+const recorded = (spans: ReadonlyArray<SpanView> | undefined, op: string): ReadonlyArray<Readonly<Record<string, unknown>>> =>
+  (spans ?? []).filter((s) => s.name === op && s.attrs["refusal"] === undefined && Object.keys(s.attrs).some((k) => k.startsWith("answer."))).map((s) => s.attrs);
+
+/** A real value of the answer field `name`, from one recorded answer. */
+const observed = (attrs: Readonly<Record<string, unknown>> | undefined, name: string, field: FieldModel): unknown => {
+  const value = attrs?.[`answer.${name}`];
   // Text that happens to look like JSON (`"[1]"`) is still text: only a value the model does not say is a scalar is read back.
   return ["text", "id", "boolean", "bool", "uint", "int"].includes(field.value.type) ? value : unflattened(value);
 };
@@ -78,7 +85,8 @@ const kindsNot = (value: unknown): ReadonlyArray<unknown> =>
  * A recorded null says nothing of what else is allowed (a nullable cursor), so it gives none.
  */
 const mutations = (value: unknown): ReadonlyArray<unknown> => {
-  if (Array.isArray(value)) return [...kindsNot(value), ...(value.length === 0 ? [] : mutations(value[0]).map((item) => [item]))];
+  // Every item gives its own mutations, not only the first: the items of one answer need not have one shape.
+  if (Array.isArray(value)) return [...kindsNot(value), ...value.flatMap((item) => mutations(item).map((m) => [m]))];
   if (isObject(value)) return [...kindsNot(value), ...Object.keys(value).flatMap((key) => [Object.fromEntries(Object.entries(value).filter(([k]) => k !== key)), ...mutations(value[key]).map((v) => ({ ...value, [key]: v }))])];
   return kindsNot(value);
 };
@@ -100,6 +108,8 @@ const shown = (op: OperationModel, withMore: boolean): ReadonlyArray<[string, Fi
 export const hasOptional = (op: OperationModel): boolean => shown(op, true).length > shown(op, false).length;
 
 export interface Sample {
+  /** Whether it is the fuller shape (optional and role-private fields too). */
+  readonly full: boolean;
   /** The answer, field by field. */
   readonly answer: Readonly<Record<string, unknown>>;
   /** The fields no value could be found for: the run recorded none and the model does not say one. They are unjudged, never filled from the schema being judged. */
@@ -109,17 +119,27 @@ export interface Sample {
 }
 
 /** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's; a field with neither is unjudged, never filled from the schema being judged. */
-export const sampleOf = (op: OperationModel, spans: ReadonlyArray<SpanView> | undefined, withMore = false): Sample => {
+const sampleFrom = (op: OperationModel, attrs: Readonly<Record<string, unknown>> | undefined, withMore: boolean): Sample => {
   const answer: Record<string, unknown> = {};
   const unknown: Array<string> = [];
   const probes: Record<string, ReadonlyArray<unknown>> = {};
   for (const [name, field] of shown(op, withMore)) {
-    const real = observed(spans, op.name, name, field);
+    const real = observed(attrs, name, field);
     const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real !== undefined ? real : fromModel(field));
-    const value = known;
-    if (value === undefined) unknown.push(name);
-    else answer[name] = value;
+    if (known === undefined) unknown.push(name);
+    else answer[name] = known;
     probes[name] = probesOf(field, known);
   }
-  return { answer, unknown, probes };
+  return { full: withMore, answer, unknown, probes };
+};
+
+/**
+ * Every answer the operation gave in the run, one sample each (the same call's fields kept together), identical ones once and at most `MAX_SAMPLES`; the model's own
+ * when the run recorded none. A schema must accept all of them, and each is probed, so one that fits only the first answer (`maxItems: 1`, a `const`) is red.
+ */
+export const sampleOf = (op: OperationModel, spans: ReadonlyArray<SpanView> | undefined, withMore = false): ReadonlyArray<Sample> => {
+  const all = recorded(spans, op.name);
+  const samples = (all.length === 0 ? [undefined] : all).map((attrs) => sampleFrom(op, attrs, withMore));
+  const seen = new Set<string>();
+  return samples.filter((s) => (seen.has(JSON.stringify([s.answer, s.unknown])) ? false : (seen.add(JSON.stringify([s.answer, s.unknown])), true))).slice(0, MAX_SAMPLES);
 };

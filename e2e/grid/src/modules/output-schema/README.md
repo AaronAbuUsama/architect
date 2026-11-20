@@ -40,3 +40,19 @@ wrong value (`output-schema-matrix.test.ts`, "R1/R2 x B, C and D": `links: {}`, 
 A recorded `null` gives none (a nullable cursor allows other kinds).
 
 Not in the matrix: a list read's items and cursor. No generator emits one and the model has no list marker (`design/later.md`, "From the grid (#154)").
+
+## Samples: every recorded answer, every declared shape
+
+An eval never judges from one sample when the run or the model gives more: every successful answer the run recorded (each span's fields kept together, identical
+ones once, at most 24); the fields both present and absent (the base shape and the fuller one with optional and role-private fields); every state the move does not
+start from for the wrong-state refusal, and every state of the machine for an answer's `state`; every refusal an operation may give (declared, wrong-state, not-found,
+`NotAllowed`) in each visibility shape; every committed call's `move.*` on its span. A wrong-state refusal needs a state outside `move.from`; with none it cannot be
+given and has no sample. A value the model leaves open (the text of an id that names nothing) has one sample: its wrong kinds are the probes.
+
+## Known gaps
+
+A finding that the eval misses a wrong output no generator emits is an evidence gap, not a defect (G7, amendment of 20 November 2026): it is a line here, with the thread
+answered, and no fix. A fix is built only where real generated output is judged wrong, or a generator really emits the wrong form.
+
+- (none recorded yet)
+

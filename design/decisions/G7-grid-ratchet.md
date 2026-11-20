@@ -63,3 +63,14 @@ Not decided here: `error.cli`, `error.mcp` (`prove --through`, S-11, S-20) and t
 stay in `held-off.json`, not on this list, because they are not switched on.
 
 **False green fixed under scope call 4 (20 November 2026, checks author).** The 🔍 review of #153 found `thing.mcp` green over an output schema that refused its own answer: M1.42 spread a refusal's `{refusal, code, exit, status}` over the answer's properties, so Acme's `system.health` answer `{status: "ok"}` failed `status: integer` and the MCP SDK client rejected every successful call; the eval only checked that an `outputSchema` existed. `thing.mcp` and `machine.mcp` now run the schema through the SDK's own validator (`e2e/grid/src/modules/output-schema`): it must accept the operation's answer and each refusal, and refuse `{}`, a wrong-typed field and (machine) a non-state. `thing.sdk` also judged only that the type was exported, so a field typed wrongly passed; it now checks each field's type against the model. Planted red and green cases are in the unit tests. `machine.mcp`'s contract (README, K14's row, `grid.json`'s greenMeans) now names metadata (`_meta`) beside schemas and annotations, as the eval already reads it. No pair came off the expected-red list and none went on it on `goal/stage-1`.
+
+**Amendment, 20 November 2026 (Goal 3 lead, after #154): the loop-break rule for the evals.** #154 took eleven rounds of review, and every finding was on a form no generator emits
+(a schema typed `["string","number"]`, a `Link` with an extra method, a literal narrowed to `5n`). Each round was fixed, and each fix opened the next sibling. The rule from here on:
+
+1. **A sample is every sample.** An eval judges from every successful answer the run recorded (each span's fields kept together, identical ones once, a cap), every state the model
+   allows, both shapes of an optional or role-private field, every refusal an operation may give in each shape, and every committed call. It never judges from the first one. The sibling
+   list of that sweep is in the pull request; the matrix READMEs (`output-schema`, `thing-evals`) hold the shapes and rules.
+2. **Known gaps.** A finding that the eval misses a wrong output that no generator emits is an evidence gap, not a defect. It is recorded as a line under "Known gaps" in the matrix
+   README, the thread is answered with that line and resolved, and no fix is built. Only a finding where our real generated output is judged wrong (a false red today), or where a
+   generator really emits the wrong form, is fixed. This is scope call 4 applied to false greens: "a false green is always fixed now" holds for forms the generators emit.
+

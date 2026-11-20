@@ -1,7 +1,7 @@
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/cfworker";
 import type { FieldModel, OperationModel, ProjectModel } from "../project-evidence/types.ts";
 import { Reading } from "../reading/service.ts";
-import { fromModel, hasOptional, probesOf, sampleOf, wrongValues } from "./internal/sample.ts";
+import { fromModel, hasOptional, probesOf, sampleOf, wrongValues, type Sample } from "./internal/sample.ts";
 import type { OutputSchemaApi } from "./types.ts";
 
 type Check = (value: unknown) => { readonly valid: boolean; readonly errorMessage?: string | undefined };
@@ -54,6 +54,8 @@ const refusalsOf = (model: ProjectModel, op: OperationModel, schema: unknown, fi
       // The wrong-state refusal is given when the thing is in a state the move does not start from: every such state is a real refusal, and the schema must take each.
       const thing = model.things[op.thing];
       const wrong = thing?.machine?.notFrom.error === name && op.move !== null ? thing.machine.states.filter((state) => !op.move!.from.includes(state)) : [];
+      // A wrong-state refusal needs a state outside `move.from`; with none it cannot be given, so it has no sample (not a first state that would be the move's own).
+      if (thing?.machine?.notFrom.error === name && op.move !== null && wrong.length === 0) return [];
       return (wrong.length > 0 ? wrong : [undefined]).flatMap((state) => [false, true].flatMap((withMore) => {
         const own = fieldsOf(model, name, withMore, state);
         return withMore && !own.more ? [] : [{
@@ -101,25 +103,25 @@ export const OutputSchema: OutputSchemaApi = {
     const accepts = checkerOf(schema);
     const refusals = refusalsOf(model, op, schema, files);
     // Two shapes of answer: the fields every answer has, and (when the model declares some optional) the answer that carries them too.
-    const samples = [sampleOf(op, spans), ...(hasOptional(op) ? [sampleOf(op, spans, true)] : [])];
-    const ofSample = (sample: ReturnType<typeof sampleOf>, index: number): ReadonlyArray<string> => {
+    const samples = [...sampleOf(op, spans), ...(hasOptional(op) ? sampleOf(op, spans, true) : [])];
+    const ofSample = (sample: Sample): ReadonlyArray<string> => {
       const answer = sample.answer;
       return [
         ...unjudged(op, sample.unknown),
         ...(sample.unknown.length > 0 ? [] : ((verdict) => (verdict.valid ? [] : [`${op.name}'s output schema refuses its own answer ${shown(answer)}, so the SDK client rejects every successful call: ${verdict.errorMessage ?? "no reason given"}`]))(accepts(answer))),
         ...(sample.unknown.length > 0 || accepts({}).valid ? [] : Object.entries(sample.probes).filter(([name]) => name in answer).flatMap(([name, wrong]) => accepted(accepts, (value) => ({ ...answer, [name]: value }), wrong, `${op.name}'s output schema accepts %s for the answer field ${name}, so its type is not the field's`))),
         // Every field every answer has must be required: the answer without it is refused (`{}` alone would pass a schema requiring only some).
-        ...(index > 0 || sample.unknown.length > 0 || accepts({}).valid ? [] : Object.keys(answer).filter((name) => accepts(Object.fromEntries(Object.entries(answer).filter(([key]) => key !== name))).valid).map((name) => `${op.name}'s output schema does not require the answer field ${name}: an answer without it is accepted`)),
+        ...(sample.full || sample.unknown.length > 0 || accepts({}).valid ? [] : Object.keys(answer).filter((name) => accepts(Object.fromEntries(Object.entries(answer).filter(([key]) => key !== name))).valid).map((name) => `${op.name}'s output schema does not require the answer field ${name}: an answer without it is accepted`)),
       ];
     };
     return [...new Set([
-      ...samples.flatMap((sample, index) => ofSample(sample, index)),
+      ...samples.flatMap(ofSample),
       ...refusals.problems,
       ...(accepts({}).valid ? [] : refusals.samples.flatMap((refusal) => Object.entries(refusal.probes).flatMap(([name, wrong]) => accepted(accepts, (value) => ({ ...refusal.value, [name]: value }), wrong, `${op.name}'s output schema accepts %s for the refusal field ${name}, so its type is not the field's`)))),
       // Every field every refusal has must be required: the refusal without it is refused (a branch requiring only `refusal` would pass `{}` alone).
       ...(accepts({}).valid ? [] : refusals.samples.flatMap((refusal) => refusal.required.filter((name) => accepts(Object.fromEntries(Object.entries(refusal.value).filter(([key]) => key !== name))).valid).map((name) => `${op.name}'s output schema does not require the refusal field ${name} of ${String(refusal.value["refusal"])}: a refusal without it is accepted`))),
       ...refusals.samples.flatMap(({ value: refusal }) => (accepts(refusal).valid ? [] : [`${op.name}'s output schema refuses the refusal ${shown(refusal)}, so the SDK client rejects every refused call`])),
-      ...(Object.keys(samples[0]!.answer).length > 0 && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
+      ...(samples.some((sample) => Object.keys(sample.answer).length > 0) && accepts({}).valid ? [`${op.name}'s output schema accepts {}, which is neither an answer nor a refusal, so it tells an agent nothing about what it gets back`] : []),
     ])];
   },
 
@@ -127,7 +129,8 @@ export const OutputSchema: OutputSchemaApi = {
     if (!("state" in op.answer) || states.length === 0) return [];
     if (!objectSchema(schema)) return [`${op.name}'s output schema is not a JSON Schema object`];
     const accepts = checkerOf(schema);
-    const sample = sampleOf(op, spans);
+    // Every recorded answer, each with every state: a schema that fits only the first answer, or only some of the states, is red.
+    return [...new Set(sampleOf(op, spans).flatMap((sample) => {
     const rest = Object.fromEntries(Object.entries(sample.answer).filter(([name]) => name !== "state"));
     const missing = sample.unknown.filter((name) => name !== "state");
     if (missing.length > 0) return unjudged(op, missing);
@@ -137,5 +140,6 @@ export const OutputSchema: OutputSchemaApi = {
       ...accepted(accepts, (value) => ({ ...rest, state: value }), wrongValues("string"), `${op.name}'s output schema accepts %s as the state, so it does not type it as a string`),
       ...(accepts({ ...rest, state: "not-a-state" }).valid ? [`${op.name}'s output schema accepts "not-a-state" as the state, so it does not type it as the machine's states`] : []),
     ];
+    }))];
   },
 };

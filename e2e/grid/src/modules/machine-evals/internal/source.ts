@@ -89,11 +89,14 @@ export const telemetry = over("machine.telemetry", ({ moves }, e) => {
   return moves.flatMap((op) => {
     const committed = Reading.spansNamed(spans, op.name).filter((s) => s.attrs["refusal"] === undefined);
     if (committed.length === 0) return [`no committed ${op.name} span was recorded`];
-    const good = committed.some((s) => s.attrs["move.name"] === op.move.key
+    // Every committed call, not one of them: a replayed request writes no move of its own, and every other must carry the move.
+    const calls = committed.filter((s) => s.attrs["request.replayed"] !== true);
+    const wrong = calls.filter((s) => !(s.attrs["move.name"] === op.move.key
       && (op.move.from.length === 0 ? s.attrs["move.from"] === undefined : op.move.from.includes(String(s.attrs["move.from"])))
-      && op.move.to.includes(String(s.attrs["move.to"])));
-    if (good) return [];
-    const have = Object.keys(committed[0]!.attrs).filter((k) => k.startsWith("move."));
-    return [`no committed ${op.name} span carries move.name ${op.move.key}${op.move.from.length > 0 ? ", move.from" : ""} and move.to (it has ${have.join(", ") || "none"}); the rest are on another span`];
+      && op.move.to.includes(String(s.attrs["move.to"]))));
+    if (calls.length > 0 && wrong.length === 0) return [];
+    const have = Object.keys((wrong[0] ?? committed[0]!).attrs).filter((k) => k.startsWith("move."));
+    const needs = `move.name ${op.move.key}${op.move.from.length > 0 ? ", move.from" : ""} and move.to`;
+    return [calls.length === 0 ? `no committed call of ${op.name} was recorded, so none carries ${needs}` : `${wrong.length} of ${calls.length} committed calls of ${op.name} lack ${needs} (one has ${have.join(", ") || "none"}); the rest are on another span`];
   });
 });

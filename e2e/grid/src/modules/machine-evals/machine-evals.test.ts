@@ -35,8 +35,11 @@ describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", ()
   });
 
   it("machine.telemetry is red: the committed span of a move from a state carries move.from, and move.name and move.to sit on the step's span", () => {
-    expect(check("telemetry", "link").why).toEqual(["no committed link.remove span carries move.name remove, move.from and move.to (it has move.from); the rest are on another span"]);
-    expect(check("telemetry", "handle").why).toEqual(["no committed handle.release span carries move.name release, move.from and move.to (it has move.from); the rest are on another span"]);
+    expect(check("telemetry", "link").why).toEqual(["1 of 1 committed calls of link.remove lack move.name remove, move.from and move.to (one has move.from); the rest are on another span"]);
+    // Every committed call counts, not one of them: a good span beside the bad one does not make the move right.
+    const good = editSpans(pluggedIn, (spans) => [...spans, { name: "link.remove", attrs: { "move.name": "remove", "move.from": "listed", "move.to": "removed" } }]);
+    expect(check("telemetry", "link", good).why).toEqual(["1 of 2 committed calls of link.remove lack move.name remove, move.from and move.to (one has move.from); the rest are on another span"]);
+    expect(check("telemetry", "handle").why).toEqual(["1 of 1 committed calls of handle.release lack move.name release, move.from and move.to (one has move.from); the rest are on another span"]);
   });
 });
 
