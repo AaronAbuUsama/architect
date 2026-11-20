@@ -38,3 +38,15 @@ describe("the docs", () => {
     expect(row.split(/(?<!\\)\|/).length).toBe("| field | value | description |".split("|").length);
   });
 });
+
+describe("the docs, for a rule of another thing than the operation's", () => {
+  it("shows the rule's own thing's error: its exit, sentence, rule and carried fields, never a state failure", () => {
+    const error = { fields: {}, exit: 91, code: "OT-001" };
+    const other: ThingModel = { ...acme.things["organization"]!, errors: { OtherTaken: error }, invariants: { oneHolder: { kind: "unique", fields: ["name"], while: ["open"], refuse: "OtherTaken" } } };
+    const spend = acme.operations["allowance.spend"]!;
+    const op = { ...spend, invariants: { OtherTaken: "organization.oneHolder" }, refusals: [...spend.refusals, "OtherTaken"] };
+    const model: Model = { ...acme, things: { ...acme.things, organization: other }, operations: { ...acme.operations, "allowance.spend": op }, refusals: { ...acme.refusals, OtherTaken: "OT-001" } };
+    const row = renderDocs(model, "acme").find((f) => f.path === "generated/docs/allowance/spend.md")!.content.split("\n").find((l) => l.startsWith("| OtherTaken"))!;
+    expect(row).toBe("| OtherTaken | 91 | OT-001 | another open organization holds this name; by the rule organization.oneHolder |");
+  });
+});

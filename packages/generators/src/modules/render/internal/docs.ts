@@ -42,7 +42,9 @@ const refusals = (model: Model, op: OperationModel) => {
     const code = model.refusals[r] ?? "?";
     // A rule's refusal (G5): the runtime's, why in the rule's one sentence, and which rule.
     const rule = ruleBehind(model, op, r);
-    if (rule && declared) return `| ${r} | ${declared.exit} | ${code} | ${cell(`${rule.sentence}; by the rule ${rule.full}`)}${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
+    // The error is the rule's own thing's, which is not always the operation's (a step that writes another thing breaks that thing's rule).
+    const refused = rule ? model.things[rule.thing]?.errors[r] : undefined;
+    if (rule && refused) return `| ${r} | ${refused.exit} | ${code} | ${cell(`${rule.sentence}; by the rule ${rule.full}`)}${Object.keys(refused.fields).length ? `, carrying ${Object.keys(refused.fields).join(", ")}` : ""} |`;
     if (declared) return `| ${r} | ${declared.exit} | ${code} | declared in errors.ts${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
     const missing = Object.entries(op.notFound ?? {}).filter(([, e]) => e === r).map(([k]) => k);
     if (missing.length > 0) return `| ${r} | ${Object.values(model.things).find((t) => t.notFound?.error === r)?.notFound?.exit ?? "?"} | ${code} | nothing has the id in ${missing.join(", ")}; the handler never runs; carries \`id\` |`;
