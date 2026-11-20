@@ -199,6 +199,8 @@ describe("findBy type-checks only for a rule, and the key's own type (G5)", () =
   it("compiles: a rule and its key are accepted; a wrong key type and a wrong key shape are type errors (G4's `findBy(thing, field, value)` goes at ST1.20, so it is not judged here)", { timeout: 60_000 }, () => {
     const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
     const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
+    // tsc that dies, or is killed, without printing an error line is not a clean compile.
+    if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
     expect(errors, "the fixture's `@ts-expect-error` lines must each hide exactly one error, and its other lines none").toEqual([]);
   });
 });
