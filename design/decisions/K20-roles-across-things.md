@@ -1,7 +1,7 @@
 # K20: a role can be held through another thing's rows
 
-**Status: proposed, waiting on Aaron's grill (20 November 2026).** Drafted by the 📐 Capxul language designer thread
-from the questions raised while redrawing Capxul Next on Orthograph. Grounded at `origin/goal/stage-1` `f109821d` and
+**Decided 20 November 2026 by Aaron: question 1 option A, question 2 option C**, from the 📐 Capxul language designer
+thread's grill on the questions raised while redrawing Capxul Next on Orthograph. Grounded at `origin/goal/stage-1` `f109821d` and
 Capxul Next `50851875` (read only). Line numbers are at those commits.
 
 ## The problem, in code
@@ -341,9 +341,37 @@ export default Blueprint.read(Budget, { where: ["state"], tenant: Budget.fields.
 
 **Recommendation: A.** The role already says whose rows these are; a second spelling would only drift from it.
 
+## One blueprint, several languages: the rules
+
+Aaron's question behind question 1 (20 November 2026): "when you're designing something, are you designing it for a
+specific target? ... can the same blueprint go in different targets? ... What are the exceptions? What are the rules?"
+The rules are already decided across K3, K7 and N1; this gathers them, with roles as the example.
+
+1. **You never write a blueprint for a language.** It says what the app keeps, who may do what, the moves and the
+   refusals. A thing's `lives` picks where it is kept, and the language follows from that: the project's database or an
+   actor is TypeScript on the Worker, `Blueprint.chain.evm(...)` is Solidity, `.aztec(...)` is Noir, `.solana(...)` is
+   Rust (K7 Q4). One app may use several at once, and moving a thing is one line.
+2. **Every language renders the same contract**: the same checks in the same order (role, then machine, then the body),
+   the same refusal codes from one `refusals.lock`, the same events (K7 Q5, Q8). The SDK, CLI and MCP sit on top and
+   don't care which language served a call.
+3. **Only the body is written per language.** The wrapper (role, machine, refusals, events, index) is generated; the
+   handler is a blank in that thing's language: an Effect handler, a Solidity `_createBudget`, a Noir function body.
+4. **Each store kind says what it can do, and the compiler refuses the rest** (K7 Q4, K3). A list over actors is refused
+   today; private fields are `aztec` only; a commit on a chain answers late, as a submission.
+5. **Exceptions are where a chain says less, checks in another order, or takes something back.** K7 lists twenty
+   (E1 to E20), each with its handling; none of them changes what the blueprint says.
+6. **For roles, which this record adds:** a declared role (`who`, `holds`) is data, so every language renders it; a
+   `rule` is TypeScript only, so an operation that runs on a chain may name only declared roles, and the compiler
+   refuses a `rule` there. A `holds` role's holding thing must be readable where the operation runs: on a chain, it
+   lives on the same chain; the compiler refuses otherwise.
+
 ## Supersedes
 
-Filled in once Aaron answers question 1, per `AGENTS.md` "One way to supersede".
+- design/decisions/K2-forman-frame.md (Q5): "the organizations plugin exports `holds` as a shortcut that produces one" → "`holds` is declared in `orthograph`, beside `rule` and `who`; the organisations plugin's owner and member are `holds` roles"
+- design/frame/questions.md (Q5): "auth exports `holds` as a shortcut that produces one" and "`holds` as auth's shortcut" → as above
+- design/frame/delta.md: "One role model, decided in the step that adds the new principals" → "One role model: a role is a `rule`, or declared with `who` or `holds` ... (K20); the new principals are M2.01's"
+- design/milestones.md (M2 ships): "roles as rules with `holds`" → "roles as rules, or declared with `who` and `holds` (K20)"
+- design/milestones.md (M2.07): "owner, member, `holds`" → "owner and member as `holds` roles (K20)"
 
 ## Aaron's answers
 
@@ -359,5 +387,7 @@ instance the role is decided on, and a caller who names none is refused `NotAllo
 - Question 1's `who` form does not need question 2 to be useful: it still says "the founder" in words in the docs and
   renders to every language.
 
-**Question 1, a role decided through another thing's rows:** Aaron asked to see how it renders through TypeScript,
-Solidity and Noir before deciding (20 November 2026). The section above answers that; his decision is pending.
+**Question 1, a role decided through another thing's rows: A, declared holding.** Aaron asked first to see how it
+renders through TypeScript, Solidity and Noir (the section above), then, 20 November 2026: "I'm agreeing with you with
+yes, 1a but I'm trying to like understand it a little bit more". The rules he asked about are under "One blueprint,
+several languages". Build slices: M2.17 and M2.18 in `design/milestones.md`; M2.07 needs M2.18.

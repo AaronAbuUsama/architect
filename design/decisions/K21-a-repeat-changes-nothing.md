@@ -1,6 +1,6 @@
 # K21: a repeated call answers instead of refusing
 
-**Decided 20 November 2026 by Aaron (option A), from the 📐 Capxul language designer thread's grill.** Drafted by the 📐 Capxul language designer thread.
+**Decided 20 November 2026 by Aaron (option A), from the 📐 Capxul language designer thread's grill.**
 It answers two of Capxul's questions at once, "a move that changes nothing" and "idempotent by intent", because they
 are one family: a call that asks for what is already true should answer, change nothing and emit nothing, rather than
 be refused. They differ only in how "already true" is recognised: by the subject's state, or by what the payload means.
