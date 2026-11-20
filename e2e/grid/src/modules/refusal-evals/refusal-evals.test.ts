@@ -84,6 +84,23 @@ describe.each(Object.entries(REFUSALS))("%s", (name, want) => {
     it("passes when each declaring operation's page shows it counted by its code", () => {
       expect(judge("error.portal", name, { portal: pages })).toEqual({ ok: true, why: [] });
     });
+    // With no metrics source the page says so (`not-yet[data-hole="metrics"]`) and shows no count: unavailable is never zero.
+    const noSource = (count?: string) => `<section><span data-portal="not-yet" data-hole="metrics">not yet</span><span data-portal="refusal-code" data-refusal="${name}" data-code="${want.code}"${count === undefined ? "" : ` data-count="${count}"`}>${name}</span></section>`;
+    const unavailable = (count?: string) => Object.fromEntries(want.operations.map((op) => [op, noSource(count)]));
+    const refusedSpans = (n: number) => want.operations.flatMap((op) => Array.from({ length: n }, () => ({ name: op, attrs: { refusal: name } })));
+    it("passes a page with no source that shows no count and says its metrics are not yet there", () => {
+      expect(judge("error.portal", name, { portal: unavailable() })).toEqual({ ok: true, why: [] });
+    });
+    it("fails a page with no source that writes a count, zero included", () => {
+      for (const count of ["0", "3"]) expect(judge("error.portal", name, { portal: unavailable(count) }).why[0], count).toMatch(/unavailable is never a number/);
+    });
+    it("fails a page with no count that does not say its metrics are unavailable", () => {
+      expect(judge("error.portal", name, { portal: Object.fromEntries(want.operations.map((op) => [op, `<section><span data-portal="refusal-code" data-refusal="${name}" data-code="${want.code}">${name}</span></section>`])) }).why[0]).toMatch(/with no count .* does not say its metrics are unavailable/);
+    });
+    it("with a source, passes the source's count and fails another", () => {
+      expect(judge("error.portal", name, { portal: pages, spans: refusedSpans(3) })).toEqual({ ok: true, why: [] });
+      expect(judge("error.portal", name, { portal: pages, spans: refusedSpans(2) }).why[0]).toMatch(/counts .* 3 times, its source says 2/);
+    });
     it("fails a page with no refusal, the wrong code, or no count", () => {
       const op = want.operations[0];
       expect(judge("error.portal", name, { portal: { ...pages, [op]: "<main></main>" } }).why[0]).toMatch(/shows no .*expected data-refusal/);
