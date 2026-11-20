@@ -1,4 +1,5 @@
 import { Reading } from "../../reading/service.ts";
+import { SdkTypes } from "../../sdk-types/service.ts";
 import { over } from "./over.ts";
 import { moveProblems, refusalProblems, stateProblems } from "./rows.ts";
 
@@ -39,19 +40,14 @@ export const server = over("machine.server", ({ moves }, e) => moves.flatMap((op
 const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]`).test(text);
 
 /**
- * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, interface (its `state`) or enum, declared in the thing's own
- * folder or named for the thing, whose own type names every state as a string literal. The source is parsed as TypeScript, so a missing
- * semicolon, a comment that quotes a state, or the next declaration's literals cannot make a type pass or fail.
+ * machine.sdk: the SDK exports a type for the thing whose `state` member, and each exported `<Thing>State`, resolves in the TypeScript checker to exactly the
+ * machine's states: a union of those string literals and nothing else (`SdkTypes`). A `string`, a derived type, another thing's state or an extra literal is red.
  */
 export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
-  const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
-    Reading.exportedTypes(text).map((t) => ({ path, ...t })));
-  // The state type belongs to the thing: a type named for its states (`LinkState`, `LinkStates`, `LinkStatus`) that is the union, or a type of the thing
-  // (named for it: `Link`) whose own `state` property is the union. A union named for something else (`Linkage`) is not its state.
-  const named = new RegExp(`^${thing.identifier}(State|States|Status)$`);
-  const ofThing = (t: { readonly name: string }) => t.name === thing.identifier;
-  const all = (literals: ReadonlyArray<string>) => machine.states.every((s) => literals.includes(s));
-  return exported.some((t) => (named.test(t.name) && all(t.literals)) || (ofThing(t) && all(t.stateLiterals))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  const declared = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
+    Reading.exportedTypes(text).filter((t) => t.name === thing.identifier).map((t) => ({ path, ...t }))).find((t) => t.members.length > 0);
+  if (declared === undefined) return [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  return SdkTypes.stateProblems({ files: e.files, model: e.model, thing, path: declared.path, states: machine.states });
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */
@@ -93,11 +89,14 @@ export const telemetry = over("machine.telemetry", ({ moves }, e) => {
   return moves.flatMap((op) => {
     const committed = Reading.spansNamed(spans, op.name).filter((s) => s.attrs["refusal"] === undefined);
     if (committed.length === 0) return [`no committed ${op.name} span was recorded`];
-    const good = committed.some((s) => s.attrs["move.name"] === op.move.key
+    // Every committed call, not one of them: a replayed request writes no move of its own, and every other must carry the move.
+    const calls = committed.filter((s) => s.attrs["request.replayed"] !== true);
+    const wrong = calls.filter((s) => !(s.attrs["move.name"] === op.move.key
       && (op.move.from.length === 0 ? s.attrs["move.from"] === undefined : op.move.from.includes(String(s.attrs["move.from"])))
-      && op.move.to.includes(String(s.attrs["move.to"])));
-    if (good) return [];
-    const have = Object.keys(committed[0]!.attrs).filter((k) => k.startsWith("move."));
-    return [`no committed ${op.name} span carries move.name ${op.move.key}${op.move.from.length > 0 ? ", move.from" : ""} and move.to (it has ${have.join(", ") || "none"}); the rest are on another span`];
+      && op.move.to.includes(String(s.attrs["move.to"]))));
+    if (calls.length > 0 && wrong.length === 0) return [];
+    const have = Object.keys((wrong[0] ?? committed[0]!).attrs).filter((k) => k.startsWith("move."));
+    const needs = `move.name ${op.move.key}${op.move.from.length > 0 ? ", move.from" : ""} and move.to`;
+    return [calls.length === 0 ? `no committed call of ${op.name} was recorded, so none carries ${needs}` : `${wrong.length} of ${calls.length} committed calls of ${op.name} lack ${needs} (one has ${have.join(", ") || "none"}); the rest are on another span`];
   });
 });
