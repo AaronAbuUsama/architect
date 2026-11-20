@@ -49,7 +49,7 @@ Acme mounts the model, the api and the server (M1.11), one file each in `bluepri
 what is written: take `server.ts` away and `generated/server/` is gone. A project that mounts no projection, signup
 included, gets those three as if it had. What is still a fixed list in the generator, for every project, is the rest:
 
-```ts file=packages/generators/src/modules/render/service.ts lines=1-9
+```ts file=packages/generators/src/modules/render/service.ts name=imports,imports lines=1-9
 import { Effect } from "effect";
 import { emptyServer, renderHandlerScaffold, serverModel } from "@orthograph/projections/shared";
 import { PortalRender } from "#modules/portal/service.js";

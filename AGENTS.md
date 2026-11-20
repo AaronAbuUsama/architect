@@ -18,6 +18,11 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - When code and design disagree, or two design files disagree, decide which is right, fix the other in the same
   change, and record the call in `design/decisions/` with the evidence. Nothing waits on Aaron for this, including
   items marked decided, as long as the change serves the goal in `README.md`.
+- **One way to supersede.** When a decision changes what an older doc says, the same change does three things. Live
+  docs (design pages, skills, docs, code) are rewritten to the new words. Dated records keep their words, as
+  `design/naming.md` rule 6 says, and gain "Superseded by <id>, <date>" beside the changed words. The new decision lists
+  each replaced phrase under `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and
+  `git grep` then finds each old phrase only in the dated records and `design/process/`. This holds from 19 November 2026; older "superseded by" notes stand as written.
 - Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
   and tell him in the next report.
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
@@ -39,9 +44,16 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - **Decisions** are made just in time, in the decision step placed before the first step that needs it, and recorded
   in `design/decisions/<id>.md` with the evidence. Don't reopen one without new evidence.
 - **Journeys and checks come first.** A different agent from the builder writes an operation's journeys and checks,
-  and they fail on empty handlers before the builder starts. A builder never edits journeys, the evals or the runner's
-  generic checks.
-- **Merge your own pull requests when CI is green.** Push on until actually blocked.
+  and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
+  evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet list,
+  `e2e/m1/expected-failing.txt`. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
+  check changed stops and asks its author.
+- **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
+  until actually blocked. GitHub enforces it, admins included (`design/decisions/CI-branch-protection.md`): `main`,
+  `m1` and `goal/stage-1` require their CI jobs, every conversation resolved, and `codex-finished`, which passes when
+  Codex has reviewed the head or everything since is a clean merge from the base (otherwise comment "@codex review").
+  `main` also requires `builder-paths`: a `-build` pull request may not touch journeys, evals or checks. Bring a
+  branch up to date by merging its base in, never by rebasing, since a rebase needs a fresh Codex review.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
 
@@ -66,6 +78,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - Ask Aaron only when blocked (see "Who decides"), and batch the questions.
 - Spend at most $10 a day on cloud resources, across everything. Layer one needs no cloud at all.
 - Every world, stage and site you make is destroyed; nothing is left running. Touch only your own resources.
+- On the shared Mac, stop only the processes you started, by PID; never run a machine-wide `pkill` or `killall`.
+  Before you report, list what still runs from your worktree (`pgrep -fl "$(pwd)"`) and stop what is yours.
 - Never print a key or connection string, or write one to a file or a commit. Never create a cloud credential without
   Aaron's written yes.
 - Keep people's emails and personal details private.
@@ -77,7 +91,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 Every thread is one type, titled with its emoji; the skills are in `.agents/skills/`: `threads` (the types and each agent's
 word for starting, messaging, reading and archiving a thread), `conductor` (the loop), `spike` (running a spike),
-`reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
+`author` (writing journeys and checks, and proving each fair), `reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
 the process and the style guide) and `kanban` (the board Aaron and the conductor track every slice on, its data saved
 in the repo, and `STATE.md`, where the project stands). `.claude/skills` and `.claude/agents/reviewer.md`
 are links to it; edit them only in `.agents/skills/`.
