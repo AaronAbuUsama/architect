@@ -1,12 +1,10 @@
 // The readers every eval shares, tried on Plugged In's real docs page and portal page, and on small pages for the edges.
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { evidenceOf } from "../project-evidence/testing.ts";
 import { Reading } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
-const page = readFileSync(join(import.meta.dirname, "../../../../../examples/plugged-in/generated/docs/link/remove.md"), "utf8");
+const page = pluggedIn.files["generated/docs/link/remove.md"]!;
 
 describe("a docs page", () => {
   it("is read by its sections, tables and bullets", () => {
