@@ -31,9 +31,11 @@ import { copyOf, acme, fixtures, model, run, succeeds, textAt } from "./support.
 const copies: Array<ReturnType<typeof copyOf>> = [];
 afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
 
-const project = (edits: Readonly<Record<string, (text: string) => string>> = {}, without: ReadonlyArray<string> = []) => {
+/** A project copy for one test, removed after it (`afterEach`). The suite-wide world's copy is made with `shared`: it is the caller's to keep until `afterAll`, after `loop.close()`. */
+const project = (edits: Readonly<Record<string, (text: string) => string>> = {}, without: ReadonlyArray<string> = [], shared?: { copy?: ReturnType<typeof copyOf> }) => {
   const copy = copyOf(acme);
-  copies.push(copy);
+  if (shared === undefined) copies.push(copy);
+  else shared.copy = copy;
   cpSync(join(fixtures, "invariants"), copy.root, { recursive: true });
   for (const path of without) rmSync(join(copy.root, path), { force: true });
   for (const [path, edit] of Object.entries(edits)) writeFileSync(join(copy.root, path), edit(readFileSync(join(copy.root, path), "utf8")));
@@ -133,9 +135,9 @@ describe("25 G5: the compiler refuses a rule that cannot hold, naming the file",
 describe("25 G5: a real world refuses, and the handler checks nothing", () => {
   // One world for the describe, opened by the first test that asks and shared after: a failure to open it fails each test with its own name, never a hook.
   let opened: Promise<W.Loop> | undefined;
-  let kept: ReturnType<typeof copyOf> | undefined;
-  const world = () => (opened ??= (() => { const root = project(); kept = copies.pop(); succeeds(root, "generate"); return W.openLoop(root); })());
-  afterAll(async () => { await (await opened?.catch(() => undefined))?.close(); kept?.remove(); });
+  const kept: { copy?: ReturnType<typeof copyOf> } = {};
+  const world = () => (opened ??= (() => { const root = project({}, [], kept); succeeds(root, "generate"); return W.openLoop(root); })());
+  afterAll(async () => { await (await opened?.catch(() => undefined))?.close(); kept.copy?.remove(); });
 
   /** A call's spans once its named span is there; a call with no trace, or no such span in 30 s, fails this test by name and never waits out the file's timeout. */
   const spansOf = async (r: { trace: string | undefined }, operation: string) => {
