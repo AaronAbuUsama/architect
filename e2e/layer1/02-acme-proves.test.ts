@@ -13,7 +13,8 @@ describe("check 2: ortho prove --env local on acme", () => {
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(11);
     expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(15);
     for (const op of ["allowance.grant", "allowance.spend", "allowance.revoke", "allowance.get"]) expect(lines.some((l) => l.startsWith(`${op} 9 evals ✔`))).toBe(true);
-    expect(lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17");
+    // The totals are the line's own; when the run leaves a refusal no journey can cause out of them (G3: IdempotencyConflict), it says so after them.
+    expect(lines.filter((l) => l === "coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17" || l.startsWith("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17 (not counted: IdempotencyConflict,")), "the coverage line").toHaveLength(1);
     expect(lines.at(-1)).toBe("prove ✔");
     nothingRunning(project.root);
   });

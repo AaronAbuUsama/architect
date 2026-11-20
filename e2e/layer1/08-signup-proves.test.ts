@@ -13,7 +13,8 @@ describe("ortho prove --env local on signup, the canon's example", () => {
     const lines = run.stdout.trimEnd().split("\n");
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
     expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-    expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");
+    // The totals are the line's own; when the run leaves a refusal no journey can cause out of them (G3: IdempotencyConflict), it says so after them.
+    expect(lines.filter((l) => l === "coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4" || l.startsWith("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4 (not counted: IdempotencyConflict,")), "the coverage line").toHaveLength(1);
     expect(lines.at(-1)).toBe("prove ✔");
     nothingRunning(project.root);
   });
