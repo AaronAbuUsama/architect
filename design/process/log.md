@@ -30,6 +30,12 @@ gave was checked against its source; where the seed was wrong, the entry says so
   haven't reached `m1`.
 - **Pattern:** fixes that don't reach the working branch.
 - **Update, 20 November:** proposal 15 applied to the conductor skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+- **Update, 20 November:** proposal 15's first run. PR 169 merged on `main` at 07:21. The Goal 3 lead opened [PR 172](https://github.com/AaronAbuUsama/architect/pull/172), `main`
+  into `goal/stage-1`, at 07:22, and it merged at 09:09 (1cedc12a), after `goal/stage-1`'s own CI. Both PR 169's
+  skills and PR 173 (Codex advisory) are on `goal/stage-1` from then. Two checks pull requests, 166 and 168, merged
+  into `goal/stage-1` at 08:43 and 08:46, while 172 was still in CI and without the six proofs; 170 and 171 were open
+  and still lacked them. "Within the hour" was started in a minute but landed in 1 hour 47 minutes, because
+  `goal/stage-1`'s CI alone runs longer than that. `m1` still lacks PRs 130 and 169.
 
 ### 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again
 - **Kind:** failure.
