@@ -12,8 +12,8 @@ through the SDK, real sign-up works, and destroy and the leftover listing came b
 
 ## What was tried
 
-One GitHub Actions job (`.github/workflows/staging-pass.yml`, on push to `spike/staging-pass` and by hand), code in this
-folder. Every resource is named `ortho-staging-pass-<run id>-*`. The job:
+One GitHub Actions job, on push to `spike/staging-pass` and by hand, code in this folder. The workflow ran from the spike branch
+(`.github/workflows/staging-pass.yml`) and is kept here only for the record, as `staging-pass.yml.txt`; it is not on `main`, so nothing on `main` can deploy. Every resource is named `ortho-staging-pass-<run id>-*`. The job:
 
 1. **up** (`up.sh`, wrangler 4.156.1, the repo's pin, published 1 November): `d1 create`, an R2 bucket (a scope probe: Plugged In uses none),
    the sink Worker, `d1 migrations apply --remote`, the Plugged In Worker (`examples/plugged-in/generated/server/main.ts`,
@@ -38,7 +38,7 @@ Five runs, all of today's allowance:
 | 1 | 44740311600 | deploy failed twice (10007), no URL | skipped | clean | CLEAN |
 | 2 | 44740676676 | ok after one retry | 16 of 20 checks pass; the other four: two info probes (portal, latency), a wrong guess of mine at a discovery path, and the OTLP sink (8) | clean | CLEAN |
 | 3 | 44741290058 | ok | 17 of 21; the other four: two info probes, the claim race (10), the sink (8) | clean | CLEAN |
-| 4 | 44742019187 | ok | 7 of 22: the edge answered HTML 404 to the first requests (10) | clean | CLEAN |
+| 4 | 44742019187 | ok | 6 pass, 16 fail of 22: the edge answered HTML 404 to the first requests (10) | clean | CLEAN |
 | 5 | 44742578303 | ok after retries | 19 of 23; the other four: two info probes, the claim race (10), the sink (8) | clean | CLEAN |
 
 While up (runs 3 and 5): 2 Workers, 1 D1 database, 2 Durable Object namespaces (`World`, `Sink`) and 1 R2 bucket of ours. After destroy: none.
@@ -93,13 +93,13 @@ namespace; the leftover listing worked on all four resource kinds.
 ### M7.04: deploy and destroy
 
 10. **A new Worker is not reliably reachable when `deploy` returns.** Run 4: the first requests got Cloudflare's own HTML 404 page
-    (cold sign-ups `404,404,500,404,500,404,200,404`; 15 of 22 checks failed). Runs 3 and 5: one of 6 to 8 concurrent losing claims answered a bare 404
+    (cold sign-ups `404,404,500,404,500,404,200,404`; 16 of 22 checks failed). Claim race, run 3: 10 people, 1 win, 8 `HandleTaken`, and 1 other answer; run 5: 8 people, 1 win, 6 `HandleTaken`, 1 other, a 404
     (the SDK dies on an "undeclared status code"; exactly one claim always won). The same race run 36 times locally under `wrangler dev` was always one 200 and
     seven `HandleTaken`. Likely the new version not yet live in every location (not proven; the 404 body was not kept).
     `up` needs a warm-up that waits for several consecutive good answers, not one, before the story starts.
 11. **`wrangler deploy` of a brand-new Worker fails about half the time after it has uploaded.** 5 of 10 first deploys (runs 1, 2 and 5) died
     with `This Worker does not exist on your account [code: 10007]` on `GET /workers/workers/<name>` (wrangler reading the subdomain it is about to
-    enable). A second `wrangler deploy` 20 seconds later always succeeded (5 of 5). The REST fallback (`subdomain.mjs`) never ran. Wrangler 4.165 exists;
+    enable). A second `wrangler deploy` 20 seconds later succeeded every time it was tried (3 of 3: run 2 sink, run 5 sink, run 5 main; run 1 had no retry). The REST fallback (`subdomain.mjs`) never ran. Wrangler 4.165 exists;
     4.164.0 is old enough to try; the spike did not.
 12. **Destroy by name worked, and is the only safe way.** `delete --name N --force` (Worker and its namespace), `d1 delete -y`, `r2 bucket delete`. Each took 1 to 4
     seconds. The destroy step needs no state from `up`, so it still cleans when `up` died halfway (run 1).
@@ -151,6 +151,8 @@ The story's four calls took 253 to 507 ms each; the whole exercise 10.7 s (run 5
 - Snag 11's retry hides a wrangler or API bug; a newer wrangler might not have it. Untested.
 - Containers (K10's scope) and a Free-plan account were not tried; D1 behaviour past one database, Workers limits on 8 concurrent isolates, and costs beyond a few
   minutes of a few resources were not measured (the account was never near the cap).
+- The repo is public and `CLOUDFLARE_ACCOUNT_ID` is a variable, so the account id and the workers.dev subdomain show unmasked in the run logs and artifacts.
+- The account already held 18 Workers, 12 Durable Object namespaces and 6 R2 buckets, more than a dedicated staging account should. Aaron should confirm it is the intended account.
 - Snag 4 (migrations) was read, not run. The local 36-claim race was a throwaway script, not committed.
 - The sink's content type and the exporter's JSON shape were never seen, so "feed prove's folder from the sink" is untested.
 
