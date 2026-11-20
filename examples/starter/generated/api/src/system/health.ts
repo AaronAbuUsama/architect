@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("health", "/system/health", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [],
 });
-export const steps = [] as const;

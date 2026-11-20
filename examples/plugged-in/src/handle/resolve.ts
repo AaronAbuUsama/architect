@@ -1,8 +1,9 @@
 // Scaffolded from blueprint/things/handle/verbs/resolve.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/handle/resolve.handler.ts";
+import { Handle } from "../../blueprint/things/handle/thing.ts";
 
 const { HandleNotFound } = Errors.declared;
 
@@ -32,20 +33,18 @@ const { HandleNotFound } = Errors.declared;
  *   each step is its own span: handle.resolve.load;
  *   the call is the span handle.resolve, and its commit handle.resolve.commit.
  */
-const resolve: Handler = (_payload, { steps }) =>
+const resolve: Handler = ({ name }, { steps }) =>
   Effect.gen(function* () {
-    // HandleNotFound: exit 13, HN-003.
-    if (yield* Handlers.blank<boolean>("refuse HandleNotFound when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why HandleNotFound was refused"));
+    const records = yield* Records;
+    const held = yield* steps.load(records.findBy(Handle, "name", name));
+
+    // HandleNotFound: exit 13, HN-003. A released or unclaimed name has no holder.
+    if (!held) {
+      yield* Effect.logInfo("no claimed handle holds this name");
       return yield* new HandleNotFound({});
     }
 
-    // Step load: database, span handle.resolve.load.
-    yield* steps.load(Handlers.blank("load: the work this step does"));
-
-    return {
-      handle: yield* Handlers.blank("handle, a handle.id"),
-    };
+    return { handle: held["id"] as never };
   });
 
 export default resolve;

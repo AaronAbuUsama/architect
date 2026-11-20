@@ -10,6 +10,12 @@ stopped when its scope closes. Test: `prove.test.ts` (acme passes; each planted 
 scaffolds in that same world. It reports the blank reached on a red step and labels a passing step "proved by the
 description". It records no verdicts. `--only` selects a journey by its declared name.
 
+A failing step is followed by a line naming the handler (`src/<thing>/<verb>.ts`) and the declaration it answers to, and a
+missing span says what was expected and which spans the call produced (sorted, since concurrent spans start in no fixed
+order). `Report.structured` is the same run as data (journeys, steps with verdict, expected, got, handler and declaration
+files and the call's milliseconds, totals, seconds, the text lines): `ortho prove --json` prints it instead of the text,
+`--report <file>` writes it and still prints the text (`--env local` only).
+
 `Prove.test({ root, lifetime?, logbook, token, say })`: `ortho prove --env test` (D3 #14, #50, #53). The same journeys
 and evals, in a world of the long-lived test environment (`test-worlds`): it makes sure the environment runs the
 revision being proved (building the bundle, starting or restarting it), makes world `test-<id>`, `say`s each line as

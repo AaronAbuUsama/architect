@@ -13,6 +13,10 @@ Lives in the database.
 | handle | handle.id |
 | links | schema |
 
+## Unique
+
+- handle: unique in every state
+
 ## Operations
 
 - [profile.get](get.md): Read a claimed name's public page and its links in display order.

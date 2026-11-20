@@ -101,6 +101,17 @@ export interface Env {
   readonly ORTHO_WORLDS?: string;
 }
 
+/** Which steps each operation runs, by the operation's name: the server's own record, never in the API package (the caller's contract names no step, K14). */
+export const steps = {
+  "handle.claim": ["handle.claim.load", "handle.claim.record"],
+  "handle.release": ["handle.release.record"],
+  "handle.resolve": ["handle.resolve.load"],
+  "link.add": ["link.add.load", "link.add.record"],
+  "link.order": ["link.order.load", "link.order.record"],
+  "link.remove": ["link.remove.record"],
+  "profile.get": ["profile.get.load"],
+} as const;
+
 // Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
 // layer's instance, so a session either one issues is a person to both.
 let routes: ReturnType<typeof AuthD1.make> | undefined;

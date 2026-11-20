@@ -51,7 +51,7 @@ describe("a second sink, by config alone, against a stand-in", () => {
     try {
       const root = copy("sends", '[Telemetry.sink.local(), Telemetry.sink.axiom({ group: "capxul-test" })]');
       const env = { AXIOM_TOKEN: TOKEN, AXIOM_DOMAIN: `http://127.0.0.1:${edge.port}` };
-      const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 8943, env })));
+      const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 0, env })));
       expect(report.passed).toBe(true);
       expect(report.lines.filter((l) => l.startsWith("axiom "))).toEqual([]);
 
@@ -85,7 +85,7 @@ describe("a second sink, by config alone, against a stand-in", () => {
 
   it("skips a sink with no token, with one line, and the run still proves", { timeout: 240_000 }, async () => {
     const root = copy("skips", '[Telemetry.sink.local(), Telemetry.sink.axiom({ group: "no-such-group" })]');
-    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 8944, env: { AXIOM_DOMAIN: "http://127.0.0.1:9" } })));
+    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 0, env: { AXIOM_DOMAIN: "http://127.0.0.1:9" } })));
     expect(report.passed).toBe(true);
     expect(report.lines[0]).toBe("axiom no-such-group: skipped, no token (AXIOM_TOKEN, or the keychain item no-such-ingest-group)");
     expect(report.lines.filter((l) => l.startsWith("axiom "))).toHaveLength(1);

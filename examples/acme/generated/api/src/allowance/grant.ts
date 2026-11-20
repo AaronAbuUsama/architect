@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("grant", "/allowance/grant", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [AllowanceLimitTooHigh, PersonNotFound, NotAllowed],
 });
-export const steps = ["allowance.grant.insert"] as const;

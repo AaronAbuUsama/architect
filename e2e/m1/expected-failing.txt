@@ -3,6 +3,7 @@
 # Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
+# K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
@@ -19,19 +20,9 @@ m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
 m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > event x API ✓, SDK ✗: the server speaks each event, and the SDK exports its type (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x SDK ~: the SDK exports each thing's type and the type of each of its fields (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x portal ~: each field's description and visibility are in the portal's data file (M1.42)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > error and code x CLI ~: the refused claim prints its code and exits 10, as the model says (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > error and code x SDK ✓: the refused claim is a typed failure `HandleTaken` carrying the model's code (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > error and code x telemetry ~ (M1.36, M1.43): the refused call's span carries the refusal and its code, and commits nothing
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > event x telemetry ✗ (M1.36, M1.43): the commit span carries the event the model says the move emits
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > operation and read x CLI ✓: each is called once and answers what the model says it answers (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > operation and read x SDK ✓: each is called once and answers what the model says it answers (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > step x telemetry ✓: each step of the model is a span of the call (M1.43)
-m1/20-plugged-in-loop.test.ts > 20 K13 grid: the loop, through the SDK and the CLI > thing x read ✓: the page lists its links in the order they were given, and a removed one is gone (M1.43)
 m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > `/portal` is the things as cards in the tree's order, each with its lifecycle, under the environment's top bar
 m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > the rail is scoped to the page: everything on home, the thing's operations on its page, nothing from outside the window
 m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > handle's page lights `claim` and its arrow, names the journey, and leaves the unrun operations and arrows dark
@@ -40,8 +31,7 @@ m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and 
 m1/21-portal-viewer.test.ts > 21 D: no leak > a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace render nowhere, and the caller's kind does
 m1/21-portal-viewer.test.ts > 21 D: no leak > the trace page shows the answered call's structure and timing, and how many logs its span has, with none of the four
 m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > `now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time
-m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same bytes for the home page, every thing's page and a trace
-m1/21-portal-viewer.test.ts > 21 F: the portal's pages are drawn from `@orthograph/portal-ui` > `@orthograph/portal` depends on portal-ui and its site imports it
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same pixels: the screenshots of the home page, a thing's page and a trace are byte-identical, and a later `now` is not
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > each declared environment has a page with its summary, its declared fields and a proof column for every environment, this one in focus
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > every kind of page carries the environment in its top bar
 m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > the picker lists the declared environments and marks the current one; each page is the environment's own portal
@@ -54,6 +44,8 @@ m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls tabl
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > a metrics source that fails gives a page with no numbers and no guess
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the refusal-codes page counts every refusal by name and code, and says `no span` for the door's
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table
-m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
+m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean

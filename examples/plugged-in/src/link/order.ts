@@ -1,7 +1,8 @@
 // Scaffolded from blueprint/things/link/verbs/order.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
+import { Profile } from "../../blueprint/things/profile/thing.ts";
 import type { Handler } from "../../generated/api/src/link/order.handler.ts";
 
 const { LinkAlreadyRemoved } = Errors.declared;
@@ -35,19 +36,22 @@ const { LinkAlreadyRemoved } = Errors.declared;
  *   each step is its own span: link.order.load, link.order.record;
  *   the call is the span link.order, and its commit link.order.commit.
  */
-const order: Handler = (_payload, { steps }) =>
+const order: Handler = ({ link, position }, { subject, steps }) =>
   Effect.gen(function* () {
+    const records = yield* Records;
     // Step load: database, span link.order.load.
-    yield* steps.load(Handlers.blank("load: the work this step does"));
+    const profile = yield* steps.load(subject ? records.find(Profile, subject.profile) : Effect.succeed(undefined));
 
     // LinkAlreadyRemoved: exit 32, LN-002.
-    if (yield* Handlers.blank<boolean>("refuse LinkAlreadyRemoved when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why LinkAlreadyRemoved was refused"));
+    if (!subject || !profile || subject.state === "removed") {
+      yield* Effect.logInfo("the link is removed, so it has no place on the page");
       return yield* new LinkAlreadyRemoved({});
     }
 
-    // Step record: database, span link.order.record.
-    yield* steps.record(Handlers.blank("record: the work this step does"));
+    // Step record: database, span link.order.record. A position past the end puts the link last.
+    const rest = (profile["links"] as ReadonlyArray<string>).filter((id) => id !== link);
+    const at = position > BigInt(rest.length) ? rest.length : Number(position);
+    yield* steps.record(records.update(Profile, subject.profile, { links: [...rest.slice(0, at), link, ...rest.slice(at)] as never }));
 
     return {};
   });

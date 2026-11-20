@@ -1,8 +1,11 @@
 // Scaffolded from blueprint/things/profile/verbs/get.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/profile/get.handler.ts";
+import { Link } from "../../blueprint/things/link/thing.ts";
+import { Profile } from "../../blueprint/things/profile/thing.ts";
+import { Handle } from "../../blueprint/things/handle/thing.ts";
 
 const { ProfileNotFound } = Errors.declared;
 
@@ -28,21 +31,23 @@ const { ProfileNotFound } = Errors.declared;
  *   each step is its own span: profile.get.load;
  *   the call is the span profile.get, and its commit profile.get.commit.
  */
-const get: Handler = (_payload, { steps }) =>
+const get: Handler = ({ handle }, { steps }) =>
   Effect.gen(function* () {
-    // ProfileNotFound: exit 20, PR-001.
-    if (yield* Handlers.blank<boolean>("refuse ProfileNotFound when?")) {
-      yield* Effect.logInfo(yield* Handlers.blank("why ProfileNotFound was refused"));
+    const records = yield* Records;
+    const held = yield* steps.load(records.findBy(Handle, "name", handle));
+
+    // ProfileNotFound: exit 20, PR-001. An unclaimed or released name has no public page.
+    if (!held) {
+      yield* Effect.logInfo("no claimed handle holds this name, so it has no page");
       return yield* new ProfileNotFound({});
     }
 
-    // Step load: database, span profile.get.load.
-    yield* steps.load(Handlers.blank("load: the work this step does"));
+    const page = yield* steps.load(records.findBy(Profile, "handle", held["id"] as never));
+    const ids = ((page?.["links"] ?? []) as ReadonlyArray<string>);
+    const found = yield* steps.load(Effect.forEach(ids, (link) => records.find(Link, link as never)));
+    const links = found.flatMap((link) => (link ? [{ id: link["id"] as never, title: link["title"] as never, url: link["url"] as never }] : []));
 
-    return {
-      handle: yield* Handlers.blank("handle, a handle.name"),
-      links: yield* Handlers.blank("links, a schema"),
-    };
+    return { handle, links };
   });
 
 export default get;

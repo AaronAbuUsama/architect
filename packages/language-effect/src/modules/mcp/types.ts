@@ -12,6 +12,18 @@ export type McpOperation = Operation | Read<Thing, unknown, unknown>;
 export interface McpEntry {
   readonly description: string;
   readonly operation: McpOperation;
+  /** The states of the thing's machine, when it has one: a `state` in the answer is one of them. */
+  readonly states?: ReadonlyArray<string>;
+  /** The move the operation makes, when it makes one: the tool lists it, so an agent knows which states a call moves between. */
+  readonly move?: McpMove;
+}
+
+/** A move of the thing's machine, as a tool lists it. */
+export interface McpMove {
+  readonly key: string;
+  readonly from: ReadonlyArray<string>;
+  readonly to: ReadonlyArray<string>;
+  readonly emits: string;
 }
 
 /** One refusal's row of the generated `refusals` table: its code, the CLI's exit and the HTTP status (K16, M1.47). */
@@ -43,6 +55,10 @@ export interface McpTool<R> {
   readonly description: string;
   /** JSON Schema of the arguments: the operation's payload, from the model's declaration, its public fields only. */
   readonly input: { readonly [key: string]: unknown };
+  /** JSON Schema of the answer an agent is shown (M1.37); absent when the answer has no fields. */
+  readonly output?: { readonly [key: string]: unknown };
+  /** The move the call makes (`_meta` in `tools/list`), when it makes one. */
+  readonly move?: McpMove;
   /** A read changes nothing. */
   readonly readOnly: boolean;
   /** Never fails: a refusal is a result, and a defect is told as `[AR-500]` without its detail. */

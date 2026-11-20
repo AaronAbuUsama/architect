@@ -6,4 +6,5 @@ export const Handle = Blueprint.thing({
   code: "HN",
   // The person is Better Auth's (M2): the project refers to them by id, as acme's organisation does.
   fields: { id: Blueprint.id("hdl"), name: HandleName, owner: Blueprint.id("per") },
+  unique: { name: { while: ["claimed"] }, owner: { while: ["claimed"] } },
 });

@@ -44,3 +44,4 @@ const narrowed = (model: Model, mounts: Readonly<Record<string, MountModel>>): M
 };
 
 export { canonical } from "./internal/hash.ts";
+export { DEVICE_HOSTS, handlerFiles, type HandlerFile } from "./internal/handler-files.ts";

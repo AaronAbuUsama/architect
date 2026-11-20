@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("spend", "/allowance/spend", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [AllowanceExceeded, AllowanceNotActive, NotAllowed],
 });
-export const steps = ["allowance.spend.load", "allowance.spend.record"] as const;

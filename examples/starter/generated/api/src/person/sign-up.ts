@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("sign-up", "/person/sign-up", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [PersonEmailTaken],
 });
-export const steps = ["person.sign-up.create"] as const;

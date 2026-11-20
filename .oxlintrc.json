@@ -76,6 +76,7 @@
     "ortho/no-old-names": "error",
     "ortho/no-viem-outside-chain": "error",
     "ortho/no-pro-outside-portal-ui": "error",
+    "ortho/no-ui-in-worker": "off",
     "no-restricted-imports": [
       "error",
       {
@@ -88,6 +89,26 @@
             "message": "HeroUI Pro is imported only by @orthograph/portal-ui (F7). Import the component from @orthograph/portal-ui instead."
           }
         ]
+      }
+    ],
+    "ortho/effect-only": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json",
+        "entries": []
+      }
+    ],
+    "ortho/max-lines": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json",
+        "max": 250
+      }
+    ],
+    "ortho/six-slots": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json"
       }
     ]
   },
@@ -180,6 +201,24 @@
       "rules": {
         "ortho/no-pro-outside-portal-ui": "off",
         "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "**/generated/**",
+        "**/packages/portal/src/**"
+      ],
+      "rules": {
+        "ortho/no-ui-in-worker": "error"
+      }
+    },
+    {
+      "files": [
+        "**/packages/portal/src/main.ts",
+        "**/packages/portal/src/modules/pages/**"
+      ],
+      "rules": {
+        "ortho/no-ui-in-worker": "off"
       }
     },
     {

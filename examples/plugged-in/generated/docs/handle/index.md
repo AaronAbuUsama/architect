@@ -22,6 +22,16 @@ States: claimed, released. A move from the wrong state is refused HandleNotClaim
 | claim | (creates) | claimed | HandleClaimed |
 | release | claimed | released | HandleReleased |
 
+## Events
+
+- `HandleClaimed`: carries handle (handle.id), name (handle.name); emitted by the move claim
+- `HandleReleased`: carries handle (handle.id), name (handle.name); emitted by the move release
+
+## Unique
+
+- name: unique while claimed
+- owner: unique while claimed
+
 ## Roles
 
 - handleOwner

@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("get", "/profile/get", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [ProfileNotFound],
 });
-export const steps = ["profile.get.load"] as const;
