@@ -8,7 +8,7 @@
 //     reads its own table, and acme's person stays the one the identity keeps (`auth_user`).
 //  4. P2. An exit means one thing within what one operation may refuse, across things: an operation listing two things'
 //     errors at one exit is refused, naming both.
-//  5. P2. A declared exit is a whole number from 5 to 125: 5.5 and NaN are refused like 130.
+//  5. P2. A declared exit is a whole number from 5 to 119: 5.5 and NaN are refused like 130.
 //  6. P2. Journey stubs are named so two allowed entries of one role (`owner.of("source")`, `owner.of("destination")`)
 //     get a file each, and a second `add journeys` refuses as check 19 says ("already there") and overwrites neither.
 import { readdirSync, writeFileSync } from "node:fs";
@@ -87,14 +87,14 @@ describe("22.4 (P2): an exit means one thing within what one operation may refus
   });
 });
 
-describe("22.5 (P2): a declared exit is a whole number from 5 to 125", () => {
+describe("22.5 (P2): a declared exit is a whole number from 5 to 119", () => {
   const exceeded = "{ remaining: Amount }, { exit: 41 }";
-  it("control: 130 is already refused, as outside 5 to 125", () => {
+  it("control: 130 is already refused, as outside 5 to 119", () => {
     const root = fresh();
     edit(root, "blueprint/things/allowance/errors.ts", exceeded, "{ remaining: Amount }, { exit: 130 }");
     const result = run(root, "model");
     expect(result.status, result.out).not.toBe(0);
-    expect(result.out).toMatch(/AllowanceExceeded's exit 130 is outside 5 to 125/);
+    expect(result.out).toMatch(/AllowanceExceeded's exit 130 is outside 5 to 119/);
   });
 
   it.each([["5.5", "5.5"], ["NaN", "Number.NaN"]])("ortho model refuses a declared exit of %s, naming the error", (shown, written) => {

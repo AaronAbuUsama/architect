@@ -9,19 +9,19 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 
 | Pattern | Entries | Failures | Status | Proposal |
 |---|---|---|---|---|
-| Reviews miss runtime defects | 6 | 4 | partly covered | 1 |
-| Parallel work collides | 6 | 3 | open | 3 |
-| CI that can't tell us anything | 8 | 6 | partly covered | 4 |
-| Shared machine and stray processes | 6 | 3 | partly covered | 5 |
-| Merged before review and CI finished | 4 | 2 | partly covered | 2 |
-| Found before building, or after | 10 | 3 | the wins to keep; gap open | 7 |
-| Decisions leave older docs stale | 4 | 0 | partly covered | 8 |
-| Builders edit the checks that judge them | 2 | 1 | open | 6 |
-| Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 |
-| One fact, many hand-kept copies | 4 | 4 | open | 10 |
+| Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
+| Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
+| CI that can't tell us anything | 10 | 8 | partly covered | 4 (applied) |
+| Shared machine and stray processes | 6 | 3 | partly covered | 5 (applied) |
+| Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
+| Found before building, or after | 12 | 3 | partly covered | 7 (applied) |
+| Decisions leave older docs stale | 4 | 0 | partly covered | 8 (applied) |
+| Builders edit the checks that judge them | 2 | 1 | partly covered | 6 (applied) |
+| Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 (applied) |
+| One fact, many hand-kept copies | 4 | 4 | partly covered | 10 (applied) |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
-| State lost across sessions | 3 | 2 | partly covered | 12 |
-| Rules with no check behind them | 1 | 1 | open | 13 |
+| State lost across sessions | 3 | 2 | partly covered | 12 (applied) |
+| Rules with no check behind them | 1 | 1 | partly covered | 13 (applied) |
 | Briefs that miss context | 2 | 0 | open, small | none yet |
 | Secrets in output | 1 | 0 | open, small | none yet |
 | Evidence that overclaims | 1 | 1 | covered | none |
@@ -43,11 +43,11 @@ Entries:
 - 2026-11-19 · Our own 🔍 passed two pull requests holding twelve real defects (failure)
 - 2026-11-17 · Three review rounds found the same kind of bug, and the plan was reset twice (failure)
 
-**Covers it today:** reviewer items 6 to 8 (PR 108); the practice of planting a failing check per finding.
+**Covers it today:** reviewer items 6 to 8 (PR 108); the practice of planting a failing check per finding; since
+[PR 129](https://github.com/AaronAbuUsama/architect/pull/129), the 🔍 lists every door a call reaches the change through and runs one probe through each.
 
-**Gap:** the checklist is something to read, not something to run. On #95 the 🔍 passed "with items 6 to 8", and
-Codex found five defects in exactly the areas item 6 names. The 🔍 doesn't have to exercise a second door, and nothing
-asks it to list the doors a change touches. The build PR for unique fields (120) had no recorded 🔍 at all.
+**Gap:** the probes are now written into the skill; whether a 🔍 runs them is still on trust. Watching the next build
+PRs for a defect Codex finds that a door probe should have.
 
 ## Parallel work collides
 
@@ -63,11 +63,12 @@ Entries:
 - 2026-11-19 · A duplicate author ran a machine-wide kill of everyone's test servers (failure)
 - 2026-11-19 · A commit was pushed to a branch whose pull request had already merged (near miss)
 
-**Covers it today:** "Land on a fresh base" in the `threads` skill; a memory note to check a PR's state before pushing.
+**Covers it today:** "Land on a fresh base" and "Never push to a merged branch" in the `threads` skill; the
+`conductor` skill's "Parallel only when nothing is shared" and one list of decision IDs on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
-**Gap:** nothing in the `conductor` skill says how to cut slices so that two builders never share a contract, nothing
-allocates decision IDs, and nothing stops a lead starting a duplicate of a running thread. The K16 split cost the most
-of any single event on 19 November: #76 open 5 hours 37 minutes with 49 commits, two closed PRs, and Goal 3 waiting.
+**Gap:** nothing stops a lead starting a duplicate of a running thread. The rest is now written down, and watching.
+Before it: the K16 split cost the most of any single event on 19 November (#76 open 5 hours 37 minutes with 49
+commits, two closed PRs, and Goal 3 waiting).
 
 ## CI that can't tell us anything
 
@@ -77,6 +78,8 @@ about 182 runner-hours were spent: 90.5 in jobs that passed, 50.5 in jobs that f
 m1's longest red lasted 5 hours 47 minutes.
 
 Entries:
+- 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes (failure)
+- 2026-11-19 · A lint boundary test timed out on a docs-only pull request (failure)
 - 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (win)
 - 2026-11-19 · Two stale runs from a closed pull request held runners for almost two hours (failure)
 - 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart (near miss)
@@ -86,12 +89,14 @@ Entries:
 - 2026-11-19 · Flaky end-to-end checks failed unrelated pull requests (failure)
 - 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
-**Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102); reviewer
+**Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102) and on `m1`
+(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main`, reaching `m1` and `goal/stage-1` when `main` is merged in; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
 item 8.
 
-**Gap:** `m1` has neither the ratchet nor PR 102's fix (PR 125, open, brings the fix and timeouts; `main` got
-timeouts in PR 124). Closing a PR leaves its runs going. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it
-merged red six times in an hour.
+**Gap:** `m1` has no ratchet. No flake list exists, so a flake is rerun rather than fixed or quarantined (the lint
+boundary test, 19 November). The `check` job has no ratchet, so it merged red six times in an hour. And `strict` on
+`main` reruns all of CI for every PR each time another lands, docs-only ones too: one docs PR ran five times. Raised
+with the conductor on 19 November.
 
 ## Shared machine and stray processes
 
@@ -106,12 +111,11 @@ Entries:
 - 2026-11-18 · Docker was dropped overnight, and processes became owned by PID (win)
 - 2026-11-17 · A stale PID file could have made "down" kill an unrelated process (near miss)
 
-**Covers it today:** "Touch only your own resources" (AGENTS.md); PID markers (M1-processes); the Goal 3 brief's "stop
-only what you started, by PID"; reviewer item 6, "process hygiene".
+**Covers it today:** "Touch only your own resources" and "stop only the processes you started, by PID" (AGENTS.md);
+"Leave the machine as you found it" in the `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)); PID markers (M1-processes); reviewer item 6;
+tests and worlds on free ports and their own folders ([PR 133](https://github.com/AaronAbuUsama/architect/pull/133)).
 
-**Gap:** the by-PID rule is in one brief and a review checklist, not in AGENTS.md or the `threads` skill, so a thread
-started without that brief doesn't have it. No thread is told to list and stop its own processes before it reports.
-Most checks still pick fixed ports by hand, and the same port clash came back a day after it was fixed.
+**Gap:** `e2e/m1`'s fixed ports are on `goal/stage-1`, with the Goal 3 lead. Watching the load and the leftovers.
 
 ## Merged before review and CI finished
 
@@ -124,12 +128,13 @@ Entries:
 - 2026-11-19 · Goal 3's files merged before their checks finished (near miss)
 - 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
 
-**Covers it today:** reviewer item 7, "No finding is left unanswered"; the conductor's merge rule (CI green, Codex
-finished, every thread resolved).
+**Covers it today:** branch protection on `main`, `m1` and `goal/stage-1` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130), 19 November): each branch's CI jobs
+and a `codex-finished` status are required, every conversation must be resolved, and admins are bound too. Reviewer
+item 7 and the conductor's merge rule still hold.
 
-**Gap:** both are things an agent remembers. GitHub can enforce it: required status checks and "Require conversation
-resolution before merging" on `main`, `m1` and `goal/*`. Four entries, no enforcement: **raised with the conductor on
-19 November.**
+**Gap:** closed for the three protected branches; since [PR 138](https://github.com/AaronAbuUsama/architect/pull/138), `codex-finished` also needs Codex to have
+reviewed the head (or only clean merges from the base since). Other `goal/*` branches are not protected yet. Watching
+for a merge that gets through.
 
 ## Found before building, or after
 
@@ -139,6 +144,8 @@ it couldn't bundle, two checks that contradicted each other. This family is most
 winning steps routine.
 
 Entries:
+- 2026-11-19 · The first journey climbed from 0 to 8 of 8 steps in four recorded runs, each run written by the tool (win)
+- 2026-11-19 · A design said nothing blocked the first journey, without trying a handler, and the climb hit the block (near miss)
 - 2026-11-19 · A fix was built before anyone checked a journey could reach it (failure)
 - 2026-11-19 · Proving each journey possible found the "is this name taken?" gap before the climb (win)
 - 2026-11-19 · Reviewing the combined scaffold build, findings went in as failing checks first (win)
@@ -150,11 +157,13 @@ Entries:
 - 2026-11-19 · Codex found contradictions in design pull requests before any code existed (win)
 - 2026-11-18 · Untraced log text reached the exporters, and the lead blocked the merge (win)
 
-**Covers it today:** "journeys and checks come first" (AGENTS.md); Goal 3's journey author proving satisfiability.
+**Covers it today:** "journeys and checks come first" (AGENTS.md); the `author` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)): before a builder
+starts, each check fails on empty handlers, can pass, is reachable by a journey, agrees with the suite, and can't be
+passed hollow.
 
-**Gap:** the satisfiability proof was one author's good habit, not a written step. A checks author isn't asked to show
-that each new refusal or state is reachable by a journey, nor to run the whole suite against a new check to find
-contradictions, before a builder gets it.
+**Gap:** the author's proofs are written; a design is not asked for the same. G5 said nothing blocked the first
+journey, without writing the handlers it depended on, and the climb hit the block within minutes. A design that says a
+path is clear could show one handler that walks it.
 
 ## Decisions leave older docs stale
 
@@ -166,11 +175,12 @@ Entries:
 - 2026-11-18 · The framework was renamed a day after its first name was built in (near miss)
 - 2026-11-18 · Writing files by hand reversed a decision nobody recorded (near miss)
 
-**Covers it today:** AGENTS.md "Who decides": fix the other in the same change, and record the call.
+**Covers it today:** AGENTS.md "Who decides": fix the other in the same change, and record the call. A `supersedes`
+step in `e2e-m0` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails when a phrase listed under a decision's `## Supersedes` is still in a live doc.
 
-**Gap:** the rule held this time because the conductor read the decision. Nothing checks it, and the repo has two ways
-to supersede (amend in place, as G3 did to K16; keep the old words as a dated record, as ST1-02 did), so a reader can't
-tell which text is live.
+**Gap:** one way to supersede is now the rule (AGENTS.md, [PR 129](https://github.com/AaronAbuUsama/architect/pull/129)): live docs are rewritten, dated records keep
+their words with "Superseded by", and the decision lists each replaced phrase for the check. It holds from 19 November;
+older notes stand as written. Watching the first decisions that use it.
 
 ## Builders edit the checks that judge them
 
@@ -180,10 +190,11 @@ Entries:
 - 2026-11-19 · Builders kept editing the checks that judge them (failure)
 - 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
-**Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks."
+**Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks." The
+`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`.
 
-**Gap:** five events in three days, all caught by Codex or the conductor after the fact, three of them merged. No path
-guard exists. **Raised with the conductor on 19 November** (three or more with no fix).
+**Gap:** the guard reaches only branches named `-build`, and `m1` and `goal/stage-1` run it once `main` is merged into
+them. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
 
 ## Talking to Aaron, and showing unchecked work
 
@@ -199,12 +210,12 @@ Entries:
 - 2026-11-19 · The conductor told Aaron things about his own list that weren't true (near miss)
 - 2026-11-18 · Aaron rejected drawings he wasn't asked about, and docs examples that were too small (failure)
 
-**Covers it today:** "Talking to Aaron" in the `threads` skill; the `portal-design` skill's process; five conductor
-memory notes.
+**Covers it today:** "Talking to Aaron" in the `threads` skill, now with plain words before IDs, real screens from a
+designer thread, and "Render and look before you show" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)); the `portal-design` skill's process; the
+conductor's memory notes.
 
-**Gap:** the lessons live in memory notes on Aaron's Mac that only the conductor reads. A designer or lead started
-fresh, or any other project, gets none of them: plain words with IDs only in brackets, sitreps by layer, look at the
-published page and the console, check a claim against the code before telling Aaron.
+**Gap:** "big picture first" (sitreps by layer) and "check a claim against the code before telling Aaron" are still
+only in the conductor's memory notes.
 
 ## One fact, many hand-kept copies
 
@@ -217,11 +228,12 @@ Entries:
 - 2026-11-19 · The fix that hid secrets from journeys hid public values too (failure)
 - 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge (failure)
 
-**Covers it today:** nothing.
+**Covers it today:** [PR 134](https://github.com/AaronAbuUsama/architect/pull/134): canon quotes code by name with `--fix`; `e2e:totals` generates the totals; a check
+compares `design/portal.md`'s refusal codes with the generated tables. The `portal-design` skill quotes generated facts
+only from the generated files ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
-**Gap:** quotes should anchor on a name, totals should be generated, a pin should be moved by its owner in one place,
-and a design page or grill should quote a refusal's code and exit from the generated errors file, never from another
-doc. Four entries, four failures, no fix: **raised with the conductor on 19 November.**
+**Gap:** pins are still moved by hand; `e2e/m1`'s totals markers are on `goal/stage-1`, with the Goal 3 lead; the
+rule restated in a second package (HAN-12) is with its owner.
 
 ## Fakes that diverge from the real service
 
@@ -247,9 +259,10 @@ Entries:
 - 2026-11-19 · The board went stale, and Aaron couldn't tell where things stood (failure)
 - 2026-11-19 · The old account's limit ran out, and threads, builds and the board were stranded (failure)
 
-**Covers it today:** the `kanban` skill keeps the board in the repo (PR 71); a memory note, "work gets pushed".
+**Covers it today:** the `kanban` skill keeps the board in the repo (PR 71); "Push before you end a turn" in the
+`threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
-**Gap:** "push your work before you end a turn" is in no skill, and the snag log shows it still happening hours later.
+**Gap:** the rule is written; watching for work that lives only in a worktree.
 
 ## Rules with no check behind them
 
@@ -259,7 +272,10 @@ files under about 250 lines; six slots per module; builders don't edit checks.
 Entries:
 - 2026-11-19 · The "no async, no throw" rule broke three times in one pull request, and only Codex noticed (failure)
 
-**Gap:** lint rules (and the path guard above).
+**Covers it today:** lint rules for effect-only, max-lines and six-slots, each from a baseline that only shrinks
+([PR 132](https://github.com/AaronAbuUsama/architect/pull/132), `design/decisions/P1-code-rules.md`); the builder path guard ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)).
+
+**Gap:** the baselines hold today's breaches until they are paid down.
 
 ## Briefs that miss context
 

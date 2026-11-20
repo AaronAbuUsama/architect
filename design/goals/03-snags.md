@@ -231,6 +231,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Needs: prove runs on free ports and refuses a world it didn't start. Lint-hygiene's #133 on main moves prove to
   `--port 0` / `Worlds.anyPort`; check whether that covers the Collector too, after main next merges into goal/stage-1.
 - Owner: Goal 3 lead.
+
 - Status: fixed (#148: `ortho prove --port` defaults to 0, a free port)
 
 ## S-26 · names · a handler or journey can name a machine state only as a string
@@ -258,3 +259,16 @@ takes each, check first, and the climber comes back to that step once it is fixe
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open
+
+- Status: fixed (#148)
+
+## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
+- Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's
+  value types, and a text of `{type: "text", max: 254}` (Acme's email) cannot be given a value, because the model does not say it must look like an address.
+- Lost: nothing yet. The eval reports such a field as unjudged (red) when the run recorded no value for it, instead of trying a value that cannot occur.
+- Cause: the model records a value's constraints only as `max`. `Values.email` (`packages/orthograph/src/modules/values/service.ts:36`) carries its
+  pattern only inside the Schema, so evals, docs and clients can't see it.
+- Fix: the framework records a value's pattern or format in the model.
+- Owner: Goal 3 lead, for a framework builder.
+- Status: open. The stopgap `max === 254` heuristic in `e2e/grid/src/modules/output-schema/internal/sample.ts` is deleted when it lands.
+

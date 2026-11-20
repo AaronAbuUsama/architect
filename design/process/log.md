@@ -10,6 +10,84 @@ gave was checked against its source; where the seed was wrong, the entry says so
 
 ---
 
+### 2026-11-19 · Strict branch protection made a docs-only pull request run CI five times in 81 minutes
+- **Kind:** failure.
+- **What happened:** Since 21:54 `main` requires a pull request to contain the current `main` before it merges. Most
+  PRs into `main` touch the same few files rarely, but every one must rerun all of CI whenever another lands first.
+  The Scribe's process log PR, which changes only `design/process/`, was green with Codex finished four times and
+  went behind four times, after PRs 133, 138, 134 and 129 merged in turn. It merged on its fifth run. PR 134 needed
+  three catch-up merges and started seven `ci` runs before it merged; PR 133 one and four; PR 138 one and three
+  (pull request runs created before the merge, cancelled ones included). With N PRs waiting it takes N
+  rounds, and runners were already the bottleneck.
+- **Evidence:** [PR 136](https://github.com/AaronAbuUsama/architect/pull/136): runs
+  [44625016111](https://github.com/AaronAbuUsama/architect/actions/runs/44625016111),
+  [44627416732](https://github.com/AaronAbuUsama/architect/actions/runs/44627416732),
+  [44630518103](https://github.com/AaronAbuUsama/architect/actions/runs/44630518103),
+  [44632081056](https://github.com/AaronAbuUsama/architect/actions/runs/44632081056) (green, then behind) and
+  [44633925275](https://github.com/AaronAbuUsama/architect/actions/runs/44633925275) (merged); opened 22:02, merged
+  23:23.
+- **Cost:** four full CI runs thrown away on one docs PR, about 54 minutes of wall-clock between them, and the same on
+  every PR that raced it.
+- **Found by:** the Scribe, on its own PR.
+- **Recovery:** merged `main` in after each landing until no other PR into `main` was open.
+- **What changed:** nothing yet. Raised with the conductor at 22:50 (session only) with three options: a docs-only fast path that
+  skips the heavy jobs as passing (the way `builder-paths` skips), `strict` off on `main`, or a merge queue.
+- **Pattern:** CI that can't tell us anything.
+
+### 2026-11-19 · A lint boundary test timed out on a docs-only pull request
+- **Kind:** failure.
+- **What happened:** On PR 136's fifth run, `check` failed: `packages/lint/test/boundaries.test.ts`, "fails lint when
+  blueprint imports compiler", took 5.97 seconds against vitest's 5-second default. The test spawns the linter once per
+  case, and its siblings in the same run took 3.8 and 5.0 seconds, so it sits at the limit. A rerun of the job passed.
+  Its logic has not changed since 17 November.
+- **Evidence:** run [44633925275](https://github.com/AaronAbuUsama/architect/actions/runs/44633925275), first attempt
+  (23:03); its rerun passed at 23:23.
+- **Cost:** one rerun of `check`, about 20 minutes on a PR already four runs deep.
+- **Found by:** CI, read by the Scribe.
+- **Recovery:** reran the failed job.
+- **What changed:** nothing yet. No flake list exists, so the next one is rerun too.
+- **Pattern:** CI that can't tell us anything.
+
+### 2026-11-19 · The first journey climbed from 0 to 8 of 8 steps in four recorded runs, each run written by the tool
+- **Kind:** win.
+- **What happened:** Goal 3's floor recorded Plugged In's seven stage 1 journeys on empty handlers: 0 of 56 steps
+  green. Then the climber wrote the handlers for "claim a handle" and ran prove after each change. Four runs went 3, 3, 5
+  and 8 of 8, from 22:02 to 22:06. Each line of the curve is written by `tools/climb/record.mjs` from
+  `ortho prove --report`, never retyped. The stop at 5 of 8 was a gap in the blueprint's rules, filed as a snag and fixed in
+  about two minutes (the next entry).
+- **Evidence:** [PR 135](https://github.com/AaronAbuUsama/architect/pull/135) (the floor, 0 of 56, and the snag log; merged 22:24);
+  [PR 140](https://github.com/AaronAbuUsama/architect/pull/140) (8 of 8; merged into `goal/stage-1` 22:41); `design/evidence/climb/runs.jsonl` on
+  `goal-3/climb-claim` at caa700df.
+- **Cost:** none; about four minutes from the first handler run to 8 of 8.
+- **Found by:** the Goal 3 lead, reported by the conductor.
+- **Recovery:** not needed.
+- **What changed:** the climb's curve is generated evidence, the same idea as proposal 10's generated totals. The
+  journeys that stopped at their starting world record "0 of 0" (snag S-21), so the curve undercounts until prove
+  reports their step count.
+- **Pattern:** found before building, or after.
+
+### 2026-11-19 · A design said nothing blocked the first journey, without trying a handler, and the climb hit the block
+- **Kind:** near miss.
+- **What happened:** G5 (invariants as their own declaration) said "No G5 slice blocks the climb's first journey".
+  The climb of "claim a handle" then stopped at 5 of 8. Two steps need the caller's own claimed handle, and a handler
+  can find a record only by id or by a unique field. `Handle.owner` wasn't unique, so the refusals "one claimed name
+  per person" and "add a link before you have a page" couldn't be written. A handle's page couldn't be found from the
+  handle either (snags S-22, S-23). The design predicted the path was clear by reading, without writing the handlers
+  it depends on.
+- **Evidence:** the claim, `design/decisions/G5-invariants.md` at 270c0774 (20:37), on
+  [PR 123](https://github.com/AaronAbuUsama/architect/pull/123); the stop, commit 4ad14095 and S-22 and S-23 in
+  `design/goals/03-snags.md` on `goal-3/climb-claim`; the fix,
+  [PR 139](https://github.com/AaronAbuUsama/architect/pull/139) (two more one-line `unique:` rules in Plugged In; merged 22:41); the
+  amendment, 728a52cf at 22:06 ("only because Plugged In carries three of G4's one-liners until ST1.19").
+- **Cost:** small: about three minutes of climbing stopped, two extra rules that G5's ST1.19 later replaces, and an
+  amended design.
+- **Found by:** the climb (Goal 3's climber), reported by the lead.
+- **Recovery:** the lead made the call in PR 139, the climb reached 8 of 8, and the G5 designer amended the paragraph
+  the same minute.
+- **What changed:** nothing yet. Proposal 7's satisfiability proof asks a checks author to show a check can pass; no
+  step asks a design to show that the handlers it says are unblocked can be written.
+- **Pattern:** found before building, or after.
+
 ### 2026-11-19 · A screens pull request merged before its CI finished, because main requires no checks
 - **Kind:** near miss.
 - **What happened:** The G5 screens (PR 127) were set to "merge when green". `main` has no branch protection and no
@@ -26,6 +104,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet. Proposal 2 (branch protection with required checks and resolved conversations) would
   have held it.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** proposal 2 applied in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) (record `design/decisions/CI-branch-protection.md`): `main`, `m1` and `goal/stage-1` are protected, with their CI jobs and a new `codex-finished` status required, conversations resolved, and `enforce_admins` on, so "merge when green" now waits for green.
 
 ### 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code
 - **Kind:** failure.
@@ -45,6 +124,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** none yet; the lines are still wrong on `main`.
 - **What changed:** nothing yet.
 - **Pattern:** one fact, many hand-kept copies.
+- **Update, 19 November:** [PR 134](https://github.com/AaronAbuUsama/architect/pull/134) fixed `design/portal.md` (HN-900, exit 11) and adds a check that compares its refusal codes with the generated tables; the `portal-design` skill now quotes generated facts only from the generated files ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · The snag log lives only on a branch nobody has pushed
 - **Kind:** near miss.
@@ -59,6 +139,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** raised with the conductor.
 - **What changed:** nothing yet.
 - **Pattern:** state lost across sessions.
+- **Update, 19 November:** pushed and merged into `goal/stage-1` in [PR 135](https://github.com/AaronAbuUsama/architect/pull/135) (22:24). "Push before you end a turn" is in the `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · The "no async, no throw" rule broke three times in one pull request, and only Codex noticed
 - **Kind:** failure.
@@ -77,6 +158,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** each breach fixed by hand as Codex found it.
 - **What changed:** nothing yet.
 - **Pattern:** rules with no check behind them.
+- **Update, 19 November:** proposal 13 applied in [PR 132](https://github.com/AaronAbuUsama/architect/pull/132) (`design/decisions/P1-code-rules.md`): lint rules for effect-only, max-lines and six-slots, each from a baseline that only shrinks.
 
 ### 2026-11-19 · The in-memory store accepts a change the real database refuses
 - **Kind:** near miss.
@@ -156,6 +238,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** the grid decision became G6.
 - **What changed:** nothing general. Decision IDs are still picked by whoever writes one, on whatever branch.
 - **Pattern:** parallel work collides.
+- **Update, 19 November:** the conductor now hands out decision IDs from one list on `main` ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy
 - **Kind:** win, with a near miss inside it.
@@ -173,6 +256,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** one change set and a grep gate.
 - **What changed:** K16 carries "Amended by G3" inline. The grep gate was a one-off, not a check.
 - **Pattern:** decisions leave older docs stale.
+- **Update, 19 November:** the mechanical half of proposal 8 is in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130): a `supersedes` step in `e2e-m0` fails when an old phrase listed under a decision's `## Supersedes` is still in a live doc. No decision has that section yet; the rule that asks for it is the process-skills thread's half.
+- **Update, 19 November:** the rule half is in AGENTS.md, "One way to supersede" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)): live docs are rewritten, dated records keep their words with "Superseded by", and the decision lists each replaced phrase under `## Supersedes` for the check to read.
 
 ### 2026-11-19 · A fix was built before anyone checked a journey could reach it
 - **Kind:** failure.
@@ -189,6 +274,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** parked with an owner and a reason, and no fake chain. That part is a win worth keeping.
 - **What changed:** nothing yet. Check-first was followed; "is this reachable by a journey?" was not asked first.
 - **Pattern:** found before building, or after.
+- **Update, 19 November:** proposal 7 applied in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): a new `author` skill asks, before a builder starts, that a journey in today's worlds reaches every refusal, state and event a check names.
 
 ### 2026-11-19 · Code quoted by line number in the docs broke on almost every change
 - **Kind:** failure.
@@ -203,6 +289,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** quotes re-pointed by hand each time.
 - **What changed:** nothing yet.
 - **Pattern:** one fact, many hand-kept copies.
+- **Update, 19 November:** proposal 10 applied in [PR 134](https://github.com/AaronAbuUsama/architect/pull/134): canon quotes code by name, and `--fix` repairs a quote that moved.
 
 ### 2026-11-19 · The visibility rule passed review with the new checklist, and Codex still found five more gaps
 - **Kind:** failure.
@@ -223,6 +310,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** each finding ledgered with an owner; fixes check first.
 - **What changed:** nothing beyond the checklist, which this entry shows is not enough on its own.
 - **Pattern:** reviews miss runtime defects.
+- **Update, 19 November:** the 🔍 now runs a probe through each door rather than reading a checklist ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · The lead's plan left out the snags blocking the climb until the conductor pointed at them
 - **Kind:** near miss.
@@ -250,6 +338,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** a conductor memory note on Aaron's machine. The `threads` skill's "Talking to Aaron" said to describe
   a pull request rather than read its number, but says nothing about snag or ledger IDs.
 - **Pattern:** talking to Aaron, and showing unchecked work.
+- **Update, 19 November:** proposal 9 applied in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): the `threads` skill now says plain words first, with an ID in brackets after, if at all, never alone.
 
 ### 2026-11-19 · The fix that hid secrets from journeys hid public values too
 - **Kind:** failure.
@@ -300,6 +389,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** decision, checks by another agent, then builder.
 - **What changed:** G4, then G5. The snag log notes that G4's spelling was kept out of docs, scaffold and skills.
 - **Pattern:** found before building, or after.
+- **Update, 19 November:** this is now step 2 of the `author` skill, "It can pass" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · The stage 1 spec changed under a check that was already passing
 - **Kind:** near miss.
@@ -348,6 +438,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Pattern:** CI that can't tell us anything.
 - **Update, 19 November:** every job on `main` now has a timeout ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)), and [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) brings the
   same to `m1`. Nothing yet cancels a closed PR's runs.
+- **Update, 19 November:** PR 125 merged at 21:05. [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) adds a `cancel-closed` workflow that cancels a pull request's unfinished runs when it closes; proved on scratch PR 131, where closing it cancelled run [44619030313](https://github.com/AaronAbuUsama/architect/actions/runs/44619030313).
 
 ### 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged
 - **Kind:** failure.
@@ -368,6 +459,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** reviewer item 7, "No finding is left unanswered" (PR 108), and the conductor's merge rule: CI green,
   Codex finished, every thread resolved. Neither is enforced by GitHub.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) makes it enforced, not remembered: a merge into `main`, `m1` or `goal/stage-1` needs the `codex-finished` status (no Codex review still running) and every review thread resolved.
+- **Update, 19 November:** [PR 138](https://github.com/AaronAbuUsama/architect/pull/138): `codex-finished` goes green only when Codex reviewed the head, or every commit since is a clean merge from the base.
 
 ### 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart
 - **Kind:** near miss.
@@ -398,6 +491,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** checks planted first, builders fixed, fresh 🔍 on the fixed heads.
 - **What changed:** reviewer items 6 to 8 (PR 108).
 - **Pattern:** reviews miss runtime defects.
+- **Update, 19 November:** proposal 1 applied in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): the reviewer skill now has the 🔍 list every door a call reaches the change through (HTTP, the device path, the SDK, the CLI, MCP, a replay, every wrapper) and run one probe through each.
 
 ### 2026-11-19 · Reviewing the combined scaffold build, findings went in as failing checks first
 - **Kind:** win.
@@ -426,6 +520,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** the checks author, not the builder, changed the check.
 - **What changed:** nothing yet. Nothing runs the existing suite against a new planted check before a builder gets it.
 - **Pattern:** found before building, or after.
+- **Update, 19 November:** the `author` skill now asks an author to run the whole suite with a new check in before handing it over ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · Sixty-three failing tests sat behind a green run
 - **Kind:** failure.
@@ -472,6 +567,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** the conductor's merge rule (CI green, Codex finished, no unresolved thread), applied from PR 101.
   No branch protection enforces it.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** `goal/stage-1` now requires its eight CI jobs, including `e2e-m1`, `e2e-climb` and `e2e-grid`, plus `codex-finished` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)). It is not strict, so slices still merge side by side.
 
 ### 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours
 - **Kind:** failure.
@@ -508,6 +604,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** ci.yml on main. m1 still to take it; raised with the conductor.
 - **Pattern:** CI that can't tell us anything; merged before review and CI finished.
 - **Update, 19 November:** the conductor opened [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) to give `m1` the per-push groups, the same evening.
+- **Update, 19 November:** PR 125 merged at 21:05, so `m1` now has per-push groups and job timeouts.
 
 ### 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle
 - **Kind:** failure, with a win in the recovery.
@@ -555,6 +652,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** one combined PR after 🔍 re-review.
 - **What changed:** nothing yet. No rule says slices that share a contract go on one branch.
 - **Pattern:** parallel work collides.
+- **Update, 19 November:** proposal 3 applied in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): the conductor skill runs two slices in parallel only when neither changes a type, a generated file or a header the other reads.
 
 ### 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge
 - **Kind:** failure.
@@ -571,6 +669,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** resolved by hand each time.
 - **What changed:** nothing yet. The totals aren't generated.
 - **Pattern:** one fact, many hand-kept copies; parallel work collides.
+- **Update, 19 November:** `e2e:totals` generates the totals block on `main` ([PR 134](https://github.com/AaronAbuUsama/architect/pull/134)). `e2e/m1`'s markers are on `goal/stage-1`, with the Goal 3 lead; nothing yet changes how pins are moved.
 
 ### 2026-11-19 · Builders kept editing the checks that judge them
 - **Kind:** failure.
@@ -592,6 +691,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** files handed back to the author.
 - **What changed:** nothing mechanical. The triage replies say the 🔍 checklist names it.
 - **Pattern:** builders edit the checks that judge them.
+- **Update, 19 November:** proposal 6 applied in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130): a `builder-paths` job fails a `-build` branch that touches `e2e/`, journeys, evals, the runner's generic checks or their break fixtures (taking lines off the ratchet's list is allowed). Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them, and only branches named `-build` are guarded.
 
 ### 2026-11-19 · Test servers left running for hours overloaded the machine
 - **Kind:** failure.
@@ -623,6 +723,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** edits discarded; the rule "stop only the processes you started, by PID; never a machine-wide `pkill`".
 - **What changed:** the Goal 3 brief; reviewer item 6, "process hygiene" (PR 108). Not in AGENTS.md.
 - **Pattern:** shared machine and stray processes; parallel work collides.
+- **Update, 19 November:** proposal 5's rule is in AGENTS.md ("stop only the processes you started, by PID; never run a machine-wide `pkill`") and the `threads` skill ("Leave the machine as you found it"), [PR 129](https://github.com/AaronAbuUsama/architect/pull/129).
 
 ### 2026-11-19 · Tests shared ports and folders, and broke each other
 - **Kind:** failure.
@@ -641,6 +742,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing general. `Worlds.start` binds a free port for `--port 0` (#83), but most checks still pick
   fixed ports by hand.
 - **Pattern:** shared machine and stray processes.
+- **Update, 19 November:** proposal 5's test half applied in [PR 133](https://github.com/AaronAbuUsama/architect/pull/133): tests and worlds take port 0 or a free port they're handed, and the prove tests that ran on the shared `examples/acme` root work in a copy of their own. `e2e/m1`'s fixed ports live on `goal/stage-1` and are with the Goal 3 lead.
 
 ### 2026-11-19 · Flaky end-to-end checks failed unrelated pull requests
 - **Kind:** failure.
@@ -699,6 +801,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** a build-time define; the islands mount.
 - **What changed:** nothing yet.
 - **Pattern:** talking to Aaron, and showing unchecked work.
+- **Update, 19 November:** "Render and look before you show" is in the `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · The portal drawing was checked against the model, and lost what nothing could supply
 - **Kind:** win.
@@ -763,6 +866,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** follow-up PR.
 - **What changed:** a memory note: check `gh pr view <n> --json state` before pushing.
 - **Pattern:** parallel work collides.
+- **Update, 19 November:** "Never push to a merged branch" is in the `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 ### 2026-11-19 · Codex found contradictions in design pull requests before any code existed
 - **Kind:** win.
@@ -936,6 +1040,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** independent acceptance with new guards.
 - **What changed:** the record only.
 - **Pattern:** builders edit the checks that judge them.
+- **Update, 19 November:** the evals are now on the `builder-paths` guard ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)), for `-build` branches.
 
 ### 2026-11-17 · A stale PID file could have made "down" kill an unrelated process
 - **Kind:** near miss.

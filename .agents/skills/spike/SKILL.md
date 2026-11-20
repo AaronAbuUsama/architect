@@ -43,7 +43,9 @@ Its code is never built into a package; its README is the product.
 ## When it's done
 
 Merge the pull request into `main` (it adds only `spikes/<name>/`), end with a `TO THE CONDUCTOR` block holding the
-answer, the decision it supports and the steps it changes, and the conductor folds it into the build plan.
+answer, the decision it supports and the steps it changes, and the conductor folds it into the build plan. A spike never
+mints a decision ID: if its finding needs a new decision, ask the conductor (or the goal's lead) for the ID, as the
+`threads` skill says.
 
 Three spikes are already done, in `design/spikes/`: names from paths, the world clock, and a thing as a Durable Object.
 Their write-ups are the model to follow.
