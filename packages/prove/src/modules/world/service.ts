@@ -1,8 +1,9 @@
 import { Names } from "orthograph/server";
 import { randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
+import { ServerConfig } from "#modules/server-config/service.js";
 import { WorldFailed, type WorldsApi } from "./types.ts";
 import { portFor } from "./internal/port.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
@@ -11,12 +12,16 @@ export const Worlds: WorldsApi = {
   start: ({ root, port: asked, name, otlp, environment, secretEnv, chain }) =>
     Effect.gen(function* () {
       const port = yield* portFor(asked);
-      const config = resolve(root, "generated/server/wrangler.jsonc");
-      if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
+      const generated = resolve(root, "generated/server/wrangler.jsonc");
+      if (!existsSync(generated)) return yield* new WorldFailed({ message: `${generated} is missing: run nx sync first` });
       // A fresh world each run: stage one has no migrations between versions.
       const state = resolve(root, Names.folder, name);
       rmSync(state, { recursive: true, force: true });
       mkdirSync(state, { recursive: true });
+      // With the portal's built client in reach, the world runs a config derived from the generated one that serves it (K19).
+      const client = ServerConfig.clientOf(root);
+      const config = client === undefined ? generated : join(state, "wrangler.jsonc");
+      if (client !== undefined) writeFileSync(config, ServerConfig.derive(root, readFileSync(generated, "utf8"), client));
       yield* applyMigrations(config, state);
       // The chain is acquired first, so it is released last: the Worker never outlives the chain it talks to.
       const stood = chain === undefined ? undefined : yield* chain;

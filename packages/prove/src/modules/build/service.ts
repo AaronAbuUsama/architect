@@ -1,9 +1,10 @@
 import { Names } from "orthograph/server";
-import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { Effect } from "effect";
+import { ServerConfig } from "#modules/server-config/service.js";
 import { BuildFailed, type BuildApi } from "./types.ts";
 import { digest, io, read } from "./internal/manifest.ts";
 
@@ -36,19 +37,25 @@ const build: BuildApi["build"] = (root, env = {}) =>
     const commit = yield* git(root, "rev-parse", "HEAD");
     const held = yield* find(root, rev);
     if (held !== undefined) { yield* unchanged(root, held.commit); return { ...held, dirty: false }; }
-    const config = resolve(root, "generated/server/wrangler.jsonc");
-    if (!existsSync(config)) return yield* new BuildFailed({ message: `${config} is missing: run nx sync first` });
+    const generated = resolve(root, "generated/server/wrangler.jsonc");
+    if (!existsSync(generated)) return yield* new BuildFailed({ message: `${generated} is missing: run nx sync first` });
+    // The portal's prebuilt client ships with the revision, beside the bundle (K19); a machine that has none builds a revision without it.
+    const client = ServerConfig.clientOf(root);
     const dir = artefacts(root, rev);
     yield* io(() => mkdirSync(dirname(dir), { recursive: true }));
     return yield* Effect.acquireUseRelease(
       io(() => mkdtempSync(`${dir}-building-`)),
       (scratch) => Effect.gen(function* () {
         const main = join(scratch, "main.js");
+        // The dry run reads a config derived from the generated one (absolute paths, and the client as static assets); it lives beside the scratch folder, not in it.
+        const config = `${scratch}.wrangler.jsonc`;
+        yield* io(() => writeFileSync(config, ServerConfig.derive(root, readFileSync(generated, "utf8"), client)));
         const run = yield* io(() => spawnSync(process.execPath, [wrangler, "deploy", "--dry-run", "--outdir", scratch, "--config", config], {
           cwd: resolve(root), encoding: "utf8", env: { ...toolingEnv(env), CI: "1", WRANGLER_SEND_METRICS: "false" }, maxBuffer: 64 * 1024 * 1024,
         }));
         if (run.status !== 0 || !existsSync(main)) return yield* new BuildFailed({ message: `wrangler couldn't build the bundle:\n${run.stderr || run.stdout || run.error?.message || `exit ${run.status}`}` });
         if ((yield* dirty(root)) || (yield* git(root, "rev-parse", "HEAD")) !== commit) return yield* new BuildFailed({ message: "the source changed while bundling: commit it and build again" });
+        if (client !== undefined) yield* io(() => cpSync(client, join(scratch, "portal"), { recursive: true }));
         const sha256 = yield* io(() => digest(main));
         yield* io(() => writeFileSync(join(scratch, "bundle.json"), JSON.stringify({ schemaVersion: 1, source: "clean", revision: rev, commit, sha256 }) + "\n"));
         // Publish only a complete clean build. A concurrent winner is reused; its files are never overwritten.
@@ -57,7 +64,7 @@ const build: BuildApi["build"] = (root, env = {}) =>
         yield* io(() => renameSync(scratch, dir));
         return { revision: rev, commit, sha256, main: join(dir, "main.js"), dirty: false };
       }),
-      (scratch) => io(() => rmSync(scratch, { recursive: true, force: true })).pipe(Effect.ignore),
+      (scratch) => io(() => { rmSync(scratch, { recursive: true, force: true }); rmSync(`${scratch}.wrangler.jsonc`, { force: true }); }).pipe(Effect.ignore),
     );
   });
 

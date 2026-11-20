@@ -206,7 +206,7 @@
     {
       "files": [
         "**/generated/**",
-        "packages/portal/src/**"
+        "**/packages/portal/src/**"
       ],
       "rules": {
         "ortho/no-ui-in-worker": "error"
@@ -214,8 +214,8 @@
     },
     {
       "files": [
-        "packages/portal/src/main.ts",
-        "packages/portal/src/modules/pages/**"
+        "**/packages/portal/src/main.ts",
+        "**/packages/portal/src/modules/pages/**"
       ],
       "rules": {
         "ortho/no-ui-in-worker": "off"

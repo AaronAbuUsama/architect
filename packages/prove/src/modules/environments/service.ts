@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Build } from "#modules/build/service.js";
@@ -73,7 +73,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));
       writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), {
-        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}), ...(logbook ? { logbook } : {}),
+        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(existsSync(join(dirname(built.main), "portal")) ? { portal: join(dirname(built.main), "portal") } : {}), ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}), ...(logbook ? { logbook } : {}),
       }));
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);

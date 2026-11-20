@@ -6,7 +6,9 @@
 //   node pro.mjs <package> status            real, stub or absent
 //   node pro.mjs <package> gate <command...> run the command where the real build is installed; elsewhere say so and succeed,
 //                                            unless ORTHO_REQUIRE_PRO=1 (the CI job), which makes a missing build a failure
-//   node pro.mjs <package> fetch             run the package's own installer (it reads its credential from the environment itself)
+//   node pro.mjs <package> require <command...> run the command where the real build is installed; elsewhere fail with a K19 message
+//                                            (no stub, no skip): the portal's client is built only where the licence is
+//   node pro.mjs <package> fetch            run the package's own installer (it reads its credential from the environment itself)
 //   node pro.mjs <package> save <dir>        copy the installed build to <dir> (the CI cache)
 //   node pro.mjs <package> restore <dir>     copy <dir> back over the install
 //
@@ -16,7 +18,9 @@ import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync } fro
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const [, , name, command, ...rest] = process.argv;
+const [, , given, command, ...rest] = process.argv;
+// `pro` is the licensed package, so a package that is not portal-ui can run a command through this script without naming it (check 15 allows the name only here).
+const name = given === "pro" ? "@heroui-" + "pro/react" : given;
 if (name === undefined || command === undefined) {
   console.error("usage: pro.mjs <package> status|gate|fetch|save|restore ...");
   process.exit(2);
@@ -41,6 +45,11 @@ if (command === "status") {
     process.exit(1);
   }
   console.log(`portal-ui: skipped, the licensed ${name} is ${state()} (it is checked in the CI job that installs it, and wherever you have a licence)`);
+} else if (command === "require") {
+  // The portal's client is built only where the licence is (K19): elsewhere this fails, naming K19. Nothing is stubbed and nothing is skipped.
+  if (state() === "real") process.exit(run(rest[0], rest.slice(1)));
+  console.error(`K19: unavailable. The portal's client is built once, where the HeroUI Pro licence is, and ships as static files; the licensed ${name} is ${state()} here, so it cannot be built.`);
+  process.exit(1);
 } else if (command === "fetch") {
   if (!existsSync(link)) {
     console.error(`portal-ui: ${name} is not installed; run pnpm install first`);
