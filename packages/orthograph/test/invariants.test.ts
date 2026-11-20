@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
 
 const repo = resolve(import.meta.dirname, "../../..");
 const tsc = (fixture: string) => {
-  const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(repo, "packages/orthograph/test/fixtures", fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
+  const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["--pretty", "false", "-p", join(repo, "packages/orthograph/test/fixtures", fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
   const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
   // tsc that dies, or is killed, without printing an error line is not a clean compile.
   if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
