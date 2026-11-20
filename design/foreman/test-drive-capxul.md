@@ -1,10 +1,10 @@
 # Test drive: Foreman on Capxul's first slice
 
 Written 20 November 2026. Foreman isn't built, so this plays it by hand: the intake, explore and shape routines in
-`design/decisions/F9-foreman.md` (section 8; together they are the model draft's ideation loop), followed as written, on the idea the whole project started from. The input is Capxul Next
-(`/Users/abuusama/projects/capxul-next`, read only, at commit `50851875`). The slice is Capxul's first: a company, its
-members, invitations, and signing in with a wallet. It stops where the ideation loop stops: a blueprint and the questions,
-with no handlers.
+`design/decisions/F9-foreman.md` (section 8; together they are the model draft's ideation loop), followed as written,
+on the idea the whole project started from. The input is Capxul Next (`/Users/abuusama/projects/capxul-next`, read
+only, at commit `50851875`). The slice is Capxul's first: a company, its members, invitations, and signing in with a
+wallet. It stops where the ideation loop stops: a blueprint and the questions, with no handlers.
 
 It has three parts: the blueprint slice Foreman would propose, the questions it would put to Aaron, and every place
 Orthograph or the skills fell short.

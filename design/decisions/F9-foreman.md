@@ -184,7 +184,7 @@ The previous draft put Foreman's state in one separate work app for every projec
 | List reads | ✅ rows, as F5 call 3 requires | ✅ the same |
 | A view across projects | ❌ none: each app sees only itself, until something reads several | ✅ one board |
 | Orthograph itself as a project | ❌ Orthograph is not an Orthograph app; it needs a small app of its own that mounts only Foreman | ✅ a row like any other |
-| Production carries it | ⚠️ a mount is app-wide today (`packages/orthograph/src/modules/plugins/service.ts:31` on `goal/stage-1`) | ✅ never |
+| Production carries it | ⚠️ a mount is app-wide today: `use` takes the plugin and its verbs, and no environment (`packages/orthograph/src/modules/plugins/service.ts:31` on `goal/stage-1`) | ✅ never |
 | Which environment's data | ❌ open: question 1 | ✅ one app, one environment |
 | Ready today | ❌ no feature has been mounted end to end (the model draft, section 3) | ⚠️ declared, with no handlers |
 
@@ -334,15 +334,16 @@ blueprint "it can do what it wants. It can merge what it wants."
 | Before | How it is held |
 |---|---|
 | **Moving the project to another state** (section 3), backwards or forwards, shipping included | every move of the project's machine is an operation `allowed: [owner]`; Foreman proposes it as a question |
-| **Changing the agreed blueprint** | the person agrees a blueprint revision: a `decision` naming the model's revision, which the logbook already keeps (`design/decisions/D3.md:227-229`). A later change to what is declared (things, operations, roles, refusals) needs a new agreement; `ortho impact` shows exactly what changed |
+| **Changing the agreed blueprint** | the person agrees a blueprint revision: a `decision` naming the model's revision, which the logbook already keeps (`design/decisions/D3.md:227-229`). A later change to what is declared (things, operations, roles, refusals) needs a new agreement. Telling that a change crossed the agreed revision is new work: `ortho impact` reports what a change made stale today, not what it changed against an agreement |
 
 **Everything else is Foreman's:** handlers, the wording of journeys within the agreed stories, tests, spikes, the order
 of work, which role does what, branches, and merging its own pull requests once CI is green and a 🔍 has passed. It
 records each choice as a `decision` and says so in the next "where are we".
 
 **What still holds, because it isn't the project's to give:** the standing rules every agent here works under:
-spending past the person's cap and anything in the cloud (`AGENTS.md:82`), creating a credential (`AGENTS.md:86`), and
-messages to other people. These are the harness's guardrails, not the project's permissions.
+spending past the person's cap and anything in the cloud (`AGENTS.md:82`) and creating a credential (`AGENTS.md:86`).
+The harness adds its own: it asks before sending a message to anyone on the person's behalf. These are guardrails
+around every agent, not the project's permissions.
 
 **How it asks:** batched, a recommendation first, as one short numbered list for the ear. A fork with code to compare
 also goes in writing in the grill format, which the plugin holds its own copy of. Each answer becomes a `decision`.
@@ -357,7 +358,7 @@ also goes in writing in the grill format, which the plugin holds its own copy of
 | `ortho check` | blanks, types, rules, drift | built (`main.ts:195`) |
 | `ortho generate` | outputs and scaffolds | built (`main.ts:207`) |
 | `ortho prove`, `--empty`, `--only` | the climb, and proof the checks mean something | built (`main.ts:66`) |
-| `ortho impact` | what a change made stale, and whether the blueprint moved past what was agreed | built (`main.ts:219`), local only |
+| `ortho impact` | what a change made stale; comparing against the agreed revision is new work | built (`main.ts:219`), local only |
 | `ortho brief <operation>` | a climber's brief | built (`main.ts:268`) |
 | `ortho dev` and the portal | running the app, its world and its portal | built (`main.ts:38`) |
 | the app's own CLI and MCP tools | Foreman's state, once the feature is mounted | not built |
@@ -372,7 +373,7 @@ is never patched in the app. It becomes a framework item with a journey that can
 
 - No live document's words change in this draft, so there is no `## Supersedes` section yet; section 9 says which
   change will carry one.
-- `design/handoff.md`'s decision list gains F9.
+- `design/handoff.md`'s decision list gains this record, F9, as a draft for Aaron.
 - Building it is a goal of its own, after Aaron's answers below.
 
 ---
@@ -432,11 +433,17 @@ environment, the logbook:
 
 **A · The project store, beside the logbook** (recommended)
 ```ts
-// @orthograph/foreman/blueprint/things/idea/thing.ts: proposed
+// @orthograph/foreman/blueprint/stores/project.ts: proposed. The language already takes a declared store of any kind
+// (`Blueprint.store.kind`, packages/orthograph/src/modules/stores/types.ts:18-19 on goal/stage-1); what is new is a
+// host that supplies the kind "project": one store per project, in the logbook's worker, read by every environment.
+export default Blueprint.store.kind("project");
+
+// @orthograph/foreman/blueprint/things/idea/thing.ts
+import project from "../../stores/project.ts";
 export const Idea = Blueprint.thing({
   description: "Something the person or Foreman wants, not yet work.",
   code: "ID",
-  lives: "project", // a new store kind: one per project, in the logbook's worker, read by every environment
+  lives: project, // `lives` takes a declared store (packages/orthograph/src/modules/things/types.ts:64 on goal/stage-1)
   fields: { id: Blueprint.id("ida"), says: Blueprint.text({ max: 500 }), from: Blueprint.id("per") },
 });
 ```
@@ -449,7 +456,7 @@ export const Idea = Blueprint.thing({ description: "…", code: "ID", fields: { 
 
 **C · One chosen environment's database, staging**
 ```ts
-// every environment's Foreman calls point at staging's database
+// proposed: a choice the feature would need to offer; every environment's Foreman calls point at staging's database
 export default Blueprint.use(foreman, (f) => [f.choose(f.choices.store.environment("staging"))]);
 ```
 
@@ -466,7 +473,8 @@ export default Blueprint.use(foreman, (f) => [f.choose(f.choices.store.environme
 
 | Axis | A · Project store | B · Each environment's | C · Staging's |
 |---|---|---|---|
-| Floor-first | ⚠️ a new store kind, `lives: "project"` | ✅ works the day mounting works | ⚠️ needs staging and a credential |
+| Floor-first | ⚠️ the host must supply a new store kind, "project" | ✅ works the day mounting works | ⚠️ needs staging and a credential |
+| Composes with the app | ⚠️ the things are the app's, but their rows sit beside the logbook, not in the app's own database | ✅ fully: the app's own database | ⚠️ one environment's database |
 | Reversibility | ✅ one store kind | ⚠️ data to merge later | ⚠️ |
 | Blast radius | ✅ beside the logbook | ❌ every environment | ⚠️ couples environments |
 | Correctness | ✅ one state per project | ❌ several states that disagree | ✅ one state |
