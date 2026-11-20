@@ -33,9 +33,9 @@ belongs to, and why it waits.
   every output can tell them apart and a form picks the right input. Waits for a design pass, beside THI-02.
 - **Approval on an operation** (ledger OPS-15, K24): a declared mark that the action asks once and the page's agent
   confirms before calling. Waits for a design pass; the second UI SDK spike (PR #222) shows what drives it.
-- **Page marks for secret and hidden fields** (ledger PRJ-46, K24): the language has secret, private and issued;
+- **Page marks for secret and hidden fields** (ledger PRJ-55, K24): the language has secret, private and issued;
   mapping them onto the page agent's marks waits for the second UI SDK spike (PR #222).
-- **Generated typed pieces** (ledger PRJ-47, K24): a form per operation, a list per read and a button per move,
+- **Generated typed pieces** (ledger PRJ-56, K24): a form per operation, a list per read and a button per move,
   generated on UI SDK, so ST1.04's screens need not be written by hand. Waits for the second UI SDK spike to say
   whether it belongs in stage 1 or later.
 
