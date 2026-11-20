@@ -6,9 +6,10 @@ import type { FromModel } from "../types.ts";
 /** Exits the runtime keeps, and whose they are. */
 export const RESERVED_EXITS: ReadonlyMap<number, string> = new Map([
   [0, "success"], [1, "a defect"], [2, "InvalidPayload"], [3, "NotAllowed"], [4, "NotFound"],
+  [120, "IdempotencyConflict"], [121, "the runtime"], [122, "the runtime"], [123, "the runtime"], [124, "the runtime"], [125, "the runtime"],
 ]);
 const LOWEST = 5;
-const HIGHEST = 125;
+const HIGHEST = 119;
 
 type ThingExits = {
   readonly identifier: string;
@@ -37,7 +38,7 @@ const unusable = (exit: number, mayBeNotFound: boolean): string | undefined =>
   !Number.isInteger(exit) ? "not a whole number"
   : mayBeNotFound && exit === 4 ? undefined
   : RESERVED_EXITS.has(exit) ? `${RESERVED_EXITS.get(exit)}'s`
-  : exit < LOWEST || exit > HIGHEST ? `outside ${LOWEST} to ${HIGHEST}, the exits a refusal may use` : undefined;
+  : exit < LOWEST || exit > HIGHEST ? `outside ${LOWEST} to ${HIGHEST}, which are the blueprint's` : undefined;
 
 /** One problem per declared exit that clashes, naming the error, its exit, whose it is, and the file declaring it. */
 export const exitClashes = (things: Readonly<Record<string, ThingExits>>): ReadonlyArray<string> =>

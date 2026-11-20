@@ -1,12 +1,15 @@
 import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { Effect, Schedule } from "effect";
-import { CollectorFailed, type CollectorsApi } from "./types.ts";
+import { CollectorFailed, type CollectorsApi, type FileMetricsApi } from "./types.ts";
 import { logTail, runCollector, stopCollector, sweepOrphans, terminate } from "./internal/process.ts";
 import { FileSource } from "./internal/file-source.ts";
+import { fileMetrics } from "./internal/file-metrics.ts";
 import { close, listen } from "./internal/local.ts";
 
 export { FileSource } from "./internal/file-source.ts";
+/** The metrics reader over a collector's files: what `ortho.calls` counted in a window. */
+export const FileMetrics: FileMetricsApi = { open: (dirs) => fileMetrics(typeof dirs === "string" ? [dirs] : dirs) };
 export { AxiomSource } from "./internal/axiom-source.ts";
 export { PROVE_SPAN_PREFIX } from "./types.ts";
 export { exportRoots, rootOf, type JourneyRoot } from "./internal/journey-root.ts";

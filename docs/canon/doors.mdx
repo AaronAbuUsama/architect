@@ -45,7 +45,7 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   // What the wire carries: the declared answer, the fields not every caller is shown optional. The server cuts each answer by who is asking.
   // Typed as the declaration types it: the schema is built from fields known only at run time, which TypeScript cannot follow.
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
-  error: [SheetFull, SheetNotOpen, SheetNotFound],
+  error: [SheetFull, SheetNotOpen, SheetNotFound, IdempotencyConflict],
 });
 ```
 
@@ -160,7 +160,7 @@ operation again, with the same key, when the connection was cut before the answe
 export type Credential = { readonly kind: "session"; readonly token: string };
 ```
 
-```ts file=examples/signup/generated/sdk/src/client.ts name=layer lines=66-68
+```ts file=examples/signup/generated/sdk/src/client.ts name=layer lines=84-86
 /** `layer({ url, credential })`, or `layer(url, token)`: the same client, the token being a session's. */
 export const layer = (options: string | Options, token?: string) =>
   typeof options === "string" ? connect(options, token === undefined || token === "" ? undefined : Credential.session(token)) : connect(options.url, options.credential);

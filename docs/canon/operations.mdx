@@ -144,26 +144,30 @@ there, where only the grantee may spend (see `roles`).
 
 **Codes.** The compiler numbers every refusal, and the model records the number, so no generator works one out:
 
-```ts file=packages/compiler/src/modules/model/internal/codes.ts name=MACHINE_NUMBER,RUNTIME_CODES lines=8-12
+```ts file=packages/compiler/src/modules/model/internal/codes.ts name=MACHINE_NUMBER,RUNTIME_CODES lines=8-15
 /** The refusal of a machine's move that starts from the wrong state. */
 export const MACHINE_NUMBER = 900;
 
-/** Refusals the runtime makes for every thing: who may call, before any handler runs. */
-export const RUNTIME_CODES = { NotAllowed: "AR-001" } as const;
+/** The runtime's refusal for a request key reused with another payload: its name, written once. */
+export const IDEMPOTENCY_CONFLICT = "IdempotencyConflict";
+
+/** Refusals the runtime makes for every thing, numbered in the order it gained them: who may call (before any handler runs), then a request key reused with another payload. */
+export const RUNTIME_CODES = { NotAllowed: "AR-001", [IDEMPOTENCY_CONFLICT]: "AR-002" } as const;
 ```
 
 A code is the thing's prefix and a number. Declared errors are 1, 2, 3 in the order `errors.ts` declares them, the
 machine's is always 900, a missing instance's (`<Thing>NotFound`, which the runtime refuses before the handler) is 901,
 and the runtime's own take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for `SheetNotOpen`, `SH-901`
-for `SheetNotFound` and `AR-001` for `NotAllowed`. The generated code keeps each one's code, its exit code and its HTTP
+for `SheetNotFound`, `AR-001` for `NotAllowed` and `AR-002` for `IdempotencyConflict` (a request key reused with another payload, on operations that keep an answer by key). The generated code keeps each one's code, its exit code and its HTTP
 status in one table, which the CLI, HTTP and MCP all read:
 
-```ts file=examples/signup/generated/api/src/errors.ts name=refusals lines=7-12
+```ts file=examples/signup/generated/api/src/errors.ts name=refusals lines=7-13
 export const refusals = {
   SheetFull: { code: "SH-001", exit: 71, status: 422 },
   SheetNotOpen: { code: "SH-900", exit: 70, status: 409 },
   SheetNotFound: { code: "SH-901", exit: 4, status: 404 },
   NotAllowed: { code: "AR-001", exit: 3, status: 403 },
+  IdempotencyConflict: { code: "AR-002", exit: 120, status: 409 },
 } as const;
 ```
 
@@ -287,7 +291,7 @@ answers what it answered the first time and changes nothing. No step runs, no ev
         if (kept !== undefined) {
           // The kept answer is bound to the payload it was made for: the same key with another payload is another request.
           const { payload: madeFor, answer } = JSON.parse(kept) as { readonly payload: string; readonly answer: unknown };
-          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict({ key: key! });
+          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict();
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
           return yield* decodeAnswer(answer).pipe(Effect.orDie);
         }
@@ -353,12 +357,12 @@ The short references are in `packages/prove/src/modules/evals/internal/calls.ts`
 
 The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
 refusals 2/4` (no journey yet names a sheet that isn't there, so the generated `SheetNotFound` is never reached; K16),
-and `prove ✔`. The end-to-end test holds signup to exactly that:
+and `prove ✔`. The end-to-end test holds signup to exactly that (`coverageLine` builds the expected line from the model: once an idempotent operation lists `IdempotencyConflict`, which no journey can cause, the line adds `(not counted: IdempotencyConflict, …)` after the totals, and the test requires it exactly then):
 
-```ts file=e2e/layer1/08-signup-proves.test.ts name="ortho prove --env local on signup, the canon's example" lines=14-17
+```ts file=e2e/layer1/08-signup-proves.test.ts name="ortho prove --env local on signup, the canon's example" lines=17-20
 expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
 expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");
+expect(lines).toContain(coverageLine("moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4", model));
 expect(lines.at(-1)).toBe("prove ✔");
 ```
 

@@ -1,5 +1,6 @@
 {
   "refusals": {
+    "IdempotencyConflict": "AR-002",
     "InvitationNotPending": "IN-900",
     "NotAllowed": "AR-001",
     "OrganizationNotActive": "OR-900",
@@ -817,7 +818,8 @@
       },
       "errors": [],
       "refusals": [
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -841,7 +843,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "3d7ad3207f653955"
+      "hash": "4797d5db7ac0e5b8"
     },
     "organization.get": {
       "kind": "read",

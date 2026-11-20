@@ -4,6 +4,7 @@
     "HandleNotClaimed": "HN-900",
     "HandleNotFound": "HN-003",
     "HandleTaken": "HN-001",
+    "IdempotencyConflict": "AR-002",
     "LinkAlreadyRemoved": "LN-002",
     "LinkNeedsHandle": "LN-001",
     "LinkNotListed": "LN-900",
@@ -379,7 +380,8 @@
       "refusals": [
         "HandleTaken",
         "HandleAlreadyOwned",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -403,7 +405,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "9eb20dd82059e463"
+      "hash": "2c184f936278b420"
     },
     "handle.release": {
       "kind": "operation",
@@ -575,7 +577,8 @@
       ],
       "refusals": [
         "LinkNeedsHandle",
-        "NotAllowed"
+        "NotAllowed",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -599,7 +602,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "1821e63e66bf312a"
+      "hash": "852d172add3d2ea9"
     },
     "link.order": {
       "kind": "operation",
@@ -627,7 +630,7 @@
             "bits": 32
           },
           "named": "LinkPosition",
-          "description": "Where the link goes on the page, counted from the top."
+          "description": "Its place in the page's list of links: 0 is first."
         }
       },
       "answer": {},
@@ -664,7 +667,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "43243498b6605a62"
+      "hash": "4382439fbc661685"
     },
     "link.remove": {
       "kind": "operation",

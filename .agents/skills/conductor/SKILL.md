@@ -62,13 +62,19 @@ All five must hold:
 1. **No conflicts:** the pull request merges cleanly.
 2. **A fresh CI run:** green on a head that includes the current `main`.
 3. **The layer's gate passes:** its one e2e suite, on a clean checkout.
-4. **A 🔍 pass.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that did not write it,
-   against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
-5. **Codex has finished, and every review thread is resolved:** fixed with a check, or answered with the ledger entry
-   or decision that takes it. If Codex hasn't reviewed the head, comment `@codex review` and wait for it.
+4. **A 🔍 pass, the gate.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that wrote
+   none of it, against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
+5. **Every review thread is resolved:** fixed with a check, or answered with the ledger entry or decision that takes
+   it. Codex is advisory (`design/decisions/CI-codex-advisory.md`): comment `@codex review` when it is available and
+   answer what it posts before the merge, but never wait on it. If Codex is down or slow, land without it.
 
 Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
 tell you "landing now" before they merge into `main`, and you answer if another landing is under way.
+
+**A process change lands everywhere work runs.** When a skill, `AGENTS.md` or a CI guard lands on `main`, have `main`
+merged into each live goal and milestone branch within the hour, by its lead, and tell the lead to have its open
+pull request branches merge their base. A session reads skills from its own checkout, so until then the change isn't
+in force where the work is.
 
 The 🔍 is not only for layers. Every build pull request, a builder's into a goal or milestone branch included, gets
 one before it merges, and the 🔍 lists every door into the change and runs one probe through each (the `reviewer`

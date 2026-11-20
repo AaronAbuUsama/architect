@@ -48,7 +48,7 @@ describe("render", () => {
   });
 
   it("declares each operation's refusals on its endpoint, with their exit codes", () => {
-    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, PersonNotFound, NotAllowed]");
+    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, PersonNotFound, NotAllowed, IdempotencyConflict]");
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
     // K16 (M1.47): one refusals table holds each exit, beside its code and HTTP status.
     expect(errors).toContain('AllowanceLimitTooHigh: { code: "AL-003", exit: 44, status: 422 },');

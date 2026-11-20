@@ -12,7 +12,7 @@ Move a link to a zero-based position. A position past the end puts it last.
 | field | value | description |
 |---|---|---|
 | link | link.id | The link's own id. |
-| position | LinkPosition | Where the link goes on the page, counted from the top. |
+| position | LinkPosition | Its place in the page's list of links: 0 is first. |
 
 ## Answer
 

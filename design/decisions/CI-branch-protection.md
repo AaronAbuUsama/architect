@@ -3,6 +3,10 @@
 19 November 2026. Proposals 2, 4 (the closed-PR half), 6 and 8 (the mechanical half) in `design/process/proposals.md`,
 applied by the ci-guards thread on Aaron's "Yes, apply them" (19 November 2026), which is his written yes to proposal 2.
 
+> Superseded by CI-codex-advisory, 20 November 2026: `codex-finished` is no longer a required check on any branch. It
+> still runs, as an advisory status, and the 🔍 reviewer's pass is the merge gate
+> ([`CI-codex-advisory.md`](CI-codex-advisory.md)). The rest stands.
+
 ## Why
 
 Nothing enforced the landing rules. #127 merged into `main` with three checks still running; Codex findings sat up to 17
@@ -39,7 +43,8 @@ Set with `gh api -X PUT repos/AaronAbuUsama/architect/branches/main/protection`:
 ```
 
 - **The checks** are every job `main`'s `ci.yml` runs (`check`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, and
-  `builder-paths`, which is skipped, and so passes, on anything but a `-build` branch), plus the `codex-finished` status.
+  `builder-paths`, which is skipped, and so passes, on anything but a `-build` branch), plus the `codex-finished` status
+  (Superseded by CI-codex-advisory, 20 November 2026: no longer required).
 - **`strict`**: the branch must contain the current `main` before it merges, so the green run is of what will land (the
   conductor's landing rule 2, "a fresh CI run on a head that includes the current `main`").
 - **Conversation resolution**: every review thread, Codex's included, is resolved before the merge.
@@ -60,10 +65,11 @@ conversation resolution required, no required approvals, and no force pushes or 
 | Required checks | `check`, `portal-ui`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, `codex-finished` | `check`, `portal-ui`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, `e2e-m1`, `e2e-climb`, `e2e-grid`, `codex-finished` |
 | Left out | `e2e-m1`, which is `continue-on-error` on `m1` | nothing; `e2e-m1` is a real gate through the ratchet (`e2e/ratchet/`) |
 | `strict` | `true` (`m1` is finished at 5d2887ca; only a merge of `main` is expected) | `false`: slices merge side by side, and an up-to-date rule would rerun the 45-minute jobs after every merge |
+| `codex-finished` | Superseded by CI-codex-advisory, 20 November 2026: dropped from `m1`'s list | Superseded by CI-codex-advisory, 20 November 2026: dropped from `goal/stage-1`'s list |
 | When | once #125 (timeouts, push groups) had landed on `m1` | once #110 (`e2e-climb`, `e2e-grid`) had landed on `goal/stage-1` |
 
-- **`codex-finished`** is added to a branch only once it has been seen posted on a real pull request into that branch,
-  so a status that never arrives cannot stall every merge.
+- **`codex-finished`** (Superseded by CI-codex-advisory, 20 November 2026: required on no branch) is added to a branch
+  only once it has been seen posted on a real pull request into that branch, so a status that never arrives cannot stall every merge.
 - **`builder-paths`** is added to each once that branch's `ci.yml` has it (when `main` is next merged in), for the same
   reason.
 - **`enforce_admins: true`** costs the leads nothing: every merge into `goal/stage-1` already goes through
@@ -72,8 +78,8 @@ conversation resolution required, no required approvals, and no force pushes or 
 
 ## The checks that are new
 
-- **`codex-finished`** (`.github/workflows/codex-finished.yml`, `tools/ci/codex-state.sh`): a commit status on a pull
-  request's head. Codex keeps one summary comment per pull request, with a machine-readable line
+- **`codex-finished`** (`.github/workflows/codex-finished.yml`, `tools/ci/codex-state.sh`; Superseded by CI-codex-advisory, 20
+  November 2026: advisory, required nowhere): a commit status on a pull request's head. Codex keeps one summary comment per pull request, with a machine-readable line
   (`<!-- codex-review-state:v1 {…} -->`), and edits it as its reviews start and finish. The workflow reads that line,
   from the Codex app's own comment only, and posts `success` once every review Codex started has completed, `pending`
   while one is running or when Codex has not reviewed at all ("comment @codex review"). It runs from `main` for every

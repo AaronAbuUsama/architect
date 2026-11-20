@@ -2,7 +2,8 @@ import { Names } from "orthograph/server";
 import { resolve } from "node:path";
 import { Duration, Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
-import { Collectors, privateKeys } from "#modules/telemetry/service.js";
+import { Collectors, FileMetrics, privateKeys } from "#modules/telemetry/service.js";
+import { PortalFeed } from "#modules/portal-feed/service.js";
 import { Sinks } from "#modules/sinks/service.js";
 import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
@@ -14,6 +15,9 @@ import { deviceHost, needsDevice, standChain } from "./internal/device-host.ts";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
 import { proveReport } from "./internal/structured.ts";
+
+/** The portal reads a world's last half hour: check 21's window, and the portal's own default. */
+const PORTAL_WINDOW_MS = 30 * 60_000;
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
@@ -47,7 +51,9 @@ export const Prove: ProveApi = {
       const sinks = yield* Sinks.resolve({ sinks: empty ? [{ sink: "local" }] : model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       // A plugin that runs operations on the device gets a chain in the world (Anvil as a process, K7 Q7), released after the Worker.
       const stood = yield* standChain(model);
-      const { url, chain } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv, ...(stood.chain ? { chain: Effect.succeed(stood.chain) } : {}) }).pipe(Effect.mapError(failed));
+      // The world's portal reads this run's telemetry through a feed this process answers (the Worker cannot open the collector's files).
+      const feed = yield* PortalFeed.serve({ source: collector, metrics: FileMetrics.open(dir), environment: "local", windowMs: PORTAL_WINDOW_MS }).pipe(Effect.mapError(failed));
+      const { url, chain } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv, ...(stood.chain ? { chain: Effect.succeed(stood.chain) } : {}) }).pipe(Effect.mapError(failed));
       const device = needsDevice(model) ? yield* deviceHost(world, collector.url, chain).pipe(Effect.mapError(failed)) : undefined;
       const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device));
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
