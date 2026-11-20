@@ -2,6 +2,7 @@
 // instance, until the call commits them with its move.
 import { Effect } from "effect";
 import type { Thing } from "orthograph";
+import { orderSteps, type Step } from "./order.ts";
 import { holds } from "./unique.ts";
 import type { Instance, Store, Unit, Write } from "../types.ts";
 
@@ -75,12 +76,27 @@ export const makeUnit = (store: Store["Service"]): Effect.Effect<Unit> =>
       },
       read: find,
       setState: (thing, id, state) => change(thing, id, {}, state),
-      writes: Effect.sync(() =>
-        held.map((h): Write =>
-          h.kind === "insert"
-            ? { kind: "insert", thing: h.thing, fields: h.fields, state: h.state }
-            : { kind: "update", thing: h.thing, id: h.id, version: h.version, changes: h.fields, state: h.state },
-        ),
-      ),
+      writes: Effect.suspend(() => {
+        const steps = held.map((h): Step => {
+          const stored = read.get(h.thing)?.get(h.id)?.instance;
+          const before = h.kind === "insert" ? undefined : stored;
+          const base = h.kind === "insert" ? {} : (stored ?? {});
+          return {
+            write: h.kind === "insert"
+              ? { kind: "insert", thing: h.thing, fields: h.fields, state: h.state }
+              : { kind: "update", thing: h.thing, id: h.id, version: h.version, changes: h.fields, state: h.state },
+            before,
+            after: { ...base, ...h.fields, ...(h.state !== undefined ? { state: h.state } : {}) } as Instance,
+          };
+        });
+        const ordered = orderSteps(steps);
+        if (!Array.isArray(ordered)) {
+          const { field, why } = ordered as Exclude<typeof ordered, ReadonlyArray<Step>>;
+          return Effect.die(new Error(why === "clash"
+            ? `this call's own rows hold one value of the unique field ${field}: that is the handler's bug, not a race`
+            : `this call's writes cannot be put in an order: each must go after another, over the unique field ${field}`));
+        }
+        return Effect.succeed((ordered as ReadonlyArray<Step>).map((s) => s.write));
+      }),
     };
   });

@@ -5,7 +5,7 @@ import { Journal } from "#modules/journal/types.js";
 import { journalOf } from "#modules/journal/service.js";
 import { Records, Store, type Instance, type UnitApi } from "./types.ts";
 import { makeUnit } from "./internal/unit.ts";
-import { breaksUnique, keyOf } from "./internal/unique.ts";
+import { holdsTwice, keyOf } from "./internal/unique.ts";
 
 export const Unit: UnitApi = { make: makeUnit };
 
@@ -33,17 +33,22 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
     answered: (key) => Effect.sync(() => requests.get(key)),
     commit: ({ writes, entries: events, request }) =>
       Effect.sync(() => {
-        const stale = writes.some((w) => w.kind === "update" && rows[at(w.thing, w.id)]?.version !== w.version);
-        if (stale || breaksUnique(rows, writes) || (request && requests.has(request.key))) return "conflict" as const;
-        if (request) requests.set(request.key, request.answer);
+        if (request && requests.has(request.key)) return "conflict" as const;
+        // One write at a time, checked after each, as D1 checks its index statement by statement: on a copy, so a refusal writes none of it.
+        const next = rows.map((r) => ({ ...r }));
+        const index = (thing: Thing, id: unknown) => next.findIndex((r) => r.thing === thing && r.instance["id"] === id);
         for (const w of writes) {
-          if (w.kind === "insert") rows.push({ thing: w.thing, instance: { ...w.fields, ...(w.state ? { state: w.state } : {}) }, version: 0 });
+          if (w.kind === "insert") next.push({ thing: w.thing, instance: { ...w.fields, ...(w.state ? { state: w.state } : {}) }, version: 0 });
           else {
-            const r = rows[at(w.thing, w.id)]!;
+            const r = next[index(w.thing, w.id)];
+            if (r === undefined || r.version !== w.version) return "conflict" as const;
             r.instance = { ...r.instance, ...w.changes, ...(w.state ? { state: w.state } : {}) };
             r.version += 1;
           }
+          if (holdsTwice(w.thing, next.filter((r) => r.thing === w.thing).map((r) => r.instance))) return "conflict" as const;
         }
+        if (request) requests.set(request.key, request.answer);
+        rows.splice(0, rows.length, ...next);
         entries.push(...events);
         return "committed" as const;
       }),
