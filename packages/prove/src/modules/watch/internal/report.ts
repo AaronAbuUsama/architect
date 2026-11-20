@@ -61,6 +61,7 @@ export const judge = (model: Model, project: Parameters<typeof Evals.judgeLive>[
     const times = calls.flatMap((e) => (e.opSpan ? [e.opSpan.ms] : [])).sort((a, b) => a - b);
     const budget = model.operations[name]?.budget?.p95Ms ?? null;
     const p95 = Math.ceil(Evals.percentile(times, 95));
+    process.getBuiltinModule("node:fs").appendFileSync("/private/tmp/claude-501/-Users-abuusama-projects-architect--claude-worktrees-awesome-tharp-a1fd3e/cb17a1a8-2c6b-4573-94a9-21ceef1d1399/scratchpad/times.log", JSON.stringify({ name, times: times.map((t) => Math.round(t)) }) + "\n"); // TEMP-DIAG
     const above = budget !== null && Evals.percentile(times, 95) > budget;
     // A p95 over fewer than MIN_CALLS calls is the slowest call: a lone slow request is noise, not drift. It is said, and judged once there is traffic.
     const over = above && calls.length >= MIN_CALLS;

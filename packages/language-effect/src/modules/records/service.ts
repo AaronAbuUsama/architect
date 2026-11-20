@@ -47,9 +47,12 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
           }
           if (holdsTwice(w.thing, next.filter((r) => r.thing === w.thing).map((r) => r.instance))) return "conflict" as const;
         }
+        // Nothing is spread into arguments (a big store would overflow the stack), and the answer is kept last: a commit that throws leaves nothing behind.
+        const journalled = Array.from(events);
+        rows.length = 0;
+        for (const r of next) rows.push(r);
+        for (const e of journalled) entries.push(e);
         if (request) requests.set(request.key, request.answer);
-        rows.splice(0, rows.length, ...next);
-        entries.push(...events);
         return "committed" as const;
       }),
   });
