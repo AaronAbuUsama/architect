@@ -27,12 +27,17 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
    or stage 3 gate. Checks come first, as always: an author writes the failing checks, and a builder makes them pass.
 3. **What is not pulled forward:** the gates themselves. Each gate's suite still runs and still has to pass where the
    stages put it. A slice pulled forward that touches a gate's suite counts toward that gate when it comes.
-4. **No collision with Goal 3.** Until Goal 3's bound (G10: ST1.01 to ST1.04 and ST1.06 to ST1.24) has landed on
-   `goal/stage-1`, on-chain work touches only `design/`, `packages/language-solidity` and `spikes/`. So the design
-   and the spikes run now, but M6.10 onward wait: M6.10 already changes the compiler (`runs: "chain"`,
-   `describe.ts`) and the `orthograph` front door, and M6.11 to M6.14 reach the model and the SDK. A slice may start
-   earlier only when the conductor clears its files against Goal 3's. Pull requests go into `goal/stage-1` while
-   Goal 3 is open, and into `main` after.
+4. **Its own goal branch, beside Goal 3.** Aaron, later the same day: "What if we were to re-cut the main goal and
+   take ownership over the engine? ... how can we make this one proper goal that completes something end to end
+   properly?", and then "Both parts". So the on-chain work runs as one goal on its own branch, `goal/on-chain`, cut
+   from `goal/stage-1`:
+   - It may change the engine (`packages/orthograph`, `compiler`, `generators`, `projections`, `language-effect`)
+     on that branch.
+   - It merges `goal/stage-1` in at the start of every slice, and never pushes to it. Goal 3 never waits on it, and
+     the on-chain goal resolves every conflict.
+   - It lands in `main` once stage 1 has. If Goal 3 is still open when it finishes, it lands in `goal/stage-1`
+     through one pull request.
+   - It is local only: no cloud and no keys.
 5. **This is Aaron's exception, not a new rule.** Any other milestone still waits for its gate unless Aaron pulls it
    forward in the same way, with his words recorded.
 
@@ -41,12 +46,12 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
 | Dependent | Change |
 |---|---|
 | `design/milestones.md`, the table of slices whose `needs` names an old gate | M6.01 is read as "none: started 20 November 2026 (K26, Aaron's exception)" |
-| M6.02, M6.07, M6.09 and M6.10 to M6.18 (stage 2 and 3's chain slices: the journeys, the relayer, the follower, the contracts and the key checks) | may start once their own `needs` are met and Goal 3 has landed (item 4), before the stage 2 or 3 gate |
+| M6.02, M6.07, M6.09 and M6.10 to M6.18 (stage 2 and 3's chain slices: the journeys, the relayer, the follower, the contracts and the key checks) | may start once their own `needs` are met, on the on-chain goal's branch (item 4), before the stage 2 or 3 gate |
 | M6.21 (moves made by time in Solidity) | not freed: it also needs M8.09, the time work, which is not pulled forward |
 | `AGENTS.md`, "How work flows" | one line points here, so the gate rule there names its exception |
 | K9, "The order after workable" (a dated record) | a dated note beside stage 3 points here |
 | The kanban board (`.agents/skills/kanban/data/`, `STATE.md`) | not edited by hand: its saved files are snapshots of the live board, which the conductor updates and saves again |
-| Goal 3 on `goal/stage-1` | unaffected (item 4) |
+| Goal 3 on `goal/stage-1` | never waits: the on-chain goal merges it in at every slice (item 4) |
 
 ## Supersedes
 
