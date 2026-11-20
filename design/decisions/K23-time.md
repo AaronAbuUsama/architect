@@ -248,7 +248,7 @@ export default Adapter.make({ ..., clock: "own" });                             
 | generators and projections | the keeper; docs, MCP and the scaffold say when a move happens ("every month from `startedAt`") |
 | `portal`, `cli` | the world's time beside the real one; `ortho clock advance`, `ortho clock speed`, `ortho dev --speed` and the portal's control, in one slice (Q2, Q3) |
 | `lint` | SQL clock reads |
-| The grid | a new block, `time` (the fourteenth on `main`, the fifteenth once stage 1's `invariant` block lands), with its nine cells (model, api, server, sdk, cli, mcp, docs, portal, telemetry) |
+| The grid | a new block, `time` (the fourteenth on `main`; the fifteenth if stage 1's planned `invariant` block, ST1.10 on `goal/stage-1`, lands first), with its nine cells (model, api, server, sdk, cli, mcp, docs, portal, telemetry) |
 | Existing slices | M3.01 waits through `Timers`; M5.15 rests on M8.07; L5.08 becomes M4.26; stage 3's gate needs Gate M8 |
 
 ## The milestone
