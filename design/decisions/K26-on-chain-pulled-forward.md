@@ -49,5 +49,6 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
 
 ## Supersedes
 
+- design/decisions/K9-growing-example.md (the order after workable): "After Gate M2 (stage 1), stage 2 comes next. Then stage 3" → the same, with the on-chain slices pulled forward (K26), annotated in place
 - AGENTS.md ("How work flows"): "Nothing in a milestone starts until the previous milestone's gate passes on `main`." → the same, plus "The one exception is K26 …"
 - design/milestones.md (the stage table): "| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |" → "| M6.01 (stage 2's chain decision) | Gate M5 | none: started 20 November 2026 (K26, Aaron's exception) |"
