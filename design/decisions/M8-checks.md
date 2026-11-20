@@ -28,13 +28,16 @@ and `email` are all there is (`orthograph/src/modules/values/types.ts:16`).
 2. **A clock step answers.** `s.clock.advance(span)` and `s.clock.moveTo(instant)` answer `{ now, fired }` once the world
    is quiet at the target: `now` is the world's instant as above; `fired` lists every move made by time that ran on the
    way, in the order it ran, each `{ thing, move, due }`. A journey asserts exactly what fired with `expect`, and the
-   events of those calls are the step's journal for `emits` and `noEvents`. Starting worlds have `s.clock` too.
+   events of those calls are the step's journal for `emits` and `noEvents`. `emits` judges the first event of its name,
+   as it does today, so a step that fires one move twice pins the second by `fired` and a read. A `fired` entry may
+   carry more (when it ran, its trace) for prove's own use. Starting worlds have `s.clock` too.
 3. **A journey that moves time has a world of its own,** whose clock starts at the environment's `starts`. Order in a
    run never changes what a journey sees. Journeys that never move time keep sharing.
 4. **The keeper in journeys.** `Blueprint.keeper` is the keeper as a principal: in `allowed`, and as a cast member.
    `s.keeper.run(op, payload, { due })` fires a move made by time as the keeper does, for that due instant, with the
    keeper's request key (thing, move, due instant). A move made by time's operation declares `allowed: [Blueprint.keeper]`;
-   the keeper is refused `NotAllowed` by every other operation, even one open to `Blueprint.anyone`.
+   the keeper is refused `NotAllowed` by every other operation, even one open to `Blueprint.anyone`, so every
+   operation's declared refusals include `NotAllowed`.
 5. **Calendar words.** A span in months or years is worked out in UTC when there is no anchor zone: one month from
    10 January 09:00 UTC is 10 February 09:00 UTC. A calendar anchor (`on: { day: 25 }`, `on: { day: "last" }`) is due at
    the start of that day in its zone: in London, midnight UTC in winter and 23:00 UTC the evening before in summer.

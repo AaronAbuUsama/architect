@@ -37,7 +37,8 @@ export default Blueprint.journey("renewals keep the day they started", {
       s.clock.moveTo("2027-04-30T09:00:00Z"),
       expect((a) => a.now).toBe("2027-04-30T09:00:00.000Z"),
       expect(fired).toEqual(["membership.renew due 2027-03-31T09:00:00.000Z", "membership.renew due 2027-04-30T09:00:00.000Z"]),
-      emits(MembershipRenewed, { membership: s.world.membership, period: 4n, at: "2027-04-30T09:00:00.000Z" }),
+      // `emits` judges the first event of its name: March's. April's is pinned by `fired` and the read that follows.
+      emits(MembershipRenewed, { membership: s.world.membership, period: 3n, at: "2027-03-31T09:00:00.000Z" }),
     ),
     s.step(
       "read back, three renewals",

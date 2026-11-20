@@ -131,6 +131,11 @@ describe("04 M8.04: the on-time eval", () => {
       expect(evalLines(run.lines, op), run.out).toEqual([`${op} on time ✔`]);
       expect(run.lines.some((l) => l.startsWith(`${op} 10 evals ✔`)), `${op}: ten evals\n${run.out}`).toBe(true);
     }
+    // A move a person makes is not judged on time, and keeps nine.
+    for (const op of ["membership.join", "membership.miss", "purse.spend"]) {
+      expect(evalLines(run.lines, op), run.out).toEqual([]);
+      expect(run.lines.some((l) => l.startsWith(`${op} 9 evals ✔`)), `${op}: nine evals\n${run.out}`).toBe(true);
+    }
     expect(run.status, run.out).toBe(0);
     nothingRunning(root);
   });
