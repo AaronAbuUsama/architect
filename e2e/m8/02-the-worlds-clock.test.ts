@@ -221,7 +221,9 @@ describe("02 M8.03: one clock drives the world", () => {
     expect(stepped.status, stepped.stdout + stepped.stderr).toBe(1);
     expect(stepped.stdout + stepped.stderr).toMatch(/staging[^\n]*clock|clock[^\n]*staging/);
 
+    // The edit changes the model: generate again, so only the clock is judged.
     writeFileSync(staging, withClock("Blueprint.clock.real()"));
+    generated(copy.root);
     const real = ortho(copy.root, "check");
     expect(real.status, real.stdout + real.stderr).toBe(0);
   });

@@ -66,7 +66,8 @@ and `email` are all there is (`orthograph/src/modules/values/types.ts:16`).
 12. **The server's clock is the world's, live.** K23 section 6 provides `Clock` at the entry "fixed for the whole
     request (as workerd fixes `Date` during a request)". workerd's `Date` stands still only between I/O, and a durable
     sleep is I/O: a handler that reads `Clock` after `Timers.sleep` reads the instant the sleep woke at. Within one
-    step of the world's clock nothing else moves it, so a call that does not sleep reads one instant throughout.
+    step of the world's clock nothing else moves it, so a call that does not sleep reads one instant throughout. The
+    generated server provides `Timers` to handlers, so a handler's durable sleep is one of the world's timers.
 
 ## Three rows that could not stand
 
