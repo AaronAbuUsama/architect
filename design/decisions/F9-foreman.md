@@ -679,7 +679,7 @@ Foreman: Got it. I'll talk at the design level and send code only when you ask. 
 | # | Joint | Recommendation |
 |---|---|---|
 | 1 | One work app, or one per app | A · one work app holding every project, Orthograph included |
-| 2 | State until the work app runs | A · the work app is Foreman's first project; the board carries the state meanwhile |
+| 2 | State until the work app runs | A · the work app is Foreman's first project, with a recorded exception to the gate rule; the board carries the state meanwhile |
 | 3 | Where the work app runs | C · locally until it proves, then staging with your yes |
 | 4 | How Foreman learns you | A · ask at intake, show the profile, say every change |
 
