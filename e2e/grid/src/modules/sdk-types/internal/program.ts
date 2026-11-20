@@ -12,19 +12,25 @@ export interface Built {
   readonly checker: ts.TypeChecker;
 }
 
-/** The type the blueprint's schema for a field decodes to, from the model: an id or text is a string, a uint a bigint, a boolean a boolean, a named schema an opaque object. */
-const decoded = (field: FieldModel): string => {
+/**
+ * The type the blueprint's schema for a field decodes to, from the model, tagged with the field it belongs to: an id or text is a string, a uint a bigint, a boolean a
+ * boolean, a named schema an opaque object, each intersected with `{ __field: "<thing>.<field>" }`. A member that resolves to another field's tag is derived from the wrong field.
+ */
+const decoded = (field: FieldModel, tag: string): string => {
   const type = field.value.type;
-  const base = type === "id" || type === "text" ? "string" : type === "uint" || type === "int" ? "bigint" : type === "boolean" || type === "bool" ? "boolean" : "{ readonly __schema: string }";
-  return field.optional === true ? `(${base}) | undefined` : base;
+  const marker = `{ readonly __field: ${JSON.stringify(tag)} }`;
+  const base = type === "id" || type === "text" ? "string" : type === "uint" || type === "int" ? "bigint" : type === "boolean" || type === "bool" ? "boolean" : undefined;
+  const tagged = base === undefined ? marker : `${base} & ${marker}`;
+  return field.optional === true ? `(${tagged}) | undefined` : tagged;
 };
 
-const fieldsText = (fields: Fields) => Object.entries(fields).map(([name, f]) => `readonly ${JSON.stringify(name)}: { readonly value: { readonly schema: { readonly Type: ${decoded(f)} } } };`).join(" ");
+const fieldsText = (fields: Fields, prefix: string) =>
+  Object.entries(fields).map(([name, f]) => `readonly ${JSON.stringify(name)}: { readonly value: { readonly schema: { readonly Type: ${decoded(f, `${prefix}.${name}`)} } } };`).join(" ");
 
 /** What `import type * as Source from "…/thing.ts"` and `* as Events from "…/events.ts"` give: the thing's fields and each event's, as the generator reads them. */
-const thingModule = (model: ProjectModel, name: string) => `export declare const thing: { readonly kind: "thing"; readonly fields: { ${fieldsText(model.things[name]?.fields ?? {})} } };`;
+const thingModule = (model: ProjectModel, name: string) => `export declare const thing: { readonly kind: "thing"; readonly fields: { ${fieldsText(model.things[name]?.fields ?? {}, name)} } };`;
 const eventsModule = (model: ProjectModel, name: string) =>
-  Object.entries(model.things[name]?.events ?? {}).map(([event, fields]) => `export declare const ${event}: { readonly fields: { ${fieldsText(fields)} } };`).join("\n");
+  Object.entries(model.things[name]?.events ?? {}).map(([event, fields]) => `export declare const ${event}: { readonly fields: { ${fieldsText(fields, `${name}.${event}`)} } };`).join("\n");
 
 /** `import type * as <alias> from "<specifier>"`, by specifier. */
 const importsOf = (text: string): ReadonlyArray<{ readonly alias: string; readonly specifier: string }> =>

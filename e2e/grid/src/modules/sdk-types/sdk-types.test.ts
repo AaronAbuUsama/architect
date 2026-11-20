@@ -2,9 +2,10 @@
 import { describe, expect, it } from "vitest";
 import { evidenceOf } from "../project-evidence/testing.ts";
 import { SdkTypes } from "./service.ts";
-import { LINK_TYPES as REAL } from "./testing.ts";
+import { LINK_TYPES as REAL, typesText } from "./testing.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
+const acme = await evidenceOf("acme");
 const link = pluggedIn.model.things["link"]!;
 const path = "generated/sdk/src/link/types.ts";
 
@@ -84,5 +85,60 @@ describe("the thing's state is exactly the machine's states", () => {
   });
   it("red: no state member at all", () => {
     expect(judged(change('  readonly "state": LinkState;\n', '')).state).toEqual([`${path}'s Link has no state member: a caller's state is not typed`]);
+  });
+});
+
+describe("the kinds the old parser tests planted, now judged by what they resolve to", () => {
+  const member = (type: string, field = "title") => REAL.replace(`readonly "${field}": Of<Declared["${field}"]>;`, `readonly "${field}": ${type};`);
+  it("green: the type written as an interface or an alias, with a parenthesised primitive", () => {
+    const body = (types: string) => `export interface Link { ${types} }\n`;
+    const members = ["id", "profile", "owner", "title", "url"].map((f) => `readonly ${JSON.stringify(f)}: ${f === "url" ? 'Of<Declared["url"]>' : "string"};`).join(" ");
+    const head = REAL.slice(0, REAL.indexOf("/** A title and web address"));
+    expect(judged(`${head}${body(`${members} readonly "state": LinkState;`)}`).fields).toEqual([]);
+    expect(judged(member("(string)")).fields).toEqual([]);
+  });
+  it.each(["string | number", 'Of<Declared["title"]>[]', 'Of<Declared["title"]> | number', 'Of<Declared["title"]> | null', "string | boolean"])("red: title typed %s", (type) => {
+    expect(judged(member(type)).fields, type).toHaveLength(1);
+  });
+  it("red: a uint typed true, a string or a boolean; green: bigint, number, or both", () => {
+    const counted = { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, fields: { ...link.fields, title: { ...link.fields["title"]!, value: { type: "uint", bits: 32 } } } } } };
+    for (const bad of ["true", "string", "boolean"]) expect(judged(member(bad), counted).fields, bad).toHaveLength(1);
+    for (const ok of ["bigint", "number", "number | bigint", "1"]) expect(judged(member(ok), counted).fields, ok).toEqual([]);
+  });
+});
+
+describe("a member derived from another field of the same kind is red", () => {
+  const allowance = acme.model.things["allowance"]!;
+  const check = (model: typeof acme.model, thing: typeof allowance, members: Record<string, string>, file = `generated/sdk/src/${thing.name}/types.ts`) =>
+    SdkTypes.fieldProblems({ files: { ...acme.files, [file]: typesText(thing, members) }, model, thing, path: file });
+
+  it("green: acme's allowance as the generator writes it", () => {
+    expect(check(acme.model, allowance, {})).toEqual([]);
+  });
+  it("red: organization derived from member (both ids)", () => {
+    expect(check(acme.model, allowance, { organization: 'Of<Declared["member"]>' })).toEqual([`generated/sdk/src/allowance/types.ts's Allowance.organization resolves to string & { readonly __field: "allowance.member"; }, which is derived from allowance.member, not from allowance.organization`]);
+  });
+  it("red: limit derived from spent (both uints)", () => {
+    expect(check(acme.model, allowance, { limit: 'Of<Declared["spent"]>' })[0]).toMatch(/Allowance\.limit resolves to .*derived from allowance\.spent, not from allowance\.limit$/);
+  });
+  it("red: two members swapped", () => {
+    expect(check(acme.model, allowance, { limit: 'Of<Declared["spent"]>', spent: 'Of<Declared["limit"]>' })).toHaveLength(2);
+  });
+  it("red: a member derived from another thing's field", () => {
+    expect(check(acme.model, allowance, { member: 'Of<Declared["id"]>' })[0]).toMatch(/derived from allowance\.id, not from allowance\.member$/);
+  });
+  it("red: two named-schema fields swapped", () => {
+    const extra = { ...link, fields: { ...link.fields, alt: { ...link.fields["url"]! } } };
+    const model = { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: extra } };
+    const file = "generated/sdk/src/link/types.ts";
+    const run = (members: Record<string, string>) => SdkTypes.fieldProblems({ files: { ...pluggedIn.files, [file]: typesText(extra, members) }, model, thing: extra, path: file });
+    expect(run({})).toEqual([]);
+    expect(run({ url: 'Of<Declared["alt"]>', alt: 'Of<Declared["url"]>' })).toHaveLength(2);
+  });
+  it("red: a derived type intersected with something that takes any key, or is a Promise", () => {
+    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & Record<string, any>')).fields[0]).toMatch(/Link\.title resolves to .*index signature/);
+    expect(judged(change('"url": Of<Declared["url"]>', '"url": Of<Declared["url"]> & Record<string, any>')).fields[0]).toMatch(/Link\.url resolves to .*index signature/);
+    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & Number')).fields[0]).toMatch(/Link\.title resolves to .*Number/);
+    expect(judged(change('"title": Of<Declared["title"]>', '"title": Of<Declared["title"]> & { extra: 1 }')).fields[0]).toMatch(/intersected with another type/);
   });
 });

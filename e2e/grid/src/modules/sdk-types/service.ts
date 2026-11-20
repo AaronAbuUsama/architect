@@ -19,7 +19,7 @@ export const SdkTypes: SdkTypesApi = {
         const type = b.checker.getTypeOfSymbolAtLocation(property, property.valueDeclaration ?? file);
         const absent = (property.flags & ts.SymbolFlags.Optional) !== 0 || allowsUndefined(type);
         const required = field.visibility === undefined && field.optional !== true;
-        const wrong = kindProblem(b, kindOf(field.value.type), type);
+        const wrong = kindProblem(b, kindOf(field.value.type), type, `${thing.name}.${name}`);
         return wrong !== undefined ? [`${at}.${name} ${wrong}`]
           : required && absent ? [`${at}.${name} is optional or may be undefined, but every call carries it`]
           : !required && !absent ? [`${at}.${name} is not optional, but the model says a call may leave it out`]

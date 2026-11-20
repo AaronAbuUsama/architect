@@ -27,24 +27,43 @@ const present = (type: ts.Type): ReadonlyArray<ts.Type> => membersOf(type).filte
 
 const symbolName = (type: ts.Type): string | undefined => type.getSymbol()?.getName();
 
-/** Why a type is not a value of `kind` (`undefined` when it is): hollow, boxed, an index signature, or the wrong primitive. */
-export const kindProblem = (b: Built, kind: Kind, type: ts.Type): string | undefined => {
+/** The parts an intersection is made of (`string & { __field }`), or the type itself. */
+const componentsOf = (type: ts.Type): ReadonlyArray<ts.Type> => (type.isIntersection() ? type.types : [type]);
+
+/** The `__field` tag a type carries, as the program's stand-in for a declaration wrote it. */
+const tagOf = (b: Built, type: ts.Type): string | undefined => {
+  const property = type.getProperty("__field");
+  const tag = property === undefined ? undefined : b.checker.getTypeOfSymbol(property);
+  return tag !== undefined && (tag.flags & F.StringLiteral) !== 0 ? (tag as ts.StringLiteralType).value : undefined;
+};
+
+/**
+ * Why a type is not a value of `kind` (`undefined` when it is): hollow, not the type the declaration's schema for THIS field decodes to (another field's, or none), the wrong
+ * primitive, or intersected with a boxed, callable or index-signature type that makes it take more than the field's value. The tag is the field's own `<thing>.<field>`.
+ */
+export const kindProblem = (b: Built, kind: Kind, type: ts.Type, tag: string): string | undefined => {
   const parts = present(type);
   if (parts.length === 0) return "holds no value";
   for (const part of parts) {
     const shown = b.checker.typeToString(part);
     if ((part.flags & HOLLOW) !== 0) return `resolves to ${shown}, which holds no usable value`;
-    if (kind === "string" && (part.flags & F.StringLike) === 0) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    if (kind === "number" && (part.flags & (F.NumberLike | F.BigIntLike)) === 0) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    if (kind === "boolean" && (part.flags & F.BooleanLike) === 0) return `resolves to ${shown}, which is not ${WANT[kind]}`;
-    // A named schema's value is whatever the declaration's schema decodes to, which the program stood in with a marker: the member must be that type, not another.
-    if (kind === "opaque" && part.getProperty("__schema") === undefined) return `resolves to ${shown}, which is not the type the declaration's schema decodes to`;
-    if (kind === "opaque" && (part.flags & F.Object) !== 0) {
-      const name = symbolName(part);
-      if (name !== undefined && BOXED.has(name)) return `resolves to ${shown}, a ${name}, which is not a value of the field's type`;
-      const isArray = name === "Array" || name === "ReadonlyArray";
-      if (!isArray && b.checker.getIndexInfosOfType(part).length > 0) return `resolves to ${shown}, which has an index signature and so takes any key`;
-      if (part.getCallSignatures().length > 0) return `resolves to ${shown}, a function`;
+    const found = tagOf(b, part);
+    // A primitive or literal the SDK spells out (`string`, `"a" | "b"` for a text) carries no tag and is judged as the kind it is; a derived type must be this field's own.
+    const spelled = found === undefined && kind !== "opaque" && !componentsOf(part).some((c) => (c.flags & F.Object) !== 0);
+    if (!spelled && found === undefined) return `resolves to ${shown}, which is not the type the declaration's schema decodes to`;
+    if (found !== undefined && found !== tag) return `resolves to ${shown}, which is derived from ${found}, not from ${tag}`;
+    const components = componentsOf(part);
+    const primitive = components.filter((c) => (c.flags & F.Object) === 0);
+    if (kind === "string" && !primitive.some((c) => (c.flags & F.StringLike) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
+    if (kind === "number" && !primitive.some((c) => (c.flags & (F.NumberLike | F.BigIntLike)) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
+    if (kind === "boolean" && !primitive.some((c) => (c.flags & F.BooleanLike) !== 0)) return `resolves to ${shown}, which is not ${WANT[kind]}`;
+    // Every part of an intersection is checked, not only an object type: `Of<…> & Record<string, any>` takes any key.
+    for (const component of components.filter((c) => (c.flags & F.Object) !== 0)) {
+      const name = symbolName(component);
+      if (name !== undefined && BOXED.has(name)) return `resolves to ${shown}, which includes a ${name}`;
+      if (b.checker.getIndexInfosOfType(component).length > 0) return `resolves to ${shown}, which includes a type with an index signature and so takes any key`;
+      if (component.getCallSignatures().length > 0) return `resolves to ${shown}, which includes a function`;
+      if (component.getProperty("__field") === undefined) return `resolves to ${shown}, which is intersected with another type`;
     }
   }
   return undefined;

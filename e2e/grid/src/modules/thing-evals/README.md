@@ -8,6 +8,9 @@ The SDK's types are judged by what the TypeScript checker says they **resolve to
 stood in by modules written from the model (`../sdk-types/README.md`). Spelling is never the test: `Of<F> = never`, `Of<F> = F`, `Declared = any`,
 `Record<string, unknown>`, `Number`, `| Promise<void>` and an index signature all fail because of what they resolve to.
 
+Each field's stand-in carries its own tag (`<thing>.<field>`), so a member derived from another field of the same kind (`organization: Of<Declared["member"]>`, two
+named schemas swapped) is red, and an intersection (`Of<…> & Record<string, any>`) is judged part by part (`sdk-types.test.ts`, "a member derived from another field").
+
 Every SDK type the evals judge (rows) against every rule (columns). Each cell is **enforced**, with the test that plants it, or **n/a** with its reason.
 The output schema's own matrix is in `../output-schema/README.md`.
 
