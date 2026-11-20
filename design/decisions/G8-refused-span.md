@@ -42,7 +42,7 @@ Access.check(...).pipe(withRecords, Effect.withTracerEnabled(false), Effect.tapE
 
 C. The span carries `refusal`, `refusal.code`, `operation`, `attempt` and `principal.kind`. It does **not** carry `principal.person`: with it, the
 private-field check of `packages/prove/src/modules/prove/secrets.test.ts` found bob's person id, which is a private `payload.member` value, on
-a span of `allowance.grant` (M1.35's one visibility rule). A refused caller is named by kind only.
+a span of `allowance.grant` (M1.35's one visibility rule). A refused caller is named by kind only: F8 (row 4) and O2 keep which person called off any span a viewer reads, and a refused call is the one a stranger makes.
 
 The move's attributes go on the operation's span: `chooseOutcome` takes that span as an argument and writes `move.name` and `move.to` on it, so a
 move made inside a step lands in the same place as `move.from`.

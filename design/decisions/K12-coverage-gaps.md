@@ -83,8 +83,8 @@ written there. The calls the builder had to make beyond them:
   "conflict"` and no `event.name`). It left the operation span: nothing but the canon read it there.
 - **`refusal.code` comes from `Errors.codes`, passed to `Handlers.serve` as `codes`.** The generated server hands each
   served operation the one map of tag to code the API already generates (declared errors and each machine's `notFrom`),
-  so the runtime never rebuilds a code from a thing's prefix. A tag with no code (`NotAllowed` is written before the
-  span, so it never reaches this line) is written without one. This changes every generated `server/main.ts`; the four
+  so the runtime never rebuilds a code from a thing's prefix. A tag with no code is written without one. (`NotAllowed` is
+  traced in its own `<operation>.refused` span, which carries its code: see [G8](G8-refused-span.md).) This changes every generated `server/main.ts`; the four
   examples are regenerated.
 - **`environment` reaches a handler as a Context reference, `Environment`, default `local`.** The Worker's
   `ORTHO_ENVIRONMENT` binding is read once where the layers are built (the API's and the MCP runtime's) and provided as
