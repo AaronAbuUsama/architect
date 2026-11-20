@@ -85,7 +85,8 @@ and `email` are all there is (`orthograph/src/modules/values/types.ts:16`).
   M8.18, written by an author once stage one's gate is on `main`, before M8.11 and M8.13 start.
 - **The ratchet is a folder.** G9 (on `goal/stage-1`, 20 November 2026) made M1's list one file per check. M8 starts
   that way: `e2e/m8/expected-failing/<check>.txt`. The ratchet's code (`e2e/ratchet/`) is copied byte for byte from
-  `goal/stage-1`, so the merge of stage one into `main` adds nothing to resolve there.
+  `goal/stage-1` as it stood at `bbe1a488`; stage one has changed it since (G11), and the merge of stage one into `main`
+  takes stage one's side of each file.
 
 ## Evidence that the checks are fair
 

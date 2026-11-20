@@ -61,7 +61,8 @@ It holds, with five things the design has to answer:
 
 1. **Libraries inside the world read the wall clock themselves.** Our lint covers our code, not our dependencies.
    Better Auth 1.7.15, which runs inside the world's Worker and its Durable Object, expires invitations against the
-   wall clock:
+   wall clock (Superseded by M8-checks, 20 November 2026: Orthograph never loads Better Auth's organization plugin, so
+   there are no invitations; sessions still expire this way):
 
    ```js
    // node_modules/better-auth/dist/plugins/organization/adapter.mjs:774
