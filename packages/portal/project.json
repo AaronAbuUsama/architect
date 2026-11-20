@@ -29,6 +29,17 @@
       "outputs": [
         "{projectRoot}/dist"
       ]
+    },
+    "client": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node ../portal-ui/tools/pro.mjs @heroui-pro/react gate pnpm exec vite build --config vite.config.ts",
+        "cwd": "{projectRoot}"
+      },
+      "cache": false,
+      "outputs": [
+        "{projectRoot}/dist/client"
+      ]
     }
   }
 }
