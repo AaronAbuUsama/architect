@@ -90,10 +90,10 @@ const prove = Command.make(
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
-      : Effect.scoped(Prove.run({ root, port, empty, changed, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
+      : Effect.scoped(Prove.run({ root, port, empty, changed, env: process.env, ...(changed && !json ? { say: (line: string) => Console.log(line) } : {}), ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
           Effect.tap((proved) => Effect.sync(() => {
             if (Option.isSome(report)) writeFileSync(report.value, JSON.stringify(proved.structured, null, 2) + "\n");
-            process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.join("\n") + "\n");
+            process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.slice(proved.said ?? 0).join("\n") + "\n");
           })),
           Effect.tap((proved) => Effect.sync(() => (process.exitCode = proved.passed ? 0 : 1))),
         );

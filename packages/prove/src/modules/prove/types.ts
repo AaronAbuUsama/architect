@@ -14,6 +14,8 @@ export interface Report {
   readonly passed: boolean;
   /** The same run as data (`ortho prove --json`, `--report <file>`): per journey, per step, totals and timings. */
   readonly structured: ProveReport;
+  /** How many leading `lines` were already said through `say` as they became true: a caller that printed them prints the rest. */
+  readonly said?: number;
 }
 
 export interface ProveApi {
@@ -34,6 +36,8 @@ export interface ProveApi {
      * it skipped; run everything, saying why, when it cannot tell. The proof it leaves is recorded as a full run's is.
      */
     readonly changed?: boolean;
+    /** Said as it is true, ahead of the report: `--changed` says what it will run before a world that cannot start can hide it. */
+    readonly say?: (line: string) => Effect.Effect<void>;
     /** The process environment, for the sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */
     readonly env?: Readonly<Record<string, string | undefined>>;
   }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;

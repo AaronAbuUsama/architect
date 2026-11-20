@@ -39,7 +39,7 @@ const unfinishedIn = (project: { readonly unfinished?: ReadonlyArray<string> }) 
   (project.unfinished ?? []).map((file) => `journey ${file} skipped: it still has blanks (ortho check names them)`);
 
 export const Prove: ProveApi = {
-  run: ({ root, port, empty = false, only, env, changed = false }) =>
+  run: ({ root, port, empty = false, only, env, changed = false, say }) =>
     Effect.gen(function* () {
       const { model, project: loaded } = yield* load(root, empty);
       // `--changed`: what the last proof's record and today's files say to run; with nothing to run or judge, no world is made at all.
@@ -49,11 +49,12 @@ export const Prove: ProveApi = {
       const judging = selection !== undefined && selection.fellBack === null ? new Set(selection.judge) : undefined;
       const project = selection !== undefined && judging !== undefined ? narrowed(loaded, selection.rerun) : loaded;
       const said = selection === undefined ? [] : headline(model, selection, project.journeys.length, loaded.journeys.length);
+      if (say !== undefined) for (const line of said) yield* say(line);
       const report = selection === undefined ? undefined : detail(model, selection, project.journeyFiles ?? []);
       if (selection !== undefined && judging !== undefined && project.journeys.length === 0 && judging.size === 0) {
         yield* Impact.settle(root, model, { journeys: [], operations: [] }, stamp!);
         const lines = [...said, ...unfinishedIn(loaded), "prove ✔"];
-        return { lines, passed: true, structured: proveReport([], 0, 0, lines, true, report) };
+        return { lines, passed: true, structured: proveReport([], 0, 0, lines, true, report), ...(say === undefined ? {} : { said: said.length }) };
       }
       const journeys = only === undefined ? project.journeys : project.journeys.filter((journey) => journey.name === only);
       if (journeys.length === 0 && !(empty && only === undefined) && !(judging !== undefined && judging.size > 0)) return yield* new ProveFailed({ message: `no journey named "${only}"` });
@@ -81,7 +82,7 @@ export const Prove: ProveApi = {
       const verdict = closing(done);
       const lines = [...said, ...sinks.notes, ...stood.notes, ...unfinishedIn(loaded), ...done.journeys.lines, ...done.evals.lines, verdict.line];
       const seconds = Math.round(Duration.toMillis(took)) / 1000;
-      return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed, report) };
+      return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed, report), ...(say === undefined ? {} : { said: said.length }) };
     }),
   dev: ({ root, port, env }) =>
     Effect.gen(function* () {
