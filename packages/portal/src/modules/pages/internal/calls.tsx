@@ -1,12 +1,15 @@
 // The Metrics tab's body: the window's tiles, this operation's refusals by code, and the calls table (one row per call, newest first, each
 // opening its trace). Drawn from the snapshot's telemetry; a source that is not there, or failed, is said with its reason and draws no number.
+import { useState } from "react";
 import type { OperationWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
 import { NOT_YET, callsOf, doorRefusalsOf, refusalCount, tallyOf, truncatedOf, whyNot } from "./live.ts";
 import { refusalsFor } from "./model.ts";
 import { NotYet } from "./not-yet.tsx";
 
-const FILTERS = [["environment", true], ["caller", true], ["outcome", true], ["request-key", false], ["over-budget", true], ["window", true]] as const;
+const FILTERS = [["environment", true], ["caller", true], ["outcome", true], ["request-key", false], ["over-budget", true], ["window", false]] as const;
+type Chosen = Readonly<Record<"environment" | "caller" | "outcome" | "over-budget", string>>;
+const ALL: Chosen = { environment: "", caller: "", outcome: "", "over-budget": "" };
 const COLUMNS = [["time", "Time"], ["environment", "Environment"], ["caller", "Caller"], ["outcome", "Outcome"], ["duration", "Duration"], ["request-key", "Request key"], ["attempts", "Attempts"]] as const;
 
 const Tiles = ({ data, op }: { readonly data: PortalData; readonly op: OperationWire }) => {
@@ -43,13 +46,34 @@ const Footer = ({ data, op, shown }: { readonly data: PortalData; readonly op: O
 
 const Table = ({ data, op }: { readonly data: PortalData; readonly op: OperationWire }) => {
   const why = whyNot(data, "calls");
-  const rows = callsOf(data, [op.name]);
+  const [chosen, setChosen] = useState<Chosen>(ALL);
+  const held = callsOf(data, [op.name]);
+  const rows = held.filter((c) =>
+    (chosen.environment === "" || c.environment === chosen.environment) && (chosen.caller === "" || c.caller === chosen.caller)
+    && (chosen.outcome === "" || c.outcome === chosen.outcome) && (chosen["over-budget"] === "" || String(c.overBudget) === chosen["over-budget"]));
+  const options: Readonly<Record<keyof Chosen, ReadonlyArray<readonly [string, string]>>> = {
+    environment: [...new Set(held.map((c) => c.environment))].map((e) => [e, e] as const),
+    caller: [...new Set(held.map((c) => c.caller))].map((e) => [e, e] as const),
+    outcome: [["answered", "answered"], ["refused", "refused"], ["defect", "defect"]],
+    "over-budget": [["true", "over budget"], ["false", "within budget"]],
+  };
   return (
     <>
       <h3>Calls</h3>
       <div className="filters">
         {FILTERS.map(([name, available]) => (
-          <span key={name} data-portal="calls-filter" data-filter={name} data-available={String(available)}>{name === "request-key" ? <>request key <NotYet hole="request-key" what="no span carries the idempotency key yet" /></> : name}</span>
+          <span key={name} data-portal="calls-filter" data-filter={name} data-available={String(available)}>
+            {name === "request-key" ? <>request key <NotYet hole="request-key" what="no span carries the idempotency key yet" /></>
+              : name === "window" ? <>window <span className="meta">is the portal's, fixed at its environment's window</span></>
+              : (
+                <label>{name}{" "}
+                  <select value={chosen[name]} onChange={(e) => { setChosen({ ...chosen, [name]: e.target.value }); }}>
+                    <option value="">all</option>
+                    {options[name].map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                </label>
+              )}
+          </span>
         ))}
       </div>
       <p className="meta">Role held: <NotYet hole="role-held" what="nothing carries the role a caller held yet" /></p>

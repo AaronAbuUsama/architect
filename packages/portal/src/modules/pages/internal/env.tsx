@@ -1,7 +1,7 @@
 // /portal/environments/<name>: one page per declared environment (its summary, its declared fields, a proof column for every environment with
 // this one in focus), and /portal/compare, the same fields side by side. The environment you are in is read live; another is read in its own portal.
 import type { PortalData } from "../types.ts";
-import { environmentOf } from "./live.ts";
+import { NOT_YET, environmentOf } from "./live.ts";
 import { environmentsOf, type EnvRow } from "./model.ts";
 import { Cell, Page } from "./parts.tsx";
 
@@ -13,13 +13,14 @@ const valueOf = (e: EnvRow, field: (typeof FIELDS)[number]): string => {
 
 export const EnvironmentPage = ({ data, env }: { readonly data: PortalData; readonly env: EnvRow }) => {
   const { snapshot: s, blueprint } = data;
-  const here = environmentOf(data).name === env.name;
+  const current = environmentOf(data).name;
+  const here = current === env.name;
   return (
     <Page status={200} data={data}>
       <h1>{env.name}</h1>
       <div data-portal="env-page" data-environment={env.name} data-live={String(here)}>
         <p data-portal="env-summary" data-runs={env.runs}>{`${env.name} runs ${env.runs}.`}</p>
-        <p>{here ? "This portal runs in this environment, so its numbers are read live." : `Another environment: its numbers are read in its own portal, not here. Open the ${env.name} portal for them.`}</p>
+        <p>{here ? "This portal runs in this environment, so its numbers are read live." : current === NOT_YET ? "This portal has no live source, so it cannot say which environment it runs in: no numbers are read live." : `Another environment: its numbers are read in its own portal, not here. Open the ${env.name} portal for them.`}</p>
         <h2>Declared</h2>
         <dl>{FIELDS.map((f) => <div key={f}><dt>{f}</dt><dd data-portal="env-field" data-field={f} data-value={valueOf(env, f)}>{valueOf(env, f)}</dd></div>)}</dl>
         <h2>Proof</h2>

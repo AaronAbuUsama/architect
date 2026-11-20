@@ -25,13 +25,16 @@ const Body = ({ data, kind }: { readonly data: PortalData; readonly kind: Kind }
         <tbody>
           {Object.entries(refusalsOf(blueprint)).map(([name, code]) => {
             const count = refusalCount(data, name);
-            const trace = refusalTotals(data, name)?.trace ?? null;
+            const totals = refusalTotals(data, name);
+            const trace = totals?.trace ?? null;
+            // Whether a refusal opened a span is known only when the spans were read: `door` is null exactly when they were not.
+            const spansRead = totals !== undefined && totals.door !== null;
             // No metrics source: no count, no span claim, and the cells say `not yet`.
             return count === null ? (
               <tr key={name} data-portal="ref-row" data-name={name} data-code={code}><td>{name}</td><td>{code}</td><td>not yet</td><td>not yet</td></tr>
             ) : (
-              <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(count)} data-span={trace === null ? "none" : "trace"} {...(trace === null ? {} : { "data-trace": trace })}>
-                <td>{name}</td><td>{code}</td><td>{count}</td><td>{trace === null ? "no span" : <a href={`/portal/traces/${trace}`}>open the trace</a>}</td>
+              <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(count)} {...(!spansRead && trace === null ? {} : { "data-span": trace === null ? "none" : "trace" })} {...(trace === null ? {} : { "data-trace": trace })}>
+                <td>{name}</td><td>{code}</td><td>{count}</td><td>{trace !== null ? <a href={`/portal/traces/${trace}`}>open the trace</a> : spansRead ? "no span" : "not yet"}</td>
               </tr>
             );
           })}

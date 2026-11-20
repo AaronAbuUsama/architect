@@ -17,18 +17,25 @@ const read = <T>(request: string): Effect.Effect<T, DataFailed> =>
     ),
   );
 
-/** One trace, scrubbed by the server: `undefined` when the portal has none of it (a 404), the source's reason when it could not read. */
-export const loadTrace = (id: string): Effect.Effect<Availability<TraceView>, DataFailed> => {
+/** What the trace endpoint answered: the scrubbed trace, the source's reason it has none to give, or that the source holds no such trace. */
+export type TraceAnswer = Availability<TraceView> | { readonly state: "missing" };
+
+const jsonOf = <T>(request: string, response: Response): Effect.Effect<T, DataFailed> =>
+  Effect.tryPromise({ try: () => response.json() as Promise<T>, catch: () => failed(request, "its answer was not JSON") });
+
+/** One trace, scrubbed by the server. A request that failed is a failure, never a missing trace. */
+export const loadTrace = (id: string): Effect.Effect<TraceAnswer, DataFailed> => {
   const request = `/_portal/v1/traces/${encodeURIComponent(id)}`;
-  return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(
-    Effect.flatMap((response) =>
-      response.status === 404 ? Effect.fail(failed(request, "it has no such trace"))
-      : response.status === 200 ? Effect.tryPromise({ try: () => response.json() as Promise<Availability<TraceView>>, catch: () => failed(request, "its answer was not JSON") })
-      : Effect.fail(failed(request, `it answered ${response.status}`))),
-  );
+  const answer = (response: Response): Effect.Effect<TraceAnswer, DataFailed> => {
+    if (response.status === 200) return jsonOf<Availability<TraceView>>(request, response);
+    // A 404 with a reason is a portal with no live source; one without is a source that read fine and holds no such trace.
+    if (response.status === 404) return jsonOf<{ readonly reason?: string }>(request, response).pipe(Effect.map((body): TraceAnswer => typeof body.reason === "string" ? { state: "unavailable", reason: body.reason } : { state: "missing" }));
+    return Effect.fail(failed(request, `it answered ${response.status}`));
+  };
+  return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(Effect.flatMap(answer));
 };
 
-export const load =(): Effect.Effect<PortalData, DataFailed> =>
+export const load = (): Effect.Effect<PortalData, DataFailed> =>
   Effect.gen(function* () {
     const blueprint = yield* read<BlueprintWire>("/_portal/v1/blueprint");
     const snapshot = yield* read<PortalData["snapshot"]>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);

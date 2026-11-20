@@ -74,8 +74,11 @@ export const moveLit = (d: PortalData, thing: string, move: string): Lit => {
   return n === NOT_YET ? "unknown" : Number(n) > 0 ? "true" : "false";
 };
 
-/** The journeys whose runs called this operation in the window. */
-export const journeysRunning = (d: PortalData, operation: string): ReadonlyArray<string> => callsViewOf(d)?.journeys[operation] ?? [];
+/** The journeys whose runs called this operation in the window; `null` when the calls were not read (an unread window is not an empty one). */
+export const journeysRunning = (d: PortalData, operation: string): ReadonlyArray<string> | null => {
+  const calls = callsViewOf(d);
+  return calls === undefined ? null : calls.journeys[operation] ?? [];
+};
 
 /** How often a refusal was counted: for one operation, or over all of them. `null` when there is no metrics source: unread is not zero. */
 export const refusalCount = (d: PortalData, name: string, operation?: string): number | null => {
