@@ -29,3 +29,9 @@ export const htmlRecords = (html: string): ReadonlyArray<Readonly<Record<string,
   const head = [...(/<tr>([\s\S]*?)<\/tr>/.exec(table)?.[1] ?? "").matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) => htmlText(m[1]!).toLowerCase());
   return htmlRows(table).map((row) => Object.fromEntries(row.map((c, i) => [head[i] ?? String(i), c])));
 };
+
+/** Lines of text, a list item starting `- `, a table row `| ` and a heading `# `, as markdown writes them, so one reader serves both. */
+export const htmlLines = (html: string): ReadonlyArray<string> =>
+  html.replace(/<\/t[dh]>/g, " | ").replace(/<li\b[^>]*>/g, "\n- ").replace(/<tr\b[^>]*>/g, "\n| ").replace(/<h[1-6]\b[^>]*>/g, "\n# ")
+    .replace(/<(?:p|ul|ol|table|pre)\b|<\/(?:li|tr|h[1-6]|p|ul|ol|table|pre)>|<br\s*\/?>/g, "\n$&").split("\n")
+    .map((line) => htmlText(line).replace(/(?: \|)+$/, "").trim()).filter((line) => line !== "" && !/^[-|#]$/.test(line));

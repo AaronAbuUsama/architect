@@ -19,17 +19,19 @@ export const server = over("event.server", ({ name, fields, emitters }, e) => [
   ...Object.entries(fields).filter(([, f]) => f.visibility !== undefined).map(([field]) => `${name}.${field} is not public, and nothing reads the journal to show it is left out`),
 ]);
 
+/** The name a line is about: its first word once the list, heading, table and emphasis marks are taken off (a `- LinkAdded: link` entry, a `| LinkAdded | link |` row, a `### LinkAdded` heading; a paragraph is none of them). */
+const subjectOf = (line: string) => /^\s*(?:#{1,6}\s+|[-*+]\s+|\d+[.)]\s+|\|\s*)[`*_]*([A-Za-z0-9_]+)/.exec(line)?.[1];
+
 /**
- * The event is documented with each of its fields: from where the text names it up to where it names another event (or the section's end), in
- * any layout (a bullet, a table row, a nested list), each field is named.
+ * The event is documented with each of its fields. Its entry starts on the line that is about it (its own heading, list entry or table row, so a
+ * sentence that mentions it in passing is not its entry) and ends on the line that starts the next event's entry or at the section's end.
  */
-const lists = (text: string, name: string, fields: ReadonlyArray<string>, others: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const at = text.search(new RegExp(`\\b${name}\\b`));
-  if (at < 0) return [`does not list ${name}`];
-  const rest = text.slice(at + name.length);
-  const next = others.map((o) => rest.search(new RegExp(`\\b${o}\\b`))).filter((i) => i >= 0);
-  const near = next.length === 0 ? rest : rest.slice(0, Math.min(...next));
-  return fields.filter((f) => !new RegExp(`\\b${f}\\b`).test(near)).map((f) => `lists ${name} without its field ${f}`);
+const lists = (lines: ReadonlyArray<string>, name: string, fields: ReadonlyArray<string>, others: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const start = lines.findIndex((line) => subjectOf(line) === name);
+  if (start < 0) return [`has no entry for ${name}`];
+  const end = lines.findIndex((line, i) => i > start && others.includes(subjectOf(line) ?? ""));
+  const entry = lines.slice(start, end < 0 ? undefined : end).join("\n");
+  return fields.filter((f) => !new RegExp(`\\b${f}\\b`).test(entry)).map((f) => `lists ${name} without its field ${f}`);
 };
 
 /** event.docs: the thing's page documents the event with its fields (an Events section; a move table naming it does not document it). */
@@ -39,7 +41,7 @@ export const docs = over("event.docs", ({ name, thing, fields }, e) => {
   const page = e.files[path];
   if (page === undefined) return [`${path} was not generated`];
   const section = Reading.mdSection(page, "Events");
-  return section === undefined ? [`${path} has no Events section documenting ${name} with its fields`] : lists(section, name, Object.keys(fields), siblings).map((p) => `${path}'s Events ${p}`);
+  return section === undefined ? [`${path} has no Events section documenting ${name} with its fields`] : lists(section.split("\n"), name, Object.keys(fields), siblings).map((p) => `${path}'s Events ${p}`);
 });
 
 /** event.portal: the thing's page lists the event with its fields, in the portal's own part. */
@@ -49,7 +51,7 @@ export const portal = over("event.portal", ({ name, thing, fields }, e) => {
   const page = e.portal[route];
   if (page === undefined) return [`${route} could not be rendered`];
   const section = Reading.htmlSection(Reading.portalOwn(page), 2, "Events");
-  return section === undefined ? [`${route} has no Events section listing ${name} with its fields`] : lists(Reading.htmlText(section), name, Object.keys(fields), siblings).map((p) => `${route}'s Events ${p}`);
+  return section === undefined ? [`${route} has no Events section listing ${name} with its fields`] : lists(Reading.htmlLines(section), name, Object.keys(fields), siblings).map((p) => `${route}'s Events ${p}`);
 });
 
 /** event.telemetry: the commit span of each operation that emits it carries `event.name`. */

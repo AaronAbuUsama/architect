@@ -43,13 +43,14 @@ const quoted = (text: string, state: string) => new RegExp(`["'\`]${state}["'\`]
 
 /**
  * machine.sdk: the SDK exports a type for the thing that is the union of its states: an exported type alias, declared in the thing's own
- * folder or named for the thing, whose body names every state. A state named anywhere else in the SDK does not make a type a caller can write.
+ * folder or named for the thing, whose own type names every state as a string literal. The source is parsed as TypeScript, so a missing
+ * semicolon, a comment that quotes a state, or the next declaration's literals cannot make a type pass or fail.
  */
 export const sdk = over("machine.sdk", ({ thing, machine }, e) => {
   const exported = Object.entries(e.files).filter(([path]) => path.startsWith("generated/sdk/")).flatMap(([path, text]) =>
-    [...text.matchAll(/export\s+type\s+([A-Za-z0-9_]+)(?:<[^>]*>)?\s*=([^;]*);/g)].map((m) => ({ path, name: m[1]!, body: m[2]! })));
+    Reading.typeAliases(text).map((t) => ({ path, ...t })));
   const ofThing = exported.filter((t) => t.path.startsWith(`generated/sdk/src/${thing.name}/`) || t.name.startsWith(thing.identifier));
-  return ofThing.some((t) => machine.states.every((s) => quoted(t.body, s))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
+  return ofThing.some((t) => machine.states.every((s) => t.literals.includes(s))) ? [] : [`the SDK exports no type for ${thing.name}'s states (${machine.states.join(" | ")}): a caller's state is not a typed union`];
 });
 
 /** machine.docs: the thing's page lists the states, the wrong-state refusal and a move table; each moving operation's page has its move. */

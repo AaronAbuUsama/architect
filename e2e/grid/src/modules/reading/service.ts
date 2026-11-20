@@ -1,4 +1,5 @@
-import { htmlItems, htmlRecords, htmlRows, htmlSection, htmlText, portalOwn } from "./internal/html.ts";
+import { endpoints, typeAliases } from "./internal/code.ts";
+import { htmlItems, htmlLines, htmlRecords, htmlRows, htmlSection, htmlText, portalOwn } from "./internal/html.ts";
 import { mdBullets, mdRecords, mdRows, mdSection } from "./internal/markdown.ts";
 import type { ReadingApi } from "./types.ts";
 
@@ -13,7 +14,7 @@ export const Reading: ReadingApi = {
       return found === undefined ? finding([`the model has no ${noun} ${subject}`]) : finding(problems(found, evidence, subject));
     },
   }),
-  mdSection, mdRows, mdRecords, mdBullets, htmlRecords,
+  mdSection, mdRows, mdRecords, mdBullets, htmlRecords, htmlLines, typeAliases, endpoints,
   portalOwn, htmlSection, htmlRows, htmlItems, htmlText,
   proved: (prove, line) =>
     prove === undefined ? [`no prove run was read, so "${line}" is not known`]

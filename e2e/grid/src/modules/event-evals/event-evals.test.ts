@@ -57,7 +57,7 @@ describe("a wrong output is red, and says what", () => {
     expect(check("docs", "LinkAdded", editFile(pluggedIn, "generated/docs/link/index.md", (t) => `${t}\n## Events\n\n- LinkAdded\n`)).why).toEqual(["generated/docs/link/index.md's Events lists LinkAdded without its field link"]);
     const page = editPortal(pluggedIn, "/portal/things/link", (h) => h.replace("<h2>Roles</h2>", "<h2>Events</h2><ul><li>LinkAdded: link</li></ul><h2>Roles</h2>"));
     expect(check("portal", "LinkAdded", page)).toEqual({ ok: true, why: [] });
-    expect(check("portal", "LinkRemoved", page).why).toEqual(["/portal/things/link's Events does not list LinkRemoved"]);
+    expect(check("portal", "LinkRemoved", page).why).toEqual(["/portal/things/link's Events has no entry for LinkRemoved"]);
   });
 
   it("telemetry: a commit span without the event's name", () => {

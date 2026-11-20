@@ -1,3 +1,5 @@
+import type { OperationModel } from "../../project-evidence/types.ts";
+import { Reading } from "../../reading/service.ts";
 import { over } from "./over.ts";
 
 /** operation.model: the operation is in the model with its kind, description, payload, answer, who may call, idempotency, budget and where it runs. */
@@ -17,6 +19,19 @@ const endpointErrors = (source: string): ReadonlyArray<string> | undefined => {
   return found === null ? undefined : found[1]!.split(",").map((n) => n.trim()).filter((n) => n !== "");
 };
 
+/**
+ * The HTTP method a client calls each kind with (design/frame/projections.md: "Journeys call the server directly over HTTP", `POST` to
+ * `/<thing>/<verb>` for an operation and for a read alike). Judged from the model's kind, never from a name typed in an eval.
+ */
+const METHOD: Readonly<Record<string, string>> = { operation: "post", read: "post" };
+
+const endpointProblems = (path: string, source: string, op: OperationModel): ReadonlyArray<string> => {
+  const found = Reading.endpoints(source).filter((x) => x.name === op.verb && x.path === `/${op.thing}/${op.verb}`);
+  if (found.length === 0) return [`${path} has no endpoint "${op.verb}" at /${op.thing}/${op.verb}`];
+  const method = METHOD[op.kind];
+  return method === undefined || found.some((x) => x.method === method) ? [] : [`${path}'s endpoint ${op.verb} is ${found[0]!.method.toUpperCase()}, but ${op.kind === "operation" ? "an" : "a"} ${op.kind} is called with ${method.toUpperCase()} (design/frame/projections.md)`];
+};
+
 /** operation.api: one endpoint at `/<thing>/<verb>` with the declaration's own schemas, listing every refusal the model gives the operation. */
 export const api = over("operation.api", (op, e) => {
   const path = `generated/api/src/${op.thing}/${op.verb}.ts`;
@@ -26,7 +41,7 @@ export const api = over("operation.api", (op, e) => {
   const listed = endpointErrors(source);
   const want = [...(op.refusals ?? [])].sort();
   return [
-    ...(new RegExp(`HttpApiEndpoint\\s*\\.\\s*(?:post|get|put|patch|delete)\\s*\\(\\s*["'\`]${op.verb}["'\`]\\s*,\\s*["'\`]/${op.thing}/${op.verb}["'\`]`).test(source) ? [] : [`${path} has no endpoint "${op.verb}" at /${op.thing}/${op.verb}`]),
+    ...endpointProblems(path, source, op),
     ...(source.includes("declaration.payloadSchema") ? [] : [`${path}'s payload is not the declaration's own schema`]),
     ...(source.includes("declaration.answer") ? [] : [`${path}'s answer is not the declaration's own answer`]),
     ...(listed === undefined ? [`${path} lists no error classes`] : JSON.stringify([...listed].sort()) === JSON.stringify(want) ? [] : [`${path} lists errors [${[...listed].sort().join(", ")}], the model gives [${want.join(", ")}]`]),

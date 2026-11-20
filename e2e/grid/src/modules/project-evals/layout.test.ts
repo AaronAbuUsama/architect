@@ -57,6 +57,20 @@ describe("event.docs: an event's fields, in any layout", () => {
     const borrowed = editFile(pluggedIn, link, (t) => `${t}\n## Events\n\n- LinkAdded\n- LinkRemoved\n  - link\n`);
     expect(check(borrowed).why).toEqual([`${link}'s Events lists LinkAdded without its field link`]);
   });
+  it("anchors on the event's own entry: prose that mentions it first, or fields that follow the last event, are not its", () => {
+    const prose = editFile(pluggedIn, link, (t) => `${t}\n## Events\n\nA link is listed with LinkAdded, the link field says which, and later LinkRemoved.\n\n- LinkAdded\n- LinkRemoved\n  - link\n`);
+    expect(check(prose).why).toEqual([`${link}'s Events lists LinkAdded without its field link`]);
+    const last = editFile(pluggedIn, link, (t) => `${t}\n## Events\n\n- LinkRemoved\n- LinkAdded\n  - link\n`);
+    expect(check(last, "LinkRemoved").why).toEqual([`${link}'s Events lists LinkRemoved without its field link`]);
+    expect(check(last, "LinkAdded")).toEqual({ ok: true, why: [] });
+  });
+  it("reads the portal's list items and table rows the same way", () => {
+    const route = "/portal/things/link";
+    const portal = (events: string) => judge(EventEvals.evals, "event.portal", "LinkAdded", editPortal(pluggedIn, route, (h) => h.replace("<h2>Roles</h2>", `<h2>Events</h2>${events}<h2>Roles</h2>`)));
+    expect(portal("<ul><li>LinkAdded<ul><li>link</li></ul></li><li>LinkRemoved</li></ul>")).toEqual({ ok: true, why: [] });
+    expect(portal("<table><tbody><tr><td>LinkAdded</td><td>link</td></tr><tr><td>LinkRemoved</td><td>link</td></tr></tbody></table>")).toEqual({ ok: true, why: [] });
+    expect(portal("<p>LinkAdded carries link.</p><ul><li>LinkAdded</li><li>LinkRemoved<ul><li>link</li></ul></li></ul>").why).toEqual([`${route}'s Events lists LinkAdded without its field link`]);
+  });
 });
 
 describe("thing.cli: a flag's name, type and description, in any layout", () => {
@@ -67,17 +81,39 @@ describe("thing.cli: a flag's name, type and description, in any layout", () => 
     expect(check("--link  TEXT\n--position  NUMBER\n")).toEqual({ ok: true, why: [] });
   });
   it("is red when the number is a string, or the flag is gone, in any of them", () => {
-    expect(check("Options:\n  -l, --link <string>\n  -p, --position=<string>\n").why).toEqual(['link order --position: a uint is not shown as a number (it says "string")']);
+    expect(check("Options:\n  -l, --link <string>\n  -p, --position=<string>\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
     expect(check("Options:\n  -l, --link <string>\n").why).toEqual(["link order has no --position flag"]);
     expect(check("FLAGS\n  --link string\n  --positional integer\n").why).toEqual(["link order has no --position flag"]);
+  });
+  it("judges the type on the type token alone: a word in the description does not make a string a number", () => {
+    expect(check("FLAGS\n  --link string  the link\n  --position string  The integer position\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
+    expect(check("FLAGS\n  --link string\n  --position string\n      A number, an integer, from zero\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
+    expect(check("FLAGS\n  --link string\n  --position integer  The string position\n")).toEqual({ ok: true, why: [] });
+  });
+  it("finds a flag by its own declaration: the usage line and another flag's description do not name it", () => {
+    expect(check("USAGE\n  plugged-in link order --position <integer> --link <link>\n\nFLAGS\n  --link string  like --position integer\n").why).toEqual(["link order has no --position flag"]);
+    expect(check("FLAGS\n  --link string  set it with --position integer\n  --position string\n").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
+  });
+  it("ends the last flag's text with the flags section, not with the help", () => {
+    const help = "FLAGS\n  --link string\n  --position integer\n\nNOTES\n  --position is the integer position, a string\n";
+    expect(check(help)).toEqual({ ok: true, why: [] });
+    expect(check("FLAGS\n  --link string\n  --position\n\nGLOBAL FLAGS\n  --log-level integer  the integer level\n").why).toEqual(['link order --position: a uint is shown as no type, not a number']);
   });
 });
 
 describe("operation.api: the endpoint's method and path, not its formatting", () => {
   const check = (t: (text: string) => string) => judge(OperationEvals.evals, "operation.api", "link.remove", editFile(pluggedIn, "generated/api/src/link/remove.ts", t));
-  it("stays green when the call is spread over lines, single-quoted or uses another method", () => {
+  it("stays green when the call is spread over lines, single-quoted, or has a comment beside it", () => {
     expect(check((t) => t.replace('HttpApiEndpoint.post("remove", "/link/remove", {', "HttpApiEndpoint\n  .post(\n    'remove',\n    `/link/remove`,\n    {"))).toEqual({ ok: true, why: [] });
-    expect(check((t) => t.replace("HttpApiEndpoint.post(", "HttpApiEndpoint.delete("))).toEqual({ ok: true, why: [] });
+    expect(check((t) => `// HttpApiEndpoint.get("remove", "/link/remove")\n${t}`)).toEqual({ ok: true, why: [] });
+  });
+  it("owns the method: an operation is called with POST (design/frame/projections.md), whatever the endpoint says", () => {
+    expect(check((t) => t.replace("HttpApiEndpoint.post(", "HttpApiEndpoint.delete(")).why).toEqual(["generated/api/src/link/remove.ts's endpoint remove is DELETE, but an operation is called with POST (design/frame/projections.md)"]);
+    expect(check((t) => t.replace("HttpApiEndpoint.post(", "HttpApiEndpoint.get(")).ok).toBe(false);
+  });
+  it("is red when the only endpoint call is in a comment", () => {
+    expect(check((t) => t.replace("export const endpoint = HttpApiEndpoint.post(", "// HttpApiEndpoint.post(").replace('"remove", "/link/remove", {', '"remove", "/link/remove", {')).ok).toBe(false);
+    expect(check((t) => t.replace("export const endpoint = ", "/* ").replace("});\n", "}); */\n")).why[0]).toMatch(/has no endpoint "remove" at \/link\/remove/);
   });
   it("is red when the verb or the path is another", () => {
     expect(check((t) => t.replace('"/link/remove"', '"/link/rm"')).why[0]).toMatch(/has no endpoint "remove" at \/link\/remove/);
@@ -85,9 +121,28 @@ describe("operation.api: the endpoint's method and path, not its formatting", ()
   });
 });
 
+describe("machine.mcp and operation.mcp do not contradict: the description is the model's, the states are in the schema", () => {
+  it("is green on both for a tool whose description names no state but whose schema does, and red on machine.mcp when neither does", () => {
+    const schema = { properties: { state: { enum: ["listed", "removed"] } } };
+    const named = { ...pluggedIn, mcp: pluggedIn.mcp!.map((t) => (t.name === "link.add" || t.name === "link.remove" ? { ...t, outputSchema: schema } : t)) };
+    expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", named)).toEqual({ ok: true, why: [] });
+    expect(judge(MachineEvals.evals, "machine.mcp", "link", named)).toEqual({ ok: true, why: [] });
+    expect(judge(OperationEvals.evals, "operation.mcp", "link.remove", pluggedIn)).toEqual({ ok: true, why: [] });
+    expect(judge(MachineEvals.evals, "machine.mcp", "link", pluggedIn).ok).toBe(false);
+  });
+});
+
 describe("machine.sdk: a type exported for the thing, not a string anywhere", () => {
   const check = (e: typeof pluggedIn) => judge(MachineEvals.evals, "machine.sdk", "link", e);
   const index = "generated/sdk/src/link/index.ts";
+  it("stays green when the SDK has no semicolons, so one type's body ends where the next declaration starts", () => {
+    expect(check(editFile(pluggedIn, index, (t) => `${t.replace(/;\n/g, "\n")}export type LinkState =\n  | "listed"\n  | "removed"\nexport type Other = "x"\n`))).toEqual({ ok: true, why: [] });
+  });
+  it("is red when a neighbour's literals are swallowed, or a state is only in a comment inside the type", () => {
+    expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState = "listed"\nexport type Removed = "removed"\n`)).ok).toBe(false);
+    expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState = string /* "listed" | "removed" */\n`)).ok).toBe(false);
+    expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState = "listed" // or "removed"\n`)).ok).toBe(false);
+  });
   it("stays green for a type with single quotes, spread over lines, or named for the thing in another file", () => {
     expect(check(editFile(pluggedIn, index, (t) => `${t}export type LinkState =\n  | 'listed'\n  | 'removed';\n`))).toEqual({ ok: true, why: [] });
     expect(check(editFile(pluggedIn, "generated/sdk/src/link/state.ts", () => 'export type LinkStatus = "removed" | "listed";\n'))).toEqual({ ok: true, why: [] });

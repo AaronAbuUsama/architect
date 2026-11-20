@@ -33,6 +33,12 @@ export interface ReadingApi {
    * a subject the model does not have is red, and otherwise `problems` says what is wrong, empty when the cell is right.
    */
   readonly over: <T>(cell: CellId, noun: string, find: (evidence: ProjectEvidence, subject: string) => T | undefined, problems: (found: T, evidence: ProjectEvidence, subject: string) => ReadonlyArray<string>) => Eval<ProjectEvidence>;
+  /** The exported type aliases of a TypeScript source, each with the string literals its type names (comments and other declarations never count). */
+  readonly typeAliases: (source: string) => ReadonlyArray<{ readonly name: string; readonly literals: ReadonlyArray<string> }>;
+  /** The `HttpApiEndpoint.<method>(<name>, <path>, …)` calls of a TypeScript source, in any formatting; a call in a comment is not one. */
+  readonly endpoints: (source: string) => ReadonlyArray<{ readonly method: string; readonly name: string; readonly path: string }>;
+  /** An HTML fragment as lines of text: each list item, table row (cells joined by ` | `), heading and paragraph on a line of its own. */
+  readonly htmlLines: (html: string) => ReadonlyArray<string>;
   /** The spans with exactly this name. */
   readonly spansNamed: (spans: ReadonlyArray<SpanView>, name: string) => ReadonlyArray<SpanView>;
 }
