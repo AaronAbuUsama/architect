@@ -124,14 +124,15 @@ the walkthrough.
 | `language-solidity`, `Host.chain` | the second of each (Goal 4) |
 | K3, K7 | dated notes beside "supplied by `language-solidity`": the host supplies, the language writes for |
 | K17 | dated notes beside `TargetSpec` and its build step 1 point here |
-| `frame/projections.md` 3.9, the allowance example, the walkthrough, `design/state` | rewritten in this change |
+| `frame/projections.md` (opening, 3.9), the allowance example, the walkthrough, `design/state` | rewritten here |
+| `docs/canon/languages-and-hosts.mdx`, `docs/canon/stores.mdx` | who supplies `chain`, rewritten here |
 | ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
 
 Left for their owners. Goal 4's file copies this list into slice 1 when it is written:
 
-- **The canon thread**, `docs/canon/languages-and-hosts.mdx`: line 145 still has `chain` "supplied by
-  `language-solidity`", and line 139 quotes the package's "the Solidity target". It adds `Blueprint.language`,
-  `Blueprint.host` and item 5 when slice 1 is built.
+- **The canon thread**, `docs/canon/languages-and-hosts.mdx`: this change rewrites who supplies `chain` there and in
+  `docs/canon/stores.mdx`. Line 139 still quotes the package's "the Solidity target", checked against the file, so it
+  changes with the package. The canon thread adds `Blueprint.language` and `Blueprint.host` when slice 1 is built.
 - **Goal 4, slice 1**: `packages/language-solidity` (its `README.md` and the comment in `src/index.ts`) still say
   "The Solidity target"; the slice rewrites them with the package, and the walkthrough's quote of that file
   (`design/walkthrough/journey.md:1684`) with them. Ledger `G-02` tracks the word.
@@ -153,4 +154,7 @@ Left for their owners. Goal 4's file copies this list into slice 1 when it is wr
 - design/frame/examples/allowance-on-chain.md: "`@orthograph/language-solidity` plus the solidity projection" → "`@orthograph/language-solidity` on `Host.chain`"
 - design/frame/projections.md (3.9): "storeKinds: ["chain:evm"]" → "writesFor: ["chain.evm"]"
 - design/state/index.html: "The Solidity target, signed operations, a vault per organisation on Anvil." → "The Solidity language, signed operations, and a Safe that enables the budgets module, on Anvil."
-
+- design/frame/projections.md: "the docs, the portal, the contracts and the keeper are all projections" → "the docs, the portal and the keeper are all projections"
+- docs/canon/languages-and-hosts.mdx: "and `chain` is the store kind that runs on it, supplied by `language-solidity` (K3" → "and `chain` is the store kind that runs on it. The host supplies the kind"
+- docs/canon/languages-and-hosts.mdx: "supplied by `language-solidity` (K3 item 2, K5 decision 8)" → "supplied by the host and written for by `language-solidity`"
+- docs/canon/stores.mdx: "| `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |" → "| `@orthograph/host-cloudflare` | `Host.chain`, written for by `@orthograph/language-solidity` (K27) |"
