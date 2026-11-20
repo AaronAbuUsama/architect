@@ -125,18 +125,25 @@ A green push run costs 21 runner-minutes on `main` and 55 on `goal/stage-1`. Run
 
 A run uses more runner-minutes, because the shards each set up and no longer share a runner with the rest of `check`:
 about 31 instead of 21 on `main`, and about 70 instead of 55 on `goal/stage-1`, by the timings above. It also asks for
-more runners at once: 8 jobs for a `main` pull request (was 6) and up to 15 on `goal/stage-1` (was 10). At peak hours
+more runners at once: 10 jobs for a `main` pull request (was 6) and 18 on `goal/stage-1` (was 10). At peak hours
 that queues a little more; in exchange a docs-only pull request now uses a fraction of what it did, and every
 rerun is half as long.
 
 ## Measured
 
-A typical code pull request into `main`, from the push to every required check green, with no queue:
+A typical code pull request into `main`, from the push to every required check green. "Queue" is the time before the
+first job started; the wall time without it is the number to compare.
 
-| | wall time | longest job |
-|---|---|---|
-| Before (median of the 24 code pull requests above) | 10.8 min | `check`, 9.8 min |
-| After | to be measured on this change's own run | |
+| | wall time | queue | without the queue | `check` green after | longest job |
+|---|---|---|---|---|---|
+| Before: median of the 24 code pull requests into `main` above (their last green run) | 10.8 min | under a minute | about 10.5 min | about 10 min | `check`, 9.8 min |
+| After: this change's own run, 44716517941 (pull request 181, 20 November, 10:07 UTC) | 8.3 min | 1.0 min | 7.3 min | 6.1 min | `e2e-layer2`, 6.9 min |
+
+In the after run, `check-static` took 3.0 minutes and the three prove shards 2.3, 4.4 and 4.3; together they ran each of
+prove's 30 test files exactly once (9 + 1 skipped, 9 + 1 skipped, 10, read from the shard logs). `check` now waits on
+the slowest shard, and the longest path is the layer 2 gate, whose one four-minute file sets the floor. On
+`goal/stage-1` the same split takes `check` from about 15 minutes to about 6, and the four M1 shards take `e2e-m1` from
+22 minutes to about 9; that half is measured in the goal branch's change.
 
 ## Supersedes
 
