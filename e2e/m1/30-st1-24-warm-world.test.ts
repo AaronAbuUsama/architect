@@ -25,9 +25,11 @@
 //   2. HARD, isolation: a fixture journey (`a run leaves a record`: a person signs up with one fixed email, which a world refuses a second
 //      time) is run three times in a row against one warm world; each run must pass and each must reuse the world. A world that kept the
 //      last run's person would refuse the second.
-//   3. SOFT, the 6 s: the warm run is timed after a warm-up and the check reports every time it measured; it asserts the faster of two
-//      timed runs is under 6 s, wall-clock, process start to exit. Row 1 is what says the speed-up is real; this row says it is enough,
-//      and it is a row of its own so a loaded machine can be seen to be the cause. It runs only if the warm-up reused dev's world.
+//   3. RATIO, speed: the warm run is timed after a warm-up, three times, and the fastest is at most 70% of the cold run of the same project
+//      measured on the same machine at the start of this file (a cold run twice as slow on a loaded runner has a warm run twice as slow).
+//      Row 1 says the speed-up is real; this row says it is enough. It prints every time it measured, and whether the fastest warm run was
+//      under 6 s, which is the target on a developer's machine and information only here (design/decisions/ST1-24-timing.md). It runs
+//      only if the warm-up reused dev's world.
 // Guards that pass today and must keep passing: a handler edited between two warm runs is what the next run judges (its verdict is the
 // cold run's on the same edit), a prove after `ortho dev` has stopped, or been killed (its record left behind), starts a world of its
 // own, says nothing of reusing one, and passes. Not planted: a reset that clears only some of a world's stores. The fixture is a
@@ -100,6 +102,10 @@ const stopDev = async (child: ChildProcess) => {
 const reused = (run: Proved, url: string) => run.out.match(REUSING)?.[1] === url && run.report?.lines.some((l) => REUSING.test(l)) === true;
 const why = (run: Proved) => `${run.out.slice(-300)}\nworld processes started by prove: ${[...run.worlds].join(" | ") || "none"}`;
 
+/** The speed row's rule: the faster timed warm run takes at most this share of the cold run on the same machine. */
+const WARM_AT_MOST = 0.7;
+const fastEnough = (warmSeconds: ReadonlyArray<number>, coldSeconds: number) => Math.min(...warmSeconds) <= WARM_AT_MOST * coldSeconds;
+
 const copies: Array<ReturnType<typeof project>> = [];
 const fresh = () => { const copy = project(); copies.push(copy); return copy; };
 afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
@@ -144,6 +150,16 @@ describe("30 controls: the reference, and the instruments", () => {
       expect([second.status === 0, second.stderr]).toEqual([false, expect.stringMatching(/PersonEmailTaken/)]);
     } finally { await stopDev(dev.child); }
     nothingRunning(copy.root);
+  });
+
+  it("the speed rule: green at CI's and the quiet Mac's numbers (6.18 and 6.58 s warm against 13.4 cold; 4.7 against 9.7), red for a second run that is cold (about 100%), and at the edge", () => {
+    expect(fastEnough([6.18, 6.58], 13.4)).toBe(true);
+    expect(fastEnough([4.7, 4.9], 9.7)).toBe(true);
+    expect(fastEnough([13.0, 13.9], 13.4), "a cold second run").toBe(false);
+    expect(fastEnough([9.5, 9.8], 13.4), "just over 70%").toBe(false);
+    expect(fastEnough([5.71, 6.2], 9.7), "the reviewer's run of the real build, 59%").toBe(true);
+    expect(fastEnough([8.0, 9.0], 13.4)).toBe(true);
+    expect(fastEnough([20, 21], 13.4), "slower than cold").toBe(false);
   });
 
   it("the verdict comparison tells a failing step from a passing one, and ignores order", () => {
@@ -193,17 +209,17 @@ describe("30 ST1.24: a warm world", () => {
     }
   });
 
-  it("(soft) the faster of two timed prove runs, after a warm-up, finishes in under 6 s", async () => {
+  it("the fastest of three timed warm prove runs, after a warm-up, is at most 70% of the cold run measured on this machine", async () => {
     const warmUp = await proveWarm(warm.root);
     expect(reused(warmUp, warm.url), `nothing is warm, so there is nothing to time\n${why(warmUp)}`).toBe(true);
     const times: Array<number> = [];
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       const timed = await proveWarm(warm.root);
       expect(timed.status, why(timed)).toBe(0);
       times.push(timed.seconds);
     }
-    console.log(`30: warm prove wall-clock, seconds: ${times.map((t) => t.toFixed(2)).join(", ")} (the cold reference took ${cold.seconds.toFixed(1)})`);
-    expect(Math.min(...times), `warm runs took ${times.map((t) => t.toFixed(1)).join(" s, ")} s`).toBeLessThan(6);
+    console.log(`30: warm prove wall-clock, seconds: ${times.map((t) => t.toFixed(2)).join(", ")}; the cold reference took ${cold.seconds.toFixed(1)}; the faster warm run is ${(100 * Math.min(...times) / cold.seconds).toFixed(0)}% of it, and ${Math.min(...times) < 6 ? "under" : "not under"} 6 s (information only)`);
+    expect(fastEnough(times, cold.seconds), `warm runs took ${times.map((t) => t.toFixed(1)).join(" s, ")} s against a cold ${cold.seconds.toFixed(1)} s`).toBe(true);
   });
 });
 

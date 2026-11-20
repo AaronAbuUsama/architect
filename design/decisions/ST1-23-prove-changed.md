@@ -44,11 +44,27 @@ check 29, where the builder reads them.
 
 ## The files the record hashes, and the ones that cannot be placed
 
-The record keeps a content hash, by relative path, of every file that can change a proof: everything under `blueprint/`, `src/`
-and `journeys/`, and `ortho.config.ts`, `package.json`, `pnpm-lock.yaml`, `tsconfig*.json`, `.env` and `.env.*`. The model places a
-file when it is an operation's handler or declaration, a journey, or a starting world. Any other changed, added or removed file in
-that set cannot be placed, and `--changed` proves every journey and names the file. The check plants the config, `package.json`, the
-lockfile, `tsconfig.json`, an env file, a new helper and a helper edited and deleted.
+The record keeps a content hash, by relative path, of every file that can change a proof: everything under `blueprint/`, `src/`,
+`journeys/` and `generated/`, and `ortho.config.ts`, `package.json`, `pnpm-lock.yaml`, `tsconfig*.json`, `.env`, `.env.*` and the
+lockfile of the workspace the project sits in (recorded as `<workspace>/<name>`). Left out are what cannot reach a running world: tests
+(`*.test.*`, `*.spec.*`) and notes (`.md`) outside `src/` and `blueprint/`. The files are read once, when the run begins, and that
+reading is what the run is recorded against, so an edit made during a run is a change to the next one.
+
+What an operation rests on is not a list of the edges someone thought of. It is the **import closure** of its declaration and its
+handler, inside the project (`import`, `export ... from`, `import()` and `require()` followed through relative paths; a file outside
+the usual folders that is imported is read in), and what `Compare.dependsOn` tracks (its thing, its mounts). A journey rests on its
+file, the starting worlds it stands on and their closures, and the operations they call. The model **places** a file only when it
+lies in some such closure. Any other changed, added or removed file cannot be placed, and neither can a file whose imports could not
+all be followed (an alias, a `#` import, a path outside the project, a file that is not there): `--changed` then proves every journey
+and names the file. A file that imports or requires by a specifier that is not a literal is opaque too, and whatever rests on it
+rests on every file, since its target could be any; so does a file that reads files at run time (`readFileSync`, `new URL(...)` with
+`import.meta.url`, a glob), since what it reads is no import. A package the project runs from source (declared `workspace:`,
+`link:` or `file:` in its `package.json` or its workspace's, or reached through a symlink that leaves the package store, and what
+those depend on in turn) has its files hashed as `<package:name>/...`, tests, notes and `node_modules` aside; no closure reaches
+them, so a change there proves everything and names the package. So unknown means prove everything, and `generated/` (the server, the model) is never placed. A journey is keyed
+by its file, since two may share a name. A record that cannot be read (not JSON, not a ledger, a malformed section) is no record.
+The check plants the config, `package.json`, the lockfile, `tsconfig.json`, an env file, `generated/`, a new helper, a helper
+edited and deleted, and a handler imported by another.
 
 ## What a rerun owes besides the journeys
 
@@ -91,7 +107,8 @@ prove starts no wrangler or workerd process (a 120 ms poll of `ps` over the whol
 `prove: reusing the world of ortho dev at <dev's url>`, and gives the cold run's verdict, journey by journey and step by step.
 Isolation is a fixture journey that signs up one fixed email, run three times against one warm world: a world that keeps the last
 run's person refuses the second. The 6 s is a separate soft row: after a warm-up, the faster of two timed runs, wall-clock,
-reported with the cold time; it runs only if the warm-up reused dev's world. No flag was added to `prove`: it finds a live world
+reported with the cold time; it runs only if the warm-up reused dev's world. (Superseded by ST1-24-timing, 20 November 2026: the row is
+the fastest of three timed runs at most 70% of the cold run on the same machine, and the 6 s is information only.) No flag was added to `prove`: it finds a live world
 by what `ortho dev` leaves in `.ortho/`, and a stale record (dev stopped) is ignored.
 
 Reset or isolate is the builder's call; the check asks that a run never sees the last one's records, and that a handler edited

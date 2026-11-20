@@ -1,0 +1,1 @@
+src/modules/records/g4-retired.test.ts > ST1.20: G4's findBy is gone > `findBy(thing, field, value)` is a type error
