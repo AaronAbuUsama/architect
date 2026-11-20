@@ -36,7 +36,6 @@ const readReport2 = (path: string): Pick<Report, "suiteErrors" | "unhandled"> =>
 };
 
 if (reportPath === undefined || listPath === undefined) fail("usage: check.ts <report.json> <expected-failing folder> [<errors.json>]");
-if (!existsSync(String(listPath))) fail(`no expected-failing list at ${listPath}`);
 if (!existsSync(String(reportPath))) fail(`no vitest report at ${reportPath}: the run crashed before it wrote one`);
 const report = readReport(String(reportPath));
 if (report === undefined) fail(`${reportPath} is not a vitest JSON report`);
@@ -50,7 +49,10 @@ if (errorsPath !== undefined) {
 }
 
 // The list is a folder, one `<check>.txt` per check file; a single file still reads as one list.
-const list = statSync(String(listPath)).isDirectory()
+// A missing path is an empty list: git drops the folder when a builder deletes its last file.
+const list = !existsSync(String(listPath))
+  ? { keys: [] as string[], misfiled: [] as string[] }
+  : statSync(String(listPath)).isDirectory()
   ? parseFolder(readdirSync(String(listPath)).filter((n) => n.endsWith(".txt")).sort().map((name) => ({ name, text: readFileSync(join(String(listPath), name), "utf8") })))
   : { keys: parseList(readFileSync(String(listPath), "utf8")), misfiled: [] };
 for (const entry of list.misfiled) annotate("error", `filed under another check's name: ${entry}`);

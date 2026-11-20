@@ -1,3 +1,7 @@
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compare, fileKey, ok, outcomes, parseFolder, parseList, type Report } from "./ratchet.ts";
 
@@ -124,4 +128,15 @@ describe("compare", () => {
     const skipped = report({ name: "/work/e2e/m1/01-a.test.ts", status: "passed", assertionResults: [test(["mounting"], "wires", "skipped")] });
     expect(compare(skipped, ["m1/01-a.test.ts > mounting > wires"], root).notRun).toEqual(["m1/01-a.test.ts > mounting > wires"]);
   });
+});
+
+describe("check.ts with a missing expected-failing folder (git drops an emptied one)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ratchet-"));
+  const run = (status: string) => {
+    const reportPath = join(dir, `${status}.json`);
+    writeFileSync(reportPath, JSON.stringify({ testResults: [{ name: join(dir, "m1/01-a.test.ts"), status, assertionResults: [{ ancestorTitles: [], title: "t", status }] }] }));
+    return spawnSync("node", [join(import.meta.dirname, "check.ts"), reportPath, join(dir, "absent")], { encoding: "utf8" });
+  };
+  it("exits 0 when every test passes", () => { expect(run("passed").status).toBe(0); });
+  it("still exits 1 when a test fails and nothing is listed", () => { expect(run("failed").status).toBe(1); });
 });
