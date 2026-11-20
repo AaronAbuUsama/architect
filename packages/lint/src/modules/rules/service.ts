@@ -4,6 +4,7 @@ import { declaredErrorsOnly, refusalHasLog } from "./internal/refusals.ts";
 import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
 import { noViemOutsideChain } from "./internal/viem.ts";
 import { noProOutsidePortalUi } from "./internal/pro.ts";
+import { noUiInWorker } from "./internal/ui.ts";
 import { noOldNames } from "./internal/old-names.ts";
 import { requiredStepUsed } from "./internal/steps.ts";
 import { declaredErrorNamed, outcomeChosen } from "./internal/drift.ts";
@@ -26,6 +27,7 @@ export const plugin: Plugin = {
     "declared-error-named": declaredErrorNamed,
     "no-viem-outside-chain": noViemOutsideChain,
     "no-pro-outside-portal-ui": noProOutsidePortalUi,
+    "no-ui-in-worker": noUiInWorker,
     // The repository's own code rules (AGENTS.md), each with a baseline of the breaches it tolerates.
     "effect-only": effectOnly,
     "max-lines": maxLines,

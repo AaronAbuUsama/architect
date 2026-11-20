@@ -1,12 +1,13 @@
-// L2.10b/c's done-when, as a user meets it: `/portal` on an environment's own workerd, from the revision's one bundle, reading the real
-// logbook that holds real verdicts signed by a real OIDC issuer (an @orthograph/services process). Spend shows
-// `test ✔ staging ✔`; after a budget edit it is stale and nothing else is; a logbook that stops shows nothing green; the data routes
-// refuse what they should; and `env down` leaves nothing running.
+// L2.10b/c's done-when, as a user meets it: the portal on an environment's own workerd, from the revision's one bundle, reading the real
+// logbook that holds real verdicts signed by a real OIDC issuer (an @orthograph/services process). K19: the pages are drawn in a browser
+// (check 21 reads them there), so this reads what they draw from: `/_portal/v1/snapshot`. Spend shows `test ✔ staging ✔`; after a budget
+// edit it is stale and nothing else is; a logbook that stops shows nothing green; the data routes refuse what they should; `/portal` is the
+// client's shell when the revision shipped one; and `env down` leaves nothing running.
 import { freePort } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { Issuer } from "@orthograph/services";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -58,10 +59,18 @@ const send = async (method: string, path: string, body: unknown) => {
 };
 const post = (revision: string, environment: string, operation: string, verdict: "pass" | "fail" = "pass") => send("POST", "/verdicts", { revision, environment, operation, verdict });
 
-/** The portal's rows as plain text, one per operation, as the author's check reads them. */
+type Snapshot = { consistency: string; proofs: Array<{ operation: string; environment: string; state: string }> };
+const snapshotOf = async (base: string): Promise<Snapshot> => {
+  const digest = ((await (await fetch(`${base}/_portal/v1/blueprint`)).json()) as { digest: string }).digest;
+  return (await (await fetch(`${base}/_portal/v1/snapshot?digest=${digest}`)).json()) as Snapshot;
+};
+const WORDS: Record<string, (environment: string) => string> = {
+  "recorded-pass": (e) => `${e} ✔`, failed: (e) => `${e} ✘ failed`, stale: (e) => `${e} stale`, unproven: (e) => `${e} unproven`, unavailable: (e) => `${e} unavailable`,
+};
+/** The snapshot's rows as plain text, one per operation, the way the page words them: `allowance.spend test ✔ staging stale production stale`. */
 const portal = async (base: string) => {
-  const html = await (await fetch(`${base}/portal`)).text();
-  return html.split(/<\/tr>/i).map((r) => r.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim());
+  const { proofs } = await snapshotOf(base);
+  return [...new Set(proofs.map((p) => p.operation))].map((op) => `${op} ${proofs.filter((p) => p.operation === op).map((p) => WORDS[p.state]!(p.environment)).join(" ")}`);
 };
 const row = (rows: ReadonlyArray<string>, op: string) => rows.find((r) => new RegExp(`(^|\\s)${op.replace(".", "\\.")}(\\s|$)`).test(r));
 
@@ -109,12 +118,19 @@ describe("/portal on an environment", () => {
     expect((await fetch(`${staging.url}/_portal/v1/snapshot?digest=${"0".repeat(64)}`)).status).toBe(409);
     expect((await fetch(`${staging.url}/_portal/v1/traces/abc`)).status).toBe(404);
     expect((await fetch(`${staging.url}/portal`, { method: "POST", body: "{}" })).status).toBe(405);
-    const operation = await (await fetch(`${staging.url}/portal/operations/allowance.spend`)).text();
-    expect(operation).toContain("Spend from what is left");
-    // The logbook's address stays with the Worker.
-    for (const body of [await (await fetch(`${staging.url}/portal`)).text(), JSON.stringify(await (await fetch(`${staging.url}/_portal/v1/blueprint`)).json()), operation]) {
-      expect(body).not.toContain(String(PORTS.logbook));
-    }
+    expect(JSON.stringify(await (await fetch(`${staging.url}/_portal/v1/blueprint`)).json())).toContain("Spend from what is left");
+    // `/portal` is the client's shell when the revision shipped one (a machine without it says so), a route under it is the same shell, and
+    // the logbook's address stays with the Worker.
+    const shell = await fetch(`${staging.url}/portal`);
+    const page = await shell.text();
+    if (existsSync(join(dirname(built.main), "portal/index.html"))) {
+      expect(shell.status).toBe(200);
+      expect(page).toContain('type="module"');
+      expect(page, "the shell holds none of the page").not.toContain("data-portal=");
+      expect(await (await fetch(`${staging.url}/portal/operations/allowance.spend`)).text()).toBe(page);
+      expect((await fetch(`${staging.url}/portal/assets/missing.js`)).status).toBe(404);
+    } else expect(page).toContain("not installed");
+    for (const body of [page, JSON.stringify(await (await fetch(`${staging.url}/_portal/v1/blueprint`)).json())]) expect(body).not.toContain(String(PORTS.logbook));
   });
 
   it("after a budget edit shows stale on spend and on no other operation, though the environment still runs the old bundle", { timeout: 900_000 }, async () => {
@@ -145,10 +161,7 @@ describe("/portal on an environment", () => {
 
   it("a logbook that stops shows no tick, only that it cannot tell", { timeout: 300_000 }, async () => {
     await run(Environments.down({ root, name: "logbook" }));
-    const html = await (await fetch(`${url("staging")}/portal`)).text();
-    expect(html).not.toContain("✔");
-    expect(html).toContain("unavailable");
-    const snapshot = (await (await fetch(`${url("staging")}/_portal/v1/snapshot?digest=${((await (await fetch(`${url("staging")}/_portal/v1/blueprint`)).json()) as { digest: string }).digest}`)).json()) as { consistency: string; proofs: Array<{ state: string }> };
+    const snapshot = await snapshotOf(url("staging"));
     expect(snapshot.consistency).toBe("unavailable");
     expect(snapshot.proofs.every((p) => p.state === "unavailable")).toBe(true);
   });
