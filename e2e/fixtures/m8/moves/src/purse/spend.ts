@@ -12,7 +12,10 @@ const spend: Handler = ({ purse, amount }, { steps, move }) =>
     const found = yield* steps.load(records.find(Purse, purse));
     if (!found) return yield* Effect.die(new Error(`purse ${purse} was checked and then not found`));
     const left = (found["limit"] as bigint) - (found["spent"] as bigint);
-    if (amount > left) return yield* new PurseExceeded({ left });
+    if (amount > left) {
+      yield* Effect.logInfo("the amount is more than is left this month").pipe(Effect.annotateLogs({ amount: String(amount), left: String(left) }));
+      return yield* new PurseExceeded({ left });
+    }
     yield* steps.record(records.update(Purse, purse, { spent: (found["spent"] as bigint) + amount }));
     yield* move("active");
     return { left: left - amount };

@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { club, compiles, generated, nothingRunning, ortho, proveWith } from "./support.ts";
+import { club, generated, nothingRunning, ortho, proveWith } from "./support.ts";
 
 const copies: Array<{ readonly root: string; readonly remove: () => void }> = [];
 afterAll(() => {
@@ -78,14 +78,14 @@ const REFUSED: ReadonlyArray<{ readonly what: string; readonly file: string; rea
 
 describe("04 M8.04: what is declared about time", () => {
   it("ortho check passes the club as declared", () => {
-    const root = compiles(moves());
+    const root = generated(moves());
     const run = ortho(root, "check");
     expect(run.status, run.stdout + run.stderr).toBe(0);
   });
 
   for (const refusal of REFUSED) {
     it(`ortho check refuses ${refusal.what}, naming the move and why`, () => {
-      const root = compiles(moves());
+      const root = generated(moves());
       const file = join(root, refusal.file);
       const declared = readFileSync(file, "utf8");
       expect(declared.includes(refusal.from), `${refusal.file} lost "${refusal.from}"`).toBe(true);
@@ -110,7 +110,9 @@ describe("04 M8.04: what is declared about time", () => {
     ];
     for (const [op, said] of when) {
       expect(docs(op), `docs for ${op}`).toMatch(said);
-      expect(docs(op), `docs for ${op}`).toMatch(/by the keeper/);
+      // The keeper fires every move made by time but a lazy one, which the thing's next use works out (M8-checks call 6).
+      if (op === "purse.refill") expect(docs(op), `docs for ${op}`).not.toMatch(/by the keeper/);
+      else expect(docs(op), `docs for ${op}`).toMatch(/by the keeper/);
       // MCP descriptions are plain text, so the backticks may go.
       expect(mcp, `mcp for ${op}`).toMatch(new RegExp(said.source.replaceAll("`", "`?")));
     }

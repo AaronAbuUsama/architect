@@ -105,13 +105,6 @@ export const once = <A>(make: () => A): (() => A) => {
   };
 };
 
-/** `ortho model`, which must succeed: the blueprint as copied loads and compiles, before a check edits it. */
-export const compiles = (root: string) => {
-  const run = ortho(root, "model");
-  expect(run.status, `the blueprint does not compile before any edit:\n${run.stdout}${run.stderr}`).toBe(0);
-  return root;
-};
-
 /** `ortho prove` with extra variables in its environment (the keeper's delay, M8-checks). */
 export const proveWith = (env: Readonly<Record<string, string>>, root: string): Proved => {
   const run = spawnSync(process.execPath, [join(repo, "packages/cli/src/main.ts"), "prove", "--env", "local", "--port", "0", "--root", root], {

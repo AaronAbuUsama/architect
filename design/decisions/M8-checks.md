@@ -56,11 +56,12 @@ and `email` are all there is (`orthograph/src/modules/values/types.ts:16`).
      block's time.
 10. **What the docs and MCP say.** Each move made by time's page says when, in these words: "every month from
     \`startedAt\`", "14 days after \`overdueAt\`", "every month on day 25, in Europe/London", "every month on the last
-    day, in Europe/London", and for a lazy one "…, worked out at the purse's next use"; and "by the keeper". The MCP
-    descriptions say the same in plain text.
+    day, in Europe/London"; and "by the keeper", except on a lazy move's page, which says instead "…, worked out at the
+    purse's next use" (the keeper never fires it, call 6). The MCP descriptions say the same in plain text.
 11. **What the compiler refuses,** each naming the move and the reason: an anchor field the thing lacks, an anchor or
     `after` field that is not an instant, a calendar anchor with no zone, a zone the tz database does not know, and
-    `by` on a move with no `from`.
+    `by` on a move with no `from`. `ortho check` prints each of these problems, not only that the blueprint does not
+    compile, so a refusal names its move wherever it is read.
 
 12. **The server's clock is the world's, live.** K23 section 6 provides `Clock` at the entry "fixed for the whole
     request (as workerd fixes `Date` during a request)". workerd's `Date` stands still only between I/O, and a durable

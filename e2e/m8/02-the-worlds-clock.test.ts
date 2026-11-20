@@ -22,7 +22,7 @@ import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { acme, club, compiles, copyOf, fixtures, generated, nothingRunning, ortho } from "./support.ts";
+import { acme, club, copyOf, fixtures, generated, nothingRunning, ortho } from "./support.ts";
 import { advance, call, clockOf, inWorld, latestBlock, moveTo, until } from "./world.ts";
 
 /** Each month of a year from the world's start: the instants a stepped world must read, written out by hand. */
@@ -210,7 +210,7 @@ describe("02 M8.03: one clock drives the world", () => {
     const copy = copyOf(acme);
     copies.push(copy);
     cpSync(join(fixtures, "acme-stepped"), copy.root, { recursive: true });
-    compiles(copy.root);
+    generated(copy.root);
     const staging = join(copy.root, "blueprint/environments/staging.ts");
     const declared = readFileSync(staging, "utf8");
     const withClock = (clock: string) => declared.replace('runs: "always on",', `runs: "always on",\n  clock: ${clock},`);
