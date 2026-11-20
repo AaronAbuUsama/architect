@@ -252,7 +252,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   `expect((a) => a.links.map(…))`, after an answer came back without `links`.
 - Lost: one red step stops every journey after it and the report file, so the curve records nothing for that run, and
   the climber sees a stack trace instead of `✘ step: answer …, expected …`.
-- Cause: `packages/prove/src/modules/journeys/internal/checks.ts:72` (and `:78` for `expect-equal`) calls the journey's
+- Cause: `packages/prove/src/modules/journeys/internal/checks.ts:66` (`expect`) and `:72` (`expect-equal`) call the journey's
   `check.pick(env["last"])` with nothing around it.
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
