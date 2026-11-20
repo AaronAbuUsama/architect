@@ -38,7 +38,7 @@ the walkthrough.
 
    | Question | Word | Examples |
    |---|---|---|
-   | What is it written in? | **language** | Effect, Solidity; later Noir |
+   | What is it written in? | **language** | Effect, Solidity; later Noir and Python |
    | Where does it run once deployed? | **host** | `host-cloudflare`, `Host.node`, `Host.browser`, `Host.chain` |
    | Which copy of that place? | **environment** | Anvil, Base Sepolia, Base |
    | How do people reach it? | **projection** | the SDK, CLI, MCP, docs, portal |
@@ -126,7 +126,9 @@ the walkthrough.
 | K17 | dated notes beside `TargetSpec` and its build step 1 point here |
 | `frame/projections.md` (opening, 3.9), the allowance example, the walkthrough, `design/state` | rewritten here |
 | `docs/canon/languages-and-hosts.mdx`, `docs/canon/stores.mdx` | who supplies `chain`, rewritten here |
-| `frame/README.md`, `design/docs/index.html`, the walkthrough, `docs/canon/plugins.mdx` | five plugin kinds, here |
+| `frame/README.md` (with the proof each kind brings), `frame/mounting.md`, the walkthrough | five plugin kinds |
+| `design/docs/index.html` | five plugin kinds; Python leaves the projection examples, a language for later |
+| `docs/canon/plugins.mdx`, `docs/canon/orthograph.mdx`, `docs/canon/outline.md` | five plugin kinds, rewritten here |
 | ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
 
 Left for their owners. Goal 4's file copies this list into slice 1 when it is written:
@@ -159,7 +161,14 @@ Left for their owners. Goal 4's file copies this list into slice 1 when it is wr
 - docs/canon/languages-and-hosts.mdx: "and `chain` is the store kind that runs on it, supplied by `language-solidity` (K3" → "and `chain` is the store kind that runs on it. The host supplies the kind"
 - docs/canon/languages-and-hosts.mdx: "supplied by `language-solidity` (K3 item 2, K5 decision 8)" → "supplied by the host and written for by `language-solidity`"
 - docs/canon/stores.mdx: "| `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |" → "| `@orthograph/host-cloudflare` | `Host.chain`, written for by `@orthograph/language-solidity` (K27) |"
-- design/frame/README.md: "Solidity is a projection onto a chain." → "Solidity is a language, and a chain is a host it runs on (K27)."
+- design/frame/README.md: "Solidity is a projection onto a chain." → "Solidity is a language on a chain host (K27)."
 - design/docs/index.html: "There are three kinds, and the" → "There are five kinds, and the"
 - design/docs/index.html: "builder, agents, solidity, python</td>" → "builder, agents</td>"
 - design/walkthrough/journey.md: "There are three kinds: a **feature**" → "Three kinds work today: a **feature**"
+- docs/canon/plugins.mdx: "What is a plugin, and what are its three kinds?" → "What is a plugin, and what are its five kinds?"
+- docs/canon/plugins.mdx: "| the three kinds, the four verbs, choices and settings |" → "| K2's three kinds (feature, adapter, projection), the four verbs, choices and settings |"
+- docs/canon/plugins.mdx: "The three kinds and the mount API are K2's frame." → "K2's frame is the first three kinds and the mount API; K27 adds the language and the host."
+- docs/canon/orthograph.mdx: "Plugins come in three kinds: features, adapters and projections." → "Plugins come in five kinds since K27: features, adapters, projections, languages and hosts."
+- docs/canon/outline.md: "the three kinds and the one-file mount" → "the five kinds and the one-file mount"
+- docs/canon/outline.md: "What are the three kinds, and how do I pick?" → "What are the five kinds, and how do I pick?"
+- design/frame/mounting.md: "one way for all three kinds" → "one way for every kind"

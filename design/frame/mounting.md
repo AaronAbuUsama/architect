@@ -128,7 +128,7 @@ outputs: { server: true, sdk: "@acme/sdk", cli: "acme", mcp: true },   // one of
 | Reversibility | ✅ | ✅ | ✅ |
 | Blast radius | ⚠️ generators, environments | ⚠️ generators, environments | ✅ generators only |
 | Correctness | ⚠️ array entries have no names | ✅ names from paths, one per mount | ✅ |
-| Fit | ⚠️ a second way to add a plugin | ✅ one way for all three kinds; no loose file | ❌ projections stay special |
+| Fit | ⚠️ a second way to add a plugin | ✅ one way for every kind; no loose file | ❌ projections stay special |
 
 **Recommendation: B.** One verb for every plugin (`ortho add <kind> <package> [--as <name>]`), one file per mount,
 names from paths, and no loose config file. The question "what does this app become?" is answered by
