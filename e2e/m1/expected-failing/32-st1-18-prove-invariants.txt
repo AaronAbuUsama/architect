@@ -1,3 +1,3 @@
 m1/32-st1-18-prove-invariants.test.ts > 32 ST1.18: prove holds the rules > counts a rule's refusal once, however many operations can break the rule
-m1/32-st1-18-prove-invariants.test.ts > 32 ST1.18: prove holds the rules > is green with the fixture's journey, which refuses both rules, and its coverage line is full
-m1/32-st1-18-prove-invariants.test.ts > 32 ST1.18: prove holds the rules > with the journey removed fails and names each unreached rule by its full name
+m1/32-st1-18-prove-invariants.test.ts > 32 ST1.18: prove holds the rules > is green with the fixture's journeys, which call every operation and refuse every declared error and both rules, and its coverage line is full and grew
+m1/32-st1-18-prove-invariants.test.ts > 32 ST1.18: prove holds the rules > with the journey that refuses the rules removed, prove fails and names each unreached rule by its full name
