@@ -110,7 +110,7 @@ If nobody decides, Capxul's plugins get written twice: once for stage 3 here and
 
 **The options**
 
-**Today** — one repository, `architect`, with everything; Capxul separate and not on Orthograph.
+**Today** — one repository, this one, with everything; Capxul separate and not on Orthograph.
 
 **A · Two repositories: Orthograph (core and standard library), Capxul (app and its own plugins)** (recommended)
 ```bash
@@ -126,7 +126,7 @@ orthograph/   orthograph-plugins/   capxul/
 
 **C · Everything in one repository, Capxul included**
 ```bash
-architect/examples/capxul/   architect/plugins/capxul-*/
+orthograph/examples/capxul/   orthograph/plugins/capxul-*/
 ```
 
 **You do X → what happens**
