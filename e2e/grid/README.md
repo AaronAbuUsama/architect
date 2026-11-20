@@ -106,7 +106,7 @@ What an eval leaves out, because nothing can be read yet (each is a line in the 
 - `thing.cli` does not judge that an answer prints by field, and `thing.mcp` and `machine.mcp` judge `tools/list`, not a call.
 - `thing.mcp` runs each tool's `outputSchema` through the MCP SDK's own validator (`modules/output-schema`): it must accept an answer built from
   the operation's declared fields (a real value from the prove run's spans where one is recorded), accept each refusal (code, exit and status read from the runtime's own table, `generated/api/src/errors.ts`), refuse `{}` and refuse a
-  wrong-typed answer field; a value is built from the model's type (a uint as its digits), never from the schema, and a field with none is red; `machine.mcp` also requires each of the machine's states accepted and a non-state refused. `thing.sdk` judges each
+  wrong-typed answer field; every JSON kind a typed field is not (another scalar, a fractional number for an integer, null, an array, an object) must be refused, for an answer field, for the refusal's `refusal`, `code`, `exit` and `status` and for a declared refusal field the schema types; a value is built from the model's type (a uint as its digits), never from the schema, and a field with none is red; `machine.mcp` also requires each of the machine's states accepted and a non-state refused. `thing.sdk` judges each
   field's type against the model, not only that the type is exported (G7, scope call 4).
 - `machine.mcp` judges the states a move crosses from what the framework emits for the tool (its input and output schemas, annotations and metadata (`_meta`)), never
   from its description: that is the author's prose, which `operation.mcp` requires to equal the model's. K14's text says "description"; the

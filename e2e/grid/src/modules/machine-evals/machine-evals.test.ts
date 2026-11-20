@@ -78,6 +78,22 @@ describe("a wrong output is red, and says what", () => {
     expect(check("mcp", "link", prose).ok).toBe(false);
   });
 
+  describe("mcp: _meta.move is the model's move, with its lists as lists", () => {
+    const withMeta = (move: unknown) => {
+      const base = pluggedIn.mcp!.map((t) => (t.name === "link.add" ? { ...t, outputSchema: { properties: { state: { enum: ["listed"] } } } } : t.name === "link.remove" ? { ...t, outputSchema: { properties: { state: { enum: ["listed", "removed"] } } } } : t));
+      return { ...pluggedIn, mcp: base.map((t) => (t.name === "link.add" ? { ...t, _meta: { move } } : t)) };
+    };
+    const right = { key: "add", from: [], to: ["listed"], emits: "LinkAdded" };
+    it("green: the move as the model has it", () => {
+      expect(check("mcp", "link", withMeta(right))).toEqual({ ok: true, why: [] });
+    });
+    it("red: a list written as a string, a wrong state and another event", () => {
+      expect(check("mcp", "link", withMeta({ ...right, to: "listed" })).why).toEqual([`link.add's _meta.move.to is "listed", not the list ["listed"]`]);
+      expect(check("mcp", "link", withMeta({ ...right, to: ["removed"] })).why).toEqual([`link.add's _meta.move.to is ["removed"], not the list ["listed"]`]);
+      expect(check("mcp", "link", withMeta({ ...right, emits: "LinkRemoved" })).why).toEqual([`link.add's _meta.move.emits is "LinkRemoved", not "LinkAdded"`]);
+    });
+  });
+
   it("docs: a machine section that lost a state, the refusal or a move's row", () => {
     const path = "generated/docs/link/index.md";
     expect(check("docs", "link", editFile(pluggedIn, path, (t) => t.replace(/removed/g, "gone"))).why).toContain("the Machine section does not name the states removed");

@@ -77,7 +77,7 @@ describe("Plugged In's tools, with the output schema M1.42 emits (captured from 
   });
 
   it("an answer field that takes anything is red: its type is not the field's", () => {
-    expect(onClaim(emitted({ handle: {} }, ["handle"]))).toEqual(["handle.claim's output schema accepts an object for the answer field handle, so its type is not the field's"]);
+    expect(onClaim(emitted({ handle: {} }, ["handle"]))).toEqual(["handle.claim's output schema accepts 1, 1.5, true, null, [], {\"wrong\":\"type\"} for the answer field handle, so its type is not the field's"]);
   });
 
   it("a schema with no branch for a refusal is red, naming the refusal", () => {
@@ -116,7 +116,7 @@ describe("a number is judged from the model's type, never from the schema", () =
   const withRefusal = (count: unknown) => ({ type: "object", anyOf: [{ type: "object", properties: { count }, required: ["count"] }, refusalBranch] });
 
   it("red: a uint typed as any string, with no span", () => {
-    expect(run(withRefusal({ type: "string" }))).toEqual([`handle.claim's output schema accepts "not-a-number" for the answer field count, so it does not type it as a number`]);
+    expect(run(withRefusal({ type: "string" }))).toEqual([`handle.claim's output schema accepts "not-a-number", "1.5" for the answer field count, so its type is not the field's`]);
   });
   it("red: a uint typed as an integer, since the wire carries its digits as text", () => {
     expect(run(withRefusal({ type: "integer" }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer {"count":"1"}/);
@@ -144,7 +144,7 @@ describe("an optional public field is judged too", () => {
     expect(run(withNote({ type: "integer" }))[0]).toMatch(/^handle\.claim's output schema refuses its own answer {"handle":"hdl_abc123","note":"x"}/);
   });
   it("red: an optional text that takes anything", () => {
-    expect(run(withNote({}))).toEqual(["handle.claim's output schema accepts an object for the answer field note, so its type is not the field's"]);
+    expect(run(withNote({}))).toEqual(["handle.claim's output schema accepts 1, 1.5, true, null, [], {\"wrong\":\"type\"} for the answer field note, so its type is not the field's"]);
   });
   it("green: an optional text typed string", () => {
     expect(run(withNote({ type: "string" }))).toEqual([]);
@@ -152,6 +152,30 @@ describe("an optional public field is judged too", () => {
   it("a text that looks like JSON is still text: a recorded \"{}\" is not read back as an object", () => {
     const spans = [{ name: "handle.claim", attrs: { "answer.note": "{}" } }];
     expect(run(withNote({ type: "string" }), spans)).toEqual([]);
+  });
+});
+
+describe("every JSON kind a field's type is not must be refused", () => {
+  const claim = pluggedIn.model.operations["handle.claim"]!;
+  const run = (handle: unknown, refusal: Record<string, unknown> = {}) => OutputSchema.answers({
+    model: pluggedIn.model, op: claim, spans: pluggedIn.spans, files: pluggedIn.files,
+    schema: { type: "object", anyOf: [{ type: "object", properties: { handle }, required: ["handle"] }, { ...refusalBranch, properties: { ...refusalBranch.properties, ...refusal } }] },
+  });
+
+  it("green: an id typed string, and a refusal typed as the envelope is", () => {
+    expect(run({ type: "string" })).toEqual([]);
+  });
+  it("red: handle typed [string, number]", () => {
+    expect(run({ type: ["string", "number"] })).toEqual([`handle.claim's output schema accepts 1, 1.5 for the answer field handle, so its type is not the field's`]);
+  });
+  it("red: handle typed nullable when the model's field is not", () => {
+    expect(run({ type: ["string", "null"] })).toEqual([`handle.claim's output schema accepts null for the answer field handle, so its type is not the field's`]);
+  });
+  it("red: the refusal's exit typed as a number, which takes 1.5", () => {
+    expect(run({ type: "string" }, { exit: { type: "number" } })).toEqual([`handle.claim's output schema accepts 1.5 for the refusal field exit, so its type is not the field's`]);
+  });
+  it("red: the refusal's code typed as a string or number", () => {
+    expect(run({ type: "string" }, { code: { type: ["string", "number"] } })).toEqual([`handle.claim's output schema accepts 1, 1.5 for the refusal field code, so its type is not the field's`]);
   });
 });
 
@@ -217,7 +241,7 @@ describe("a refusal carries its declared public fields", () => {
     expect(run(row({ type: "string", pattern: "^-?\\d+$" }))).toEqual([]);
   });
   it("red: a refusal branch that types `remaining` as an integer refuses the real refusal", () => {
-    expect(run(row({ type: "integer" }))[0]).toMatch(/refuses the refusal {"remaining":"1","refusal":"AllowanceExceeded","code":"AL-001","exit":41,"status":422}/);
+    expect(run(row({ type: "integer" })).some((w) => /refuses the refusal {"remaining":"1","refusal":"AllowanceExceeded","code":"AL-001","exit":41,"status":422}/.test(w))).toBe(true);
   });
   it("the machine's wrong-state refusal carries its state", () => {
     const moving = { ...health, refusals: [], move: { key: "x", from: ["a"], to: ["b"], emits: "E" }, thing: "allowance" } as OperationModel;

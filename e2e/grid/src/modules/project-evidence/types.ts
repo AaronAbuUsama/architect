@@ -71,6 +71,8 @@ export interface McpToolView {
   readonly description?: string;
   readonly inputSchema?: { readonly properties?: Readonly<Record<string, { readonly type?: string; readonly description?: string }>>; readonly required?: ReadonlyArray<string> };
   readonly outputSchema?: unknown;
+  /** What the framework attaches to the tool beyond the MCP's own fields: a move's `{ key, from, to, emits }` is `_meta.move`. */
+  readonly _meta?: unknown;
   readonly annotations?: { readonly readOnlyHint?: boolean };
 }
 

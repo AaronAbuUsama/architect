@@ -42,8 +42,32 @@ export const fromModel = (field: FieldModel): unknown =>
 
 const NUMERIC = ["uint", "int"];
 
-/** Kinds a wrong-typed value is certain to be refused by: a scalar. A named schema may be an object or an array, which `{}` could be. */
-const scalar = (field: FieldModel, real: unknown): boolean => ["id", "text", "uint", "int", "boolean", "bool"].includes(field.value.type) || ["string", "number", "boolean"].includes(typeof real);
+/** How a value travels in JSON: text, a JSON integer, a boolean, or a number as the text of its digits (`Values.uint` decodes `BigIntFromString`). */
+export type Kind = "string" | "integer" | "boolean" | "digits";
+
+/**
+ * Every JSON kind a value of `kind` is not, each of which a schema that types the field must refuse: the other scalars (a number is not text, a fractional
+ * number is not an integer, digits are not a number), null, an array and an object. A wider type (`["string", "number"]`) accepts one of them and is red.
+ */
+export const wrongValues = (kind: Kind): ReadonlyArray<unknown> => {
+  const others: ReadonlyArray<unknown> = [null, [], { wrong: "type" }];
+  return kind === "string" ? [1, 1.5, true, ...others]
+    : kind === "integer" ? ["x", "1", 1.5, true, ...others]
+    : kind === "boolean" ? ["x", 1, 1.5, ...others]
+    : ["not-a-number", "1.5", 1, 1.5, true, ...others];
+};
+
+const kindOf = (field: FieldModel): Kind | undefined =>
+  field.value.type === "id" || field.value.type === "text" ? "string"
+  : field.value.type === "uint" || field.value.type === "int" ? "digits"
+  : field.value.type === "boolean" || field.value.type === "bool" ? "boolean"
+  : undefined;
+
+/** The values a field must refuse: every other JSON kind where the model types it; for a named schema with a recorded scalar, an object. */
+export const probesOf = (field: FieldModel, known: unknown): ReadonlyArray<unknown> => {
+  const kind = kindOf(field);
+  return kind !== undefined ? wrongValues(kind) : ["string", "number", "boolean"].includes(typeof known) ? [{ wrong: "type" }] : [];
+};
 
 /** The constant an answer branch of an `anyOf` gives a field (`status: { const: "ok" }`): the branch that is not the refusal's own names it as the answer's. */
 const answerConst = (schema: unknown, name: string): unknown => {
@@ -68,26 +92,22 @@ export interface Sample {
   readonly answer: Readonly<Record<string, unknown>>;
   /** The fields no value could be found for: the run recorded none and the model does not say one. They are unjudged, never filled from the schema being judged. */
   readonly unknown: ReadonlyArray<string>;
-  /** The fields a value of the wrong type is certain to be refused for. */
-  readonly scalars: ReadonlyArray<string>;
-  /** The numeric fields: a word that is no number must be refused for them too. */
-  readonly numeric: ReadonlyArray<string>;
+  /** The values each field must be refused, by field: every JSON kind its type is not. */
+  readonly probes: Readonly<Record<string, ReadonlyArray<unknown>>>;
 }
 
 /** An answer the operation could give, from its declared fields: the model's value for what it determines, else the run's, else (a refusal's name only) the answer branch's own constant. */
 export const sampleOf = (op: OperationModel, schema: unknown, spans: ReadonlyArray<SpanView> | undefined, withMore = false): Sample => {
   const answer: Record<string, unknown> = {};
   const unknown: Array<string> = [];
-  const scalars: Array<string> = [];
-  const numeric: Array<string> = [];
+  const probes: Record<string, ReadonlyArray<unknown>> = {};
   for (const [name, field] of shown(op, withMore)) {
     const real = observed(spans, op.name, name, field);
     const known = NUMERIC.includes(field.value.type) ? fromModel(field) : (real !== undefined ? real : fromModel(field));
     const value = known !== undefined ? known : ((ENVELOPE as ReadonlyArray<string>).includes(name) ? answerConst(schema, name) : undefined);
     if (value === undefined) unknown.push(name);
     else answer[name] = value;
-    if (scalar(field, known)) scalars.push(name);
-    if (NUMERIC.includes(field.value.type)) numeric.push(name);
+    probes[name] = probesOf(field, known);
   }
-  return { answer, unknown, scalars, numeric };
+  return { answer, unknown, probes };
 };
