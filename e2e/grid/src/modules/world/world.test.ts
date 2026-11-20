@@ -71,6 +71,7 @@ describe("a fresh prove run", () => {
     const events: Array<string> = [];
     const primitives = node({
       read: (path) => files.get(path),
+      list: (dir) => [...files.keys()].filter((k) => k.startsWith(`${dir}/`)).map((k) => k.slice(dir.length + 1)),
       remove: (path) => { events.push(`remove ${path}`); for (const key of files.keys()) if (key === path || key.startsWith(`${path}/`)) files.delete(key); },
       run: (...args) => { events.push(`run ${args[1]?.[1]}`); return prove(files); },
     });
@@ -83,15 +84,23 @@ describe("a fresh prove run", () => {
     expect(d.events).toEqual(["remove /r.json", "remove /telemetry", "run prove"]);
     expect(d.files.size).toBe(0);
     expect(ran.fresh).toBe(false);
-    expect(ran.problems).toEqual(["prove wrote no report (status 1), so there is no run to judge: the blueprint does not compile: handle.claim / second line"]);
+    expect(ran.problems).toEqual(["prove wrote no report and no spans (status 1), so there is no run to judge: the blueprint does not compile: handle.claim / second line"]);
   });
 
   it("says so when prove printed nothing, or was killed (no status)", () => {
-    expect(disk(() => ({ status: null, stdout: "", stderr: "" })).run().problems).toEqual(["prove wrote no report (status null), so there is no run to judge: it printed nothing"]);
+    expect(disk(() => ({ status: null, stdout: "", stderr: "" })).run().problems).toEqual(["prove wrote no report and no spans (status null), so there is no run to judge: it printed nothing"]);
+  });
+
+  it("is not a fresh run when prove wrote a report but never started its Collector, or died while loading journeys, before the report", () => {
+    const noSpans = disk((files) => { files.set("/r.json", '{"journeys":[],"lines":[]}'); return { status: 0, stdout: "", stderr: "" }; }).run();
+    expect(noSpans.fresh).toBe(false);
+    expect(noSpans.problems[0]).toMatch(/^prove wrote no spans \(status 0\)/);
+    const noReport = disk((files) => { files.set("/telemetry/traces.jsonl", "fresh"); return { status: 1, stdout: "", stderr: "loading journeys failed" }; }).run();
+    expect(noReport.problems).toEqual(["prove wrote no report (status 1), so there is no run to judge: loading journeys failed"]);
   });
 
   it("is a fresh run when prove reports red journeys: the cells judge them", () => {
-    const d = disk((files) => { files.set("/r.json", '{"journeys":[],"lines":[]}'); return { status: 1, stdout: "journey x ✘ 0/3 steps", stderr: "" }; });
+    const d = disk((files) => { files.set("/r.json", '{"journeys":[],"lines":[]}'); files.set("/telemetry/traces.jsonl", "fresh"); return { status: 1, stdout: "journey x ✘ 0/3 steps", stderr: "" }; });
     expect(d.run()).toMatchObject({ status: 1, fresh: true, problems: [] });
     expect(d.files.get("/r.json")).toBe('{"journeys":[],"lines":[]}');
   });

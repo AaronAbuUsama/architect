@@ -71,7 +71,7 @@ describe("a wrong output is red, and says what", () => {
 
   it("sdk: a function that lost its doc comment, one the group does not export", () => {
     expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/add.ts", (t) => t.replace(/\/\*\*[^\n]*\*\/\n/, ""))).why[0]).toMatch(/does not export add under the doc comment/);
-    expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => t.replace('export { add } from "./add.ts";\n', ""))).why).toEqual(["the link group does not export add"]);
+    expect(check("sdk", "link.add", editFile(pluggedIn, "generated/sdk/src/link/index.ts", (t) => t.replace('export { add } from "./add.ts";\n', ""))).why).toEqual(["the link group does not export add from ./add.ts"]);
   });
 
   it("cli: a command that carries the description passes; one the group does not list is red", () => {
