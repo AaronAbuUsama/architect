@@ -1,0 +1,22 @@
+{
+  "name": "world-time-in-worker",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "esbuild src/worker.ts --bundle --format=esm --platform=neutral --main-fields=module,main --conditions=workerd,worker,import --outfile=dist/worker.js \"--external:node:*\" \"--external:cloudflare:*\"",
+    "spike": "node --experimental-strip-types scripts/run.ts"
+  },
+  "dependencies": {
+    "better-auth": "1.7.15",
+    "effect": "4.1.1",
+    "jose": "6.2.15",
+    "kysely": "0.29.7",
+    "viem": "2.57.20"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "miniflare": "5.20261101.0-beta",
+    "@cloudflare/workers-types": "5.20261101.1"
+  }
+}
