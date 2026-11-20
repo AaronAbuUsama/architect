@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { evidenceOf } from "../project-evidence/testing.ts";
 import type { OperationModel } from "../project-evidence/types.ts";
+import { sampleOf } from "./internal/sample.ts";
 import { OutputSchema } from "./service.ts";
 
 const pluggedIn = await evidenceOf("plugged-in");
@@ -130,13 +131,33 @@ describe("every recorded answer, not the first: each span's fields kept together
     const loose = { type: "array", items: { ...items, properties: { ...items.properties, note: {} } } };
     expect(run(loose, [two]).some((w) => /accepts .* for the answer field links/.test(w))).toBe(true);
   });
-  it("a state is tried on every recorded answer, and a wrong-state refusal with no state outside the move's from has no sample", () => {
-    // allowance.revoke starts from active and exhausted; the third state, revoked, is the one wrong-state refusals come from.
-    const revoke = { ...acme.model.operations["allowance.revoke"]!, answer: acme.model.operations["system.health"]!.answer, refusals: ["AllowanceNotActive"] } as OperationModel;
+  it("states: a state is tried on every recorded answer, not the first (two answers differ, the schema fits only the first)", () => {
+    const op = { ...pluggedIn.model.operations["handle.claim"]!, answer: { state: { value: { type: "text", max: 64 } }, kind: { value: { type: "schema" }, named: "Kind" } } } as OperationModel;
+    const spans = ["a", "b"].map((kind) => ({ name: "handle.claim", attrs: { "answer.kind": kind } }));
+    const run = (kind: unknown) => OutputSchema.states({ model: pluggedIn.model, op, spans, files: pluggedIn.files, states: ["x", "y"], schema: { type: "object", anyOf: [{ type: "object", properties: { state: { enum: ["x", "y"] }, kind }, required: ["state", "kind"] }, envelope] } });
+    expect(run({ enum: ["a", "b"] })).toEqual([]);
+    expect(run({ const: "a" }).length).toBeGreaterThan(0);
+    expect(run({ const: "a" })[0]).toMatch(/refuses the answer with state "x"/);
+  });
+
+  it("a wrong-state refusal with no state outside the move's from has no sample (the first state is the move's own, so a schema pinned to another state is not wrong)", () => {
+    // allowance.spend with a `from` that covers every state of the machine: the refusal can never be given.
+    const states = acme.model.things["allowance"]!.machine!.states;
+    const spend = { ...acme.model.operations["allowance.spend"]!, answer: acme.model.operations["system.health"]!.answer, refusals: ["AllowanceNotActive"], move: { ...acme.model.operations["allowance.spend"]!.move!, from: states } } as OperationModel;
     const answer = { type: "object", properties: { status: { const: "ok" } }, required: ["status"] };
-    const run2 = (state: unknown) => OutputSchema.answers({ model: acme.model, op: revoke, spans: [{ name: "allowance.revoke", attrs: { "answer.status": "ok" } }], files: acme.files, schema: { type: "object", anyOf: [answer, { ...envelope, properties: { ...envelope.properties, refusal: { type: "string", not: { const: "AllowanceNotActive" } } } }, only("AllowanceNotActive", { state }, ["state"])(envelope)] } });
-    expect(run2({ const: "revoked" })).toEqual([]);
-    expect(run2({ const: "active" }).length).toBeGreaterThan(0);
+    const run = (state: unknown, op = spend) => OutputSchema.answers({ model: acme.model, op, spans: [{ name: "allowance.spend", attrs: { "answer.status": "ok" } }], files: acme.files, schema: { type: "object", anyOf: [answer, { ...envelope, properties: { ...envelope.properties, refusal: { type: "string", not: { const: "AllowanceNotActive" } } } }, only("AllowanceNotActive", { state }, ["state"])(envelope)] } });
+    expect(run({ const: "revoked" })).toEqual([]);
+    // With a state outside `from`, the same schema is judged: spend starts from active only, so `exhausted` and `revoked` are real refusals.
+    expect(run({ const: "revoked" }, { ...spend, move: { ...spend.move!, from: ["active"] } } as OperationModel).length).toBeGreaterThan(0);
+  });
+
+  it("the samples are every distinct recorded answer, at most 24", () => {
+    const health = acme.model.operations["system.health"]!;
+    const spans = (n: number) => Array.from({ length: n }, (_, i) => ({ name: "system.health", attrs: { "answer.status": `s${i}` } }));
+    expect(sampleOf(health, spans(3))).toHaveLength(3);
+    expect(sampleOf(health, [...spans(3), ...spans(3)])).toHaveLength(3);
+    expect(sampleOf(health, spans(60))).toHaveLength(24);
+    expect(sampleOf(health, [])).toHaveLength(1);
   });
 });
 

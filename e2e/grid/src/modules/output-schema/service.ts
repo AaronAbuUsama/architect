@@ -131,15 +131,15 @@ export const OutputSchema: OutputSchemaApi = {
     const accepts = checkerOf(schema);
     // Every recorded answer, each with every state: a schema that fits only the first answer, or only some of the states, is red.
     return [...new Set(sampleOf(op, spans).flatMap((sample) => {
-    const rest = Object.fromEntries(Object.entries(sample.answer).filter(([name]) => name !== "state"));
-    const missing = sample.unknown.filter((name) => name !== "state");
-    if (missing.length > 0) return unjudged(op, missing);
-    return [
-      ...(!accepts(rest).valid || op.answer["state"]!.optional === true || op.answer["state"]!.visibility !== undefined ? [] : [`${op.name}'s output schema does not require the answer field state: an answer without it is accepted`]),
-      ...states.filter((state) => !accepts({ ...rest, state }).valid).map((state) => `${op.name}'s output schema refuses the answer with state "${state}", which the machine declares`),
-      ...accepted(accepts, (value) => ({ ...rest, state: value }), wrongValues("string"), `${op.name}'s output schema accepts %s as the state, so it does not type it as a string`),
-      ...(accepts({ ...rest, state: "not-a-state" }).valid ? [`${op.name}'s output schema accepts "not-a-state" as the state, so it does not type it as the machine's states`] : []),
-    ];
+      const rest = Object.fromEntries(Object.entries(sample.answer).filter(([name]) => name !== "state"));
+      const missing = sample.unknown.filter((name) => name !== "state");
+      if (missing.length > 0) return unjudged(op, missing);
+      return [
+        ...(!accepts(rest).valid || op.answer["state"]!.optional === true || op.answer["state"]!.visibility !== undefined ? [] : [`${op.name}'s output schema does not require the answer field state: an answer without it is accepted`]),
+        ...states.filter((state) => !accepts({ ...rest, state }).valid).map((state) => `${op.name}'s output schema refuses the answer with state "${state}", which the machine declares`),
+        ...accepted(accepts, (value) => ({ ...rest, state: value }), wrongValues("string"), `${op.name}'s output schema accepts %s as the state, so it does not type it as a string`),
+        ...(accepts({ ...rest, state: "not-a-state" }).valid ? [`${op.name}'s output schema accepts "not-a-state" as the state, so it does not type it as the machine's states`] : []),
+      ];
     }))];
   },
 };
