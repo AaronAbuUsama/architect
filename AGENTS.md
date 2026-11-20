@@ -31,8 +31,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 ## How work flows
 
 - **Milestones.** Orthograph is built in milestones M0 to M7 (`design/milestones.md`; layers 1 and 2 came first). Nothing
-  in a milestone starts until the previous milestone's gate passes on `main`. Ideas for later go in `design/later.md`,
-  never into code.
+  in a milestone starts until the previous milestone's gate passes on `main`. The one exception is K26, Aaron's of
+  20 November 2026: the on-chain work (`design/decisions/K26-on-chain-pulled-forward.md`). Ideas for later go in
+  `design/later.md`, never into code.
 - **Goals.** Work runs as goals in `design/goals/`: one long autonomous run with a bound and a single done check. A
   goal works on `m<n>`, one commit per milestone slice, each ending green with its "done when" check. It loops
   generate, run, fix until the check passes, then moves on. The milestone reaches `main` by one pull request, merged

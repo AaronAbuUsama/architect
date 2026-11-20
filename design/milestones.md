@@ -86,10 +86,11 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
 | M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the shared, prefixed account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
 
-**Aaron's exception, K26 (20 November 2026):** the on-chain work is pulled forward. M6.01 starts now, and M6.10 to
-M6.17 and M6.21 start once their own `needs` are met, without waiting for the stage 2 or 3 gate. The gates still run
-where the stages put them. Until Goal 3 lands, on-chain building touches only `packages/language-solidity` and
-`spikes/` ([`decisions/K26-on-chain-pulled-forward.md`](decisions/K26-on-chain-pulled-forward.md)).
+**Aaron's exception, K26 (20 November 2026):** the on-chain work is pulled forward. M6.01 starts now. M6.10 to M6.17
+start once their own `needs` are met and Goal 3's bound (G10) has landed on `goal/stage-1`, without waiting for the
+stage 2 or 3 gate; until then on-chain work touches only `design/`, `packages/language-solidity` and `spikes/`.
+M6.21 still waits for M8.09. The gates still run where the stages put them
+([`decisions/K26-on-chain-pulled-forward.md`](decisions/K26-on-chain-pulled-forward.md)).
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
