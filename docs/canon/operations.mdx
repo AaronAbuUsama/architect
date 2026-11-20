@@ -357,12 +357,12 @@ The short references are in `packages/prove/src/modules/evals/internal/calls.ts`
 
 The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
 refusals 2/4` (no journey yet names a sheet that isn't there, so the generated `SheetNotFound` is never reached; K16),
-and `prove ✔`. The end-to-end test holds signup to exactly that:
+and `prove ✔`. The end-to-end test holds signup to exactly that (`coverageLine` builds the expected line from the model: once an idempotent operation lists `IdempotencyConflict`, which no journey can cause, the line adds `(not counted: IdempotencyConflict, …)` after the totals, and the test requires it exactly then):
 
-```ts file=e2e/layer1/08-signup-proves.test.ts name="ortho prove --env local on signup, the canon's example" lines=14-17
+```ts file=e2e/layer1/08-signup-proves.test.ts name="ortho prove --env local on signup, the canon's example" lines=17-20
 expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
 expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");
+expect(lines).toContain(coverageLine("moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4", model));
 expect(lines.at(-1)).toBe("prove ✔");
 ```
 
