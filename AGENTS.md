@@ -52,8 +52,10 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   until actually blocked. GitHub enforces it, admins included (`design/decisions/CI-branch-protection.md`): `main`,
   `m1` and `goal/stage-1` require their CI jobs, every conversation resolved, and `codex-finished`, which passes when
   Codex has reviewed the head or everything since is a clean merge from the base (otherwise comment "@codex review").
-  `main` also requires `builder-paths`: a `-build` pull request may not touch journeys, evals or checks. Bring a
-  branch up to date by merging its base in, never by rebasing, since a rebase needs a fresh Codex review.
+  `main` and `goal/stage-1` also require `builder-paths`: a `-build` pull request may not touch journeys, evals or
+  checks. A docs-only pull request skips `e2e-layer1` and `e2e-layer2`, and a skip passes
+  (`design/decisions/CI-docs-fast-path.md`). Bring a branch up to date by merging its base in, never by rebasing,
+  since a rebase needs a fresh Codex review.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
 

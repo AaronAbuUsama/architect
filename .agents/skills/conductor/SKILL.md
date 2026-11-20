@@ -70,6 +70,11 @@ All five must hold:
 Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
 tell you "landing now" before they merge into `main`, and you answer if another landing is under way.
 
+**A process change lands everywhere work runs.** When a skill, `AGENTS.md` or a CI guard lands on `main`, have `main`
+merged into each live goal and milestone branch within the hour, by its lead, and tell the lead to have its open
+pull request branches merge their base. A session reads skills from its own checkout, so until then the change isn't
+in force where the work is.
+
 The 🔍 is not only for layers. Every build pull request, a builder's into a goal or milestone branch included, gets
 one before it merges, and the 🔍 lists every door into the change and runs one probe through each (the `reviewer`
 skill). Brief leads to do the same.
