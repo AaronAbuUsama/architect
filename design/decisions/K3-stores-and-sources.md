@@ -34,7 +34,7 @@ that does all of that can be where a thing lives.
 ## Decided
 
 1. **A thing lives in a store.** `lives` takes a declared store, or nothing for the project's default store. The word
-   forms stay as shorthands for the built-in kinds: `lives: "actor"`, and `lives: Blueprint.chain({ … })` from L4.01. (Superseded by K25, 20 November 2026: a chain store file, `Blueprint.store.chain.evm({ per })`.)
+   forms stay as shorthands for the built-in kinds: `lives: "actor"`, and `lives: Blueprint.chain({ … })` from L4.01. (Superseded by K25, 20 November 2026: a chain store file, `Blueprint.store.chain.evm()`.)
    A one-database app changes nothing.
 
    ```ts

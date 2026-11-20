@@ -13,8 +13,9 @@ here the server, the SDK and the contracts).
 ## The idea
 
 acme's allowance today lives in the database: the server holds the money's record, and you trust the server. Moved on
-chain, each organisation's money sits in a vault contract. A member spends by signing; the server relays the signed
-call, and its relayer key can only submit payloads someone already signed. Where a member's own key lives is declared
+chain, each organisation's money sits in its own Safe, and the allowance lives in our budgets module, one contract per
+network that any Safe switches on (K25). A member spends by signing; the module checks the allowance and pays from the
+Safe. The server relays the signed call, and its relayer key can only submit payloads someone already signed. Where a member's own key lives is declared
 per wallet (K7 F5). The rules (the limit, the states, who may do what) are the
 same rules, enforced by the contract.
 
@@ -27,20 +28,22 @@ One line changes in the thing. Everything else, the machine, the roles, the erro
 (`examples/acme/blueprint/things/allowance/machine.ts:5-13` on `origin/layer/3`).
 
 ```ts
-// blueprint/stores/vault.ts: a chain store, the contract "Vault", named by its path (K25)
-export default Blueprint.store.chain.evm({ per: Organization });
+// blueprint/stores/budgets.ts: a chain store, the contract "Budgets", named by its path (K25)
+export default Blueprint.store.chain.evm();
 
 // blueprint/things/allowance/thing.ts
-import vault from "../../stores/vault.ts";
+import budgets from "../../stores/budgets.ts";
+import { Safe } from "@orthograph/safe";   // someone else's contract, behind the safe adapter
 export const Allowance = Blueprint.thing({
-  description: "Money a member may spend from their organisation, up to a limit each month.",
-  fields: { id: Blueprint.id("alw"), organization: Organization.fields.id, member: Blueprint.account(), limit: Amount, spent: Amount },
-  lives: vault,   // was: the database
+  description: "Money a member may spend from their organisation's Safe, up to a limit each month.",
+  fields: { id: Blueprint.id("alw"), safe: Safe.fields.account, member: Blueprint.account(), limit: Amount, spent: Amount },
+  lives: budgets,   // was: the database
 });
 ```
 
-The member is an account, not a person id: on chain, the signer is compared with it, and person ids never go on chain
-(K25).
+The member is an account, not a person id: on chain, the signer is compared with it, and person ids never go on chain.
+The allowance names the Safe it spends from, not the organisation: the organisation stays off chain and may point at
+its Safe with an ordinary field (K25).
 
 ```ts
 // blueprint/values/money.ts: a value says what it is in every language
@@ -71,7 +74,7 @@ settings: [chain.settings.network.is("base-sepolia")],
 
 The same journeys as today, now signed. In prose:
 
-1. Ada grants olga 500. The vault holds the allowance, and olga's wallet can see it.
+1. Ada grants olga 500. The budgets module holds the allowance, and olga's wallet can see it.
 2. Olga spends 120, signing with her own wallet. The relayer submits it. The spend appears through the chain follower.
 3. Bob signs a spend of olga's allowance with his wallet. It is refused before anything is sent.
 4. Ada revokes. Olga's next signed spend is refused by the contract with the machine's own refusal.
@@ -92,12 +95,12 @@ transaction.
 
 ## Blanks and handlers
 
-The Solidity projection writes `src/Vault.sol` once, with blanks, beside the generated machine
+The Solidity projection writes `src/Budgets.sol` once, with blanks, beside the generated machine
 (`generated/solidity/AllowanceMachine.sol`, whose `_step` is the compiled machine). The blank is the same blank as the
 Effect handler's: the limit check.
 
 ```solidity
-// src/Vault.sol: scaffolded once, yours from then on
+// src/Budgets.sol: scaffolded once, yours from then on
 function _spend(Allowance storage a, uint128 amount) internal override {
   if (a.spent + amount > a.limit) revert AllowanceExceeded(a.limit - a.spent);   // its stable refusal code, the same in both languages
   a.spent += amount;
@@ -113,7 +116,7 @@ signer signs it, and the relayer submits it (L4.06). The server checks the signa
 | Actor | One per | What it does | Build plan |
 |---|---|---|---|
 | relayer | relayer key | hands out nonces in order, replaces stuck transactions, writes receipts through | L3.06 |
-| chain follower | contract | follows the vault's logs with a checkpoint, handles reorgs, emits corrections | L3.08 |
+| chain follower | contract | follows the budgets module's logs with a checkpoint, handles reorgs, emits corrections | L3.08 |
 
 Both are Durable Objects inside the environment's one Worker, so each is a single writer with its own storage. The
 relayer's key can only submit payloads someone already signed. M6.18 checks that no key is ever in plain text in a
@@ -137,7 +140,8 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 | Data | Lives | Why |
 |---|---|---|
-| the allowance | on chain, one vault per organisation | the point of the example |
+| the money | in the organisation's Safe | the organisation's own account |
+| the allowance | in the budgets module, keyed by the Safe | the point of the example |
 | the follower's view | the follower actor's storage | fast reads, corrected on reorg |
 | nonces, pending transactions | the relayer actor | one writer per key |
 | the organisation's index | the organisation actor, built from events | unchanged |
@@ -146,10 +150,10 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 - **In a world**, the chain is Anvil, `Stand.process(anvil)`, run as a child process locally and in a Cloudflare
   Container owned by the world in CI (L3.05), with block timestamp interval 0 so time moves only when the world moves
-  it. The starting world `funded` deploys a vault for the organisation and funds it with a test token (L4.07).
+  it. The starting world `funded` deploys a Safe for the organisation from Safe's release, enables the budgets module and funds the Safe with a test token (L4.07).
 - **In an environment**, contracts are deployed and verified once per environment and **redeployed only when the
   bytecode hash changes** (L4.08). Promoting twice with the same bytecode deploys nothing the second time.
-- A redeploy of a vault that holds money is a migration. `promote` names it and refuses until the migration is declared.
+- A new budgets module holds no money, but its allowances must move with it, so its redeploy is a migration. `promote` names it and refuses until the migration is declared.
 
 ## Projections and what gets generated
 
@@ -162,7 +166,7 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 | | Today (`origin/layer/3`) | Proposed (layer 4) |
 |---|---|---|
-| Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds chain stores, `Blueprint.store.chain.evm({ per })` (K25) |
+| Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds chain stores, `Blueprint.store.chain.evm()` (K25) |
 | Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@orthograph/language-solidity` plus the solidity projection |
 | Relayer, follower | not built (L3.06, L3.08 on layer 3) | two actors |
 | Conformance between languages | none | generated fuzz, Effect machine against contract |
@@ -174,5 +178,5 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
    thing moves only when the receipt lands. *Recommend (a)*: honest to callers, and the follower settles it.
 2. **How much of the fuzz runs on every check?** (a) A small fixed seed set in `check`, the long run in CI.
    (b) The long run always. *Recommend (a)*, with the CI seed recorded in the verdict.
-3. **One vault per organisation, or one vault for all?** (a) Per organisation (`per: Organization`), as L4.07 plans.
-   (b) One contract with a mapping. *Recommend (a)*: it matches the actor per organisation and isolates money.
+3. **One vault per organisation, or one vault for all?** Settled by K25: neither. The money stays in each
+   organisation's Safe, and one budgets module per network, which each Safe enables, keeps the allowances.

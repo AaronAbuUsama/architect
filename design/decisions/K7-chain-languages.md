@@ -282,7 +282,7 @@ private notes. The client may have to know where they are before it can even mak
   - `solana`: `accounts`, meaning every operation has an account list and rent;
   - `aztec`: `private`, meaning notes, nullifiers and device-local reads. This defines ledger row `G-04`.
 - **`lives` names the kind:** `lives: Blueprint.chain.evm({ contract: "Governance", per: "workshop" })`, and likewise
-  `.solana(...)` and `.aztec(...)`. `Blueprint.chain({...})` alone means `evm`, so K5's sketch still reads right. (Superseded by K25, 20 November 2026: a chain store file, `Blueprint.store.chain.evm({ per })`.)
+  `.solana(...)` and `.aztec(...)`. `Blueprint.chain({...})` alone means `evm`, so K5's sketch still reads right. (Superseded by K25, 20 November 2026: a chain store file, `Blueprint.store.chain.evm()`.)
 - **On Solana the account list is part of the client contract.** The manifest holds each operation's accounts and
   their derivation, and the generated client is an account resolver plus an encoder (`solana#11`). An account that is
   needed only sometimes, like the gate token, is declared in the blueprint, because the IDL can't say when.

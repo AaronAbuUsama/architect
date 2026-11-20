@@ -3892,7 +3892,7 @@
   "title": "Values with Solidity types and lives",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "Values with Solidity types, chain stores (Blueprint.store.chain.evm({ per }), chain as a family of store kinds, K7 Q4, K25) and Blueprint.account(); the compiler accepts runs: \"chain\" (L4.01; describe.ts:108 refuses it today); blueprint/refusals.lock for every language, so codes no longer come from declaration order (describe.ts:79; K7 Q5)"
+  "what": "Values with Solidity types, chain stores (Blueprint.store.chain.evm(), chain as a family of store kinds, K7 Q4, K25) and Blueprint.account(); the compiler accepts runs: \"chain\" (L4.01; describe.ts:108 refuses it today); blueprint/refusals.lock for every language, so codes no longer come from declaration order (describe.ts:79; K7 Q5)"
  },
  "M6-11": {
   "doneWhen": "forge build compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning",
@@ -4029,7 +4029,7 @@
   "title": "Worlds with a chain",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07)"
+  "what": "Worlds with a chain: a Safe per organisation with the budgets module enabled (K25), journeys on Anvil (L4.07)"
  },
  "M6-17": {
   "doneWhen": "promoting twice with the same bytecode deploys nothing the second time",

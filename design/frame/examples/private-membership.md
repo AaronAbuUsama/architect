@@ -36,7 +36,7 @@ export const Pool = Blueprint.thing({
     limit: Amount,
     spent: Blueprint.field(Amount, { visibility: "private" }),
   },
-  lives: rolePool,   // blueprint/stores/role-pool.ts: Blueprint.store.chain.aztec({ per: Organization }), K25
+  lives: rolePool,   // blueprint/stores/role-pool.ts: Blueprint.store.chain.aztec(), K25
 });
 
 // blueprint/things/pool/verbs/spend.ts
