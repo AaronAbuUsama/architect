@@ -4,6 +4,7 @@
   "revision": null,
   "model": {
     "refusals": {
+      "IdempotencyConflict": "AR-002",
       "NotAllowed": "AR-001",
       "SheetFull": "SH-001",
       "SheetNotFound": "SH-901",
@@ -352,7 +353,8 @@
         "refusals": [
           "SheetFull",
           "SheetNotOpen",
-          "SheetNotFound"
+          "SheetNotFound",
+          "IdempotencyConflict"
         ],
         "allowed": [
           {
@@ -381,7 +383,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "548a4873dc4d0516"
+        "hash": "092fb1304d8eb535"
       },
       "sheet.open": {
         "kind": "operation",
@@ -430,7 +432,9 @@
           "emits": "SheetOpened"
         },
         "errors": [],
-        "refusals": [],
+        "refusals": [
+          "IdempotencyConflict"
+        ],
         "allowed": [
           {
             "kind": "anyone"
@@ -449,7 +453,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "8735e6d4a2f9f971"
+        "hash": "f9c720a62bc5a5a0"
       }
     },
     "journeys": {
@@ -1099,11 +1103,11 @@
       "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.join": {
-      "operation:sheet.join": "548a4873dc4d0516",
+      "operation:sheet.join": "092fb1304d8eb535",
       "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.open": {
-      "operation:sheet.open": "8735e6d4a2f9f971",
+      "operation:sheet.open": "f9c720a62bc5a5a0",
       "thing:sheet": "320a7ee2e246a009"
     }
   },
@@ -1111,8 +1115,8 @@
     "sheet/close.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.close\n\nTake a sheet down. Nobody can join it after this.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`close`: from open or full to closed, emitting SheetClosed.\n\n## Steps\n\n- `sheet.close.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state close can't start from; carries `state` |\n| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |\n\n## Worked examples\n\n### a closed sheet takes no one\n\nStarts from the world `opened`.\n\n- **the visitor closes the sheet.** `visitor` (anyone) calls and sends sheet the world's sheet, and is answered.\n- **closing it again is refused.** `visitor` (anyone) calls and sends sheet the world's sheet, and is refused with SheetNotOpen, SH-900, carrying state `closed`.\n\n## How to call\n\n```sh\nsignup sheet close --sheet <sheet>\n```\n\nHTTP: `POST /sheet/close` with the payload as JSON. SDK: `Sdk.sheet.close(payload)`.\n",
     "sheet/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.get\n\nRead one sheet by its id: title, places, taken, state.\n\n**Who may call:** anyone.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | sheet.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| title | sheet.title |\n| places | sheet.places |\n| taken | sheet.taken |\n| state | text |\n\n## Refusals\n\n(none)\n\n## Worked examples\n\n### a closed sheet takes no one\n\nStarts from the world `opened`.\n\n- **reading it back shows a closed sheet with nobody on it.** `visitor` (anyone) calls and sends id the world's sheet, and gets back [`0`, `closed`].\n\n### fill a sheet\n\nStarts from the world `opened`.\n\n- **reading it back shows both places taken.** `visitor` (anyone) calls and sends id the world's sheet, and gets back [`2`, `2`, `full`].\n\n### join twice with one request\n\nStarts from the world `opened`.\n\n- **only one place was taken.** `visitor` (anyone) calls and sends id the world's sheet, and gets back [`1`, `open`].\n\n### put up a sheet\n\nStarts from an empty world.\n\n- **reading it back shows an open sheet with nobody on it.** `visitor` (anyone) calls and sends id the last call's sheet, and gets back [`Book club`, `3`, `0`, `open`].\n\n## How to call\n\n```sh\nsignup sheet get --id <id>\n```\n\nHTTP: `POST /sheet/get` with the payload as JSON. SDK: `Sdk.sheet.get(payload)`.\n",
     "sheet/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet\n\nA sign-up sheet with a fixed number of places.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| title | Title |\n| places | Count |\n| taken | Count |\n\n## Machine\n\nStates: open, full, closed. A move from the wrong state is refused SheetNotOpen (exit 70).\n\n| move | from | to | emits |\n|---|---|---|---|\n| open | (creates) | open | SheetOpened |\n| join | open | open, full | PlaceTaken |\n| close | open, full | closed | SheetClosed |\n\n## Events\n\n- `PlaceTaken`: carries sheet (sheet.id), left (Count); emitted by the move join\n- `SheetClosed`: carries sheet (sheet.id); emitted by the move close\n- `SheetOpened`: carries sheet (sheet.id), places (Count); emitted by the move open\n\n## Operations\n\n- [sheet.close](close.md): Take a sheet down. Nobody can join it after this.\n- [sheet.get](get.md): Read one sheet by its id: title, places, taken, state.\n- [sheet.join](join.md): Take places on a sheet, for yourself and anyone with you.\n- [sheet.open](open.md): Put up a sheet with a number of places.\n",
-    "sheet/join.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.join\n\nTake places on a sheet, for yourself and anyone with you.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n| people | Count |\n\n## Answer\n\n| field | value |\n|---|---|\n| left | Count |\n\n## Move\n\n`join`: from open to open or full, emitting PlaceTaken.\n\n## Steps\n\n- `sheet.join.load` (database)\n- `sheet.join.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetFull | 71 | SH-001 | declared in errors.ts, carrying left |\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state join can't start from; carries `state` |\n| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |\n\n## Worked examples\n\n### a closed sheet takes no one\n\nStarts from the world `opened`.\n\n- **joining it is refused.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `late-1`, and is refused with SheetNotOpen, SH-900, carrying state `closed`.\n\n### fill a sheet\n\nStarts from the world `opened`.\n\n- **the first join leaves one place and the sheet stays open.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-1`, and gets back `1`.\n- **two people are refused: only one place is left.** `visitor` (anyone) calls and sends sheet the world's sheet, people `2`, with the request key `join-2-people`, and is refused with SheetFull, SH-001, carrying left `1`.\n- **the second join takes the last place and the sheet is full.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-3`, and gets back `0`.\n- **a third join is refused: a full sheet is not open.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-4`, and is refused with SheetNotOpen, SH-900, carrying state `full`.\n\n### join twice with one request\n\nStarts from the world `opened`.\n\n- **the visitor joins.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `me-1`, and gets back `1`.\n- **the same request again gives the same answer and takes nothing.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `me-1`, and gets back `1`.\n\n## How to call\n\n```sh\nsignup sheet join --sheet <sheet> --people <people>\n```\n\nHTTP: `POST /sheet/join` with the payload as JSON. SDK: `Sdk.sheet.join(payload)`.\n",
-    "sheet/open.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.open\n\nPut up a sheet with a number of places.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | sheet.title |\n| places | sheet.places |\n\n## Answer\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Move\n\n`open`: from nothing (it creates) to open, emitting SheetOpened.\n\n## Steps\n\n- `sheet.open.insert` (database)\n\n## Refusals\n\n(none)\n\n## Worked examples\n\n### put up a sheet\n\nStarts from an empty world.\n\n- **a visitor puts up a sheet with 3 places.** `visitor` (anyone) calls and sends title `Book club`, places `3`, and gets back an answer matching `^sht_`.\n\n## How to call\n\n```sh\nsignup sheet open --title <title> --places <places>\n```\n\nHTTP: `POST /sheet/open` with the payload as JSON. SDK: `Sdk.sheet.open(payload)`.\n"
+    "sheet/join.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.join\n\nTake places on a sheet, for yourself and anyone with you.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n| people | Count |\n\n## Answer\n\n| field | value |\n|---|---|\n| left | Count |\n\n## Move\n\n`join`: from open to open or full, emitting PlaceTaken.\n\n## Steps\n\n- `sheet.join.load` (database)\n- `sheet.join.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetFull | 71 | SH-001 | declared in errors.ts, carrying left |\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state join can't start from; carries `state` |\n| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### a closed sheet takes no one\n\nStarts from the world `opened`.\n\n- **joining it is refused.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `late-1`, and is refused with SheetNotOpen, SH-900, carrying state `closed`.\n\n### fill a sheet\n\nStarts from the world `opened`.\n\n- **the first join leaves one place and the sheet stays open.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-1`, and gets back `1`.\n- **two people are refused: only one place is left.** `visitor` (anyone) calls and sends sheet the world's sheet, people `2`, with the request key `join-2-people`, and is refused with SheetFull, SH-001, carrying left `1`.\n- **the second join takes the last place and the sheet is full.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-3`, and gets back `0`.\n- **a third join is refused: a full sheet is not open.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `join-4`, and is refused with SheetNotOpen, SH-900, carrying state `full`.\n\n### join twice with one request\n\nStarts from the world `opened`.\n\n- **the visitor joins.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `me-1`, and gets back `1`.\n- **the same request again gives the same answer and takes nothing.** `visitor` (anyone) calls and sends sheet the world's sheet, people `1`, with the request key `me-1`, and gets back `1`.\n\n## How to call\n\n```sh\nsignup sheet join --sheet <sheet> --people <people>\n```\n\nHTTP: `POST /sheet/join` with the payload as JSON. SDK: `Sdk.sheet.join(payload)`.\n",
+    "sheet/open.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.open\n\nPut up a sheet with a number of places.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | sheet.title |\n| places | sheet.places |\n\n## Answer\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Move\n\n`open`: from nothing (it creates) to open, emitting SheetOpened.\n\n## Steps\n\n- `sheet.open.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## Worked examples\n\n### put up a sheet\n\nStarts from an empty world.\n\n- **a visitor puts up a sheet with 3 places.** `visitor` (anyone) calls and sends title `Book club`, places `3`, and gets back an answer matching `^sht_`.\n\n## How to call\n\n```sh\nsignup sheet open --title <title> --places <places>\n```\n\nHTTP: `POST /sheet/open` with the payload as JSON. SDK: `Sdk.sheet.open(payload)`.\n"
   },
   "extensions": {
     "journeys": {
@@ -1128,5 +1132,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "b16bcdf1bcb2df0eaee8b4ead7ffebd03e7c1adf55f3a28c699d70e9d90fe512"
+  "digest": "5ea4c89dfea61b970f40d41cd62b4e742a1c24861613964bb663e60ac098e08d"
 }

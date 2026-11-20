@@ -39,6 +39,7 @@ Spend from what is left of this month's allowance.
 | AllowanceExceeded | 41 | AL-001 | declared in errors.ts, carrying remaining |
 | AllowanceNotActive | 40 | AL-900 | the allowance is in a state spend can't start from; carries `state` |
 | NotAllowed | 3 | AR-001 | the caller isn't the grantee of the allowance; the handler never runs |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## Worked examples
 

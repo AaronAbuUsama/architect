@@ -15,8 +15,16 @@ const widget = (errors: Record<string, { exit: number; fields?: object }>, notFr
 describe("exits", () => {
   it("refuses a machine's own exit that is reserved or out of range, naming its machine.ts", () => {
     expect(exitClashes(widget({}, 3))).toEqual(["blueprint/things/widget/machine.ts: WidgetNotActive's exit 3 is NotAllowed's; pick another"]);
-    expect(exitClashes(widget({}, 200))).toEqual(["blueprint/things/widget/machine.ts: WidgetNotActive's exit 200 is outside 5 to 125, the exits a refusal may use; pick another"]);
+    expect(exitClashes(widget({}, 200))).toEqual(["blueprint/things/widget/machine.ts: WidgetNotActive's exit 200 is outside 5 to 119, which are the blueprint's; pick another"]);
     expect(exitClashes(widget({}, 40))).toEqual([]);
+  });
+
+  it("keeps 120 for IdempotencyConflict and 121 to 125 for the runtime, and lets a blueprint have 5 to 119 (G3)", () => {
+    expect(exitClashes(widget({}, 120))).toEqual(["blueprint/things/widget/machine.ts: WidgetNotActive's exit 120 is IdempotencyConflict's; pick another"]);
+    expect(exitClashes(widget({}, 122))).toEqual(["blueprint/things/widget/machine.ts: WidgetNotActive's exit 122 is the runtime's; pick another"]);
+    expect(exitClashes(widget({}, 126))).toHaveLength(1);
+    expect(exitClashes(widget({}, 5))).toEqual([]);
+    expect(exitClashes(widget({}, 119))).toEqual([]);
   });
 
   it("lets only the thing's own <Thing>NotFound keep exit 4", () => {

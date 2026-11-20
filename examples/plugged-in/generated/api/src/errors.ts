@@ -16,6 +16,7 @@ export const refusals = {
   HandleNotClaimed: { code: "HN-900", exit: 11, status: 409 },
   LinkNotListed: { code: "LN-900", exit: 31, status: 409 },
   NotAllowed: { code: "AR-001", exit: 3, status: 403 },
+  IdempotencyConflict: { code: "AR-002", exit: 120, status: 409 },
 } as const;
 type Refusal = keyof typeof refusals;
 
@@ -34,6 +35,7 @@ export class ProfileNotFound extends Schema.TaggedError<ProfileNotFound>()("Prof
 export class HandleNotClaimed extends Schema.TaggedError<HandleNotClaimed>()("HandleNotClaimed", { code: Schema.Literal(refusals.HandleNotClaimed.code), ...{ state: Schema.Literals(["claimed", "released"]) } }, { httpApiStatus: refusals.HandleNotClaimed.status }) { static readonly code = refusals.HandleNotClaimed.code; }
 export class LinkNotListed extends Schema.TaggedError<LinkNotListed>()("LinkNotListed", { code: Schema.Literal(refusals.LinkNotListed.code), ...{ state: Schema.Literals(["listed", "removed"]) } }, { httpApiStatus: refusals.LinkNotListed.status }) { static readonly code = refusals.LinkNotListed.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
+export class IdempotencyConflict extends Schema.TaggedError<IdempotencyConflict>()("IdempotencyConflict", { code: Schema.Literal(refusals.IdempotencyConflict.code), ...{} }, { httpApiStatus: refusals.IdempotencyConflict.status }) { static readonly code = refusals.IdempotencyConflict.code; }
 
 /** Each refusal's exit code, for the CLI: read from `refusals`. */
 export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.exit])) as { readonly [K in Refusal]: (typeof refusals)[K]["exit"] };
@@ -52,4 +54,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { HandleTaken, HandleAlreadyOwned, HandleNotFound, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, NotAllowed };
+export const wire = { HandleTaken, HandleAlreadyOwned, HandleNotFound, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, NotAllowed, IdempotencyConflict };

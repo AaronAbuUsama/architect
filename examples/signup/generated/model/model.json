@@ -1,5 +1,6 @@
 {
   "refusals": {
+    "IdempotencyConflict": "AR-002",
     "NotAllowed": "AR-001",
     "SheetFull": "SH-001",
     "SheetNotFound": "SH-901",
@@ -348,7 +349,8 @@
       "refusals": [
         "SheetFull",
         "SheetNotOpen",
-        "SheetNotFound"
+        "SheetNotFound",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -377,7 +379,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "548a4873dc4d0516"
+      "hash": "092fb1304d8eb535"
     },
     "sheet.open": {
       "kind": "operation",
@@ -426,7 +428,9 @@
         "emits": "SheetOpened"
       },
       "errors": [],
-      "refusals": [],
+      "refusals": [
+        "IdempotencyConflict"
+      ],
       "allowed": [
         {
           "kind": "anyone"
@@ -445,7 +449,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "8735e6d4a2f9f971"
+      "hash": "f9c720a62bc5a5a0"
     }
   },
   "journeys": {

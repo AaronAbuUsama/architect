@@ -32,7 +32,9 @@ Put up a sheet with a number of places.
 
 ## Refusals
 
-(none)
+| refusal | exit | code | when |
+|---|---|---|---|
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## Worked examples
 

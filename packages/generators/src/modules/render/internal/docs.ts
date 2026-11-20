@@ -3,7 +3,7 @@
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
 // `who` is the scaffold's own sentence (K16 a), so the docs page and the handler's front matter never disagree.
 import { workedExamples } from "./examples.ts";
-import { NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
+import { IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
@@ -40,6 +40,7 @@ const refusals = (model: Model, op: OperationModel) => {
     const missing = Object.entries(op.notFound ?? {}).filter(([, e]) => e === r).map(([k]) => k);
     if (missing.length > 0) return `| ${r} | ${Object.values(model.things).find((t) => t.notFound?.error === r)?.notFound?.exit ?? "?"} | ${code} | nothing has the id in ${missing.join(", ")}; the handler never runs; carries \`id\` |`;
     if (r === "NotAllowed") return `| NotAllowed | ${NOT_ALLOWED_EXIT} | ${code} | the caller isn't ${who(op)}; the handler never runs |`;
+    if (r === IDEMPOTENCY_CONFLICT) return `| ${IDEMPOTENCY_CONFLICT} | ${IDEMPOTENCY_CONFLICT_EXIT} | ${code} | the request key was first used with another payload; the handler never runs |`;
     return `| ${r} | ${thing?.machine?.notFrom.exit ?? "?"} | ${code} | the ${op.thing} is in a state ${op.move?.key ?? "this"} can't start from; carries \`state\` |`;
   });
 };

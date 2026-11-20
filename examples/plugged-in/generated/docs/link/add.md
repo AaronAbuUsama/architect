@@ -37,6 +37,7 @@ Append a link to your own public page. You need a claimed name first.
 |---|---|---|---|
 | LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |
 | NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## Worked examples
 
