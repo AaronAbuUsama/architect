@@ -33,7 +33,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Update, 20 November:** proposal 15's first run. PR 169 merged on `main` at 07:21. The Goal 3 lead opened
   [PR 172](https://github.com/AaronAbuUsama/architect/pull/172), `main` into `goal/stage-1`, at 07:22, and it merged at
   09:09 (1cedc12a). Its CI ran four times: three runs were cancelled by its own new pushes (a totals regeneration at
-  07:38, the merge of PR 173 at 07:57, and a merge of `goal/stage-1` at 08:48, 08e4588e, after PRs 166 and 168
+  07:38, a merge of `main` carrying PR 173 at 07:57, and a merge of `goal/stage-1` at 08:48, 08e4588e, after PRs 166 and 168
   landed), and the fourth passed in about 20 minutes. The third run, on 4a4fe8b7, sat 50 minutes before it was
   cancelled, for a reason the record doesn't show. From 09:09 both PR 169's skills and PR 173 (Codex advisory) are on
   `goal/stage-1`. PRs 166 and 168 merged into `goal/stage-1` at 08:43 and 08:46 without the skill change in their
