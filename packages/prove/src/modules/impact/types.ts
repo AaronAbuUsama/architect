@@ -34,6 +34,18 @@ export interface Proof {
   readonly operations: Readonly<Record<string, Judged>>;
 }
 
+/**
+ * What a proof rests on, read once when the run begins: a hash of every file that can change a proof, the files the model
+ * places (reached by importing from an operation, a journey or a starting world), and each operation's and journey's inputs.
+ */
+export interface Stamp {
+  readonly files: Readonly<Record<string, string>>;
+  readonly placed: ReadonlySet<string>;
+  readonly operations: Readonly<Record<string, string>>;
+  /** By the journey's file (names may repeat). */
+  readonly journeys: Readonly<Record<string, string>>;
+}
+
 /** What `prove --changed` will do, from the record and today's files. */
 export interface Selection {
   /** The journeys to run, by file (the key of `model.journeys`: names may repeat). */
@@ -77,10 +89,12 @@ export interface Shipped {
 export interface ImpactApi {
   /** After a prove: operations whose evals all passed become proven at today's hashes; failing ones are dropped. */
   readonly record: (root: string, model: Model, verdicts: ReadonlyArray<Verdict>, results?: ReadonlyArray<Result>) => Effect.Effect<void>;
+  /** Read what a proof rests on, once, before a run: `select` and `settle` both take it, so what is recorded is what the run began with. */
+  readonly stamp: (root: string, model: Model) => Effect.Effect<Stamp>;
   /** Which journeys and evals `prove --changed` runs: what changed since the last proof's record, or everything with the reason. */
-  readonly select: (root: string, model: Model) => Effect.Effect<Selection>;
+  readonly select: (root: string, model: Model, stamp: Stamp) => Effect.Effect<Selection>;
   /** After a prove: the record `--changed` measures from, with what the run judged as it judged it and the rest as it was. */
-  readonly settle: (root: string, model: Model, ran: Ran) => Effect.Effect<void>;
+  readonly settle: (root: string, model: Model, ran: Ran, stamp: Stamp) => Effect.Effect<void>;
   /** Today's model against the ledger. With no ledger every operation is unproven. */
   readonly of: (root: string, model: Model) => Effect.Effect<Impact>;
   /**

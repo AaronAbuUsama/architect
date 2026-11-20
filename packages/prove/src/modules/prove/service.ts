@@ -43,13 +43,15 @@ export const Prove: ProveApi = {
     Effect.gen(function* () {
       const { model, project: loaded } = yield* load(root, empty);
       // `--changed`: what the last proof's record and today's files say to run; with nothing to run or judge, no world is made at all.
-      const selection = changed && !empty && only === undefined ? yield* Impact.select(root, model) : undefined;
+      // What a proof rests on is read once, before anything runs, and is what the run is recorded against.
+      const stamp = !empty && only === undefined ? yield* Impact.stamp(root, model) : undefined;
+      const selection = changed && stamp !== undefined ? yield* Impact.select(root, model, stamp) : undefined;
       const judging = selection !== undefined && selection.fellBack === null ? new Set(selection.judge) : undefined;
       const project = selection !== undefined && judging !== undefined ? narrowed(loaded, selection.rerun) : loaded;
       const said = selection === undefined ? [] : headline(model, selection, project.journeys.length, loaded.journeys.length);
       const report = selection === undefined ? undefined : detail(model, selection, project.journeyFiles ?? []);
       if (selection !== undefined && judging !== undefined && project.journeys.length === 0 && judging.size === 0) {
-        yield* Impact.settle(root, model, { journeys: [], operations: [] });
+        yield* Impact.settle(root, model, { journeys: [], operations: [] }, stamp!);
         const lines = [...said, ...unfinishedIn(loaded), "prove ✔"];
         return { lines, passed: true, structured: proveReport([], 0, 0, lines, true, report) };
       }
@@ -69,12 +71,12 @@ export const Prove: ProveApi = {
       const device = needsDevice(model) ? yield* deviceHost(world, collector.url, chain).pipe(Effect.mapError(failed)) : undefined;
       const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device, judging));
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
-      if (!empty && only === undefined) {
+      if (stamp !== undefined) {
         yield* Impact.record(root, model, done.judged, judging === undefined ? done.results : done.results.filter((r) => judging.has(r.operation)));
         yield* Impact.settle(root, model, {
           journeys: done.journeys.details.flatMap((d, i) => (project.journeyFiles?.[i] === undefined ? [] : [{ file: project.journeyFiles[i]!, passed: d.verdict === "pass" }])),
           operations: [...new Set(done.judged.flatMap((v) => (v.operation === undefined ? [] : [v.operation])))].map((operation) => ({ operation, passed: done.judged.every((v) => v.operation !== operation || v.failures.length === 0) })),
-        });
+        }, stamp);
       }
       const verdict = closing(done);
       const lines = [...said, ...sinks.notes, ...stood.notes, ...unfinishedIn(loaded), ...done.journeys.lines, ...done.evals.lines, verdict.line];
