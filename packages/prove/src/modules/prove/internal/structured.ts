@@ -55,6 +55,15 @@ export interface ProveReport {
   readonly journeys: ReadonlyArray<JourneyDetail>;
   /** The lines of prove's text output, unchanged. */
   readonly lines: ReadonlyArray<string>;
+  /** `prove --changed` only: what it ran, what it skipped, and why it ran everything when it did. */
+  readonly changed?: ChangedDetail;
+}
+
+export interface ChangedDetail {
+  readonly base: "last proof";
+  readonly rerun: ReadonlyArray<string>;
+  readonly skipped: ReadonlyArray<string>;
+  readonly fellBack: null | { readonly reason: string; readonly files: ReadonlyArray<string> };
 }
 
 /** Where an operation's handler and declaration live; both relative to the project root. */
@@ -95,7 +104,7 @@ export const journeyDetail = (run: JourneyRun, steps: ReadonlyArray<StepDetail>)
 
 /** The whole report, once the journeys and the evals have been judged. */
 export const proveReport = (
-  details: ReadonlyArray<JourneyDetail>, evalsFailed: number, seconds: number, lines: ReadonlyArray<string>, passed: boolean,
+  details: ReadonlyArray<JourneyDetail>, evalsFailed: number, seconds: number, lines: ReadonlyArray<string>, passed: boolean, changed?: ChangedDetail,
 ): ProveReport => {
   const steps = details.flatMap((j) => j.steps);
   const journeysFailing = details.filter((j) => j.verdict === "fail" && j.stopped !== undefined).length;
@@ -114,5 +123,6 @@ export const proveReport = (
     seconds,
     journeys: details,
     lines,
+    ...(changed === undefined ? {} : { changed }),
   };
 };
