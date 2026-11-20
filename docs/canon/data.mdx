@@ -120,9 +120,9 @@ import ledger from "../../stores/ledger.ts";
 export default Blueprint.thing({ description: "…", fields: { … }, lives: ledger });
 ```
 
-The kinds are supplied by hosts and languages ([languages-and-hosts](languages-and-hosts.mdx)): `database` (D1) and
-`actor` (a Durable Object per instance) by the Cloudflare host. A chain is a host too, and the store kind that runs
-on it is `chain`, supplied by the Solidity language. How a thing that lives on a chain is declared, and what its
+The kinds are supplied by hosts, and a language writes for them ([languages-and-hosts](languages-and-hosts.mdx)):
+`database` (D1) and `actor` (a Durable Object per instance) by the Cloudflare host. A chain is a host too, and the
+store kind that runs on it is `chain`, supplied by `Host.chain` and written for by the Solidity language (K27). How a thing that lives on a chain is declared, and what its
 commit looks like, waits on K7.
 
 ### What crosses the edge of a store

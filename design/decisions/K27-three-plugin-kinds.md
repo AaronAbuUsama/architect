@@ -125,11 +125,11 @@ the walkthrough.
 | K3, K7 | dated notes beside "supplied by `language-solidity`": the host supplies, the language writes for |
 | K17 | dated notes beside `TargetSpec` and its build step 1 point here |
 | `frame/projections.md` (opening, 3.9), the allowance example, the walkthrough, `design/state` | rewritten here |
-| `docs/canon/languages-and-hosts.mdx`, `docs/canon/stores.mdx` | who supplies `chain`, rewritten here |
+| `docs/canon/languages-and-hosts.mdx`, `stores.mdx`, `data.mdx` | who supplies `chain`, rewritten here |
 | `frame/README.md` (with the proof each kind brings), `frame/mounting.md`, the walkthrough | five plugin kinds |
 | `design/docs/index.html` | five plugin kinds; Python leaves the projection examples, a language for later |
 | `docs/canon/plugins.mdx`, `docs/canon/orthograph.mdx`, `docs/canon/outline.md` | five plugin kinds, rewritten here |
-| ledger `LAH-04`, `PRJ-12` | reworded to item 5 and item 2 |
+| ledger `LAH-04`, `X-18`, `AZ-02`, `PRJ-12` | reworded to item 5 and item 2 |
 
 Left for their owners. Goal 4's file copies this list into slice 1 when it is written:
 
@@ -172,3 +172,5 @@ Left for their owners. Goal 4's file copies this list into slice 1 when it is wr
 - docs/canon/outline.md: "the three kinds and the one-file mount" → "the five kinds and the one-file mount"
 - docs/canon/outline.md: "What are the three kinds, and how do I pick?" → "What are the five kinds, and how do I pick?"
 - design/frame/mounting.md: "one way for all three kinds" → "one way for every kind"
+- docs/canon/data.mdx: "on it is `chain`, supplied by the Solidity language." → "store kind that runs on it is `chain`, supplied by `Host.chain` and written for by the Solidity language (K27)."
+- design/ledger.md (AZ-02): "and `aztec` is the store kind it supplies," → "and `aztec` is the store kind it writes for (K27: the host supplies it),"
