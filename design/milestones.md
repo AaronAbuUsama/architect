@@ -67,7 +67,7 @@ written yes.
 |---|---|---|---|---|
 | 1 · Plugged In | claim `@name`; a public page of links | all of M1 and M2 | ST1.01 to ST1.04, ST1.06 to ST1.08 (ST1.05 moved to M3 by K13) | Gate M2 (M2.12) |
 | 2 · wallets | create or link a wallet; be paid by handle | K7's wallet slices (M1.27 to M1.32, and M2.13 for linking), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.01, M5.03 | ST2.01 to ST2.05 | ST2.06 |
-| 3 · the vault | a Safe with the budgets plugin; hats with budgets; owners sign above a budget | M6.10 to M6.14, M6.16, M6.17, M3.01 to M3.03, M4.01 to M4.10, M4.16 | ST3.01 to ST3.07 | ST3.08 |
+| 3 · the vault | a Safe with the budgets plugin; hats with budgets; owners sign above a budget | M6.10 to M6.14, M6.16, M6.17, M6.21, M3.01 to M3.03, M4.01 to M4.10, M4.16, all of M8 (time: its budgets are per month, K23) | ST3.01 to ST3.07 | ST3.08 |
 | 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
 
 **Beside the stages, off v1.0's path:** the factory (M3.04 to M3.14), the builder's tools and the bench (M4.11 to
@@ -136,7 +136,7 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 | ST4.01 | The budgets declaration in Noir on Aztec: a private budget note spent down, a private ballot with a public tally, in an in-process `proofs: "verified"` network (K7 Q7) | ST3.08 | spike | `spikes/aztec-club/README.md` answers it with a run, a tampered proof rejected | S |
 | ST4.02 | `language-noir`, the `aztec` store kind, `chain-aztec` on the `ChainPort`, `proofs: "verified"` worlds, from K7's design | ST4.01 | decision | `decisions/ST4-aztec.md` written | S |
 | ST4.03 | Journeys for the club | ST4.02 | checks | they fail on empty handlers | M |
-| ST4.04 | `chain-aztec`, and Aztec in a world with proofs verified | ST4.02 | build | a world's Aztec network rejects a tampered proof and is gone when the world ends | M |
+| ST4.04 | `chain-aztec`, and Aztec in a world with proofs verified; its `ChainPort.clock` (K23: a warp, then the L1 blocks finality needs) | ST4.02 | build | a world's Aztec network rejects a tampered proof and is gone when the world ends | M |
 | ST4.05 | `language-noir`: private notes, one-use claims, enqueued public calls; the budgets feature's Aztec choice from the same declaration | ST4.04 | build | the budgets journeys pass on Aztec with `choose(onChain.aztec)` and no change to the declaration | L |
 | ST4.06 ∥ | `@orthograph/ballots`: private ballots, one per member, public tally (K7's governance contract as a feature) | ST4.05 | build | a second ballot by one member is refused by its claim | M |
 | ST4.07 | Plugged In at stage 4: `/@club`'s public footprint, the members' area, private spends and ballots; casting is `.notVia(Via.agent)` | ST4.05, ST4.06 | build | the club journeys pass; the portal shows nothing that names a member | M |
@@ -290,7 +290,7 @@ twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
+| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks, each wait through `Timers` so a stepped world moves it, K23), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
 | M3.04 | Journeys for the factory (W1) in K11's shape ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)): goal, item, claim, board, question, attention; "only a fact closes", claims and leases, touches never shared while running, attention | M3.01 | checks | they fail on empty handlers | M |
@@ -363,7 +363,8 @@ agent: how long a start takes, and whether anything is left).
 | M4.23 ∥ | The Factory face (K10 section 6): `Portal.face` with the Factory sidebar group, the roster, the runs list, the live run and the workspace, composed from `@orthograph/portal-ui`'s exports (F7, M1.34); no agent UI code in the canon; the face's export name and lint as M1.25 settles them | M1.13, M3.21, M1.25, M4.16, M4.20, M1.34 | build | the four views render acme's runs and workspaces; a refused action shows `output-error` with its code and never a raw defect; an approval shows `requires-action` and runs once on approve; the face holds no store handle or `fetch` (by M1.25's lint, if it adopts one); the face runs in its sandboxed frame (F8): a Run's stream reaches it through the bridge, and approve calls a declared action | M |
 | M4.24 | Promotion by verdicts (K10 section 3): promote also requires the revision's `review` verdict; a revision on `main` with its prove and review verdicts goes to staging with nobody asked; production is an attention only a person approves | M3.13, M3.20, M4.21 | build | a proved and reviewed revision reaches the local staging world unasked; the production promote waits on an attention that an agent acting for Aaron is refused | S |
 | M4.25 | The `github` adapter for pull requests (K10 section 3): `branches.push`, `pullRequests.open`, the `pullRequest.merged` event; secrets declared by the adapter; its stand-in a bare local repository with a small pull-request record (second rung: Gitea) | Gate M2 | build | the adapter's conformance passes against the stand-in; a pushed branch and its opened pull request read back; a merge emits `pullRequest.merged` once | M |
-| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 to M4.25 | e2e | `nx run e2e:m4` passes on `main` | S |
+| M4.26 ∥ | Agent waits on the world's clock (was L5.08, K23): the agent's `Timers` is the world's, so a stepped or scaled clock moves a run's backoff and sleeps | M4.09, M8.07 | build | a journey moves the clock past a run's retry backoff in seconds and the run resumes on time; nothing in the agents package waits any other way | S |
+| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 to M4.26 | e2e | `nx run e2e:m4` passes on `main` | S |
 
 ## M5: Reach out
 
@@ -391,7 +392,7 @@ actors; `ortho prove` names each adapter's stand-in.
 | M5.13 ∥ | A source we don't own (K3 items 8 and 9): first a spike on reaching MariaDB from workerd (TCP sockets or Hyperdrive, with a Node host as the fallback), then a fixture adapter over a MariaDB database it doesn't migrate, its stand-in real MariaDB loaded from a schema dump, conformance against it, and events from it kept in a view | M5.07 | spike, build | a handler reads a candidate through `step.call` with its own span; the conformance test fails when the dump's schema changes; Orthograph writes no migration for it | M |
 | M5.11 ∥ | Another Orthograph app as an adapter, `--from-model`, its stand-in a world of that app | M5.07 | build | acme calls a second fixture app through a generated adapter | M |
 | M5.14 ∥ | Signals from GitHub issues (M4.25's github adapter, not a second one), Slack and alerts into the work inbox (K11): their adapters' events received through `on:` | M5.03, M3.19, M4.25 | build | a GitHub issue, a Slack message and a fired alert each land once in the inbox; an alert on a standing goal's measure is accepted under it | M |
-| M5.15 ∥ | Declared state limits ([`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md) Q3): `within` on a machine state; entering it starts a `Timers` wait for that thing; leaving cancels it; overstaying raises `<thing>.overstayed` once, which becomes an alert rule with no counting | M5.14, M3.01 (durable clocks) | build | a fixture link held in `listed` past a 1 min `within` raises one `link.overstayed` and one alert; one that moves on in time raises nothing; the portal shows no count of links in any state | S |
+| M5.15 ∥ | Declared state limits ([`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md) Q3): `within` on a machine state; entering it starts a `Timers` wait for that thing; leaving cancels it; overstaying raises `<thing>.overstayed` once, which becomes an alert rule with no counting | M5.14, M8.07 | build | a fixture link held in `listed` past a 1 min `within` raises one `link.overstayed` and one alert; one that moves on in time raises nothing; the portal shows no count of links in any state | S |
 | M5.12 | **Gate M5** | M5.02 to M5.11, M5.13 to M5.15 | e2e | `nx run e2e:m5` passes on `main` | S |
 
 ## M6: On chain
@@ -426,7 +427,8 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
 | M6.18 ∥ | The key-hygiene and custody checks (S29): each wallet declares where its key lives (`device` or `server`), and no key appears in plain text in a binding, a commit or a log. A server may hold keys (Aaron, 18 November 2026, K7) | M6.16 | build | a planted plain-text private key in a binding fails the check; a declared server-held key from secrets passes | S |
 | M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |
-| M6.19 | **Gate M6** | M6.02, M6.07, M6.09 to M6.18 (M6.20 dropped by K9) | e2e | `nx run e2e:m6` passes on `main` | S |
+| M6.21 | Moves made by time in Solidity (was L5.02, K23): the generated machine keeps a period and a due time per thing, a lazy reset worked out on the next call, `NotDue` and `NotKeeper` refusals, the keeper's role in the contract; the period's anchor the same as the TypeScript machine's | M6.13, M8.09 | build | `forge test` passes with a case for each time move from each state; the fuzz against the TypeScript machine steps the clock and finds no divergence | M |
+| M6.19 | **Gate M6** | M6.02, M6.07, M6.09 to M6.18, M6.21 (M6.20 dropped by K9) | e2e | `nx run e2e:m6` passes on `main` | S |
 
 ## M7: The cloud, then Capxul
 
@@ -456,13 +458,51 @@ Capxul's first feature runs in its staging.
 | M7.14 | Monitors to the sink ([`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md)): the same rule list written to each declared sink (Axiom monitors with the burn rate in APL; Grafana alert rules and dashboards through its Foundation SDK); `alerts` routes on the environment file, which can only lower a severity | M1.49, M7.01 | build | in the staging pass the generated monitors exist with their labels; 20 slowed calls fire the builder route; a route that raises a severity fails `ortho check`; every monitor is destroyed afterwards; production routes compile, and nothing pages without Aaron's written yes | M |
 | M7.12 | **Gate M7** | all of M7 | e2e | `nx run e2e:m7` passes, and the gate's resources are destroyed | S |
 
+## M8: Time
+
+**Goal.** One clock per world drives everything in it: the server, the database, every `Timers` wait, the local chain,
+the follower and the adapters ([`decisions/K23-time.md`](decisions/K23-time.md)). A journey moves a month or a year in
+seconds, and every move made by time happens exactly once, on time.
+**Ships.** Clocks declared on environments (real, stepped, scaled); the world's clock, timer table and count of work in
+flight in its Durable Object; `s.clock` in journeys; `every` and `after` on machine moves, with calendar anchors; the
+keeper; adapters that declare their clock; the tenth eval, on time.
+**Where it sits** (Aaron, K23 Q1): beside stage two. M8.01 to M8.04 land at once, as decision and checks; the build
+slices start at stage one's gate (Gate M2) on `m8`; stage three's gate (ST3.08) waits on Gate M8.
+**Gate.** `nx run e2e:m8`: in a fixture world, a journey moves a month and then a year in seconds; the membership
+renews exactly once a month, from its start date, on the last day of a short month; the keeper's lapse is on time; at
+every step the server's clock, a time written to the database, a `Timers` wait, the chain's latest block and the
+follower agree to the second; a session made at the start is refused after its life; a keeper delayed on purpose fails
+the on-time eval; a journey through an adapter that keeps its own clock is refused before it starts, naming it; in a
+dev world `ortho clock advance "1 month"` renews once and `ortho clock speed` runs a month in seconds with the chain
+keeping up; and staging declares a real clock that nothing can move.
+
+| id | what | needs | kind | done when | size |
+|---|---|---|---|---|---|
+| M8.01 ✅ | Time as its own milestone: the clock kinds, `s.clock`, moves made by time, anchors, settling a stepped world, each system's hook, adapters' clocks, the blast radius | Aaron's yes, 20 November 2026 | decision | [`decisions/K23-time.md`](decisions/K23-time.md) written with Aaron's calls | S |
+| M8.02 | **The first check: a month renews once.** A fixture `membership` thing (`join`, then `renew` by `every("1 month", { from: "startedAt" })`, emitting `MembershipRenewed`) and a journey that joins, moves the clock one month and sees exactly one renewal at the start date plus a month, then moves 15 days and sees none. Listed in `e2e/m8/expected-failing.txt`; written by an author, never the builder | M8.01 | checks | it fails on `main` for the missing surface only (`Blueprint.time`, `s.clock`), and on an empty `renew` handler | S |
+| M8.03 | Checks for the world's clock: at each step of a year the server's `Clock`, a time passed to the database, a `Timers` sleep, the chain's latest block and the follower's checkpoint all read the same instant; Better Auth refuses a session and an invitation after their life; a busy process makes `advance` fail as `NeverQuiet`, naming it; a real-clock environment refuses to move; `ortho check` refuses a stepped clock on staging; in a dev world `ortho clock advance "1 month"` fires what was due once, in order, and `ortho clock speed 2592000` passes a month in about a second, with the renewal once and every block within one tick of the world's time; the portal shows the world's time beside the real one | M8.01 | checks | they fail on `main` for the missing clock only; the controls (a call with no clock move) pass | M |
+| M8.04 ∥ | Checks for moves made by time: `every` from a field, a calendar anchor on day 25 and on the last day in a named zone across a daylight-saving change, `after`, `lazy`; a renewal fired twice for one due instant renews once; the keeper can call nothing else; the on-time eval fails for a keeper delayed on purpose; the compiler refuses an anchor on a missing or non-time field, a calendar anchor with no zone, and `by` on a move with no `from`; a journey through an adapter with `clock: "own"` is refused naming it; docs and MCP say when each move happens | M8.01 | checks | they fail on `main` for the missing surface only, and on empty handlers | M |
+| M8.05 | What reads the wall clock behind Effect's `Clock` inside a world: Better Auth, jose, viem, the Worker's own `Date`; whether the Worker's entry can set `Date` to the world's time per request on workerd, and what that costs | M8.01 | spike | `spikes/world-date/README.md` answers it with a run: a Better Auth session made at the start is refused after `advance("8 days")`, or the fallback is named | S |
+| M8.06 | The world holds the clock: `Blueprint.clock` on environments, in the model; the world's Durable Object keeps the instant and answers `/_world/clock`; the Worker's entry provides `Clock` (and, per M8.05, `Date`) from it for each request; the lint rule gains SQL's `now()`, `CURRENT_TIMESTAMP` and `datetime('now')` | M8.03, M8.05 | build | M8.03's server, database and session halves pass | M |
+| M8.07 | Timers and quiet across processes: `Timers` against the world's table (an alarm only in a real world); every process reports work in flight to the world's count; the controller's `advance` and `moveTo` with the same-instant order (due instant, then the order set, then owner); `NeverQuiet` names who is busy; `s.clock.advance`, `.moveTo` and `.now` in journeys | M8.06 | build | M8.03's `Timers` and quiet halves pass; M8.02 now fails only on the missing `every` | M |
+| M8.08 ∥ | The chain moves with the world: `ChainPort.clock` for EVM; Anvil started at the world's start, standing still (a process locally, the container bench alike, `STA-03`); a step sets the next block's timestamp and mines one block; the follower, once it exists (M6.09), counts as busy until it has read the chain's head | M8.07 | build | M8.03's chain half passes: over a stepped year the latest block's timestamp equals the world's instant at every step | M |
+| M8.09 | Moves made by time in the language: `by: Blueprint.time.every` and `.after`, `from`, `on`, `zone`, `late`, `lazy` in `orthograph`; the compiler's checks; the model's `moves.<m>.by`; the docs, MCP description and scaffold say when the move happens | M8.04 | build | M8.04's compiler, model, docs and MCP halves pass | M |
+| M8.10 | The keeper: entering a state with a move made by time sets that thing's timer, leaving clears it; the keeper fires through `Timers` as counted work, as its own `system` principal, with a request key of thing, move and due instant; a lazy move is worked out at the thing's next use | M8.07, M8.09 | build | **M8.02 passes**; M8.04's keeper, anchor and exactly-once halves pass | M |
+| M8.11 ∥ | Adapters declare their clock (`"world"`, `Adapter.testClock(…)`, `"own"`); stand-ins read the world's time; the controller moves a test clock at each step; prove refuses a journey that moves time and reaches an adapter with its own clock | M8.07, M1.30 | build | M8.04's adapter half passes, with a fixture adapter of each kind | S |
+| M8.12 | The on-time eval (the tenth): every move made by time happened at its due instant within `late`; a lazy one checked at its first use; the portal and `watch` show each move's lateness | M8.10 | build | M8.04's on-time half passes, the delayed keeper failing it | S |
+| M8.13 | **Moving time by hand, in one slice** (Aaron, K23 Q2 and Q3): `ortho dev` runs a scaled clock from one second per second; `ortho clock` (the world's time beside the real one), `ortho clock advance <span>`, `ortho clock speed <factor>` and `ortho dev --speed`; the portal's world bar shows the world's time with a move-forward and a speed control, in dev worlds only; at any speed but one a ticker sets the chain's next block time each real second; refused on a real clock | M8.08, M8.10, M1.13 | build | M8.03's by-hand half passes: an advance in a dev world renews once, a month at speed 2,592,000 takes about a second with the chain within one tick, and `ortho clock advance` against staging is refused | M |
+| M8.14 ∥ | The grid's `time` block: its row and nine cells in `design/grid/grid.json` with today's grades from K23's blast radius, `design/grid/types.ts`'s `BlockId` and counts | M8.01 | build | `node -e "const g=require('./design/grid/grid.json');console.log(g.blocks.some(b=>b.id==='time'), g.cells.filter(c=>c.block==='time').length)"` prints `true 9` | S |
+| M8.15 ∥ | The canon's `time` page (the canon thread): clocks, `s.clock`, moves made by time, anchors, the keeper, adapters' clocks; the glossary | M8.12 | build | `node docs/canon/check.mjs` passes, and `docs/canon/outline.md` has a `time` row owning the words clock, keeper, every and after | S |
+| M8.16 | **Gate M8** | M8.02 to M8.15 | e2e | `nx run e2e:m8` passes on `main` | S |
+
+Elsewhere, for the same decision: M4.26 (agent waits on the world's clock, was L5.08) and M6.21 (moves made by time in
+Solidity, was L5.02).
+
 ## Later
 
 - **Noir** ([`frame/examples/private-membership.md`](frame/examples/private-membership.md), N1, S28, S30), with the workshop's private membership as its example (K5 seam 7). `language-noir` and the `aztec` store kind, designed in K7. Any claim about proofs runs in a `proofs: "verified"` world (the in-process network with `realProofs: true`, K7 Q7); the CLI local network accepts forged proofs. A production promote still needs a network that verifies rollup proofs.
 - **Solana**: `language-solana` (Anchor 1.2.2), the `solana` store kind and `chain-solana` on the same `ChainPort`, designed in K7 and spiked in `spikes/chain-languages/solana/`.
 - **The Python client** ([`frame/examples/python-sdk.md`](frame/examples/python-sdk.md), S31 to S33).
-- **Time**: one clock per world, moves made by time, the keeper, the on-time eval (D6, L5.01 to L5.03, L5.05 to L5.07),
-  and agent waits on the world clock (L5.08). Workflows' durable clocks (M3, M5) cover long waits until then.
 - **EIP-7702** delegation (L3.09), off the path as the old plan allowed.
 - **Baselines** (A9). The Docker sandbox for agents (A7) is dropped: no Docker (K10 section 8); E2B, then Cloudflare Containers, take its place.
 - Sequence diagrams as journeys (S5) and project-wide ratchets (S6).
@@ -480,7 +520,7 @@ Capxul's first feature runs in its staging.
 | L3.06 | M6.07 | | L4.07 | M6.16 |
 | L3.07 | M1.32 | | L4.08 | M6.17 (local), M7.09 (testnet) |
 | L3.08 | M6.09 | | L4.09 | M6.19 |
-| L3.09 | Later | | D6, L5.01 to L5.03, L5.05 to L5.08 | Later |
+| L3.09 | Later | | D6, L5.01 to L5.03, L5.05 to L5.08 | M8 (K23); L5.02's Solidity half M6.21, L5.08 M4.26 |
 | W1 | M3.04 | | L5.04 | M3.10 (factory), M5.10 (apps) |
 | W2 | M3.06 | | A0 | M4.03 |
 | W3 (with F4.1, F4.2) | M3.07, M3.09 | | A1 | M4.04 |
@@ -535,6 +575,8 @@ The M1 and M2 gates need every slice, so the side slices must land before them.
 
 **After workable (K9):** stage 2 (wallets) next, then stage 3 (the vault), stage 4 (the club) and the release. Capxul's
 first plugin, the wallet, is stage 2.
+Time (M8, K23) is built beside stage 2, from the same gate; stage 3's gate waits on Gate M8. Its decision and checks
+(M8.01 to M8.04) may land before then.
 
 ## Risks
 
@@ -551,8 +593,10 @@ first plugin, the wallet, is stage 2.
 6. **A small local model can't build much.** The M4 gate uses it for durability, roles and the join. How well builders
    build is measured in the bench (M4.14), with a real model, off the gate.
 7. **Workable rests on the least specified slice**, a plugin's own CI (M2.10). M2.01 settles its shape first.
-8. **Time is deferred.** Journeys can't step a month until the world clock lands. That's acceptable until a plugin
-   Capxul needs depends on it; then it moves forward as its own milestone.
+8. **Time is its own milestone (M8, K23).** Settling a stepped world across processes is the hardest runtime problem
+   in it, and libraries inside the world read the real clock themselves. Contained by the clock spike's three rules,
+   counted work in every process, and a spike (M8.05) on giving those libraries the world's time before anything is
+   built on it.
 
 9. **MariaDB from workerd is unproved** (M5.13). Spiked first; the fallback is the adapter running on a Node host beside
    the Worker, with the same port.

@@ -118,8 +118,12 @@ export default Blueprint.environment({ runs: "cloudflare", clock: Blueprint.cloc
   any other kind on an environment that promotes to production or reaches a public chain.
 - **Stepped**: time stands still until it is moved. Journeys, local and test worlds. The default for `local` and
   `test`.
-- **Scaled**: time flows by itself, at a factor, and can also be jumped forward. What `ortho dev` uses and how fast
-  it flows are Aaron's calls (Q2 and Q3 below).
+- **Scaled**: time flows by itself at a speed, one second per second by default, and can also be jumped forward.
+  `ortho dev` runs a local or test environment's clock this way (Aaron, Q2): `ortho clock advance "1 month"` or the
+  portal's control jumps it, settling exactly as a journey's step does, and `ortho dev --speed 720` (a month an hour)
+  or `ortho clock speed 720` makes it run fast (Aaron, Q3). At any speed but one, a ticker sets the chain's next
+  block time to the world's every real second, so blocks between ticks share a time. `ortho prove` always runs the
+  same environment stepped.
 
 A world's own lifetime and the portal's "observed at" are real time, never the world's: they are about the machine,
 not the app.
@@ -242,28 +246,41 @@ export default Adapter.make({ ..., clock: "own" });                             
 | `prove` | the controller, `s.clock`, eval 10 (on time), the refusal for an adapter with its own clock |
 | `chain-evm` | `ChainPort.clock`; Anvil started still |
 | generators and projections | the keeper; docs, MCP and the scaffold say when a move happens ("every month from `startedAt`") |
-| `portal`, `cli` | the world's time and the controls Aaron chooses (Q2) |
+| `portal`, `cli` | the world's time beside the real one; `ortho clock advance`, `ortho clock speed`, `ortho dev --speed` and the portal's control, in one slice (Q2, Q3) |
 | `lint` | SQL clock reads |
 | The grid | a fifteenth block, `time`, with its nine cells (model, api, server, sdk, cli, mcp, docs, portal, telemetry) |
-| Existing slices | M3.01 waits through `Timers`; M5.15 rests on M8.06; L5.08 becomes M4.26; stage 3's gate needs Gate M8 |
+| Existing slices | M3.01 waits through `Timers`; M5.15 rests on M8.07; L5.08 becomes M4.26; stage 3's gate needs Gate M8 |
 
 ## The milestone
 
-M8 in `milestones.md`: twelve slices and its gate, checks and build kept apart. Its first slice is a failing check: a
-journey that steps a month and sees a renewal happen exactly once.
+M8 in `milestones.md`: fourteen slices after this decision, then its gate, checks and build kept apart. Its first
+slice is a failing check: a journey that steps a month and sees a renewal happen exactly once. The decision and the
+checks may land at once; building starts at stage one's gate and runs beside stage two; stage three's gate waits on
+Gate M8.
 
 ## Aaron's calls
 
-Asked in one batched round on 20 November 2026 (`K23-time-grill.md`). Pending.
+Asked in one batched round on 20 November 2026 ([`K23-time-grill.md`](K23-time-grill.md)). Aaron answered the same day:
+"I go with all of your recommendations except for the changing the time. I want the time and speeding it up or
+manipulating time all to be in the same slice", and that he doesn't want it stretched across different slices (his
+words came through speech-to-text as "I've done a stretcher across different slices"; read for meaning).
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | When time gets built | **A**: beside stage two. The decision and the first failing check now; building from stage one's gate; stage three waits on it |
+| 2 | Time when you run the app yourself | **A**: `ortho dev`'s clock flows like real time and is jumped with `ortho clock` or the portal |
+| 3 | A fast world | **B**, not the recommended A: in this milestone. And jumping, speeding up and showing the world's time are one slice, M8.13, not spread over several |
 
 ## Ledger
 
-Answered here: `PRF-05` (time had no owner) is fixed by M8. `MAC-04`, `PRF-41` and `STA-03` stay open, decided here and
-owned by M8's slices. `PRF-39` is decided here (section 6) and owned by stage 4's chain slice.
+Closed here: `PRF-05` (time had no owner) is fixed by M8. Decided here and owned by a slice, still open until it is
+built: `MAC-01` and `MAC-04` (M8.06 to M8.12), `PRF-33` (M8.12), `PRF-41` (M8.07, M8.08), `STA-03` (M8.08),
+`PRJ-27` (M8.10), `WOR-05` (M8.07, M5.10) and `AGE-04` (M4.26). `PRF-39` is decided here (section 6) and owned by
+stage 4's chain slice (ST4.04).
 
 ## Supersedes
 
 - design/milestones.md: "Time is deferred." → "Time is its own milestone (M8, K23)."
-- design/milestones.md: "Workflows' durable clocks (M3, M5) cover long waits until then." → "(moved to M8 by K23)"
-- design/milestones.md: "M5.14, M3.01 (durable clocks)" → "M5.14, M8.06"
+- design/milestones.md: "Workflows' durable clocks (M3, M5) cover long waits until then." → "(the Later line removed; time is M8)"
+- design/milestones.md: "M5.14, M3.01 (durable clocks)" → "M5.14, M8.07"
 - design/decisions.md: "Time moves still" → "Time moves arrive in M8 (K23)."
