@@ -71,7 +71,18 @@ export const makeUnit = (store: Store["Service"], given?: ReadonlyArray<NamedRul
 
     /** The first rule a row breaks by taking a key someone else holds. A row that already held its key (in scope, same key) takes nothing. */
     const check = Effect.gen(function* () {
-      for (const { write, before, after } of stepsOf()) {
+      const steps = stepsOf();
+      // The call's own rows first (G5 section 6.2): two of them under one key is the handler's bug, whoever else holds it in the store.
+      const seenKeys = new Map<string, Instance>();
+      for (const { write, after } of steps) {
+        for (const rule of rules.of(write.thing)) {
+          if (!inScope(rule, after)) continue;
+          const slot = `${rule.name}\u0000${ruleKey(rule, after)}`;
+          if (seenKeys.has(slot)) return { rule: rule.name, refuse: rule.declared?.refuse, row: after, own: true } satisfies Violation;
+          seenKeys.set(slot, after);
+        }
+      }
+      for (const { write, before, after } of steps) {
         for (const rule of rules.of(write.thing)) {
           if (!inScope(rule, after)) continue;
           const key = ruleKey(rule, after);

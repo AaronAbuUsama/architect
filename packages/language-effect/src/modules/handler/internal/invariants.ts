@@ -18,7 +18,7 @@ export const settleViolation = <L extends { readonly around: <A, E, R>(work: Eff
 ) => (violation: Violation) =>
   Effect.gen(function* () {
     const { rule, refuse, row, own } = violation;
-    if (own) return yield* Effect.die(new Error(`${operation} wrote two rows that hold one key of ${rule}: that is the handler's bug, not a race`));
+    if (own) return yield* Effect.die(new Error(`${operation} wrote two rows that hold one key of the unique rule ${rule}: that is the handler's bug, not a race`));
     if (refuse === undefined) return yield* Effect.die(new Error(`${operation} broke ${rule}, which names no refusal: that is the app's own bug`));
     if (!Object.values(invariants).includes(rule)) {
       return yield* Effect.die(new Error(`${operation} broke ${rule}, which the compiler did not list it as able to break: declare \`writes\` on the step that writes it`));
