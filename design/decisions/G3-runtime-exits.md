@@ -43,6 +43,17 @@ server already holds, as the machine's not-from refusal), no fields (the stored 
 caller's to read), listed on idempotent operations only. MCP can't reach it yet: a tool call carries no request key
 (ledger `HAN-10`'s note, snag S-16).
 
+## In prove's coverage line
+
+Prove's eval 8 summary counts "runtime refusals" from each operation's `refusals` less its declared errors. With `IdempotencyConflict` on every
+idempotent operation that count would include a refusal no journey can cause: it needs a second payload under a held request key, and a journey
+step has no way to send one, so it would stay uncovered for ever and layer 1's checks 02 (acme, `14/17`) and 08 (signup, `2/4`) would fail for good.
+The call (the lead, 20 November 2026): runtime-refusal coverage counts only the refusals a journey can cause. `NotAllowed` stays in (a step names a
+caller who may not call). Every refusal the model codes under the runtime's prefix (`AR`, read from `NotAllowed`'s code) other than `NotAllowed` is left
+out, so `IdempotencyConflict` is, and the names come from the model, not a list in prove. The line keeps its totals and says what it left out, after
+them: `runtime refusals 14/17 (not counted: IdempotencyConflict, which no journey can cause: …)`, only when an operation lists one. `InvalidPayload` is
+in no operation's `refusals`, so there is nothing to leave out. Checks 02 and 08 keep their totals and accept the line with or without that suffix.
+
 ## What changes
 
 Every place that said "5 to 125", found by `git grep 125` on `5d2887ca`, moves in the same change as HAN-10:

@@ -9,6 +9,7 @@ import { FsTree, flushChanges } from "nx/src/generators/tree.js";
 import { Sync } from "@orthograph/generators/sync";
 import { Owned } from "@orthograph/services";
 import { acmeCopy } from "../../../test/acme.ts";
+import { coverageLine } from "../evals/testing.ts";
 import { Prove } from "./service.ts";
 
 // Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
@@ -77,7 +78,7 @@ describe("ortho prove --env local", () => {
       expect(report.lines.some((l) => l.startsWith(`${op} 9 evals ✔ p50 `))).toBe(true);
     }
     expect(report.lines.some((l) => l.startsWith("allowance.grant performance ✔ p50 "))).toBe(true);
-    expect(report.lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17");
+    expect(report.lines).toContain(coverageLine("moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 14/17", JSON.parse(readFileSync(join(own.root, "generated/model/model.json"), "utf8"))));
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();

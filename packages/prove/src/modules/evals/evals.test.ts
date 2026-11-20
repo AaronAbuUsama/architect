@@ -99,6 +99,21 @@ describe("evals on evidence", () => {
     expect(coverage(rename, [], run).failures).toEqual(["organization.rename reached by no journey"]);
     expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
   });
+
+  it("coverage: a runtime refusal no journey can cause (IdempotencyConflict) is not in the denominator, NotAllowed is, and the line says so", () => {
+    const idempotent = { ...op, name: "allowance.spend", errors: [], refusals: ["NotAllowed", "IdempotencyConflict"] } as unknown as OperationModel;
+    const plain = { ...op, name: "allowance.get", errors: [], refusals: ["NotAllowed"] } as unknown as OperationModel;
+    const model = { refusals: { NotAllowed: "AR-001", IdempotencyConflict: "AR-002", AllowanceNotActive: "AL-900" }, operations: { "allowance.spend": idempotent, "allowance.get": plain } } as unknown as Model;
+    const refused = [evidence(1, { refusal: "NotAllowed" })];
+    const note = coverageSummary(model, refused).notes[0]!;
+    expect(note, "two NotAllowed counted, the idempotent operation's IdempotencyConflict not").toContain("runtime refusals 0/2");
+    expect(note).toContain("(not counted: IdempotencyConflict, which no journey can cause");
+    const own = { ...idempotent, errors: ["IdempotencyConflict"] } as unknown as OperationModel;
+    const declared = { ...model, operations: { "allowance.spend": own } } as unknown as Model;
+    expect(coverageSummary(declared, refused).notes[0], "an operation that declares it in its own errors: it is its own to refuse, so nothing is left out").toBe("moves 0/0 · outcomes 0/0 · refusals 0/1 · runtime refusals 0/1");
+    const without = { ...model, refusals: { NotAllowed: "AR-001" }, operations: { "allowance.get": plain } } as unknown as Model;
+    expect(coverageSummary(without, []).notes[0], "nothing left out, nothing said").toBe("moves 0/0 · outcomes 0/0 · refusals 0/0 · runtime refusals 0/1");
+  });
 });
 
 describe("answer shape: no secret reaches a span, a log or the journal", () => {
