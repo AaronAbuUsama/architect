@@ -6,7 +6,10 @@ import { machine } from "../blueprint/things/membership/machine.ts";
 import join from "../blueprint/things/membership/verbs/join.ts";
 import miss from "../blueprint/things/membership/verbs/miss.ts";
 import renew from "../blueprint/things/membership/verbs/renew.ts";
+import pay from "../blueprint/things/membership/verbs/pay.ts";
 import open from "../blueprint/things/purse/verbs/open.ts";
+import spend from "../blueprint/things/purse/verbs/spend.ts";
+import openBudget from "../blueprint/things/budget/verbs/open.ts";
 import get from "../blueprint/things/membership/verbs/get.ts";
 
 // The keeper is a built-in system principal that can call only moves made by time (K23 section 3), even an operation
@@ -17,6 +20,7 @@ export default Blueprint.journey("the keeper calls nothing else", {
   steps: (s) => [
     s.step("the keeper cannot join, though anyone may", s.keeper.run(join, { name: "Keeper" }), refuses(Blueprint.NotAllowed), noEvents()),
     s.step("the keeper cannot open a purse", s.keeper.run(open, { limit: 1n }), refuses(Blueprint.NotAllowed), noEvents()),
+    s.step("the keeper cannot open a budget", s.keeper.run(openBudget, { title: "Keeper's" }), refuses(Blueprint.NotAllowed), noEvents()),
     s.step(
       "the keeper cannot mark a payment missed",
       s.keeper.run(miss, { membership: s.world.membership }),
@@ -24,6 +28,9 @@ export default Blueprint.journey("the keeper calls nothing else", {
       noEvents(),
       machine.isIn(s.world.membership, "active"),
     ),
+    s.step("the keeper cannot pay", s.keeper.run(pay, { membership: s.world.membership }), refuses(Blueprint.NotAllowed), noEvents()),
+    s.step("aaron opens a purse", s.aaron.run(open, { limit: 10n }), expect((a) => a.purse).toMatch(/^pur_/)),
+    s.step("the keeper cannot spend from it", s.keeper.run(spend, { purse: s.last.purse, amount: 1n }), refuses(Blueprint.NotAllowed), noEvents()),
     s.step("aaron cannot renew: only the keeper may", s.aaron.run(renew, { membership: s.world.membership }), refuses(Blueprint.NotAllowed), noEvents()),
     s.step(
       "read back, untouched",

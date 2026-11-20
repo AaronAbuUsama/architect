@@ -23,13 +23,13 @@ import { afterAll, describe, expect, it } from "vitest";
 import { club, failedAt, generated, nothingRunning, once, passedWhole, plant, prove } from "./support.ts";
 
 const JOURNEYS = {
-  every: { file: "renewals-keep-their-day", name: "renewals keep the day they started", steps: 5 },
-  calendar: { file: "pay-day-and-month-end-in-london", name: "pay day and month end in London, across the clocks going forward", steps: 5 },
+  every: { file: "renewals-keep-their-day", name: "renewals keep the day they started", steps: 7 },
+  calendar: { file: "pay-day-and-month-end-in-london", name: "pay day and month end in London, across the clocks going forward and back", steps: 8 },
   after: { file: "a-missed-payment-lapses", name: "a missed payment lapses fourteen days later", steps: 5 },
   cleared: { file: "paying-clears-the-lapse", name: "paying in time clears the lapse", steps: 6 },
-  lazy: { file: "a-lazy-refill", name: "a lazy refill is worked out at the next spend", steps: 5 },
+  lazy: { file: "a-lazy-refill", name: "a lazy refill is worked out at the next spend", steps: 8 },
   once: { file: "a-renewal-fired-twice", name: "a renewal fired twice for one due instant renews once", steps: 3 },
-  keeper: { file: "the-keeper-calls-nothing-else", name: "the keeper calls nothing else", steps: 5 },
+  keeper: { file: "the-keeper-calls-nothing-else", name: "the keeper calls nothing else", steps: 9 },
 } as const;
 type Half = keyof typeof JOURNEYS;
 
@@ -39,9 +39,15 @@ const PLANTED: ReadonlyArray<readonly [Half, string, string, ReadonlyArray<reado
   ["every", "drifts", "the date does not drift to the 28th: nothing on 30 March", [["expect(fired).toEqual([]),\n      noEvents(),", 'expect(fired).toEqual(["membership.renew due 2027-03-28T09:00:00.000Z"]),\n      noEvents(),']]],
   ["every", "out-of-order", "back to the 31st in March, then the 30th in April, in order, in one move", [['["membership.renew due 2027-03-31T09:00:00.000Z", "membership.renew due 2027-04-30T09:00:00.000Z"]', '["membership.renew due 2027-04-30T09:00:00.000Z", "membership.renew due 2027-03-31T09:00:00.000Z"]']]],
   ["every", "renewed-twice", "read back, three renewals", [['[4n, 3n, "active"]', '[5n, 4n, "active"]']]],
+  ["every", "june-31st", "to March 2028 in one move: the 30th in each short month, and 29 February in a leap year", [['"membership.renew due 2027-06-30T09:00:00.000Z"', '"membership.renew due 2027-07-01T09:00:00.000Z"']]],
+  ["every", "no-leap-day", "to March 2028 in one move: the 30th in each short month, and 29 February in a leap year", [["2028-02-29T09:00:00.000Z", "2028-02-28T09:00:00.000Z"]]],
   ["calendar", "no-summer-time", "March: the 25th still in winter time, the 31st after the clocks went forward", [['"budget.report due 2027-03-30T23:00:00.000Z"]', '"budget.report due 2027-03-31T00:00:00.000Z"]']]],
   ["calendar", "utc-day", "April: both in summer time, an hour before midnight UTC", [['emits(BudgetReset, { budget: s.world.budget, at: "2027-04-24T23:00:00.000Z" })', 'emits(BudgetReset, { budget: s.world.budget, at: "2027-04-25T00:00:00.000Z" })']]],
   ["calendar", "report-first", "January: the 25th, then the 31st, at midnight UTC", [['["budget.reset due 2027-01-25T00:00:00.000Z", "budget.report due 2027-01-31T00:00:00.000Z"]', '["budget.report due 2027-01-31T00:00:00.000Z", "budget.reset due 2027-01-25T00:00:00.000Z"]']]],
+  ["calendar", "second-event", "January: the 25th, then the 31st, at midnight UTC", [['emits(BudgetReported, { budget: s.world.budget, at: "2027-01-31T00:00:00.000Z" })', 'emits(BudgetReported, { budget: s.world.budget, at: "2027-01-30T23:00:00.000Z" })']]],
+  ["calendar", "an-hour-late", "February: the 25th, then the 28th, its last day", [['emits(BudgetReset, { budget: s.world.budget, at: "2027-02-25T00:00:00.000Z" })', 'emits(BudgetReset, { budget: s.world.budget, at: "2027-02-25T01:00:00.000Z" })']]],
+  ["calendar", "still-summer", "May to November in one move: summer time through October's last day, then midnight UTC once the clocks go back", [['"budget.reset due 2027-11-25T00:00:00.000Z"', '"budget.reset due 2027-11-24T23:00:00.000Z"']]],
+  ["calendar", "opened-elsewhen", "a budget opened now is opened at the world's time, not the wall clock's", [['toBe("2027-12-01T00:00:00.000Z")', 'toBe("2027-12-01T00:00:00.001Z")']]],
   ["calendar", "feb-31st", "February: the 25th, then the 28th, its last day", [['"budget.report due 2027-02-28T00:00:00.000Z"]', '"budget.report due 2027-03-03T00:00:00.000Z"]']]],
   ["after", "a-day-early", "thirteen days later it is still overdue", [["expect(fired).toEqual([]),\n      noEvents(),\n      machine.isIn(s.world.membership, \"overdue\"),", 'expect(fired).toEqual(["membership.lapse due 2027-02-02T12:00:00.000Z"]),\n      noEvents(),\n      machine.isIn(s.world.membership, "overdue"),']]],
   ["after", "late-second", "on the fourteenth day, at noon, it lapses", [['at: "2027-02-03T12:00:00.000Z" })', 'at: "2027-02-03T12:00:01.000Z" })']]],
@@ -49,10 +55,14 @@ const PLANTED: ReadonlyArray<readonly [Half, string, string, ReadonlyArray<reado
   ["cleared", "lapses-anyway", "3 February passes, when it would have lapsed: nothing happens", [["expect(fired).toEqual([]),\n      noEvents(),\n      machine.isIn(s.world.membership, \"active\"),", 'expect(fired).toEqual(["membership.lapse due 2027-02-03T12:00:00.000Z"]),\n      noEvents(),\n      machine.isIn(s.world.membership, "active"),']]],
   ["lazy", "keeper-fires", "a month passes: the keeper fires nothing for a lazy move", [["expect(fired).toEqual([]),", 'expect(fired).toEqual(["purse.refill due 2027-02-10T09:00:00.000Z"]),']]],
   ["lazy", "not-worked-out", "the next spend works out the refill first, then spends from a fresh month", [["expect((a) => a.left).toBe(50n),", "expect((a) => a.left).toBe(40n),"]]],
+  ["lazy", "read-is-a-use", "a read is not a use: nothing is worked out", [["[100n, 60n, 1n]", "[100n, 0n, 2n]"]]],
+  ["lazy", "every-month-refilled", "the next spend works out one refill, for May, not three", [["period: 5n", "period: 3n"]]],
   ["lazy", "refilled-twice", "the refill is worked out once a month: the next spend over what is left is refused", [["refuses(PurseExceeded, { left: 50n })", "refuses(PurseExceeded, { left: 100n })"]]],
   ["once", "renewed-again", "a second keeper fires the same renewal for the same due instant: the first answer, and nothing new", [['toEqual([2n, "2027-02-10T09:00:00.000Z"])', 'toEqual([3n, "2027-02-10T09:00:00.000Z"])']]],
   ["once", "counted-twice", "read back, renewed once", [["toEqual([2n, 1n])", "toEqual([3n, 2n])"]]],
   ["keeper", "keeper-joins", "the keeper cannot join, though anyone may", [['s.keeper.run(join, { name: "Keeper" }), refuses(Blueprint.NotAllowed)', 's.keeper.run(join, { name: "Keeper" }), expect((a) => a.membership).toMatch(/^mbr_/)']]],
+  ["keeper", "keeper-opens-budget", "the keeper cannot open a budget", [['s.keeper.run(openBudget, { title: "Keeper\'s" }), refuses(Blueprint.NotAllowed)', 's.keeper.run(openBudget, { title: "Keeper\'s" }), expect((a) => a.budget).toMatch(/^bud_/)']]],
+  ["keeper", "keeper-spends", "the keeper cannot spend from it", [["s.keeper.run(spend, { purse: s.last.purse, amount: 1n }), refuses(Blueprint.NotAllowed)", "s.keeper.run(spend, { purse: s.last.purse, amount: 1n }), expect((a) => a.left).toBe(9n)"]]],
   ["keeper", "anyone-renews", "aaron cannot renew: only the keeper may", [["s.aaron.run(renew, { membership: s.world.membership }), refuses(Blueprint.NotAllowed)", "s.aaron.run(renew, { membership: s.world.membership }), expect((a) => a.period).toBe(2n)"]]],
 ];
 

@@ -28,6 +28,12 @@ export default Blueprint.journey("a lazy refill is worked out at the next spend"
       noEvents(),
     ),
     s.step(
+      "a read is not a use: nothing is worked out",
+      s.aaron.run(get, { id: s.world.purse }),
+      expect((a) => [a.limit, a.spent, a.period]).toEqual([100n, 60n, 1n]),
+      noEvents(),
+    ),
+    s.step(
       "the next spend works out the refill first, then spends from a fresh month",
       s.aaron.run(spend, { purse: s.world.purse, amount: 50n }, { request: "spend-february" }),
       expect((a) => a.left).toBe(50n),
@@ -41,9 +47,23 @@ export default Blueprint.journey("a lazy refill is worked out at the next spend"
       noEvents(),
     ),
     s.step(
+      "three months pass with no spend",
+      s.clock.advance("3 months"),
+      expect((a) => a.now).toBe("2027-05-10T09:00:00.000Z"),
+      expect(fired).toEqual([]),
+      noEvents(),
+    ),
+    s.step(
+      "the next spend works out one refill, for May, not three",
+      s.aaron.run(spend, { purse: s.world.purse, amount: 10n }, { request: "spend-may" }),
+      expect((a) => a.left).toBe(90n),
+      emits(PurseRefilled, { purse: s.world.purse, period: 5n }),
+      emits(PurseSpent, { purse: s.world.purse, left: 90n }),
+    ),
+    s.step(
       "read back",
       s.aaron.run(get, { id: s.world.purse }),
-      expect((a) => [a.limit, a.spent, a.period]).toEqual([100n, 50n, 2n]),
+      expect((a) => [a.limit, a.spent, a.period]).toEqual([100n, 10n, 5n]),
       noEvents(),
     ),
   ],

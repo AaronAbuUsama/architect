@@ -46,5 +46,23 @@ export default Blueprint.journey("renewals keep the day they started", {
       expect((a) => [a.period, a.renewals, a.state]).toEqual([4n, 3n, "active"]),
       noEvents(),
     ),
+    s.step(
+      "to March 2028 in one move: the 30th in each short month, and 29 February in a leap year",
+      s.clock.moveTo("2028-03-01T00:00:00Z"),
+      expect(fired).toEqual([
+        "membership.renew due 2027-05-31T09:00:00.000Z", "membership.renew due 2027-06-30T09:00:00.000Z",
+        "membership.renew due 2027-07-31T09:00:00.000Z", "membership.renew due 2027-08-31T09:00:00.000Z",
+        "membership.renew due 2027-09-30T09:00:00.000Z", "membership.renew due 2027-10-31T09:00:00.000Z",
+        "membership.renew due 2027-11-30T09:00:00.000Z", "membership.renew due 2027-12-31T09:00:00.000Z",
+        "membership.renew due 2028-01-31T09:00:00.000Z", "membership.renew due 2028-02-29T09:00:00.000Z",
+      ]),
+      emits(MembershipRenewed, { membership: s.world.membership, period: 5n, at: "2027-05-31T09:00:00.000Z" }),
+    ),
+    s.step(
+      "read back, thirteen renewals",
+      s.aaron.run(get, { id: s.world.membership }),
+      expect((a) => [a.period, a.renewals, a.state]).toEqual([14n, 13n, "active"]),
+      noEvents(),
+    ),
   ],
 });

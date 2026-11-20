@@ -157,7 +157,10 @@ describe("04 M8.04: the on-time eval", () => {
     const run = proveWith({ ORTHO_KEEPER_DELAY: "2 hours" }, root);
     const renew = evalLines(run.lines, "membership.renew");
     expect(renew.length, run.out).toBeGreaterThan(0);
-    for (const line of renew) expect(line).toMatch(/^membership\.renew on time ✘ .*2027-0[234]-(10|28|30|31)T09:00:00\.000Z/);
+    for (const line of renew) expect(line).toMatch(/^membership\.renew on time ✘ .*202[78]-[01]\d-(10|28|29|30|31)T09:00:00\.000Z/);
+    // Every late renewal is judged, not only the first: the 31st's renewals fire late on the 28th of February and the
+    // 31st of March, in one journey.
+    for (const due of ["2027-02-28T09:00:00.000Z", "2027-03-31T09:00:00.000Z"]) expect(renew.join("\n"), run.out).toContain(due);
     expect(run.lines.some((l) => l.startsWith("membership.renew 1 of 10 evals ✘")), run.out).toBe(true);
     expect(evalLines(run.lines, "purse.refill")).toEqual(["purse.refill on time ✔"]);
     expect(run.status, run.out).toBe(1);

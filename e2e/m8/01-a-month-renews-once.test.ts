@@ -59,6 +59,7 @@ describe("01 M8.02: a month renews once", () => {
       ["now-second", MONTH, [['toBe("2027-02-10T09:00:00.000Z")', 'toBe("2027-02-10T09:00:01.000Z")']]],
       ["fired-twice", MONTH, [['toEqual(["membership.renew due 2027-02-10T09:00:00.000Z"])', 'toEqual(["membership.renew due 2027-02-10T09:00:00.000Z", "membership.renew due 2027-02-10T09:00:00.000Z"])']]],
       ["event-period", MONTH, [["period: 2n, at:", "period: 3n, at:"]]],
+      ["month-quiet", MONTH, [['toEqual(["membership.renew due 2027-02-10T09:00:00.000Z"]),\n', 'toEqual(["membership.renew due 2027-02-10T09:00:00.000Z"]),\n      noEvents(),\n']]],
       ["event-at", MONTH, [['at: "2027-02-10T09:00:00.000Z" })', 'at: "2027-02-11T09:00:00.000Z" })']]],
       ["two-renewals", READ, [['2n, 1n, "active"]', '2n, 2n, "active"]']]],
       ["half-now", HALF, [['toBe("2027-02-25T09:00:00.000Z")', 'toBe("2027-02-25T09:00:00.001Z")']]],
@@ -87,6 +88,11 @@ describe("01 M8.02: a month renews once", () => {
     const stale = moved.find((l) => l.startsWith("stale "));
     expect(stale?.slice("stale ".length).split(", ").sort(), moved.join("\n")).toEqual(operationsOf(root));
     expect(moved).toContain("proven none");
+
+    // Any change to the clock, not only its start: a real clock instead of a stepped one.
+    writeFileSync(local, declared.replace('Blueprint.clock.stepped({ starts: "2027-01-10T09:00:00Z" })', "Blueprint.clock.real()"));
+    const kind = ortho(root, "impact").stdout.split("\n");
+    expect(kind.find((l) => l.startsWith("stale "))?.slice("stale ".length).split(", ").sort(), kind.join("\n")).toEqual(operationsOf(root));
 
     writeFileSync(local, declared);
     const machine = join(root, "blueprint/things/membership/machine.ts");
