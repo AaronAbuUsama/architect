@@ -46,6 +46,11 @@ export interface Wanted {
   readonly parent: string;
   /** The caller's span is itself in the trace (the journey's `journey.<name>`): complete only once it is. */
   readonly rooted?: boolean;
+  /**
+   * The server may send nothing for this call: it refused the caller before any span opened (O2, gap 3). An empty
+   * trace is then whole. One with spans is still waited for, so a span that should be absent is seen.
+   */
+  readonly mayBeEmpty?: boolean;
 }
 
 /**

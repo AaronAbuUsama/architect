@@ -10,7 +10,7 @@ import type { TraceSource } from "#modules/telemetry/types.js";
 import { proofVerdicts } from "./proof-verdicts.ts";
 import { handlerHashes } from "#modules/verdicts/internal/proof.js";
 import type { Result } from "#modules/verdicts/types.js";
-import { evalLines, journeyLines, optionalStepLines } from "./report.ts";
+import { evalLines, journeyLines, optionalStepLines, refusedBeforeSpan } from "./report.ts";
 
 export interface Exercised {
   readonly journeys: ReturnType<typeof journeyLines>;
@@ -35,11 +35,11 @@ export const exercise = (
     const bodies = handlers ?? handlerHashes(project.root, model);
     const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people, facts, empty, device));
     const calls = runs.flatMap((r) => r.calls);
-    const first = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
+    const first = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, mayBeEmpty: refusedBeforeSpan(c) })));
     const roots = otlp === undefined ? [] : calls.flatMap((c) => rootOf({ trace: c.trace, span: c.parent, journey: c.journey, step: c.step, operation: c.operation, status: c.status }, first.get(c.trace)) ?? []);
     if (otlp !== undefined) yield* exportRoots(otlp, roots);
     const rooted = new Set(roots.map((r) => r.traceId));
-    const traces = roots.length === 0 ? first : yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, rooted: rooted.has(c.trace) })));
+    const traces = roots.length === 0 ? first : yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, rooted: rooted.has(c.trace), mayBeEmpty: refusedBeforeSpan(c) })));
     const journeys = journeyLines(runs, traces, empty, model);
     if (empty) return { journeys, evals: { lines: [], failed: 0 }, verdicts: [], judged: [], results: [], failedTraces: journeys.failedTraces };
     const evidence = Evals.gather(calls, traces);

@@ -32,6 +32,15 @@ Take a sheet down. Nobody can join it after this.
 | SheetNotOpen | 70 | SH-900 | the sheet is in a state close can't start from; carries `state` |
 | SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |
 
+## Worked examples
+
+### a closed sheet takes no one
+
+Starts from the world `opened`.
+
+- **the visitor closes the sheet.** `visitor` (anyone) calls and sends sheet the world's sheet, and is answered.
+- **closing it again is refused.** `visitor` (anyone) calls and sends sheet the world's sheet, and is refused with SheetNotOpen, SH-900, carrying state `closed`.
+
 ## How to call
 
 ```sh

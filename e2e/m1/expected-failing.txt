@@ -4,22 +4,7 @@
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
 # Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
 # K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
-# HAN-10 (#116), the checks author's change: check 24's ten red tests, and the two expectations G3 moves (19: a declared exit of 130; 22.5: the control for 130, now 'outside 5 to 119'). They pass when HAN-10 is built (#117).
 # ST1.22 (G5's portal screens), the checks author's change: check 28's eight red tests, two variants of the wire times four calls. They pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
-# W2's worked examples (the lead's call): the docs baseline is recaptured from acme at goal-3/journey-docs-build 337376b9, where each operation's page has its `## Worked examples` section; the check 21 control that holds acme's docs fails on stage-1's acme until #184 lands, and #184 takes it off this list.
-m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file
-m1/21-portal-viewer.test.ts > 21 control: acme's docs are the baseline, and the instruments are sound > acme's checked-in docs are the recorded bytes, and `ortho generate` in a copy writes the same
-m1/22-k16-review.test.ts > 22.5 (P2): a declared exit is a whole number from 5 to 119 > control: 130 is already refused, as outside 5 to 119
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > has a code in the model, and an idempotent operation (not another) lists it
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > is one row of generated errors.ts beside NotAllowed's, which the CLI, HTTP and MCP read, and is a wire class every idempotent endpoint lists
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 120 is refused, naming why
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 122 is refused, naming why
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 126 is refused, naming why
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: in telemetry > writes refusal and refusal.code on the operation span, no defect, and no commit span
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: over HTTP > answers 409 with the refusal's tag and code, no key and no detail, and not a defect
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the CLI > prints [AR-002] IdempotencyConflict and exits 120, where a defect exits 1 with no code
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is a typed failure in the error channel with its tag and code, never a die; the first payload still gets its answer
-m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is catchable by its tag, as NotAllowed is: the program type-checks
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > a thing's page has a Rules section under its lifecycle, one row per rule of the model and none for a thing with no rules
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > each rule says one sentence, generated from its model or its own description verbatim
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > every refusal a rule owns reads as that sentence and links to its rule's row, on every page that shows one

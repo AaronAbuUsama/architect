@@ -52,7 +52,16 @@ The call (the lead, 20 November 2026): runtime-refusal coverage counts only the 
 caller who may not call). Every refusal the model codes under the runtime's prefix (`AR`, read from `NotAllowed`'s code) other than `NotAllowed` is left
 out, so `IdempotencyConflict` is, and the names come from the model, not a list in prove. The line keeps its totals and says what it left out, after
 them: `runtime refusals 14/17 (not counted: IdempotencyConflict, which no journey can cause: …)`, only when an operation lists one. `InvalidPayload` is
-in no operation's `refusals`, so there is nothing to leave out. Checks 02 and 08 keep their totals and accept the line with or without that suffix.
+in no operation's `refusals`, so there is nothing to leave out. Checks 02 and 08 keep their totals and build the expected line from the model (`coverageLine`): the suffix is required exactly when an operation lists `IdempotencyConflict`, and forbidden otherwise, and they pin that literal name besides.
+
+## In the scaffold's header
+
+A scaffold header lists `IdempotencyConflict` on an idempotent operation, as the last of its `refusals` (the model's order: the declared
+errors, the machine's, then the runtime's own in the order the runtime tries them, `NotAllowed` and then `IdempotencyConflict`), as the runtime's:
+exit 120, `AR-002`, "the runtime's, when the same request key comes with another payload", `from` the operation's own file, where it declares
+`idempotent`. K16 a.4 lists `op.refusals` in order and that list already holds `NotAllowed`; this record's own reason, that a handler can
+neither make nor avoid it, applies to `NotAllowed` as much, so the header says it and does not filter it out. `allowance-spend.ts.golden` is
+the only golden of an idempotent operation's header; the columns widen by one (`IdempotencyConflict` is the longest name, `exit 120` the longest exit).
 
 ## What changes
 
@@ -66,7 +75,3 @@ Every place that said "5 to 125", found by `git grep 125` on `5d2887ca`, moves i
 
 No canon page states the range. Before HAN-10 merges, `git grep "5 to 125"` on its head finds only dated records.
 - HAN-10's check (`e2e/m1/24-idempotency-conflict.test.ts`) asserts exit 120, code `AR-002`, status 409.
-
-## The scaffold header does not list it (HAN-10 review, K16 a.4)
-
-K16 a.4 says a scaffold's header lists `op.refusals` in order. `IdempotencyConflict` is in `op.refusals` of every idempotent operation, but it is raised by the runtime before the handler runs, so a handler can neither make nor avoid it. Check 19's golden for `allowance.spend` (idempotent by request) lists `AllowanceExceeded`, `AllowanceNotActive` and `NotAllowed` and no fourth, and a builder never edits a golden. The code is right and K16 a.4 is read as "every refusal a handler can make or meet": `refusalsOf` leaves `IdempotencyConflict` out on purpose, and a signup-style operation with no other refusal shows `Refusals: none.` The model, the API, the SDK, the CLI and MCP all list it. Recorded 20 November 2026 by the outputs builder; revisit only if a later golden says otherwise.
