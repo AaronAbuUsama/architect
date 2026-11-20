@@ -38,3 +38,5 @@ are read by name (`AXIOM_QUERY_TOKEN` / `capxul-query`, `AXIOM_DOMAIN` / `axiom-
 The window stops 15 s short of now (Axiom takes a span some seconds after it ended) and reads at most 50 000 spans. Prove's own calls carry a caller
 span id that starts with `PROVE_SPAN_PREFIX`, which is how `watch` tells them from traffic. Tests: `sources.test.ts` (a stand-in for the query API),
 and `watch/watch.live.test.ts` against Axiom with `ORTHO_LIVE_AXIOM=1`.
+
+Portal hole 2 (M1.13): `FileMetrics.open(dirs).window(since, now)` is the metrics reader beside `TraceSource`: the counters of `metrics.jsonl` (`ortho.calls`), each series answered as how much it grew in the window, whether the exporter used delta or cumulative totals (a total that fell is a restart). A missing file is no points; an unreadable one is a `SourceFailed`. History past the window is M7.14. Test: `metrics.test.ts`.

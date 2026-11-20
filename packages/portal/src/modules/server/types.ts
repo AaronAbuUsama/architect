@@ -2,6 +2,7 @@
 // files at `/portal`. Nothing here draws a page; the pages are drawn in the browser by the client, from this data.
 import type { Effect } from "effect";
 import type { LogbookReader } from "#modules/reader/types.js";
+import type { PortalLive } from "#modules/telemetry/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
 
 /** Where the portal's static files are: the Worker's assets binding (`assets.binding`), which answers a request for a file of the client. */
@@ -16,6 +17,8 @@ export interface PortalEnv {
   /** The revision this environment's bundle is. */
   readonly ORTHO_REVISION?: string;
   readonly ORTHO_ENVIRONMENT?: string;
+  /** Where the world's starter answers its telemetry window (a loopback URL, local worlds only): the snapshot's `telemetry` and the trace pages read it. */
+  readonly ORTHO_PORTAL_FEED?: string;
   /** The client's files, as the Worker's static assets (K19). Without them `/portal` says the client is missing. */
   readonly PORTAL_ASSETS?: PortalAssets;
 }
@@ -27,6 +30,8 @@ export interface PortalContext {
   readonly bundleRevision: string | null;
   /** Default `refs/heads/main`. */
   readonly ref?: string;
+  /** The environment's live traffic: the window's spans and `ortho.calls`, read at `now`. Without it the snapshot's `telemetry` is null and the portal has no numbers. */
+  readonly live?: PortalLive;
 }
 
 export interface ServerApi {

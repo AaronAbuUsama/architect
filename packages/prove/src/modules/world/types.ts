@@ -65,6 +65,8 @@ export interface WorldsApi {
     readonly name: string;
     /** The collector's OTLP/HTTP base URL; unset, the Worker exports nothing. */
     readonly otlp?: string;
+    /** Where this world's starter answers its telemetry window (`PortalFeed.serve`): the Worker's portal reads it as `ORTHO_PORTAL_FEED`, so a run lights its own portal. */
+    readonly portalFeed?: string;
     /** The environment this world stands for, written on every span as `deployment.environment`. Default `local`. */
     readonly environment?: string;
     /** Secrets for the Worker that never touch a file or an argument: `OTLP_SINKS`, from `Sinks.resolve`. */
