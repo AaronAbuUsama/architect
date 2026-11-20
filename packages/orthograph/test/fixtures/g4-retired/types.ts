@@ -3,11 +3,11 @@
 // after it, each hides exactly one error. A rule is declared in `invariants.ts` and nowhere else.
 import { Blueprint } from "../../../src/index.ts";
 
-// @ts-expect-error `unique` has left `Blueprint.thing`: a rule is `Blueprint.invariant.unique` in the thing's invariants.ts
 export const Handle = Blueprint.thing({
   description: "A name someone holds.",
   code: "HD",
   fields: { id: Blueprint.id("hdl"), name: Blueprint.text({ max: 40 }) },
+  // @ts-expect-error `unique` has left `Blueprint.thing`: a rule is `Blueprint.invariant.unique` in the thing's invariants.ts
   unique: { name: { while: ["claimed"] } },
 });
 

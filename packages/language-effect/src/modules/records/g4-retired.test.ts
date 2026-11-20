@@ -13,6 +13,8 @@ describe("ST1.20: G4's findBy is gone", () => {
   it("`findBy(thing, field, value)` is a type error", { timeout: 60_000 }, () => {
     const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
     const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
+    // tsc that dies, or is killed, without printing an error line is not a clean compile.
+    if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
     expect(errors, "the fixture's `@ts-expect-error` line must hide exactly one error").toEqual([]);
   });
 });

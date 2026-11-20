@@ -15,7 +15,11 @@ import { describe, expect, it } from "vitest";
 const repo = resolve(import.meta.dirname, "../../..");
 const tsc = (fixture: string) => {
   const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(repo, "packages/orthograph/test/fixtures", fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
-  return result.stdout.split("\n").filter((l) => l.includes("error TS"));
+  const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
+  // tsc that dies, or is killed, without printing an error line is not a clean compile.
+  if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
+  if (result.status === 0 && errors.length > 0) errors.push("tsc exited 0 yet printed errors");
+  return errors;
 };
 const filesUnder = (dir: string, out: string[] = []): string[] => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
