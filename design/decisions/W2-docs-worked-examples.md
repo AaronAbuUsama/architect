@@ -40,7 +40,10 @@ from. Under it, every step of that journey that calls this operation, in order:
   (`owner`, as organization.owner);
 - the payload, field by field, with the journey's own values, and the request key when the step gives one;
 - what comes back: the refusal by name and code when the step checks a refusal (`refused with HandleTaken, HN-001`),
-  otherwise the answer the step checks.
+  with the refusal's fields by their values when the step checks any (`refused with LinkNotListed, LN-900,
+  state removed`), otherwise the answer the step checks.
+
+Each step reads in that order: its title, who calls, what is sent, then what comes back.
 
 An answer is shown by its content, not its JSON. A structured answer (a list, an object) is shown by its values: every
 literal in it appears in the step's text, and every reference in it, at any depth, is named in words from its path. A
