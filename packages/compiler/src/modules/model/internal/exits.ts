@@ -66,7 +66,7 @@ export const exitClashes = (things: Readonly<Record<string, ThingExits>>): Reado
  */
 export const operationExitClashes = (
   things: Readonly<Record<string, ThingExits>>,
-  operations: Readonly<Record<string, { readonly file: string; readonly name: string; readonly errors: ReadonlyArray<string>; readonly move: { readonly from: ReadonlyArray<string> } | null; readonly thing: string }>>,
+  operations: Readonly<Record<string, { readonly file: string; readonly name: string; readonly errors: ReadonlyArray<string>; readonly invariants?: Readonly<Record<string, string>>; readonly move: { readonly from: ReadonlyArray<string> } | null; readonly thing: string }>>,
 ): ReadonlyArray<string> => {
   const exits = new Map<string, { readonly exit: number; readonly thing: string }>();
   for (const [thing, t] of Object.entries(things)) {
@@ -74,12 +74,15 @@ export const operationExitClashes = (
     for (const [name, { exit }] of Object.entries(t.errors)) exits.set(name, { exit, thing });
   }
   return Object.values(operations).flatMap((o) => {
-    const names = [...new Set([...o.errors, ...(o.move && o.move.from.length > 0 && things[o.thing]?.machine ? [things[o.thing]!.machine!.notFrom.error] : [])])];
+    // The refusals the runtime makes for a rule count too, and are named with the rule's file (G5).
+    const ruled = o.invariants ?? {};
+    const names = [...new Set([...o.errors, ...(o.move && o.move.from.length > 0 && things[o.thing]?.machine ? [things[o.thing]!.machine!.notFrom.error] : []), ...Object.keys(ruled)])];
+    const by = (name: string) => { const rule = ruled[name]; const owner = rule === undefined ? undefined : things[rule.split(".")[0]!]; return rule === undefined || owner === undefined ? "" : ` (${name} is refused for ${rule} in ${fileOf(rule.split(".")[0]!, owner.from, "invariants")})`; };
     return names.flatMap((name, i) => names.slice(0, i).flatMap((other) => {
       const a = exits.get(other);
       const b = exits.get(name);
       return a && b && a.exit === b.exit && a.thing !== b.thing && unusable(a.exit, true) === undefined
-        ? [`${o.file}: ${o.name} refuses both ${other} and ${name} at exit ${a.exit}: ${name}'s exit ${a.exit} is ${other}'s; pick another`]
+        ? [`${o.file}: ${o.name} refuses both ${other} and ${name} at exit ${a.exit}: ${name}'s exit ${a.exit} is ${other}'s; pick another${by(name)}${by(other)}`]
         : [];
     }));
   });
