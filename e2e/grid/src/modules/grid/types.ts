@@ -53,7 +53,33 @@ export interface Report {
 /** A value or the problems that kept it from being one: errors are values here, never thrown. */
 export type Parsed<A> = { readonly ok: true; readonly value: A } | { readonly ok: false; readonly problems: ReadonlyArray<string> };
 
+/** A pair that is red today and allowed to be: why, and the slice or package file whose change turns it green (G7). */
+export interface ExpectedRed {
+  readonly cell: CellId;
+  readonly subject: string;
+  readonly reason: string;
+  readonly waitsOn: string;
+}
+
+/** What comparing a run with the expected-red list found. A pair fixed must come off the list in the same change. */
+export interface RatchetResult {
+  /** Red now and not on the list: a new failure. */
+  readonly unexpected: ReadonlyArray<string>;
+  /** On the list but not switched on (or its cell has no such subject): the list holds a pair nothing judges. */
+  readonly unjudged: ReadonlyArray<string>;
+  /** On the list and green now: fixed, so it comes off the list. */
+  readonly fixed: ReadonlyArray<string>;
+  readonly expectedRed: number;
+  readonly ok: boolean;
+}
+
 export interface GridApi {
+  /** Read the expected-red list from its parsed JSON, naming every problem. */
+  readonly parseExpected: (json: unknown) => Parsed<ReadonlyArray<ExpectedRed>>;
+  /** Compare a run with the list: fails on a red pair not listed, a listed pair not judged, and a listed pair that is green. */
+  readonly ratchet: (report: Report, expected: ReadonlyArray<ExpectedRed>) => RatchetResult;
+  /** The lines to say about a ratchet result. */
+  readonly ratchetLines: (result: RatchetResult) => ReadonlyArray<string>;
   /** Read the checked-in list from its parsed JSON. Every problem is named, with its place in the list. */
   readonly parse: (json: unknown) => Parsed<List>;
   /** Judge every switched-on (cell, subject). A cell with no eval is red: switched on, and nothing proves it. */
@@ -67,6 +93,8 @@ export interface GridApi {
   }) => Report;
   /** The lines to say: one per verdict, red ones with their reasons, then the count. */
   readonly lines: (report: Report) => ReadonlyArray<string>;
+  /** One report from several: the verdicts in order, passed only when every one passed. */
+  readonly combine: (reports: ReadonlyArray<Report>, revision: string, environment: string) => Report;
   /** The list with `entries` added: a cell already on keeps its first journey and gains any new subjects. Never switches one off. */
   readonly switchOn: (list: List, entries: ReadonlyArray<SwitchedOn>) => List;
 }
