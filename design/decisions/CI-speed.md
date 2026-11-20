@@ -142,8 +142,8 @@ first job started; the wall time without it is the number to compare.
 In the after run, `check-static` took 3.0 minutes and the three prove shards 2.3, 4.4 and 4.3; together they ran each of
 prove's 30 test files exactly once (9 + 1 skipped, 9 + 1 skipped, 10, read from the shard logs). `check` now waits on
 the slowest shard, and the longest path is the layer 2 gate, whose one four-minute file sets the floor. On
-`goal/stage-1` the same split takes `check` from about 15 minutes to about 6, and the four M1 shards take `e2e-m1` from
-22 minutes to about 9; that half is measured in the goal branch's change.
+`goal/stage-1` the same split should take `check` from about 15 minutes to about 6, and the four M1 shards `e2e-m1` from
+22 minutes to about 9, estimated from the timings above; that half is measured in the goal branch's change.
 
 ## Supersedes
 
