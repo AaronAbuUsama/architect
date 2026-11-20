@@ -62,8 +62,8 @@ Capxul's `invitation.list` takes an empty payload and answers the invitations se
 | Dependent | Why it cares |
 |---|---|
 | `orthograph` `roles/types.ts`, `roles/service.ts` | the role's spec gains two declarative forms beside `rule` |
-| `compiler` model (`model/types.ts:62-72`, `describe.ts:121`, `found.ts:30`) | `AllowedModel` and `roleRules` carry the declared form, so docs, portal and MCP can say "a Director of this company" instead of a rule's source text |
-| `language-effect` `access/service.ts`, `handler/internal/read.ts:56`, `wire/internal/shown.ts:17` | the check reads the holding row; a list narrows by it |
+| `compiler` model (`model/types.ts:62-72`, `internal/describe.ts:121`, `internal/found.ts:30`) | `AllowedModel` and `roleRules` carry the declared form, so docs, portal and MCP can say "a Director of this company" instead of a rule's source text |
+| `language-effect` `access/service.ts`, `handler/internal/read.ts:56`, `wire/internal/shown.ts:17` | the check reads the holding row (lists do not narrow by it: question 2 is C) |
 | `host-cloudflare` store | one D1 index per `holds` (the holding field and the person field), generated like G5's per-rule index |
 | `prove` `journeys/internal/world.ts:119` | prove checks roles with the same `Access.check`, so it reads the same row |
 | grid cells `roles.model`, `roles.docs`, `roles.portal`, `roles.mcp`, `roles.telemetry` | each says who may call; a declared role says it in words |
@@ -146,7 +146,7 @@ allowed: [Blueprint.role(Membership, { rule: (m, caller) => m.person === caller.
 | Dana tries the same on Acme, where she is not a Director | `NotAllowed` | `NotAllowed` | `NotAllowed` | allowed by the role; only a handler check stops her |
 | The docs and MCP say who may call | "a Director of this company: a membership of it held by you, seat director" | the rule's source text | the rule's source text | "the holder of the membership you name" |
 | Sam is removed as a Director | his next call is refused | refused | refused only if the remove move also rewrote `directors` | refused |
-| A list of budgets for "my companies" (question 2) | possible: the runtime can turn the role into a filter | impossible: the rule is opaque | impossible | impossible |
+| A list of budgets for "my companies" (question 2) | possible later: the runtime could turn the role into a filter (question 2 chose not to, for now) | impossible: the rule is opaque | impossible | impossible |
 
 ### Rubric
 
@@ -159,7 +159,7 @@ allowed: [Blueprint.role(Membership, { rule: (m, caller) => m.person === caller.
 | Fit | ✅ K2 Q5's `holds` that produces a role; same spec style as the frame's `{ service }` | ❌ breaks "a rule is a pure function" and the model's knowledge of roles | ⚠️ | ❌ a payload field that exists only for authority |
 
 **Recommendation: A.** It is the `holds` K2 already promised, written down, and the only option that lets the model
-know who may call well enough to explain it and to scope a list by it.
+know who may call well enough to explain it (and, should question 2 ever be reopened, to scope a list by it).
 
 ### How a declared role renders in each language
 
@@ -372,6 +372,8 @@ The rules are already decided across K3, K7 and N1; this gathers them, with role
 - design/frame/delta.md: "One role model, decided in the step that adds the new principals" → "One role model: a role is a `rule`, or declared with `who` or `holds` ... (K20); the new principals are M2.01's"
 - design/milestones.md (M2 ships): "roles as rules with `holds`" → "roles as rules, or declared with `who` and `holds` (K20)"
 - design/milestones.md (M2.07): "owner, member, `holds`" → "owner and member as `holds` roles (K20)"
+- .agents/skills/kanban/data/lanes.json (M2 ships): "roles as rules with holds" → "roles as rules, or declared with who and holds (K20)"
+- .agents/skills/kanban/STATE.md and design/ledger.md (ROL-02): "the organizations plugin's `holds` is a shortcut that produces a rule" → "decided by K20: a role is a `rule`, or declared with `who` or `holds` in `orthograph` itself"
 
 ## Aaron's answers
 

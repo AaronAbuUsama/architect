@@ -46,7 +46,7 @@ to `from` doesn't help: the runtime would apply the move again, write `Invitatio
 readonly idempotent?: "request";
 ```
 
-and the runtime replays only when the caller sends the same key (`handler/service.ts:59-67`, `IdempotencyConflict` when
+and the runtime replays only when the caller sends the same key (`handler/service.ts:98-106`, `IdempotencyConflict` at `:103` when
 the key comes back with another payload). Capxul's founding has no key: the same founding sent again answers `Resumed`,
 a changed one is refused `FoundingChanged`, and another founder's is `HandleTaken`:
 
@@ -73,8 +73,8 @@ alarms someone, forever.
 | Dependent | Why it cares |
 |---|---|
 | `orthograph` `machines/types.ts` (`MoveSpec`), `operations/types.ts:56` | a move gains the states it answers from unchanged; `idempotent` gains a key made from the payload |
-| `language-effect` `handler/internal/move.ts`, `handler/service.ts:59-96` | the from-check lets an unchanged state through, the commit refuses any write, the request store is keyed by intent |
-| `compiler` model (`describe.ts:99`, `:168-184`), `exits.ts`, `codes.ts` | the move's unchanged states and the operation's intent key in the model; which refusals a call can still give |
+| `language-effect` `handler/internal/move.ts`, `handler/service.ts:81-134` | the from-check lets an unchanged state through, the commit refuses any write, the request store is keyed by intent |
+| `compiler` model (`internal/describe.ts:99`, `:168-184`), `exits.ts`, `codes.ts` | the move's unchanged states and the operation's intent key in the model; which refusals a call can still give |
 | `prove` and the evals | a journey can assert "answered, nothing journalled"; coverage asks for each unchanged state once |
 | generators: docs, MCP `idempotentHint` (M1.37), SDK retry advice | each says which repeats are safe |
 | grid cells `machine.model`, `machine.docs`, `machine.portal`, `machine.telemetry`, `operation.mcp` | the machine diagram shows the unchanged loop; the trace marks an unchanged call |
@@ -179,7 +179,7 @@ the same truth reached another way. Settle needs the second, founding needs the 
    becomes that. A declared refusal for it can come later if a journey needs to tell the two apart.
 5. **An unchanged call still checks who may call** and still reads the subject; only the move, the writes and the event
    are skipped. Its span carries `move.unchanged: true` and `move.from` as the state it was in.
-6. **Actors.** Idempotency by request on an actor is already in `design/later.md:42`; the intent key waits with it.
+6. **Actors.** Idempotency by request on an actor is already in `design/later.md` ("From stage two"); the intent key waits with it.
 
 ## Supersedes
 
