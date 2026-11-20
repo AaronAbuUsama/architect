@@ -3,6 +3,12 @@ import { allowsUndefined, exactStates, exportedType, kindOf, kindProblem, stateT
 import { programOf, standInName, syntheticPath, virtualPath } from "./internal/program.ts";
 import type { SdkTypesApi } from "./types.ts";
 
+/**
+ * The members the generator adds to a thing's type beside its model fields, by rule (`typesOf` in `packages/generators/src/modules/render/internal/sdk-types.ts`):
+ * a thing with a machine gets `state` (the union of its states) when the model has no field of that name. Nothing else is added.
+ */
+const FRAMEWORK_MEMBERS: ReadonlyArray<string> = ["state"];
+
 export const SdkTypes: SdkTypesApi = {
   fieldProblems: ({ files, model, thing, path }) => {
     const b = programOf(files, model);
@@ -10,7 +16,10 @@ export const SdkTypes: SdkTypesApi = {
     const at = `${path}'s ${thing.identifier}`;
     if (declared === undefined) return [`${at} cannot be resolved`];
     const file = b.program.getSourceFile(virtualPath(path))!;
+    // The type as a whole: its own members are the model's fields and what the generator adds by rule, and nothing else (required, optional or a method).
+    const allowed = new Set([...Object.keys(thing.fields), ...(thing.machine != null ? FRAMEWORK_MEMBERS : [])]);
     return [
+      ...declared.getProperties().filter((p) => !allowed.has(p.getName())).map((p) => `${at} has the member ${p.getName()}, which is not one of the thing's fields`),
       ...(b.checker.getIndexInfosOfType(declared).length > 0 ? [`${at} has an index signature, so it takes any field`] : []),
       ...Object.entries(thing.fields).flatMap(([name, field]) => {
         if (name === "state" && thing.machine != null) return [];

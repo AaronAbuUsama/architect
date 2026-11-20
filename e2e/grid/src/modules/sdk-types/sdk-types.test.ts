@@ -107,6 +107,30 @@ describe("the kinds the old parser tests planted, now judged by what they resolv
   });
 });
 
+describe("the type as a whole: its members are the model's fields and what the generator adds, nothing else", () => {
+  const extra = (line: string) => judged(change('  readonly "state": LinkState;\n', `  readonly "state": LinkState;\n  ${line}\n`)).fields;
+  it.each([
+    ["a required extra", "readonly wrong: number;", "wrong"],
+    ["an optional extra", "wrong?: string;", "wrong"],
+    ["an extra method", "wrong(): void;", "wrong"],
+    ["an extra readonly literal", 'readonly "kind": "link";', "kind"],
+  ])("red: %s", (_name, line, member) => {
+    expect(extra(line)).toEqual([`${path}'s Link has the member ${member}, which is not one of the thing's fields`]);
+  });
+  it("red: a state member on a thing with no machine", () => {
+    const noMachine = { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, machine: null } } };
+    expect(judged(REAL, noMachine).fields).toEqual([`${path}'s Link has the member state, which is not one of the thing's fields`]);
+  });
+  it("green: the real Link, and acme's allowance and organization, whose `state` the generator adds", () => {
+    expect(judged(REAL).fields).toEqual([]);
+    for (const name of ["allowance", "organization", "membership"]) {
+      const thing = acme.model.things[name]!;
+      const file = `generated/sdk/src/${name}/types.ts`;
+      expect(SdkTypes.fieldProblems({ files: { ...acme.files, [file]: typesText(thing) }, model: acme.model, thing, path: file }), name).toEqual([]);
+    }
+  });
+});
+
 describe("a member derived from another field of the same kind is red", () => {
   const allowance = acme.model.things["allowance"]!;
   const check = (model: typeof acme.model, thing: typeof allowance, members: Record<string, string>, file = `generated/sdk/src/${thing.name}/types.ts`) =>
