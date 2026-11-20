@@ -19,7 +19,7 @@ const read: TelemetryApi["read"] = (blueprint, live) =>
     const budgets = Object.fromEntries(Object.entries(blueprint.model.operations).map(([name, op]) => [name, op.budget?.p95Ms]));
     const traces = yield* attempt(live.source.window(live.windowMs, live.now));
     const points = yield* attempt(live.metrics.window(live.windowMs, live.now));
-    const calls = traces.state === "available" ? callsOf(traces.value, live.environment, budgets, kindsOf(blueprint)) : undefined;
+    const calls = traces.state === "available" ? callsOf(traces.value, live.environment, budgets, kindsOf(blueprint), { since: live.now - live.windowMs, now: live.now }) : undefined;
     return {
       environment: live.environment, now: live.now, windowMs: live.windowMs, since: live.now - live.windowMs,
       metrics: points.state === "available" ? { state: "available", value: countsOf(blueprint, points.value, calls?.refusals) } : points,

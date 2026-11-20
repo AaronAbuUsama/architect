@@ -4,6 +4,7 @@ import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
+import { CALL_ID, newCallId } from "./call-id.ts";
 import { measureCall } from "./call-metrics.ts";
 import { spanned } from "./span.ts";
 import type { ReadAnswer, ReadPayload, ReadsApi } from "../types.ts";
@@ -50,7 +51,7 @@ export const Reads: ReadsApi = {
     const decode = Schema.decodeUnknownEffect(read.payloadSchema as unknown as AnyCodec);
     const check = Schema.encodeEffect(read.answerSchema as unknown as AnyCodec);
     const run = (payload: ReadPayload, principal: Principal) =>
-      Effect.gen(function* () {
+      Effect.flatMap(newCallId, (callId) => Effect.gen(function* () {
         const unit = yield* Unit.make(yield* Store);
         yield* Access.check({ allowed: read.allowed, payloadFields: read.payload, payload, principal, thing: read.thing }).pipe(
           Effect.provideService(Records, unit.records),
@@ -65,9 +66,9 @@ export const Reads: ReadsApi = {
         }).pipe(
           // A refusal is written on the span as the handler wrapper does, and ends it ok (O1).
           Effect.tapCause((cause) => (Cause.hasDies(cause) ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" }) : Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)) }))),
-          spanned(name, { operation: name, ...principalAttributes(principal) }),
+          spanned(name, { operation: name, [CALL_ID]: callId, ...principalAttributes(principal) }),
         );
-      });
+      }));
     return {
       name,
       operation: read,
