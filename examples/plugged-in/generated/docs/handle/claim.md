@@ -11,15 +11,15 @@ Claim a free name and make it the address of your public page, with its profile.
 
 ## Payload
 
-| field | value |
-|---|---|
-| name | handle.name |
+| field | value | description |
+|---|---|---|
+| name | handle.name | A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page. |
 
 ## Answer
 
-| field | value |
-|---|---|
-| handle | handle.id |
+| field | value | description |
+|---|---|---|
+| handle | handle.id | The handle's own id. |
 
 ## Move
 

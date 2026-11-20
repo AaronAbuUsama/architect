@@ -37,19 +37,22 @@
           "value": {
             "type": "id",
             "prefix": "hdl"
-          }
+          },
+          "description": "The handle's own id."
         },
         "name": {
           "value": {
             "type": "schema"
           },
-          "named": "HandleName"
+          "named": "HandleName",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
         },
         "owner": {
           "value": {
             "type": "id",
             "prefix": "per"
-          }
+          },
+          "description": "The person who holds the name."
         }
       },
       "lives": "database",
@@ -101,14 +104,16 @@
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle's own id."
           },
           "name": {
             "value": {
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           }
         },
         "HandleReleased": {
@@ -117,14 +122,16 @@
               "type": "id",
               "prefix": "hdl"
             },
-            "ref": "handle.id"
+            "ref": "handle.id",
+            "description": "The handle's own id."
           },
           "name": {
             "value": {
               "type": "schema"
             },
             "named": "HandleName",
-            "ref": "handle.name"
+            "ref": "handle.name",
+            "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
           }
         }
       },
@@ -154,7 +161,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "d4373dffabc64321"
+      "hash": "946e824182d49eb9"
     },
     "link": {
       "name": "link",
@@ -166,34 +173,39 @@
           "value": {
             "type": "id",
             "prefix": "lnk"
-          }
+          },
+          "description": "The link's own id."
         },
         "profile": {
           "value": {
             "type": "id",
             "prefix": "prf"
           },
-          "ref": "profile.id"
+          "ref": "profile.id",
+          "description": "The page the link is on."
         },
         "owner": {
           "value": {
             "type": "id",
             "prefix": "per"
           },
-          "ref": "handle.owner"
+          "ref": "handle.owner",
+          "description": "The person whose page the link is on."
         },
         "title": {
           "value": {
             "type": "text",
             "max": 120
           },
-          "named": "LinkTitle"
+          "named": "LinkTitle",
+          "description": "What the link shows on the page, up to 120 characters."
         },
         "url": {
           "value": {
             "type": "schema"
           },
-          "named": "LinkUrl"
+          "named": "LinkUrl",
+          "description": "Where the link goes: a web address starting with http:// or https://, up to 2048 characters."
         }
       },
       "lives": "database",
@@ -233,7 +245,8 @@
               "type": "id",
               "prefix": "lnk"
             },
-            "ref": "link.id"
+            "ref": "link.id",
+            "description": "The link's own id."
           }
         },
         "LinkRemoved": {
@@ -242,7 +255,8 @@
               "type": "id",
               "prefix": "lnk"
             },
-            "ref": "link.id"
+            "ref": "link.id",
+            "description": "The link's own id."
           }
         }
       },
@@ -267,7 +281,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "ca7d6cf9cfa7b97e"
+      "hash": "72c22f92188f5790"
     },
     "profile": {
       "name": "profile",
@@ -279,19 +293,22 @@
           "value": {
             "type": "id",
             "prefix": "prf"
-          }
+          },
+          "description": "The page's own id."
         },
         "handle": {
           "value": {
             "type": "id",
             "prefix": "hdl"
           },
-          "ref": "handle.id"
+          "ref": "handle.id",
+          "description": "The handle the page belongs to."
         },
         "links": {
           "value": {
             "type": "schema"
-          }
+          },
+          "description": "The ids of the page's links, in the order they show."
         }
       },
       "lives": "database",
@@ -312,7 +329,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "b89674ece8f1cbdc"
+      "hash": "26f5277746d573c1"
     }
   },
   "operations": {
@@ -333,7 +350,8 @@
             "type": "schema"
           },
           "named": "HandleName",
-          "ref": "handle.name"
+          "ref": "handle.name",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
         }
       },
       "answer": {
@@ -342,7 +360,8 @@
             "type": "id",
             "prefix": "hdl"
           },
-          "ref": "handle.id"
+          "ref": "handle.id",
+          "description": "The handle's own id."
         }
       },
       "move": {
@@ -384,7 +403,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "5cb41d59b1703f19"
+      "hash": "9eb20dd82059e463"
     },
     "handle.release": {
       "kind": "operation",
@@ -403,7 +422,8 @@
             "type": "id",
             "prefix": "hdl"
           },
-          "ref": "handle.id"
+          "ref": "handle.id",
+          "description": "The handle's own id."
         }
       },
       "answer": {},
@@ -443,7 +463,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "94a513d256283355"
+      "hash": "2e2a0634cc287ac4"
     },
     "handle.resolve": {
       "kind": "operation",
@@ -462,7 +482,8 @@
             "type": "schema"
           },
           "named": "HandleName",
-          "ref": "handle.name"
+          "ref": "handle.name",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
         }
       },
       "answer": {
@@ -471,7 +492,8 @@
             "type": "id",
             "prefix": "hdl"
           },
-          "ref": "handle.id"
+          "ref": "handle.id",
+          "description": "The handle's own id."
         }
       },
       "move": null,
@@ -498,7 +520,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "8e923d24a0e4f5d2"
+      "hash": "ec35f5ac1d996508"
     },
     "link.add": {
       "kind": "operation",
@@ -518,14 +540,16 @@
             "max": 120
           },
           "named": "LinkTitle",
-          "ref": "link.title"
+          "ref": "link.title",
+          "description": "What the link shows on the page, up to 120 characters."
         },
         "url": {
           "value": {
             "type": "schema"
           },
           "named": "LinkUrl",
-          "ref": "link.url"
+          "ref": "link.url",
+          "description": "Where the link goes: a web address starting with http:// or https://, up to 2048 characters."
         }
       },
       "answer": {
@@ -534,7 +558,8 @@
             "type": "id",
             "prefix": "lnk"
           },
-          "ref": "link.id"
+          "ref": "link.id",
+          "description": "The link's own id."
         }
       },
       "move": {
@@ -574,7 +599,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "561bf4ad1db7e369"
+      "hash": "1821e63e66bf312a"
     },
     "link.order": {
       "kind": "operation",
@@ -593,14 +618,16 @@
             "type": "id",
             "prefix": "lnk"
           },
-          "ref": "link.id"
+          "ref": "link.id",
+          "description": "The link's own id."
         },
         "position": {
           "value": {
             "type": "uint",
             "bits": 32
           },
-          "named": "LinkPosition"
+          "named": "LinkPosition",
+          "description": "Where the link goes on the page, counted from the top."
         }
       },
       "answer": {},
@@ -637,7 +664,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "8fda9f06f6165b50"
+      "hash": "43243498b6605a62"
     },
     "link.remove": {
       "kind": "operation",
@@ -656,7 +683,8 @@
             "type": "id",
             "prefix": "lnk"
           },
-          "ref": "link.id"
+          "ref": "link.id",
+          "description": "The link's own id."
         }
       },
       "answer": {},
@@ -696,7 +724,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "f319a63a9f1bd796"
+      "hash": "7f27cb775ec09be1"
     },
     "profile.get": {
       "kind": "operation",
@@ -715,7 +743,8 @@
             "type": "schema"
           },
           "named": "HandleName",
-          "ref": "handle.name"
+          "ref": "handle.name",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
         }
       },
       "answer": {
@@ -724,7 +753,8 @@
             "type": "schema"
           },
           "named": "HandleName",
-          "ref": "handle.name"
+          "ref": "handle.name",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
         },
         "links": {
           "value": {
@@ -756,7 +786,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "ee1eb946c4673c40"
+      "hash": "f6e1480cfdff97f8"
     }
   },
   "journeys": {

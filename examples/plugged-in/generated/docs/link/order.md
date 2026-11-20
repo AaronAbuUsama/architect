@@ -9,10 +9,10 @@ Move a link to a zero-based position. A position past the end puts it last.
 
 ## Payload
 
-| field | value |
-|---|---|
-| link | link.id |
-| position | LinkPosition |
+| field | value | description |
+|---|---|---|
+| link | link.id | The link's own id. |
+| position | LinkPosition | Where the link goes on the page, counted from the top. |
 
 ## Answer
 
