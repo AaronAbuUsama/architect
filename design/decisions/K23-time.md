@@ -83,6 +83,23 @@ It holds, with five things the design has to answer:
    catches up (`design/noir/spike-2-role-gate-e2.md`, finding 14). Answered in section 6: each chain family has its
    own move.
 
+### Capxul's time cases
+
+From the Capxul session's reading of Capxul Next's existing contracts (`packages/contracts/src`, prior art, not
+Aaron's decisions for the rebuild), 20 November 2026:
+
+| Case | How it works there | What it needs from time |
+|---|---|---|
+| Pay | accrues continuously: a weekly rate over each 604,800 seconds, a monthly or yearly rate spread over each calendar month's own seconds, in UTC (`libraries/Calendar.sol`) | a value worked out from the clock, lazily; the chain's clock must agree with the server's |
+| Budgets | calendar month, quarter or year in UTC; spent resets, no rollover, worked out lazily (`periodIndex`; "0 once the period has turned") | a lazy `every` on a calendar anchor, zone `UTC` |
+| Scheduled payments | `Scheduled { payAt, state }`, executed at or after `payAt` | the one keeper case: an `after` move fired on time |
+| Vesting, offer expiry, revocation taking effect later | compared with `block.timestamp` when someone calls (`equity/Vesting.sol`, `Calendar.monthsBetween`) | the chain's block time set by the world's clock; no keeper |
+| Paid membership (LinkUp, an outside app on Plugged In, design only) | quarterly or yearly, charged through Capxul's payments plugin on chain; no Stripe | our machine renews and asks the payments plugin to charge; a refused charge, a grace period, then lapse (grace length undecided) |
+| Vendors with their own clock | none in Capxul's model today (the chain, a relayer, a signer, mail) | adapters' `clock: "own"` stays a guard, not a blocker |
+
+So the design's floor is Capxul's: calendar periods worked out lazily, block-time checks on chain, and one keeper case.
+Nothing in it needs a vendor's clock.
+
 ## The decision
 
 ### 1. Three kinds of clock, declared on the environment
