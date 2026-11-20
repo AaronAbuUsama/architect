@@ -94,6 +94,8 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect((await judged((h) => h)).section, "the reference page, to start from").toEqual([]);
     const noSection = await judged((h) => h.replace(`'<section data-portal="rules">'`, `'<section>'`));
     expect(noSection.section.some((p) => p.includes("has 0 Rules sections")), noSection.section.join("\n")).toBe(true);
+    const noLifecycle = await judged((h) => h.replace(`'<div data-portal="lifecycle">'`, `'<div>'`));
+    expect(noLifecycle.section.some((p) => p.includes("has a machine and no")), noLifecycle.section.join("\n")).toBe(true);
     const outside = await judged((h) => h.replace(`'<section data-portal="rules">' + rules.map(`, `'<section data-portal="rules"></section>' + rules.map(`));
     expect(outside.section.some((p) => p.includes("outside the Rules section")), outside.section.join("\n")).toBe(true);
     const dropped = await judged((h) => h.replace("o.refusals.map((e) =>", `o.refusals.filter((e) => e !== "HandleAlreadyOwned").map((e) =>`));

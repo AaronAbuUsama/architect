@@ -101,6 +101,8 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
     const seen = new Map(page.rules.map((r) => [r.rule, r] as const));
     if ([...seen.keys()].sort().join() !== mine.map(full).sort().join()) out.section.push(`/portal/things/${thing} lists rules [${[...seen.keys()]}], the wire declares [${mine.map(full)}]: a Rules section of one row per rule, each \`[data-portal="rule"][data-rule]\``);
     const at = (hook: string) => page.order.indexOf(hook);
+    const machine = (wire.model.things[thing] as { machine?: unknown }).machine;
+    if (machine && at("lifecycle") < 0) out.section.push(`/portal/things/${thing} has a machine and no \`[data-portal="lifecycle"]\`: the Rules go under the lifecycle, so it must be there`);
     if (page.sections === 1 && at("rules") >= 0 && at("lifecycle") >= 0 && at("rules") < at("lifecycle")) out.section.push(`/portal/things/${thing}: Rules come before the lifecycle, not under it`);
     if (at("rules") >= 0 && at("operation-row") >= 0 && at("rules") > at("operation-row")) out.section.push(`/portal/things/${thing}: Rules come after the operations, not under the lifecycle`);
     for (const r of mine) {
