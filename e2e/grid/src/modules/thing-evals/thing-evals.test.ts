@@ -24,7 +24,7 @@ describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", ()
   });
 
   it("thing.cli is red where a flag is typed wrongly: link order's position is a uint shown as a string", () => {
-    expect(check("cli", "link").why).toEqual(['link order --position: a uint is shown as "string", expected a number']);
+    expect(check("cli", "link").why).toEqual(['link order --position: a uint is shown as "string", not a number']);
     expect(check("cli", "handle").ok).toBe(true);
   });
 });

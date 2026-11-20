@@ -20,7 +20,7 @@ export const docs = over("step.docs", ({ op, step }, e) => {
   if (page === undefined) return [`${path} was not generated`];
   const steps = Reading.mdSection(page, "Steps");
   if (steps === undefined) return [`${path} has no Steps section`];
-  return Reading.mdBullets(steps).includes(`\`${step.name}\` (${step.type})`) ? [] : [`${path}'s Steps does not list \`${step.name}\` (${step.type})`];
+  return Reading.mdBullets(steps).includes(`${step.name} (${step.type})`) ? [] : [`${path}'s Steps does not list \`${step.name}\` (${step.type})`];
 });
 
 /** step.portal: the operation's page lists the step with its kind, in the portal's own part (the embedded docs prove nothing). */

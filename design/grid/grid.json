@@ -1415,7 +1415,7 @@
       "today": "✗",
       "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:32",
       "todayNote": "Reads keep `state` in list items and the machine refusal exposes `state` as public, but tool schemas carry no state enum and nothing lists allowed moves.",
-      "greenMeans": "A tool's description says which states it moves from and to, and its output schema types the state.",
+      "greenMeans": "A tool states which states it moves from and to in what the framework emits for it (its input and output schemas and annotations), never in its description, which is the author's and must equal the model's (operation.mcp); its output schema types the state. Changed by #150: the old wording, \"description\", contradicted operation.mcp's exact-description rule.",
       "evidence": [
         {
           "kind": "check",
