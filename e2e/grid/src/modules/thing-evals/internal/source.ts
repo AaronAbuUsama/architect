@@ -43,13 +43,13 @@ const PRIMITIVE_OF: Readonly<Record<string, ReadonlyArray<string>>> = { id: ["st
 const typeProblem = (name: string, field: FieldModel, written: string): string | undefined => {
   const type = written.trim();
   const derivedFrom = [...type.matchAll(/\[\s*["']([^"']+)["']\s*\]/g)].map((m) => m[1]!);
-  if (derivedFrom.length > 0) return derivedFrom.includes(name) ? undefined : `is derived from ${derivedFrom.join(", ")}, not from ${name}`;
+  if (derivedFrom.length > 0 && !derivedFrom.includes(name)) return `is derived from ${derivedFrom.join(", ")}, not from ${name}`;
   const kinds = type === "" ? ["other"] : Reading.typeKinds(type);
   if (kinds.some((k) => ["any", "unknown", "never", "object", "other"].includes(k)) || (kinds.length === 1 && ["shape", "function"].includes(kinds[0]!))) return `is typed "${type}", which does not say what the field holds`;
   const want = PRIMITIVE_OF[field.value.type];
   if (want === undefined) return undefined;
-  // A union's every member must be what the value is: a named type is trusted, `undefined` is an optional field, a literal must be of the value's kind.
-  const allowed = new Set([...want, "reference", "undefined", ...(want.includes("string") ? ["string-literal"] : []), ...(want.includes("number") ? ["number-literal"] : [])]);
+  // A union's every member must be what the value is: only a named or indexed type (`Of<Declared["id"]>`) is trusted, wherever it sits in the union, and an array of one is still an array; `undefined` is an optional field, a literal must be of the value's kind.
+  const allowed = new Set([...want, "reference", "indexed", "undefined", ...(want.includes("string") ? ["string-literal"] : []), ...(want.includes("number") ? ["number-literal"] : [])]);
   const wrong = [...new Set(kinds.filter((k) => !allowed.has(k)))];
   return wrong.length === 0 ? undefined : `is ${type}${wrong.length === 1 && wrong[0] === type ? "" : ` (holds ${wrong.join(", ")})`}, but the model's ${field.value.type} is ${want.join(" or ")}`;
 };

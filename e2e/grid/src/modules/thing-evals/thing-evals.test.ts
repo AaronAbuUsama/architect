@@ -115,6 +115,12 @@ describe("a wrong output is red, and says what", () => {
       expect(check("sdk", "link", linkWith({ [first]: "string | number" })).why).toEqual([`${path}'s Link.${first} is string | number (holds number), but the model's ${link.fields[first]!.value.type} is string`]);
       expect(check("sdk", "link", linkWith({ [first]: "string | null" })).why).toEqual([`${path}'s Link.${first} is string | null (holds null), but the model's ${link.fields[first]!.value.type} is string`]);
     });
+    it("red: a derived type that is an array, or a union with the wrong primitive", () => {
+      const own = `Of<Declared[${JSON.stringify(first)}]>`;
+      const type = link.fields[first]!.value.type;
+      expect(check("sdk", "link", linkWith({ [first]: `${own}[]` })).why).toEqual([`${path}'s Link.${first} is ${own}[] (holds array), but the model's ${type} is string`]);
+      expect(check("sdk", "link", linkWith({ [first]: `${own} | number` })).why).toEqual([`${path}'s Link.${first} is ${own} | number (holds number), but the model's ${type} is string`]);
+    });
     it("green: a union of the right primitive, a literal and undefined", () => {
       expect(check("sdk", "link", linkWith({ [first]: '"a" | "b" | undefined' })).ok).toBe(true);
       expect(check("sdk", "link", linkWith({ [first]: "(string)" })).ok).toBe(true);

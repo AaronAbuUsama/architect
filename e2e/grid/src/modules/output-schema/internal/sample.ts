@@ -22,7 +22,7 @@ const observed = (spans: ReadonlyArray<SpanView> | undefined, op: string, name: 
 };
 
 /**
- * A text with more to it than a length: a key beyond `type` and `max`, or the length of `Values.email` (254), whose pattern the model does not record.
+ * A text with more to it than a length: a key beyond `type` and `max`, or the length of `Values.email` (254), whose pattern the model does not record (S-28, `design/goals/03-snags.md`: the stopgap is deleted when the model records a value's pattern).
  * "x" may not be a value of it, so with no recorded value it is unjudged rather than red for a value that cannot occur.
  */
 const constrained = (field: FieldModel): boolean => Object.keys(field.value).some((k) => k !== "type" && k !== "max") || field.value["max"] === 254;
