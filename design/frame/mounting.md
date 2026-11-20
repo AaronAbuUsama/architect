@@ -171,7 +171,7 @@ use them.
   plugin's things keep their names: `wallet`, `wallet.link`. If it differs (`usdc.ts` for `@orthograph/erc20`), they
   are prefixed with it: `usdc-token`, `usdc-token.transfer`. That is how one plugin is mounted twice.
 - Two things with the same name, from the app and a feature or from two features, are a `check` error naming both files.
-  The fix is to rename a mount.
+  The fix is to rename a mount, or to adopt one of the things under the app's own name (K22).
 - Error and refusal codes are prefixed by the mount, so two mounts can't share a code (D3 #84's unique prefixes).
 
 ## Auth, mounted rather than copied
