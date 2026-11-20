@@ -255,7 +255,7 @@ vote happened" are different facts.
 
 ---
 
-## Q4. Where state lives, and what `lives: Blueprint.chain(...)` means
+## Q4. Where state lives, and what `lives: Blueprint.chain(...)` means (superseded by K25, 20 November 2026)
 
 **In plain words.** A thing that lives on chain keeps its facts somewhere: in contract storage, in accounts, or in
 private notes. The client may have to know where they are before it can even make the call. K3 named one store kind,
