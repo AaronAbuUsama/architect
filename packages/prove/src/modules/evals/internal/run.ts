@@ -1,5 +1,5 @@
 // Eval 7 (performance, review only) and eval 8 (coverage: each operation's, and the run's in one line).
-import type { Model, OperationModel } from "@orthograph/compiler";
+import { IDEMPOTENCY_CONFLICT, type Model, type OperationModel } from "@orthograph/compiler";
 import type { Evidence, PerOperation, Verdict } from "../types.ts";
 import { answered, attr } from "./evidence.ts";
 
@@ -36,7 +36,8 @@ const required = (op: OperationModel) => ({
   move: op.move ? [`${op.thing}.${op.move.key}`] : [],
   outcomes: op.move ? op.move.to.map((s) => `${op.thing}:${s}`) : [],
   errors: op.errors.map((x) => `${op.name}:${x}`),
-  runtime: op.refusals.filter((r) => !op.errors.includes(r)).map((r) => `${op.name}:${r}`),
+  // A reused key with another payload is the runtime's answer to a retry, not a move a journey makes: it is not counted (HAN-10; check 2 and 8 hold 14/17 and 3/3).
+  runtime: op.refusals.filter((r) => !op.errors.includes(r) && r !== IDEMPOTENCY_CONFLICT).map((r) => `${op.name}:${r}`),
 });
 
 const gaps = (op: OperationModel, sets: Sets) => {
