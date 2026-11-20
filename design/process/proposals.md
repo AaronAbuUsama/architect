@@ -501,5 +501,5 @@ And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `
 **Applies it:** the conductor. The Scribe's half is in this change.
 **Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169),
 widened to milestone branches (`m1` lacks PR 130's guards) and worded "within the hour, by its lead". On `main`;
-reached `goal/stage-1` at 09:09 through [PR 172](https://github.com/AaronAbuUsama/architect/pull/172) (opened a minute after, landed 1 hour 47 minutes after, behind
-`goal/stage-1`'s own CI); not yet `m1`.
+reached `goal/stage-1` at 09:09 through [PR 172](https://github.com/AaronAbuUsama/architect/pull/172) (opened a minute after, landed 1 hour 47 minutes after, its CI
+restarted three times by new merges); not yet `m1`.
