@@ -108,6 +108,11 @@ belongs to, and why it waits.
 - **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
   item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.
 
+## The portal's pages on portal-ui components (website builder, 20 November 2026)
+
+- **Plain elements today.** The portal's pages are plain elements with `data-portal` hooks (and `Card` for cards), because the grid's evals and check 21 read the rendered DOM by its headings, tables, list items and hooks, and the HeroUI Pro licence is only in CI. `design/portal.md`'s component inventory maps every data shape to a named component (Widget, `CallsMeter`, `CallsBars`, DataGrid and so on), so the pages are a gap from the design.
+- **Next:** swap each block for its component, one page at a time, built where the licence is. The `data-portal` hooks and the headings, tables and list items the evals read must survive each swap; check 21 and the grid are the guard.
+
 ## From prove's coverage (the eval 8 line, G3)
 
 - **A "reachable from a journey" flag on the model's refusals.** Prove's coverage line leaves out the runtime refusals no journey can cause by name:
@@ -121,3 +126,16 @@ belongs to, and why it waits.
   M1.13 and the marker is not tied to a surface. When the portal gets a source in the grid, the eval must check the marker against
   the source (a marker with a source is wrong), and require the marker to sit on, or be visible next to, the refusal surface it
   excuses. Waits on a metrics source in the grid's portal data (M1.13's metrics reader, M7.14 for history).
+
+## From Codex's review of #159 (website builder, 20 November 2026)
+
+- **The plugins page draws a `default` store, and no declared one.** The wire carries neither `model.stores` nor an environment's `stores` bindings
+  (the compiler writes both: `packages/compiler/src/modules/model/stores.test.ts`), so `plugins.tsx` cannot tell a blueprint with no store from one
+  with `ledger` and `rooms`. Plugged In declares none, and check 21 H expects the one `default` row. When the wire keeps stores, the page draws the
+  declared ones and the `default` row only for a blueprint that declares none. Waits on the wire (the telemetry builder's `wire/**`).
+- **Three edge cases in the calls reader (`packages/portal/src/modules/telemetry/internal/calls.ts`, `service.ts`).** (1) Several independent calls to
+  one operation inside one trace (a journey calling `handle.claim` twice under one trace) group into one row; a call's own context should separate them.
+  (2) `FileSource.window` returns whole traces, so a long trace's calls from before the window are listed and their moves counted while the metrics
+  exclude them; calls should be cut at `since`. (3) A move counts when an answered call's attempt carries `move.name`, even if that attempt lost its
+  commit race and a retry replayed a cached answer; it should wait for a committed `commit.outcome`. None is reachable from Plugged In's journeys
+  today; each belongs to the telemetry reader, not the pages.

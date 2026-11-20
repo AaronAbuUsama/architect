@@ -1,8 +1,8 @@
 // Reading the data API from the browser: the blueprint, then the snapshot for its digest. Each is a failure with the request named,
 // never a guess; the page says what it could not read.
 import { Effect } from "effect";
-import type { PortalSnapshot } from "#modules/snapshot/types.js";
-import type { BlueprintWire } from "#modules/wire/types.js";
+import type { TraceView } from "#modules/telemetry/types.js";
+import type { Availability, BlueprintWire } from "#modules/wire/types.js";
 import type { DataFailed, PortalData } from "../types.ts";
 
 const failed = (request: string, reason: string): DataFailed => ({ _tag: "DataFailed", request, reason });
@@ -17,9 +17,27 @@ const read = <T>(request: string): Effect.Effect<T, DataFailed> =>
     ),
   );
 
+/** What the trace endpoint answered: the scrubbed trace, the source's reason it has none to give, or that the source holds no such trace. */
+export type TraceAnswer = Availability<TraceView> | { readonly state: "missing" };
+
+const jsonOf = <T>(request: string, response: Response): Effect.Effect<T, DataFailed> =>
+  Effect.tryPromise({ try: () => response.json() as Promise<T>, catch: () => failed(request, "its answer was not JSON") });
+
+/** One trace, scrubbed by the server. A request that failed is a failure, never a missing trace. */
+export const loadTrace = (id: string): Effect.Effect<TraceAnswer, DataFailed> => {
+  const request = `/_portal/v1/traces/${encodeURIComponent(id)}`;
+  const answer = (response: Response): Effect.Effect<TraceAnswer, DataFailed> => {
+    if (response.status === 200) return jsonOf<Availability<TraceView>>(request, response);
+    // A 404 with a reason is a portal with no live source; one without is a source that read fine and holds no such trace.
+    if (response.status === 404) return jsonOf<{ readonly reason?: string }>(request, response).pipe(Effect.map((body): TraceAnswer => typeof body.reason === "string" ? { state: "unavailable", reason: body.reason } : { state: "missing" }));
+    return Effect.fail(failed(request, `it answered ${response.status}`));
+  };
+  return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(Effect.flatMap(answer));
+};
+
 export const load = (): Effect.Effect<PortalData, DataFailed> =>
   Effect.gen(function* () {
     const blueprint = yield* read<BlueprintWire>("/_portal/v1/blueprint");
-    const snapshot = yield* read<PortalSnapshot>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
+    const snapshot = yield* read<PortalData["snapshot"]>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
     return { blueprint, snapshot };
   });

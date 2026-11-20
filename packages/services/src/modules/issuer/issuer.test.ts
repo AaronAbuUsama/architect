@@ -1,7 +1,10 @@
 import { createSign, generateKeyPairSync } from "node:crypto";
-import { Effect, Exit, Scope } from "effect";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
+import { Cause, Effect, Exit, Scope } from "effect";
 import { createRemoteJWKSet, decodeJwt, decodeProtectedHeader, jwtVerify } from "jose";
 import { describe, expect, it } from "vitest";
+import { Owned } from "#modules/owned/service.js";
 import { Issuer } from "./service.ts";
 import type { IssuerConfig } from "./types.ts";
 
@@ -63,5 +66,36 @@ describe("the OIDC issuer", () => {
       yield* Effect.promise(() => expect(jwtVerify(other, keys, { issuer: trusted.url })).rejects.toBeDefined());
       expect(trusted.port).not.toBe(rogue.port);
     })));
+  });
+
+  // A port picked as free can be taken before the issuer listens on it (CI runs many suites at once). The issuer then exits and
+  // says why, so a port the caller gave fails with that reason, and a port the issuer picked itself is picked again.
+  it("on a port already taken it exits and says why, instead of waiting or dying silently", { timeout: 30_000 }, async () => {
+    const held = createServer((_request, response) => { response.writeHead(404); response.end(); });
+    await new Promise<void>((done) => held.listen(0, "127.0.0.1", () => done()));
+    try {
+      const exit = await Effect.runPromiseExit(Effect.scoped(Issuer.start({ config, port: (held.address() as AddressInfo).port })));
+      expect(Exit.isFailure(exit)).toBe(true);
+      const error = Exit.isFailure(exit) ? Cause.squash(exit.cause) : undefined;
+      expect(error).toMatchObject({ _tag: "ProcessFailed", exited: true });
+      expect(String((error as { message?: unknown }).message)).toMatch(/exited before it answered: issuer: couldn't listen on 127\.0\.0\.1:\d+/);
+    } finally { held.close(); }
+  });
+
+  it("when the port it got was taken before it listened, it gets another and starts there", { timeout: 30_000 }, async () => {
+    const held = createServer((_request, response) => { response.writeHead(404); response.end(); });
+    await new Promise<void>((done) => held.listen(0, "127.0.0.1", () => done()));
+    const taken = (held.address() as AddressInfo).port;
+    let asked = 0;
+    // The first port it is handed is the held one, as when another process takes a picked port first; then a free one.
+    const ports = Effect.suspend(() => (asked++ === 0 ? Effect.succeed(taken) : Owned.freePort));
+    try {
+      await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+        const issuer = yield* Issuer.start({ config, ports });
+        expect(asked).toBe(2);
+        expect(issuer.port).not.toBe(taken);
+        expect((yield* Effect.promise(() => fetch(`${issuer.url}/.well-known/openid-configuration`))).ok).toBe(true);
+      })));
+    } finally { held.close(); }
   });
 });
