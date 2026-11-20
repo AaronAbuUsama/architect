@@ -69,6 +69,34 @@ one package for that reason).
    (R1): the newest version at least three days old when it's added (today that is `0.1.0-beta.7`, 17 November). A
    younger version needs R1's override, with the reason.
 
+## Where UI SDK sits: actions first, derive, don't declare
+
+Two more calls of Aaron's, the same day, after both spikes.
+
+**Actions first.** In the Capxul session, asked "Do you want actions as the spine, with UI SDK underneath as the widget
+layer?", he chose the button "Yes, actions first". The layers, from the bottom of the page up:
+
+1. **The blueprint**: what things mean, as today.
+2. **The action**, generated, one per operation (K5 decision 3, M1.22 and M1.23): who is calling, a declared refusal
+   that writes nothing, approval asked once. The page, MCP and the CLI call the same action.
+3. **A typed piece per operation, read and move**, generated on UI SDK: a form, a list, a button. Its agent steps are
+   the action's; a refusal reaches the page's agent with its code (`spikes/ui-sdk-real-world`, PR #222).
+4. **Pages and the app's own components**, hand-written in `src/web/` from those pieces. A component nothing generated
+   fits (an editor) is a UI SDK primitive whose agent-readable state is declared `controlled`; anything it saves goes
+   through a generated action.
+5. **UI SDK's widgets** underneath: inputs, pickers, dialogs, focus, keyboard, screen readers. We never write those.
+
+**Derive, don't declare.** Asked whether components and screens should be declared in the blueprint, and shown the
+case for and against (the conductor's whiteboard "UI on Orthograph"), he agreed with the conductor's verdict: "I think
+we're on the same page." No `Blueprint.component` or `Blueprint.screen`. Everything a declaration would give (types
+down to the page, the agent's limits, journeys through the page) comes from generating pieces out of what the
+blueprint already says; the agent's real limit is the action, which checks the role. What the blueprint gains instead
+is only the meaning every output needs: what kind a value is, approval on an operation, secret and hidden fields.
+Reopen only if a component carries meaning no operation has.
+
+**What it moves.** Screens on generated pieces need actions, which K13 placed in M3. Whether to bring M1.22 and M1.23
+forward for stage 1's screens is open with Aaron.
+
 ## What doesn't change
 
 - Work in flight carries on with HeroUI until step 3 reaches it. Goal 3's portal work is not paused.
