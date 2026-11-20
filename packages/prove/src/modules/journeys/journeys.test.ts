@@ -25,8 +25,8 @@ describe("loading a project", () => {
 // array as `declared`. The check reads the first declared state in either shape, so it gives acme's tag today and the same tag once the record lands.
 describe("a machine's own refusal tag, whichever shape its states have", () => {
   const tagFor = async (machine: unknown) => {
-    const { refuses } = await import("orthograph");
-    const check = (refuses as unknown as (e: unknown) => unknown)({ kind: "not-from", machine, exit: 40 });
+    // What `refuses(machine.notFrom)` builds, written out: this package may not import orthograph at run time.
+    const check = { kind: "refuses", error: { kind: "not-from", machine, exit: 40 }, fields: {} };
     const call = { journey: "j", step: "s", actor: "a", person: "p", operation: "o", payload: {}, status: 409, body: { _tag: "AllowanceNotActive" }, trace: "t", parent: "x", mayCall: true, journal: [] } as never;
     const world = { facts: { record: () => Effect.succeed(null), journal: () => Effect.succeed([]) }, tableOf: () => "allowance" };
     const { runChecks } = await import("./internal/checks.ts");
