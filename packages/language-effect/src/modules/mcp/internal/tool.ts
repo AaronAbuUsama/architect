@@ -80,5 +80,5 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
   });
 
   const output = outputSchema(op, items, entry.states);
-  return { name, description: entry.description, input: inputSchema(op.payloadSchema as unknown as Schema.Top, op.payload), ...(output ? { output } : {}), readOnly: op.kind === "read", call };
+  return { name, description: entry.description, input: inputSchema(op.payloadSchema as unknown as Schema.Top, op.payload), ...(output ? { output } : {}), ...(entry.move ? { move: entry.move } : {}), readOnly: op.kind === "read", call };
 };

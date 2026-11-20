@@ -3,13 +3,15 @@ import type { FieldModel, Model, OperationModel } from "@orthograph/compiler";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
 import { GENERATED, camel, exportedAs, lines, local, opVar, type RenderedFile } from "@orthograph/projections/shared";
 
-/** What a text flag takes, in the words a caller uses: a wide number is a `uint` (kept as text, so no digit is lost), an id says what it names. */
-const metavar = (f: FieldModel): string =>
-  f.value.type === "uint" ? "uint" : f.value.type === "id" ? "id" : f.value.type === "schema" ? "json" : "text";
+const refAny = (f: FieldModel) => f.value.type === "schema" && f.value.format === "ref-any";
 
-/** A flag's help: the field's own description, then what kind of value it takes. */
+/** What a text flag takes, in the words a caller uses: a wide number is a `uint` (kept as text, so no digit is lost), an id says what it names, a named value its own name. */
+const metavar = (f: FieldModel): string =>
+  f.value.type === "uint" ? "uint" : f.value.type === "id" ? "id" : refAny(f) ? "json" : f.named !== undefined ? f.named.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase() : "text";
+
+/** A flag's help: the field's own description, then what kind of value it takes (a plain schema's rules are the declaration's: it says if the text is refused). */
 const flagNote = (f: FieldModel): string => {
-  const kind = f.value.type === "uint" ? `A whole number below 2^${f.value.bits}.` : f.value.type === "id" ? `An id (${f.value.prefix}_...).` : f.value.type === "schema" ? "A JSON value." : "Text.";
+  const kind = f.value.type === "uint" ? `A whole number below 2^${f.value.bits}.` : f.value.type === "id" ? `An id (${f.value.prefix}_...).` : refAny(f) ? "A JSON object with the declaration and the id." : "Text.";
   return f.description === undefined ? kind : `${f.description} ${kind}`;
 };
 

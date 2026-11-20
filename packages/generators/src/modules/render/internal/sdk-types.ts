@@ -2,10 +2,13 @@
 import type { FieldsModel, Model, ThingModel } from "@orthograph/compiler";
 import { GENERATED, lines, thingFileAt, type RenderedFile } from "@orthograph/projections/shared";
 
+/** A sentence inside a `/** */` comment: `*/` would end it early. */
+export const comment = (text: string) => text.replace(/\*\//g, "*\\/").replace(/\s*\n\s*/g, " ");
+
 /** The fields of one type, each with its sentence as a doc comment and its type from the blueprint's own value. */
 const members = (fields: FieldsModel, source: string, extra: ReadonlyArray<string> = []): ReadonlyArray<string> => [
   ...Object.entries(fields).flatMap(([k, f]) => [
-    ...(f.description === undefined ? [] : [`  /** ${f.description} */`]),
+    ...(f.description === undefined ? [] : [`  /** ${comment(f.description)} */`]),
     `  readonly ${JSON.stringify(k)}${f.visibility === undefined ? "" : "?"}: Of<${source}[${JSON.stringify(k)}]>;`,
   ]),
   ...extra,
@@ -30,7 +33,7 @@ const typesOf = (t: ThingModel): RenderedFile => {
       "type Of<F> = F extends { readonly value: { readonly schema: { readonly Type: infer T } } } ? T : F extends { readonly schema: { readonly Type: infer T } } ? T : never;",
       "",
       t.machine ? [`/** The states a ${t.name} moves between, as its machine declares them. */`, `export type ${state} = ${t.machine.states.map((s) => JSON.stringify(s)).join(" | ")};`, ""] : [],
-      `/** ${t.description} A field not every caller is shown (secret, or private to roles) may be missing from what a call returns. */`,
+      `/** ${comment(t.description)} A field not every caller is shown (secret, or private to roles) may be missing from what a call returns. */`,
       `export type ${t.identifier} = {`,
       ...members(t.fields, "Declared", t.machine && !("state" in t.fields) ? [`  readonly "state": ${state};`] : []),
       "};",

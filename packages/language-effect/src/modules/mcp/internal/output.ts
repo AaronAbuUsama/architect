@@ -40,15 +40,14 @@ export const outputSchema = (op: Answering, items: FieldsInput = {}, states?: Re
     ...(Object.keys(items).length > 0 ? { items: told(agentFields(items), states) } : {}),
   });
   const { schema, definitions } = Schema.toJsonSchemaDocument(wire);
-  const { required, properties, ...rest } = schema as { readonly required?: ReadonlyArray<string>; readonly properties?: Json } & Json;
   // A refusal comes back as a tool error whose structured content is `{ refusal, code, exit, status, ...its fields }`, and a client checks
-  // that against this schema too: so a result is either the answer (its required fields) or a refusal (its row).
-  const refusal = ["refusal", "code", "exit", "status"];
-  return {
-    ...rest,
+  // that against this schema too: so a result is one of two shapes, each with its own properties (an answer's own `status` is not the
+  // refusal's), the answer first.
+  const answer = { ...(schema as Json), type: "object" };
+  const refusal = {
     type: "object",
-    properties: { ...properties, refusal: { type: "string" }, code: { type: "string" }, exit: { type: "integer" }, status: { type: "integer" } },
-    ...((required ?? []).length > 0 ? { anyOf: [{ required }, { required: refusal }] } : {}),
-    ...(Object.keys(definitions).length > 0 ? { $defs: definitions } : {}),
+    properties: { refusal: { type: "string" }, code: { type: "string" }, exit: { type: "integer" }, status: { type: "integer" } },
+    required: ["refusal", "code", "exit", "status"],
   };
+  return { type: "object", anyOf: [answer, refusal], ...(Object.keys(definitions).length > 0 ? { $defs: definitions } : {}) };
 };

@@ -7,6 +7,9 @@ import { NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/pro
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 
+/** A sentence in a table cell: a `|` would end the cell, a line break the row. */
+const cell = (text: string) => text.replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ");
+
 const kindOf = (f: FieldModel) => f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type);
 const markOf = (f: FieldModel) => (f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : "");
 
@@ -14,7 +17,7 @@ const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
     : Object.values(fields).some((f) => f.description !== undefined)
-      ? ["| field | value | description |", "|---|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${kindOf(f)}${markOf(f)} | ${f.description ?? ""} |`)]
+      ? ["| field | value | description |", "|---|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${kindOf(f)}${markOf(f)} | ${cell(f.description ?? "")} |`)]
       : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${kindOf(f)}${markOf(f)} |`)];
 
 /** Each event the thing declares, with the fields it carries and the move that emits it. */

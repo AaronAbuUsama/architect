@@ -20,7 +20,7 @@ export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
       "export const catalog = {",
       ops.map((o) => {
         const states = model.things[o.thing]?.machine?.states ?? [];
-        return `  "${o.name}": { description: ${JSON.stringify(o.description)}, operation: ${opVar(o)}${states.length > 0 ? `, states: ${JSON.stringify(states)}` : ""} },`;
+        return `  "${o.name}": { description: ${JSON.stringify(o.description)}, operation: ${opVar(o)}${states.length > 0 ? `, states: ${JSON.stringify(states)}` : ""}${o.move ? `, move: ${JSON.stringify(o.move)}` : ""} },`;
       }),
       "} as const satisfies { readonly [name: string]: McpEntry };",
     ),

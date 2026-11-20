@@ -8,6 +8,6 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 /** Stop the mission for good. Its runs are stopped with it. Each flag is handed on as text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const stop = Command.make(
   "stop",
-  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), why: Flag.String("why").pipe(Flag.withMetavar("text"), Flag.withDescription("Text.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { mission: Flag.String("mission").pipe(Flag.withMetavar("id"), Flag.withDescription("An id (msn_...).")), why: Flag.String("why").pipe(Flag.withMetavar("note"), Flag.withDescription("Text.")), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.mission.stop), Output.answer(json)),
 ).pipe(Command.withDescription("Stop the mission for good. Its runs are stopped with it. Moves the mission from intake or running or paused to stopped."));
