@@ -128,6 +128,14 @@ describe("`serve`: a Worker's route", () => {
     expect((await serve("/portal/assets/missing.js", { PORTAL_ASSETS: files })).status).toBe(404);
   });
 
+  it("a route whose last segment looks like a file type is still a route: an operation whose verb is `map`, `json` or `svg` is the shell", async () => {
+    const files = assets({ "/index.html": "<!doctype html>shell", "/assets/app.js": "export {}" });
+    for (const verb of ["map", "json", "svg", "js", "css"]) {
+      expect(await (await serve(`/portal/operations/document.${verb}`, { PORTAL_ASSETS: files })).text(), verb).toBe("<!doctype html>shell");
+    }
+    expect((await serve("/portal/assets/app.map", { PORTAL_ASSETS: files })).status, "a file of the client's namespace that is not there is a 404").toBe(404);
+  });
+
   it("a Worker with no assets says the client is not installed, and still answers the data", async () => {
     const response = await serve("/portal", {});
     expect(response.status).toBe(404);

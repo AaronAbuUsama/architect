@@ -1,6 +1,6 @@
 // The environment's own wrangler config: the generated server's, running the built bundle unchanged.
 import { Names } from "orthograph/server";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { ServerConfig } from "#modules/server-config/service.js";
 
 type Base = { readonly name: string; readonly d1_databases?: ReadonlyArray<Record<string, unknown>>; readonly vars?: Record<string, string> } & Record<string, unknown>;
@@ -20,6 +20,13 @@ export interface Describe {
   /** Where the logbook is, which the portal route reads (`ORTHO_LOGBOOK_URL`). */
   readonly logbook?: string;
 }
+
+/**
+ * The portal's client a revision ships, as the verified record says: its `portal/` folder when `bundle.json` records a client and its digest
+ * matched (`Build.find` checked it), and nothing otherwise. A folder the record does not name is not the revision's, however it got there.
+ */
+export const portalOf = (built: { readonly main: string; readonly portal: string | null }): string | undefined =>
+  built.portal === null ? undefined : join(dirname(built.main), "portal");
 
 /** The logbook an environment's config names, if it names one. */
 export const logbookOf = (configText: string): string | undefined =>
