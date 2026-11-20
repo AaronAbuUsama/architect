@@ -9,6 +9,7 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 
 | Pattern | Entries | Failures | Status | Proposal |
 |---|---|---|---|---|
+| Checks a wrong output can pass | 3 | 2 | partly covered | 14 |
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 (applied) |
 | Parallel work collides | 6 | 3 | partly covered | 3 (applied) |
 | CI that can't tell us anything | 11 | 8 | partly covered | 4 (applied) |
@@ -21,12 +22,31 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | One fact, many hand-kept copies | 4 | 4 | partly covered | 10 (applied) |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 (applied) |
+| Fixes that don't reach the working branch | 1 | 1 | open | 15 |
 | Rules with no check behind them | 1 | 1 | partly covered | 13 (applied) |
 | Briefs that miss context | 2 | 0 | open, small | none yet |
 | Secrets in output | 1 | 0 | open, small | none yet |
 | Evidence that overclaims | 1 | 1 | covered | none |
 
 ---
+
+## Checks a wrong output can pass
+
+A check written before the build lets some wrong output through, and a review finds the holes one at a time. Each
+round's fix waits on the next review, so the cost is the loop, not any one hole. The findings are in the check, never
+the product.
+
+Entries:
+- 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again (failure)
+- 2026-11-20 · A grid check took sixteen Codex rounds over four hours, each finding one more wrong output that passed (failure)
+- 2026-11-19 · A 🔍 found that the unique-field checks could be passed without the real index (win)
+
+**Covers it today:** the `author` skill's proof 5, "It can't be passed hollow" ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)), which asks for one
+cheapest wrong implementation, on `goal/stage-1` only since 06:47 on 20 November, after both loops began; planting each
+review finding as a failing case.
+
+**Gap:** one wrong implementation is named, where the holes Codex found came in families. Nothing asks for every way
+a wrong output could pass, a pass by someone hostile before Codex, or a rewrite once a family repeats.
 
 ## Reviews miss runtime defects
 
@@ -266,6 +286,19 @@ Entries:
 `threads` skill ([PR 129](https://github.com/AaronAbuUsama/architect/pull/129)).
 
 **Gap:** the rule is written; watching for work that lives only in a worktree.
+
+## Fixes that don't reach the working branch
+
+A process fix lands on `main` and is logged as applied, while the work it's for runs on a goal branch that doesn't
+have it yet.
+
+Entries:
+- 2026-11-20 · The author skill reached the goal branch eight hours after it merged, after both checks were written (failure)
+
+**Covers it today:** nothing; `main` is merged into a goal branch when its lead chooses.
+
+**Gap:** "applied" means "merged on `main`". The `author` skill took eight hours to reach `goal/stage-1`;
+`builder-paths` and `cancel-closed` took two and still haven't reached `m1`.
 
 ## Rules with no check behind them
 
