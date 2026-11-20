@@ -45,7 +45,7 @@ one package for that reason).
 
 ## Decided
 
-1. **Spikes first.** The first is done: `spikes/ui-sdk-verb-primitive` (PR #215) generated Plugged In's
+1. **Spikes first.** The first is done: `spikes/ui-sdk-verb-primitive` (PR #215, open, merges before this) generated Plugged In's
    `handle.claim` as one UI SDK primitive (73 lines) that renders in React and as custom elements; the agent bridge
    lists it with only the actions the generator named, a call carries whether a person or an agent made it, and a
    declared refusal fails the agent's step with its code. It ran against a stand-in server in jsdom. The second
@@ -56,8 +56,9 @@ one package for that reason).
    not yet a decision). Nothing in `packages/` depends on UI SDK until the second spike passes.
    The first spike's finding is the rule: the page is generated from the blueprint onto UI SDK as its own output, and
    never hand-written against UI SDK.
-2. **Everything new uses UI SDK from the start**, once the spike passes: generated forms, inputs, buttons, lists
-   and screens, and the example apps' screens, which become generated rather than hand-written. HeroUI never touches them.
+2. **Everything new uses UI SDK from the start**, once the second spike passes: generated forms, inputs, buttons, lists
+   and screens, and the example apps' screens. HeroUI never touches them. Whether those screens are generated in stage 1
+   (amending ST1.04, whose three screens are hand-written on the hooks) is the second spike's to answer.
 3. **The portal moves over piece by piece**, behind the same seam. `@orthograph/portal-ui` keeps its own names
    (F7, decision 2); their insides change from HeroUI Pro to UI SDK one export at a time. The data grid and the board
    go last, because UI SDK has neither: we build them on its behaviours, as F7's fallback already planned for the
@@ -84,7 +85,7 @@ one package for that reason).
 These are recorded here and go into `design/ledger.md` and `design/later.md` once the open money-gap change lands.
 
 - **Generated screens aren't planned anywhere.** ST1.01 builds hooks only; ST1.04's three screens are written by
-  hand. The spike says whether a screens output belongs in stage 1 or later.
+  hand. The second spike says whether a screens output belongs in stage 1 or later.
 - **Named value kinds.** Plugged In's `generated/model/model.json` carries `HandleName` and `LinkUrl` only as
   `{ "type": "schema" }`, so no generator can tell a web address from a pattern and choose the right input. Named
   value kinds (a web address, a pattern, a choice, yes or no) would fix it for every output, not only screens. This
@@ -92,7 +93,11 @@ These are recorded here and go into `design/ledger.md` and `design/later.md` onc
 
 ## Risks
 
-- **A week-old beta.** Interfaces may change between betas; the spike pins one and records what it relied on.
+- **A week-old beta.** Interfaces may change between betas; each spike pins one and records what it relied on.
+- **Two things the first spike leans on that UI SDK doesn't promise.** A refusal fails the agent's step only because
+  the primitive's state uses the bridge's own `pending` and `error` keys, read from the bridge's code, not its
+  documentation. And the caller's source (person or agent) reaches the send only through a `dispatch` and `settle`
+  workaround, since an api method can't see its caller.
 - **The grid and board are ours to build.** They are the portal's largest parts.
 - **Experimental pieces.** `createHistory` and `stageChanges` are marked experimental; nothing depends on them until
   they aren't.
