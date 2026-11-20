@@ -1,7 +1,7 @@
 // The process entry: `node main.ts issuer --port <n> --config <file>` runs the OIDC issuer until it is stopped. The only file here
 // that reads the command line, the filesystem for its config or `process`.
 import { readFileSync } from "node:fs";
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import { serve } from "#modules/issuer/service.js";
 import type { IssuerConfig } from "#modules/issuer/types.js";
 
@@ -17,10 +17,14 @@ const port = Number(flag("port"));
 const file = flag("config");
 const config: IssuerConfig = file === undefined ? {} : JSON.parse(readFileSync(file, "utf8"));
 
-// A failure (the port was taken before it listened) is written to the log the owner reads, and the exit says it failed.
+// A failure or a defect (the port was taken before it listened) is written to the log the owner reads, and the exit says it failed.
+const said = (cause: Cause.Cause<unknown>) => {
+  const error = Cause.squash(cause);
+  return error instanceof Error ? error.message : Cause.pretty(cause);
+};
 Effect.runFork(Effect.scoped(serve(config, port).pipe(Effect.andThen(Effect.never))).pipe(
-  Effect.catch((error) => Effect.sync(() => {
-    process.stderr.write(`issuer: ${error.message}\n`);
+  Effect.catchCause((cause) => Effect.sync(() => {
+    process.stderr.write(`issuer: ${said(cause)}\n`);
     process.exit(1);
   })),
 ));

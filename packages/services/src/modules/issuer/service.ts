@@ -36,7 +36,7 @@ export const Issuer: IssuerApi = {
       // A port picked here is free when picked, not when the issuer listens: under load another process can take it first,
       // and the issuer exits (main.ts says why). Then pick again, up to three ports. A port the caller gave is never swapped.
       if (options.port !== undefined) return yield* on(options.port);
-      return yield* Owned.freePort.pipe(
+      return yield* (options.ports ?? Owned.freePort).pipe(
         Effect.flatMap(on),
         Effect.retry({ times: 2, while: (e) => e._tag === "ProcessFailed" && e.exited === true }),
       );
