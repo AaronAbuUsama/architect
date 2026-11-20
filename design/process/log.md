@@ -29,6 +29,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   The same gap held for `builder-paths` and `cancel-closed`, which reached `goal/stage-1` two hours after `main` and
   haven't reached `m1`.
 - **Pattern:** fixes that don't reach the working branch.
+- **Update, 20 November:** proposal 15 applied to the conductor skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
 
 ### 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again
 - **Kind:** failure.
@@ -46,6 +47,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** each finding planted as a failing control, then fixed; the third with a rule for its whole family.
 - **What changed:** nothing yet; proposal 14.
 - **Pattern:** checks a wrong output can pass.
+- **Update, 20 November:** proposal 14 applied to the `author` skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
 
 ### 2026-11-20 · A grid check took sixteen Codex rounds over four hours, each finding one more wrong output that passed
 - **Kind:** failure.
@@ -68,6 +70,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   was rewritten to judge the whole type and every answer.
 - **What changed:** nothing yet; proposal 14.
 - **Pattern:** checks a wrong output can pass.
+- **Update, 20 November:** proposal 14 applied to the `author` skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
 
 ### 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending
 - **Kind:** near miss.

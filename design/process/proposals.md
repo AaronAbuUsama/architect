@@ -475,6 +475,8 @@ And "the five proofs" becomes "the six proofs" in "Finished when" and in the ✍
 
 **Applies it:** the conductor, or the thread that owns the skills, with the Goal 3 lead. The test: on the next checks
 pull request, count the Codex rounds with findings.
+**Applied, 20 November:** by the Scribe at the conductor's request, the skills' owner being archived, in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169). On `main`;
+reaches `goal/stage-1` when `main` is next merged into it.
 
 ## 15. Applied means it reached the branches where the work runs
 
@@ -493,3 +495,4 @@ And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `
 `m1` still lacks PR 130's guards.
 
 **Applies it:** the conductor. The Scribe's half is in this change.
+**Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
