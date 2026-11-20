@@ -76,6 +76,7 @@
     "ortho/no-old-names": "error",
     "ortho/no-viem-outside-chain": "error",
     "ortho/no-pro-outside-portal-ui": "error",
+    "ortho/no-ui-in-worker": "off",
     "no-restricted-imports": [
       "error",
       {
@@ -200,6 +201,24 @@
       "rules": {
         "ortho/no-pro-outside-portal-ui": "off",
         "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "**/generated/**",
+        "**/packages/portal/src/**"
+      ],
+      "rules": {
+        "ortho/no-ui-in-worker": "error"
+      }
+    },
+    {
+      "files": [
+        "**/packages/portal/src/main.ts",
+        "**/packages/portal/src/modules/pages/**"
+      ],
+      "rules": {
+        "ortho/no-ui-in-worker": "off"
       }
     },
     {

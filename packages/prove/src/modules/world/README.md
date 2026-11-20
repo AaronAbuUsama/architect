@@ -7,6 +7,9 @@ argument and never written to a file. With `otlp`, the Worker exports its spans 
 `/_world/health` answers; stopped, with wrangler, when the scope closes. `ortho dev` and `ortho prove` both use
 it.
 
+With the portal's built client in reach, the world runs a config derived from the generated one that serves it as static assets
+(`server-config`, K19), written to `.ortho/<name>/wrangler.jsonc`.
+
 `Worlds.launch({ config, state, port, log, pidFile, envFile?, ready })`: the same wrangler, kept: detached in its own
 process group, on a config the caller made, with a `--persist-to` folder that survives restarts, `--inspector-port 0`,
 and its secrets in an env file. Migrations are applied first, a taken socket starts it again, and it is ready once the
