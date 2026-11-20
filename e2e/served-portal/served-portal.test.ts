@@ -64,13 +64,13 @@ describe("served portal: the harness plays the Worker and reads the page as a pe
     await portal.close();
   });
 
-  it("keeps each parallel screenshot its own: three routes shot together are three pictures, the ones shot one by one", async () => {
+  it("keeps each parallel screenshot its own: eight routes shot together are eight pictures, the ones shot one by one", async () => {
     const portal = await open(["handle", "link", "profile", "thing"]);
-    const routes = ["/portal", "/portal/things/a-longer-route-name", "/portal/operations/x.y?tab=metrics"];
+    const routes = Array.from({ length: 8 }, (_, i) => `/portal/things/route-${i}-${"x".repeat(i * 7)}`);
     const serial: Array<string> = [];
     for (const route of routes) serial.push(Buffer.from(await portal.shoot(route)).toString("base64"));
     const together = (await Promise.all(routes.map((route) => portal.shoot(route)))).map((png) => Buffer.from(png).toString("base64"));
-    expect(new Set(serial).size, "the routes differ").toBe(3);
+    expect(new Set(serial).size, "the routes differ").toBe(routes.length);
     expect(together).toEqual(serial);
     await portal.close();
   });

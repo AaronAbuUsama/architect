@@ -66,9 +66,10 @@
 //     `not yet` in the attribute), and no made-up value: request key (hole 1), role held (hole 8), per-eval verdicts (3).
 //     The aggregate verdict per environment is not a hole; its states are `ProofState`'s (recorded-pass, failed, stale,
 //     unproven, unavailable), and `unavailable` only where no logbook is configured, as here.
-//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In declares no journey (ST1.02) and the wire carries none
-//     until M1.42, so `/portal/journeys` shows the declared-none state (`journeys-empty`) and draws no step, whatever the
-//     window's traces hold. The step-verdict hole (PRJ-47) is asserted once M1.42 brings journeys: not in this file yet.
+//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In's wire now carries its journeys (N, with their steps), so
+//     `/portal/journeys` draws `journey` N times and `journey-step` once for each declared step, with no `journeys-empty`, whatever the
+//     window's traces hold; on a copy of the wire with `journeys` removed it shows the declared-none state (`journeys-empty`) and no
+//     step. The step-verdict hole (PRJ-47) is asserted once M1.42 brings step verdicts: not in this file yet.
 //  9. The reference panel is pinned to portal.md's order: Access, Refusal codes, Events, Values, Machines (not sorted).
 // 10. K19: every page, once drawn, carries `page[data-ready="true"][data-status]` (200, or 404 for a route that is not a page: the shell is always
 //     a 200), which the harness waits for and reads a page's status from (`e2e/served-portal/README.md`).
@@ -742,9 +743,23 @@ describe("21 L: what the portal cannot fill yet says `not yet`", () => {
     expect(parts(text, "not-yet").map((n) => n["data-hole"])).toContain("per-eval");
   });
 
-  it("journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold", async () => {
+  const declared = () => Object.values((pluggedInWire() as { model: { journeys?: Record<string, { steps: ReadonlyArray<unknown> }> } }).model.journeys ?? {});
+
+  it("journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold", async () => {
     const wire = await decode(pluggedInWire());
-    expect(Object.keys(rawOf().journeys ?? {}), "Plugged In declares no journey").toEqual([]);
+    const journeys = declared();
+    expect(journeys.length, "Plugged In declares journeys on the wire (the climb's seven)").toBeGreaterThan(0);
+    const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
+    expect(status).toBe(200);
+    expect(parts(text, "journeys-empty").length, "journeys are declared: no declared-none state").toBe(0);
+    expect(parts(text, "journey").length, "one journey drawn for each declared").toBe(journeys.length);
+    expect(parts(text, "journey-step").length, "the declared steps, and the staged trace's `journey.*` span adds none").toBe(journeys.reduce((n, j) => n + j.steps.length, 0));
+  });
+
+  it("with no journey declared the page says so and draws no step, whatever the window's traces hold", async () => {
+    const raw = structuredClone(pluggedInWire()) as { model: { journeys?: unknown } };
+    delete raw.model.journeys;
+    const wire = await decode(raw);
     const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
     expect(status).toBe(200);
     expect(parts(text, "journeys-empty").length, "the declared-none state").toBe(1);

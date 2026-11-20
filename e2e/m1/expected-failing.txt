@@ -51,9 +51,10 @@ m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls tabl
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > a metrics source that fails gives a page with no numbers and no guess
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the refusal-codes page counts every refusal by name and code, and says `no span` for the door's
 m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table
-m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
 m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
 m1/21-portal-viewer.test.ts > 21 control: the served portal > serves acme's `/portal` and a thing's page to a browser, twice with the same bytes
 m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > `@orthograph/portal` exports `./server`, and nothing reachable from it imports react, portal-ui or HeroUI
 m1/26-k19-server-client-line.test.ts > 26 K19: nothing a Worker bundles reaches the UI > the generated portal entry imports the portal's server half and nothing else of the portal

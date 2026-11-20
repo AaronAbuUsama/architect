@@ -148,7 +148,7 @@ describe("26 K19: the lint rule `ortho/no-ui-in-worker`", () => {
       const { lines, output } = diagnostics("tmp/lint-k19/generated/portal/breach.ts");
       expect(lines, `K19: the rule is not registered or not on for generated code; oxlint said:\n${output.slice(0, 600)}`).toHaveLength(EXPECTED.length);
       for (const [i, name] of EXPECTED.entries()) {
-        expect(lines[i], `diagnostic ${i + 1} names the module`).toContain(name);
+        expect(lines[i], `diagnostic ${i + 1} names the module, quoted`).toMatch(new RegExp(`['"\`]${name.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}['"\`]`));
         expect(lines[i], `diagnostic ${i + 1} says why`).toContain("K19");
       }
     });
