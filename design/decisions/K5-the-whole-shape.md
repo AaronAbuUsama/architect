@@ -138,7 +138,7 @@ export const Revision = Blueprint.thing({
 export const Proposal = Blueprint.thing({
   description: "A question put to the members, decided by one vote each.",
   fields: { id: ProposalId, digest: Digest, yes: Votes, no: Votes, closesAt: Blueprint.time() },
-  lives: Blueprint.chain({ contract: "Governance", per: "workshop" }),   // new: M6.10, shape from K7
+  lives: Blueprint.chain({ contract: "Governance", per: "workshop" }),   // new: M6.10, shape from K7; superseded by K25, 20 November 2026: a chain store file
 });
 
 // blueprint/things/proposal/machine.ts
@@ -280,7 +280,7 @@ export default Blueprint.operation(Proposal, {
   move: machine.moves.vote,           // from passed or failed: ProposalNotOpen, the generated refusal
   errors: [AlreadyVoted],             // K7: NotAMember dropped; `allowed: [member]` already refuses with NotAllowed
   allowed: [member],
-  runs: "chain",                      // new: refused by the compiler today, M6.10
+  runs: "chain",                      // new: refused by the compiler today, M6.10 (superseded by K25, 20 November 2026: worked out, never written)
 });
 ```
 

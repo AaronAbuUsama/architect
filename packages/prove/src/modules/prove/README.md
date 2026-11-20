@@ -25,3 +25,5 @@ an OIDC token that is never printed. The shared part, `exercise`, runs the journ
 `test-worlds.test.ts`.
 
 `run` also stands a chain when a mounted plugin runs operations on the device (`internal/device-host.ts`, M1.29, K7 Q7): Anvil as a process of the run's scope (`standChain`, always `--silent`, released after the Worker), with a funded key for each host (`node`, `browser`, `keystore`, `world`) and one more account, the payee's, and the `DeviceHost` the journeys run those operations on. Without `anvil` on the path the world has no chain, says so in the report (`world chain: none, …`), and the journeys that need a key fail naming `world.chain`.
+
+A warm world (ST1.24): `run` first asks `warm` for a live `ortho dev`. When there is one, and the run is not `--empty`, has no `--port` and needs no device, it empties that world and its collector, says `prove: reusing the world of ortho dev at <url>` and runs the journeys in it, reading their spans from dev's collector (`.ortho/dev-telemetry`); otherwise it starts a world of its own (`internal/stand.ts`). `ortho dev` keeps the collector and the record (`warm`). Decision: `design/decisions/ST1-24-warm-world.md`.

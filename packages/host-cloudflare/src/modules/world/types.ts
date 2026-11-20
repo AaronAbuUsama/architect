@@ -6,6 +6,8 @@ export interface WorldEnv {
   readonly DB: D1Database;
   /** Better Auth's secret. Made fresh by `ortho dev` for each run; never written to a file. */
   readonly AUTH_SECRET: string;
+  /** Made fresh by `ortho dev`: its health answer says it, and a reset must present it (a record of dev is no one else's world). */
+  readonly ORTHO_WORLD_NONCE?: string;
 }
 
 /**

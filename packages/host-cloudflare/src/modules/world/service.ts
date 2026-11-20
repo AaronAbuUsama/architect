@@ -1,11 +1,12 @@
 import { DurableObject } from "cloudflare:workers";
 import { Clock, Effect } from "effect";
 import type { WorldEnv, WorldHost } from "./types.ts";
-import { frontDoor } from "./internal/front-door.ts";
+import { frontDoor, RESET_HEADER } from "./internal/front-door.ts";
 import { AuthD1 } from "#modules/auth/service.js";
 import type { AuthInstance } from "#modules/auth/types.js";
 import { facts } from "./internal/facts.ts";
 import { end, live } from "./internal/leases.ts";
+import { resetDatabases } from "./internal/reset.ts";
 import { worldsDoor } from "./internal/worlds.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -29,7 +30,7 @@ export class World extends DurableObject<WorldEnv> {
     if (pathname === "/_world/arm" || pathname === "/_world/end") {
       return request.json().then((body) => (pathname === "/_world/arm" ? this.arm(body as { id: string; expires: number }) : this.finish(body as { id: string; reason: "destroyed" | "expired" })));
     }
-    return Effect.runPromise(frontDoor(this.ctx.storage.sql, this.auth, request));
+    return Effect.runPromise(frontDoor(this.ctx.storage.sql, this.auth, request, this.env.ORTHO_WORLD_NONCE));
   }
 
   /** Remember the world's id and wake at its expiry. */
@@ -56,6 +57,16 @@ export class World extends DurableObject<WorldEnv> {
 export const toWorld = (world: WorldHost, request: Request): Promise<Response> => {
   const { pathname } = new URL(request.url);
   if (pathname.startsWith("/_world/facts/")) return Effect.runPromise(facts(world, request));
+  // A warm world is emptied between runs (ST1.24); a world with leases ends by its own lease instead. The header makes the
+  // request one a browser page cannot send cross-origin without a preflight; the world checks its value against its own.
+  if (pathname === "/_world/reset" && request.method === "POST") {
+    if (world.leases) return Promise.resolve(json({ error: "a world with leases is ended, not reset" }, 404));
+    if (!request.headers.get(RESET_HEADER)) return Promise.resolve(json({ error: `a reset names its world in ${RESET_HEADER}` }, 400));
+    return world.worlds.get(world.worlds.idFromName("world")).fetch(request).then((cast) =>
+      cast.ok
+        ? (cast.json() as Promise<{ readonly people: ReadonlyArray<string> }>).then(({ people }) => Effect.runPromise(resetDatabases(world, people))).then(() => json({ reset: true }))
+        : cast);
+  }
   if (!world.leases) return world.worlds.get(world.worlds.idFromName("world")).fetch(request);
   if (pathname.startsWith("/_world/worlds")) return Effect.runPromise(worldsDoor({ worlds: world.worlds, db: world.db }, request));
   return Effect.runPromise(live(world.db)).then((held) => world.worlds.get(world.worlds.idFromName(held[0]?.id ?? "world")).fetch(request));

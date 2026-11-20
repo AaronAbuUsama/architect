@@ -1,6 +1,7 @@
 import { Names } from "orthograph/server";
+import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
-import { Duration, Effect } from "effect";
+import { Clock, Duration, Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Collectors, FileMetrics, privateKeys } from "#modules/telemetry/service.js";
 import { PortalFeed } from "#modules/portal-feed/service.js";
@@ -11,14 +12,13 @@ import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { handlerHashes } from "#modules/verdicts/internal/proof.js";
 import { closing, exercise } from "./internal/exercise.ts";
-import { deviceHost, needsDevice, standChain } from "./internal/device-host.ts";
+import { PORTAL_WINDOW_MS, standWorld } from "./internal/stand.ts";
+import { Warm } from "#modules/warm/service.js";
+import { fingerprint } from "#modules/warm/internal/source.js";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
 import { proveReport } from "./internal/structured.ts";
 import { detail, headline, narrowed } from "./internal/changed-run.ts";
-
-/** The portal reads a world's last half hour: check 21's window, and the portal's own default. */
-const PORTAL_WINDOW_MS = 30 * 60_000;
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
@@ -60,17 +60,8 @@ export const Prove: ProveApi = {
       if (journeys.length === 0 && !(empty && only === undefined) && !(judging !== undefined && judging.size > 0)) return yield* new ProveFailed({ message: `no journey named "${only}"` });
       const bodies = handlerHashes(root, model);
       const world = empty ? yield* emptyWorld(root, model) : root;
-      const dir = resolve(world, Names.folder, "prove-telemetry");
-      const strip = privateKeys(model);
-      const collector = yield* Collectors.local(dir, strip).pipe(Effect.mapError(failed));
-      const sinks = yield* Sinks.resolve({ sinks: empty ? [{ sink: "local" }] : model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
-      // A plugin that runs operations on the device gets a chain in the world (Anvil as a process, K7 Q7), released after the Worker.
-      const stood = yield* standChain(model);
-      // The world's portal reads this run's telemetry through a feed this process answers (the Worker cannot open the collector's files).
-      const feed = yield* PortalFeed.serve({ source: collector, metrics: FileMetrics.open(dir), environment: "local", windowMs: PORTAL_WINDOW_MS }).pipe(Effect.mapError(failed));
-      const { url, chain } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv, ...(stood.chain ? { chain: Effect.succeed(stood.chain) } : {}) }).pipe(Effect.mapError(failed));
-      const device = needsDevice(model) ? yield* deviceHost(world, collector.url, chain).pipe(Effect.mapError(failed)) : undefined;
-      const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device, judging));
+      const stand = yield* standWorld({ root, world, model, port, empty, env });
+      const [took, done] = yield* Effect.timed(exercise(model, { ...project, journeys }, stand.url, stand.collector, undefined, stand.otlp, undefined, empty, bodies, stand.device, judging));
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
       if (stamp !== undefined) {
         yield* Impact.record(root, model, done.judged, judging === undefined ? done.results : done.results.filter((r) => judging.has(r.operation)));
@@ -80,15 +71,23 @@ export const Prove: ProveApi = {
         }, stamp);
       }
       const verdict = closing(done);
-      const lines = [...said, ...sinks.notes, ...stood.notes, ...unfinishedIn(loaded), ...done.journeys.lines, ...done.evals.lines, verdict.line];
+      const lines = [...said, ...stand.notes, ...unfinishedIn(loaded), ...done.journeys.lines, ...done.evals.lines, verdict.line];
       const seconds = Math.round(Duration.toMillis(took)) / 1000;
       return { lines, passed: verdict.passed, structured: proveReport(done.journeys.details, done.evals.failed, seconds, lines, verdict.passed, report), ...(say === undefined ? {} : { said: said.length }) };
     }),
-  dev: ({ root, port, env }) =>
+  dev: ({ root, port, env, pid }) =>
     Effect.gen(function* () {
+      const startedAt = yield* Clock.currentTimeMillis;
+      const sources = fingerprint(root);
+      const nonce = randomBytes(16).toString("hex");
       const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.mapError((e) => failed(e._tag === "BlueprintInvalid" ? { message: `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` } : e)));
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
-      const { url, log } = yield* Worlds.start({ root, port, name: "dev", environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
+      // The collector and the world outlive each prove: a prove that finds them uses them (ST1.24).
+      const dir = resolve(root, Names.folder, "dev-telemetry");
+      const collector = yield* Collectors.local(dir, privateKeys(model)).pipe(Effect.mapError(failed));
+      const feed = yield* PortalFeed.serve({ source: collector, metrics: FileMetrics.open(dir), environment: "local", windowMs: PORTAL_WINDOW_MS }).pipe(Effect.mapError(failed));
+      const { url, log } = yield* Worlds.start({ root, port, name: "dev", otlp: collector.url, portalFeed: feed.url, environment: "local", secretEnv: sinks.secretEnv, nonce }).pipe(Effect.mapError(failed));
+      yield* Warm.publish(root, { pid, url, collector: collector.url, telemetry: dir, startedAt, sources, nonce }).pipe(Effect.mapError(failed));
       return { url, log, notes: sinks.notes };
     }),
   test: (options) =>

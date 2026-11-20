@@ -67,6 +67,8 @@ export interface WorldsApi {
     readonly otlp?: string;
     /** Where this world's starter answers its telemetry window (`PortalFeed.serve`): the Worker's portal reads it as `ORTHO_PORTAL_FEED`, so a run lights its own portal. */
     readonly portalFeed?: string;
+    /** A random value the world says in its health answer and requires in a reset (`ortho dev`'s world, found by `warm`). */
+    readonly nonce?: string;
     /** The environment this world stands for, written on every span as `deployment.environment`. Default `local`. */
     readonly environment?: string;
     /** Secrets for the Worker that never touch a file or an argument: `OTLP_SINKS`, from `Sinks.resolve`. */

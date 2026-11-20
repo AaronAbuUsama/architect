@@ -80,11 +80,17 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 
 | Slice | Its `needs` says | Read it as |
 |---|---|---|
-| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |
+| M6.01 (stage 2's chain decision) | Gate M5 | none: started 20 November 2026 (K26, Aaron's exception) |
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
 | M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the shared, prefixed account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
+
+**Aaron's exception, K26 (20 November 2026):** the on-chain work is pulled forward. M6.01 starts now. M6.02, M6.07, M6.09 and M6.10
+to M6.18 start once their own `needs` are met, without waiting for the stage 2 or 3 gate. They run as one goal on its own
+branch, `goal/on-chain`, which merges `goal/stage-1` in at every slice and never pushes to it. M6.21 still waits for
+M8.09. The gates still run where the stages put them
+([`decisions/K26-on-chain-pulled-forward.md`](decisions/K26-on-chain-pulled-forward.md)).
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
@@ -424,7 +430,7 @@ actors; `ortho prove` names each adapter's stand-in.
 
 **Goal.** The allowance can live on chain, written once and generated in two languages. Where each key lives is declared, on a device
 or on a server (Aaron, 18 November 2026, K7).
-**Ships.** `@orthograph/language-solidity`, the relayer and follower, one vault per organisation (S27);
+**Ships.** `@orthograph/language-solidity`, the relayer and follower, one budgets module per network, enabled by each organisation's Safe (S27, K25);
 [`frame/examples/allowance-on-chain.md`](frame/examples/allowance-on-chain.md).
 **Gate.** `nx run e2e:m6` (old Gates 3 and 4 together; the wallet, the chain adapter and Anvil in worlds landed in M1 and M2):
 `forge test` passes on the filled vault; the fixed-seed fuzz of the TypeScript machine against the Solidity one finds
@@ -433,7 +439,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712; one budgets module per network, enabled by each organisation's Safe, is settled by K25) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for the chain: contracts, the relayer and the follower (Codex's planned files `06` to `08`; the wallet's are M1.28 and M2.13) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | Moved to M1.29 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.04 | Moved to M2.13 (K7 F4: the wallet is the first plugin) | | | | |
@@ -442,13 +448,13 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | M6.07 | The relayer actor (L3.06) | M1.31 | build | 100 concurrent submissions, nonces 0 to 99, a dropped one replaced | M |
 | M6.08 | Moved to M1.32 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.09 | The chain follower (L3.08), which also feeds the portal's committed chain events (K5 seam 10); its checkpoint is a block number plus a window of block hashes, and a take-back emits `<Event>Corrected { wasConfirmed }` (K7 Q6) | M6.07 | build | an `anvil_reorg` that replays a different digest emits a correction and then the new event; a restart doesn't double count | M |
-| M6.10 | Values with Solidity types and `lives: Blueprint.chain.evm(...)` (`chain` as a family of store kinds, K7 Q4); the compiler accepts `runs: "chain"` (L4.01; `describe.ts:108` refuses it today); `blueprint/refusals.lock` for every language, so codes no longer come from declaration order (`describe.ts:79`; K7 Q5) | M6.01 | build | `ortho check` reports the change as major; swapping two declared errors keeps both codes; renaming a published code is refused | M |
-| M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in (OpenZeppelin-style `onlyRole`, generated, not imported), and `generated/solidity/surface.json` listing every external function for the clients; `ortho check` warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1) | M6.10 | build | `forge build` compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning | M |
+| M6.10 | Values with Solidity types, chain stores (`Blueprint.store.chain.evm()`, `chain` as a family of store kinds, K7 Q4, K25) and `Blueprint.account()`; the compiler works out `runs` for an operation on a thing in a chain store, and an author never writes it (K25 item 6; L4.01; `describe.ts:108` refuses it today); `blueprint/refusals.lock` for every language, so codes no longer come from declaration order (`describe.ts:79`; K7 Q5) | M6.01 | build | `ortho check` reports the change as major; swapping two declared errors keeps both codes; renaming a published code is refused | M |
+| M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in behind OpenZeppelin's `IAccessControl`, one role id per instance (K25), and `generated/solidity/surface.json` listing every external function for the clients; `ortho check` warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1) | M6.10 | build | `forge build` compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning | M |
 | M6.12 | Signatures and generated Foundry tests (L4.03) | M6.11 | build | the scaffold gives `0 passed · 24 failed: NotWritten` | M |
 | M6.13 | The contract scaffold, its brief, the fuzz cross-check against the reference machine generated from the blueprint, driving the generated client with its pre-check (L4.04; K7 Q8) | M6.12 | build | the filled vault gives `24 passed`; fixed seeds show no divergence; the planted mutant diverges | M |
 | M6.14 | The contract's client from the ABI (L4.05) | M6.13, M1.30 | build | a planted revert reaches the handler as `AllowanceExceeded` | S |
 | M6.15 | The signing flow and the in-between state (L4.06, S25); the SDK's submission lifecycle (`simulated → submitted → included → confirmed`, `dropped`, `reverted`, `corrected`), where `confirmed` matches the intent's event, not the transaction (K7 Q3) | M6.14, M1.29, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending; a second relayer's mined revert still ends `confirmed` | M |
-| M6.16 | Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07) | M6.15, M1.31, M6.09 | build | `ortho prove --env local` shows each operation signed by its person | M |
+| M6.16 | Worlds with a chain: a Safe per organisation with the budgets module enabled (K25), journeys on Anvil (L4.07) | M6.15, M1.31, M6.09 | build | `ortho prove --env local` shows each operation signed by its person | M |
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
 | M6.18 ∥ | The key-hygiene and custody checks (S29): each wallet declares where its key lives (`device` or `server`), and no key appears in plain text in a binding, a commit or a log. A server may hold keys (Aaron, 18 November 2026, K7) | M6.16 | build | a planted plain-text private key in a binding fails the check; a declared server-held key from secrets passes | S |
 | M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |

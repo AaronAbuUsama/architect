@@ -43,12 +43,14 @@ export interface ProveApi {
   }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;
 
   /**
-   * `ortho dev`: a local world on `port` that stays up while the scope is open; the local environment's sinks get
-   * what they are named for.
+   * `ortho dev`: a local world on `port` and a collector (writing `.ortho/dev-telemetry`) that stay up while the scope is open; the
+   * local environment's sinks get what they are named for. A `prove` that finds them uses them (`warm`, ST1.24).
    */
   readonly dev: (options: {
     readonly root: string;
     readonly port: number;
+    /** This process's id, which `ortho prove` reads to tell a live `ortho dev` from a record one left behind. */
+    readonly pid: number;
     readonly env?: Readonly<Record<string, string | undefined>>;
   }) => Effect.Effect<{ readonly url: string; readonly log: string; readonly notes: ReadonlyArray<string> }, ProveFailed, Scope.Scope>;
 

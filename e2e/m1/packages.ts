@@ -52,8 +52,10 @@ const frameworkHasDescriptors = (() => {
 // complaint counts.
 const NEW_SURFACE = /\bMount\b|Blueprint\.(?:feature|adapter|projection|choice|need|call|use)\b/;
 const typecheck = (work: string) => {
-  const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["-p", join(work, "tsconfig.json")], { cwd: work, encoding: "utf8", timeout: 180_000, maxBuffer: 16 * 1024 * 1024 });
+  const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["--pretty", "false", "-p", join(work, "tsconfig.json")], { cwd: work, encoding: "utf8", timeout: 180_000, maxBuffer: 16 * 1024 * 1024 });
+  // `--pretty false`: with FORCE_COLOR (CI) tsc colours "error" and "TS" apart and no line matches. And tsc that dies without an error line is not a clean compile.
   const errors = `${result.stdout}${result.stderr}`.split("\n").filter((line) => /error TS\d+:/.test(line));
+  if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
   const usesSurface = (line: string) => {
     const file = /source\/([^(]+)\(/.exec(line)?.[1];
     return file !== undefined && existsSync(join(work, "source", file)) && NEW_SURFACE.test(readFileSync(join(work, "source", file), "utf8"));

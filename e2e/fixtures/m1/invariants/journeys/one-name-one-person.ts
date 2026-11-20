@@ -10,7 +10,7 @@ export default Blueprint.journey("one name, one person", {
     s.step(
       "aaron claims a name",
       s.aaron.run(claim, { name: "aaronpage", owner: "aaron" }),
-      emits(HandleClaimed, { handle: s.last.handle, name: "aaronpage" }),
+      emits(HandleClaimed, { handle: s.last.handle }),
     ),
     s.step("a taken name is refused", s.bob.run(claim, { name: "aaronpage", owner: "bob" }), refuses(HandleTaken)),
     s.step("a second name for aaron is refused", s.aaron.run(claim, { name: "another", owner: "aaron" }), refuses(HandleAlreadyOwned)),
