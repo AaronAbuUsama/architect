@@ -194,8 +194,7 @@ export default Blueprint.operation(Draft, {
 - **Portal shows:** the thing's page, starting with its lifecycle (the machine), then its operations, events, errors
   and notes. A store's binding shows per environment.
 
-A chain is a host. The store kind that runs on it is `chain`, supplied by `language-solidity` (K3 item 2) (superseded by K27, 20 November 2026: supplied by
-`Host.chain`, written for by `language-solidity`). "Pending
+A chain is a host. The store kind that runs on it is `chain`, supplied by `language-solidity` (K3 item 2) (superseded by K27, 20 November 2026: supplied by `Host.chain`, written for by `language-solidity`). "Pending
 until mined" belongs to the caller, so a server call that sends a transaction is a workflow (seam 6).
 
 ### 3. An Effect operation: editing a draft
