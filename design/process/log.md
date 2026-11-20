@@ -16,19 +16,18 @@ gave was checked against its source; where the seed was wrong, the entry says so
   `e2e/m1/expected-failing.txt`, and the totals block in `e2e/m1/README.md`. Proposal 10 had made that block generated
   (`nx run e2e:totals`), but it was still committed, so each pull request that added a test or took a line off the list
   rewrote it, and whichever landed first left the others stale. On 20 November four pull requests made twelve
-  catch-up merges of `goal/stage-1` in which one or both files had to be rewritten by hand rather than merged by git:
-  PR 159 seven (06:57 to 11:53), PR 171 two, PR 184 two, PR 186 one. Each restarted CI; PR 159's last run took about 15
-  minutes (11:54 to 12:09). The lead's own count, in the decision, is lower: four on PR 159, three on PR 171, one on PR 186
-  and one on PR 184.
-- **Evidence:** `git diff-tree --cc --name-only` on each base merge of those pull requests lists one or both files:
+  catch-up merges between them, each with one or both files rewritten by hand rather than merged by git. Each
+  restarted CI, about 14 minutes a run. The lead's own count, in the decision, is lower.
+- **Evidence:** PR 159 seven (06:57 to 11:53), PR 171 two, PR 184 two, PR 186 one; the lead counted four, three, one and
+  one. PR 159's last run went from 11:54 to 12:08. `git diff-tree --cc --name-only` on each base merge of those pull requests lists one or both files:
   on PR 159 beaa4db6, e331565b, 9eccaebb, bb7d5654, d86737b9, c7440526 and cbbc0979; on PR 171 619a121d and 9df93121; on PR
   184 eea5c7bf and a9d23a6c; on PR 186 6c09e37c. Three of PR 159's merge subjects end "totals regenerated".
   `design/decisions/G9-ratchet-per-check.md` on `goal/stage-1`.
-- **Cost:** twelve merge commits and twelve CI runs, with no change in substance, across four pull requests in one day.
+- **Cost:** twelve merge commits, each restarting CI, with no change in substance, across four pull requests in one day.
 - **Found by:** the Goal 3 lead.
-- **Recovery:** [PR 193](https://github.com/AaronAbuUsama/architect/pull/193), merged into `goal/stage-1` at 13:08 (79265c22), decision G9. The list is now a
-  folder, `e2e/m1/expected-failing/`, with one file per check, so two pull requests collide only when they change the
-  same check. A missing folder reads as an empty list. `tools/ci/builder-paths.sh` still lets a builder only delete a
+- **Recovery:** the lead split the list and stopped committing the totals ([PR 193](https://github.com/AaronAbuUsama/architect/pull/193), into `goal/stage-1` at 13:08,
+  79265c22, decision G9). The list is now one file per check, in `e2e/m1/expected-failing/`, so two pull requests
+  collide only when they change the same check. A missing folder reads as an empty list. `tools/ci/builder-paths.sh` still lets a builder only delete a
   line or a whole file there, and refuses an added line, an added file or a rename. The totals are no longer
   committed: `nx run e2e:totals` prints them, and CI writes them into the `e2e-m1` job's summary.
 - **What changed:** the cause is gone on `goal/stage-1`. The lesson: a file every pull request must edit is a queue. Generating it by
