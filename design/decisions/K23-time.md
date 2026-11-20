@@ -214,7 +214,7 @@ fails as `NeverQuiet`, naming each process still busy.
 | The database | times passed as parameters; the lint rule gains SQL's `now()`, `CURRENT_TIMESTAMP` and `datetime('now')` | nothing to move |
 | `Timers` | a row in the world's timer table (stepped, scaled); a Durable Object alarm or the engine's sleep (real) | fired by the controller |
 | The chain (`ChainPort.clock`, one per family) | the latest block's timestamp | EVM: Anvil started at the world's start with interval 0; a step sets the next block's timestamp and mines one block, whole seconds only. Aztec: the warp plus the L1 blocks finality needs (stage 4) |
-| The follower (indexer) | the world's `Clock` for its own bookkeeping; it only sees blocks the chain has mined | reports busy until it has caught up with the chain's head |
+| The follower (indexer) | the world's `Clock` for its own bookkeeping; it only sees blocks the chain has mined | reports busy until it has caught up with the chain's head (M8.17, once the follower exists in stage 2) |
 | Adapters | their stand-in reads the world's time over the world's front door | section 7 |
 | Agents | `Timers`, the world's (was L5.08; M4.26) | the controller |
 | The portal and `watch` | the world's instant, shown beside the real one | nothing; they only show it |
@@ -248,12 +248,12 @@ export default Adapter.make({ ..., clock: "own" });                             
 | generators and projections | the keeper; docs, MCP and the scaffold say when a move happens ("every month from `startedAt`") |
 | `portal`, `cli` | the world's time beside the real one; `ortho clock advance`, `ortho clock speed`, `ortho dev --speed` and the portal's control, in one slice (Q2, Q3) |
 | `lint` | SQL clock reads |
-| The grid | a fifteenth block, `time`, with its nine cells (model, api, server, sdk, cli, mcp, docs, portal, telemetry) |
+| The grid | a new block, `time` (the fourteenth on `main`, the fifteenth once stage 1's `invariant` block lands), with its nine cells (model, api, server, sdk, cli, mcp, docs, portal, telemetry) |
 | Existing slices | M3.01 waits through `Timers`; M5.15 rests on M8.07; L5.08 becomes M4.26; stage 3's gate needs Gate M8 |
 
 ## The milestone
 
-M8 in `milestones.md`: fourteen slices after this decision, then its gate, checks and build kept apart. Its first
+M8 in `milestones.md`: fifteen slices after this decision, then its gate, checks and build kept apart. Its first
 slice is a failing check: a journey that steps a month and sees a renewal happen exactly once. The decision and the
 checks may land at once; building starts at stage one's gate and runs beside stage two; stage three's gate waits on
 Gate M8.
