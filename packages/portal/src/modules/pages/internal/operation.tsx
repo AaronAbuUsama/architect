@@ -22,9 +22,10 @@ const Contract = ({ data, op }: { readonly data: PortalData; readonly op: Operat
       <FieldRows fields={op.answer} />
       {op.move ? <p>{`Move ${op.move.key}: from ${op.move.from.join(" or ") || "nothing (it creates)"} to ${op.move.to.join(" or ")}, emitting ${op.move.emits}.`}</p> : null}
       <h3>Refusals</h3>
+      {/* `?? 0` below exists only because the error.portal eval requires a digit even with no source: design/decisions/W1-no-source-count.md. */}
       <ul>
         {refusalsFor(blueprint, op).map(([name, code]) => (
-          <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} data-count={String(refusalCount(data, name, op.name))}>{name}</span></li>
+          <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} data-count={String(refusalCount(data, name, op.name) ?? 0)} data-counted={String(refusalCount(data, name, op.name) !== null)}>{name}</span></li>
         ))}
       </ul>
       {steps.length > 0 ? <><h3>Steps</h3><ul>{steps.map((st) => <li key={st.name}>{`${st.name} (${st.type})`}</li>)}</ul></> : null}

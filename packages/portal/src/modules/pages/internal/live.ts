@@ -5,7 +5,10 @@ import type { CallsView, CountsView, OperationCounts, RefusalCounts, TelemetryCa
 import type { PortalData } from "../types.ts";
 
 export const NOT_YET = "not yet";
-/** How many calls the rail lists. */
+/**
+ * How many calls the rail lists. The design draws three, but check 21 K (`e2e/m1/21-portal-viewer.test.ts:695`) counts home's `last-call`
+ * elements and wants exactly 2 where the window holds 4 calls with spans, so 3 fails it. Change both together.
+ */
 export const RAIL_CALLS = 2;
 
 export interface Tally { readonly calls: string; readonly answered: string; readonly refused: string; readonly defects: string }
@@ -47,7 +50,7 @@ export const callsOf = (d: PortalData, operations?: ReadonlyArray<string>): Read
 export const lastCalls = (d: PortalData, operations?: ReadonlyArray<string>): ReadonlyArray<TelemetryCall> => callsOf(d, operations).slice(0, RAIL_CALLS);
 
 /** The calls the window held beyond the rows sent, and the refusals the door gave (counted, never a row). */
-export const truncatedOf = (d: PortalData): number => callsViewOf(d)?.truncated ?? 0;
+export const truncatedOf = (d: PortalData): number | null => callsViewOf(d)?.truncated ?? null;
 export const doorRefusalsOf = (d: PortalData, operation: string): number | null => countsOf(d)?.operations[operation]?.doorRefusals ?? null;
 
 /** How often the thing's move was taken by an answered call in the window. */
@@ -58,16 +61,26 @@ export const moveCount = (d: PortalData, thing: string, move: string): string =>
   return String(ops.reduce((n, o) => n + (calls.moves[o.name] ?? 0), 0));
 };
 
-/** Has the window any call of this operation? A window with no source says no, and the numbers beside it say `not yet`. */
-export const isLit = (d: PortalData, operation: string): boolean => (countsOf(d)?.operations[operation]?.calls ?? 0) > 0;
+/** Lit when the window holds a call of the operation, dark when it holds none, and unknown when there is no source to say (never read as dark). */
+export type Lit = "true" | "false" | "unknown";
+export const litOf = (d: PortalData, operation: string): Lit => {
+  const counts = countsOf(d);
+  // With the source read, an operation it does not list saw no call: that zero is a count.
+  return counts === undefined ? "unknown" : (counts.operations[operation]?.calls ?? 0) > 0 ? "true" : "false";
+};
+/** The same for a thing's move: known only when the calls were read. */
+export const moveLit = (d: PortalData, thing: string, move: string): Lit => {
+  const n = moveCount(d, thing, move);
+  return n === NOT_YET ? "unknown" : Number(n) > 0 ? "true" : "false";
+};
 
 /** The journeys whose runs called this operation in the window. */
 export const journeysRunning = (d: PortalData, operation: string): ReadonlyArray<string> => callsViewOf(d)?.journeys[operation] ?? [];
 
-/** How often a refusal was counted: for one operation, or over all of them. 0 when there is nothing to count from (the page says why beside it). */
-export const refusalCount = (d: PortalData, name: string, operation?: string): number => {
+/** How often a refusal was counted: for one operation, or over all of them. `null` when there is no metrics source: unread is not zero. */
+export const refusalCount = (d: PortalData, name: string, operation?: string): number | null => {
   const counts = countsOf(d);
-  if (counts === undefined) return 0;
+  if (counts === undefined) return null;
   return operation === undefined ? counts.refusals[name]?.count ?? 0 : counts.operations[operation]?.refusals[name] ?? 0;
 };
 

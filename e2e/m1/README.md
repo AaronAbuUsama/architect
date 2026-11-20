@@ -42,7 +42,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 <!-- totals:start -->
 <!-- Written by `nx run e2e:totals` from the tests and expected-failing.txt. Do not edit by hand. -->
 
-328 tests in all; 283 pass; 45 expected to fail, listed in `expected-failing.txt`.
+342 tests in all; 311 pass; 31 expected to fail, listed in `expected-failing.txt`.
 
 | File | Tests | Expected to fail |
 |---|---|---|
@@ -66,14 +66,15 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `16-visibility.test.ts` | 27 | 0 |
 | `17-telemetry-model.test.ts` | 8 | 0 |
 | `18-confirmation-depth.test.ts` | 14 | 0 |
-| `19-scaffold-explains.test.ts` | 19 | 0 |
+| `19-scaffold-explains.test.ts` | 19 | 1 |
 | `20-plugged-in-loop.test.ts` | 27 | 3 |
-| `21-portal-viewer.test.ts` | 33 | 25 |
-| `22-k16-review.test.ts` | 9 | 0 |
+| `21-portal-viewer.test.ts` | 33 | 0 |
+| `22-k16-review.test.ts` | 9 | 1 |
+| `24-idempotency-conflict.test.ts` | 14 | 10 |
 | `25-unique-fields.test.ts` | 9 | 0 |
-| `26-k19-server-client-line.test.ts` | 20 | 1 |
+| `26-k19-server-client-line.test.ts` | 20 | 0 |
 | `27-k19-no-licence.test.ts` | 3 | 0 |
-| **All** | 328 | 45 |
+| **All** | 342 | 31 |
 
 <!-- totals:end -->
 

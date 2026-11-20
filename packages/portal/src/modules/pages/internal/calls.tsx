@@ -2,7 +2,7 @@
 // opening its trace). Drawn from the snapshot's telemetry; a source that is not there, or failed, is said with its reason and draws no number.
 import type { OperationWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
-import { callsOf, doorRefusalsOf, refusalCount, tallyOf, truncatedOf, whyNot } from "./live.ts";
+import { NOT_YET, callsOf, doorRefusalsOf, refusalCount, tallyOf, truncatedOf, whyNot } from "./live.ts";
 import { refusalsFor } from "./model.ts";
 import { NotYet } from "./not-yet.tsx";
 
@@ -20,12 +20,24 @@ const Tiles = ({ data, op }: { readonly data: PortalData; readonly op: Operation
       </div>
       <h3>Refusals by code</h3>
       <ul>
-        {refusalsFor(data.blueprint, op).filter(([name]) => refusalCount(data, name, op.name) > 0).map(([name, code]) => (
+        {refusalsFor(data.blueprint, op).filter(([name]) => (refusalCount(data, name, op.name) ?? 0) > 0).map(([name, code]) => (
           <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} data-count={String(refusalCount(data, name, op.name))}>{`${name} ${code}`}</span>{` ${refusalCount(data, name, op.name)}`}</li>
         ))}
       </ul>
       <p className="meta">Refusals counted include the ones the door gave before a call opened a span: those are counted and never a row.</p>
     </>
+  );
+};
+
+/** What is counted and what is listed. Each figure is drawn only when its source was read; an unread one says `not yet` and carries no attribute. */
+const Footer = ({ data, op, shown }: { readonly data: PortalData; readonly op: OperationWire; readonly shown: number | null }) => {
+  const total = whyNot(data, "metrics") === undefined ? tallyOf(data, op.name).calls : null;
+  const door = doorRefusalsOf(data, op.name);
+  const truncated = truncatedOf(data);
+  return (
+    <p data-portal="calls-footer" {...(shown === null ? {} : { "data-shown": String(shown) })} {...(total === null ? {} : { "data-total": total })} {...(door === null ? {} : { "data-door-refusals": String(door) })}>
+      {`${shown ?? NOT_YET} of ${total ?? NOT_YET} calls listed; ${door ?? NOT_YET} refused at the door are counted and never a row.${truncated === null || truncated === 0 ? "" : ` ${truncated} older calls are not sent.`}`}
+    </p>
   );
 };
 
@@ -56,9 +68,7 @@ const Table = ({ data, op }: { readonly data: PortalData; readonly op: Operation
           ))}
         </tbody>
       </table>
-      <p data-portal="calls-footer" data-shown={String(rows.length)} data-total={tallyOf(data, op.name).calls} data-door-refusals={String(doorRefusalsOf(data, op.name) ?? 0)}>
-        {`${rows.length} of ${tallyOf(data, op.name).calls} calls listed; ${doorRefusalsOf(data, op.name) ?? 0} refused at the door are counted and never a row.${truncatedOf(data) > 0 ? ` ${truncatedOf(data)} older calls are not sent.` : ""}`}
-      </p>
+      <Footer data={data} op={op} shown={why === undefined ? rows.length : null} />
     </>
   );
 };

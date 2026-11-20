@@ -107,3 +107,8 @@ belongs to, and why it waits.
 
 - **A list read's item samples.** When a list read lands (the model has no list marker today, and neither example has one), the MCP output-schema eval builds each
   item's sample from the declared fields, or reports the item unjudged. Items rebuilt from telemetry lack the untraced public fields and would be a false red.
+
+## The portal's pages on portal-ui components (website builder, 20 November 2026)
+
+- **Plain elements today.** The portal's pages are plain elements with `data-portal` hooks (and `Card` for cards), because the grid's evals and check 21 read the rendered DOM by its headings, tables, list items and hooks, and the HeroUI Pro licence is only in CI. `design/portal.md`'s component inventory maps every data shape to a named component (Widget, `CallsMeter`, `CallsBars`, DataGrid and so on), so the pages are a gap from the design.
+- **Next:** swap each block for its component, one page at a time, built where the licence is. The `data-portal` hooks and the headings, tables and list items the evals read must survive each swap; check 21 and the grid are the guard.

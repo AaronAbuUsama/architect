@@ -24,10 +24,14 @@ const Body = ({ data, kind }: { readonly data: PortalData; readonly kind: Kind }
         <thead><tr><th>Refusal</th><th>Code</th><th>Count</th><th>Trace</th></tr></thead>
         <tbody>
           {Object.entries(refusalsOf(blueprint)).map(([name, code]) => {
+            const count = refusalCount(data, name);
             const trace = refusalTotals(data, name)?.trace ?? null;
-            return (
-              <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(refusalCount(data, name))} data-span={trace === null ? "none" : "trace"} {...(trace === null ? {} : { "data-trace": trace })}>
-                <td>{name}</td><td>{code}</td><td>{refusalCount(data, name)}</td><td>{trace === null ? "no span" : <a href={`/portal/traces/${trace}`}>open the trace</a>}</td>
+            // No metrics source: no count, no span claim, and the cells say `not yet`.
+            return count === null ? (
+              <tr key={name} data-portal="ref-row" data-name={name} data-code={code}><td>{name}</td><td>{code}</td><td>not yet</td><td>not yet</td></tr>
+            ) : (
+              <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(count)} data-span={trace === null ? "none" : "trace"} {...(trace === null ? {} : { "data-trace": trace })}>
+                <td>{name}</td><td>{code}</td><td>{count}</td><td>{trace === null ? "no span" : <a href={`/portal/traces/${trace}`}>open the trace</a>}</td>
               </tr>
             );
           })}
