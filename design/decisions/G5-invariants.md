@@ -6,7 +6,7 @@ decides" in `AGENTS.md`, from seven read-only traces of the code at `goal/stage-
 spelling** (`unique:` on `Blueprint.thing`, `Records.findBy(thing, "name", value)`) and **keeps G4's runtime**: the rule
 holds at commit, a store conflict retries, and no race lets two holders win. It also settles snag S-19 (ledger
 `HAN-18`). The portal and docs pages are not drawn here: their questions are in
-[`G5-invariants-ui-grill.md`](G5-invariants-ui-grill.md).
+[`G5-invariants-ui-grill.md`](G5-invariants-ui-grill.md), answered 1A 2A 3A 4A on 20 November 2026.
 
 ## The problem, in code
 
@@ -71,6 +71,7 @@ export const oneHolderPerName = Blueprint.invariant.unique(Handle.fields.name, {
 export const oneNamePerPerson = Blueprint.invariant.unique(Handle.fields.owner, {
   while: [machine.states.claimed],
   refuse: HandleAlreadyOwned,
+  description: "you already hold a name", // the generated sentence reads poorly here
 });
 ```
 
@@ -92,6 +93,10 @@ export const onePagePerHandle = Blueprint.invariant.unique(Profile.fields.handle
 - **`refuse`** is an error declared in the same thing's `errors.ts`. It is optional: a rule no caller can break (a
   record only the app's own steps make, like a handle's page) names none, and a break is a defect naming the rule.
   Such a rule still gets its index and its `findBy`, which is what Plugged In's `profile.get` needs (snag S-23).
+- **`description`** is optional words for the reader. Left out, every surface says a sentence generated from the rule
+  ("another claimed handle holds this name"); written, it replaces that sentence everywhere. The owner rule needs it:
+  generated, it reads "another claimed handle has this owner", so Plugged In writes "you already hold a name" (Aaron's
+  go-ahead on the grill, 20 November 2026, Q2).
 - **Typed references, no strings.** `Handle.fields.name` already exists. `machine.states.claimed` is new: a machine's
   `states` becomes a record of state references, the way `machine.moves.claim` is already a record of move references
   (`examples/plugged-in/blueprint/things/handle/verbs/claim.ts:10`). The declaring site keeps its array,
@@ -265,7 +270,7 @@ through the model. A refusal now comes from one of four places, not three (`docs
 | Plugged In | `handle/invariants.ts` (`oneHolderPerName`, `oneNamePerPerson`) and `profile/invariants.ts` (`onePagePerHandle`), replacing the three one-line `unique:` entries; `HandleTaken` and `HandleAlreadyOwned` leave `claim`'s `errors:` and its handler | ST1.19 | 6 |
 | G4's spelling retired | `unique` leaves `Blueprint.thing`, the compiler's `unique.ts`, the model's `unique` view and `Records`' `T["unique"]` typing | ST1.20 | 7 |
 | The canon | a new `invariants` page in layer 2 beside `machines`, owning the words invariant and unique; `blueprint.mdx`'s file list and placement table; "four places a refusal comes from" in `operations.mdx` and `machines.mdx`; `stores.mdx` and `data.mdx` re-quoted; the glossary; `docs/canon/check.mjs:35` accepts `ST` ids in `planned=` fences | ST1.21 | 8 |
-| The portal's pages | where a rule shows and how a refusal links to it, after Aaron answers the grill | ST1.22 | after M1.13 |
+| The portal's pages | a Rules section under the lifecycle, each refusal's sentence linking to its rule, a "rules" stop on the spine (the grill, answered 20 November) | ST1.22 | after M1.13 |
 
 The slices are rows ST1.09 to ST1.22 of Stage 1 in [`../milestones.md`](../milestones.md).
 

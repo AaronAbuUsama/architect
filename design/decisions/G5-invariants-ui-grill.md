@@ -1,8 +1,24 @@
 # G5 grill: where an invariant shows to a reader
 
-Open for Aaron, from [G5](G5-invariants.md). Nothing here is drawn or built until he answers the round (the
-`portal-design` skill: grill the IA and UX before drawing). Counts such as `×31` in the sketches are illustrative. Slice ST1.22 waits on it; ST1.17 makes the data reach the portal's wire
-whatever the answers are, so no answer blocks the build.
+From [G5](G5-invariants.md), for Aaron. Counts such as `×31` in the sketches are illustrative; error codes are Plugged
+In's own, from `examples/plugged-in/generated/docs/handle/`. Slice ST1.22 builds what this round decides; ST1.17 makes
+the data reach the portal's wire whatever the answers are.
+
+## Aaron's answers (20 November 2026)
+
+Aaron said to go ahead on the recommendations ("push everything forward", relayed by the conductor), so the round
+is **1A 2A 3A 4A**. He can still override any one of them. Two findings from drawing the screens are folded in:
+
+- **Q2, with an override from the start.** The sentence is generated, and a rule can also carry an optional written
+  `description` that replaces it on every surface. Generated, the owner rule reads poorly ("another claimed handle has
+  this owner"), so `oneNamePerPerson` writes its own ("you already hold a name"). G5 §1 and slices ST1.14 and ST1.17
+  carry the field.
+- **Q3, the arrow shows one refusal.** The lifecycle arrow shows only the most common refusal on that move
+  (`claim` shows `HandleTaken ×31`, not `HandleAlreadyOwned ×2`). That is why the Rules section, not the arrow, lists
+  every rule with its refusal and count.
+
+The error codes in this file are Plugged In's: `HandleTaken` HN-001 exit 10, `HandleNotClaimed` HN-900 exit 11 (the
+machine's generated refusal), `HandleAlreadyOwned` HN-002 exit 12, `HandleNotFound` HN-003 exit 13.
 
 **Terms, once for the round.**
 
@@ -45,14 +61,14 @@ room in it.
 
 **The options**
 
-**Today** — `portal.md:213-226`, the thing's page as designed (abridged):
+**Today** — `portal.md:213-226`, the thing's page as designed (abridged; the errors line with Plugged In's codes):
 
 ```text
 handle                                                         handles · feature · @orthograph/handles 0.1.0
 Lifecycle      ( · ) ──claim──► (claimed) ──release──► (released)
 Operations     claim · release · resolve
 Events         HandleClaimed · HandleReleased
-Errors         HandleTaken HN-001 exit 10 · HandleNotClaimed HN-002 exit 11
+Errors         HandleTaken HN-001 exit 10 · HandleNotClaimed HN-900 exit 11 · HandleAlreadyOwned HN-002 exit 12 · HandleNotFound HN-003 exit 13
 Roles          person · anyone
 ```
 
@@ -63,7 +79,7 @@ Lifecycle      ( · ) ──claim──► (claimed) ──release──► (rel
 Rules          oneHolderPerName   a name has one holder while claimed      refuses HandleTaken  ×31
                oneNamePerPerson   a person holds one name while claimed    refuses HandleAlreadyOwned  ×2
 Operations     claim · release · resolve
-Errors         HandleTaken HN-001 exit 10 (by oneHolderPerName) · …
+Errors         HandleTaken HN-001 exit 10 (by oneHolderPerName) · HandleAlreadyOwned HN-002 exit 12 (by oneNamePerPerson) · …
 ```
 
 **B · Its own page per rule, reached from the tree and ⌘K**
@@ -104,6 +120,8 @@ Errors         HandleTaken HN-001 exit 10 — a name has one holder while claime
 
 **Recommendation: A.** A rule is part of a thing, like its machine, so it is a section, and the docs page uses the same
 order. ⌘K can still index sections, which covers B's one real advantage.
+
+**Decided: A** (20 November 2026).
 
 ## Q2 — How does a refusal say which rule refused it?
 
@@ -192,6 +210,10 @@ export const oneHolderPerName = Blueprint.invariant.unique(Handle.fields.name, {
 **Recommendation: A.** The sentence comes from the declaration, so it is right on every surface and can't drift; a
 written `description` can be added later as an override if a generated one reads badly.
 
+**Decided: A, with C's `description` as an optional override from the start** (20 November 2026). Drawing the
+screens showed the generated owner sentence reads poorly, so the override ships with the rule, not later. A rule with
+no `description` gets the generated sentence.
+
 ## Q3 — Does the lifecycle mark the states a rule holds in?
 
 **The problem, in code.** A rule is scoped by states (`while: [machine.states.claimed]`), and the lifecycle diagram is
@@ -257,6 +279,9 @@ Rules    oneHolderPerName   a name has one holder while claimed
 
 **Recommendation: A.** The refusal already sits on the arrow that can break the rule, which is the useful place; a
 badge repeats the Rules section in a harder code.
+
+**Decided: A** (20 November 2026). Drawing found that the arrow shows only the most common refusal on its move, so
+the Rules section carries every rule's refusal and its count.
 
 ## Q4 — Does the operation's spine get a stop for rules?
 
@@ -328,14 +353,16 @@ decides it (`portal.md:289-291`).
 **Recommendation: A.** The spine is the runtime's order, and the rule is now a stop in it; it also keeps a race (a
 conflict at commit) apart from a plain refusal.
 
+**Decided: A** (20 November 2026).
+
 ## At a glance
 
 | # | Joint | Recommendation |
 |---|---|---|
 | Q1 | Where a rule lives on the thing's page | A · a Rules section under the lifecycle, the docs page in the same order |
-| Q2 | How a refusal names its rule | A · one generated sentence on every surface, linking to the rule |
+| Q2 | How a refusal names its rule | A · one generated sentence on every surface, linking to the rule; an optional written `description` overrides it |
 | Q3 | Whether the lifecycle marks scoped states | A · no mark; the refusal stays on its arrow |
 | Q4 | Whether the spine gets a stop for rules | A · a "rules" stop between move and commit |
 
-**Answer key.** Reply with a letter per question, for example "1A 2A 3A 4A", or "2C" to have each rule carry your own
-words. Once you answer the round, a question you skip takes its recommendation.
+**Answer key.** Answered 1A 2A 3A 4A on 20 November 2026, with the optional `description` override in Q2. To change
+one, say its number and letter, for example "2C" to have every rule carry your own words.
