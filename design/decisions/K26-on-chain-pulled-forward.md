@@ -44,11 +44,10 @@ Aaron is bringing it forward, so it starts while stage 1 is still being climbed 
 | M6.02, M6.07, M6.09 and M6.10 to M6.18 (stage 2 and 3's chain slices: the journeys, the relayer, the follower, the contracts and the key checks) | may start once their own `needs` are met and Goal 3 has landed (item 4), before the stage 2 or 3 gate |
 | M6.21 (moves made by time in Solidity) | not freed: it also needs M8.09, the time work, which is not pulled forward |
 | `AGENTS.md`, "How work flows" | one line points here, so the gate rule there names its exception |
+| K9, "The order after workable" (a dated record) | a dated note beside stage 3 points here |
 | The kanban board (`.agents/skills/kanban/data/`, `STATE.md`) | not edited by hand: its saved files are snapshots of the live board, which the conductor updates and saves again |
 | Goal 3 on `goal/stage-1` | unaffected (item 4) |
 
 ## Supersedes
 
-- design/decisions/K9-growing-example.md (the order after workable): "After Gate M2 (stage 1), stage 2 comes next. Then stage 3" → the same, with the on-chain slices pulled forward (K26), annotated in place
-- AGENTS.md ("How work flows"): "Nothing in a milestone starts until the previous milestone's gate passes on `main`." → the same, plus "The one exception is K26 …"
 - design/milestones.md (the stage table): "| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |" → "| M6.01 (stage 2's chain decision) | Gate M5 | none: started 20 November 2026 (K26, Aaron's exception) |"
