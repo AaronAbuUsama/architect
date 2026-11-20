@@ -231,6 +231,35 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Needs: prove runs on free ports and refuses a world it didn't start. Lint-hygiene's #133 on main moves prove to
   `--port 0` / `Worlds.anyPort`; check whether that covers the Collector too, after main next merges into goal/stage-1.
 - Owner: Goal 3 lead.
+
+- Status: fixed (#148: `ortho prove --port` defaults to 0, a free port)
+
+## S-26 · names · a handler or journey can name a machine state only as a string
+- Hit: the 🔍 reviewer of #142, on the climber's handlers and the journey author's journeys.
+  `examples/plugged-in/src/link/order.ts:46` reads `subject.state === "removed"`, and the journeys refuse with
+  `refuses(machine.notFrom, { state: "removed" })` (`add-order-and-remove-a-link.ts:79`, `release-a-handle.ts:42`).
+- Lost: "a declared name is never written as a string outside `generated/`" (AGENTS.md) can't hold. Renaming a state in
+  the blueprint leaves these strings stale, and a type-check catches only the ones typed against the state union.
+- Cause: the compiler generates the state union type, and the model JSON lists the states as data, but no importable constant names each state.
+- Fix: framework, generate a constant per machine (for example `LinkStates.removed`) from the blueprint, and point the
+  scaffold, the handlers and the journeys at it. A check author then adds a lint or canon check that a state's name
+  appears as a string only in `generated/`.
+- Owner: Goal 3 lead, for a framework builder after the M1.42 client slice.
+- Status: open
+
+## S-27 · prove · a journey check that throws kills the run instead of failing its step
+- Hit: the checks author of #150, running the grid twice: `ortho prove` died with `TypeError: Cannot read properties of
+  undefined (reading 'map')` at `examples/plugged-in/journeys/the-story.ts:44`, inside
+  `expect((a) => a.links.map(…))`, after an answer came back without `links`.
+- Lost: one red step stops every journey after it and the report file, so the curve records nothing for that run, and
+  the climber sees a stack trace instead of `✘ step: answer …, expected …`.
+- Cause: `packages/prove/src/modules/journeys/internal/checks.ts:66` (`expect`) and `:72` (`expect-equal`) call the journey's
+  `check.pick(env["last"])` with nothing around it.
+- Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
+  and the error. A checks author first adds a prove test with a journey whose `pick` throws.
+- Owner: Goal 3 lead, for a framework builder.
+- Status: open
+
 - Status: fixed (#148)
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
@@ -242,3 +271,4 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Fix: the framework records a value's pattern or format in the model.
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open. The stopgap `max === 254` heuristic in `e2e/grid/src/modules/output-schema/internal/sample.ts` is deleted when it lands.
+
