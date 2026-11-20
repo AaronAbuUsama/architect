@@ -200,6 +200,8 @@ describe("findBy type-checks only for a rule, and the key's own type (G5)", () =
     // `--pretty false`: with FORCE_COLOR (CI) tsc colours "error" and "TS" apart, so a filter on "error TS" finds nothing and the test passes vacuously.
     const result = spawnSync(join(repo, "node_modules/.bin/tsc"), ["--pretty", "false", "-p", join(fixture, "tsconfig.json")], { cwd: repo, encoding: "utf8" });
     const errors = result.stdout.split("\n").filter((l) => l.includes("error TS"));
+    // tsc that dies, or is killed, without printing an error line is not a clean compile.
+    if (result.status !== 0 && errors.length === 0) errors.push(`tsc exited ${String(result.status)} with no error line: ${result.stdout}${result.stderr}`);
     expect(errors, "the fixture's `@ts-expect-error` lines must each hide exactly one error, and its other lines none").toEqual([]);
   });
 });

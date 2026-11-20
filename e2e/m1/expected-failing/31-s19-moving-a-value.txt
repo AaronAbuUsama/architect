@@ -1,3 +1,0 @@
-m1/31-s19-moving-a-value.test.ts > 31 S-19: a value moving between holders in one call > A `x` to `y`, then B `y` to `z`: the call commits, on its first try, and the names land
-m1/31-s19-moving-a-value.test.ts > 31 S-19: a value moving between holders in one call > a call that makes two claimed handles under one name clashes with itself: a defect naming the unique field, one attempt, nothing written
-m1/31-s19-moving-a-value.test.ts > 31 S-19: a value moving between holders in one call > a straight swap (A `x` to `y`, B `y` to `x`) has no order: a defect naming the unique field, one attempt, nothing written

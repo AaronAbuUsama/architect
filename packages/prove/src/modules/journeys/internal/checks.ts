@@ -19,6 +19,16 @@ export const tagOfClass = (cls: unknown): string =>
 const pascal = (name: string) => name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
 
 /**
+ * A machine's first declared state, whichever shape `states` has. Today `states` is the declared array; ST1.14 (G5 section 1) makes it a record of state references and keeps the
+ * array as `declared`. This reads both, so the builder of ST1.14 does not touch this protected file. Once the record has landed it can read `declared[0]` alone.
+ */
+const firstStateOf = (machine: object): string => {
+  const shape = machine as { readonly states?: unknown; readonly declared?: ReadonlyArray<string> };
+  const declared = shape.declared ?? (Array.isArray(shape.states) ? (shape.states as ReadonlyArray<string>) : Object.keys((shape.states ?? {}) as object));
+  return declared[0] ?? "";
+};
+
+/**
  * A refusal check's tag: a declared error's class name, `<Thing>Not<FirstState>` for a machine's own refusal, or
  * `<Thing>NotFound` for a missing instance (a thing's declared error of that name is the same tag, K16 M1.46).
  */
@@ -26,7 +36,7 @@ const tagOfRefusal = (error: Refusal, tableOf: (thing: Thing) => string | undefi
   if ((error as NotFound).kind === "not-found") return `${pascal(tableOf((error as NotFound).thing) ?? "?")}NotFound`;
   if ((error as NotFrom).kind !== "not-from") return tagOfClass(error);
   const machine = (error as NotFrom).machine;
-  return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(Object.keys(machine.states)[0] ?? "")}`;
+  return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(firstStateOf(machine))}`;
 };
 
 const subset = (want: Readonly<Record<string, unknown>>, got: unknown) =>
