@@ -69,8 +69,11 @@ const joined = (xs: ReadonlyArray<string>, joiner: string) => (xs.length <= 1 ? 
  * The one sentence for a rule (G5, the grill's Q2), shared by the docs, MCP's description, the scaffold's header and the portal: the rule's own
  * `description` when it wrote one (without its closing full stop, which the outputs add themselves), else "another claimed handle holds this name", made from the thing, the states it holds in and its key.
  */
-export const ruleSentence = (thing: string, rule: { readonly while?: ReadonlyArray<string>; readonly fields: ReadonlyArray<string>; readonly description?: string }): string =>
-  rule.description?.replace(/\.+\s*$/, "") ?? `another ${rule.while && rule.while.length > 0 ? `${joined(rule.while, "or")} ` : ""}${words(thing)} holds this ${joined(rule.fields.map(words), "and")}`;
+export const ruleSentence = (thing: string, rule: { readonly while?: ReadonlyArray<string>; readonly fields: ReadonlyArray<string>; readonly description?: string }): string => {
+  // One closing full stop goes (an ellipsis stays); a description left with nothing falls back to the generated sentence.
+  const written = rule.description?.trim().replace(/(?<!\.)\.$/, "");
+  return written ? written : `another ${rule.while && rule.while.length > 0 ? `${joined(rule.while, "or")} ` : ""}${words(thing)} holds this ${joined(rule.fields.map(words), "and")}`;
+};
 
 /** The rule an operation's refusal is made for (`op.invariants`), or undefined when the runtime refuses it for another reason. */
 export const ruleBehind = (model: Model, op: OperationModel, refusal: string): RuleBehind | undefined => {
