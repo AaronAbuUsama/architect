@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { Effect } from "effect";
 import type { Projection } from "orthograph";
 import type { Model } from "@orthograph/compiler";
-import { api, model as modelProjection, server } from "@orthograph/projections";
+import { api, cli, mcp, model as modelProjection, sdk, server } from "@orthograph/projections";
 import { GENERATED } from "@orthograph/projections/shared";
 import { RenderFailed, type RenderedFile } from "../types.ts";
 
@@ -16,10 +16,10 @@ export interface Mounted {
 }
 
 /**
- * What a project that mounts no projection at all gets: the model, the api and the server, as if it mounted them under
+ * What a project that mounts no projection at all gets: the model, the api, the server, the sdk, the cli and the mcp, as if it mounted them under
  * their own names, their headers as they were. A project that mounts any projection gets exactly the ones it mounts.
  */
-const standing: ReadonlyArray<Mounted> = [{ mount: "model", projection: modelProjection }, { mount: "api", projection: api }, { mount: "server", projection: server }];
+const standing: ReadonlyArray<Mounted> = [{ mount: "model", projection: modelProjection }, { mount: "api", projection: api }, { mount: "server", projection: server }, { mount: "sdk", projection: sdk }, { mount: "cli", projection: cli }, { mount: "mcp", projection: mcp }];
 
 /** The mount file's default export is the mount; its `plugin` is the projection the compiler matched to a package. */
 const loaded = (root: string, mount: string, file: string, hash: string): Effect.Effect<Mounted, RenderFailed> =>
@@ -50,8 +50,11 @@ export const filesOf = (name: string, model: Model, mounted: Mounted): Effect.Ef
       return escaping
         ? Effect.fail(new RenderFailed({ message: `${mounted.file ?? mounted.mount}: writes ${escaping.path}, outside generated/${mounted.mount}/` }))
         : Effect.succeed(outputs.map((o): RenderedFile => {
-          const [first = "", ...rest] = o.content.split("\n");
-          const content = mounted.file !== undefined && first === GENERATED ? [`// Generated from ${mounted.file}. Do not edit.`, ...rest].join("\n") : o.content;
+          // The CLI's entry opens with a shebang: its generated line is the second.
+          const [shebang, ...body] = o.content.startsWith("#!") ? o.content.split("\n") : [undefined, ...o.content.split("\n")];
+          const [first = "", ...rest] = body;
+          const named = mounted.file !== undefined && first === GENERATED ? [`// Generated from ${mounted.file}. Do not edit.`, ...rest] : body;
+          const content = (shebang === undefined ? named : [shebang, ...named]).join("\n");
           return { path: `generated/${mounted.mount}/${o.path}`, content, scaffold: false };
         }));
     }),

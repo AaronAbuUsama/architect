@@ -297,6 +297,24 @@ describe("a move with a machine: the race, the machine's refusal, all or nothing
     expect(memory.entries).toHaveLength(50);
   });
 
+  it("every attempt span of a call carries its call's name (O3): 50 concurrent calls are 50 names, and each name's attempts are 1..n", async () => {
+    const memory = start("active");
+    const spans: Array<Tracer.NativeSpan> = [];
+    const tracer = Tracer.make({ span: (options) => { const s = new Tracer.NativeSpan(options); spans.push(s); return s; } });
+    const layer = Layer.mergeAll(BusyLive, memory.layer, Layer.succeed(Tracer.Tracer, tracer));
+    const calls = Array.from({ length: 50 }, () => served.call({ allowance: "alw_1", amount: "10" }, ada));
+    await Effect.runPromise(Effect.all(calls, { concurrency: "unbounded" }).pipe(Effect.provide(layer)));
+    const attempts = spans.filter((s) => s.name === "purse.spend");
+    const byCall = new Map<string, Array<number>>();
+    for (const s of attempts) {
+      const id = s.attributes.get("call.id");
+      expect(id, "every attempt span names its call").toMatch(/^call_[0-9a-z]{16}$/);
+      byCall.set(String(id), [...(byCall.get(String(id)) ?? []), Number(s.attributes.get("attempt"))]);
+    }
+    expect(byCall.size).toBe(50);
+    for (const numbers of byCall.values()) expect(numbers.sort((a, b) => a - b)).toEqual(numbers.map((_, i) => i + 1));
+  });
+
   it("refuses with the machine's refusal, carrying the state it was in, before the handler runs", async () => {
     const memory = start("revoked");
     const exit = await Effect.runPromiseExit(served.call({ allowance: "alw_1", amount: "10" }, ada).pipe(Effect.provide(Layer.mergeAll(BusyLive, memory.layer))));

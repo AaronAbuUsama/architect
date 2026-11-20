@@ -30,6 +30,14 @@ gave was checked against its source; where the seed was wrong, the entry says so
   haven't reached `m1`.
 - **Pattern:** fixes that don't reach the working branch.
 - **Update, 20 November:** proposal 15 applied to the conductor skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+- **Update, 20 November:** proposal 15's first run. PR 169 merged on `main` at 07:21. The Goal 3 lead opened
+  [PR 172](https://github.com/AaronAbuUsama/architect/pull/172), `main` into `goal/stage-1`, at 07:22, and it merged at
+  09:09 (1cedc12a). Its CI ran four times: three runs were cancelled by its own new pushes (a totals regeneration at
+  07:38, a merge of `main` carrying PR 173 at 07:57, and a merge of `goal/stage-1` at 08:48, 08e4588e, after PRs 166 and 168
+  landed), and the fourth passed in about 20 minutes. The third run, on 4a4fe8b7, sat 50 minutes before it was
+  cancelled, for a reason the record doesn't show. From 09:09 both PR 169's skills and PR 173 (Codex advisory) are on
+  `goal/stage-1`. PRs 166 and 168 merged into `goal/stage-1` at 08:43 and 08:46 without the skill change in their
+  checkout; 170 and 171 were open and still lacked it. `m1` still lacks PRs 130 and 169.
 
 ### 2026-11-20 · A rules check took three Codex rounds in eleven minutes, and the third found the second's hole again
 - **Kind:** failure.
@@ -71,6 +79,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet; proposal 14.
 - **Pattern:** checks a wrong output can pass.
 - **Update, 20 November:** proposal 14 applied to the `author` skill in [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+- **Update, 20 November:** Aaron made Codex advisory ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)). His words: "We can't rely on Codex to be always there." The decision also cites long review loops holding merges for hours. Proof 6's hostile pass now runs before the first review of any kind.
 
 ### 2026-11-19 · Codex found that a security-only review would hold the merge guard at pending
 - **Kind:** near miss.
@@ -193,6 +202,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   have held it.
 - **Pattern:** merged before review and CI finished.
 - **Update, 19 November:** proposal 2 applied in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) (record `design/decisions/CI-branch-protection.md`): `main`, `m1` and `goal/stage-1` are protected, with their CI jobs and a new `codex-finished` status required, conversations resolved, and `enforce_admins` on, so "merge when green" now waits for green.
+- **Update, 20 November:** Aaron made Codex advisory ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173), `design/decisions/CI-codex-advisory.md`). `codex-finished` is required on no branch; CI, resolved threads and a 🔍 pass are the gate.
 
 ### 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code
 - **Kind:** failure.
@@ -551,6 +561,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Pattern:** merged before review and CI finished.
 - **Update, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) makes it enforced, not remembered: a merge into `main`, `m1` or `goal/stage-1` needs the `codex-finished` status (no Codex review still running) and every review thread resolved.
 - **Update, 19 November:** [PR 138](https://github.com/AaronAbuUsama/architect/pull/138): `codex-finished` goes green only when Codex reviewed the head, or every commit since is a clean merge from the base.
+- **Update, 20 November:** Codex is advisory now ([PR 173](https://github.com/AaronAbuUsama/architect/pull/173)), but conversation resolution is still required, so a Codex finding posted before the merge must still be answered.
 
 ### 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart
 - **Kind:** near miss.

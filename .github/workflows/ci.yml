@@ -17,9 +17,12 @@ concurrency:
 # Every job has a timeout, about twice its longest green run, so a hung run or one left behind by a closed pull request
 # frees its runner instead of holding it for hours.
 jobs:
-  check:
+  # `check` (required) is every project's lint, typecheck and tests, the sync check and the CI scripts' own tests. It runs
+  # as three jobs side by side (design/decisions/CI-speed.md): prove's tests alone took 13 of check's 16 minutes, so they
+  # run in shards, and the rest runs beside them. The small `check` job at the end passes only when both did.
+  check-static:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -48,13 +51,78 @@ jobs:
         with:
           version: v1.8.6
       - run: anvil --version
-      - run: pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+      # Every target of every project except prove's tests, which prove-tests runs.
+      - run: pnpm nx run-many -t lint,typecheck,test --exclude=prove --outputStyle=static
         env:
           ORTHO_CHAIN_EVM_ANVIL: "1"
+      - run: pnpm nx run-many -t lint,typecheck -p prove --outputStyle=static
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
-      # The CI guards' own scripts (builder-paths, supersedes, codex-state), each case on a throwaway repository.
+      # The CI guards' own scripts (builder-paths, supersedes, codex-state, gate, m1-reports), each case on a throwaway repository.
       - run: bash tools/ci/ci.test.sh
+
+  # prove's tests, split by file into three shards (vitest's --shard), each on its own runner with the same steps as
+  # check-static. Every shard runs to the end (no fail-fast), so one run shows every failure. Skipped on a docs-only pull
+  # request, like the layer gates: no prove test reads design/ or a doc outside packages/ (CI-speed.md).
+  prove-tests:
+    needs: changes
+    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    name: prove-tests (${{ matrix.shard }}/3)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      # A world's chain is Anvil as a plain process (K10 section 8: no container, no Docker step). Foundry is pinned
+      # to an exact version, and the tests that start Anvil run here (M1.31).
+      - uses: foundry-rs/foundry-toolchain@v1.9.2
+        with:
+          version: v1.8.6
+      - run: anvil --version
+      - run: pnpm nx run prove:test --outputStyle=static -- --shard=${{ matrix.shard }}/3
+        env:
+          ORTHO_CHAIN_EVM_ANVIL: "1"
+
+  # The required check's name. It never skips (a skipped required check counts as passed): it runs whatever its needs
+  # did, and tools/ci/gate.sh fails it unless check-static passed and every prove-tests shard passed, or the shards were
+  # skipped by the docs fast path.
+  check:
+    needs: [changes, check-static, prove-tests]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: tools/ci
+      - run: tools/ci/gate.sh "check-static=$STATIC" "docs:prove-tests=$PROVE"
+        env:
+          DOCS_ONLY: ${{ needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true' }}
+          STATIC: ${{ needs.check-static.result }}
+          PROVE: ${{ needs.prove-tests.result }}
 
   # A builder never edits journeys, evals or the runner's checks (AGENTS.md; proposal 6 in design/process/proposals.md).
   # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
@@ -126,11 +194,12 @@ jobs:
       # Check 15 (the seam): the packed files hold nothing of Pro, and no import of Pro lives outside portal-ui.
       - run: pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/15
 
-  # Is this pull request docs only? Then the layer gates below skip (design/decisions/CI-docs-fast-path.md): main is
-  # strict, so every pull request reruns all of CI each time another lands, and a docs change cannot move a layer gate.
-  # Docs-only is every changed path under design/, or a *.md file outside packages/, e2e/ and examples/
-  # (tools/ci/docs-only.sh). A push, or a pull request with any other change, runs everything. `check` and `e2e-m0`
-  # always run, since they lint the docs, total the e2e READMEs, build the design docs and run the supersedes guard.
+  # Is this pull request docs only? Then the layer gates, prove-tests, the M1 shards, e2e-climb and e2e-grid skip
+  # (design/decisions/CI-docs-fast-path.md, CI-speed.md): main is strict, so every pull request reruns all of CI each time
+  # another lands, and a docs change cannot move them. Docs-only is every changed path under design/, or a *.md file
+  # outside packages/, e2e/ and examples/ (tools/ci/docs-only.sh). A push, or a pull request with any other change, runs
+  # everything. check-static, `e2e-m0` and portal-ui always run, since they lint the docs, total the e2e READMEs, build the
+  # design docs and run the supersedes guard.
   # Never workflow-level `paths-ignore`: a workflow that never starts leaves its required checks pending forever.
   changes:
     runs-on: ubuntu-latest
@@ -263,13 +332,21 @@ jobs:
 
   # M1's checks also run together in CI, through the ratchet (e2e/ratchet/README.md): the checks whose slice has not landed
   # are on e2e/m1/expected-failing.txt and may fail; any other failure fails the job, so a regression cannot merge unseen.
-  # Gate M1 (M1.15) empties the list and makes the job required.
-  e2e-m1:
-    needs: portal-ui
+  # They run as four shards (design/decisions/CI-speed.md): each runs a quarter of the files, still one file at a time on its
+  # own runner, with the vitest command of `nx run e2e:m1-ratchet` plus `--shard`, and hands on its JSON report and hook-error
+  # file. A shard passes when it wrote both, whatever its tests did; the `e2e-m1` job below judges them all together.
+  # Skipped on a docs-only pull request: no M1 check reads design/ or a doc outside packages/, e2e/ and examples/.
+  e2e-m1-shard:
+    needs: [changes, portal-ui]
     # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    name: e2e-m1-shard (${{ matrix.shard }}/4)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -307,12 +384,75 @@ jobs:
           version: v1.8.6
       # K19: the portal is read in headless Chromium (e2e/served-portal). Playwright's own download plus the system libraries it needs on this image.
       - run: pnpm --filter @orthograph/e2e exec playwright install --with-deps chromium
-      - run: pnpm nx run e2e:m1-ratchet --outputStyle=static
+      # The vitest command of `nx run e2e:m1-ratchet` (e2e/project.json), with --shard. Its exit is not the verdict (listed
+      # checks fail here by design); the report and the hook-error file are, so both must exist.
+      - name: Run this shard's M1 checks
+        run: |
+          mkdir -p tmp && rm -f tmp/m1-report.json tmp/m1-errors.json
+          code=0
+          RATCHET_ERRORS_FILE=tmp/m1-errors.json pnpm exec vitest run --root e2e --config vitest.m1-ratchet.config.ts m1 \
+            --shard="$SHARD/4" --reporter=default --reporter=json --reporter=./e2e/ratchet/reporter.ts \
+            --outputFile.json=../tmp/m1-report.json || code=$?
+          echo "vitest exited $code; the e2e-m1 job judges the report."
+          for file in tmp/m1-report.json tmp/m1-errors.json; do
+            [ -s "$file" ] || { echo "::error::$file is missing: this shard's run did not finish."; exit 1; }
+          done
+        env:
+          SHARD: ${{ matrix.shard }}
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: m1-report-${{ matrix.shard }}
+          path: |
+            tmp/m1-report.json
+            tmp/m1-errors.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 3
+
+  # The required check's name: the ratchet over all four shards' reports at once. It never skips (a skipped required check
+  # counts as passed): on a docs-only pull request whose shards skipped it passes, and otherwise it needs every shard to
+  # have passed, joins their reports (tools/ci/m1-reports.sh) and runs the ratchet's unit test and its check, unchanged.
+  # Gate M1 (M1.15) empties the list.
+  e2e-m1:
+    needs: [changes, e2e-m1-shard]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: tools/ci/gate.sh "docs:e2e-m1-shard=$SHARDS"
+        env:
+          DOCS_ONLY: ${{ needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true' }}
+          SHARDS: ${{ needs.e2e-m1-shard.result }}
+      - uses: pnpm/action-setup@v6.1.0
+        if: needs.e2e-m1-shard.result == 'success'
+      - uses: actions/setup-node@v7.1.0
+        if: needs.e2e-m1-shard.result == 'success'
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: needs.e2e-m1-shard.result == 'success'
+      - run: pnpm nx run e2e:ratchet-test --outputStyle=static
+        if: needs.e2e-m1-shard.result == 'success'
+      - uses: actions/download-artifact@v8.0.2
+        if: needs.e2e-m1-shard.result == 'success'
+        with:
+          pattern: m1-report-*
+          path: tmp/m1-shards
+      - name: The ratchet over every shard
+        if: needs.e2e-m1-shard.result == 'success'
+        run: |
+          tools/ci/m1-reports.sh tmp/m1-shards 4 "$(find e2e/m1 -name '*.test.ts' | wc -l)" tmp
+          node e2e/ratchet/check.ts tmp/m1-report.json e2e/m1/expected-failing.txt tmp/m1-errors.json
 
   # Goal 3's climbability check (`e2e/climb/README.md`): `ortho prove` on planted wrong handlers must name the journey and
   # step, show expected and got, point to the handler file and declaration, finish fast and give the same result twice.
   # All five properties hold since #119, so the job is required.
+  # Skipped on a docs-only pull request (CI-speed.md), where a skip counts as passed. Should `changes` itself fail, this runs.
   e2e-climb:
+    needs: changes
+    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -340,9 +480,10 @@ jobs:
   # Goal 3's grid runner (`e2e/grid/README.md`): its unit tests, then `ortho prove` and every switched-on cell, with the ratchet of
   # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
   e2e-grid:
-    needs: portal-ui
+    needs: [changes, portal-ui]
     # Not skipped when portal-ui is: a skipped job reads as passed where it is required, and this one cannot pass without the client. It runs, and fails at the artifact.
-    if: ${{ !cancelled() }}
+    # Skipped on a docs-only pull request (CI-speed.md): the grid reads generated docs under examples/, never a docs-only path.
+    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

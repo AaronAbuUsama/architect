@@ -7,6 +7,7 @@ import { OtlpLogger, OtlpSerialization, OtlpTracer } from "effect/observability"
 import type { Operation, Principal } from "orthograph";
 import type { DeviceApi, DeviceWhere } from "../types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
+import { CALL_ID, newCallId } from "./call-id.ts";
 import { spanned } from "./span.ts";
 import { cutAnswer } from "#modules/visibility/service.js";
 
@@ -43,7 +44,7 @@ const device = ({ name, operation, handler }: { readonly name: string; readonly 
   return {
     name,
     run: (payload: object, where: DeviceWhere) =>
-      Effect.gen(function* () {
+      Effect.flatMap(newCallId, (callId) => Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
         const answer = yield* handler(payload, { principal, steps, refs: {}, move });
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
@@ -55,9 +56,9 @@ const device = ({ name, operation, handler }: { readonly name: string; readonly 
         Effect.tapCause((cause) => Cause.hasDies(cause)
           ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })
           : Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)) })),
-        spanned(name, { operation: name, ...principalAttributes(principal) }),
+        spanned(name, { operation: name, [CALL_ID]: callId, ...principalAttributes(principal) }),
         where.otlp === undefined ? (effect) => effect : Effect.provide(exporter(where.otlp, where.service)),
-      ),
+      )),
   };
 };
 

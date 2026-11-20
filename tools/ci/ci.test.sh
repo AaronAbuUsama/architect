@@ -130,6 +130,10 @@ r=$(repo); mkdir -p "$r/.github/workflows"; echo d > "$r/.github/workflows/ci.ym
 expect "docs-only: a workflow is not docs" 0 docs "$r" false
 r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/notes.md"; commit "$r"; git -C "$r" mv design/notes.md src/notes.ts; commit "$r"
 expect "docs-only: moving a file out of design/ is not docs" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/design"; echo d > "$r/design/heroui-pro-notes.md"; commit "$r"
+expect "docs-only: a doc named for HeroUI Pro is not docs (check 15 scans paths)" 0 docs "$r" false
+r=$(repo); mkdir -p "$r/design"; name=HEROUI_AUTH; echo "${name}_TOKEN=$(printf 'a%.0s' {1..16})" > "$r/design/setup.md"; commit "$r"
+expect "docs-only: a doc that adds a line naming the token is not docs (check 15 scans text)" 0 docs "$r" false
 r=$(repo)
 expect "docs-only: an empty diff is not docs" 0 docs "$r" false
 r=$(repo); echo d > "$r/README.md"; commit "$r"
@@ -234,6 +238,47 @@ expect "covers: a merge made from the base side is not covered" 1 covers "$r"
 r=$(pr_repo)
 expect "covers: a reviewed commit not in the repository is not covered" 1 \
   bash -c "cd '$r' && '$here/codex-covers.sh' 0123456789abcdef0123456789abcdef01234567 HEAD base"
+
+# gate: one required check passes only when every job behind it did (design/decisions/CI-speed.md)
+gate() { DOCS_ONLY="$1" "$here/gate.sh" "${@:2}"; }
+expect "gate: every job passed" 0 gate false check-static=success docs:prove-tests=success
+expect "gate: a failed job fails it" 1 gate false check-static=failure docs:prove-tests=success
+expect "gate: a failed shard fails it" 1 gate false check-static=success docs:prove-tests=failure
+expect "gate: a cancelled job fails it" 1 gate false check-static=cancelled docs:prove-tests=success
+expect "gate: a skip on a docs-only pull request passes" 0 gate true check-static=success docs:prove-tests=skipped
+expect "gate: a skip on a code pull request fails" 1 gate false check-static=success docs:prove-tests=skipped
+expect "gate: a job not marked docs may never skip" 1 gate true check-static=skipped docs:prove-tests=skipped
+expect "gate: docs-only does not excuse a failure" 1 gate true check-static=success docs:prove-tests=failure
+expect "gate: no jobs is a usage error" 2 gate false
+expect "gate: a bad DOCS_ONLY is a usage error" 2 gate yes check-static=success
+expect "gate: an argument without a result is a usage error" 2 gate false check-static
+
+# m1-reports: the e2e-m1 shards' reports joined into the one the ratchet reads (design/decisions/CI-speed.md)
+shard() { # <dir> <n> <test file...>; writes shard n's report (one passing test per file) and an empty hook-error file
+  local dir="$1/m1-report-$2"; shift 2; mkdir -p "$dir"
+  printf '%s\n' "$@" | jq -R '{name: ., status: "passed", assertionResults: [{title: "t", status: "passed"}]}' | jq -s '{testResults: .}' > "$dir/m1-report.json"
+  echo '{"suiteErrors":[],"unhandled":[]}' > "$dir/m1-errors.json"
+}
+join() { "$here/m1-reports.sh" "$1" 2 "${2:-2}" "$1/out"; }
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
+expect "m1-reports: two shards join" 0 join "$d"
+expect "m1-reports: the joined report has both files" 0 jq -e '.testResults | length == 2' "$d/out/m1-report.json"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts
+expect "m1-reports: a missing shard fails" 1 join "$d"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts; rm "$d/m1-report-2/m1-errors.json"
+expect "m1-reports: a missing hook-error file fails" 1 join "$d"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/a.test.ts
+expect "m1-reports: a file run by two shards fails" 1 join "$d"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts; echo '{}' > "$d/m1-report-2/m1-report.json"
+expect "m1-reports: a report without test files fails" 1 join "$d"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
+expect "m1-reports: a file no shard ran fails" 1 join "$d" 3
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts
+echo '{"suiteErrors":[{"name":"/e2e/m1/b.test.ts","path":[]}],"unhandled":["boom"]}' > "$d/m1-report-2/m1-errors.json"
+join "$d" > /dev/null
+expect "m1-reports: hook errors and unhandled errors carry over" 0 jq -e '(.suiteErrors | length == 1) and (.unhandled == ["boom"])' "$d/out/m1-errors.json"
+d=$(mktemp -d "$scratch/m1.XXXX"); shard "$d" 1 /e2e/m1/a.test.ts; shard "$d" 2 /e2e/m1/b.test.ts; echo 'not json' > "$d/m1-report-1/m1-errors.json"
+expect "m1-reports: a broken hook-error file fails" 1 join "$d"
 
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi
 echo "all tools/ci cases pass"

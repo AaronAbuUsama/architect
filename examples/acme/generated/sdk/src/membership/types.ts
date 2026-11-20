@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/sdk.ts. Do not edit.
 import type * as Source from "../../../../blueprint/things/membership/thing.ts";
 
 type Declared = Extract<(typeof Source)[keyof typeof Source], { readonly kind: "thing" }>["fields"];
