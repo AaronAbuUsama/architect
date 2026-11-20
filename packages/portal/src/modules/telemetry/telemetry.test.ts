@@ -85,6 +85,19 @@ describe("the spans the real handler writes", () => {
   });
 });
 
+describe("a call whose commit never won", () => {
+  it("is a defect, not an answer, and takes no move", async () => {
+    const lost = new Map<string, WindowTrace>([["z", { spans: [
+      span("z1", "z", "handle.claim", at(1), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", "move.name": "claim" }),
+      span("zc", "z", "handle.claim.commit", at(1) + 1, { "step.kind": "commit", "commit.outcome": "conflict" }, { parentSpanId: "z1" }),
+    ], logs: [] }]]);
+    const t = await read({ source: { window: () => Effect.succeed(lost), find: () => Effect.succeed(undefined) } });
+    const { rows, moves } = ok(t.calls);
+    expect(rows.map((r) => [r.trace, r.outcome])).toEqual([["z", "defect"]]);
+    expect(moves).toEqual({});
+  });
+});
+
 describe("InvalidPayload is a refusal the runtime makes", () => {
   it("it is in no model's refusal table, and its calls are counted by name as door refusals, never rows", async () => {
     const withInvalid = [...points, point("handle.claim", "refused", 2, "InvalidPayload")];
