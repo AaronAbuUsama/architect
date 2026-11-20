@@ -78,7 +78,7 @@ None of this touches `m1` or `canon-minimal`. Each item ends in its own branch a
 | `PLU-01` | M1.06, M1.14, M5.03 | Plugins and mounts, adapters and calls out as steps, `Blueprint.kit`-style provenance, namespaces, collision checks, impact edges and wrappers are not built anywhere, and nothing calls out to another system or receives a webhook. |
 | `PLU-02` | M1.01 | The plugin descriptor decisions are still open: choices against settings, `Blueprint.need(x, { when })`, runtime entries per host, and how aliases, error-class names and schema-affecting choices behave. |
 | `PRJ-44` | M1.12, M6.01, M6.15 | The SDK has no contract for its caller, retries or refusals: a method takes only a payload. |
-| `ROL-02` | M2.07 | Two role models disagreed (`holds` and the code's rule); decided: the rule is the model, and the organizations plugin's `holds` is a shortcut that produces a rule. |
+| `ROL-02` | M2.07 | Two role models disagreed (`holds` and the code's rule); decided by K20: a role is a `rule`, or declared with `who` or `holds` in `orthograph` itself; the organizations plugin's owner and member are `holds` roles. |
 | `HAN-01` | M1.17 | Every handler is offered a raw `SqlClient`, so a handler can write to the database outside the commit that guards a store. |
 | `JOU-01` | M1.03 | Journeys are not in the model yet, so the generated app cannot show proof status live, its `<Scenario>` block was not built, and the spike server reads journey files as a stopgap. |
 | `JOU-02` | M2.08 | Journeys call the server over raw HTTP, so the SDK, CLI and MCP are never proved by a journey; the replay rule (the same evidence through each projection) is designed but not built. |
