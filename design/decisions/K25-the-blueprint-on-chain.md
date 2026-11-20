@@ -101,7 +101,7 @@ written three different ways.
    | `email()`, `visibility.secret(...)`, `visibility.private(...)` | refused: "a public chain shows every field" |
    | `schema(...)` | refused unless it declares its Solidity type |
 
-   Money is not in this table. It gets its own round with Aaron (ledger `THI-07`).
+   Money is not in this table. It gets its own round with Aaron (ledger `THI-07`, recorded on `main` by PR #203).
 
 6. **An operation on a thing that lives on chain runs on chain.** Its `runs` is worked out, and an author never writes
    `runs: "chain"`. This is the building agent's call, offered to Aaron in the round and not objected to.
@@ -126,18 +126,25 @@ written three different ways.
 | `orthograph`: stores, things, values, roles | `Blueprint.store.chain.evm`, `Blueprint.account()`, and a Solidity type on `ValueMeta` (M6.10). Nothing is built here. Goal 3 owns `packages/orthograph` until it lands |
 | compiler `environments.ts:30` | binds a chain store as well as a database store (M6.10, M6.17) |
 | `language-solidity` (M6.11) | renders roles behind `IAccessControl` |
-| The allowance and private-membership examples, `frame/projections.md` | rewritten to the store form in this change |
-| K20 | its Solidity sketch (`K20-roles-across-things.md:209-234`) gains `hasRole` and the events; its rule that a chain role's holding thing lives in the same store now reads "the same chain store" |
+| The allowance and private-membership examples, `frame/projections.md` | rewritten to the store form in this change; the allowance scaffold is `src/Vault.sol`, after its store |
+| K20 | a dated record: notes beside its Solidity sketch and its same-chain rule point here, for `hasRole`, the events and "the same chain store" |
 
 ## Ledger
 
 - `STO-19` (three spellings of `Blueprint.chain`): decided here. Built in M6.10.
 - `THI-01` (a value's Solidity type): decided here. Built in M6.10.
+- `X-19` (the same three shapes, as a contradiction): settled here.
+- `STO-18` (the private-membership example's chain wording): rewritten here to a chain store; the Aztec kind itself
+  is still later.
 
 ## Supersedes
 
 - design/decisions/K7-chain-languages.md (Q4): "`lives: Blueprint.chain.evm({ contract: "Governance", per: "workshop" })`, and likewise `.solana(...)` and `.aztec(...)`. `Blueprint.chain({...})` alone means `evm`" → "`lives: governance`, a chain store declared in `blueprint/stores/governance.ts` as `Blueprint.store.chain.evm({ per: Workshop })` (K25)"
 - design/decisions/K7-chain-languages.md (decided item 2): "OpenZeppelin-style `onlyRole`, generated rather than imported" → "generated behind OpenZeppelin's `IAccessControl`, one role id per instance (K25)"
+- design/decisions/K7-chain-languages.md (milestone slices it changed, M6.10): "Also lands `Blueprint.chain.evm(...)`" → "chain store files (K25)"
+- design/decisions/K20-roles-across-things.md (the rules, item 1): "`Blueprint.chain.evm(...)` is Solidity" → "a chain store, `Blueprint.store.chain.evm`, is Solidity (K25)"
+- design/decisions/K20-roles-across-things.md (Solidity sketch): `onlyDirector` alone → "also `hasRole`, `RoleGranted` and `RoleRevoked` behind `IAccessControl` (K25)"
+- design/decisions/K20-roles-across-things.md (the rules, item 6): "it lives on the same chain" → "it lives in the same chain store (K25)"
 - design/decisions/K3-stores-and-sources.md (decided item 1): "`lives: Blueprint.chain({ … })` from L4.01" → "a chain store file, `Blueprint.store.chain.evm({ per })` (K25)"
 - design/decisions/K5-the-whole-shape.md: "`lives: Blueprint.chain({ contract: "Governance", per: "workshop" })`" → "`lives: governance` (K25)"
 - design/decisions.md: "switched on by `lives: Blueprint.chain({ contract, key, per })`" → "switched on by a thing living in a chain store (K25)"

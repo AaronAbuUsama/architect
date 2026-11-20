@@ -92,12 +92,12 @@ transaction.
 
 ## Blanks and handlers
 
-The Solidity projection writes `src/AllowanceVault.sol` once, with blanks, beside the generated machine
+The Solidity projection writes `src/Vault.sol` once, with blanks, beside the generated machine
 (`generated/solidity/AllowanceMachine.sol`, whose `_step` is the compiled machine). The blank is the same blank as the
 Effect handler's: the limit check.
 
 ```solidity
-// src/AllowanceVault.sol: scaffolded once, yours from then on
+// src/Vault.sol: scaffolded once, yours from then on
 function _spend(Allowance storage a, uint128 amount) internal override {
   if (a.spent + amount > a.limit) revert AllowanceExceeded(a.limit - a.spent);   // its stable refusal code, the same in both languages
   a.spent += amount;
@@ -174,5 +174,5 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
    thing moves only when the receipt lands. *Recommend (a)*: honest to callers, and the follower settles it.
 2. **How much of the fuzz runs on every check?** (a) A small fixed seed set in `check`, the long run in CI.
    (b) The long run always. *Recommend (a)*, with the CI seed recorded in the verdict.
-3. **One vault per organisation, or one vault for all?** (a) Per organisation (`per: "organization"`), as L4.07 plans.
+3. **One vault per organisation, or one vault for all?** (a) Per organisation (`per: Organization`), as L4.07 plans.
    (b) One contract with a mapping. *Recommend (a)*: it matches the actor per organisation and isolates money.
