@@ -2,8 +2,10 @@ import { spawnSync } from "node:child_process";
 import { copyFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { freePorts } from "../ports.ts";
 import { copyOf, acme, fixtures, model, nothingRunning, removeAt, run, succeeds, textAt } from "./support.ts";
 
+const PORTS = freePorts("changed", "unchanged", "empty", "scaffold");
 const copies: Array<ReturnType<typeof copyOf>> = [];
 const fresh = () => {
   const copy = copyOf(acme);
@@ -34,7 +36,7 @@ describe("M1.16: ortho prove --empty", () => {
   it("runs acme's revoke then spend with two red steps and the role refusal proved by the description", () => {
     const root = fresh();
     const originals = [textAt(root, revoke), textAt(root, spend)];
-    revokeThenSpend(root, 19276);
+    revokeThenSpend(root, PORTS.empty);
     expect([textAt(root, revoke), textAt(root, spend)]).toEqual(originals);
   });
 });
@@ -52,7 +54,7 @@ describe("M1.26: the wired scaffold and optional steps", () => {
     expect(source).toMatch(/steps\.load\(Handlers\.blank[\s\S]*steps\.record\(Handlers\.blank[\s\S]*move\(/);
     expect(source).toMatch(/new AllowanceExceeded\(/);
     expect(textAt(root, revoke)).toMatch(/steps\.update\(Handlers\.blank/);
-    const result = revokeThenSpend(root, 19277);
+    const result = revokeThenSpend(root, PORTS.scaffold);
     expect(result).toMatch(/✘ "ada revokes it"[^\n]*BlankReached[^\n]*update/);
     expect(result).toMatch(/✘ "olga can't spend"[^\n]*BlankReached[^\n]*load/);
   });
@@ -65,7 +67,7 @@ describe("M1.26: the wired scaffold and optional steps", () => {
     succeeds(root, "generate");
     expect(model(root).operations["allowance.edit"]?.["steps"]).toMatchObject({ save: { optional: true } });
 
-    const changed = succeeds(root, "prove", "--port", "19278").out;
+    const changed = succeeds(root, "prove", "--port", String(PORTS.changed)).out;
     expect(changed).toContain("journey change the limit ✔ 1/1 steps");
     const oneWay = /allowance\.edit\.save[^\n]*never exercised both ways|never exercised both ways[^\n]*allowance\.edit\.save/;
     expect(changed).toMatch(oneWay);
@@ -73,7 +75,7 @@ describe("M1.26: the wired scaffold and optional steps", () => {
 
     const unchanged = "journeys/keep-the-limit.ts";
     copyFileSync(join(fixture, unchanged), join(root, unchanged));
-    const both = succeeds(root, "prove", "--port", "19278").out;
+    const both = succeeds(root, "prove", "--port", String(PORTS.changed)).out;
     expect(both).toContain("journey keep the limit ✔ 1/1 steps");
     expect(both).toContain("allowance.edit steps ✔");
     expect(both).not.toMatch(oneWay);
@@ -86,7 +88,7 @@ describe("M1.26: the wired scaffold and optional steps", () => {
       copyFileSync(join(fixture, path), join(root, path));
     }
     succeeds(root, "generate");
-    const unchanged = succeeds(root, "prove", "--port", "19279").out;
+    const unchanged = succeeds(root, "prove", "--port", String(PORTS.unchanged)).out;
     expect(unchanged).toContain("journey keep the limit ✔ 1/1 steps");
     expect(unchanged).toMatch(/allowance\.edit\.save[^\n]*never exercised both ways|never exercised both ways[^\n]*allowance\.edit\.save/);
     nothingRunning(root);

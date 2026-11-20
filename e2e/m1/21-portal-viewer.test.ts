@@ -5,14 +5,15 @@
 //   D  "the 'no leak' check plants a raw statement, a `principal.person`, a non-public payload value and a log body in a staging
 //       trace and none renders, while the caller's kind does"
 //   E  "the portal's screenshots are byte-identical across two runs at the same `now`"
-// What this file reads: the portal is `Portal.handle(context, request)` from `@orthograph/portal`, answered over Plugged In's
-// own generated `blueprint.json`, with the live view read through a `TraceSource` fixture (an in-memory source; no cloud, no
-// Docker, no Collector). It is never run against a real staging deployment.
+// What this file reads (K19, 19 November 2026): the portal as a person reads it. Plugged In's own generated `blueprint.json` is served the way
+// its Worker serves it (the data API at `/_portal/v1/*` from `@orthograph/portal/server`, the prebuilt client at `/portal`), the live view
+// read through a `TraceSource` fixture (an in-memory source; no cloud, no Docker, no Collector), and each route is opened in headless
+// Chromium (`e2e/served-portal`, Playwright's own download). Every `data-portal` hook below is read off the rendered DOM, and the data API is
+// read directly where a test is about data. It is never run against a real staging deployment.
 //
-// NO BROWSER. No package of this repository pins one (`playwright` is pinned only by `spikes/visual-content`, which no package
-// may import and which this repository does not install at the root), and a check may not add a dependency. So "a screenshot" is
-// judged on what a screenshot is made of: the page's server-rendered bytes for a fixed set of routes. Byte-identical HTML at the
-// same `now` is the necessary half of byte-identical pixels; the pixel half is for the builder's own visual run, not this gate.
+// SCREENSHOTS come from the browser: a fixed viewport, no animation, the browser's own clock untouched (so a client that read the clock would
+// show), two fresh served portals at the same `now` giving the same PNG bytes, and the HTML as well. Until the portal is split, every test that
+// opens a page fails with a message that starts `K19:`; the controls that never open one pass.
 //
 // Surface this check REQUIRES, where `design/portal.md` (the agreed wireframe) fixes the content but not the markup. Decisions
 // of the author, each recorded for the builder:
@@ -65,20 +66,25 @@
 //     `not yet` in the attribute), and no made-up value: request key (hole 1), role held (hole 8), per-eval verdicts (3).
 //     The aggregate verdict per environment is not a hole; its states are `ProofState`'s (recorded-pass, failed, stale,
 //     unproven, unavailable), and `unavailable` only where no logbook is configured, as here.
-//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In declares no journey (ST1.02) and the wire carries none
-//     until M1.42, so `/portal/journeys` shows the declared-none state (`journeys-empty`) and draws no step, whatever the
-//     window's traces hold. The step-verdict hole (PRJ-47) is asserted once M1.42 brings journeys: not in this file yet.
+//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In's wire now carries its journeys (N, with their steps), so
+//     `/portal/journeys` draws `journey` N times and `journey-step` once for each declared step, with no `journeys-empty`, whatever the
+//     window's traces hold; on a copy of the wire with `journeys` empty (`{}`) it shows the declared-none state (`journeys-empty`) and no
+//     step. One page, `/portal/journeys`, lists every journey and its steps: the author's choice, not K19's text. The step-verdict hole (PRJ-47) is asserted once M1.42 brings step verdicts: not in this file yet.
 //  9. The reference panel is pinned to portal.md's order: Access, Refusal codes, Events, Values, Machines (not sorted).
+// 10. K19: every page, once drawn, carries `page[data-ready="true"][data-status]` (200, or 404 for a route that is not a page: the shell is always
+//     a 200), which the harness waits for and reads a page's status from (`e2e/served-portal/README.md`).
 //
 // Red today on the missing surface: no `live` on the context, none of the hooks, no trace page, Plugged In's docs and generated
 // files absent until M1.40, and `@orthograph/portal` not drawn with `@orthograph/portal-ui`. The controls pass today.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Effect } from "effect";
-import { Portal, Wire, type BlueprintWire, type PortalContext } from "@orthograph/portal";
+import { Wire, type BlueprintWire, type PortalContext } from "@orthograph/portal";
 import { SourceFailed, type Span, type Trace } from "@orthograph/prove";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+import { ServedPortals } from "../served-portal/service.ts";
+import type { ServedPortal } from "../served-portal/types.ts";
 import { acme, copyOf, digest, repo, succeeds } from "./support.ts";
 
 // ---- the prerequisites, said plainly ----
@@ -94,6 +100,11 @@ const pluggedInWire = (): unknown => {
 const decode = (json: unknown): Promise<BlueprintWire> => Effect.runPromise(Wire.decode(json));
 
 // ---- the instruments ----
+
+/** Every `.ts` and `.tsx` file under a folder (none when it is not there). */
+const sourceFiles = (dir: string): ReadonlyArray<string> => existsSync(dir)
+  ? readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.name === "node_modules" || entry.name === "dist" ? [] : entry.isDirectory() ? sourceFiles(join(dir, entry.name)) : /\.tsx?$/.test(entry.name) ? [join(dir, entry.name)] : [])
+  : [];
 
 const NOW = 1_800_000_000_000;
 const WINDOW = 30 * 60_000;
@@ -196,10 +207,26 @@ const context = (blueprint: BlueprintWire, run: Pick<Fixture, "traces" | "doorRe
   ({ blueprint, reader: null, bundleRevision: null, live: { environment, source: source(run.traces), metrics: metricsOf(run as Fixture), now, windowMs: WINDOW } }) as unknown as PortalContext;
 const dark = { traces: new Map<string, Trace>(), doorRefusals: 0, claim: "handle.claim" };
 
-const get = async (ctx: PortalContext, path: string) => {
-  const response = await Effect.runPromise(Portal.handle(ctx, new Request(`http://portal.test${path}`)));
-  return { status: response.status, text: await response.text() };
+// K19: the portal is read the way a person reads it. Each context is served (the data API at `/_portal/v1/*` from `@orthograph/portal/server`,
+// the prebuilt client at `/portal`) and a route is opened in headless Chromium; `text` is the rendered DOM, so every `data-portal` hook
+// below is read off the page a person sees. A path under `/_portal/` goes straight to the data API. Until the portal is split, `get`
+// throws a message that names K19 (`served-portal/service.ts`).
+const served = new Map<PortalContext, Promise<ServedPortal>>();
+const portalOf = (ctx: PortalContext): Promise<ServedPortal> => {
+  const open = served.get(ctx) ?? ServedPortals.open({ context: ctx });
+  served.set(ctx, open);
+  return open;
 };
+afterAll(async () => { await ServedPortals.closeAll(); });
+
+const get = async (ctx: PortalContext, path: string) => {
+  const portal = await portalOf(ctx);
+  if (path.startsWith("/_portal/")) { const answer = await portal.data(path); return { status: answer.status, text: answer.text, fetched: [] as ReadonlyArray<{ text: string }> }; }
+  const page = await portal.page(path);
+  return { status: page.status, text: page.html, fetched: page.fetched };
+};
+/** The pixels of a route, from the same served portal. */
+const shoot = async (ctx: PortalContext, path: string) => (await portalOf(ctx)).shoot(path);
 
 type Attrs = Record<string, string>;
 const unescape = (v: string) => v.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
@@ -256,16 +283,15 @@ describe("21 control: acme's docs are the baseline, and the instruments are soun
 /** Just the names `stage` reads, for the instrument controls, which judge the source and the scanner and not the portal. */
 const fakeWire = { model: { operations: { "handle.claim": { move: { key: "claim" }, errors: ["HandleTaken"] }, "link.add": { move: { key: "add" }, errors: [] } } } } as unknown as BlueprintWire;
 
-describe("21 control: the portal that exists today", () => {
-  // Finding: today's home page prints "Observed <the clock's time>", so two requests differ. E requires that gone (the page takes `now`).
-  it("serves acme's `/portal` and a thing's page as HTML, twice with the same bytes but for the clock's own time", async () => {
+describe("21 control: the served portal", () => {
+  // K19: a person opens `/portal` and the page draws itself from `/_portal/v1/*`. Today there is no server half and no built client.
+  it("serves acme's `/portal` and a thing's page to a browser, twice with the same bytes", async () => {
     const wire = await decode(JSON.parse(readFileSync(join(repo, "examples/acme/generated/portal/blueprint.json"), "utf8")));
     const first = await get(context(wire, dark), "/portal");
     const again = await get(context(wire, dark), "/portal");
     expect(first.status).toBe(200);
     expect(first.text).toContain("<html");
-    const noClock = (t: string) => t.replace(/Observed [0-9TZ:.-]+/, "Observed");
-    expect(noClock(first.text)).toBe(noClock(again.text));
+    expect(first.text).toBe(again.text);
     const thing = Object.keys(wire.model.things)[0]!;
     expect((await get(context(wire, dark), `/portal/things/${thing}`)).status).toBe(200);
   });
@@ -388,9 +414,11 @@ describe("21 D: no leak", () => {
     expect(leaked(JSON.stringify([...run.traces.values()])).length, "the instrument: the trace holds all four").toBe(4);
     const found: Record<string, Array<string>> = {};
     for (const path of routes(wire, run)) {
-      const { status, text } = await get(ctx, path);
+      const { status, text, fetched } = await get(ctx, path);
       expect([200, 404], `${path} answers`).toContain(status);
-      if (leaked(text).length > 0) found[path] = leaked(text);
+      // The page, and every data response the browser read to draw it: the leak surface is the data API now.
+      const seen = leaked([text, ...fetched.map((f) => f.text)].join(" "));
+      if (seen.length > 0) found[path] = seen;
     }
     expect(found, "pages that carried a hidden value").toEqual({});
     const handle = (await get(ctx, "/portal/things/handle")).text;
@@ -432,12 +460,26 @@ describe("21 E: the portal's pages are byte-identical across two runs at the sam
     for (const path of Object.keys(one)) expect(two[path], path).toBe(one[path]);
   });
 
+  it("two runs give the same pixels: the screenshots of the home page, a thing's page and a trace are byte-identical, and a later `now` is not", async () => {
+    const pictures = async (now: number) => {
+      const wire = await decode(pluggedInWire());
+      const run = stage(wire);
+      const ctx = context(wire, run, now);
+      return Object.fromEntries(await Promise.all(["/portal", "/portal/things/handle", `/portal/traces/${run.ids.answered}`].map(async (path) => [path, Buffer.from(await shoot(ctx, path)).toString("base64")] as const)));
+    };
+    const one = await pictures(NOW);
+    const two = await pictures(NOW);
+    for (const path of Object.keys(one)) { expect(one[path]!.length, `${path} is a picture`).toBeGreaterThan(1000); expect(two[path], `${path}, the same bytes`).toBe(one[path]); }
+    expect((await pictures(NOW + 26 * 60_000))["/portal"], "the picture follows `now`: the window moved").not.toBe(one["/portal"]);
+  });
+
   it("`now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time", async () => {
     const one = await shots(NOW);
     const later = await shots(NOW + 26 * 60_000);
     expect(later["/portal"], "the retried claim, five minutes old, is now 31: out of a 30-minute window").not.toBe(one["/portal"]);
     expect(stat(later["/portal"]!, "calls"), "six calls where there were seven").toBe("6");
     const year = String(new Date().getFullYear());
+    expect(Object.values(one).filter((text) => text.includes("2001-09-09")), "the browser's clock is fixed at 2001-09-09: no page may draw it").toEqual([]);
     const stamps = Object.values(one).flatMap((text) => text.match(new RegExp(`${year}-\\d\\d-\\d\\dT\\d\\d:\\d\\d`, "g")) ?? []);
     expect(stamps.filter((s) => !s.startsWith(new Date(NOW).toISOString().slice(0, 10))), "no timestamp from the clock").toEqual([]);
   });
@@ -446,9 +488,15 @@ describe("21 E: the portal's pages are byte-identical across two runs at the sam
 // ---- the seam: pages are drawn with portal-ui ----
 
 describe("21 F: the portal's pages are drawn from `@orthograph/portal-ui`", () => {
-  it("`@orthograph/portal` depends on portal-ui and its site imports it", () => {
-    const manifest = JSON.parse(readFileSync(join(repo, "packages/portal/package.json"), "utf8")) as { dependencies?: Record<string, string> };
-    expect(Object.keys(manifest.dependencies ?? {}), "portal depends on portal-ui").toContain("@orthograph/portal-ui");
+  // K19: the client is built once, here, from portal-ui; what ships is the built files. So portal-ui is the client's build input (a
+  // devDependency), a client source file imports it, and the manifest's `dependencies`, which every project installs, hold none of the three.
+  it("`@orthograph/portal`'s client imports portal-ui, as a build input, and its shipped dependencies hold no React, no portal-ui and no HeroUI", () => {
+    const manifest = JSON.parse(readFileSync(join(repo, "packages/portal/package.json"), "utf8")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
+    expect(Object.keys(manifest.devDependencies ?? {}), "K19: portal-ui is the client's build input").toContain("@orthograph/portal-ui");
+    const shipped = Object.keys(manifest.dependencies ?? {}).filter((name) => name === "react" || name === "react-dom" || name === "@orthograph/portal-ui" || name.startsWith("@heroui"));
+    expect(shipped, "K19: nothing a project installs carries the UI").toEqual([]);
+    const importers = sourceFiles(join(repo, "packages/portal/src")).filter((file) => /from\s+["']@orthograph\/portal-ui["']/.test(readFileSync(file, "utf8")));
+    expect(importers.length, "K19: the client's source imports @orthograph/portal-ui").toBeGreaterThan(0);
   });
 });
 
@@ -695,9 +743,24 @@ describe("21 L: what the portal cannot fill yet says `not yet`", () => {
     expect(parts(text, "not-yet").map((n) => n["data-hole"])).toContain("per-eval");
   });
 
-  it("journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold", async () => {
+  const declared = () => Object.values((pluggedInWire() as { model: { journeys?: Record<string, { steps: ReadonlyArray<unknown> }> } }).model.journeys ?? {});
+
+  it("journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold", async () => {
     const wire = await decode(pluggedInWire());
-    expect(Object.keys(rawOf().journeys ?? {}), "Plugged In declares no journey").toEqual([]);
+    const journeys = declared();
+    expect(journeys.length, "Plugged In declares journeys on the wire (the climb's seven)").toBeGreaterThan(0);
+    const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
+    expect(status).toBe(200);
+    expect(parts(text, "journeys-empty").length, "journeys are declared: no declared-none state").toBe(0);
+    expect(parts(text, "journey").length, "one journey drawn for each declared").toBe(journeys.length);
+    expect(parts(text, "journey-step").length, "the declared steps, and the staged trace's `journey.*` span adds none").toBe(journeys.reduce((n, j) => n + j.steps.length, 0));
+  });
+
+  it("with no journey declared the page says so and draws no step, whatever the window's traces hold", async () => {
+    // The digest is over the whole document, so a changed wire is signed again, as the generator would sign it.
+    const { digest: _, ...unsigned } = structuredClone(pluggedInWire()) as { model: { journeys?: unknown }; digest: string };
+    unsigned.model.journeys = {};
+    const wire = await decode({ ...unsigned, digest: Wire.digestOf(unsigned) });
     const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
     expect(status).toBe(200);
     expect(parts(text, "journeys-empty").length, "the declared-none state").toBe(1);

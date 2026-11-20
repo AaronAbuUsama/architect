@@ -32,4 +32,13 @@ describe("values", () => {
     expect(decode(Values.text().schema, "")).toBe("Failure");
     expect(decode(Values.text({ max: 3 }).schema, "abcd")).toBe("Failure");
   });
+
+  it("described gives back a copy that carries the sentence, and leaves the original alone", () => {
+    const Title = Values.text({ max: 10 });
+    const Told = Values.described(Title, "What the link shows.");
+    expect(Told.description).toBe("What the link shows.");
+    expect(Title.description).toBeUndefined();
+    expect(Told.schema).toBe(Title.schema);
+    expect(Told.meta).toEqual(Title.meta);
+  });
 });

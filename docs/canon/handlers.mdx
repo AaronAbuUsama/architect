@@ -29,7 +29,7 @@ and `ortho check` names it, so a project can be honest about what is left.
 
 `ortho generate` makes two files for signup's `join`. The frame, regenerated every time:
 
-```ts file=examples/signup/generated/api/src/sheet/join.handler.ts lines=1-7
+```ts file=examples/signup/generated/api/src/sheet/join.handler.ts name=imports,Handler lines=1-7
 // Generated from the blueprint. Do not edit.
 // What the handler is given: its payload and steps; what it may return: its answer or a declared error.
 import type { SqlClient } from "effect/sql";
@@ -42,7 +42,7 @@ export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declar
 And the handler, `examples/signup/src/sheet/join.ts`, scaffolded once and then written. This is all the freehand
 code the operation has:
 
-```ts file=examples/signup/src/sheet/join.ts lines=9-25
+```ts file=examples/signup/src/sheet/join.ts name=join lines=9-25
 const join: Handler = ({ sheet, people }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
@@ -71,7 +71,7 @@ Three kinds of line carry the declaration: the declared steps (`steps.load`, `st
 
 The frame is one type, made from the operation:
 
-```ts file=packages/language-effect/src/modules/handler/types.ts lines=65-66
+```ts file=packages/language-effect/src/modules/handler/types.ts name=Handler lines=65-66
 /** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
 export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: HandlerContext<O, C>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
 ```
@@ -80,7 +80,7 @@ export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: Han
 - **The context**: the caller as a `principal`, one runner per declared step, `move`, and what the runtime read or
   made before the handler ran (K16): the `subject`, each thing the payload names in `refs`, and a creating move's `id`:
 
-  ```ts file=packages/language-effect/src/modules/handler/types.ts lines=25-45
+  ```ts file=packages/language-effect/src/modules/handler/types.ts name=HandlerContext lines=25-45
   export interface HandlerContext<O, C = {}> {
     readonly principal: Principal;
     readonly steps: StepRunners<StepsOf<O>, C>;
@@ -111,7 +111,7 @@ refuses a handler that fails with an error its operation doesn't list
 (`packages/generators/src/modules/render/handler-type.test.ts:40`). At run time, an answer outside its declaration
 is never sent. It dies as the handler's bug:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=101-105
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=114-118
 // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
 const wire = yield* check(answer).pipe(
   Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
@@ -157,7 +157,7 @@ Three habits the frame can't enforce, which `ortho brief` asks for:
 
 `ortho generate` writes two kinds of file, and their first line says which:
 
-```ts file=packages/projections/src/modules/names/internal/names.ts lines=3-4
+```ts file=packages/projections/src/modules/names/internal/names.ts name=GENERATED,scaffolded lines=3-4
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
 ```
@@ -171,7 +171,7 @@ export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours f
 
 A scaffold is never overwritten, because the sync skips any scaffold that already exists:
 
-```ts file=packages/generators/src/modules/sync/service.ts lines=21-25
+```ts file=packages/generators/src/modules/sync/service.ts name=Sync lines=21-25
 for (const f of files) {
   const path = `${root}/${f.path}`;
   if (f.scaffold && tree.exists(path)) continue;
@@ -190,7 +190,7 @@ rows marked. The body is sections in order: each declared step, with the declare
 that writes; the move, one `Match.when` per outcome when there is more than one; and the answer. Every hole is a
 `Handlers.blank`, so the file compiles. This is the part of the generator that orders the body:
 
-```ts file=packages/projections/src/modules/handlers/internal/body.ts lines=78-86
+```ts file=packages/projections/src/modules/handlers/internal/body.ts name=body lines=78-86
 /** The body's sections in order, each a list of lines; the scaffold puts an empty line between them. */
 export const body = (model: Model, op: OperationModel, minted: string | undefined): ReadonlyArray<ReadonlyArray<string>> => {
   const keys = Object.keys(op.steps);
@@ -235,7 +235,7 @@ A blank is a part that isn't written yet. There are two kinds, and both compile.
 
 **A blank in a declaration** is `Blueprint.todo("…")`, which fits anywhere a declaration needs a value:
 
-```ts file=packages/orthograph/src/modules/blanks/types.ts lines=7-11
+```ts file=packages/orthograph/src/modules/blanks/types.ts name=BlanksApi lines=7-11
 export interface BlanksApi {
   /** `Blueprint.todo("who may call")` fits wherever a declaration needs something, until it is filled. */
   readonly todo: <T = never>(what: string) => T;
@@ -251,7 +251,7 @@ roles a `roles.ts` exports (F5). Signup has no blank left, so this example is wo
 **A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold holds. It type-checks as anything, and
 reaching it at run time is a defect that names what is missing:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=166-169
+```ts file=packages/language-effect/src/modules/handler/service.ts name=Handlers lines=179-182
 export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
   blank: ((what: string, kind?: "failure") => (kind === "failure" ? () => new BlankReached({ what }) : Effect.die(new BlankReached({ what })))) as unknown as HandlerApi["blank"],
@@ -284,7 +284,7 @@ A declared step the handler never calls compiles: the frame's type can't tell. T
 Whoever the brief names. `ortho brief <thing>.<verb>` prints everything needed to write one handler: the files to
 read, the one file to write, the files never to touch, and the checks that must pass:
 
-```ts file=packages/cli/src/modules/brief/service.ts lines=4-6
+```ts file=packages/cli/src/modules/brief/service.ts name=forbidden lines=4-6
 const forbidden = [
   "blueprint/**", "blueprint/journeys/**", "blueprint/starting-worlds/**", "journeys/**", "generated/**", "test/**",
 ] as const;

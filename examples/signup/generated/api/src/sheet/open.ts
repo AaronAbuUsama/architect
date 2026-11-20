@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("open", "/sheet/open", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [IdempotencyConflict],
 });
-export const steps = ["sheet.open.insert"] as const;

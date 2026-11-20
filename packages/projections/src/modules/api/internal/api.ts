@@ -32,7 +32,8 @@ const errors = (model: Model): RenderedFile => {
   for (const t of things) {
     if (!t.machine) continue;
     const { error, exit, code } = t.machine.notFrom;
-    body.push(cls(error, "{ state: Schema.String }"));
+    // The state the thing was found in: one of the machine's own, so a caller can match on it.
+    body.push(cls(error, `{ state: Schema.Literals([${t.machine.states.map((s) => JSON.stringify(s)).join(", ")}]) }`));
     row(error, code, exit, STATUS.notFrom);
   }
   for (const t of things) {
@@ -98,7 +99,6 @@ const endpoint = (op: OperationModel, model: Model): RenderedFile => {
     `  success: wireStruct(declaration.answer, { issuing: true${op.list ? ", items: listItemFields(declaration.thing)" : ""} }) as unknown as ${typed ? `Wired<typeof declaration.answerSchema, ${keys.length > 0 ? keys.join(" | ") : "never"}${itemKeys.length > 0 ? `, ${itemKeys.join(" | ")}` : ""}>` : "typeof declaration.answerSchema"},`,
     `  error: [${op.refusals.join(", ")}],`,
     "});",
-    `export const steps = [${Object.values(op.steps).map((s) => `"${s.name}"`).join(", ")}] as const;`,
   ));
 };
 

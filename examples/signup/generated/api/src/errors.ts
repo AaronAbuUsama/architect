@@ -15,7 +15,7 @@ type Refusal = keyof typeof refusals;
 
 ErrorNames.name(Sheet.SheetFull, "SheetFull");
 export class SheetFull extends Schema.TaggedError<SheetFull>()("SheetFull", { code: Schema.Literal(refusals.SheetFull.code), ...wireStruct(Sheet.SheetFull.fields).fields }, { httpApiStatus: refusals.SheetFull.status }) { static readonly code = refusals.SheetFull.code; }
-export class SheetNotOpen extends Schema.TaggedError<SheetNotOpen>()("SheetNotOpen", { code: Schema.Literal(refusals.SheetNotOpen.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.SheetNotOpen.status }) { static readonly code = refusals.SheetNotOpen.code; }
+export class SheetNotOpen extends Schema.TaggedError<SheetNotOpen>()("SheetNotOpen", { code: Schema.Literal(refusals.SheetNotOpen.code), ...{ state: Schema.Literals(["open", "full", "closed"]) } }, { httpApiStatus: refusals.SheetNotOpen.status }) { static readonly code = refusals.SheetNotOpen.code; }
 export class SheetNotFound extends Schema.TaggedError<SheetNotFound>()("SheetNotFound", { code: Schema.Literal(refusals.SheetNotFound.code), ...{ id: Schema.String } }, { httpApiStatus: refusals.SheetNotFound.status }) { static readonly code = refusals.SheetNotFound.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
 export class IdempotencyConflict extends Schema.TaggedError<IdempotencyConflict>()("IdempotencyConflict", { code: Schema.Literal(refusals.IdempotencyConflict.code), ...{} }, { httpApiStatus: refusals.IdempotencyConflict.status }) { static readonly code = refusals.IdempotencyConflict.code; }

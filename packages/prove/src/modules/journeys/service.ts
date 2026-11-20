@@ -90,6 +90,7 @@ const run: JourneysApi["run"] = (project, url, journey, index, how = "world", gi
       steps.push({
         journey: journey.name, title: step.title, trace: record.trace, spans: checked.spans,
         failures: [...missing.map((m) => `payload: nothing at ${m}`), ...checked.failures],
+        findings: [...missing.map((m) => ({ message: `payload: nothing at ${m}` })), ...checked.findings],
       });
     }
     return done(undefined);

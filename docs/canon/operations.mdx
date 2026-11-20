@@ -35,7 +35,7 @@ no handler and no move, and answers straight from the thing's records.
 
 This is signup's `join`. Each line is one part of the declaration:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=7-17
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts name=default lines=7-17
 export default Blueprint.operation(Sheet, {
   description: "Take places on a sheet, for yourself and anyone with you.",
   payload: { sheet: Sheet.fields.id, people: Count },
@@ -55,7 +55,7 @@ This is what the compiler made of it, rendered from signup's compiled model:
 
 And this is a read, the smallest kind of operation. It names the fields it answers and who may ask:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/get.ts lines=4-10
+```ts file=examples/signup/blueprint/things/sheet/verbs/get.ts name=default lines=4-10
 // A read. It changes nothing, so it has no move and no handler: it answers from the sheet's record.
 export default Blueprint.read(Sheet, {
   by: "id",
@@ -88,7 +88,7 @@ Two more parts have defaults you rarely change. `runs` says where it runs and is
 
 Signup's `open` is the same shape, with one step and no declared errors. Putting up a sheet can't fail on its data:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/open.ts lines=5-15
+```ts file=examples/signup/blueprint/things/sheet/verbs/open.ts name=default lines=5-15
 export default Blueprint.operation(Sheet, {
   description: "Put up a sheet with a number of places.",
   payload: { title: Sheet.fields.title, places: Sheet.fields.places },
@@ -121,7 +121,7 @@ code. A refusal can come from three places.
 **Declared errors** depend on the data, and only the handler can know them. They live in the thing's `errors.ts`, each
 with the fields it carries and its exit code:
 
-```ts file=examples/signup/blueprint/things/sheet/errors.ts lines=4-5
+```ts file=examples/signup/blueprint/things/sheet/errors.ts name=SheetFull lines=4-5
 // Depends on the data: more people than there are places left.
 export class SheetFull extends Blueprint.error({ left: Count }, { exit: 71 }) {}
 ```
@@ -144,7 +144,7 @@ there, where only the grantee may spend (see `roles`).
 
 **Codes.** The compiler numbers every refusal, and the model records the number, so no generator works one out:
 
-```ts file=packages/compiler/src/modules/model/internal/codes.ts lines=8-15
+```ts file=packages/compiler/src/modules/model/internal/codes.ts name=MACHINE_NUMBER,RUNTIME_CODES lines=8-15
 /** The refusal of a machine's move that starts from the wrong state. */
 export const MACHINE_NUMBER = 900;
 
@@ -161,7 +161,7 @@ and the runtime's own take `AR`. So signup's refusals are `SH-001` for `SheetFul
 for `SheetNotFound`, `AR-001` for `NotAllowed` and `AR-002` for `IdempotencyConflict` (a request key reused with another payload, on operations that keep an answer by key). The generated code keeps each one's code, its exit code and its HTTP
 status in one table, which the CLI, HTTP and MCP all read:
 
-```ts file=examples/signup/generated/api/src/errors.ts lines=7-13
+```ts file=examples/signup/generated/api/src/errors.ts name=refusals lines=7-13
 export const refusals = {
   SheetFull: { code: "SH-001", exit: 71, status: 422 },
   SheetNotOpen: { code: "SH-900", exit: 70, status: 409 },
@@ -188,7 +188,7 @@ Three rules decide what a step is (K5, seam 3):
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
   and all, up to a fixed number of times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=142-150
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=155-163
 const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
@@ -207,7 +207,7 @@ what does the work. `database` is the store's, `wait` is a timer's. The kinds ar
 
 **Every required step must run, in order.** Eval 6 checks it on every answered call; an `optional` step may be absent:
 
-```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=134-147
+```ts file=packages/prove/src/modules/evals/internal/calls.ts name=steps lines=134-147
 /** 6. Every required step of an answered call ran in its own span; all observed steps ran in declared order. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
@@ -285,7 +285,7 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=84-92
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=97-105
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -299,7 +299,7 @@ answers what it answered the first time and changes nothing. No step runs, no ev
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=139-141
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=152-154
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
@@ -317,7 +317,7 @@ Without a key, or without `idempotent`, every call is its own call.
 
 A budget is how fast the operation should answer, as a p95. It is a target for review, never a failure:
 
-```ts file=packages/orthograph/src/modules/operations/types.ts lines=37-40
+```ts file=packages/orthograph/src/modules/operations/types.ts name=Budget lines=37-40
 export interface Budget {
   /** A target for review, never a failure. */
   readonly p95: Duration.Input;
@@ -359,7 +359,7 @@ The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outco
 refusals 2/4` (no journey yet names a sheet that isn't there, so the generated `SheetNotFound` is never reached; K16),
 and `prove ✔`. The end-to-end test holds signup to exactly that:
 
-```ts file=e2e/layer1/08-signup-proves.test.ts lines=14-17
+```ts file=e2e/layer1/08-signup-proves.test.ts name="ortho prove --env local on signup, the canon's example" lines=14-17
 expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
 expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
 expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");

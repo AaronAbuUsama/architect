@@ -29,7 +29,7 @@ view only by the events it keeps.
 
 The sign-up sheet says nothing about where it lives, so it lives in the project's default store:
 
-```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+```ts file=examples/signup/blueprint/things/sheet/thing.ts name=Sheet lines=4-7
 export const Sheet = Blueprint.thing({
   description: "A sign-up sheet with a fixed number of places.",
   fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
@@ -79,13 +79,15 @@ workshop, from layer 4.
 `lives` is the one place a declaration says where a thing's state is. It takes a built-in kind or a declared store,
 and the default is a D1 row:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=31-54
+```ts file=packages/orthograph/src/modules/things/types.ts name=Thing,Lives lines=39-64
   /** The kind of place its state is kept: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: StoreKind;
   /** The declared store it lives in (K3), when `lives` named one; absent for the project's default store. */
   readonly store: Store | undefined;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
   readonly code: string | undefined;
+  /** Its fields that hold one instance each within their scope, by field (G4); empty when none is declared. */
+  readonly unique: { readonly [K in U]: UniqueScope };
   /** The runtime's refusal when a call names an instance of this thing that isn't there (K16, M1.46): `<Thing>NotFound`. */
   readonly notFound: NotFound;
 }

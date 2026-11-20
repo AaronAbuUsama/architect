@@ -31,7 +31,7 @@ journeys prove it, environments ship it, and what is missing or red comes back a
 This is the sign-up sheet's `join`, declared in the blueprint. It says what joining is, and nothing about how it is
 done:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=7-17
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts name=default lines=7-17
 export default Blueprint.operation(Sheet, {
   description: "Take places on a sheet, for yourself and anyone with you.",
   payload: { sheet: Sheet.fields.id, people: Count },
@@ -48,7 +48,7 @@ export default Blueprint.operation(Sheet, {
 From those eleven lines Orthograph makes every way in. Each file opens with a line saying it was generated and must
 not be edited. The HTTP endpoint takes its route, payload, answer and refusals from the declaration:
 
-```ts file=examples/signup/generated/api/src/sheet/join.ts lines=1-15
+```ts file=examples/signup/generated/api/src/sheet/join.ts name=imports,endpoint lines=1-14
 // Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
 import { HttpApiEndpoint } from "effect/http-api";
 import { wireStruct } from "orthograph/server";
@@ -63,7 +63,6 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [SheetFull, SheetNotOpen, SheetNotFound, IdempotencyConflict],
 });
-export const steps = ["sheet.join.load", "sheet.join.record"] as const;
 ```
 
 One of those refusals was never written: `SheetNotOpen` comes from the machine. The rest of what `join` becomes:
@@ -84,7 +83,7 @@ why it holds no authority, is [doors](doors.mdx).
 And this is the only part of `join` someone wrote. Orthograph scaffolded it once, from the declaration; from then on it
 is yours:
 
-```ts file=examples/signup/src/sheet/join.ts lines=1-27
+```ts file=examples/signup/src/sheet/join.ts name=imports,default lines=1-27
 // Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
 import { Effect } from "effect";
 import { Records } from "@orthograph/language-effect";

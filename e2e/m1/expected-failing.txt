@@ -1,0 +1,64 @@
+# Expected-failing M1 checks: the ratchet's list (see e2e/ratchet/README.md).
+# One key per line, `m1/NN-file.test.ts > describe > test` (a file that fails to load is the file alone; a hook that throws is `file > describe > [suite error]` or `file > [file error]`).
+# Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
+# delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
+# Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
+# K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
+# HAN-10 (#116), the checks author's change: check 24's ten red tests, and the two expectations G3 moves (19: a declared exit of 130; 22.5: the control for 130, now 'outside 5 to 119'). They pass when HAN-10 is built (#117).
+m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
+m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
+m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
+m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries with the key it made when the caller gave none, and the call commits once
+m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > sends the key the caller gave, as idempotency-key, and makes a different one for each call that gave none
+m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > generates the clients as the fixed renderers did apart from the options, exports all it did, and check passes
+m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > mounts each from @orthograph/projections in its own file
+m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > records the three mounts in the model as projections, beside the first three
+m1/14-clients.test.ts > 14 M1.12: acme mounts its clients, and what they make is unchanged apart from the new options > writes no generated/cli when its mount is removed, and still writes the sdk and the mcp
+m1/14-clients.test.ts > 14 M1.12: refusals and defects in the error channel > a payload the schema refuses is InvalidPayload, and nothing is sent
+m1/14-clients.test.ts > 14 M1.12: refusals and defects in the error channel > a server defect is a die, not a typed failure
+m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is never a call's: a credential in a call's options does not type-check, and the key, the refusals and the old shapes do
+m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once on the layer: two layers in one program are two people, and a layer with no credential is anonymous
+m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
+m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
+m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
+m1/19-scaffold-explains.test.ts > M1.47: an exit means one thing, so the compiler refuses a clash > ortho model refuses a declared exit of 130, the shell's, naming the error and its file
+m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
+m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
+m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x portal ~: each field's description and visibility are in the portal's data file (M1.42)
+m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > `/portal` is the things as cards in the tree's order, each with its lifecycle, under the environment's top bar
+m1/21-portal-viewer.test.ts > 21 B: the portal opens on Plugged In's things > the rail is scoped to the page: everything on home, the thing's operations on its page, nothing from outside the window
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > handle's page lights `claim` and its arrow, names the journey, and leaves the unrun operations and arrows dark
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > link's page lights `add` (answered once, a defect once) and its arrow, and leaves `order` and `remove` dark
+m1/21-portal-viewer.test.ts > 21 C: a journey's run lights up its operation and its machine move > with no run in the window the same page is all dark
+m1/21-portal-viewer.test.ts > 21 D: no leak > a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace render nowhere, and the caller's kind does
+m1/21-portal-viewer.test.ts > 21 D: no leak > the trace page shows the answered call's structure and timing, and how many logs its span has, with none of the four
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > `now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time
+m1/21-portal-viewer.test.ts > 21 E: the portal's pages are byte-identical across two runs at the same `now` > two runs give the same pixels: the screenshots of the home page, a thing's page and a trace are byte-identical, and a later `now` is not
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > each declared environment has a page with its summary, its declared fields and a proof column for every environment, this one in focus
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > every kind of page carries the environment in its top bar
+m1/21-portal-viewer.test.ts > 21 G: one page per declared environment, and the environment is part of every page > the picker lists the declared environments and marks the current one; each page is the environment's own portal
+m1/21-portal-viewer.test.ts > 21 H: plugins and stores, one page > a card per mount with its kind and package, then the stores table with what each store runs on in each environment
+m1/21-portal-viewer.test.ts > 21 I: the icon rail and the command palette > five icons, in order, on every page, each opening a short panel of pages
+m1/21-portal-viewer.test.ts > 21 I: the icon rail and the command palette > ⌘K searches things, operations, journeys, refusal codes, environments and monitor pages, from one index in the page
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > Metrics ends with the calls table: its filters and columns as drawn, one row per call, newest first, each opening its trace
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > over budget is derived from the model's budget: link.add's slow defect is over, its quick answer is not
+m1/21-portal-viewer.test.ts > 21 J: the operation page's tabs and its calls table > the tabs are Contract, Metrics, Proof, Docs and Notes; there is no Spans tab
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > a metrics source that fails gives a page with no numbers and no guess
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the refusal-codes page counts every refusal by name and code, and says `no span` for the door's
+m1/21-portal-viewer.test.ts > 21 K: the metrics reader: door refusals are counted, named, and never a row > the tiles and the refusals by code come from `ortho.calls`; a refusal that opened no span is in the counts and not in the table
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > journeys come from the model: the page draws each declared journey and its declared steps, whatever the window's traces hold
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > per-eval verdicts on the Proof tab: the aggregate verdict per environment, and `not yet` where the nine evals would be
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > the request key and the role held, in every row of the calls table and in the filters
+m1/21-portal-viewer.test.ts > 21 L: what the portal cannot fill yet says `not yet` > with no journey declared the page says so and draws no step, whatever the window's traces hold
+m1/22-k16-review.test.ts > 22.5 (P2): a declared exit is a whole number from 5 to 119 > control: 130 is already refused, as outside 5 to 119
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > has a code in the model, and an idempotent operation (not another) lists it
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > is one row of generated errors.ts beside NotAllowed's, which the CLI, HTTP and MCP read, and is a wire class every idempotent endpoint lists
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 120 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 122 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table > reserves the runtime's exits: a declared exit of 126 is refused, naming why
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: in telemetry > writes refusal and refusal.code on the operation span, no defect, and no commit span
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: over HTTP > answers 409 with the refusal's tag and code, no key and no detail, and not a defect
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the CLI > prints [AR-002] IdempotencyConflict and exits 120, where a defect exits 1 with no code
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is a typed failure in the error channel with its tag and code, never a die; the first payload still gets its answer
+m1/24-idempotency-conflict.test.ts > 24 HAN-10: through the SDK > is catchable by its tag, as NotAllowed is: the program type-checks
+m1/26-k19-server-client-line.test.ts > 26 K19: the lint rule `ortho/no-ui-in-worker` > reports each import of the UI in a generated file, naming K19 and the module, and reports a clean file as clean

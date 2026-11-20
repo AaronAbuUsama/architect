@@ -97,7 +97,20 @@ describe("handler wrapper", () => {
     const { spans, layer } = recording();
     const exit = await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "500" }, { kind: "anonymous" }), layer));
     expect(Exit.isFailure(exit) ? Cause.squash(exit.cause) : undefined).toBeInstanceOf(NotAllowed);
-    expect(spans.map((s) => s.name)).toEqual([]); // the handler never ran, so it has no span
+    // The handler never ran, so the operation has no span of its own; the refused call is still traced, in `.refused`.
+    expect(spans.map((s) => s.name)).toEqual(["allowance.grant.refused"]);
+    expect(spans[0]!.attributes.get("refusal")).toBe("NotAllowed");
+    expect(spans[0]!.attributes.get("operation")).toBe("allowance.grant");
+  });
+
+  it("a refused NotAllowed call's span carries the refusal, its code and the operation, and the handler never ran", async () => {
+    const { spans, layer } = recording();
+    let ran = false;
+    const s = Handlers.serve({ name: "allowance.grant", operation: grant, handler: () => { ran = true; return Effect.succeed({ allowance: "alw_1" as never }); }, codes: { NotAllowed: "AL-001" } });
+    await Effect.runPromiseExit(Effect.provide(s.call({ member: "per_olga", limit: "500" }, { kind: "anonymous" }), layer));
+    expect(ran).toBe(false);
+    expect(spans[0]!.attributes.get("refusal.code")).toBe("AL-001");
+    expect(spans[0]!.attributes.get("operation")).toBe("allowance.grant");
   });
 
   it("refuses a payload outside its declaration before the handler runs", async () => {
@@ -145,6 +158,33 @@ describe("handler wrapper", () => {
       ]);
       expect(r.spans[0]!.attributes.get("move.to")).toBe("active");
       expect(r.spans[0]!.attributes.get("answer.allowance")).toBe("alw_7");
+    });
+
+    it("a move made inside a step is written on the operation's span, not the step's", async () => {
+      const r = recording();
+      const stepped = Blueprint.operation(Allowance, {
+        description: "Grant, with its move, in a step.",
+        payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
+        answer: { allowance: Allowance.fields.id },
+        move: machine.moves.grant,
+        allowed: [Blueprint.signedIn],
+        steps: { insert: Blueprint.step.database() },
+      });
+      const inStep: Handler<typeof stepped, Records> = (payload, { move, steps }) => steps.insert(
+        Effect.gen(function* () {
+          const records = yield* Records;
+          yield* records.insert(Allowance, { id: "alw_7" as never, member: payload.member, limit: payload.limit });
+          yield* move();
+          return { allowance: "alw_7" as never };
+        }),
+      );
+      const s = Handlers.serve({ name: "allowance.grant", operation: stepped, handler: inStep });
+      await Effect.runPromise(Effect.provide(s.call({ member: "per_olga", limit: "5" }, ada), r.layer));
+      const op = r.spans.find((x) => x.name === "allowance.grant");
+      const step = r.spans.find((x) => x.name === "allowance.grant.insert");
+      expect(op!.attributes.get("move.name")).toBe("grant");
+      expect(op!.attributes.get("move.to")).toBe("active");
+      expect(step!.attributes.has("move.name")).toBe(false);
     });
 
     it("an outcome the move doesn't declare dies, and the span says what was asked", async () => {

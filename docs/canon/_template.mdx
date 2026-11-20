@@ -40,13 +40,16 @@ links: [things, views]
 ## The smallest example
 
 {/*
-  The smallest real example from the layer's example project (examples/signup for layers 1 and 2). A fence that quotes a file names it, with its lines:
+  The smallest real example from the layer's example project (examples/signup for layers 1 and 2). A fence that quotes code names the file and the declaration (a name, never a line number; `lines=` is a hint that
+  `node docs/canon/check.mjs --fix` keeps fresh):
 
-    ```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+    ```ts file=examples/signup/blueprint/things/sheet/thing.ts name=Sheet lines=4-7
     …the exact lines…
     ```
 
-  The check compares the fence with the file, so a quote that drifts from the code fails. Code that is designed but
+  The check compares the fence with that declaration (the whole of it, or a run of its lines), so a quote that drifts
+  from the code fails, and `--fix` rewrites it. A fence that quotes a file that isn't code (JSON, SQL, markdown) says
+  `lines=a-b` and is compared with those lines. Code that is designed but
   not built yet is marked with the slice that builds it, and is not compared:
 
     ```ts planned=M1.17 path=blueprint/stores/ledger.ts

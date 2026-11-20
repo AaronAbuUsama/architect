@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("finish", "/run/finish", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [RunNotRunning, RunNotFound, NotAllowed],
 });
-export const steps = ["run.finish.record"] as const;

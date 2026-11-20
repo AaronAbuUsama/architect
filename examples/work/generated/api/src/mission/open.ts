@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("open", "/mission/open", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [NotAllowed, IdempotencyConflict],
 });
-export const steps = ["mission.open.insert"] as const;

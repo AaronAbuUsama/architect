@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("ask", "/question/ask", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [MissionNotInIntake, NotAllowed, IdempotencyConflict],
 });
-export const steps = ["question.ask.insert"] as const;

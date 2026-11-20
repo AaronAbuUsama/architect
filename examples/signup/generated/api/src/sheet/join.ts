@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [SheetFull, SheetNotOpen, SheetNotFound, IdempotencyConflict],
 });
-export const steps = ["sheet.join.load", "sheet.join.record"] as const;

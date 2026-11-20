@@ -57,9 +57,10 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
   };
   const watching = (records: Records["Service"]): Records["Service"] => ({
     find: (thing, id) => records.find(thing, id).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); }))),
+    findBy: (thing, field, value) => records.findBy(thing, field, value).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); }))),
     insert: (thing, values, state) => { learn(thing, values); return records.insert(thing, values, state); },
     update: (thing, id, changes) => { learn(thing, changes); return records.update(thing, id, changes); },
-  } as Records["Service"]);
+  });
 
   const redact = (line: string) => hidden.reduce((out, h) =>
     h.whole ? out.replace(new RegExp(`(?<!${word})${escaped(h.text)}(?!${word})`, "g"), "[redacted]") : out.replaceAll(h.text, "[redacted]"), line);

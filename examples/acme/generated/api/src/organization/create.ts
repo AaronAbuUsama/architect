@@ -12,4 +12,3 @@ export const endpoint = HttpApiEndpoint.post("create", "/organization/create", {
   success: wireStruct(declaration.answer, { issuing: true }) as unknown as typeof declaration.answerSchema,
   error: [NotAllowed, IdempotencyConflict],
 });
-export const steps = ["organization.create.insert", "organization.create.owner"] as const;

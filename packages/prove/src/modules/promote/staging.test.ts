@@ -1,4 +1,5 @@
-// The proof-to-publish boundary on real workerd, logbook, OIDC and Verdaccio. Ports 9123–9126 are this file's.
+// The proof-to-publish boundary on real workerd, logbook, OIDC and Verdaccio.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
@@ -19,7 +20,7 @@ const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const parent = mkdtempSync(join(realpathSync(tmpdir()), "ortho-staging-proof-"));
 const root = join(parent, "acme");
-const ports = { logbook: 9123, issuer: 9124, staging: 9125, registry: 9126 };
+const ports = freePorts("logbook", "issuer", "staging", "registry");
 const services = Effect.runSync(Scope.make());
 const issuer = `http://127.0.0.1:${ports.issuer}/ortho`;
 const registry = `http://127.0.0.1:${ports.registry}/`;
