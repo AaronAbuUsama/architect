@@ -14,7 +14,7 @@ export const noUiInWorker: Rule = {
   create: (context) =>
     everyImport((node, name) => {
       if (UI.some((pattern) => pattern.test(name))) {
-        context.report({ node, message: `K19: ${name} is the portal's UI, and a Worker never imports it: the client is built once, in this repository, and ships as static files; the Worker imports only @orthograph/portal/server` });
+        context.report({ node, message: `K19: '${name}' is the portal's UI, and a Worker never imports it: the client is built once, in this repository, and ships as static files; the Worker imports only @orthograph/portal/server` });
       }
     }),
 };
