@@ -10,9 +10,10 @@ to the world's time per request on workerd, and what does that cost?
 `globalThis.Date` once, with a proxy whose `now()` and argument-less `new Date()` read the instant stored for the
 running request. Better Auth's session and invitation expiry, jose's checks and Effect's default `Clock` then all
 follow a stepped clock. 100 concurrent requests in two worlds a month apart read 0 wrong instants. Assigning a
-plain global per request instead leaks in 99 or 100 of 100 requests. The cost is about 30 µs per request (one read of the
-world's instant from its Durable Object) plus about 50 ns per `Date` read. Two things K23 does not say yet: every
-entry must do it (each Durable Object's own entry included), and libraries that time their caches or deadlines with
+plain global per request instead leaks in 99 or 100 of 100 requests. The cost is about 30–40 µs per request (one read of the
+world's instant from its Durable Object), plus well under 100 ns per `Date` read. K23 already puts the hook at the
+entry of the Worker and of Durable Objects. What this adds is how: a lookup, not an assignment. It also shows that the
+world does not cross a call into a Durable Object, and that libraries that time their caches or deadlines with
 `Date.now()` stall in a stepped world (viem's block cache is shown below).
 
 ## What was tried
@@ -34,7 +35,8 @@ miniflare 5.20261101.0-beta (workerd 1.20261101.1, the one wrangler 4.156.1 ship
   default `Clock` and scheduler, and a viem public client kept at module scope. `/_world/<world>` sets, advances
   or speeds the clock. The header `x-mode: off | als | swap` picks no patch, the patch, or the naive swap.
 - `scripts/run.ts` starts the Worker in workerd through Miniflare, runs 18 checks and the measurements, and prints
-  JSON lines; `findings/run.jsonl` is one run with N = 2000.
+  JSON lines. `findings/run.jsonl` is one full run with N = 2000; `findings/repeats.txt` sums up three more runs
+(N = 200): checks passed, swap leaks and the loop timings.
 
 ```bash
 pnpm install && pnpm build
@@ -53,13 +55,13 @@ N=2000 node --experimental-strip-types scripts/run.ts      # exits 1 if any chec
 | viem 2.57.20 (+ ox 0.14.67) | 60 | 6 | 18 | `utils/promise/withCache.js:33,48` (response cache age); `utils/buildRequest.js:139` (an HTTP-date `Retry-After` minus now); `clients/transports/fallback.js:117,130` (latency ranking); `actions/wallet/sendTransactionSync.js:240,273`; `account-abstraction/accounts/toSmartAccount.js:17` (the default nonce key **is** `Date.now()`); SIWE: `actions/siwe/verifySiweMessage.js:17`, `utils/siwe/validateSiweMessage.js:9`, `createSiweMessage.js:20`. The `tempo/` and `op-stack/` reads are in code we don't call |
 | effect 4.1.1 | 34 | 2 | 11 | the default `Clock`: `internal/effect.js:2911` (millis) and `:2941–2966` (nanos, from a monotonic source plus an anchor); `crypto/SecureRandom.js:233,255` (`uuidV7Unsafe`, `ulidUnsafe`); `internal/dateTime.js:281` (`DateTime.nowUnsafe`); `Cron.js:676`; span timing reads the fiber's `Clock` (`internal/effect.js:2761,2822`) |
 | kysely 0.29.7 | 1 | 5 | 0 | `migration/migrator.js:575` (migration timestamps); the rest are doc comments |
-| workerd itself | | | | `process.hrtime.bigint` under `nodejs_compat` is `BigInt(Date.now()) * 1000000n` (printed by the run), so it follows the patch; `performance.now()` does not |
+| workerd itself | | | | `process.hrtime.bigint` under `nodejs_compat` is `BigInt(Date.now()) * 1000000n` in workerd 1.20261101.1 (printed by the run), so it follows the patch; `performance.now()` does not |
 
 No library keeps its own copy of `Date` or `Date.now` (a grep for `= Date.now`, `Date.now.bind` and
 `Date = globalThis.Date` finds none), so every read goes through the global at call time and one patch reaches all of
 them. Our own code is already kept off the wall clock by the lint rule; this list is the dependencies'.
 
-### 2. The checks (18 of 18 pass; four runs, same results)
+### 2. The checks (18 of 18 pass in each of the four saved runs, and in the reviewer's re-run)
 
 | # | Check | Evidence |
 |---|---|---|
@@ -70,10 +72,10 @@ them. Our own code is already kept off the wall clock by the lint rule; this lis
 | 5 | Invitation expiry (`adapter.mjs:774`) | a 48 h invitation; inviting the same guest again is refused (`USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION`) at the start and accepted 3 days on, with the new one expiring `2026-11-06T09:00Z` |
 | 6 | jose | a 1 h token made in the world verifies at the start, still verifies 20 s past `exp` (tolerance 30 s), and is refused a month on with `ERR_JWT_EXPIRED` |
 | 7 | Two worlds, concurrently | 100 requests alternating between worlds a month apart, each across a real timer, a D1 query, `Effect.sleep` and a Durable Object call: **0** of 400 reads (`Date.now()` before and after, `new Date()`, `Clock.currentTimeMillis`) were the other world's |
-| 8 | A Durable Object entry | a Durable Object called from inside a world reads **real** time (`2026-11-20T16:22Z`): the async context does not cross into another object's request |
+| 8 | A Durable Object entry | a Durable Object called from inside a world reads **real** time (`2026-11-20T16:22Z`): the async context does not cross into another object's request. Only this negative case is run; a Durable Object that wraps its own entry is the same `inWorld` call, not shown separately |
 | 9 | Break it: the naive swap | assigning one global instant per request leaks in **99 or 100 of 100** requests (wanted `2026-11-01`, read `2026-12-01`) |
-| 10 | Effect's default `Clock` | millis and nanos both exact for two worlds only 400 ms apart, because workerd's `hrtime` reads `Date` too |
-| 11–13 | Effect code that yields | 100 concurrent requests, each 20 yields and 5 real sleeps, never leak, under the default scheduler, under **one** isolate-wide `MixedScheduler`, and in `"sync"` mode: Effect 4 makes a dispatcher per root fiber (`Scheduler.js:141`, `makeDispatcher`), so no batch is shared across requests |
+| 10 | Effect's default `Clock` | millis and nanos both exact for two worlds only 400 ms apart, because workerd's `hrtime` reads `Date` too. That is a detail of workerd 1.20261101.1's `nodejs_compat`, so re-check the nanos path on every workerd upgrade |
+| 11–13 | Effect code that yields | 100 concurrent requests, each 20 yields and 5 real sleeps, never leak, under the default scheduler, under **one** isolate-wide `MixedScheduler`, and in `"sync"` mode: Effect 4 makes a dispatcher per root fiber (`internal/effect.js:360`, `this._dispatcher ??= this.cache.scheduler.makeDispatcher()`), so no batch is shared across requests |
 | 14 | viem, no patch | a 4 s block-number cache refetches after 4.5 real seconds (blocks 1 → 2) |
 | 15 | viem, stepped | the same cache **never ages** while the world stands still: 4.5 real seconds later it still serves block 3, though the chain has moved on |
 | 16 | viem, two worlds, one client | the earlier world is served the later world's cached block (its age is negative, so always "fresh") |
@@ -109,19 +111,20 @@ them. Our own code is already kept off the wall clock by the lint rule; this lis
 
 ## Measurements
 
-From `scripts/run.ts` in workerd through Miniflare on the shared Mac, four runs. The Mac is busy, so the
-request-level numbers are noisy.
+From `scripts/run.ts` in workerd through Miniflare on the shared Mac: the run in `findings/run.jsonl`, the three in
+`findings/repeats.txt` and the reviewer's re-run. The Mac is busy with other sessions, so read these as orders of
+magnitude.
 
 | What | Cost |
 |---|---|
-| One `new Date()` plus one `Date.now()`, real vs patched (1,000,000 in a loop in the Worker, median of 7) | 134–144 ns vs 225–240 ns: **85–102 ns more per pair**, about 50 ns per read |
-| One `AsyncLocalStorage.run` around a read (once per request) | 1.3–1.7 µs |
-| One read of the world's instant from its Durable Object (2,000 in a loop, median of 7) | **28.7–31.5 µs** |
+| One `new Date()` plus one `Date.now()`, real vs patched (1,000,000 in a loop in the Worker, median of 7) | **26–178 ns more per pair** across five runs (the real baseline itself moved from 138 to 223 ns): under 100 ns per read, too small to pin down here |
+| One `AsyncLocalStorage.run` around a read (once per request) | 1.3–1.8 µs |
+| One read of the world's instant from its Durable Object (2,000 in a loop, median of 7) | **29–42 µs** |
 | A whole `/ping` request from Node (`dispatchFetch`, 2,000 each, after a warm-up) | medians 1.8–5.8 ms for every variant, run-to-run noise larger than any difference between them |
 
-So in a stepped or scaled world the patch costs about **30 µs per request**, nearly all of it the read of the
-world's instant. Better Auth's sign-in, with a few dozen `Date` reads, adds a few µs on top. The patch is 35 lines and
-adds nothing to the bundle. A real world needs none of it.
+So in a stepped or scaled world the patch costs about **30–40 µs per request**, nearly all of it the read of the
+world's instant. Each `Date` read adds well under 100 ns (not measured for a whole Better Auth request). A real world
+needs none of it.
 
 ## The decision it supports
 
@@ -129,8 +132,8 @@ K23's "the entry sets the global `Date` to the world's time" **holds, with three
 
 1. **How:** install the `Date` proxy once, and per request run the handler inside
    `AsyncLocalStorage.run(worldInstant, …)`. Never assign a global per request.
-2. **Where:** every entry wraps, not just the Worker's `fetch`: each Durable Object's `fetch`, RPC and alarm, queue
-   consumers, `scheduled` and Workflows steps. Each reads its world's instant (about 30 µs) and wraps. A real world
+2. **Where:** every entry wraps (K23 already names the Worker and Durable Objects; the run shows why each must do it itself): each Durable Object's `fetch`, RPC and alarm, queue
+   consumers, `scheduled` and Workflows steps. Each reads its world's instant (about 30–40 µs) and wraps. A real world
    skips the patch entirely.
 3. **The world's `Clock` is still provided** (K23 section 6) and agrees with the patch, as checks 7 and 10 show.
    The patch is what reaches the libraries; the `Clock` is what our own code reads.
@@ -164,7 +167,7 @@ could take `currentDate` instead, but it doesn't need to.
 - **Answer:** K23's "set `Date` per request" works on workerd, as an `AsyncLocalStorage` lookup behind a `Date`
   proxy. Better Auth (session refused after 8 days and after a month) and jose follow a stepped clock. Two worlds
   under concurrency never mix (0 leaks in 100 requests; the naive global swap leaks in 99 or 100 of 100). The cost is
-  about 30 µs per request.
+  about 30–40 µs per request.
 - **Decision it supports:** K23 section 6 stands, with the three amendments above (ALS not assignment; every entry,
   Durable Objects included; the `Clock` still provided).
 - **Steps it changes:** M8.06 takes the three amendments. M8.08 or the chain adapter makes viem clients one per

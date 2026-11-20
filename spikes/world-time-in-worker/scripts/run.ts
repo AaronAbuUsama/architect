@@ -149,7 +149,7 @@ const storm = async (mode: string) => {
 }
 
 // 3a. Effect code that yields and sleeps, under three schedulers. A batch flushed in another request's async context
-// would read that world's time; Effect 4 makes one dispatcher per root fiber (Scheduler.js:141), so none is shared.
+// would read that world's time; Effect 4 makes one dispatcher per root fiber (internal/effect.js:360), so none is shared.
 for (const scheduler of ["default", "shared", "sync"]) {
   const all = await Promise.all(Array.from({ length: 100 }, (_, i) => {
     const w = i % 2 ? "west" : "east";
