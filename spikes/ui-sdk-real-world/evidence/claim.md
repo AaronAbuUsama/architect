@@ -1,37 +1,37 @@
 ## world
-Worlds.start answered /_world/health after 7413 ms
+Worlds.start answered /_world/health after 4449 ms
 
 ## 1 the page after the click
-Handle: hdl_f9s27w08gwl1s7tg
+Handle: hdl_l1xhsboen0kmsx03
 
 ## 1 the request at the world's door
 {
  "method": "POST",
  "path": "/handle/claim",
- "source": "mouse",
+ "source": "person",
  "status": 200,
- "ms": 139,
- "trace": "e01b1dd27c25917f4492a93cc38bee33",
- "parent": "24e962ffbdfaac0a"
+ "ms": 91.2,
+ "trace": "44034a78f0396719135cbd2fcbefe22b",
+ "parent": "1c6bcb877e788b67"
 }
 
 ## 1 handle.resolve through the SDK afterwards
 {
  "ok": true,
- "handle": "hdl_f9s27w08gwl1s7tg"
+ "handle": "hdl_l1xhsboen0kmsx03"
 }
 
 ## 1 the journal for that trace
 [
  {
   "seq": 1,
-  "trace": "e01b1dd27c25917f4492a93cc38bee33",
+  "trace": "44034a78f0396719135cbd2fcbefe22b",
   "operation": "handle.claim",
   "move": "claim",
-  "subject": "hdl_f9s27w08gwl1s7tg",
+  "subject": "hdl_l1xhsboen0kmsx03",
   "event": "HandleClaimed",
   "fields": {
-   "handle": "hdl_f9s27w08gwl1s7tg",
+   "handle": "hdl_l1xhsboen0kmsx03",
    "name": "firstpage"
   }
  }
@@ -52,7 +52,7 @@ Handle: hdl_f9s27w08gwl1s7tg
 ]
 
 ## 2 one act, fill and send and settle, as the test sees it (ms)
-139
+105
 
 ## 2 act
 {
@@ -80,7 +80,7 @@ Handle: hdl_f9s27w08gwl1s7tg
      "label": "Claim your name",
      "key": "value",
      "value": {
-      "handle": "hdl_vo368v8gtyjgpfhd"
+      "handle": "hdl_vhlfhqrird6p5yhl"
      }
     }
    ]
@@ -90,7 +90,7 @@ Handle: hdl_f9s27w08gwl1s7tg
  "values": {
   "c1 Name": "helperpage",
   "c4 Claim your name": {
-   "handle": "hdl_vo368v8gtyjgpfhd"
+   "handle": "hdl_vhlfhqrird6p5yhl"
   }
  }
 }
@@ -115,7 +115,7 @@ Handle: hdl_f9s27w08gwl1s7tg
   ],
   "label": "Claim your name",
   "value": {
-   "handle": "hdl_vo368v8gtyjgpfhd"
+   "handle": "hdl_vhlfhqrird6p5yhl"
   }
  }
 ]
@@ -126,22 +126,22 @@ Handle: hdl_f9s27w08gwl1s7tg
  "path": "/handle/claim",
  "source": "agent",
  "status": 200,
- "ms": 40,
- "trace": "26a210a5f4cb8514a42bb520265f9116",
- "parent": "410aa955fa2954b4"
+ "ms": 24.5,
+ "trace": "acc9b6845531e48e17c69b87c955a44f",
+ "parent": "28d5bf2fdce4293d"
 }
 
 ## 2 the journal entry the server wrote for it (no source anywhere in it)
 [
  {
   "seq": 2,
-  "trace": "26a210a5f4cb8514a42bb520265f9116",
+  "trace": "acc9b6845531e48e17c69b87c955a44f",
   "operation": "handle.claim",
   "move": "claim",
-  "subject": "hdl_vo368v8gtyjgpfhd",
+  "subject": "hdl_vhlfhqrird6p5yhl",
   "event": "HandleClaimed",
   "fields": {
-   "handle": "hdl_vo368v8gtyjgpfhd",
+   "handle": "hdl_vhlfhqrird6p5yhl",
    "name": "helperpage"
   }
  }
@@ -149,25 +149,25 @@ Handle: hdl_f9s27w08gwl1s7tg
 
 ## 2 the server's root span and its attributes (no source anywhere in them)
 {
- "traceId": "26a210a5f4cb8514a42bb520265f9116",
- "spanId": "8dd136615d7a26b4",
- "parentSpanId": "410aa955fa2954b4",
+ "traceId": "acc9b6845531e48e17c69b87c955a44f",
+ "spanId": "d25355b28a763c33",
+ "parentSpanId": "28d5bf2fdce4293d",
  "name": "handle.claim",
  "attrs": {
   "operation": "handle.claim",
   "attempt": 1,
-  "call.id": "call_68fjmsfy1ezf11gg",
-  "principal.person": "per_cdkdpwi8x7yn9p6l",
+  "call.id": "call_vrk7ygndizs7dr7p",
+  "principal.person": "per_shwdprmvziy8lgzy",
   "payload.name": "helperpage",
   "environment": "local",
   "store": "database",
   "move.name": "claim",
   "move.to": "claimed",
-  "answer.handle": "hdl_vo368v8gtyjgpfhd"
+  "answer.handle": "hdl_vhlfhqrird6p5yhl"
  },
  "status": 1,
- "ms": 18,
- "start": 1795195576918
+ "ms": 11,
+ "start": 1795196494122
 }
 
 ## 3 act
@@ -204,9 +204,9 @@ Handle: hdl_f9s27w08gwl1s7tg
  "path": "/handle/claim",
  "source": "agent",
  "status": 422,
- "ms": 26.2,
- "trace": "d9840a33ba2c00d16af8dd30173d6284",
- "parent": "ade3edf4bb997fae"
+ "ms": 16.5,
+ "trace": "152aafcfc79c11ebf351488fb85f124a",
+ "parent": "42fa4019d9d76268"
 }
 
 ## 3 the journal for that trace
@@ -324,17 +324,17 @@ Refused: HandleTaken (HN-001)
 [
  {
   "status": 200,
-  "ms": 139,
-  "source": "mouse"
+  "ms": 91.2,
+  "source": "person"
  },
  {
   "status": 200,
-  "ms": 40,
+  "ms": 24.5,
   "source": "agent"
  },
  {
   "status": 422,
-  "ms": 26.2,
+  "ms": 16.5,
   "source": "agent"
  }
 ]

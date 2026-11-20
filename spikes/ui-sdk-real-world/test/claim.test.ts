@@ -96,7 +96,7 @@ test("2. the agent bridge claims in one act, and the request says an agent made 
   assert.equal(hop.source, "agent");
   assert.equal(read.ok, true);
   const person = site.hops.find((h) => h.path === "/handle/claim" && h.source !== "agent");
-  assert.equal(person?.source, "mouse", "the person's press in proof 1 said mouse");
+  assert.equal(person?.source, "person", "the person's press in proof 1 went as the person (the action's caller)");
   assert.deepEqual(written.map((e) => e.event), ["HandleClaimed"]);
   assert.ok(!JSON.stringify(written).includes("agent"), "the server keeps nothing of the source today");
   assert.ok(!JSON.stringify(spans).includes("agent"), "nor do its spans");

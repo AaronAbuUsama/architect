@@ -2,13 +2,16 @@
 // spikes/ui-sdk-verb-primitive (PR #215) and extended: the answer is kept as the state's `value`, the one key the agent
 // bridge shows for a component with no `setValue`, so an agent can read what a call answered.
 import { dispatch } from "@ui-sdk/core";
+import type { ActionResult, Caller } from "./action.ts";
 
-/** How a call's outcome reaches the primitive: the answer, or the declared refusal. */
-export type Outcome<Answer> =
-  | { readonly ok: true; readonly answer: Answer }
-  | { readonly ok: false; readonly refusal: Refusal };
+/** How a call's outcome reaches the primitive: what the action answered, or its no-write refusal. */
+export type Outcome<Answer> = ActionResult<Answer>;
 
+/** The refusal as the page shows it. */
 export type Refusal = { readonly name: string; readonly code: string };
+
+/** The caller an action is run as, from UI SDK's source of the press: the agent bridge says "agent", anything else is the person. */
+export const callerOf = (source: string): Caller => (source === "agent" ? { via: "agent" } : { via: "person" });
 
 /** What the page learns about a press, handed to whoever sends the call. */
 export type SubmitDetails<Answer> = {
@@ -25,6 +28,9 @@ type VerbContext<State extends VerbState<Answer>, Answer> = {
   readonly store: { get: () => State; set: (next: Partial<State>) => void };
   readonly options: () => { onDone?: (answer: Answer) => void };
 };
+
+// The bridge settles an agent's step on `pending` and fails it with `error`, so an ActionRefusal is mapped into both.
+const refused = (name: string, code: string) => ({ pending: false, refusal: { name, code }, error: `${name} (${code})` });
 
 /**
  * Sends one verb. UI SDK hands a change's source to callbacks only, never to the api, so the send goes through
@@ -51,7 +57,7 @@ export const submit = <State extends VerbState<Answer>, Payload, Answer>(
     context.store.set(
       (outcome.ok
         ? { pending: false, done: true, value: outcome.answer }
-        : { pending: false, refusal: outcome.refusal, error: `${outcome.refusal.name} (${outcome.refusal.code})` }) as Partial<State>,
+        : refused(outcome.refusal.details.name, outcome.refusal.errorCode)) as Partial<State>,
     );
     if (outcome.ok) context.options().onDone?.(outcome.answer);
     return outcome;

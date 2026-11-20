@@ -394,3 +394,12 @@ Session: ses_spike01 · Token: tok-issued-once-0000
  }
 ]
 
+## 5d the action run directly by a host that had not asked
+{
+ "direct": {
+  "ok": true,
+  "answer": {}
+ },
+ "asked": 1
+}
+

@@ -112,5 +112,12 @@ test("5d. an approval → data-agent-confirm: the agent's submit stops for a per
   assert.equal(sentDeclined, 0);
   assert.equal(approved.ok, true);
   assert.deepEqual(sentAfter.map((s) => [s.verb, s.via]), [["handle.release", "agent"]]);
+  // The action seam: the bridge asked, so the action did not ask again. A host that never asked (an MCP tool call) is
+  // asked by the action itself, once.
+  assert.equal(await page.evaluate(() => window.spike.asked), 0, "the action never asks twice");
+  const direct = await page.evaluate(() => window.spike.releaseDirect({ handle: "hdl_spike01" }));
+  note("5d the action run directly by a host that had not asked", { direct, asked: await page.evaluate(() => window.spike.asked) });
+  assert.equal(await page.evaluate(() => window.spike.asked), 1);
+  assert.equal(direct.ok, true);
   await page.close();
 });

@@ -1,7 +1,7 @@
 // What every test stands on: Plugged In's local world (`Worlds.start` with a collector, as `ortho prove` makes it:
 // wrangler on real workerd, a fresh D1, a new Better Auth secret), the page served on one origin with every other path
 // proxied to the world, and headless Chromium. Each piece is stopped by the test that made it.
-import { appendFileSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { createServer, request as forward, type Server } from "node:http";
 import { createRequire } from "node:module";
 import type { AddressInfo } from "node:net";
@@ -62,17 +62,23 @@ export type Hop = {
   readonly trace: string | null; readonly parent: string | null;
 };
 
+const types: Record<string, string> = { html: "text/html", js: "text/javascript", css: "text/css", woff2: "font/woff2", woff: "font/woff" };
+/** A file the build wrote to `dist/`: `/` and `/editor` are pages, anything else is served by its own name. */
+const built = (path: string): { readonly path: string; readonly type: string } | undefined => {
+  const name = path === "/" ? "index.html" : path === "/editor" ? "editor.html" : path.slice(1);
+  const type = types[name.split(".").at(-1) ?? ""];
+  if (!type || name.includes("..") || !existsSync(`dist/${name}`)) return undefined;
+  return { path: `dist/${name}`, type };
+};
+
 /** The page and its bundle on one origin; any other path goes to the world, and is recorded as it passes. */
 export const serve = async (world: World): Promise<{ readonly url: string; readonly hops: Array<Hop>; readonly close: () => Promise<void> }> => {
   const hops: Array<Hop> = [];
-  const files: Record<string, readonly [string, string]> = {
-    "/": ["dist/index.html", "text/html"], "/main.js": ["dist/main.js", "text/javascript"], "/main.css": ["dist/main.css", "text/css"],
-  };
   const server: Server = createServer((req, res) => {
     const path = (req.url ?? "/").split("?")[0]!;
-    const file = files[path];
-    if (req.method === "GET" && file) {
-      res.writeHead(200, { "content-type": file[1] }).end(readFileSync(file[0]));
+    const file = req.method === "GET" ? built(path) : undefined;
+    if (file) {
+      res.writeHead(200, { "content-type": file.type }).end(readFileSync(file.path));
       return;
     }
     const started = performance.now();

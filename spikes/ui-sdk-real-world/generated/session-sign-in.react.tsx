@@ -3,19 +3,19 @@ import { useState } from "react";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
-import { sessionSignIn, type SessionSignInAnswer, type SessionSignInOutcome, type SessionSignInPayload } from "./session-sign-in.ts";
+import type { Action } from "../src/action.ts";
+import { callerOf } from "../src/runtime.ts";
+import { sessionSignIn, type SessionSignInAnswer, type SessionSignInPayload } from "./session-sign-in.ts";
 
 const parts = createParts(sessionSignIn, { root: "form", refusal: "p", answer: "output", submit: "button" });
 
-/** How the verb is sent: the app's generated SDK. `via` is the page's source of the press: "agent", "mouse", "keyboard". */
-export type Send = (payload: SessionSignInPayload, meta: { readonly via: string }) => Promise<SessionSignInOutcome>;
-
 /** Sign in with email and password. The token is the bearer for every later call. */
-export const SessionSignInForm = ({ send, label = "Sign-in session", onDone }: { send: Send; label?: string; onDone?: (answer: SessionSignInAnswer) => void }) => {
+export const SessionSignInForm = ({ action, label = "Sign-in session", onDone }: { action: Action<SessionSignInPayload, SessionSignInAnswer>; label?: string; onDone?: (answer: SessionSignInAnswer) => void }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // `approved`: a person pressed it, or the agent bridge's `allow` asked one (data-agent-confirm). Never asked twice.
   return (
-    <parts.Root aria-label={label} email={email} password={password} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label} email={email} password={password} onSend={(payload, details) => details.settle(action.run(payload, { caller: callerOf(details.source), approved: true }))} onDone={onDone}>
       <FieldGroup>
       <Field name="email">
         <FieldLabel>Email</FieldLabel>

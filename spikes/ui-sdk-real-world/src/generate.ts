@@ -109,6 +109,28 @@ ${fields.map(([key]) => `    ...(options.${key} === undefined ? {} : { ${key}: o
 `;
 };
 
+/** agent-native's options for the operation (M1.22), run through our `defineAction` (M1.23), which owns approval. */
+const action = (op: Operation) => {
+  const id = camel(`${op.thing}${pascal(op.verb)}`);
+  const P = pascal(id);
+  return `// Generated from ${op.file} (model ${op.name}). Do not edit.
+import { type ActionContext, type ActionHost, type ActionOptions, defineAction } from "../src/action.ts";
+import { ${id}Refusals, type ${P}Answer, type ${P}Payload } from "./${op.thing}-${op.verb}.ts";
+
+export const options = (host: ActionHost): ActionOptions<${P}Payload, ${P}Answer> => ({
+  name: "${op.name}",
+  description: ${JSON.stringify(op.description)},
+  readOnly: false,
+  needsApproval: ${op.needsApproval ? "true" : "false"},
+  agentTool: true,
+  errors: ${id}Refusals,
+  run: (args: ${P}Payload, ctx: ActionContext) => host.call<${P}Answer>("${op.name}", args, ctx),
+});
+
+export const ${id}Action = (host: ActionHost) => defineAction(options(host), host.ask);
+`;
+};
+
 const react = (op: Operation) => {
   const id = camel(`${op.thing}${pascal(op.verb)}`);
   const P = pascal(id);
@@ -119,18 +141,18 @@ import { useState } from "react";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
-import { ${id}, type ${P}Answer, type ${P}Outcome, type ${P}Payload } from "./${op.thing}-${op.verb}.ts";
+import type { Action } from "../src/action.ts";
+import { callerOf } from "../src/runtime.ts";
+import { ${id}, type ${P}Answer, type ${P}Payload } from "./${op.thing}-${op.verb}.ts";
 
 const parts = createParts(${id}, { root: "form", refusal: "p", answer: "output", submit: "button" });
 
-/** How the verb is sent: the app's generated SDK. \`via\` is the page's source of the press: "agent", "mouse", "keyboard". */
-export type Send = (payload: ${P}Payload, meta: { readonly via: string }) => Promise<${P}Outcome>;
-
 /** ${op.description} */
-export const ${P}Form = ({ send, label = ${JSON.stringify(`${words(op.verb)} ${op.thing}`)}, onDone }: { send: Send; label?: string; onDone?: (answer: ${P}Answer) => void }) => {
+export const ${P}Form = ({ action, label = ${JSON.stringify(`${words(op.verb)} ${op.thing}`)}, onDone }: { action: Action<${P}Payload, ${P}Answer>; label?: string; onDone?: (answer: ${P}Answer) => void }) => {
 ${fields.map(([key]) => `  const [${key}, set${pascal(key)}] = useState("");`).join("\n")}
+  // \`approved\`: a person pressed it, or the agent bridge's \`allow\` asked one (data-agent-confirm). Never asked twice.
   return (
-    <parts.Root aria-label={label}${fields.map(([key]) => ` ${key}={${key}}`).join("")} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label}${fields.map(([key]) => ` ${key}={${key}}`).join("")} onSend={(payload, details) => details.settle(action.run(payload, { caller: callerOf(details.source), approved: true }))} onDone={onDone}>
       <FieldGroup>
 ${fields.map(([key, field]) => `      <Field name="${key}"${fieldMarks(field)}>
         <FieldLabel>${words(key)}</FieldLabel>
@@ -154,6 +176,7 @@ for (const file of readdirSync(new URL("fixtures/", root)).filter((f) => f.endsW
     const base = `${op.thing}-${op.verb}`;
     writeFileSync(new URL(`generated/${base}.ts`, root), primitive(op, model));
     writeFileSync(new URL(`generated/${base}.react.tsx`, root), react(op));
-    console.log(`fixtures/${file}: wrote generated/${base}.ts, generated/${base}.react.tsx`);
+    writeFileSync(new URL(`generated/${base}.action.ts`, root), action(op));
+    console.log(`fixtures/${file}: wrote generated/${base}.ts, .react.tsx, .action.ts`);
   }
 }

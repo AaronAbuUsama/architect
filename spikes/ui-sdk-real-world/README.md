@@ -11,6 +11,11 @@ of the four marks map cleanly. But a mark makes UI SDK hide or redact a whole co
 primitive per verb as the first spike had it. Each field has to be UI SDK's own Input, and the verb keeps only `submit`.
 The agent's source reaches the Worker's door, and the server drops it today.
 
+Two more things came out of it. The send now goes through one small action module, shaped as M1.22's action. Neither
+workaround from the first spike goes away behind it (section 9). And UI SDK carries a real product screen, not just
+forms: a Notion-style Markdown editor, built only from UI SDK components with bundled fonts, works in Chromium for
+a person and is visible to an agent (section 8).
+
 It feeds K24 ("nothing in `packages/` depends on UI SDK until the second spike passes") and the question K24 left open:
 whether a generated screens output belongs in stage 1.
 
@@ -20,11 +25,16 @@ whether a generated screens output belongs in stage 1.
   `handle.claim`. `acme.json` has the real `session.sign-in`, with a secret payload field and two issued answer fields.
   `marks.json` has Plugged In's `handle.release` plus two **hypothetical** keys that nothing can declare today: a
   payload field private to `handleOwner`, and `needsApproval` (K5's planned word).
-- `src/generate.ts` (159 lines) is #215's generator, reshaped. For each operation it writes two files. One is a verb
+- `src/generate.ts` (182 lines) is #215's generator, reshaped. For each operation it writes two files. One is a verb
   primitive whose only agent action is `submit`; it keeps `pending`, `error`, `refusal`, `done`, and the answer as
   `value`. The other is a whole React form: UI SDK's `Field`, `FieldLabel`, `Input` and `FieldDescription` for each
   payload field, then the refusal, the answer and the submit button. The marks mapping is written in `MARKS`.
-- `src/runtime.ts` (59 lines) is #215's shared helper, keeping the answer in state as `value`.
+- `src/runtime.ts` (65 lines) is #215's shared helper, keeping the answer in state as `value`, and mapping the action's
+  refusal into the state the bridge reads.
+- `src/action.ts` (65 lines) is the one seam between a form and the app: an action in M1.22's shape (caller, payload,
+  refusal, approval), with our `defineAction` owning approval. The generator writes `<op>.action.ts` for each operation,
+  and each form takes an `action` instead of a send function.
+- `page/editor/` is a Notion-style Markdown editor (section 8), built from UI SDK components only.
 - `page/main.tsx` is the hand-written test harness. It wires the generated form to **Plugged In's real generated SDK**
   (`generated/sdk`: its Effect `HttpApiClient`, its payload schemas, its declared errors), bundled for the browser by
   esbuild.
@@ -46,7 +56,7 @@ git worktree add --detach ../goal origin/goal/stage-1 && (cd ../goal && pnpm ins
 npm install && npm run link -- ../goal
 npm run generate   # writes generated/
 npm run typecheck  # the generated code, the runtime and the generator
-npm test           # builds the page; 12 tests; writes evidence/
+npm test           # builds the pages; 16 tests; writes evidence/
 ```
 
 ## What was found
@@ -55,7 +65,7 @@ Each number is a test in `test/`. The quoted output is in `evidence/`.
 
 1. **A person claims a name in the real world.** Typing `firstpage` and pressing Claim shows
    `Handle: hdl_…`. The request reached the world as `POST /handle/claim`, 200,
-   `"source": "mouse"`. The journal for its trace holds `HandleClaimed`, and its spans include `handle.claim.record`.
+   `"source": "person"` (the action's caller; UI SDK's own source was `mouse`). The journal for its trace holds `HandleClaimed`, and its spans include `handle.claim.record`.
    Afterwards, `handle.resolve` through the SDK from Node answers the same handle (`evidence/claim.md`, 1).
 
 2. **The agent claims in one `act`, and the request says an agent made it.** The steps are `setValue` on the "Name"
@@ -117,12 +127,53 @@ Each number is a test in `test/`. The quoted output is in `evidence/`.
    A name that fails `HandleName`'s check (`Not A Name!`) is refused by the real SDK's payload check, inside the page:
    `InvalidPayload`. In all four cases, 0 requests reached the world (`evidence/claim.md`, 6).
 
-7. **`web.css` alone gives a usable styled form.** The only stylesheet on the page is `/main.css`, and every rule in it
+7. **`web.css` alone gives a usable styled form.** Usable, not good: Aaron looked at these screenshots and called them
+   poor, which is fair. Section 8 is what UI SDK looks like with a real design on top. The only stylesheet on the page is `/main.css`, and every rule in it
    sits in web.css's own `@layer ui-sdk`. Four tokens (`--ui-primary`, `--ui-primary-foreground`, `--ui-radius`,
    `--ui-font-size`) restyle it, and an 8 px radius reached the input. Light and dark both work
    (`evidence/style-light.png`, `evidence/style-dark.png`). Two things web.css leaves to the app: the body's font and
    colours (three declarations, from its own tokens), and `--ui-primary-foreground`. Set only `--ui-primary` and dark
    mode shows dark text on the blue button.
+
+8. **A Notion-style Markdown editor, built only from UI SDK components** (`page/editor/`, `test/editor.test.ts`,
+   `evidence/editor-*.png`). Pages are a `Tree`. Each block is a `TriggerMenu` with its `TriggerMenuInput`: "/" opens the
+   block menu at the caret, and typing narrows it. To-dos are `Checkbox`, the block handle is a `Menu` (turn into,
+   duplicate, delete), the divider is `Separator`, and the Markdown panel is a `Toggle`. Markdown typed at the start of a
+   line turns the block (`# `, `## `, `- `, `1. `, `[] `, `> `, ` ``` `, `---`), Enter splits a block and continues a
+   list, and Backspace at the start joins blocks. The page writes itself out as Markdown, live.
+   - **The test types a whole page as a person** and checks the exact Markdown that comes out: a heading picked from the
+     slash menu (126 ms from "/" to the click), a list, a to-do, a quote. Ticking the to-do turns `- [ ]` into `- [x]`.
+   - **Fonts render, from our own origin.** Inter Variable and JetBrains Mono Variable are bundled from fontsource
+     (5.3.0, pinned). `document.fonts` reports both loaded; the title, body and code computed styles start with them,
+     and the two woff2 requests answered 200 from `/fonts/` (112 KiB together).
+   - **Break: a controlled textarea eats the "/".** UI SDK reads the native input event and re-renders synchronously,
+     before React's `onChange` runs. With a controlled `value`, React puts the old text back, so the "/" disappears and
+     the menu never opens. The fix is an uncontrolled textarea that the editor writes to only when the text changed from
+     outside (`block-view.tsx`). A generated form with a TriggerMenu would hit the same thing.
+   - **An agent sees the editor's controls, not its words.** The snapshot lists the page tree (with its titles), every
+     button, menu and to-do, and each block's TriggerMenu by its label (`Heading 2`, `Bulleted list`). It doesn't show a
+     block's text, because a TriggerMenu has no `value` for the bridge to read. An agent could restructure the page, but
+     not read it. For an editor an agent should read, the document itself has to be a primitive with a `value`.
+   - Size: 494 KiB minified (166 KiB gzipped) for the script, 73 KiB of CSS, plus the two fonts. No Effect here.
+
+9. **The action seam: neither workaround goes away** (the Conductor's question). The form now sends through
+   `action.run(payload, { caller, approved })`, generated as `<op>.action.ts` (15 lines each) from the same model. All
+   16 tests pass through it, including the real journey (proof 4).
+   - **`dispatch` and `settle` stay.** UI SDK gives a change's source (`agent`, `mouse`, `keyboard`) only to callbacks,
+     never to the primitive's api. The action needs that source to fill `ctx.caller`, so the send still has to leave
+     through an `onSend` callback, and the callback still needs `settle` to hand the call back. The action replaces
+     only what used to sit behind it: the page's send function.
+   - **`pending` and `error` stay.** They are how the agent bridge knows a step has finished and whether it failed. An
+     `ActionRefusal` is a value the bridge has never heard of, so the runtime still maps it into `error`, now as
+     `"<details.name> (<errorCode>)"`. That mapping is a three-line function in one place, `runtime.ts`.
+   - **What the seam did change.** Approval moved into `defineAction`, out of the page. The form always passes
+     `approved: true`, because reaching `run` means a person pressed it, or the bridge's `allow` already asked one
+     (`data-agent-confirm`). 5d now proves the action never asks twice (`asked` stays 0 after the bridge's yes), and
+     that a host which never asked, such as an MCP tool call, is asked by the action itself, once. The caller is only
+     `person` or `agent` now. `mouse` against `keyboard` stops at the form, which is all a role should see.
+   - So the three layers fit: the blueprint's action is the spine, the generated form is bound to one action, and UI
+     SDK is the widgets underneath. Both workarounds are adapters between UI SDK and the action, and each lives in one
+     shared file, not in generated code.
 
 Also found along the way:
 
@@ -142,9 +193,11 @@ Also found along the way:
 |---|---|
 | Generated, `handle.claim` | primitive 65 lines, React form 30 lines |
 | Generated, `session.sign-in` and `handle.release` | 69 + 34 and 69 + 36 lines |
-| Generator, shared helper | 159 and 59 lines (harness 104, test page 98) |
+| Generated action, each operation | 15 lines |
+| Generator, shared helper, action seam | 182, 65 and 65 lines (harness 110, test page 124) |
+| Editor (`page/editor/`) | 9 + 82 + 136 + 179 lines of TypeScript, 141 of CSS |
 | Type errors in the generated code | 0 |
-| `npm test`: build, then 12 tests in Chromium | 25.6 s wall (build 0.4 s; 3 worlds started, one of them by prove) |
+| `npm test`: build, then 16 tests in Chromium | 26.4 s wall (build 0.4 s; 3 worlds started, one of them by prove) |
 | A world ready (`Worlds.start` to `/_world/health`) | 3.3 to 5.5 s, 3 runs |
 | `POST /handle/claim` at the world's door, 3 runs | first claim 75 to 120 ms (cold), then 21 to 35 ms; refusal 17 to 19 ms |
 | One agent `act` (fill, send through the SDK, settle), seen from the test | 62 to 108 ms, 3 runs |
@@ -177,6 +230,10 @@ Build the screens output in stage 1, onto UI SDK, generated as whole forms:
   (`agent.js` `settle` and `describe`), not documented API, in a beta that ships about once a day.
 - **Effect in the browser** is 573 KiB minified. A screens output may want a lighter client for the page, generated
   from the same API.
+- **An agent can't read an editor's text** through UI SDK's TriggerMenu. A document an agent should read needs its own
+  primitive with a `value`.
+- **Controlled inputs fight UI SDK's synchronous updates** (section 8). Generated forms use UI SDK's own `Input`, which
+  is fine; any hand-written field around a TriggerMenu must be uncontrolled.
 - **Not tried:** custom elements (#215 showed them), Vue, Svelte and Solid; reads and lists; a field referring to
   another thing; server rendering; Better Auth's real sign-in from the page (the cast's tokens were used); more than
   one form for the same verb on one page.

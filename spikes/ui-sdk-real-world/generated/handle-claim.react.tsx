@@ -3,18 +3,18 @@ import { useState } from "react";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@ui-sdk/react/field";
 import { Input } from "@ui-sdk/react/input";
 import { createParts } from "@ui-sdk/react/primitive";
-import { handleClaim, type HandleClaimAnswer, type HandleClaimOutcome, type HandleClaimPayload } from "./handle-claim.ts";
+import type { Action } from "../src/action.ts";
+import { callerOf } from "../src/runtime.ts";
+import { handleClaim, type HandleClaimAnswer, type HandleClaimPayload } from "./handle-claim.ts";
 
 const parts = createParts(handleClaim, { root: "form", refusal: "p", answer: "output", submit: "button" });
 
-/** How the verb is sent: the app's generated SDK. `via` is the page's source of the press: "agent", "mouse", "keyboard". */
-export type Send = (payload: HandleClaimPayload, meta: { readonly via: string }) => Promise<HandleClaimOutcome>;
-
 /** Claim a free name and make it the address of your public page, with its profile. */
-export const HandleClaimForm = ({ send, label = "Claim handle", onDone }: { send: Send; label?: string; onDone?: (answer: HandleClaimAnswer) => void }) => {
+export const HandleClaimForm = ({ action, label = "Claim handle", onDone }: { action: Action<HandleClaimPayload, HandleClaimAnswer>; label?: string; onDone?: (answer: HandleClaimAnswer) => void }) => {
   const [name, setName] = useState("");
+  // `approved`: a person pressed it, or the agent bridge's `allow` asked one (data-agent-confirm). Never asked twice.
   return (
-    <parts.Root aria-label={label} name={name} onSend={(payload, details) => details.settle(send(payload, { via: details.source }))} onDone={onDone}>
+    <parts.Root aria-label={label} name={name} onSend={(payload, details) => details.settle(action.run(payload, { caller: callerOf(details.source), approved: true }))} onDone={onDone}>
       <FieldGroup>
       <Field name="name">
         <FieldLabel>Name</FieldLabel>

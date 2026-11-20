@@ -1,6 +1,6 @@
 ## 4 ortho prove --only, its own world, over HTTP
 {
- "ms": 8399,
+ "ms": 5068,
  "steps": [
   {
    "name": "the same request again answers the same handle and claims nothing",
@@ -36,13 +36,13 @@
   "name": "the same request again answers the same handle and claims nothing",
   "verdict": "pass",
   "failures": [],
-  "via": "the page (mouse)",
+  "via": "the page (person)",
   "got": {
    "status": 200,
    "body": {
-    "handle": "hdl_txq061u6m3kbckni"
+    "handle": "hdl_kovttrso9syagd05"
    },
-   "shown": "Handle: hdl_txq061u6m3kbckni",
+   "shown": "Handle: hdl_kovttrso9syagd05",
    "journal": [],
    "spans": [
     "sqlite",
@@ -54,7 +54,7 @@
   "name": "a taken name is refused",
   "verdict": "pass",
   "failures": [],
-  "via": "the page (mouse)",
+  "via": "the page (person)",
   "got": {
    "status": 422,
    "body": {
@@ -76,7 +76,7 @@
   "name": "another person's request key is not aaron's: still refused",
   "verdict": "pass",
   "failures": [],
-  "via": "the page (mouse)",
+  "via": "the page (person)",
   "got": {
    "status": 422,
    "body": {
@@ -107,13 +107,13 @@
   "name": "the refusal left bob free to claim a name of his own",
   "verdict": "pass",
   "failures": [],
-  "via": "the page (mouse)",
+  "via": "the page (person)",
   "got": {
    "status": 200,
    "body": {
-    "handle": "hdl_1ujtdx55j2808nbc"
+    "handle": "hdl_4rxya6v6oaj4x37i"
    },
-   "shown": "Handle: hdl_1ujtdx55j2808nbc",
+   "shown": "Handle: hdl_4rxya6v6oaj4x37i",
    "journal": [
     "HandleClaimed"
    ],
