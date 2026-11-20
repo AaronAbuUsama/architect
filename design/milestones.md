@@ -84,7 +84,7 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
-| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the dedicated account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
+| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the shared, prefixed account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
@@ -450,8 +450,8 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 **Goal.** Every local destination swapped for the real one, each credential created only with Aaron's written yes and
 the spend under $10 a day; then Capxul's first feature running on Orthograph.
-**Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on a dedicated
-Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03,
+**Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on the shared, prefixed
+Cloudflare account, proved there, destroyed, the account listing nothing of the run's after); then, after Gate M2, M7.01, M7.03,
 M7.04 and M7.08 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
 **Gate.** `nx run e2e:m7`: acme goes from a pull request to test, staging and production on Cloudflare with a verdict
 in each, Orthograph's packages are released under `@orthograph` on npm, and everything the gate made is destroyed after.
@@ -462,7 +462,7 @@ Capxul's first feature runs in its staging.
 | M7.01 ✅ | The cloud pass for staging (K10 section 8): the Cloudflare account Aaron uses for every environment for now, every resource prefixed, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential **Proof:** [`decisions/M7-cloud.md`](decisions/M7-cloud.md), passed by a 🔍 reviewer; the token's scope is recorded as asked, and `spikes/staging-pass` shows what it allows | S |
 | M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.13 | build | `npm view orthograph` shows the release | S |
 | M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
-| M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing in the account | M |
+| M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing with its run's prefix in the account and changes nothing without it | M |
 | M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04, M7.13 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
 | M7.06 ∥ | Real releases: npm, Homebrew, GitHub (L2.06, cloud part) | M7.02 | build | `brew install` of acme's CLI works from the real tap | S |
 | M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04, M7.13 | build | the conformance test passes against Stripe's test mode | M |

@@ -4218,7 +4218,7 @@
   "what": "The infra projection: an Alchemy stack per environment from the model and mounts"
  },
  "M7-04": {
-  "doneWhen": "ortho env destroy leaves nothing in the account",
+  "doneWhen": "ortho env destroy leaves nothing with its run's prefix in the account and changes nothing without it",
   "history": [],
   "id": "M7-04",
   "kind": "build",

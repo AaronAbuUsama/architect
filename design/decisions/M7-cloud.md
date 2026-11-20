@@ -94,3 +94,7 @@ without traces.
 
 - design/frame/secrets.md: "which one `Cloudflare.secrets` means is a" → "`Cloudflare.secrets` means each Worker's own secrets, not the account-level Secrets Store"
 - design/milestones.md: "orthograph-staging" → "the Cloudflare account Aaron uses for every environment for now, every resource prefixed"
+- design/milestones.md: "run for staging on the dedicated account" → "run for staging on the shared, prefixed account"
+- design/milestones.md: "acme up on a dedicated" → "acme up on the shared, prefixed"
+- design/milestones.md: "the account listing nothing after" → "the account listing nothing of the run's after"
+- design/milestones.md: "leaves nothing in the account" → "leaves nothing with its run's prefix in the account and changes nothing without it"
