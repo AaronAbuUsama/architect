@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { allowsUndefined, exactStates, exportedType, kindOf, kindProblem, stateTypeNames } from "./internal/judge.ts";
+import { allowsUndefined, exactStates, exportedType, kindOf, kindProblem, objectProblem, shapeProblem, stateTypeNames } from "./internal/judge.ts";
 import { programOf, standInName, syntheticPath, virtualPath } from "./internal/program.ts";
 import type { SdkTypesApi } from "./types.ts";
 
@@ -20,7 +20,7 @@ export const SdkTypes: SdkTypesApi = {
     const allowed = new Set([...Object.keys(thing.fields), ...(thing.machine != null ? FRAMEWORK_MEMBERS : [])]);
     return [
       ...declared.getProperties().filter((p) => !allowed.has(p.getName())).map((p) => `${at} has the member ${p.getName()}, which is not one of the thing's fields`),
-      ...(b.checker.getIndexInfosOfType(declared).length > 0 ? [`${at} has an index signature, so it takes any field`] : []),
+      ...[objectProblem(declared), shapeProblem(b, declared)].flatMap((w) => (w === undefined ? [] : [`${at} ${w}`])),
       ...Object.entries(thing.fields).flatMap(([name, field]) => {
         if (name === "state" && thing.machine != null) return [];
         const property = declared.getProperty(name);

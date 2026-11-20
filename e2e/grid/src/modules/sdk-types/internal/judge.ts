@@ -79,6 +79,23 @@ export const stateTypeNames = (b: Built, identifier: string): ReadonlyArray<{ re
 export const exactStates = (b: Built, type: ts.Type, states: ReadonlyArray<string>): string | undefined => {
   const parts = membersOf(type);
   const literals = parts.flatMap((p) => ((p.flags & F.StringLiteral) !== 0 ? [(p as ts.StringLiteralType).value] : []));
+  const shape = parts.map((p) => shapeProblem(b, p)).find((w) => w !== undefined);
+  if (shape !== undefined) return `resolves to ${b.checker.typeToString(type)}, which ${shape}`;
   const exact = literals.length === parts.length && states.every((s) => literals.includes(s)) && literals.every((l) => states.includes(l));
   return exact ? undefined : `resolves to ${b.checker.typeToString(type)}, not exactly the machine's states (${states.join(" | ")})`;
 };
+
+/** Why a type is not the plain shape a value has: a call or construct signature makes it callable or constructible, an index signature makes it take any key. */
+export const shapeProblem = (b: Built, type: ts.Type): string | undefined =>
+  // A primitive has the signatures of its wrapper (`string` has a numeric index), which are no part of the type: only an object part, or an object in an intersection, is looked at.
+  (type.isIntersection() ? type.types : [type]).filter((part) => (part.flags & F.Object) !== 0).flatMap((part) =>
+    b.checker.getSignaturesOfType(part, ts.SignatureKind.Call).length > 0 ? ["has a call signature, so it is callable"]
+    : b.checker.getSignaturesOfType(part, ts.SignatureKind.Construct).length > 0 ? ["has a construct signature, so it can be constructed"]
+    : b.checker.getIndexInfosOfType(part).length > 0 ? ["has an index signature, so it takes any key"]
+    : [])[0];
+
+/** Why an exported thing type is not one object type: a union (`Link | string`) is not, nor is an intersection with anything that is not an object shape. */
+export const objectProblem = (type: ts.Type): string | undefined =>
+  type.isUnion() ? "is a union, not one object type"
+  : (type.isIntersection() ? type.types : [type]).some((part) => (part.flags & F.Object) === 0) ? "is not an object type"
+  : undefined;

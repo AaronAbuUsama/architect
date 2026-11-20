@@ -117,6 +117,17 @@ describe("the type as a whole: its members are the model's fields and what the g
   ])("red: %s", (_name, line, member) => {
     expect(extra(line)).toEqual([`${path}'s Link has the member ${member}, which is not one of the thing's fields`]);
   });
+  it("red: a call signature, a construct signature, a union with another type, an intersection with a non-object", () => {
+    expect(extra("(): number;")).toEqual([`${path}'s Link has a call signature, so it is callable`]);
+    expect(extra("new (): Link;")).toEqual([`${path}'s Link has a construct signature, so it can be constructed`]);
+    expect(judged(change("export type Link = {", "export type Link = string | {")).fields).toContain(`${path}'s Link is a union, not one object type`);
+    expect(judged(change("export type Link = {", "export type Link = number & {").replace('"state": LinkState;\n};', '"state": LinkState;\n};')).fields.some((w) => /is not an object type|is a union/.test(w))).toBe(true);
+  });
+  it("red: the exported LinkState with a call or construct signature, or an index signature, intersected in", () => {
+    for (const extra of ["{ (): number }", "{ new (): Link }", "{ [k: string]: unknown }"]) {
+      expect(judged(change('"listed" | "removed";', `("listed" | "removed") & ${extra};`)).state.length, extra).toBeGreaterThan(0);
+    }
+  });
   it("red: a state member on a thing with no machine", () => {
     const noMachine = { ...pluggedIn.model, things: { ...pluggedIn.model.things, link: { ...link, machine: null } } };
     expect(judged(REAL, noMachine).fields).toEqual([`${path}'s Link has the member state, which is not one of the thing's fields`]);
