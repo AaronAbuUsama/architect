@@ -351,7 +351,7 @@ export const owner = auth.roles.holds(Organization, ["owner"]); // a Role, so `.
 | Correctness | ✅ one checked rule | ⚠️ only memberships | ✅ one checked rule |
 | Fit | ✅ the code | ⚠️ | ✅ auth owns memberships |
 
-**Recommendation: C.** The code's rule is the model; auth exports `holds` as a shortcut that produces one. (Superseded by K20, 20 November 2026: `holds` is declared in `orthograph`, beside `rule` and `who`.)
+**Recommendation: C.** The code's rule is the model; `holds` is declared in `orthograph`, beside `rule` and `who`, and produces a role (K20, 20 November 2026).
 
 ## Smaller calls
 
@@ -439,7 +439,7 @@ full template, so each gets its options and a recommendation in a line or two. T
 | Q2 | long work | A · Pi Durable for agent runs, Effect Workflow for processes |
 | Q3 | Codex's layer/4 | A · harvest into the recut |
 | Q4 | packages under `@formants` | A · one front door, plugins by name |
-| Q5 | role model | C · rules as the model, `holds` as auth's shortcut (Superseded by K20, 20 November 2026) |
+| Q5 | role model | C · rules as the model, `holds` declared in `orthograph` (K20) |
 | S1–S33 | smaller calls | as marked in bold on each |
 
 ## Answer key

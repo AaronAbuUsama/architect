@@ -369,12 +369,14 @@ The rules are already decided across K3, K7 and N1; this gathers them, with role
 ## Supersedes
 
 - design/decisions/K2-forman-frame.md (Q5): "the organizations plugin exports `holds` as a shortcut that produces one" → "`holds` is declared in `orthograph`, beside `rule` and `who`; the organisations plugin's owner and member are `holds` roles"
-- design/frame/questions.md (Q5): "auth exports `holds` as a shortcut that produces one" and "`holds` as auth's shortcut" → as above
+- design/frame/questions.md (Q5): "auth exports `holds` as a shortcut that produces one" → "`holds` is declared in `orthograph`, beside `rule` and `who`, and produces a role (K20, 20 November 2026)"
+- design/frame/questions.md (Q5 summary): "`holds` as auth's shortcut" → "`holds` declared in `orthograph` (K20)"
 - design/frame/delta.md: "One role model, decided in the step that adds the new principals" → "One role model: a role is a `rule`, or declared with `who` or `holds` ... (K20); the new principals are M2.01's"
 - design/milestones.md (M2 ships): "roles as rules with `holds`" → "roles as rules, or declared with `who` and `holds` (K20)"
 - design/milestones.md (M2.07): "owner, member, `holds`" → "owner and member as `holds` roles (K20)"
 - .agents/skills/kanban/data/lanes.json (M2 ships): "roles as rules with holds" → "roles as rules, or declared with who and holds (K20)"
-- design/docs/index.html ("Use their roles in your own things"): "organizations exports holds as a shortcut that makes one" and `organizations.roles.holds(Organization, ["owner"])` → "a role is a rule, or declared with who or holds (K20)" and `Blueprint.role(Organization, { holds: Membership.fields.organization, ... })`
+- design/docs/index.html (roles): "organizations exports holds as a shortcut that makes one" → "a role is a rule, or declared with who or holds (K20)"
+- design/docs/index.html (roles): "organizations.roles.holds(Organization, ["owner"])" → "Blueprint.role(Organization, { holds: Membership.fields.organization, who: Membership.fields.person, where: { role: "owner" } })"
 - .agents/skills/kanban/STATE.md and design/ledger.md (ROL-02): "the organizations plugin's `holds` is a shortcut that produces a rule" → "decided by K20: a role is a `rule`, or declared with `who` or `holds` in `orthograph` itself"
 
 ## Aaron's answers
