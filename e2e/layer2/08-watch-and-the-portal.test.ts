@@ -16,12 +16,22 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { build, promote, proveInTest, release } from "./flow.ts";
 import { type Stack, finish, startStack } from "./services.ts";
-import { acmeCli, commit, install, project, run, seed } from "./support.ts";
+import { acmeCli, commit, declareSpendBudget, install, project, run, seed } from "./support.ts";
 
 const copy = project();
 let stack: Stack | undefined;
 beforeAll(async () => { stack = await startStack(copy.root, 8, { registry: true }); });
 afterAll(async () => { try { await finish(copy.root, stack); } finally { copy.remove(); } });
+
+/**
+ * The p95 budget this check declares for `allowance.spend`, in milliseconds (acme's own is 150: an example's promise, which a
+ * shared CI runner cannot keep from one run to the next). What the check proves is the pipeline, not a runner's speed: healthy
+ * traffic stays under the budget, a handler that does real work drifts over it. The evidence, ST1-25-flakes: a healthy
+ * spend p95 is 5 to 20 ms on a Mac (the worst call 87 ms) and was 197 ms on a CI runner (run 44783700097, 280 ms in 44698831344);
+ * the planted slow handler is 1500 to 3500 ms on the same Mac. 500 is 2.5 times the worst healthy p95 seen and 3 times under the
+ * best slow one, so a stall on either side doesn't flip it, and a handler that really got slower still does.
+ */
+const BUDGET_MS = 500;
 
 type People = ReturnType<typeof seed>;
 
@@ -71,8 +81,12 @@ describe("check 8: watch and the portal", () => {
   it("p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only", async () => {
     const s = stack!;
     const { root } = copy;
-    // The first revision goes test, then staging; production takes it too, so the portal has something to be stale in.
-    release(root, s, copy.rev);
+    // The first revision, with the budget this check declares, goes test, then staging; production takes it too, so the portal has something to be stale in.
+    declareSpendBudget(root, BUDGET_MS);
+    const generated = run(root, s.env, "generate");
+    expect(generated.status, generated.out.slice(-3000)).toBe(0);
+    const first = commit(root, "the check's budget");
+    release(root, s, first);
     const url = s.url("staging");
 
     const proofs = await portal(url);
@@ -82,8 +96,8 @@ describe("check 8: watch and the portal", () => {
     const people = seed(root, url);
     replay(url, people, 30, 3);
     const healthy = watch(s.env, root);
-    expect(healthy.budget).toBe(150);
-    expect(healthy.p95).toBeLessThanOrEqual(150);
+    expect(healthy.budget).toBe(BUDGET_MS);
+    expect(healthy.p95, `healthy spend p95 against its ${BUDGET_MS} ms budget`).toBeLessThanOrEqual(BUDGET_MS);
     expect(healthy.mark).toBe("✔");
     expect(healthy.refusals).toMatch(/AllowanceExceeded 3\b/);
     expect(healthy.drift).toEqual([]);
@@ -96,12 +110,12 @@ describe("check 8: watch and the portal", () => {
     expect(promote(root, s, "staging").status).toBe(0);
     replay(url, people, 30, 0);
     const drifting = watch(s.env, root);
-    expect(drifting.p95).toBeGreaterThan(150);
+    expect(drifting.p95, `slow spend p95 against its ${BUDGET_MS} ms budget`).toBeGreaterThan(BUDGET_MS);
     expect(drifting.mark).toBe("✘");
     expect(drifting.drift).toEqual(["allowance.spend"]);
 
     // A looser budget, a new revision whose test verdicts are posted: the old verdicts of spend, and of nothing else, are stale.
-    install(root, "looser-budget/spend.ts", "blueprint/things/allowance/verbs/spend.ts");
+    declareSpendBudget(root, 2 * BUDGET_MS);
     const looser = commit(root, "a looser budget");
     const proved = proveInTest(root, s);
     expect(proved.lines.some((l) => l.endsWith(`(revision ${looser})`))).toBe(true);
