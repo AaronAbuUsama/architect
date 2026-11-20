@@ -239,7 +239,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   `refuses(machine.notFrom, { state: "removed" })` (`add-order-and-remove-a-link.ts:79`, `release-a-handle.ts:42`).
 - Lost: "a declared name is never written as a string outside `generated/`" (AGENTS.md) can't hold. Renaming a state in
   the blueprint leaves these strings stale, and a type-check catches only the ones typed against the state union.
-- Cause: the compiler generates the state union type but no value naming each state, so there is nothing to import.
+- Cause: the compiler generates the state union type, and the model JSON lists the states as data, but no importable constant names each state.
 - Fix: framework, generate a constant per machine (for example `LinkStates.removed`) from the blueprint, and point the
   scaffold, the handlers and the journeys at it. A check author then adds a lint or canon check that a state's name
   appears as a string only in `generated/`.
