@@ -28,6 +28,8 @@ export interface Proved {
   readonly seconds: number;
   /** The operations that really ran in the world, read from the spans the run's collector wrote (a recording, not prove's own word). */
   readonly called: ReadonlySet<string>;
+  /** How many spans named exactly each operation the collector heard in the run. */
+  readonly counts: ReadonlyMap<string, number>;
   /** Every wrangler or workerd process of this project that was not already running when prove started, as the poll saw them (see `worldProcesses`). */
   readonly worlds: ReadonlySet<string>;
 }
@@ -63,20 +65,21 @@ const proveWatching = async (root: string, folder: string, args: ReadonlyArray<s
   // prove empties its own collector's folder at the start of a run (a new file); dev's collector appends to one file for as long as it lives.
   const now = existsSync(spans) ? statSync(spans) : undefined;
   const from = now !== undefined && now.ino === was.ino && now.size >= was.size ? was.size : 0;
-  return { status, out, report, seconds: (Date.now() - started) / 1000, worlds, called: operationsCalled(root, folder, from) };
+  const counts = operationsCalled(root, folder, from);
+  return { status, out, report, seconds: (Date.now() - started) / 1000, worlds, called: new Set(counts.keys()), counts };
 };
 
 /** The operations (by the model's names) that have a span in the collector's file past `offset` bytes: what the world was really asked to do. */
-const operationsCalled = (root: string, folder: string, offset: number): ReadonlySet<string> => {
+const operationsCalled = (root: string, folder: string, offset: number): ReadonlyMap<string, number> => {
   const file = join(root, folder, "traces.jsonl");
-  if (!existsSync(file) || !existsSync(join(root, "generated/model/model.json"))) return new Set();
+  if (!existsSync(file) || !existsSync(join(root, "generated/model/model.json"))) return new Map();
   const known = new Set(Object.keys((JSON.parse(readFileSync(join(root, "generated/model/model.json"), "utf8")) as { operations: object }).operations));
-  const found = new Set<string>();
+  const found = new Map<string, number>();
   for (const line of readFileSync(file).subarray(offset).toString("utf8").split("\n")) {
     if (line === "") continue;
     // The collector writes whole lines, but the file may be read as one is being written.
     const parsed = Effect.runSync(Effect.try(() => JSON.parse(line)).pipe(Effect.orElseSucceed(() => ({})))) as { resourceSpans?: ReadonlyArray<{ scopeSpans?: ReadonlyArray<{ spans?: ReadonlyArray<{ name: string }> }> }> };
-    for (const r of parsed.resourceSpans ?? []) for (const sc of r.scopeSpans ?? []) for (const sp of sc.spans ?? []) if (known.has(sp.name)) found.add(sp.name);
+    for (const r of parsed.resourceSpans ?? []) for (const sc of r.scopeSpans ?? []) for (const sp of sc.spans ?? []) if (known.has(sp.name)) found.set(sp.name, (found.get(sp.name) ?? 0) + 1);
   }
   return found;
 };
@@ -101,11 +104,13 @@ export const worldProcessesUnder = (top: number): ReadonlyArray<string> => {
 
 // ---- the model, and what a change affects, worked out without prove ----
 
-interface ModelJourney { readonly name: string; readonly starts: string | null; readonly steps: ReadonlyArray<{ readonly title: string; readonly call?: { readonly operation: string } }> }
+interface ModelCheck { readonly kind: string; readonly present?: ReadonlyArray<string>; readonly absent?: ReadonlyArray<string> }
+interface ModelJourney { readonly name: string; readonly starts: string | null; readonly steps: ReadonlyArray<{ readonly title: string; readonly call?: { readonly operation: string }; readonly checks: ReadonlyArray<ModelCheck> }> }
 interface ModelWorld { readonly from: string | null; readonly makes: ReadonlyArray<{ readonly operation: string } | null> }
 export interface JourneyMap {
   readonly journeys: Record<string, ModelJourney>;
   readonly startingWorlds: Record<string, ModelWorld>;
+  readonly operations: Record<string, { readonly kind: string }>;
 }
 export const modelOf = (root: string): JourneyMap => JSON.parse(readFileSync(join(root, "generated/model/model.json"), "utf8")) as JourneyMap;
 
@@ -126,6 +131,29 @@ export const worldCallsOf = (map: JourneyMap, name: string): ReadonlySet<string>
   new Set(worldsOf(map, name).flatMap((world) => map.startingWorlds[world]!.makes.flatMap((call) => (call ? [call.operation] : []))));
 /** The journeys that stand on this starting world, through their own or one it is made from. */
 export const standingOn = (map: JourneyMap, world: string) => journeyNames(map).filter((name) => worldsOf(map, name).includes(world));
+/**
+ * How many spans each operation must have in a run of these journeys, at the least: one for each step that reaches a handler. Left out,
+ * each with its reason: a read (answered from the records, no handler), and a step that is refused (`refuses`) unless its own checks say
+ * the operation's span is present (`spans({ present })` naming it), since a refusal before the handler leaves no span of its own
+ * (O2 gap 3). So `revoke then spend`'s refused spend is left out, and its first step, the revoke, is not.
+ */
+export const reachingSteps = (map: JourneyMap, names: ReadonlyArray<string>): ReadonlyMap<string, number> => {
+  const counts = new Map<string, number>();
+  for (const name of names) {
+    const journey = Object.values(map.journeys).find((j) => j.name === name)!;
+    for (const step of journey.steps) {
+      const op = step.call?.operation;
+      if (op === undefined || map.operations[op]?.kind === "read") continue;
+      const refused = step.checks.some((c) => c.kind === "refuses");
+      const present = step.checks.some((c) => c.kind === "spans" && (c.present ?? []).includes(op));
+      if (!refused || present) counts.set(op, (counts.get(op) ?? 0) + 1);
+    }
+  }
+  return counts;
+};
+/** What is missing from the spans of a run that says it ran these journeys: an operation heard fewer times than its steps that reach a handler. */
+export const stepsShortfall = (map: JourneyMap, names: ReadonlyArray<string>, heard: ReadonlyMap<string, number>): ReadonlyArray<string> =>
+  [...reachingSteps(map, names)].filter(([op, n]) => (heard.get(op) ?? 0) < n).map(([op, n]) => `the collector heard ${op} ${heard.get(op) ?? 0} times, and ${n} steps of the journeys it ran reach its handler`);
 export const journeyNames = (map: JourneyMap) => Object.values(map.journeys).map((j) => j.name).sort();
 /** The journeys that call (in a step or through a starting world) at least one of these operations. */
 export const calling = (map: JourneyMap, ...operations: ReadonlyArray<string>) =>
@@ -147,6 +175,10 @@ export interface Expected {
   readonly passes: boolean;
   /** When it does not: exactly the journeys that fail (default, all it ran). */
   readonly fails?: ReadonlyArray<string>;
+  /** The operations whose evals it must judge again (an eval summary line for each, in the text). */
+  readonly judges?: ReadonlyArray<string>;
+  /** Lines, as `<operation> <eval> ✘`, that the text must hold: an eval that fails where no journey does. */
+  readonly evalFails?: ReadonlyArray<string>;
 }
 const sorted = (xs: ReadonlyArray<string>) => [...xs].sort();
 const same = (a: ReadonlyArray<string>, b: ReadonlyArray<string>) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
@@ -156,7 +188,7 @@ const same = (a: ReadonlyArray<string>, b: ReadonlyArray<string>) => JSON.string
  * judged on its own, so a run that runs everything, nothing, one too many, one too few or the right count of the wrong ones
  * each earn a problem of their own (check 29's controls plant each).
  */
-export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called">, want: Expected): ReadonlyArray<string> => {
+export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called" | "counts">, want: Expected): ReadonlyArray<string> => {
   const found: Array<string> = [];
   const { report, out } = run;
   if (report === undefined) return ["no report was written: prove did not run"];
@@ -191,10 +223,21 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
   const must = new Set(want.ran.flatMap((name) => [...worldCallsOf(want.map, name)]));
   for (const op of run.called) if (!may.has(op)) found.push(`the world was asked to run ${op}, which no journey it ran calls`);
   for (const op of must) if (!run.called.has(op)) found.push(`the world was never asked to run ${op}, which a starting world of the journeys it ran makes`);
+  // Where every journey passes, each step that reaches a handler really ran: its operation was heard by the collector as often as that.
+  const failing = want.passes ? [] : want.fails ?? want.ran;
+  if (failing.length === 0) found.push(...stepsShortfall(want.map, want.ran, run.counts));
+  // The evals of what changed are judged again, and one that fails where no journey does is said to.
+  for (const op of want.judges ?? []) if (!new RegExp(`^${op.replace(/\./g, "\\.")} (\\d+ evals ✔|\\d+ of \\d+ evals ✘)`, "m").test(out)) found.push(`the evals of ${op} were not judged again`);
+  for (const line of want.evalFails ?? []) if (!new RegExp(`^${line.replace(/\./g, "\\.")}`, "m").test(out)) found.push(`the text has no line "${line}"`);
   // Each journey it ran is reported step by step, as the model declares them, and the ones that fail are the ones that must.
   for (const j of report.journeys) {
     const titles = Object.values(want.map.journeys).find((m) => m.name === j.name)?.steps.map((s) => s.title);
     if (titles === undefined || JSON.stringify(titles) !== JSON.stringify(j.steps.map((s) => s.name))) found.push(`journey ${j.name} is reported with steps ${JSON.stringify(j.steps.map((s) => s.name))}, the model declares ${JSON.stringify(titles)}`);
+  }
+  // A step's verdict agrees with its journey's: a journey passes when every step does, and fails when one does not.
+  for (const j of report.journeys) {
+    const allPass = j.steps.every((st) => st.verdict === "pass");
+    if (allPass !== (j.verdict === "pass")) found.push(`journey ${j.name} is ${j.verdict} but its steps are ${JSON.stringify(j.steps.map((st) => st.verdict))}`);
   }
   const failed = report.journeys.filter((j) => j.verdict !== "pass").map((j) => j.name);
   if (!same(failed, want.passes ? [] : want.fails ?? want.ran)) found.push(`journeys that failed: ${JSON.stringify(sorted(failed))}, expected ${JSON.stringify(sorted(want.passes ? [] : want.fails ?? want.ran))}`);
@@ -203,12 +246,13 @@ export const problems = (run: Pick<Proved, "status" | "out" | "report" | "called
 };
 
 /** A report and its text that `problems` accepts, for the controls to plant a wrong output into. */
-export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report" | "called"> & { readonly report: Report & { readonly changed: Changed } } => {
+export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report" | "called" | "counts"> & { readonly report: Report & { readonly changed: Changed } } => {
   const skipped = want.all.filter((name) => !want.ran.includes(name));
   const why = want.fellBackOn !== null && want.fellBackOn.length === 0 ? "no record of an earlier prove" : `cannot place ${(want.fellBackOn ?? []).join(", ")}`;
   const fell = want.fellBackOn === null ? null : { reason: why, files: [...want.fellBackOn] };
   const headline = fell ? `prove --changed: proving all ${want.all.length} journeys: ${fell.reason}` : `prove --changed: proving ${want.ran.length} of ${want.all.length} journeys`;
-  const out = [headline, ...skipped.map((name) => `journey ${name} skipped: nothing it calls changed`), ...want.ran.map((name) => `journey ${name} ✔ 1/1 steps`), "prove ✔"].join("\n");
+  const evalLines = [...(want.judges ?? []).map((op) => `${op} 9 evals ✔ p50 1ms p95 1ms budget p95 100ms`), ...(want.evalFails ?? []).map((line) => `${line} no deciding log`)];
+  const out = [headline, ...skipped.map((name) => `journey ${name} skipped: nothing it calls changed`), ...want.ran.map((name) => `journey ${name} ✔ 1/1 steps`), ...evalLines, "prove ✔"].join("\n");
   const report: Report & { readonly changed: Changed } = {
     passed: want.passes, lines: out.split("\n"),
     journeys: want.ran.map((name) => {
@@ -218,7 +262,9 @@ export const perfect = (want: Expected): Pick<Proved, "status" | "out" | "report
     changed: { base: "last proof", rerun: [...want.ran], skipped, fellBack: fell },
   };
   const called = new Set(want.ran.flatMap((name) => [...callsOf(want.map, name)]));
-  return { status: want.passes ? 0 : 1, out, report, called };
+  const counts = new Map([...reachingSteps(want.map, want.ran)].map(([op, n]) => [op, n + 1] as const));
+  for (const op of called) if (!counts.has(op)) counts.set(op, 1);
+  return { status: want.passes ? 0 : 1, out, report, called, counts };
 };
 
 // ---- planting a change in a copy ----

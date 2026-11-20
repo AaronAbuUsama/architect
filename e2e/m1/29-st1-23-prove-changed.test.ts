@@ -55,7 +55,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from "node
 import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { acme, copyOf, nothingRunning, run } from "./support.ts";
-import { append, calling, edit, journeyNames, modelOf, perfect, problems, prove, standingOn, type Expected, type JourneyMap, type Proved } from "./prove-speed.ts";
+import { append, calling, edit, journeyNames, modelOf, perfect, problems, prove, standingOn, stepsShortfall, worldCallsOf, type Expected, type JourneyMap, type Proved } from "./prove-speed.ts";
 
 const RECORD = ".ortho/evidence/proven.json";
 const SPEND = "src/allowance/spend.ts";
@@ -69,6 +69,11 @@ const HELPER = "src/allowance/format.ts";
 const MONEY = "src/allowance/money.ts";
 const MONEY_SOURCE = "export const money = (n: bigint) => `${n}`;\n";
 const PACKAGE = "package.json";
+/** Files outside blueprint/, src/ and journeys/ that can change a proof, in every copy and in the record: any change to one proves everything. */
+const LOCK = "pnpm-lock.yaml";
+const TSCONFIG = "tsconfig.json";
+const ENV = ".env";
+const OTHER_FILES: Readonly<Record<string, string>> = { [LOCK]: "lockfileVersion: '9.0'\n", [ENV]: "# a note, no value\n" };
 const WORLD = "blueprint/starting-worlds";
 const REVOKE_HANDLER = "src/allowance/revoke.ts";
 
@@ -90,6 +95,7 @@ const seeded = (withRecord = true) => {
   const copy = copyOf(acme);
   copies.push(copy);
   writeFileSync(join(copy.root, MONEY), MONEY_SOURCE);
+  for (const [file, text] of Object.entries(OTHER_FILES)) writeFileSync(join(copy.root, file), text);
   if (withRecord) {
     mkdirSync(dirname(join(copy.root, RECORD)), { recursive: true });
     writeFileSync(join(copy.root, RECORD), record);
@@ -103,6 +109,8 @@ const plantGrant = (root: string) => append(root, GRANT, note());
 const plantRead = (root: string) => edit(root, GET, (t) => t.replace('"50 millis"', '"60 millis"'));
 const plantOperation = (root: string) => edit(root, REVOKE, (t) => t.replace("Nothing more can be spent from it.", "Nothing more can be spent from it, ever."));
 const plantJourney = (root: string) => append(root, JOURNEY, note());
+/** The one log line that says why `grant` refused a limit over the cap: no journey reads logs, the explainability eval does. */
+const dropDecidingLog = (root: string) => edit(root, GRANT, (t) => t.replace(/^\s*yield\* Effect\.logInfo\("the limit is over.*\n/m, ""));
 const breakSpend = (root: string) => edit(root, SPEND, (t) => t.replace("return { remaining: remaining - amount }", "return { remaining }"));
 
 const expecting = (ran: ReadonlyArray<string>, over: Partial<Expected> = {}): Expected => ({ ran, fellBackOn: null, all, map, passes: true, ...over });
@@ -111,6 +119,7 @@ const judged = (proved: Proved, want: Expected) => expect(problems(proved, want)
 beforeAll(async () => {
   baseline = copyOf(acme);
   writeFileSync(join(baseline.root, MONEY), MONEY_SOURCE);
+  for (const [file, text] of Object.entries(OTHER_FILES)) writeFileSync(join(baseline.root, file), text);
   first = await prove(baseline.root);
   map = modelOf(baseline.root);
   all = journeyNames(map);
@@ -124,6 +133,21 @@ describe("29 controls: the instruments, and what today's prove already does", ()
     expect(all).toHaveLength(11);
     expect(JSON.parse(record).proven["allowance.spend"]).toBeDefined();
     nothingRunning(baseline.root);
+  });
+
+  it("the full prove's spans satisfy the steps rule: each operation is heard at least as often as the steps of the journeys that reach its handler", () => {
+    expect(stepsShortfall(map, all, first.counts)).toEqual([]);
+    expect(first.counts.get("allowance.revoke"), "revoke then spend's refused spend and the two refused revokes leave only one").toBe(1);
+  });
+
+  it("an eval-only plant is real: a full prove passes every journey and fails grant's explainability alone", async () => {
+    const root = seeded(false);
+    dropDecidingLog(root);
+    const full = await prove(root);
+    expect(full.report!.journeys.filter((j) => j.verdict !== "pass")).toEqual([]);
+    expect(full.status).toBe(1);
+    expect(full.out.match(/^allowance\.\S+ \S+ ✘.*$/gm)?.filter((l) => !l.includes(" coverage ") && !l.includes(" evals ")).map((l) => l.split(" ").slice(0, 3).join(" "))).toEqual(["allowance.grant explainability ✘"]);
+    nothingRunning(root);
   });
 
   it("the sets come from the model: spend is called by 3 journeys, grant by 6 (five stand on `funded`), get by 2, revoke by 2", () => {
@@ -150,11 +174,13 @@ describe("29 controls: the instruments, and what today's prove already does", ()
       ["fall back, a file", expecting(all, { fellBackOn: [CONFIG] })],
       ["fall back, no record", expecting(all, { fellBackOn: [], reason: /no record of an earlier prove/ })],
       ["a failing run", expecting(SPEND_JOURNEYS, { passes: false, fails: FAILING })],
+      ["spend, evals judged", expecting(SPEND_JOURNEYS, { judges: ["allowance.spend"] })],
+      ["an eval alone fails", expecting(calling(map, "allowance.grant"), { passes: false, fails: [], judges: ["allowance.grant"], evalFails: ["allowance.grant explainability ✘"] })],
     ];
     for (const [row, want] of rows) {
       const right = perfect(want);
       expect(problems(right, want), row).toEqual([]);
-      const wrong = (name: string, edited: Pick<Proved, "status" | "out" | "report" | "called">, expected = want) => expect(problems(edited, expected), `${row}: ${name}`).not.toEqual([]);
+      const wrong = (name: string, edited: Pick<Proved, "status" | "out" | "report" | "called" | "counts">, expected = want) => expect(problems(edited, expected), `${row}: ${name}`).not.toEqual([]);
       const swap = (names: ReadonlyArray<string>) => ({ ...right, report: { ...right.report, journeys: names.map((n) => ({ name: n, verdict: "pass", steps: [] })) } });
       if (want.fellBackOn === null) {
         wrong("runs everything", swap(all));
@@ -182,9 +208,17 @@ describe("29 controls: the instruments, and what today's prove already does", ()
         const first = right.report.journeys[0]!;
         const withFirst = (journey: typeof first) => ({ ...right, report: { ...right.report, journeys: [journey, ...right.report.journeys.slice(1)] } });
         wrong("a journey reported with no steps", withFirst({ ...first, steps: [] }));
+        wrong("a step's verdict wrong where its journey's is right", withFirst({ ...first, steps: first.steps.map((st, i) => (i === 0 ? { ...st, verdict: st.verdict === "pass" ? "fail" : "pass" } : st)) }));
         wrong("a journey reported with another's steps", withFirst({ ...first, steps: [{ name: "a step", verdict: first.verdict }] }));
         wrong("a journey that fails where it should pass, or passes where it should fail", withFirst({ ...first, verdict: first.verdict === "pass" ? "fail" : "pass" }));
       }
+      if (want.ran.length > 0 && (want.passes || want.fails?.length === 0)) wrong("journeys reported that the collector never heard run (the spans of their steps are missing)", { ...right, counts: new Map() });
+      if (want.ran.length > 0 && (want.passes || want.fails?.length === 0)) {
+        const setupOnly = new Map(want.ran.flatMap((name) => [...worldCallsOf(map, name)]).map((op) => [op, 1] as const));
+        wrong("a collector that holds only the starting worlds' setup calls", { ...right, counts: setupOnly, called: new Set(setupOnly.keys()) });
+      }
+      for (const op of want.judges ?? []) wrong(`${op}'s evals not judged again`, { ...right, out: right.out.split("\n").filter((l) => !l.startsWith(`${op} `)).join("\n") });
+      for (const line of want.evalFails ?? []) wrong(`no line for "${line}"`, { ...right, out: right.out.replace(line, "x") });
       wrong("a wrong exit status", { ...right, status: want.passes ? 1 : 0 });
       wrong("passed says otherwise", { ...right, report: { ...right.report, passed: !want.passes } });
       wrong("the journeys ran but the report is not there", { ...right, report: undefined });
@@ -210,6 +244,7 @@ describe("29 controls: the instruments, and what today's prove already does", ()
     expect(stale(plantOperation)).toBe("allowance.revoke");
     expect(stale(plantJourney)).not.toBe("none");
     expect(stale((root) => append(root, CONFIG, "\n// planted\n"))).toBe("none");
+    for (const file of [LOCK, TSCONFIG, ENV]) expect(stale((root) => append(root, file, "\n")), file).toBe("none");
     expect(stale((root) => writeFileSync(join(root, HELPER), "export const format = (n: bigint) => `${n}`;\n"))).toBe("none");
   });
 
@@ -233,7 +268,7 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     const root = seeded();
     plantHandler(root);
     const proved = await prove(root, "--changed");
-    judged(proved, expecting(SPEND_JOURNEYS));
+    judged(proved, expecting(SPEND_JOURNEYS, { judges: ["allowance.spend"] }));
     expect(proved.report?.changed?.skipped).toHaveLength(8);
     nothingRunning(root);
   });
@@ -242,7 +277,7 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     const root = seeded();
     plantGrant(root);
     const proved = await prove(root, "--changed");
-    judged(proved, expecting(calling(map, "allowance.grant")));
+    judged(proved, expecting(calling(map, "allowance.grant"), { judges: ["allowance.grant"] }));
     expect(proved.report?.changed?.rerun).toHaveLength(6);
     nothingRunning(root);
   });
@@ -251,7 +286,7 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     const root = seeded();
     plantRead(root);
     const proved = await prove(root, "--changed");
-    judged(proved, expecting(["read an allowance", "spend twice with one request"]));
+    judged(proved, expecting(["read an allowance", "spend twice with one request"], { judges: ["allowance.get"] }));
     nothingRunning(root);
   });
 
@@ -259,7 +294,7 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     const root = seeded();
     plantOperation(root);
     const proved = await prove(root, "--changed");
-    judged(proved, expecting(["an outsider cannot revoke", "revoke then spend"]));
+    judged(proved, expecting(["an outsider cannot revoke", "revoke then spend"], { judges: ["allowance.revoke"] }));
     nothingRunning(root);
   });
 
@@ -291,7 +326,7 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     const root = seeded();
     append(root, REVOKE_HANDLER, note());
     const proved = await prove(root, "--changed");
-    judged(proved, expecting(calling(map, "allowance.revoke")));
+    judged(proved, expecting(calling(map, "allowance.revoke"), { judges: ["allowance.revoke"] }));
     nothingRunning(root);
   });
 
@@ -333,6 +368,23 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     judged(await prove(root, "--changed"), expecting(all, { fellBackOn: [PACKAGE] }));
     nothingRunning(root);
   });
+
+  it("a change only an eval reads (the log that says why grant refused) reruns the 6 journeys, which pass, and judges grant's evals again: explainability fails and prove exits 1", async () => {
+    const root = seeded();
+    dropDecidingLog(root);
+    const proved = await prove(root, "--changed");
+    judged(proved, expecting(calling(map, "allowance.grant"), { passes: false, fails: [], judges: ["allowance.grant"], evalFails: ["allowance.grant explainability ✘"] }));
+    nothingRunning(root);
+  });
+
+  for (const [file, kind] of [[LOCK, "the lockfile"], [TSCONFIG, "tsconfig.json"], [ENV, "an env file"]] as const) {
+    it(`a changed ${kind} (${file}), a file the map cannot place, proves all 11 and names it`, async () => {
+      const root = seeded();
+      append(root, file, "\n");
+      judged(await prove(root, "--changed"), expecting(all, { fellBackOn: [file] }));
+      nothingRunning(root);
+    });
+  }
 
   it("two changes at once prove the union of what each touches, not the first one's", async () => {
     const root = seeded();
