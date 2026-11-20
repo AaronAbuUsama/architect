@@ -32,28 +32,39 @@ describe("a machine's own refusal tag, whichever shape its states have", () => {
     const { runChecks } = await import("./internal/checks.ts");
     return Effect.runPromise(runChecks([check as never], call, {}, world as never));
   };
-  const real = async () => (await import(resolve(acme, "blueprint/things/allowance/machine.ts"))).machine as { thing: unknown; states: ReadonlyArray<string> };
+  // acme's real machine, reduced to its thing and its declared states, so every fixture below sets `states` and `declared` itself. That keeps these tests
+  // meaningful on today's array and on ST1.14's record, whichever shape acme's machine has when they run.
+  const real = async () => {
+    const machine = (await import(resolve(acme, "blueprint/things/allowance/machine.ts"))).machine as { readonly thing: unknown; readonly states: unknown; readonly declared?: ReadonlyArray<string> };
+    const declared = machine.declared ?? (Array.isArray(machine.states) ? (machine.states as ReadonlyArray<string>) : Object.keys(machine.states as object));
+    return { thing: machine.thing, declared };
+  };
+  const recordOf = (declared: ReadonlyArray<string>) => Object.fromEntries(declared.map((s) => [s, { state: s }]));
 
-  it("acme's allowance machine, as it is today (an array): the tag is AllowanceNotActive and the check passes", async () => {
-    const machine = await real();
+  it("acme's allowance machine, as it is: the tag is AllowanceNotActive and the check passes", async () => {
+    const machine = (await import(resolve(acme, "blueprint/things/allowance/machine.ts"))).machine;
     expect((await tagFor(machine)).failures).toEqual([]);
   });
 
+  it("the array shape (today's): the same tag", async () => {
+    const { thing, declared } = await real();
+    expect((await tagFor({ thing, states: declared })).failures).toEqual([]);
+  });
+
   it("the record shape with `declared` (ST1.14): the same tag", async () => {
-    const machine = await real();
-    const record = { ...machine, states: Object.fromEntries(machine.states.map((s) => [s, { state: s }])), declared: machine.states };
-    expect((await tagFor(record)).failures).toEqual([]);
+    const { thing, declared } = await real();
+    expect((await tagFor({ thing, states: recordOf(declared), declared })).failures).toEqual([]);
   });
 
   it("the record shape without `declared`: the same tag, from the record's first key", async () => {
-    const machine = await real();
-    const record = { ...machine, states: Object.fromEntries(machine.states.map((s) => [s, { state: s }])) };
-    expect((await tagFor(record)).failures).toEqual([]);
+    const { thing, declared } = await real();
+    expect((await tagFor({ thing, states: recordOf(declared) })).failures).toEqual([]);
   });
 
-  it("a wrong first state is caught: the check does say the tag", async () => {
-    const machine = await real();
-    const wrong = { ...machine, states: ["revoked", "active"] };
-    expect((await tagFor(wrong)).failures.join("\n")).toMatch(/expected refused with AllowanceNotRevoked/);
+  it("a wrong first state is caught, in either shape: the check does say the tag", async () => {
+    const { thing } = await real();
+    const wrong = ["revoked", "active"];
+    expect((await tagFor({ thing, states: wrong })).failures.join("\n")).toMatch(/expected refused with AllowanceNotRevoked/);
+    expect((await tagFor({ thing, states: recordOf(wrong), declared: wrong })).failures.join("\n")).toMatch(/expected refused with AllowanceNotRevoked/);
   });
 });
