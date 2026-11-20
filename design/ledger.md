@@ -9,7 +9,7 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **628 items**: 514 open, 58 fixed and 56 superseded.
+- **632 items**: 518 open, 58 fixed and 56 superseded.
 - **186 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
 - **59 open items are marked high.** A canon page can't be written correctly until each one is settled.
@@ -87,9 +87,9 @@ to v1.0, and its stage slices (ST1.01 to ST4.08) now own the React hooks, the br
 | 1 | plugins | 14 | 5 | 2 | 3 |
 | 1 | data | 1 | 0 | 0 | 1 |
 | 1 | doors | 3 | 1 | 1 | 1 |
-| 2 | things | 7 | 3 | 0 | 0 |
+| 2 | things | 8 | 3 | 0 | 0 |
 | 2 | machines | 6 | 3 | 1 | 1 |
-| 2 | operations | 13 | 6 | 1 | 1 |
+| 2 | operations | 14 | 6 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
 | 2 | handlers | 8 | 4 | 1 | 1 |
 | 3 | journeys | 13 | 6 | 4 | 0 |
@@ -100,7 +100,7 @@ to v1.0, and its stage slices (ST1.01 to ST4.08) now own the React hooks, the br
 | 4 | views | 8 | 2 | 1 | 0 |
 | 5 | features | 8 | 3 | 0 | 1 |
 | 5 | adapters | 14 | 3 | 0 | 0 |
-| 5 | projections | 17 | 7 | 2 | 1 |
+| 5 | projections | 19 | 7 | 2 | 1 |
 | 5 | portal | 13 | 10 | 0 | 10 |
 | 5 | secrets | 9 | 3 | 2 | 2 |
 | 6 | workflows | 10 | 1 | 3 | 1 |
@@ -715,6 +715,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `THI-04` | On chain, a relayer actor and a chain follower actor are not built, and reads through the follower and the no-person's-key check are not built either. | design/frame/examples/allowance-on-chain.md:104 | open | M6.07, M6.09, M6.18 |
 | `THI-05` | There is to be one vault per organisation (S27); nothing is built. | design/frame/questions.md:423 | open | M6.01, M6.16 |
 | `THI-07` | Money has no value. Values today are `Blueprint.uint(bits)`, `text`, `email`, `id` and a raw Schema: no signed integer, no decimal, no fixed-point amount, and no amount that knows its currency or token and its decimals; M6.10 plans only Solidity types for the values that exist. Capxul's Payment, Budget, Invoice and Ledger entry each need an amount that knows its token or currency and its decimals, can go negative in a ledger, and means the same in Effect and in Solidity. Capxul Next rolls its own (a decimal string of up to six places beside a one-asset literal), and the Capxul-on-Orthograph session reported that its sketches write `tokens.Amount`, which doesn't exist (its report to the conductor, 20 November 2026; the sketches are in no file here). Recorded as a known gap by Aaron, 20 November 2026; waits for a design pass. | packages/orthograph/src/modules/values/types.ts:14-18<br>design/milestones.md:426<br>capxul-next packages/blueprint/src/common/values.ts:78-81 (at 50851875)<br>capxul-next packages/blueprint/src/things/budget/refusals.ts:21-28 (at 50851875) | open | later |
+| `THI-08` | A value has no named kind. A web address, a pattern, a choice or a yes-or-no reaches the model only as `{ "type": "schema" }`, so no output can tell one from another: Plugged In's `HandleName` (a pattern) and `LinkUrl` (a web address) look the same to every generator, and a form can't pick the right input. Named value kinds would fix it for every output, not only screens; the language's to design, next to THI-02 (a free schema has no projection). | packages/orthograph/src/modules/values/types.ts:14-18<br>examples/plugged-in/blueprint/values/page.ts:3,8 (branch goal/stage-1 at 2a5716be)<br>examples/plugged-in/generated/model/model.json:15-17,26-28 (branch goal/stage-1 at 2a5716be)<br>design/decisions/K24-ui-sdk.md:94 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:117 (branch conductor/k24-ui-sdk at f259278f, PR #217) | open | later |
 
 ### machines
 
@@ -743,6 +744,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `OPS-10` | Noir needs `custody` and `takesEffect` primitives, which do not exist yet. | design/frame/examples/private-membership.md:26<br>design/milestones.md:399 | open | later (design/milestones.md:399, Noir) |
 | `OPS-11` | The Noir example declares a 15 second p95 budget, but a measured spend took 22.3 s median and 33.4 s worst, so the budget is too low. | design/frame/examples/private-membership.md:50<br>spikes/noir-private-core/README.md:72<br>design/milestones.md:399 | open | later (design/milestones.md:399, Noir) |
 | `OPS-14` | An operation with no machine can't declare an event: today a domain event comes only from a machine's move. Whether an operation may say `emits:`, and what that means for its commit and its proof, was K5's fork Q5. | design/decisions/K5-the-whole-shape.md:55-56,266-270,585,602,622<br>design/milestones.md:279<br>Aaron, relayed by the conductor session (18 November 2026): Q5 is B | open: decided, not built. Aaron chose B, on the operation: `emits:` is committed with the call's writes, only when the call succeeds and only when it wrote something. The proof checks it is there on success and absent on a refusal or a call that wrote nothing. Until M3.16 builds it, no such event exists | M3.16 |
+| `OPS-15` | An operation can't say it needs a person's approval. There is no field for it, so nothing tells the action to ask once, or the page's agent to confirm before it calls (`data-agent-confirm`); the second UI SDK spike found that mark has nothing to drive it. | packages/orthograph/src/modules/operations/types.ts:39-53<br>design/decisions/K24-ui-sdk.md:29 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:54-55 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:81 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:94 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>https://github.com/AaronAbuUsama/architect/pull/222 (open) | open | later |
 
 <details><summary>Closed: 1 fixed or superseded</summary>
 
@@ -1019,6 +1021,8 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `PRJ-27` | The keeper (time moves made as `system`, one Durable Object alarm per time move) is deferred with time. | design/frame/projections.md:379-395<br>design/frame/deployment.md:51<br>design/milestones.md:402 | open: decided in K23 section 3 (the keeper, a `system` principal; a per-thing timer through `Timers`, an alarm only in a real world) | M8.10 |
 | `PRJ-32` | Third-party projections (a package exporting `Blueprint.projection(...)`) are impossible today. | design/frame/projections.md:547<br>design/milestones.md:191 | open | M1.05 |
 | `PRJ-34` | `projections.md` section 3.12 and `python-sdk.md` still say the Python client is built from OpenAPI, but S32 decided it is built from the model. | design/frame/questions.md:430-431<br>design/frame/projections.md:414<br>design/frame/examples/python-sdk.md:45 | open | later |
+| `PRJ-46` | Secret and hidden fields have no page marks. The language already has them: `Blueprint.visibility.secret` and `.private(roles)` mark a value or a field and the model carries the mark, and `Blueprint.issued` marks a secret handed to its caller once (on goal/stage-1). Only the mapping onto the page's agent marks, `data-agent-secret` and `data-agent-hidden`, is missing; the second UI SDK spike settles it. | packages/orthograph/src/modules/visibility/types.ts:14-15<br>packages/compiler/src/modules/model/internal/describe.ts:29-39<br>packages/orthograph/src/modules/visibility/types.ts:32-38 (branch goal/stage-1 at 2a5716be)<br>design/decisions/K24-ui-sdk.md:29 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:54 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>https://github.com/AaronAbuUsama/architect/pull/222 (open) | open | later |
+| `PRJ-47` | No slice generates a typed piece per operation, read and move (a form, a list, a button) on UI SDK. ST1.01 builds hooks only, and ST1.04's three Plugged In screens are written by hand on them. Whether a screens output belongs in stage 1 or later is the second UI SDK spike's to answer. | design/milestones.md:97<br>design/milestones.md:100<br>design/decisions/K24-ui-sdk.md:82 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>design/decisions/K24-ui-sdk.md:115 (branch conductor/k24-ui-sdk at f259278f, PR #217)<br>https://github.com/AaronAbuUsama/architect/pull/222 (open) | open | later |
 
 <details><summary>Closed: 1 fixed or superseded</summary>
 
