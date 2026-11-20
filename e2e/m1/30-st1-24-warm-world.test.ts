@@ -12,12 +12,16 @@
 //   It starts no wrangler and no workerd process of its own. Whatever the world holds from an earlier run, or from the developer, it must
 //   not be in a run's way: reset before the run, or an isolated store for the run, its builder's call; the check asks only that a run
 //   never sees the last one's records, and that the verdict is the cold run's. A record that is stale (dev was stopped, or killed) is
-//   not used: prove starts a world of its own and says nothing of reusing one.
+//   not used: prove starts a world of its own and says nothing of reusing one. The collector `ortho dev` keeps writes to
+//   `.ortho/dev-telemetry/` (where `ortho telemetry trace` already looks), and the world's spans of a warm prove reach it: the check reads
+//   the operations a warm run really asked of the world from there, and wants those of a cold run of the same project, so a prove that
+//   prints the line and replays a cached verdict, or runs the journeys somewhere else, is caught.
 //
 // HOW IT IS JUDGED, and why. Wall-clock on the shared Mac is noisy, so the proof of "warm" is not the time. Three rows:
 //   1. HARD, structural: against `ortho dev`, a prove starts no wrangler or workerd process (a poll of `ps` every 120 ms for the whole run,
 //      minus the processes that were already running when it started: dev's own), says it is reusing dev's world, at dev's URL, and gives
-//      the verdict a cold run of the same project gave (every journey and step, by name).
+//      the verdict a cold run of the same project gave (every journey and step, by name), and the world's spans in dev's collector folder
+//      name the operations a cold run's did (the process poll also counts anything wrangler, workerd or miniflare under prove's own pid).
 //   2. HARD, isolation: a fixture journey (`a run leaves a record`: a person signs up with one fixed email, which a world refuses a second
 //      time) is run three times in a row against one warm world; each run must pass and each must reuse the world. A world that kept the
 //      last run's person would refuse the second.
@@ -25,7 +29,9 @@
 //      timed runs is under 6 s, wall-clock, process start to exit. Row 1 is what says the speed-up is real; this row says it is enough,
 //      and it is a row of its own so a loaded machine can be seen to be the cause. It runs only if the warm-up reused dev's world.
 // Guards that pass today and must keep passing: a handler edited between two warm runs is what the next run judges (its verdict is the
-// cold run's on the same edit), and a prove after `ortho dev` has stopped starts a world of its own and passes.
+// cold run's on the same edit), a prove after `ortho dev` has stopped, or been killed (its record left behind), starts a world of its
+// own, says nothing of reusing one, and passes. Not planted: a reset that clears only some of a world's stores. The fixture is a
+// sign-up, which the person's store refuses; a build that resets less than the world holds is for its own tests and for the review.
 //
 // Red today on one reason: `ortho prove` ignores `ortho dev` and starts a world of its own ("prove did not say it was reusing the world"
 // and "started wrangler or workerd processes of its own"), so rows 1 to 3 fail. Controls, true today: the cold run is the reference;
@@ -38,7 +44,7 @@ import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { cli, copyOf, nothingRunning, acme } from "../layer1/support.ts";
 import { freePorts } from "../ports.ts";
-import { edit, prove, worldProcesses, type Proved, type Report } from "./prove-speed.ts";
+import { edit, prove, proveWarm, worldProcesses, worldProcessesUnder, DEV_FOLDER, type Proved, type Report } from "./prove-speed.ts";
 
 const PORTS = freePorts("dev", "control");
 const SPEND = "src/allowance/spend.ts";
@@ -165,20 +171,22 @@ describe("30 ST1.24: a warm world", () => {
   }, 120_000);
 
   it("a second prove in a row against ortho dev starts no world of its own, says it is reusing dev's, and gives the cold run's verdict", async () => {
-    const first = await prove(warm.root);
+    const first = await proveWarm(warm.root);
     expect(reused(first, warm.url), `the first prove did not say it was reusing the world\n${why(first)}`).toBe(true);
-    const second = await prove(warm.root);
+    const second = await proveWarm(warm.root);
     console.log(`30: against ortho dev, the second prove took ${second.seconds.toFixed(1)} s (a cold one took ${cold.seconds.toFixed(1)} s)`);
     expect(reused(second, warm.url), `the second prove did not say it was reusing the world\n${why(second)}`).toBe(true);
     expect([...second.worlds], `prove started wrangler or workerd processes of its own\n${why(second)}`).toEqual([]);
     expect(second.status, why(second)).toBe(0);
+    expect([...second.called].sort(), `dev's collector (${DEV_FOLDER}) did not hear what a cold run's did`).toEqual([...cold.called].sort());
     expect(verdictOf(second.report)).toBe(verdictOf(cold.report));
   });
 
   it("a record one run plants is not in the next run's way: a fixed email signs up in each of three runs in a row", async () => {
     for (let run = 1; run <= 3; run++) {
-      const proved = await prove(warm.root);
+      const proved = await proveWarm(warm.root);
       expect(reused(proved, warm.url), `run ${run} did not reuse the world: the test would prove nothing\n${why(proved)}`).toBe(true);
+      expect([...proved.worlds], `run ${run} started a world of its own\n${why(proved)}`).toEqual([]);
       const left = proved.report?.journeys.find((j) => j.name === "a run leaves a record");
       expect([run, left?.verdict, left?.steps.map((s) => s.verdict)], why(proved)).toEqual([run, "pass", ["pass"]]);
       expect(verdictOf(proved.report), `run ${run}`).toBe(verdictOf(cold.report));
@@ -186,11 +194,11 @@ describe("30 ST1.24: a warm world", () => {
   });
 
   it("(soft) the faster of two timed prove runs, after a warm-up, finishes in under 6 s", async () => {
-    const warmUp = await prove(warm.root);
+    const warmUp = await proveWarm(warm.root);
     expect(reused(warmUp, warm.url), `nothing is warm, so there is nothing to time\n${why(warmUp)}`).toBe(true);
     const times: Array<number> = [];
     for (let i = 0; i < 2; i++) {
-      const timed = await prove(warm.root);
+      const timed = await proveWarm(warm.root);
       expect(timed.status, why(timed)).toBe(0);
       times.push(timed.seconds);
     }
@@ -218,6 +226,23 @@ describe("30 guards: true today, and the warm path must keep them true", () => {
       expect(verdictOf((await prove(warmCopy.root)).report)).toBe(verdictOf(cold.report));
     } finally { await stopDev(dev.child); }
     nothingRunning(warmCopy.root);
+  });
+
+  it("after ortho dev was killed, leaving its record behind, prove starts a world of its own and says nothing of reusing one", async () => {
+    const copy = fresh();
+    const dev = await startDev(copy.root, PORTS.control);
+    process.kill(dev.child.pid!, "SIGKILL");
+    // Its wrangler and workerd are left running: stop each by pid (they name this project's temporary folder, and nothing else's).
+    for (const line of [...worldProcesses(copy.root), ...worldProcessesUnder(dev.child.pid!)]) {
+      try { process.kill(Number(line.split(/\s+/)[0]), "SIGTERM"); } catch { /* already gone */ }
+    }
+    for (let i = 0; i < 40 && worldProcesses(copy.root).length > 0; i++) await new Promise((r) => setTimeout(r, 250));
+    for (const line of worldProcesses(copy.root)) { try { process.kill(Number(line.split(/\s+/)[0]), "SIGKILL"); } catch { /* already gone */ } }
+    const proved = await prove(copy.root);
+    expect(proved.status, why(proved)).toBe(0);
+    expect(proved.out).not.toMatch(REUSING);
+    expect(proved.worlds.size, "prove should have started a world of its own").toBeGreaterThan(0);
+    nothingRunning(copy.root);
   });
 
   it("after ortho dev has stopped, prove starts a world of its own, says nothing of reusing one, and passes", async () => {

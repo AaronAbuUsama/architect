@@ -28,22 +28,34 @@
 //   proven, a failure is not (the next --changed reruns it), and what it skipped keeps its record, so a second --changed straight
 //   after, with nothing changed, runs 0 of the journeys and exits 0.
 //
-// HOW IT IS JUDGED. Each row plants one change in a copy of acme (a comment in a handler, a number in a declaration, a step's title in a
-// journey, a line in the config, a new helper file), seeded with the record a full prove made in an earlier copy, then asserts the EXACT
-// set of journeys rerun and the exact set named skipped, against sets worked out from `generated/model/model.json` (`calling`), never
-// from prove's output. A prove that runs everything fails each row but the two fall-backs; one that runs nothing fails each row that
-// has a journey to rerun; one that is one journey off fails the same way; the controls below plant each of those into the judge.
+// HOW IT IS JUDGED. Each row plants one change in a copy of acme, seeded with the record a full prove made in an earlier copy, then
+// asserts the EXACT set of journeys rerun and the exact set named skipped, against sets worked out from `generated/model/model.json`
+// (`calling`, `standingOn`), never from prove's output: a comment in a handler (spend, grant, revoke), a number in a read's
+// declaration, a sentence in an operation's, a comment in a journey, a comment in a starting world (one that another is made
+// from too), and, for a file the map cannot place, a line in the config or package.json, a new helper, and an existing helper
+// edited and deleted. Comments differ in their words every time, so nothing can be keyed on them. Two changes at once are the
+// union; a placeable change beside one it cannot place falls back; a second run straight after a rerun runs none; a failing change
+// is rerun until it passes. Besides prove's own report, each run is judged from what it recorded elsewhere: every journey is
+// reported step by step as the model declares them, the ones that fail are the ones that must, and the operations the collector
+// heard (`.ortho/prove-telemetry`, which prove empties at the start of a run) are within what the journeys it ran call and
+// include everything their starting worlds make. A prove that runs everything fails each row but the fall-backs; one that runs
+// nothing fails each row that has a journey to rerun; one that is one journey off, or the right count of the wrong ones, fails the
+// same way; the controls plant each of those into the judge (and the world run for a skipped journey, the steps left out, a journey
+// that fails where it should pass).
+//
+// Not planted here, and left to the builder's own tests and the review: a change only an eval catches (what a skipped operation's
+// evals judged keeps its record until what it rests on changes), and a second project.
 //
 // Red today on one reason only: `--changed` is an unrecognized flag, a usage error (exit 1, "Unrecognized flag: --changed in command
 // ortho prove"), so no report is written. Controls, true today: the full prove and the record it writes; the sets, from the model; the
-// judge accepting a right run and refusing every wrong one; a record made in one folder holding in another (`ortho impact`: stale none);
-// each plant seen by `ortho impact` (a handler, a declaration, a journey) or, for the two files the map cannot place, not seen by it.
-// No Docker. Each row starts workerd worlds of its own through prove, on ports from the OS.
+// planted failure is real; the judge accepting a right run and refusing every wrong one; a record made in one folder holding in
+// another (`ortho impact`: stale none); each plant seen by `ortho impact` (a handler, a declaration) or, for a journey (its `sourceHash` is the model's), the
+// map cannot place, not seen by it. No Docker. Each row starts workerd worlds of its own through prove, on ports from the OS.
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { acme, copyOf, nothingRunning, run } from "./support.ts";
-import { append, calling, edit, journeyNames, modelOf, perfect, problems, prove, type Expected, type JourneyMap, type Proved } from "./prove-speed.ts";
+import { append, calling, edit, journeyNames, modelOf, perfect, problems, prove, standingOn, type Expected, type JourneyMap, type Proved } from "./prove-speed.ts";
 
 const RECORD = ".ortho/evidence/proven.json";
 const SPEND = "src/allowance/spend.ts";
@@ -53,6 +65,12 @@ const REVOKE = "blueprint/things/allowance/verbs/revoke.ts";
 const JOURNEY = "journeys/outsider-cannot-revoke.ts";
 const CONFIG = "ortho.config.ts";
 const HELPER = "src/allowance/format.ts";
+/** A helper no handler imports, in every copy and in the record: edited and deleted below. HELPER is the one that is new. */
+const MONEY = "src/allowance/money.ts";
+const MONEY_SOURCE = "export const money = (n: bigint) => `${n}`;\n";
+const PACKAGE = "package.json";
+const WORLD = "blueprint/starting-worlds";
+const REVOKE_HANDLER = "src/allowance/revoke.ts";
 
 const SPEND_JOURNEYS = ["revoke then spend", "spend twice with one request", "spend within an allowance"];
 const FAILING = ["spend twice with one request", "spend within an allowance"];
@@ -71,17 +89,20 @@ afterAll(() => baseline?.remove());
 const seeded = (withRecord = true) => {
   const copy = copyOf(acme);
   copies.push(copy);
+  writeFileSync(join(copy.root, MONEY), MONEY_SOURCE);
   if (withRecord) {
     mkdirSync(dirname(join(copy.root, RECORD)), { recursive: true });
     writeFileSync(join(copy.root, RECORD), record);
   }
   return copy.root;
 };
-const plantHandler = (root: string) => append(root, SPEND, "\n// planted: a comment changes the file's bytes, not what the handler does\n");
-const plantGrant = (root: string) => append(root, GRANT, "\n// planted: a comment changes the file's bytes, not what the handler does\n");
+/** A comment changes a file's bytes, not what it does; its words differ each time, so nothing can be keyed on them. */
+const note = () => `\n// planted ${Math.random().toString(36).slice(2)}: a comment changes the bytes, not what the code does\n`;
+const plantHandler = (root: string) => append(root, SPEND, note());
+const plantGrant = (root: string) => append(root, GRANT, note());
 const plantRead = (root: string) => edit(root, GET, (t) => t.replace('"50 millis"', '"60 millis"'));
 const plantOperation = (root: string) => edit(root, REVOKE, (t) => t.replace("Nothing more can be spent from it.", "Nothing more can be spent from it, ever."));
-const plantJourney = (root: string) => edit(root, JOURNEY, (t) => t.replace("bob is refused and the handler never runs", "bob is refused, and the handler never runs"));
+const plantJourney = (root: string) => append(root, JOURNEY, note());
 const breakSpend = (root: string) => edit(root, SPEND, (t) => t.replace("return { remaining: remaining - amount }", "return { remaining }"));
 
 const expecting = (ran: ReadonlyArray<string>, over: Partial<Expected> = {}): Expected => ({ ran, fellBackOn: null, all, map, passes: true, ...over });
@@ -89,6 +110,7 @@ const judged = (proved: Proved, want: Expected) => expect(problems(proved, want)
 
 beforeAll(async () => {
   baseline = copyOf(acme);
+  writeFileSync(join(baseline.root, MONEY), MONEY_SOURCE);
   first = await prove(baseline.root);
   map = modelOf(baseline.root);
   all = journeyNames(map);
@@ -127,7 +149,7 @@ describe("29 controls: the instruments, and what today's prove already does", ()
       ["none", expecting([])],
       ["fall back, a file", expecting(all, { fellBackOn: [CONFIG] })],
       ["fall back, no record", expecting(all, { fellBackOn: [], reason: /no record of an earlier prove/ })],
-      ["a failing run", expecting(SPEND_JOURNEYS, { passes: false })],
+      ["a failing run", expecting(SPEND_JOURNEYS, { passes: false, fails: FAILING })],
     ];
     for (const [row, want] of rows) {
       const right = perfect(want);
@@ -155,6 +177,13 @@ describe("29 controls: the instruments, and what today's prove already does", ()
         wrong("no reason", { ...right, report: { ...right.report, changed: { ...right.report.changed, fellBack: { reason: "", files: [...want.fellBackOn] } } } });
         wrong("the file is not named", { ...right, report: { ...right.report, changed: { ...right.report.changed, fellBack: { reason: right.report.changed.fellBack!.reason, files: ["some/other/file.ts"] } } } });
         wrong("it skipped some as well", { ...right, out: `${right.out}\njourney ${all[0]} skipped: nothing it calls changed` });
+      }
+      if (want.ran.length > 0) {
+        const first = right.report.journeys[0]!;
+        const withFirst = (journey: typeof first) => ({ ...right, report: { ...right.report, journeys: [journey, ...right.report.journeys.slice(1)] } });
+        wrong("a journey reported with no steps", withFirst({ ...first, steps: [] }));
+        wrong("a journey reported with another's steps", withFirst({ ...first, steps: [{ name: "a step", verdict: first.verdict }] }));
+        wrong("a journey that fails where it should pass, or passes where it should fail", withFirst({ ...first, verdict: first.verdict === "pass" ? "fail" : "pass" }));
       }
       wrong("a wrong exit status", { ...right, status: want.passes ? 1 : 0 });
       wrong("passed says otherwise", { ...right, report: { ...right.report, passed: !want.passes } });
@@ -258,6 +287,53 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     nothingRunning(root);
   });
 
+  it("a change to revoke.ts proves the 2 journeys that call revoke, whatever the words of the planted comment", async () => {
+    const root = seeded();
+    append(root, REVOKE_HANDLER, note());
+    const proved = await prove(root, "--changed");
+    judged(proved, expecting(calling(map, "allowance.revoke")));
+    nothingRunning(root);
+  });
+
+  it("a changed starting world (`funded`) proves the 5 journeys that stand on it, not the ones that stand on `founded` alone", async () => {
+    const root = seeded();
+    append(root, `${WORLD}/funded.ts`, note());
+    const proved = await prove(root, "--changed");
+    judged(proved, expecting(standingOn(map, "funded")));
+    expect(proved.report?.changed?.rerun).toHaveLength(5);
+    nothingRunning(root);
+  });
+
+  it("a changed starting world one other is made from (`founded`) proves every journey that stands on it, through `funded` and `invited`: 9", async () => {
+    const root = seeded();
+    append(root, `${WORLD}/founded.ts`, note());
+    const proved = await prove(root, "--changed");
+    judged(proved, expecting(standingOn(map, "founded")));
+    expect(proved.report?.changed?.rerun).toHaveLength(9);
+    nothingRunning(root);
+  });
+
+  it("an edit to a helper no handler imports (in the record, so it is a change, not a new file) proves all 11 and names it", async () => {
+    const root = seeded();
+    append(root, MONEY, note());
+    judged(await prove(root, "--changed"), expecting(all, { fellBackOn: [MONEY] }));
+    nothingRunning(root);
+  });
+
+  it("a deleted helper (in the record) proves all 11 and names it", async () => {
+    const root = seeded();
+    rmSync(join(root, MONEY));
+    judged(await prove(root, "--changed"), expecting(all, { fellBackOn: [MONEY] }));
+    nothingRunning(root);
+  });
+
+  it("a changed package.json (a file the map cannot place) proves all 11 and names it", async () => {
+    const root = seeded();
+    append(root, PACKAGE, "\n");
+    judged(await prove(root, "--changed"), expecting(all, { fellBackOn: [PACKAGE] }));
+    nothingRunning(root);
+  });
+
   it("two changes at once prove the union of what each touches, not the first one's", async () => {
     const root = seeded();
     plantHandler(root);
@@ -293,10 +369,10 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     // `revoke then spend` calls spend but never reaches its handler (the machine refuses first), so the break fails two of the three.
     // A record keyed by hashes may rerun the failing two or all three on the next run: both are right; running none, or others, is not.
     const either = (proved: Proved, passes: boolean) => {
-      const ways = [FAILING, SPEND_JOURNEYS].map((ran) => problems(proved, expecting(ran, { passes })));
+      const ways = [FAILING, SPEND_JOURNEYS].map((ran) => problems(proved, expecting(ran, { passes, fails: FAILING })));
       expect(ways.some((found) => found.length === 0), `${proved.out.slice(-300)}\n${JSON.stringify(ways)}`).toBe(true);
     };
-    judged(await prove(root, "--changed"), expecting(SPEND_JOURNEYS, { passes: false }));
+    judged(await prove(root, "--changed"), expecting(SPEND_JOURNEYS, { passes: false, fails: FAILING }));
     either(await prove(root, "--changed"), false);
     writeFileSync(join(root, SPEND), readFileSync(join(acme, SPEND), "utf8"));
     either(await prove(root, "--changed"), true);
