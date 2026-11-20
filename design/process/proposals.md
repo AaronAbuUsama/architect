@@ -495,4 +495,6 @@ And the Scribe logs a proposal "applied" with where it reached: "on `main`; on `
 `m1` still lacks PR 130's guards.
 
 **Applies it:** the conductor. The Scribe's half is in this change.
-**Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169).
+**Applied, 20 November:** the conductor skill's "A process change lands everywhere work runs", [PR 169](https://github.com/AaronAbuUsama/architect/pull/169),
+widened to milestone branches (`m1` lacks PR 130's guards) and worded "within the hour, by its lead". On `main`;
+reaches `goal/stage-1` and `m1` when `main` is next merged into them.
