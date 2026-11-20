@@ -10,7 +10,7 @@ import type { EnvironmentsApi, Up } from "./types.ts";
 import { telemetryDir } from "./internal/collector.ts";
 import { environmentConfig, logbookOf, portalOf } from "./internal/config.ts";
 import { startLogbook } from "./internal/logbook.ts";
-import { choosePort, files, launchOnFreePort, reap, writePort } from "./internal/process.ts";
+import { choosePort, files, reap, writePort } from "./internal/process.ts";
 import { NAME, dirOf, failed, io, status } from "./internal/status.ts";
 import { verify } from "./internal/identity.ts";
 import { ensureSecrets } from "./internal/secrets.ts";
@@ -81,14 +81,14 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     });
     // The environment's sinks, read by name now and handed to its process alone: never in its config or its secrets file.
     const sinks = yield* Sinks.resolve({ sinks: environment.telemetry ?? [{ sink: "local" }], env: env ?? {} });
-    const launched = yield* launchOnFreePort((at) => Worlds.launch({
-      config: f.config, state: f.state, port: at, log: f.log, pidFile: f.pid, envFile: f.secrets, secretEnv: sinks.secretEnv, ready: "/_ortho/bundle",
-    }), dir, chosen, port !== undefined).pipe(
+    const launched = yield* Worlds.launch({
+      config: f.config, state: f.state, port: chosen, log: f.log, pidFile: f.pid, envFile: f.secrets, secretEnv: sinks.secretEnv, ready: "/_ortho/bundle",
+    }).pipe(
       Effect.tapError(() => reap(dir)),
       Effect.mapError((e) => failed(`${name} didn't start: ${e.message}`)),
     );
     return {
-      state: "up", name, url: launched.url, port: Number(new URL(launched.url).port), pid: launched.pid, revision: built.revision, sha256: built.sha256,
+      state: "up", name, url: launched.url, port: chosen, pid: launched.pid, revision: built.revision, sha256: built.sha256,
       ...(records ? { telemetry: telemetryDir(dir) } : {}),
       ...(otlp ? { collector: otlp } : {}),
       ...(sinks.notes.length > 0 ? { notes: sinks.notes } : {}),
