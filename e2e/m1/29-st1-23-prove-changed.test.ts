@@ -17,6 +17,9 @@
 //   A file of a mounted package (a plugin or adapter under node_modules, or linked) that an operation's steps reach counts as a change to
 //   that mount's operations: the journeys that call them rerun. Journeys are keyed by their file, not their name: two files that
 //   declare one name are two journeys, a change to one reruns that one, and the other is named skipped (the name is then in both lists).
+//   A handler may import from another operation's handler (a value it exports): a change to the imported file reruns the importer's
+//   journeys too, or proves everything. A change to a generated file (`generated/` is hashed) cannot be placed: it proves everything,
+//   names the file and never ends green with 0 journeys.
 //   Cannot tell: a changed, added or removed file that is none of those (ortho.config.ts, package.json, a helper in src/ no handler
 //   is known to import, any new file) or no record at all. Then it proves every journey and says why.
 //   Says, in text (stdout):
@@ -547,6 +550,90 @@ describe("29 ST1.23, two more false greens Codex found in the build: a mounted d
     const root = twinSeeded();
     append(root, JOURNEY, note());
     judged(await prove(root, "--changed"), withTwin(ORIGINAL_STEP));
+    nothingRunning(root);
+  });
+});
+
+describe("29 ST1.23, two more false greens the review found: a generated file, and a handler that imports another's", () => {
+  const rowCopies: Array<{ readonly remove: () => void }> = [];
+  afterEach(() => { for (const copy of rowCopies.splice(0)) copy.remove(); });
+
+  // (1) generated/ is hashed (header), so a change there cannot be placed: everything, naming the file, and never a green with 0 journeys.
+  const GENERATED = "generated/server/main.ts";
+  const breakGenerated = (root: string) => append(root, GENERATED, '\nthrow new Error("planted: the generated server no longer starts");\n');
+
+  // (2) health's handler imports a value from grant's, on a project of its own (the other rows' handlers import nothing).
+  const IMPORTED = 'export const STATUS = "ok" as const;\n';
+  const HEALTH = "src/system/health.ts";
+  let importBase: ReturnType<typeof copyOf>;
+  let importRecord = "";
+  let importMap: JourneyMap;
+  const importerProject = () => {
+    const copy = copyOf(acme);
+    append(copy.root, GRANT, `\n${IMPORTED}`);
+    edit(copy.root, HEALTH, (t) => t.replace('import type { Handler }', 'import { STATUS } from "../allowance/grant.ts";\nimport type { Handler }').replace('{ status: "ok" as const }', "{ status: STATUS }"));
+    return copy;
+  };
+  const wantImporter = (over: Partial<Expected> = {}) =>
+    expecting([...new Set([...calling(importMap, "allowance.grant"), "health is up"])], { map: importMap, passes: false, fails: ["health is up"], ...over });
+  beforeAll(async () => {
+    importBase = importerProject();
+    const full = await prove(importBase.root);
+    expect(full.status, full.out.slice(-600)).toBe(0);
+    importRecord = readFileSync(join(importBase.root, RECORD), "utf8");
+    importMap = modelOf(importBase.root);
+  }, 600_000);
+  afterAll(() => importBase?.remove());
+
+  it("control: a full prove cannot run the world once a throw is appended to the generated server, and passes before it", async () => {
+    const root = seeded(false);
+    breakGenerated(root);
+    const full = await prove(root);
+    expect(full.status, full.out.slice(-300)).not.toBe(0);
+    expect(full.report?.passed).not.toBe(true);
+    nothingRunning(root);
+  });
+
+  it("control: health imports its status from grant.ts and passes; changing the value fails 'health is up' alone, though only grant.ts changed", async () => {
+    expect(importMap.journeys).toBeDefined();
+    const copy = importerProject();
+    rowCopies.push(copy);
+    edit(copy.root, GRANT, (t) => t.replace(IMPORTED, 'export const STATUS = "down" as never;\n'));
+    const full = await prove(copy.root);
+    expect(full.report!.journeys.filter((j) => j.verdict !== "pass").map((j) => j.name)).toEqual(["health is up"]);
+    nothingRunning(copy.root);
+  });
+
+  it("control: the judge refuses a run that skips the importer", () => {
+    const want = wantImporter();
+    expect(want.ran).toHaveLength(7);
+    expect(problems(perfect(want), want)).toEqual([]);
+    expect(problems(perfect(wantImporter({ ran: calling(importMap, "allowance.grant") })), want)).not.toEqual([]);
+  });
+
+  it("a change to a generated file (the server's main.ts, which a full prove can no longer run) proves all 11 and names the file; it is never a green with 0 journeys", async () => {
+    const root = seeded();
+    breakGenerated(root);
+    const proved = await prove(root, "--changed");
+    expect(proved.out, "it must say it cannot place the generated file and proves everything").toMatch(new RegExp(`^prove --changed: proving all 11 journeys: .*cannot place.*${GENERATED.replace(/[./]/g, "\\$&")}`, "m"));
+    expect(proved.out).not.toMatch(/proving 0 of/);
+    expect(proved.status, proved.out.slice(-300)).not.toBe(0);
+    expect(proved.report?.passed).not.toBe(true);
+    nothingRunning(root);
+  });
+
+  it("a change to a value one handler exports and another imports (grant.ts, which health.ts imports) reruns the importer's journey, 'health is up', or proves all", async () => {
+    const root = (() => {
+      const copy = importerProject();
+      rowCopies.push(copy);
+      mkdirSync(dirname(join(copy.root, RECORD)), { recursive: true });
+      writeFileSync(join(copy.root, RECORD), importRecord);
+      return copy.root;
+    })();
+    edit(root, GRANT, (t) => t.replace(IMPORTED, 'export const STATUS = "down" as never;\n'));
+    const proved = await prove(root, "--changed");
+    const ways = [wantImporter(), expecting(all, { map: importMap, passes: false, fails: ["health is up"], fellBackOn: [GRANT] })].map((want) => problems(proved, want));
+    expect(ways.some((found) => found.length === 0), `${proved.out.slice(-300)}\n${JSON.stringify(ways)}`).toBe(true);
     nothingRunning(root);
   });
 });
