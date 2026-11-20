@@ -42,13 +42,28 @@ check 29, where the builder reads them.
 4. **A git base can come later, on the same record's shape.** CI wants "since the base branch" (A3, verdict reuse, keyed by hashes);
    that is a different key and it is in `design/later.md`. Nothing here forecloses it.
 
+## The files the record hashes, and the ones that cannot be placed
+
+The record keeps a content hash, by relative path, of every file that can change a proof: everything under `blueprint/`, `src/`
+and `journeys/`, and `ortho.config.ts`, `package.json`, `pnpm-lock.yaml`, `tsconfig*.json`, `.env` and `.env.*`. The model places a
+file when it is an operation's handler or declaration, a journey, or a starting world. Any other changed, added or removed file in
+that set cannot be placed, and `--changed` proves every journey and names the file. The check plants the config, `package.json`, the
+lockfile, `tsconfig.json`, an env file, a new helper and a helper edited and deleted.
+
+## What a rerun owes besides the journeys
+
+A rerun judges the evals of what changed again (a summary line `<operation> 9 evals ✔` or `<operation> n of 9 evals ✘` for each),
+since an eval can fail where no journey does: the check drops the log that says why `grant` refused, and expects the six journeys to
+pass, `allowance.grant explainability ✘`, and exit 1. It also owes proof that it ran what it reports: the collector hears each
+operation at least as often as the rerun journeys' steps that reach a handler (a read, and a step refused before its span, are
+left out, `refusedBeforeSpan`), and every step's verdict agrees with its journey's.
+
 ## What the check pins, and what it leaves
 
 Pinned: the exact set rerun and the exact set named skipped, from the model; a fall-back that names the file it could not place
 or says there is no record; the union of two changes; that a failing change is rerun until it passes; that a second run with
 nothing changed runs none. Left to the builder: how the record keeps its file hashes, the wording after the pinned prefixes, and
-how evals are judged for a subset (the check asks only that a run whose journeys pass exits 0, and that what it skipped keeps its
-recorded verdicts).
+how evals are judged for a subset beyond the lines above (what it skipped keeps its recorded verdicts).
 
 A journey change reruns that journey alone, though the operations it calls are called by others (the model's `sourceHash` says
 which file changed, and nothing else rests on a journey's text). Today's `ortho impact` is coarser here and marks three operations
@@ -66,3 +81,7 @@ by what `ortho dev` leaves in `.ortho/`, and a stale record (dev stopped) is ign
 
 Reset or isolate is the builder's call; the check asks that a run never sees the last one's records, and that a handler edited
 between two warm runs is what the next run judges (a guard that passes today and must keep passing).
+
+## Supersedes
+
+- design/milestones.md (ST1.23): "changed since a base" → "changed since the last proof's record"

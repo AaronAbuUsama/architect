@@ -23,6 +23,9 @@
 //                                                                      by its path from the project root, or is "no record of an earlier prove")
 //   and in the report (--report, --json), beside the existing fields (`journeys` holds only the journeys it ran), a new section
 //     "changed": { "base": "last proof", "rerun": [<names>], "skipped": [<names>], "fellBack": null | { "reason": <why>, "files": [<paths>] } }
+//   It judges again the evals of each operation whose handler or declaration changed, with the summary line prove prints for them
+//   (`<operation> 9 evals ✔ ...` or `<operation> n of 9 evals ✘ ...`) and the failing eval's own line (`allowance.grant explainability ✘ ...`),
+//   and reports each journey step by step with each step's verdict agreeing with its journey's.
 //   Exit and verdict: 0 and `passed` when every journey it ran passed and the evals it judges pass (what it skipped keeps its recorded
 //   verdicts, which stand until what they rest on changes). 1 otherwise. After a run it records what it ran: a pass is recorded as
 //   proven, a failure is not (the next --changed reruns it), and what it skipped keeps its record, so a second --changed straight
@@ -32,8 +35,8 @@
 // asserts the EXACT set of journeys rerun and the exact set named skipped, against sets worked out from `generated/model/model.json`
 // (`calling`, `standingOn`), never from prove's output: a comment in a handler (spend, grant, revoke), a number in a read's
 // declaration, a sentence in an operation's, a comment in a journey, a comment in a starting world (one that another is made
-// from too), and, for a file the map cannot place, a line in the config or package.json, a new helper, and an existing helper
-// edited and deleted. Comments differ in their words every time, so nothing can be keyed on them. Two changes at once are the
+// from too), and, for a file the map cannot place, a line in the config, package.json, the lockfile, tsconfig.json or an env file, a new helper, and an existing helper
+// edited and deleted. A change only an eval reads (the log that says why grant refused) passes every journey and fails an eval. Comments differ in their words every time, so nothing can be keyed on them. Two changes at once are the
 // union; a placeable change beside one it cannot place falls back; a second run straight after a rerun runs none; a failing change
 // is rerun until it passes. Besides prove's own report, each run is judged from what it recorded elsewhere: every journey is
 // reported step by step as the model declares them, the ones that fail are the ones that must, and the operations the collector
@@ -43,8 +46,7 @@
 // same way; the controls plant each of those into the judge (and the world run for a skipped journey, the steps left out, a journey
 // that fails where it should pass).
 //
-// Not planted here, and left to the builder's own tests and the review: a change only an eval catches (what a skipped operation's
-// evals judged keeps its record until what it rests on changes), and a second project.
+// Not planted here, and left to the builder's own tests and the review: a second project.
 //
 // Red today on one reason only: `--changed` is an unrecognized flag, a usage error (exit 1, "Unrecognized flag: --changed in command
 // ortho prove"), so no report is written. Controls, true today: the full prove and the record it writes; the sets, from the model; the
