@@ -116,7 +116,7 @@ cell's `path:line` and what it means are in its lane's section below.
 | 13 | [Runs on the device (runs: "client")](#13-device) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ~ |
 | 14 | [Invariants (unique rules, G5)](#14-invariant) | ~ | ✗ | ~ | ~ | ~ | ✗ | ~ | ✗ | ✗ |
 
-**In numbers:** 52 ✓, 37 ~ and 37 ✗ of 126 (the 117 of the audit thirteen rows, plus invariants: 5 ~ and 4 ✗). The audiences rule (below, "Who each block is for") makes 20 cards not needed (5 of them ✓ today) and 4 absence checks, which leaves 50 cards to build. By column, ✓ out of 13: model 12, api 6, server 11, sdk 5, cli 4, mcp 6, docs 4, portal 0, telemetry 4.
+**In numbers:** 52 ✓, 37 ~ and 37 ✗ of 126 (the audit's thirteen lanes keep their 52 ✓, 32 ~ and 33 ✗ of 117; the invariant lane adds 5 ~ and 4 ✗). The audiences rule (below, "Who each block is for") makes 20 cards not needed (5 of them ✓ today) and 4 absence checks, which leaves 59 cards to build (the 50 of the audit's lanes and the invariant lane's nine, none of them ✓). By column, ✓ out of 13: model 12, api 6, server 11, sdk 5, cli 4, mcp 6, docs 4, portal 0, telemetry 4.
 
 **Where this differs from the audit.** The audit's grid (K12) was read from a wider sweep; this one is read cell
 by cell against each card's own green, so some cells moved. Up: the CLI and MCP refusal cards (both print the code,
@@ -574,7 +574,7 @@ The nine columns are not nine independent results. They form three tiers, and a 
 
 **The source tier: model.** Every other column is generated from the model, so the model card is the floor of its lane.
 A building block missing from the model is missing everywhere, and no other card in the lane can be green before it.
-The model column is the only one that is green in all thirteen lanes today.
+The model column is the only one that is green in the thirteen lanes of the audit today (the invariant lane's model card is ~).
 
 **The surfaces tier: api, server, sdk, cli, mcp.** The SDK, CLI and MCP are all generated from the one API declaration
 (`packages/generators/src/modules/render/internal/sdk.ts`, `cli.ts` and `mcp.ts` each import the generated API), so a
@@ -644,7 +644,7 @@ and each card's evidence run by hand.
 ## Hill-climb order
 
 No lane can be fully green before M1.13, because every lane's end state is a portal view and the portal column is ✗
-or ~ in all thirteen today (its wire drops most of the model, and no trace source reaches it:
+or ~ in the thirteen lanes of the audit today (its wire drops most of the model, and no trace source reaches it:
 `packages/portal/src/modules/wire/service.ts:6-9`). So the climb is: build the evidence path once on the lane that
 needs least besides it, then let every lane after reuse it.
 
@@ -682,6 +682,8 @@ them on the rows in one change (this record does not edit `milestones.md`):
 device operation's spans reach the environment's sink, ledger `LAH-02`, before ST2.03).
 
 ### 14. invariant
+
+**Waiting for ST1.19.** No journey touches an invariant card yet, so none is switched on in `e2e/grid/switched-on.json` and none runs; Plugged In's claim journey touches them when ST1.19 declares its rules, and their pairs go on `e2e/grid/expected-red.json` then.
 
 **Invariants (unique rules, G5).** A thing's rule that stays true among many records of it, declared once in `things/<thing>/invariants.ts` with `Blueprint.invariant.unique(field or tuple, { while, refuse, description })`. The runtime refuses for the handler; every output says the rule. Joined the grid on 20 November 2026 (ST1.10), graded from `goal/stage-1`.
 
