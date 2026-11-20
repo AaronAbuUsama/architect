@@ -36,7 +36,7 @@ page by the handle's name in its payload (`plugged-in link add --handle aaron --
 any page until ST1.04 adds sign-in and the owner roles (`handleOwner`, `linkOwner`, as Codex wrote them). That is the
 honest shape of "stage 1 without sign-in", and it keeps M1.41's loop to the basics K13 asked for.
 
-**Exits follow K16 g (M1.47):** 5 to 125, unique per thing including the machine's `notFrom`, and none of 0 to 4.
+**Exits follow K16 g (M1.47):** 5 to 125 (5 to 119 since [G3](G3-runtime-exits.md)), unique per thing including the machine's `notFrom`, and none of 0 to 4.
 
 | Thing (code) | Refusal | Exit |
 |---|---|---|
