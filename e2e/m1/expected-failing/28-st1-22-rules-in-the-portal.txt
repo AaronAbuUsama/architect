@@ -1,10 +1,4 @@
-# Expected-failing M1 checks: the ratchet's list (see e2e/ratchet/README.md).
-# One key per line, `m1/NN-file.test.ts > describe > test` (a file that fails to load is the file alone; a hook that throws is `file > describe > [suite error]` or `file > [file error]`).
-# Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
-# delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
-# Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
-# K19 (19 November 2026), the checks author's change: check 21 reads the served portal through Chromium, and checks 26 and 27 are new. 9 keys added (3 in check 21, 4 in 26, 2 in 27), 1 renamed (21 F). Each fails with a message naming K19.
-# ST1.22 (G5's portal screens), the checks author's change: check 28's eight red tests, two variants of the wire times four calls. They pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
+# ST1.22 (G5's portal screens): two variants of the wire times four calls; they pass when ST1.17 puts `invariants` on the wire and ST1.22 draws them.
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > a thing's page has a Rules section under its lifecycle, one row per rule of the model and none for a thing with no rules
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > each rule says one sentence, generated from its model or its own description verbatim
 m1/28-st1-22-rules-in-the-portal.test.ts > 28 ST1.22: Plugged In's rules as they stand (three one-line unique rules) > every refusal a rule owns reads as that sentence and links to its rule's row, on every page that shows one

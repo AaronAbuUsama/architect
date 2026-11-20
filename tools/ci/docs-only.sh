@@ -2,13 +2,13 @@
 # Does a pull request change only docs? CI's `changes` job runs this and, when it does, skips the layer gates
 # (e2e-layer1, e2e-layer2) and prove-tests through a job-level `if:`; a skipped job counts as passed where it is required,
 # and the `check` gate accepts the skipped shards only on this flag (design/decisions/CI-docs-fast-path.md, CI-speed.md).
-# check-static and `e2e-m0` always run: they lint the docs, total the e2e READMEs, run canon:check over the design docs
+# check-static and `e2e-m0` always run: they lint the docs, run canon:check over the design docs
 # and the supersedes guard.
 #   tools/ci/docs-only.sh <base> <head>
 # Prints `docs_only=true` or `docs_only=false` (append it to $GITHUB_OUTPUT) and exits 0; any git failure exits non-zero,
 # so a broken diff never skips a gate.
 # Docs-only: every changed path is under design/, or is a *.md file outside packages/, e2e/ and examples/ (a module's
-# README.md is one of its six slots, and the e2e READMEs carry generated totals). An empty diff is not docs-only.
+# README.md is one of its six slots, and an e2e README is part of the checks). An empty diff is not docs-only.
 set -euo pipefail
 
 base="${1:?usage: docs-only.sh <base> <head>}"

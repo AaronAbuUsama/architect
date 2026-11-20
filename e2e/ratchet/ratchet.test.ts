@@ -1,5 +1,9 @@
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { compare, fileKey, ok, outcomes, parseList, type Report } from "./ratchet.ts";
+import { compare, fileKey, ok, outcomes, parseFolder, parseList, type Report } from "./ratchet.ts";
 
 const root = "/work/e2e";
 const test = (ancestorTitles: ReadonlyArray<string>, title: string, status: string) => ({ ancestorTitles, title, status });
@@ -72,6 +76,19 @@ describe("parseList", () => {
   });
 });
 
+describe("parseFolder", () => {
+  it("reads every file's entries, and names an entry filed under another check's name", () => {
+    const files = [
+      { name: "01-a.txt", text: "# why\nm1/01-a.test.ts > t\nm1/01-a.test.ts\n" },
+      { name: "02-b.txt", text: "m1/02-b.test.ts > u\nm1/01-a.test.ts > misplaced\n" },
+    ];
+    const folder = parseFolder(files);
+    expect(folder.keys).toEqual(["m1/01-a.test.ts > t", "m1/01-a.test.ts", "m1/02-b.test.ts > u", "m1/01-a.test.ts > misplaced"]);
+    expect(folder.misfiled).toEqual(["02-b.txt: m1/01-a.test.ts > misplaced"]);
+    expect(parseFolder([]).keys).toEqual([]);
+  });
+});
+
 describe("compare", () => {
   const list = ["m1/01-a.test.ts > mounting > wires", "m1/02-b.test.ts"];
   it("passes when the failing set equals the list", () => {
@@ -111,4 +128,15 @@ describe("compare", () => {
     const skipped = report({ name: "/work/e2e/m1/01-a.test.ts", status: "passed", assertionResults: [test(["mounting"], "wires", "skipped")] });
     expect(compare(skipped, ["m1/01-a.test.ts > mounting > wires"], root).notRun).toEqual(["m1/01-a.test.ts > mounting > wires"]);
   });
+});
+
+describe("check.ts with a missing expected-failing folder (git drops an emptied one)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ratchet-"));
+  const run = (status: string) => {
+    const reportPath = join(dir, `${status}.json`);
+    writeFileSync(reportPath, JSON.stringify({ testResults: [{ name: join(dir, "m1/01-a.test.ts"), status, assertionResults: [{ ancestorTitles: [], title: "t", status }] }] }));
+    return spawnSync("node", [join(import.meta.dirname, "check.ts"), reportPath, join(dir, "absent")], { encoding: "utf8" });
+  };
+  it("exits 0 when every test passes", () => { expect(run("passed").status).toBe(0); });
+  it("still exits 1 when a test fails and nothing is listed", () => { expect(run("failed").status).toBe(1); });
 });
