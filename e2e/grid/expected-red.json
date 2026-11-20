@@ -79,48 +79,6 @@
       "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
-      "cell": "journey.docs",
-      "subject": "a name is claimed once",
-      "reason": "generated/docs/handle/claim.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "a person claims a page and shares it",
-      "reason": "generated/docs/handle/claim.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "a stranger cannot edit a page",
-      "reason": "generated/docs/link/add.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "add, order and remove a link",
-      "reason": "generated/docs/profile/get.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "anyone reads a public page",
-      "reason": "generated/docs/handle/resolve.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "claim a handle",
-      "reason": "generated/docs/handle/resolve.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
-      "cell": "journey.docs",
-      "subject": "release a handle",
-      "reason": "generated/docs/link/add.md has no \"Worked examples\" section",
-      "waitsOn": "M1.13 (proposed addition) — packages/generators/src/modules/render/internal/docs.ts"
-    },
-    {
       "cell": "journey.portal",
       "subject": "a name is claimed once",
       "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/handle.claim shows no proof from the journey \"a name is claimed once\"",

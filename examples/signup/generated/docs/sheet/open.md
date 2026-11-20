@@ -34,6 +34,14 @@ Put up a sheet with a number of places.
 
 (none)
 
+## Worked examples
+
+### put up a sheet
+
+Starts from an empty world.
+
+- **a visitor puts up a sheet with 3 places.** `visitor` (anyone) calls and sends title `Book club`, places `3`, and gets back an answer matching `^sht_`.
+
 ## How to call
 
 ```sh
