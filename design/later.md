@@ -41,6 +41,18 @@ belongs to, and why it waits.
   naming until then.
 - **An intent key on actors** (K21): `idempotent: { by }` for things that `lives: "actor"` waits with idempotency by
   request on actors, below.
+- **Money as a value** (ledger THI-07; a known gap, Aaron, 20 November 2026): a signed or fixed-point amount that knows
+  its currency or token and its decimals, can go negative in a ledger, and means the same in Effect and in Solidity.
+  Capxul's Payment, Budget, Invoice and Ledger entry each need one. Waits for a design pass; no slice until then.
+- **Named value kinds** (ledger THI-08, K24): a web address, a pattern, a choice, yes or no, carried into the model so
+  every output can tell them apart and a form picks the right input. Waits for a design pass, beside THI-02.
+- **Approval on an operation** (ledger OPS-15, K24): a declared mark that the action asks once and the page's agent
+  confirms before calling. Waits for a design pass; the second UI SDK spike (PR #222) shows what drives it.
+- **Page marks for secret and hidden fields** (ledger PRJ-55, K24): the language has secret, private and issued;
+  mapping them onto the page agent's marks waits for the second UI SDK spike (PR #222).
+- **Generated typed pieces** (ledger PRJ-56, K24): a form per operation, a list per read and a button per move,
+  generated on UI SDK, so ST1.04's screens need not be written by hand. Waits for the second UI SDK spike to say
+  whether it belongs in stage 1 or later.
 
 ## From stage two (layer one)
 

@@ -1,0 +1,354 @@
+better-auth: Date.now() 65, setTimeout 8, new Date() 93, setInterval 2
+@better-auth/core: Date.now() 9, new Date() 17, setTimeout 1
+@better-auth/kysely-adapter: none
+@better-auth/utils: Date.now() 2
+better-call: Date.now() 1
+jose: Date.now() 2, new Date() 3
+viem: Date.now() 56, setTimeout 14, new Date() 4, setInterval 2
+ox: new Date() 2, setTimeout 2, Date.now() 4
+effect: Date.now() 34, new Date() 2, setInterval 2, setTimeout 9, performance.now() 2
+kysely: new Date() 5, performance.now() 1, Date.now() 1
+
+better-auth/dist/api/rate-limiter/index.mjs:9	Date.now()	const now = Date.now();
+better-auth/dist/api/rate-limiter/index.mjs:75	Date.now()	const now = Date.now();
+better-auth/dist/api/rate-limiter/index.mjs:98	Date.now()	const now = Date.now();
+better-auth/dist/api/rate-limiter/index.mjs:217	Date.now()	const now = Date.now();
+better-auth/dist/api/routes/account.mjs:367	Date.now()	const accessTokenExpired = account.accessTokenExpiresAt && new Date(account.accessTokenExpiresAt).getTime() - Date.now() < 5e3;
+better-auth/dist/api/routes/email-verification.mjs:106	Date.now()	const start = Date.now();
+better-auth/dist/api/routes/email-verification.mjs:115	Date.now()	const remaining = MINIMUM_MS - (Date.now() - start);
+better-auth/dist/api/routes/email-verification.mjs:116	setTimeout	if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+better-auth/dist/api/routes/password.mjs:126	new Date()	if (!verification || verification.expiresAt < /* @__PURE__ */ new Date()) throw ctx.redirect(redirectError(ctx.context, callbackURL, { error: "INVALID_TOKEN" })
+better-auth/dist/api/routes/password.mjs:156	new Date()	if (!verification || verification.expiresAt < /* @__PURE__ */ new Date()) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_TOKEN);
+better-auth/dist/api/routes/session.mjs:71	Date.now()	const now = Date.now();
+better-auth/dist/api/routes/session.mjs:96	Date.now()	const timeUntilExpiry = sessionDataPayload.expiresAt - Date.now();
+better-auth/dist/api/routes/session.mjs:103	Date.now()	updatedAt: Date.now()
+better-auth/dist/api/routes/session.mjs:155	new Date()	if (!session || session.session.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/api/routes/session.mjs:180	Date.now()	const shouldBeUpdated = session.session.expiresAt.valueOf() - expiresIn * 1e3 + updateAge * 1e3 <= Date.now();
+better-auth/dist/api/routes/session.mjs:201	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/api/routes/session.mjs:340	Date.now()	if (Date.now() - createdAt >= freshAge) throw APIError.from("FORBIDDEN", BASE_ERROR_CODES.SESSION_NOT_FRESH);
+better-auth/dist/api/routes/session.mjs:366	new Date()	return session.expiresAt > /* @__PURE__ */ new Date();
+better-auth/dist/api/routes/session.mjs:475	new Date()	return session.expiresAt > /* @__PURE__ */ new Date();
+better-auth/dist/api/routes/sign-up.mjs:160	new Date()	const now = /* @__PURE__ */ new Date();
+better-auth/dist/api/routes/update-session.mjs:39	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/api/routes/update-session.mjs:48	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/api/routes/update-user.mjs:312	Date.now()	expiresAt: new Date(Date.now() + (ctx.context.options.user.deleteUser?.deleteTokenExpiresIn || 86400) * 1e3)
+better-auth/dist/api/routes/update-user.mjs:328	Date.now()	if (Date.now() - createdAt >= freshAge) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.SESSION_EXPIRED);
+better-auth/dist/client/broadcast-channel.mjs:3	Date.now()	const now = () => Math.floor(Date.now() / 1e3);
+better-auth/dist/client/proxy.mjs:65	setTimeout	setTimeout(() => {
+better-auth/dist/client/query.mjs:121	setTimeout	timeoutId = setTimeout(() => {
+better-auth/dist/client/session-atom.mjs:125	Date.now()	return Math.min(Date.now() + SESSION_MOUNT_DEDUPE_INTERVAL, sessionExpiresAt);
+better-auth/dist/client/session-atom.mjs:150	Date.now()	if (Date.now() < freshUntil) return Promise.resolve();
+better-auth/dist/client/session-atom.mjs:156	setTimeout	if (!isServer()) timeoutId = setTimeout(() => {
+better-auth/dist/client/session-refresh.mjs:5	Date.now()	const now = () => Math.floor(Date.now() / 1e3);
+better-auth/dist/client/session-refresh.mjs:49	setInterval	if (refetchInterval && refetchInterval > 0) state.pollInterval = setInterval(() => {
+better-auth/dist/cookies/index.mjs:92	Date.now()	updatedAt: Date.now(),
+better-auth/dist/cookies/index.mjs:136	Date.now()	expiresAt: decoded?.exp ? decoded.exp * 1e3 : Date.now()
+better-auth/dist/cookies/index.mjs:154	Date.now()	expiresAt: decoded?.exp ? decoded.exp * 1e3 : Date.now()
+better-auth/dist/cookies/index.mjs:261	Date.now()	return Number.isFinite(expiresAt) && expiresAt < Date.now();
+better-auth/dist/cookies/index.mjs:346	Date.now()	if (typeof sessionDataPayload.expiresAt === "number" && sessionDataPayload.expiresAt < Date.now()) return null;
+better-auth/dist/crypto/jwt.mjs:6	Date.now()	return await new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(Math.floor(Date.now() / 1e3) + expiresIn).sign(new TextEn
+better-auth/dist/crypto/jwt.mjs:55	Date.now()	const now = () => Date.now() / 1e3 | 0;
+better-auth/dist/db/internal-adapter.mjs:14	Date.now()	function getTTLSeconds(expiresAt, now = Date.now()) {
+better-auth/dist/db/internal-adapter.mjs:44	new Date()	value: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:52	new Date()	update: { expiresAt: /* @__PURE__ */ new Date() }
+better-auth/dist/db/internal-adapter.mjs:62	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:87	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:124	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:125	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:135	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:136	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/db/internal-adapter.mjs:143	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:144	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:173	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:174	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:186	new Date()	value: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:194	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:222	new Date()	value: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:286	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:287	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:295	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:381	new Date()	if (options?.onlyActiveSessions && expiresAt <= /* @__PURE__ */ new Date()) continue;
+better-auth/dist/db/internal-adapter.mjs:410	new Date()	value: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:443	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:479	Date.now()	const now = Date.now();
+better-auth/dist/db/internal-adapter.mjs:482	Date.now()	if (filtered.length > 0 && furthestSessionExp && furthestSessionExp > Date.now()) await secondaryStorage.set(`active-sessions-${userId}`, JSON.stringify(filtere
+better-auth/dist/db/internal-adapter.mjs:611	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:612	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:720	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:721	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:770	new Date()	value: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:872	new Date()	if (!consumed || consumed.expiresAt < /* @__PURE__ */ new Date()) return null;
+better-auth/dist/db/internal-adapter.mjs:915	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/db/internal-adapter.mjs:916	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/db/revoke-unproven-account-access.mjs:8	Date.now()	const deadline = Date.now() + cleanupLockWaitMs;
+better-auth/dist/db/revoke-unproven-account-access.mjs:9	Date.now()	while (Date.now() < deadline) {
+better-auth/dist/db/revoke-unproven-account-access.mjs:12	new Date()	if (lock.expiresAt <= /* @__PURE__ */ new Date()) {
+better-auth/dist/db/revoke-unproven-account-access.mjs:16	setTimeout	await new Promise((resolve) => setTimeout(resolve, cleanupLockPollMs));
+better-auth/dist/db/revoke-unproven-account-access.mjs:38	Date.now()	expiresAt: new Date(Date.now() + cleanupLockExpiresInMs)
+better-auth/dist/oauth2/state.mjs:31	Date.now()	expiresAt: Date.now() + 6e5,
+better-auth/dist/plugins/admin/admin.mjs:37	Date.now()	if (user.banExpires && new Date(user.banExpires).getTime() < Date.now()) {
+better-auth/dist/plugins/admin/routes.mjs:479	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/admin/routes.mjs:539	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/anonymous/index.mjs:89	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/anonymous/index.mjs:90	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/captcha/utils.mjs:14	setTimeout	timer = setTimeout(() => reject(/* @__PURE__ */ new Error("Operation timed out")), timeoutMs);
+better-auth/dist/plugins/device-authorization/routes.mjs:228	Date.now()	const expiresAt = new Date(Date.now() + expiresIn);
+better-auth/dist/plugins/device-authorization/routes.mjs:304	Date.now()	if (Date.now() - new Date(deviceCodeRecord.lastPolledAt).getTime() < deviceCodeRecord.pollingInterval) throw new APIError("BAD_REQUEST", {
+better-auth/dist/plugins/device-authorization/routes.mjs:315	new Date()	update: { lastPolledAt: /* @__PURE__ */ new Date() }
+better-auth/dist/plugins/device-authorization/routes.mjs:317	new Date()	if (deviceCodeRecord.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/device-authorization/routes.mjs:468	Date.now()	}), Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1e3));
+better-auth/dist/plugins/device-authorization/routes.mjs:474	Date.now()	expires_in: Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1e3),
+better-auth/dist/plugins/device-authorization/routes.mjs:525	new Date()	if (deviceCodeRecord.expiresAt < /* @__PURE__ */ new Date()) throw new APIError("BAD_REQUEST", {
+better-auth/dist/plugins/device-authorization/routes.mjs:601	new Date()	if (deviceCodeRecord.expiresAt < /* @__PURE__ */ new Date()) throw new APIError("BAD_REQUEST", {
+better-auth/dist/plugins/device-authorization/routes.mjs:665	new Date()	if (deviceCodeRecord.expiresAt < /* @__PURE__ */ new Date()) throw new APIError("BAD_REQUEST", {
+better-auth/dist/plugins/email-otp/otp-token.mjs:57	new Date()	if (!existing || existing.expiresAt < /* @__PURE__ */ new Date()) return null;
+better-auth/dist/plugins/email-otp/routes.mjs:188	new Date()	if (!verificationValue || verificationValue.expiresAt < /* @__PURE__ */ new Date()) return ctx.json({ otp: null });
+better-auth/dist/plugins/email-otp/routes.mjs:242	new Date()	if (verificationValue.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/email-otp/routes.mjs:754	new Date()	if (!existing || existing.expiresAt < /* @__PURE__ */ new Date()) return false;
+better-auth/dist/plugins/email-otp/routes.mjs:772	new Date()	if (existing && existing.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/jwt/adapter.mjs:21	new Date()	const now = /* @__PURE__ */ new Date();
+better-auth/dist/plugins/jwt/adapter.mjs:63	new Date()	const now = /* @__PURE__ */ new Date();
+better-auth/dist/plugins/jwt/adapter.mjs:72	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/jwt/cookie-cache.mjs:43	Date.now()	}).setIssuedAt().setExpirationTime(Math.floor(Date.now() / 1e3) + expiresIn).setIssuer(getCookieCacheJwtIssuer(ctx)).setAudience(SESSION_COOKIE_JWT_AUDIENCE).se
+better-auth/dist/plugins/jwt/cookie-cache.mjs:58	Date.now()	expiresAt: parsed.exp ? parsed.exp * 1e3 : Date.now()
+better-auth/dist/plugins/jwt/index.mjs:124	Date.now()	const now = Date.now();
+better-auth/dist/plugins/jwt/sign.mjs:57	new Date()	if (!key || key.expiresAt && key.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/jwt/sign.mjs:78	Date.now()	const nowSeconds = Math.floor(Date.now() / 1e3);
+better-auth/dist/plugins/jwt/sign.mjs:124	Date.now()	iat: Math.floor(Date.now() / 1e3),
+better-auth/dist/plugins/jwt/utils.mjs:58	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/jwt/utils.mjs:59	Date.now()	...options?.jwks?.rotationInterval ? { expiresAt: new Date(Date.now() + options.jwks.rotationInterval * 1e3) } : {}
+better-auth/dist/plugins/magic-link/index.mjs:98	Date.now()	expiresAt: new Date(Date.now() + (opts.expiresIn || 300) * 1e3)
+better-auth/dist/plugins/multi-session/index.mjs:47	new Date()	const uniqueUserSessions = (await ctx.context.internalAdapter.findSessions(sessionTokens, { onlyActiveSessions: true })).filter((session) => session && session.
+better-auth/dist/plugins/multi-session/index.mjs:91	new Date()	if (!session || session.session.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/multi-session/index.mjs:151	new Date()	const validSessions = (await internalAdapter.findSessions(sessionTokens)).filter((session) => session && session.session.expiresAt > /* @__PURE__ */ new Date())
+better-auth/dist/plugins/oauth-popup/client.mjs:122	setInterval	const closedPoll = setInterval(() => {
+better-auth/dist/plugins/oauth-popup/client.mjs:125	setTimeout	const timeout = setTimeout(() => settle({ status: "timeout" }), timeoutMs);
+better-auth/dist/plugins/oauth-popup/index.mjs:147	Date.now()	expiresAt: Date.now() + 6e5
+better-auth/dist/plugins/oauth-proxy/index.mjs:107	Date.now()	const age = (Date.now() - payload.timestamp) / 1e3;
+better-auth/dist/plugins/oauth-proxy/index.mjs:314	Date.now()	timestamp: Date.now()
+better-auth/dist/plugins/one-tap/client.mjs:142	setTimeout	setTimeout(() => handlePrompt(attempt + 1), delay);
+better-auth/dist/plugins/one-time-token/index.mjs:22	Date.now()	const expiresAt = new Date(Date.now() + (opts?.expiresIn ?? 3) * 60 * 1e3);
+better-auth/dist/plugins/one-time-token/index.mjs:85	new Date()	if (session.session.expiresAt < /* @__PURE__ */ new Date()) throw c.error("BAD_REQUEST", { message: "Session expired" });
+better-auth/dist/plugins/organization/adapter.mjs:105	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/adapter.mjs:293	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/adapter.mjs:740	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/adapter.mjs:774	new Date()	})).filter((invite) => new Date(invite.expiresAt) > /* @__PURE__ */ new Date());
+better-auth/dist/plugins/organization/adapter.mjs:786	new Date()	})).filter((invite) => new Date(invite.expiresAt) > /* @__PURE__ */ new Date());
+better-auth/dist/plugins/organization/organization.mjs:621	new Date()	onUpdate: () => /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/organization.mjs:691	new Date()	defaultValue: () => /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/organization.mjs:698	new Date()	onUpdate: () => /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/organization.mjs:828	new Date()	defaultValue: () => /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/routes/crud-access-control.mjs:134	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/routes/crud-invites.mjs:270	new Date()	if (!invitation || invitation.expiresAt < /* @__PURE__ */ new Date() || invitation.status !== "pending") throw APIError.from("BAD_REQUEST", ORGANIZATION_ERROR_C
+better-auth/dist/plugins/organization/routes/crud-invites.mjs:331	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/routes/crud-invites.mjs:506	new Date()	if (!invitation || invitation.status !== "pending" || invitation.expiresAt < /* @__PURE__ */ new Date()) throw APIError.fromStatus("BAD_REQUEST", { message: "In
+better-auth/dist/plugins/organization/routes/crud-members.mjs:72	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/routes/crud-org.mjs:76	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/routes/crud-org.mjs:110	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/organization/routes/crud-team.mjs:104	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/routes/crud-team.mjs:105	new Date()	updatedAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/organization/schema.mjs:24	new Date()	createdAt: z.date().default(() => /* @__PURE__ */ new Date())
+better-auth/dist/plugins/organization/schema.mjs:35	new Date()	createdAt: z.date().default(() => /* @__PURE__ */ new Date())
+better-auth/dist/plugins/organization/schema.mjs:48	new Date()	createdAt: z.date().default(() => /* @__PURE__ */ new Date())
+better-auth/dist/plugins/organization/schema.mjs:55	new Date()	createdAt: z.date().default(() => /* @__PURE__ */ new Date()),
+better-auth/dist/plugins/phone-number/routes.mjs:505	new Date()	if (existing.expiresAt < /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/phone-number/routes.mjs:534	new Date()	if (!existing || existing.expiresAt < /* @__PURE__ */ new Date()) return false;
+better-auth/dist/plugins/siwe/index.mjs:33	Date.now()	expiresAt: new Date(Date.now() + 9e5)
+better-auth/dist/plugins/siwe/index.mjs:84	Date.now()	const now = Date.now();
+better-auth/dist/plugins/siwe/index.mjs:178	Date.now()	expiresAt: new Date(Date.now() + 6e4)
+better-auth/dist/plugins/siwe/index.mjs:211	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/siwe/index.mjs:218	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/siwe/index.mjs:219	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/siwe/index.mjs:229	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/siwe/index.mjs:236	new Date()	createdAt: /* @__PURE__ */ new Date(),
+better-auth/dist/plugins/siwe/index.mjs:237	new Date()	updatedAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/test-utils/cookie-builder.mjs:25	Date.now()	expires: cookieAttrs.maxAge ? Math.floor(Date.now() / 1e3) + cookieAttrs.maxAge : void 0
+better-auth/dist/plugins/test-utils/db-helpers.mjs:58	new Date()	createdAt: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/test-utils/factories.mjs:7	new Date()	const now = /* @__PURE__ */ new Date();
+better-auth/dist/plugins/test-utils/factories.mjs:24	new Date()	const now = /* @__PURE__ */ new Date();
+better-auth/dist/plugins/two-factor/index.mjs:262	new Date()	if (verificationRecord && verificationRecord.value === data.user.id && verificationRecord.expiresAt > /* @__PURE__ */ new Date()) {
+better-auth/dist/plugins/two-factor/index.mjs:269	Date.now()	expiresAt: new Date(Date.now() + trustDeviceMaxAge * 1e3)
+better-auth/dist/plugins/two-factor/index.mjs:296	Date.now()	const expiresAt = new Date(Date.now() + maxAge * 1e3);
+better-auth/dist/plugins/two-factor/otp/index.mjs:91	Date.now()	expiresAt: new Date(Date.now() + opts.period)
+better-auth/dist/plugins/two-factor/verify-two-factor.mjs:54	Date.now()	expiresAt: new Date(Date.now() + maxAge * 1e3)
+better-auth/dist/plugins/two-factor/verify-two-factor.mjs:133	Date.now()	if (new Date(twoFactor.lockedUntil).getTime() > Date.now()) throw APIError.from("TOO_MANY_REQUESTS", TWO_FACTOR_ERROR_CODES.ACCOUNT_TEMPORARILY_LOCKED);
+better-auth/dist/plugins/two-factor/verify-two-factor.mjs:142	new Date()	value: /* @__PURE__ */ new Date()
+better-auth/dist/plugins/two-factor/verify-two-factor.mjs:180	Date.now()	set: { lockedUntil: new Date(Date.now() + durationMs) }
+better-auth/dist/state.mjs:77	new Date()	const expiresAt = /* @__PURE__ */ new Date();
+better-auth/dist/state.mjs:144	Date.now()	if (parsedData.expiresAt < Date.now()) throw new StateError("Invalid state: request expired", {
+better-auth/dist/utils/date.mjs:3	Date.now()	return new Date(Date.now() + (unit === "sec" ? span * 1e3 : span));
+@better-auth/core/dist/db/get-tables.mjs:53	Date.now()	defaultValue: () => Date.now()
+@better-auth/core/dist/db/get-tables.mjs:81	new Date()	defaultValue: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:87	new Date()	defaultValue: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:88	new Date()	onUpdate: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:115	new Date()	defaultValue: () => /* @__PURE__ */ new Date()
+@better-auth/core/dist/db/get-tables.mjs:121	new Date()	onUpdate: () => /* @__PURE__ */ new Date()
+@better-auth/core/dist/db/get-tables.mjs:181	new Date()	defaultValue: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:187	new Date()	defaultValue: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:188	new Date()	onUpdate: () => /* @__PURE__ */ new Date(),
+@better-auth/core/dist/db/get-tables.mjs:268	new Date()	defaultValue: () => /* @__PURE__ */ new Date()
+@better-auth/core/dist/db/get-tables.mjs:274	new Date()	onUpdate: () => /* @__PURE__ */ new Date()
+@better-auth/core/dist/db/schema/shared.mjs:5	new Date()	createdAt: z.date().default(() => /* @__PURE__ */ new Date()),
+@better-auth/core/dist/db/schema/shared.mjs:6	new Date()	updatedAt: z.date().default(() => /* @__PURE__ */ new Date())
+@better-auth/core/dist/env/logger.mjs:52	new Date()	const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+@better-auth/core/dist/oauth2/client-assertion.mjs:56	Date.now()	const now = Math.floor(Date.now() / 1e3);
+@better-auth/core/dist/oauth2/client-credentials-token.mjs:62	new Date()	if (data.expires_in) tokens.accessTokenExpiresAt = new Date((/* @__PURE__ */ new Date()).getTime() + data.expires_in * 1e3);
+@better-auth/core/dist/oauth2/dpop.mjs:138	Date.now()	async function verifyDpopProof({ proofJwt, method, url, accessToken, expectedJkt, requireAth = false, nowSeconds = Math.floor(Date.now() / 1e3), proofMaxAgeSeco
+@better-auth/core/dist/oauth2/refresh-access-token.mjs:79	new Date()	if (data.expires_in) tokens.accessTokenExpiresAt = new Date((/* @__PURE__ */ new Date()).getTime() + data.expires_in * 1e3);
+@better-auth/core/dist/oauth2/refresh-access-token.mjs:80	new Date()	if (data.refresh_token_expires_in) tokens.refreshTokenExpiresAt = new Date((/* @__PURE__ */ new Date()).getTime() + data.refresh_token_expires_in * 1e3);
+@better-auth/core/dist/oauth2/utils.mjs:19	new Date()	return new Date((/* @__PURE__ */ new Date()).getTime() + seconds * 1e3);
+@better-auth/core/dist/oauth2/utils.mjs:40	Date.now()	if (!tokens.accessTokenExpiresAt && accessTokenExpiresIn) tokens.accessTokenExpiresAt = new Date(Date.now() + accessTokenExpiresIn * 1e3);
+@better-auth/core/dist/oauth2/verify.mjs:52	Date.now()	const now = Date.now();
+@better-auth/core/dist/oauth2/verify.mjs:72	setTimeout	timeout = setTimeout(() => reject(new errors.JWKSTimeout()), startedAt + JWKS_FETCH_TIMEOUT_MS - now);
+@better-auth/core/dist/oauth2/verify.mjs:87	Date.now()	const now = Date.now();
+@better-auth/core/dist/oauth2/verify.mjs:180	Date.now()	const cached = Date.now() - entry.fetchedAt < JWKS_CACHE_TTL_MS ? entry.jwks : void 0;
+@better-auth/core/dist/social-providers/wechat.mjs:45	Date.now()	accessTokenExpiresAt: new Date(Date.now() + tokenData.expires_in * 1e3),
+@better-auth/core/dist/social-providers/wechat.mjs:65	Date.now()	accessTokenExpiresAt: new Date(Date.now() + tokenData.expires_in * 1e3),
+@better-auth/utils/dist/otp.mjs:32	Date.now()	counter: Math.floor(Date.now() / milliseconds),
+@better-auth/utils/dist/otp.mjs:38	Date.now()	const counter = Math.floor(Date.now() / milliseconds);
+better-call/dist/cookies.mjs:69	Date.now()	if (options.expires.getTime() - Date.now() > 3456e7) throw new Error("Cookies Expires SHOULD NOT be greater than 400 days (34560000 seconds) in the future.");
+jose/dist/webapi/jwks/remote.js:29	Date.now()	return Number.isFinite(timestamp) && Date.now() < timestamp + duration;
+jose/dist/webapi/jwks/remote.js:59	Date.now()	const updatedAt = Date.now();
+jose/dist/webapi/lib/jwt_claims_set.js:36	new Date()	return typeof value == "number" ? validateInput(label, value) : value instanceof Date ? validateInput(label, epoch(value)) : epoch(/* @__PURE__ */ new Date()) +
+jose/dist/webapi/lib/jwt_claims_set.js:82	new Date()	const { currentDate } = options, now = validateInput("currentDate option", epoch(currentDate === void 0 ? /* @__PURE__ */ new Date() : currentDate)), iat = vali
+jose/dist/webapi/lib/jwt_claims_set.js:139	new Date()	return value === void 0 ? claimsSet.iat = epoch(/* @__PURE__ */ new Date()) : typeof value == "string" ? claimsSet.iat = validateInput("setIssuedAt", epoch(/* @
+viem/_esm/account-abstraction/accounts/toSmartAccount.js:17	Date.now()	return Date.now();
+viem/_esm/account-abstraction/actions/bundler/waitForUserOperationReceipt.js:47	setTimeout	? setTimeout(() => done(() => emit.reject(new WaitForUserOperationReceiptTimeoutError({ hash }))), timeout)
+viem/_esm/actions/public/waitForTransactionReceipt.js:108	setTimeout	? setTimeout(() => {
+viem/_esm/actions/siwe/verifySiweMessage.js:17	new Date()	const { address, domain, message, nonce, scheme, signature, time = new Date(), ...callRequest } = parameters;
+viem/_esm/actions/wallet/sendCalls.js:163	setTimeout	await new Promise((resolve) => setTimeout(resolve, experimental_fallbackDelay));
+viem/_esm/actions/wallet/sendTransactionSync.js:240	Date.now()	const start = Date.now();
+viem/_esm/actions/wallet/sendTransactionSync.js:273	Date.now()	const remaining = timeout - (Date.now() - start);
+viem/_esm/actions/wallet/waitForCallsStatus.js:103	setTimeout	? setTimeout(() => {
+viem/_esm/clients/transports/fallback.js:117	Date.now()	const start = Date.now();
+viem/_esm/clients/transports/fallback.js:130	Date.now()	end = Date.now();
+viem/_esm/op-stack/actions/getTimeToFinalize.js:78	Date.now()	const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp);
+viem/_esm/op-stack/actions/getTimeToFinalize.js:81	Date.now()	const timestamp = Date.now() + seconds * 1000;
+viem/_esm/op-stack/actions/getTimeToFinalize.js:144	Date.now()	const now = Date.now() / 1000;
+viem/_esm/op-stack/actions/getTimeToFinalize.js:167	Date.now()	const timestamp = Date.now() + seconds * 1000;
+viem/_esm/op-stack/actions/getTimeToNextGame.js:57	Date.now()	const now = Date.now();
+viem/_esm/op-stack/actions/getTimeToNextL2Output.js:70	Date.now()	const now = Date.now();
+viem/_esm/tempo/Expiry.js:3	Date.now()	return Math.floor(Date.now() / 1000) + n * 24 * 60 * 60;
+viem/_esm/tempo/Expiry.js:7	Date.now()	return Math.floor(Date.now() / 1000) + n * 60 * 60;
+viem/_esm/tempo/Expiry.js:11	Date.now()	return Math.floor(Date.now() / 1000) + n * 60;
+viem/_esm/tempo/Expiry.js:15	Date.now()	return Math.floor(Date.now() / 1000) + n * 30 * 24 * 60 * 60;
+viem/_esm/tempo/Expiry.js:19	Date.now()	return Math.floor(Date.now() / 1000) + n;
+viem/_esm/tempo/Expiry.js:23	Date.now()	return Math.floor(Date.now() / 1000) + n * 7 * 24 * 60 * 60;
+viem/_esm/tempo/Expiry.js:27	Date.now()	return Math.floor(Date.now() / 1000) + n * 365 * 24 * 60 * 60;
+viem/_esm/tempo/Store.js:46	Date.now()	if (entry.expiresAt === undefined || entry.expiresAt > Date.now())
+viem/_esm/tempo/accounts/Operation.js:41	Date.now()	: { expiresAt: Date.now() + pendingOperationTtl };
+viem/_esm/tempo/accounts/Operation.js:87	Date.now()	const written = await store.compareAndSet(submissionKey(hash, submissionId), null, transaction, { expiresAt: Date.now() + pendingOperationTtl });
+viem/_esm/tempo/actions/accessKey.js:57	Date.now()	*   expiry: Math.floor((Date.now() + 30_000) / 1000),
+viem/_esm/tempo/actions/accessKey.js:134	Date.now()	*   expiry: Math.floor((Date.now() + 30_000) / 1000),
+viem/_esm/tempo/actions/earn.js:813	setTimeout	? setTimeout(() => {
+viem/_esm/tempo/actions/earn.js:1733	setTimeout	? setTimeout(() => {
+viem/_esm/tempo/actions/nonce.js:115	Date.now()	const now = Math.floor(Date.now() / 1000);
+viem/_esm/tempo/actions/zone.js:735	setTimeout	? setTimeout(() => {
+viem/_esm/tempo/actions/zone.js:1111	Date.now()	const { account = client.account, issuedAt = Math.floor(Date.now() / 1000), expiresAt = issuedAt + 86_400, store = Store.defaultStore(), } = parameters;
+viem/_esm/tempo/chainConfig.js:220	Date.now()	Math.floor(Date.now() / 1000) + expiringNonceExpiry;
+viem/_esm/tempo/chainConfig.js:238	Date.now()	const now = BigInt(Math.floor(Date.now() / 1000));
+viem/_esm/tempo/chainConfig.js:366	Date.now()	if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
+viem/_esm/tempo/chainConfig.js:410	Date.now()	if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
+viem/_esm/tempo/chainConfig.js:506	Date.now()	metadata.expiry > BigInt(Math.floor(Date.now() / 1000)));
+viem/_esm/tempo/internal/relay/accounts.js:248	Date.now()	const now = Date.now();
+viem/_esm/tempo/internal/relay/accounts.js:313	Date.now()	if (operation.status === 'submitting' && operation.expiresAt > Date.now())
+viem/_esm/tempo/internal/relay/accounts.js:332	Date.now()	if (current.status === 'submitting' && current.expiresAt > Date.now())
+viem/_esm/tempo/internal/relay/accounts.js:336	Date.now()	const now = Date.now();
+viem/_esm/tempo/internal/relay/accounts.js:448	Date.now()	updatedAt: Date.now(),
+viem/_esm/tempo/internal/relay/accounts.js:559	Date.now()	const now = Date.now();
+viem/_esm/tempo/internal/relay/accounts.js:778	Date.now()	const deadline = Date.now() +
+viem/_esm/tempo/internal/relay/accounts.js:787	Date.now()	if (Date.now() >= deadline)
+viem/_esm/tempo/internal/relay/accounts.js:789	setTimeout	await new Promise((resolve) => setTimeout(resolve, pollingInterval));
+viem/_esm/tempo/internal/relay/accounts.js:798	Date.now()	const deadline = Date.now() +
+viem/_esm/tempo/internal/relay/accounts.js:806	Date.now()	if (current.status === 'pending' || current.expiresAt <= Date.now())
+viem/_esm/tempo/internal/relay/accounts.js:808	Date.now()	if (Date.now() >= deadline)
+viem/_esm/tempo/internal/relay/accounts.js:810	setTimeout	await new Promise((resolve) => setTimeout(resolve, pollingInterval));
+viem/_esm/tempo/internal/relay/accounts.js:859	Date.now()	updatedAt: Date.now(),
+viem/_esm/tempo/internal/relay/accounts.js:877	Date.now()	updatedAt: Date.now(),
+viem/_esm/tempo/internal/relay/accounts.js:965	setInterval	const timer = setInterval(() => {
+viem/_esm/tempo/internal/relay/accounts.js:978	Date.now()	expiresAt: Math.min(Date.now() + leaseTtl, Number.MAX_SAFE_INTEGER),
+viem/_esm/tempo/internal/relay/accounts.js:979	Date.now()	updatedAt: Date.now(),
+viem/_esm/tempo/internal/relay/cache.js:34	Date.now()	if (entry.expiresAt > Date.now())
+viem/_esm/tempo/internal/relay/cache.js:54	Date.now()	await store.setItem(key, JSON.stringify({ value, expiresAt: Date.now() + ttl }, (_key, item) => {
+viem/_esm/tempo/internal/relay/deadline.js:9	setTimeout	const timeout = setTimeout(() => controller.abort(new RpcResponse.LimitExceededError({
+viem/_esm/tempo/internal/relay/feePayer.js:511	Date.now()	const now = BigInt(Math.floor(Date.now() / 1000));
+viem/_esm/tempo/internal/relay/feePayer.js:632	Date.now()	const time = Math.floor(Date.now() / 1_000);
+viem/_esm/tempo/internal/relay/feePayer.js:640	Date.now()	const time = Math.floor(Date.now() / 1_000);
+viem/_esm/tempo/internal/relay/keyAuthorization.js:232	Date.now()	await store.compareAndSet(key, value, '', { expiresAt: Date.now() });
+viem/_esm/tempo/internal/relay/keyAuthorization.js:272	Date.now()	const expiresAt = Math.min(Date.now() + maxTtl, getExpiry(keyAuthorization) * 1_000);
+viem/_esm/tempo/internal/relay/keyAuthorization.js:310	Date.now()	metadata.expiry > BigInt(Math.floor(Date.now() / 1000)));
+viem/_esm/tempo/internal/relay/keyAuthorization.js:316	Date.now()	BigInt(expiry) <= BigInt(Math.floor(Date.now() / 1000)));
+viem/_esm/utils/buildRequest.js:139	Date.now()	const delay = Date.parse(retryAfter) - Date.now();
+viem/_esm/utils/promise/createBatchScheduler.js:50	setTimeout	timerCache.set(id, setTimeout(exec, wait));
+viem/_esm/utils/promise/withCache.js:33	Date.now()	const age = Date.now() - response.created.getTime();
+viem/_esm/utils/promise/withCache.js:48	new Date()	cache.response.set({ created: new Date(), data });
+viem/_esm/utils/promise/withTimeout.js:10	setTimeout	timeoutId = setTimeout(() => {
+viem/_esm/utils/rpc/socket.js:43	setTimeout	reconnectTimer = setTimeout(async () => {
+viem/_esm/utils/rpc/socket.js:104	setInterval	keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval);
+viem/_esm/utils/siwe/createSiweMessage.js:20	new Date()	const { chainId, domain, expirationTime, issuedAt = new Date(), nonce, notBefore, requestId, resources, scheme, uri, version, } = parameters;
+viem/_esm/utils/siwe/validateSiweMessage.js:9	new Date()	const { address, domain, message, nonce, scheme, time = new Date(), } = parameters;
+viem/_esm/utils/wait.js:10	setTimeout	const timeout = setTimeout(() => {
+ox/_esm/core/Siwe.js:51	new Date()	const { chainId, domain, expirationTime, issuedAt = new Date(), nonce, notBefore, requestId, resources, scheme, uri, version, } = value;
+ox/_esm/core/Siwe.js:346	new Date()	const { address, domain, message, nonce, scheme, time = new Date() } = value;
+ox/_esm/core/internal/promise.js:12	setTimeout	timeoutId = setTimeout(() => {
+ox/_esm/tempo/VirtualMaster.js:238	Date.now()	const startedAt = Date.now();
+ox/_esm/tempo/VirtualMaster.js:247	Date.now()	const elapsed = Date.now() - startedAt;
+ox/_esm/tempo/VirtualMaster.js:326	Date.now()	const startedAt = Date.now();
+ox/_esm/tempo/VirtualMaster.js:338	Date.now()	const elapsed = Date.now() - startedAt;
+ox/_esm/tempo/VirtualMaster.js:353	setTimeout	await new Promise((r) => setTimeout(r, 0));
+effect/dist/Clock.js:130	Date.now()	* The live clock allows up to one second of drift from `Date.now()` before
+effect/dist/Cron.js:676	new Date()	const start = now ?? new Date();
+effect/dist/DateTime.js:450	Date.now()	* This is a synchronous version of `now` that directly uses `Date.now()`
+effect/dist/DateTime.js:949	Date.now()	* This is a synchronous version that uses `Date.now()` directly.
+effect/dist/DateTime.js:997	Date.now()	* This is a synchronous version that uses `Date.now()` directly.
+effect/dist/Predicate.js:921	new Date()	* const data: unknown = new Date()
+effect/dist/Runtime.js:141	setInterval	const keepAlive = globalThis.setInterval(constVoid, 2_147_483_647);
+effect/dist/Scheduler.js:50	setTimeout	const timer = setTimeout(f, 0);
+effect/dist/crypto/SecureRandom.js:210	Date.now()	* Synchronously generates a UUIDv7 from `Date.now()` and `globalThis.crypto`,
+effect/dist/crypto/SecureRandom.js:225	Date.now()	* Reads `Date.now()` rather than the `Clock`, and `globalThis.crypto` rather
+effect/dist/crypto/SecureRandom.js:227	Date.now()	* `Date.now()` when the clock moves back or the counter overflows.
+effect/dist/crypto/SecureRandom.js:233	Date.now()	export const uuidV7Unsafe = options => makeUuid(bytes => Uuid.v7Monotonic(Date.now(), bytes), randomBytesUnsafe, options?.format);
+effect/dist/crypto/SecureRandom.js:235	Date.now()	* Synchronously generates a ULID from `Date.now()` and `globalThis.crypto`.
+effect/dist/crypto/SecureRandom.js:247	Date.now()	* Reads `Date.now()` rather than the `Clock`, and `globalThis.crypto` rather
+effect/dist/crypto/SecureRandom.js:249	Date.now()	* `Date.now()` when the clock moves back or the random part overflows.
+effect/dist/crypto/SecureRandom.js:255	Date.now()	export const ulidUnsafe = () => Ulid.monotonic(Date.now(), ulidRandomBytesUnsafe);
+effect/dist/eventlog/EventJournal.js:207	Date.now()	export const makeEntryIdUnsafe = (options = {}) => options.msecs !== undefined ? Uuid.v7Bytes(options.msecs, SecureRandom.randomBytesUnsafe(16)) : nextEntryId(p
+effect/dist/eventlog/EventJournal.js:358	Date.now()	id: nextEntryId(sequence, Date.now()),
+effect/dist/graphql/GraphQLClientError.js:64	Date.now()	* measured from `Date.now()` when the error is constructed. `isRetryable` is
+effect/dist/graphql/GraphQLClientError.js:139	Date.now()	#retryAfter = /*#__PURE__*/parseRetryAfter(this.headers?.["retry-after"], /*#__PURE__*/Date.now());
+effect/dist/graphql/GraphQLClientError.js:142	Date.now()	* date. An HTTP date is measured from `Date.now()` when the error is
+effect/dist/graphql/GraphQLClientError.js:265	Date.now()	* milliseconds), which defaults to `Date.now()`. Transports pass the Effect
+effect/dist/graphql/GraphQLClientError.js:276	Date.now()	retryAfter: parseRetryAfter(response?.headers["retry-after"], options?.now ?? Date.now()),
+effect/dist/http/HttpClient.js:1179	setTimeout	timers.set(response, setTimeout(() => controller.abort(), 5000));
+effect/dist/http-api/internal/httpApiScalar.js:3	Date.now()	*/export const javascript="/**\n * Minified by jsDelivr using Terser v5.39.0.\n * Original file: /npm/@scalar/api-reference@1.43.5/dist/browser/standalone.js\n 
+effect/dist/http-api/internal/httpApiScalar.js:3	performance.now()	*/export const javascript="/**\n * Minified by jsDelivr using Terser v5.39.0.\n * Original file: /npm/@scalar/api-reference@1.43.5/dist/browser/standalone.js\n 
+effect/dist/http-api/internal/httpApiScalar.js:3	setTimeout	*/export const javascript="/**\n * Minified by jsDelivr using Terser v5.39.0.\n * Original file: /npm/@scalar/api-reference@1.43.5/dist/browser/standalone.js\n 
+effect/dist/http-api/internal/httpApiScalar.js:3	setInterval	*/export const javascript="/**\n * Minified by jsDelivr using Terser v5.39.0.\n * Original file: /npm/@scalar/api-reference@1.43.5/dist/browser/standalone.js\n 
+effect/dist/http-api/internal/httpApiSwagger.js:3	Date.now()	*/export const javascript="/*! For license information please see swagger-ui-bundle.js.LICENSE.txt */\n!function webpackUniversalModuleDefinition(s,o){\"object\
+effect/dist/http-api/internal/httpApiSwagger.js:3	setTimeout	*/export const javascript="/*! For license information please see swagger-ui-bundle.js.LICENSE.txt */\n!function webpackUniversalModuleDefinition(s,o){\"object\
+effect/dist/internal/dateTime.js:281	Date.now()	export const nowUnsafe = () => makeUtc(Date.now());
+effect/dist/internal/effect.js:2911	Date.now()	return Date.now();
+effect/dist/internal/effect.js:2929	setTimeout	const handle = setTimeout(() => resume(continuation), Math.min(millis, MAX_TIMER_MILLIS));
+effect/dist/internal/effect.js:2941	performance.now()	return () => BigInt(Math.round(performance.now() * 1_000_000));
+effect/dist/internal/effect.js:2945	Date.now()	const current = BigInt(Date.now()) * nanosPerMilli;
+effect/dist/internal/effect.js:2957	Date.now()	const wall = BigInt(Date.now()) * nanosPerMilli;
+effect/dist/internal/ulid.js:63	Date.now()	* The ULID ordering state shared by every `Date.now()` caller in the realm.
+effect/dist/internal/uuid.js:74	Date.now()	* The UUIDv7 ordering state shared by every `Date.now()` or `Clock` caller in
+effect/dist/reactivity/AsyncResult.js:162	Date.now()	result.timestamp = options?.timestamp ?? Date.now();
+effect/dist/reactivity/AsyncResult.js:238	Date.now()	result.timestamp = Date.now();
+effect/dist/reactivity/Atom.js:928	setTimeout	timeout = setTimeout(update, millis);
+effect/dist/reactivity/Atom.js:950	setTimeout	const handle = setTimeout(() => get.refresh(self), millis);
+effect/dist/reactivity/Atom.js:1026	Date.now()	return !isFreshWithin(timestamp, staleTime, Date.now());
+effect/dist/reactivity/Atom.js:1350	setTimeout	searchParamState.timeout = setTimeout(updateSearchParams, 500);
+effect/dist/reactivity/AtomRegistry.js:382	Date.now()	const timestamp = Date.now() + ttl;
+effect/dist/reactivity/AtomRegistry.js:386	Date.now()	entry = [new Set(), setTimeout(() => this.sweepBucket(bucket), bucket - Date.now())];
+effect/dist/reactivity/AtomRegistry.js:386	setTimeout	entry = [new Set(), setTimeout(() => this.sweepBucket(bucket), bucket - Date.now())];
+effect/dist/reactivity/Hydration.js:55	Date.now()	const now = Date.now();
+effect/dist/schema/Model.js:497	Date.now()	* realm's latest timestamp, such as a `TestClock` after `Date.now()`-based
+kysely/dist/migration/migrator.js:575	new Date()	timestamp: new Date().toISOString(),
+kysely/dist/query-builder/insert-query-builder.js:821	new Date()	*   .onDuplicateKeyUpdate({ updated_at: new Date().toISOString() })
+kysely/dist/query-builder/merge-query-builder.js:536	new Date()	*       updated_at: new Date().toISOString(),
+kysely/dist/query-builder/update-query-builder.js:341	new Date()	* const now = new Date().toISOString()
+kysely/dist/query-builder/update-query-builder.js:365	new Date()	* const now = new Date().toISOString()
+kysely/dist/util/performance-now.js:5	performance.now()	return performance.now();
+kysely/dist/util/performance-now.js:8	Date.now()	return Date.now();
