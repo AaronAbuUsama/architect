@@ -207,8 +207,9 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | K32 | goals coordinate themselves, through git and GitHub | `main`, by the conductor |
 | K33 | the work lives on GitHub natively: a milestone per goal, issue kinds, templates, the sync | #301, by the 📐 designer thread |
 | K34 | goals start by what they need, not by milestone order; the goal map | `main`, by the conductor |
+| K35 | Goals 8 to 16 briefed, short, with their branches | `main`, by the conductor |
 
-**Next free:** D5, E2, F10, G9, H3, K35, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F10, G9, H3, K36, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered; a goal records its own in its brief, not here (K32), and `GOAL<n>-<slug>` names a call that
 belongs to one goal and no milestone.
