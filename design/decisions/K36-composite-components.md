@@ -129,3 +129,5 @@ only the derived listings and the one check go.
 - design/goals/06-portal.md: "`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`, `Blueprint.nav` in" → "`Blueprint.app`, `Blueprint.page`, `Blueprint.component` (K36), `Blueprint.layout`, `Blueprint.nav` in"
 - design/goals/06-portal.md: "the compiler's four refusals (K31)" → "the compiler's five refusals (K31's four, K36's one)"
 - design/goals/06-portal.md: "its hash and the four refusals" → "its hash and the five refusals (K31, K36)"
+- design/decisions/K24-ui-sdk.md: "No `Blueprint.component` or `Blueprint.screen`." → "A page (K31) and a composite component (K36) declare what they show and offer; the look and the behaviour stay code."
+- design/decisions/K29-ui-layer.md: "is nothing the blueprint can generate" → "is declared as a component: its wiring is generated, its behaviour hand-written (K36)"
