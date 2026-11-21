@@ -24,19 +24,23 @@ Aaron's dated calls in them.
    hard-coding it and imports whichever mounted plugin provides identity.
 6. `@orthograph/auth` owns people, sessions, the key, device and agent credentials, `AUTH_SECRET` and the sign-in pages.
    `@orthograph/organizations` owns organisations, memberships, invitations and the API key an owner makes in one.
-7. Everything moves as a copy first, byte for byte, with the wire names unchanged: `person.sign-up`, `session.sign-in`,
-   `organization.create` and the rest keep their names, codes and exit numbers.
-8. Acme's `cap` on an organisation is acme's own, not the plugin's: it becomes acme's `allowance-policy` thing.
+7. Everything moves as a copy first, byte for byte, with the operation names, error codes and exit numbers unchanged:
+   `person.sign-up`, `session.sign-in`, `organization.create` and the rest keep them. The one change to a payload is
+   `cap` (point 8).
+8. Acme's `cap` on an organisation is acme's own, not the plugin's: it becomes acme's `allowance-policy` thing. That
+   changes acme's wire: `organization.create` and `acme organization create` lose `cap` and `--cap`, `organization.get`
+   and the organisation lose the field, and the cap is set by the new `allowance-policy.set`. The checks and fixtures that
+   send `cap` are re-authored first, by M2.23, which M2.07 needs.
 9. A plugin proves itself: an `example/` app, one `prove` target, one CI job for every plugin, one more before
    publishing. M2.10 builds it, to the list below.
-10. Two new small slices come first: plugin starting worlds (M2.21 checks, M2.22 build). Nothing in stage 1 waits on
-    them.
+10. Three new small slices come first: plugin starting worlds (M2.21 checks, M2.22 build) and the checks for acme
+    without `cap` (M2.23). Nothing in stage 1 waits on them.
 
 Slices named in this record, in plain words: **M2.02** the plugin journeys; **M2.03** the new callers in the runtime;
 **M2.04** secrets by declaration; **M2.05** the auth plugin; **M2.06** its ways in (device sign-in, MCP sign-in);
 **M2.07** the organizations plugin; **M2.08** journeys through the SDK, CLI and MCP; **M2.09** `ortho new`; **M2.10**
 `ortho new feature` and a plugin's CI; **M2.11** the work app mounts auth; **M2.17 and M2.18** the checks and the build
-for K20's `who` and `holds` roles; **M2.21 and M2.22** the new starting-world slices; **ST1.03** the handles plugin;
+for K20's `who` and `holds` roles; **M2.21 and M2.22** the new starting-world slices; **M2.23** the checks for acme without `cap`; **ST1.03** the handles plugin;
 **ST1.04** Plugged In grown to stage 1; **ST1.06** the screens sign in through hooks; **ST1.07** Plugged In mounts auth.
 
 ## What was already decided, and kept
@@ -45,7 +49,7 @@ for K20's `who` and `holds` roles; **M2.21 and M2.22** the new starting-world sl
 |---|---|---|
 | Five principals; ways in `Via.session`, `Via.key`, `Via.device`, `Via.agent`; a role asks which person; `.via` and `.notVia` decide which ways in may use it | K2 "Decided in the walkthrough" (`K2-forman-frame.md:43-45`) | kept; this record gives each its exact shape |
 | Auth and organizations are two plugins; organizations needs auth; nothing is copied into a project | K2 (`:40-42`) | kept; moves below |
-| `via` is recorded on the principal, `.via`/`.notVia` narrow an `allowed` entry, "no `via` means every way in" | K1 section 1.3 (`K1-kits.md:143-225`) | kept; one rule changed: what `Via.agent` means (fork 2) |
+| `via` is recorded on the principal, `.via`/`.notVia` narrow an `allowed` entry, "no `via` means every way in" | K1 section 1.3 (`K1-kits.md:143-225`) | kept, except three passages of section 1.3 and 1.4 that change, each marked "Superseded by M2-auth" in K1 and listed under Supersedes. **Rule 2** (`:217-220`: an agent's OAuth token on HTTP is a person `via: "agent"`) becomes `anonymous`, because the token's audience is `/mcp` only and nothing issues one at the HTTP door (fork 2's table; AUT-16 says minting one in a world is untried). **Rule 3** (`:221-224`: "`via` is the credential, not the species") becomes "a key made for an agent is an agent", because under rule 3 any key walks past `.notVia(Via.agent)`, so K2's S20 rule (money out is `.notVia(Via.agent)`) is bypassed and M4's runs, which act as an agent over HTTP (`K10-factory.md:55`), cannot be agents at all (fork 2's rubric, "Correctness / integrity"). **The reach table** (`:240-241`: SDK and CLI by reach) is deferred, because the role check already refuses what reach would hide (small calls, 16); `later.md` carries it |
 | A mount's `narrow` only removes ways in; an empty `via` is refused | M1-plugins section 3 (`:123`) | kept |
 | Auth keeps Better Auth's tables in its own store | K3 item 7 (`K3-stores-and-sources.md:95-97`) | kept (small calls, 12) |
 | A role is a `rule`, or declared with `who` or `holds` | K20 | kept; `service` becomes a fourth form |
@@ -141,7 +145,9 @@ home of its own (small calls, 8).
 | `compiler` model, `mounts/service.ts:65`, `model/internal/layout.ts:98` | `via` per `allowed` entry, `issues`, `agentTool`, plugin starting worlds, `provides` |
 | `prove` `journeys/internal/world.ts:46-66`, `journeys/internal/load.ts:61` | the staging cast names Better Auth's routes; worlds load from the project only |
 | `portal`, grid cells `roles.*`, `mount.*`, `error.telemetry` | who may call is said in words; the caller's kind is a span attribute |
-| `examples/acme`, `examples/starter`, `examples/work`, `examples/plugged-in`, 29 files naming `Identity.` | the copies go; `identity:` becomes `issues:` |
+| `portal` `telemetry/internal/calls.ts:13-15` (`callerOf`) | it reads `principal.person` before `principal.kind`, so an agent's accepted span (which carries `principal.person`, small calls, 2) would show as a person. M2.03 changes it to read `principal.kind` first and fall back to `person` only when the kind is absent; the portal's telemetry check gains an agent span |
+| `e2e` checks and fixtures that send `cap` (the move below, "the cap") | acme's `organization.create` loses `cap`, so each is re-authored by M2.23: `layer1/05:35`, `layer1/06`, `layer2/support.ts:128`, `m1/14:157`, `m1/17:168`, `m1/24:135`, `m1/visibility-outputs.ts:45`, `grid/fixtures/acme/{files,portal}.json` |
+| `examples/acme`, `examples/starter`, `examples/work`, `examples/plugged-in`, 33 files naming `Identity.` | the copies go; `identity:` becomes `issues:` |
 | `docs/canon` (`handlers.mdx:83` quotes `HandlerContext`; `operations.mdx:514-518` asks the request-key question) | quotes move with the code; the question gets its answer |
 | M2.02 to M2.11, M2.17/M2.18, ST1.03, ST1.04, ST1.06, ST1.07, M3 and M4 | all of them are built on what is decided here |
 
@@ -185,7 +191,7 @@ export type Principal =
 
 | Scenario | A · five kinds | B · person with `via` | C · two kinds |
 |---|---|---|---|
-| Olga's agent calls `invitation.accept`, whose handler guards `principal.kind !== "person"` (`examples/acme/src/invitation/accept.ts:10`) | the handler's guard refuses it as a defect, which is why M2.03 changes those guards once, on purpose | passes the guard; only `.notVia(Via.agent)` on the declaration stops it | the agent is Olga |
+| Olga's agent calls `invitation.accept`, whose handler guards `principal.kind !== "person"` (`examples/acme/src/invitation/accept.ts:11`) | the handler's guard refuses it as a defect, which is why M2.03 changes those guards once, on purpose | passes the guard; only `.notVia(Via.agent)` on the declaration stops it | the agent is Olga |
 | A new handler checks `principal.kind === "person"` and forgets agents | the agent is outside: safe by default | the agent is inside: unsafe by default | n/a |
 | A trace says who called | `principal.kind=agent`, `principal.person=per_olga` | `principal.kind=person`, `principal.via=agent`: a "person" that is an agent | `principal.person=per_olga` |
 | A `switch (principal.kind)` over service and system | exhaustive over five | exhaustive over four | n/a |
@@ -534,7 +540,7 @@ packages/organizations/              @orthograph/organizations: who belongs wher
 **`show` gains one answer field**: `session.show` answers `{ person, email, via }`, so a journey can see how a call got
 in. An additive field, the only observable of the new principals that needs no new operation.
 
-**An organisation's `owner` field stays** (the wire is unchanged: `organization.get` answers it,
+**An organisation's `owner` field stays** (`organization.get` still answers it, though no longer `cap`;
 `OrganizationCreated` carries it). It is the founder at creation; the `owner` role no longer reads it once `holds` lands
 (K20), it reads the membership row. One operation writes both, so they cannot drift until an operation changes an owner;
 that operation would change the membership and leave the field as "founder".
@@ -542,20 +548,22 @@ that operation would change the membership and leave the field as "founder".
 ## The moves, one by one
 
 Every move is a copy first: the plugin's file is the acme file, with the imports pointing at its siblings and the
-changes this record names, and acme's file is deleted in the same slice. Wire names, error codes and exit numbers do not
-change, so the SDK, CLI, MCP and the portal read the same.
+changes this record names, and acme's file is deleted in the same slice. Operation names, error codes and exit numbers do
+not change. Payloads change in one place only: `organization.create` and the organisation lose `cap`, so acme's SDK, CLI
+(`--cap`), MCP tool, docs and portal read differently for that one operation, and `allowance-policy.set` is new. Plugged
+In and the work app never had `cap`.
 
 | Move | From | To | Slice | Blast radius |
 |---|---|---|---|---|
 | Better Auth and its contract | `packages/host-cloudflare/src/modules/auth/**` (7 files), `README.md`, `scripts/auth-schema.ts` | `packages/auth/src/modules/better-auth/**`; the contract stays in `language-effect` and gains `IdentityEntry` | M2.05 | `host-cloudflare` loses `AuthD1` from its index and its Better Auth dependencies (`package.json:11-20`); `world/service.ts:25`, `world/internal/front-door.ts:23`, `world/types.ts:5-8` and `reset.ts:14` take the entry instead; `server.ts` (7 sites above); `auth.test.ts` moves |
 | `person`, `session`, `values/identity.ts` (`Password`, `Secret`) | `examples/acme/blueprint/things/{person,session}/**`, `blueprint/values/identity.ts` | `packages/auth/blueprint/**`; acme keeps `Ok` in `values/health.ts` (`things/system/verbs/health.ts:3`) | M2.05 | acme's `allowance` (`thing.ts`) imports `Person` and now reads it from `@orthograph/auth/blueprint/things/person/thing.js`; the other importers move with their things |
 | the handlers | `examples/acme/src/{person,session}/**` | `packages/auth/src/{person,session}/**` | M2.05 | the guards (fork 1) change here once |
-| `organization`, `membership`, `invitation`, `api-key`, `values/identity.ts` `Role` | `examples/acme/blueprint/things/{organization,membership,invitation,api-key}/**` | `packages/organizations/blueprint/**` | M2.07 (after M2.05, M2.18, M2.22) | acme's `allowance` (`thing.ts` and its three verbs) imports `owner` and `Organization`, and every journey that starts from `founded` or `funded` follows the worlds |
+| `organization`, `membership`, `invitation`, `api-key`, `values/identity.ts` `Role` | `examples/acme/blueprint/things/{organization,membership,invitation,api-key}/**` | `packages/organizations/blueprint/**` | M2.07 (after M2.05, M2.18, M2.22, M2.23) | acme's `allowance` (`thing.ts` and its three verbs) imports `owner` and `Organization`, and every journey that starts from `founded` or `funded` follows the worlds |
 | the handlers | `examples/acme/src/{organization,invitation,api-key}/**` | `packages/organizations/src/**` | M2.07 | none beyond the above |
-| starting worlds | `examples/acme/blueprint/starting-worlds/{founded,invited}.ts` | `packages/organizations/blueprint/starting-worlds/{founded,invited,joined}.ts`; acme keeps `funded` and gains `capped` | M2.07 | `funded` still says `from: "founded"`; needs the mount fold (M2.22) |
-| journeys | acme `sign-up-and-sign-in`, `an-owner-makes-an-api-key`, `invite-and-accept`, `an-invitation-is-used-once` | the plugins' `blueprint/journeys/`, authored in M2.02 | M2.02 to M2.07 | acme's `outsider-cannot-revoke` is about `allowance.revoke`: it stays |
-| the cap | `organization.fields.cap`, `organization.create`'s `cap`, `grant.ts:13` | acme's `allowance-policy` (small calls, 8) | M2.07 | `grant-an-allowance` and every journey starting from `funded` |
-| `ortho.config.ts`'s `auth: Auth.betterAuth(...)` and `Identity` | `examples/{acme,work}/ortho.config.ts:5,9`, `orthograph/src/modules/{config,identity}` | gone: the mount and `issues:` say it | M2.03 | `AuthKit` is read by nothing (`config/types.ts:1-12`); 29 files name `Identity.` |
+| starting worlds | `examples/acme/blueprint/starting-worlds/{founded,invited}.ts` | `packages/organizations/blueprint/starting-worlds/{founded,invited,joined}.ts`; acme keeps `funded` and gains `capped` | the plugin's three worlds M2.07; acme's `capped` and `funded` M2.23 | `funded` still says `from: "founded"`; needs the mount fold (M2.22). No build slice writes a world |
+| journeys | acme `sign-up-and-sign-in`, `an-owner-makes-an-api-key`, `invite-and-accept`, `an-invitation-is-used-once` | the plugins' `blueprint/journeys/`, authored in M2.02 | M2.02 (authored), M2.05 and M2.07 (copied) | acme's `outsider-cannot-revoke` is about `allowance.revoke`: it stays |
+| the cap | `organization.fields.cap`, `organization.create`'s `cap`, `grant.ts:13` | acme's `allowance-policy` (small calls, 8) | M2.23 (checks), then M2.07 (build) | **acme's wire changes**: `organization.create` and `acme organization create` lose `cap` and `--cap`, and the organisation loses the field. M2.23 re-authors every check and fixture that sends it: `e2e/layer1/05-the-generated-surfaces.test.ts:35`, `e2e/layer1/06-check-and-the-authoring-loop.test.ts` (copies acme's organisation folder), `e2e/layer2/support.ts:128`, `e2e/m1/14-clients.test.ts:157`, `e2e/m1/17-telemetry-model.test.ts:168`, `e2e/m1/24-idempotency-conflict.test.ts:135`, `e2e/m1/visibility-outputs.ts:45`, and the grid's acme fixtures `e2e/grid/fixtures/acme/{files,portal}.json`. It also writes acme's worlds `capped` and `funded`, the `allowance-policy` journeys and the rewritten `grant-an-allowance`. The refusal `AllowanceLimitTooHigh { cap }` is unchanged, so `refusal-evals`, check 19 and check 29 stay |
+| `ortho.config.ts`'s `auth: Auth.betterAuth(...)` and `Identity` | `examples/{acme,work}/ortho.config.ts:5,9`, `orthograph/src/modules/{config,identity}` | gone: the mount and `issues:` say it | M2.03 | `AuthKit` is read by nothing (`config/types.ts:1-12`); 33 files name `Identity.` |
 | the work app's `person` | `examples/work/blueprint/things/person/thing.ts` | deleted; work mounts auth | M2.11 | work's ids stay `per_`; organizations is **not** mounted (small calls, 13) |
 | the starter | `examples/starter/**` | replaced by Plugged In at stage 1 | M2.09 | `packages/preset` reads `examples/starter` (`main.ts:10`); the scaffold gate |
 
@@ -593,7 +601,7 @@ change, so the SDK, CLI, MCP and the portal read the same.
 | 5 | **`ortho.config.ts` loses `auth`.** The project's name stays (`ENV-14`/`FOR-02`'s concern is M1.11's, not this) | `orthograph/src/modules/config/types.ts:1-12` |
 | 6 | **The staging cast calls `person.sign-up` and `session.sign-in`**, the plugin's own operations, not Better Auth's routes, so `prove` knows nothing of Better Auth | `prove/src/modules/journeys/internal/world.ts:46-66` |
 | 7 | **A secret is named from the mount and the export**: `secret` in the plugin mounted as `blueprint/features/auth.ts` is `AUTH_SECRET`, so the binding does not change. Mounted as `identity.ts` it would be `IDENTITY_SECRET` | `frame/secrets.md:78-81` |
-| 8 | **Acme's cap becomes acme's own thing.** `allowance-policy` (`id pol_`, `organization`, `cap`), `allowance-policy.set` allowed `owner.of("organization")`, a rule `oneCapPerOrganization` (G5), and `grant` reads it with `findBy`. Acme gains a world `capped` (from `founded`: Ada sets the cap), and `funded` starts from `capped`. The refusal `AllowanceLimitTooHigh { cap }` is unchanged | `grant.ts:13-16`; `errors.ts:7`; Plugged In's `profile.onePagePerHandle` is the same pattern |
+| 8 | **Acme's cap becomes acme's own thing.** `allowance-policy` (`id pol_`, `organization`, `cap`), `allowance-policy.set` allowed `owner.of("organization")`, a rule `oneCapPerOrganization` (G5), and `grant` reads it with `findBy`. Acme gains a world `capped` (from `founded`: Ada sets the cap), and `funded` starts from `capped`; M2.23's checks author acme's worlds and journeys, and M2.07's builder only makes them pass. The refusal `AllowanceLimitTooHigh { cap }` is unchanged | `grant.ts:13-16`; `errors.ts:7`; Plugged In's `profile.onePagePerHandle` is the same pattern |
 | 9 | **`Blueprint.layer(plugin, ({ secrets, settings, db }) => …)`**: M2.04 gives the factory `settings` from the start, typed empty, so M2.06's settings need no change of signature. No entry reads `env` itself | `frame/secrets.md:86-109`; `M1-plugins.md:168-171` |
 | 10 | **`/login`, `/consent` and `/device` are plain pages the auth plugin serves** (`options.ts:27`, `:49-50` already name them; nobody serves them: AUT-02). Designed versions come with the generated app | `host-cloudflare/.../options.ts` |
 | 11 | **Device sessions are marked in their row** (`via: "device"`), not guessed from a header. Better Auth's hook may not see the path (AUT-03); the fallback is to mark the row after a 200 from `/api/auth/device/token` in the entry's `routes`. M2.06 settles which with a short test | `K1-kits.md:197-206` |
@@ -601,7 +609,7 @@ change, so the SDK, CLI, MCP and the portal read the same.
 | 13 | **The work app mounts auth only.** It has no organisation: one owner per mission (`git grep organization -- examples/work` finds none). M2.11 mounts organizations only when work declares something that needs it | `examples/work/blueprint` |
 | 14 | **Defaults the plugins ship:** `invitation.accept` is `invitee.notVia(Via.agent)` (joining is the person's own consent); `api-key.create` is `.via(Via.session, Via.device)`; everything else has no narrowing. An app can narrow more, never less | fork 5 |
 | 15 | **`Blueprint.signedIn` admits person and agent**; a handler that needs the person uses `acting(principal)`. A typed narrowing of `principal` by the operation's `allowed` is `later.md` (the types do not keep `allowed` as a tuple today) | `operations/types.ts` |
-| 16 | **Reach hides only MCP tools in M2.** CLI and SDK carry whatever credential they are given and the role check refuses the rest; K1 section 1.4's table (SDK, CLI by reach) goes to `later.md` | `K1-kits.md:229-245` |
+| 16 | **Reach hides only MCP tools in M2.** CLI and SDK carry whatever credential they are given and the role check refuses the rest; K1 section 1.4's table (SDK, CLI by reach) goes to `later.md` ("SDK and CLI reach filtering") and K1 marks it superseded | `K1-kits.md:229-245`; `design/later.md` |
 | 17 | **MCP lists every tool the model says an agent may call, whoever asks** (as K14's mcp card says today); who may call is said in each tool's description | `K14-the-grid.md:358` |
 
 ## Secrets, settings and the environment
@@ -708,6 +716,14 @@ of its own `from` it (acme's `capped`); there is no override.
 
 M2.07 needs M2.22. ST1.03 does not: its journeys stay in the app until M2.22 lands.
 
+**One more checks slice, M2.23.** Removing `cap` from `organization.create` changes acme's wire (point 8), and the world
+files and journeys that carry acme's cap are journey-author files (`examples/acme/blueprint/starting-worlds/funded.ts:1`),
+which a build slice cannot write. So M2.23 is a checks slice, written by a different agent from M2.07's builder. It
+re-authors every check and fixture listed in the move "the cap", and writes acme's `capped` and `funded` worlds, the
+`allowance-policy` journeys and the `grant-an-allowance` rewrite. Its done-when: they fail on today's build for the stated
+reason only (`organization.create` still takes `cap`), and the existing ratchets (`e2e/m1/expected-failing/`,
+`packages/<package>/expected-failing/`) account for them. M2.07 needs M2.23 and nothing else is added to its row.
+
 ## For the checks author (M2.02)
 
 M2.02 writes the journeys and the checks that fail on empty handlers. Everything below is fixed by this record; where it
@@ -766,7 +782,7 @@ plugin's name):
 | `joined` | `invited` | `ada: owner`, `olga: signedIn` | Olga accepts | `{ organization, membership }` |
 
 Acme's `capped` (from `founded`; Ada sets the cap) and `funded` (from `capped`) are acme's own, authored with acme's
-allowance journeys when M2.07 moves the copies.
+allowance journeys by M2.23's checks author, before M2.07 moves the copies.
 
 **The journeys.** The first four are acme's, moved; the rest are new.
 
@@ -802,7 +818,7 @@ for the missing surface only, and are listed in `e2e/m2/expected-failing/` with 
 | M2.04 | `Blueprint.secret`, names from mount and export, `Redacted`, `Blueprint.layer(plugin, { secrets, settings, db })` | as written |
 | M2.05 | `packages/auth`, the identity entry, the worker's move of Better Auth, the `auth` store, `provides`, the server generator, the world | the identity journeys pass with acme mounting it |
 | M2.06 | device flow and its mark, OAuth for MCP, the pages, `signIn`/`keys`, settings | `acme login` and MCP sign-in journeys pass |
-| M2.07 | `packages/organizations`; `holds` roles; acme's `allowance-policy` and `capped`; `api-key` | the tenancy journeys pass from the plugin; acme has no `organization/` folder |
+| M2.07 | `packages/organizations`; `holds` roles; acme's `allowance-policy` thing and handlers, so M2.23's worlds and journeys pass; `api-key` | the tenancy journeys pass from the plugin; acme has no `organization/` folder |
 | M2.09, ST1.07 | `ortho new` writes Plugged In at stage 1 with auth and handles mounted | as written |
 | M2.10 | `ortho new feature`, `example/`, the three targets, the `plugins` job, `ortho publish --local` for plugins | as written |
 | M2.11 | the work app mounts auth | `ortho prove --root examples/work` passes with no copied identity |
@@ -831,16 +847,26 @@ for the missing surface only, and are listed in `e2e/m2/expected-failing/` with 
 - design/milestones.md (M2.07): "organisation, membership, invitation, owner and member as" → "organisation, membership, invitation, api-key, owner and member as"
 - .agents/skills/kanban/data/tasks.json (M2.07): "organisation, membership, invitation, owner, member, holds, starting worlds founded and invited" → "organisation, membership, invitation, api-key, owner, member, holds, starting worlds founded, invited and joined"
 - design/milestones.md (M2.12) and .agents/skills/kanban/data/tasks.json: "M2.13 to M2.20" → "M2.13 to M2.22"
+- K1-kits.md: "**Every route resolves every credential kind,** so an agent's OAuth token on the HTTP API is a person `via:" → "an OAuth token (audience `/mcp`) is anonymous on the HTTP API; at `/mcp` every credential makes an agent (M2-auth fork 2)"
+- K1-kits.md: "`via` is the credential, not the species." → "a key made for an agent is an agent: `via` is the credential, and `kind` says whose hands (M2-auth fork 2)"
+- K1-kits.md: "reach admits `session` or `key`" → "not filtered by reach in M2; the SDK carries every operation (M2-auth small calls, 16; `later.md`)"
+- K1-kits.md: "reach admits `device` or `key`" → "not filtered by reach in M2; the CLI carries every operation (M2-auth small calls, 16; `later.md`)"
 - design/milestones.md (M2.11) and .agents/skills/kanban/data/tasks.json: "The work app mounts auth and organizations" → "The work app mounts auth"
 
-## The sign-in pages (the conductor's call, 21 November 2026)
+## The sign-in pages (settled 21 November 2026)
 
-The question this section used to put to Aaron is settled by the conductor, on Aaron's behalf, in the direction it
-recommended: in M2 the auth plugin serves three plain, working sign-in pages, with no design work. They are where a person
-types the code from their terminal (`/device`), where they agree to let an agent in (`/consent`), and where they sign in
-before that (`/login`). Better Auth already points to them (`options.ts:27`, `:49-50`). M2.06's MCP sign-in journey goes
-through these real pages, never around them to Better Auth's API. The designed versions come with the generated app, after
-Aaron's interface grill.
+The question this section used to put to Aaron is settled by the conductor and the Goal 3 lead, 21 November 2026: plain
+working pages with no design keep Aaron's interface grill intact. In M2 the auth plugin serves three plain, working
+sign-in pages, with no design work. They are where a person types the code from their terminal (`/device`), where they
+agree to let an agent in (`/consent`), and where they sign in before that (`/login`). Better Auth already points to them
+(`options.ts:27`, `:49-50`). M2.06's MCP sign-in journey goes through these real pages, never around them to Better
+Auth's API. The designed versions come with the generated app, after Aaron's interface grill.
+
+**How the journey drives them.** M2.06's checks author writes the journey's page steps: open `/login`, sign in, land on
+`/consent`, agree, and for the CLI open `/device` and type the code. If the journey runner has no browser step, M2.06's
+build slice adds one, checks first. Check 21 (`e2e/m1/21-portal-viewer.test.ts`) and check 28
+(`e2e/m1/28-st1-22-rules-in-the-portal.test.ts`) already drive headless Chromium through `e2e/served-portal`, and the
+step reuses that.
 
 ## For Aaron
 
