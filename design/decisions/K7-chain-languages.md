@@ -239,7 +239,7 @@ vote happened" are different facts.
 - **A submission has one lifecycle on every chain:** `simulated → submitted → included → confirmed`, ending in either
   `dropped` or `reverted`, and with `corrected` possible after `confirmed`.
 - **`confirmed` means the follower saw the declared event for this intent at the environment's confirmation level.**
-  For a vote the intent is `(proposal, voter)`. It never means "my transaction succeeded", so a lost race still
+  For a vote the intent is `(proposal, voter)` (Superseded by M6-chain, 21 November 2026: the intent of a chain call is `(contract, by, nonce)`). It never means "my transaction succeeded", so a lost race still
   confirms, because the vote happened.
 - **`dropped`** means the intent can no longer land:
   - EVM: the nonce was used by something else, or the deadline passed;

@@ -64,15 +64,20 @@ writes neither. For each operation on a thing in a chain store, the Solidity lan
 
 ```solidity
 // generated/solidity/BudgetsBase.sol (shape)
-function spend(bytes32 allowance, uint128 amount, address to) external {                   // direct: the caller is msg.sender
-    _spend_(msg.sender, allowance, amount, to);
+function spend(bytes32 allowance, uint128 amount, address to, uint256 nonce) external {   // direct: the caller is msg.sender
+    _spend_(msg.sender, nonce, allowance, amount, to);
 }
 function spendBySig(bytes32 allowance, uint128 amount, address to,
                     address signer, uint256 nonce, uint256 deadline, bytes calldata signature) external {   // signed: anyone submits
     if (block.timestamp > deadline) revert SignatureExpired(deadline);                       // AR-003
     bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(ALLOWANCE_SPEND_TYPEHASH, allowance, amount, to, signer, nonce, deadline)));
     if (!SignatureChecker.isValidSignatureNow(signer, digest, signature)) revert BadSignature(); // AR-005
-    _spend_(signer, allowance, amount, to);   // the nonce is checked and taken inside, on both paths
+    _spend_(signer, nonce, allowance, amount, to);
+}
+function _spend_(address by, uint256 nonce, bytes32 allowance, uint128 amount, address to) private {
+    if (nonce != nonces[by]) revert InvalidNonce(nonces[by], nonce);                         // AR-004, on both paths
+    nonces[by] = nonce + 1;
+    // then: the row exists, the role, the machine, the developer's _spend, the payment, the event
 }
 ```
 
@@ -80,14 +85,16 @@ function spendBySig(bytes32 allowance, uint128 amount, address to,
   from OpenZeppelin's `EIP712` (5.x), readable through `eip712Domain()` (ERC-5267). The type hash already changes
   whenever a payload changes, so the version stays `"1"`. The primary type is the operation's name in Pascal case
   (`allowance.spend` → `AllowanceSpend`). Its members are the payload's fields in declaration order, each with its
-  Solidity type (item 2), then `address signer`, `uint256 nonce`, `uint256 deadline`.
+  Solidity type (item 2), then `address signer`, `uint256 nonce`, `uint256 deadline`. As EIP-712 requires, a
+  `string` member is encoded as `keccak256(bytes(value))`, never passed through `abi.encode` as it is.
 - **The signer is named, not recovered.** `SignatureChecker` checks an account's own ECDSA signature or asks a contract
   account through ERC-1271. So a Safe can sign through its owners, and a tampered signature is `BadSignature`, not a
   random address refused `NotAllowed` (`evm#12`).
-- **Nonces are per account, in order, on both paths.** `nonces(address)` is a generated read. Every call takes the
-  acting account's next nonce, a direct call included, so the follower matches a call to its intent the same way on
-  both paths (item 4), and a direct call cancels a signed one not yet sent. A signed call whose nonce is not the next
-  one is `InvalidNonce { expected, got }` (AR-004). Unordered nonces (a bitmap, as Permit2 does) wait until someone
+- **Nonces are per account, in order, on both paths.** `nonces(address)` is a generated read. Both entries take the
+  nonce as an argument: the client reads `nonces(by)` and passes it. A call whose nonce is not the account's next one
+  is `InvalidNonce { expected, got }` (AR-004), and a call that lands takes it. So the follower matches a call to its
+  intent the same way on both paths (item 3), two sends from one account can't both land, and a direct call cancels
+  a signed one not yet sent. Unordered nonces (a bitmap, as Permit2 does) wait until someone
   needs several signed calls in flight from one account.
 - **The deadline is a block time.** The client reads the latest block's timestamp and adds the environment's window
   (`deadline: "10 minutes"` by default); it never reads the wall clock (`AGENTS.md`). Time on chain is M6.21's, and
@@ -95,6 +102,9 @@ function spendBySig(bytes32 allowance, uint128 amount, address to,
 - **The order of checks**, the same on every entry and in the TypeScript reference: the deadline, the signature, the
   nonce, then whether the row exists (item 6), then the role, the machine, the developer's body, the payment through
   the account adapter, and the event. Everything after the nonce is the order K7 Q5 fixed.
+- **A Safe as signer.** `SignatureChecker` asks the Safe through ERC-1271, which needs the Safe's fallback handler
+  set and the owners' signature over the Safe-wrapped message. Whether the journeys' Safe grants by signing or by
+  executing a Safe transaction that calls the direct entry is slice 7's call, with its check.
 - **Who sends.** Part 1 (slices 7 and 8): the client sends the direct entry itself through `chain-evm`, after
   simulating. Part 2 (slices 9 and 11): it signs and the relayer sends the signed entry. A wrong signer is refused by
   the simulation before anything is sent, on both paths (M1.32).
@@ -139,16 +149,16 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
   "entries": [
     {
       "entry": "spend",
-      "signature": "spend(bytes32,uint128,address)",
+      "signature": "spend(bytes32,uint128,address,uint256)",
       "selector": "0x…",                // the first 4 bytes of keccak256(signature)
       "kind": "operation",              // operation | read | generated
       "operation": "allowance.spend",
       "path": "direct",                 // direct | signed (operations only)
       "mutability": "nonpayable",
-      "inputs": [{ "name": "allowance", "type": "bytes32", "value": "id" }, { "name": "amount", "type": "uint128", "value": "uint" }, { "name": "to", "type": "address", "value": "account" }],
+      "inputs": [{ "name": "allowance", "type": "bytes32", "value": "id" }, { "name": "amount", "type": "uint128", "value": "uint" }, { "name": "to", "type": "address", "value": "account" }, { "name": "nonce", "type": "uint256" }],
       "outputs": [],
       "role": "grantee",                // the role's export name; null for anyone
-      "refusals": ["AR-004", "AL-901", "AR-001", "AL-900", "AL-001"],   // codes, in the order the entry checks them
+      "refusals": ["AR-004", "AR-001", "AL-900", "AL-001"],   // codes, each once, in the order the entry checks them
       "events": ["AllowanceSpent"]
     },
     {
@@ -162,7 +172,7 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
         { "name": "allowance", "type": "bytes32" }, { "name": "amount", "type": "uint128" }, { "name": "to", "type": "address" },
         { "name": "signer", "type": "address" }, { "name": "nonce", "type": "uint256" }, { "name": "deadline", "type": "uint256" } ] } },
       "role": "grantee",
-      "refusals": ["AR-003", "AR-005", "AR-004", "AL-901", "AR-001", "AL-900", "AL-001"],
+      "refusals": ["AR-003", "AR-005", "AR-004", "AR-001", "AL-900", "AL-001"],
       "events": ["AllowanceSpent"]
     },
     { "entry": "get", "signature": "get(bytes32)", "selector": "0x…", "kind": "read", "operation": "allowance.get", "mutability": "view", "inputs": [/* … */], "outputs": [/* the read's fields, then state */], "role": null, "refusals": ["AL-901"], "events": [] },
@@ -179,7 +189,18 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
 
 - **Entries are sorted** by operation name, then path, then reads and generated entries by name, so the file is stable.
 - **Every event on chain carries `by` and `nonce`** before its declared fields: the acting account and the nonce its
-  call took. The intent K7 Q3 matches for `confirmed` is `(contract, by, nonce)`.
+  call took. K7 Q3 says `confirmed` means the follower saw the declared event for the call's intent, and gave a vote's
+  intent as `(proposal, voter)`, a key from the domain. That key can't tell two spends of one allowance apart, so here
+  the intent of every chain call is `(contract, by, nonce)`, which both entries fix before sending (item 1). A lost
+  race still confirms, as K7 Q3 wants: the other submission carried the same signed nonce, and its event matches.
+- **The refusals an entry lists** are its codes, each once, in the order the entry checks them: on the signed path
+  AR-003, AR-005, then on both paths AR-004, then what the row-exists step raises, the role's AR-001, the machine's
+  `-900`, and the declared errors. The row-exists step raises AR-006 on a creating move, and on any other move what
+  the model's `notFound` says (item 6): `spend` and `revoke`, allowed only to roles that read the row, raise AR-001
+  there, which already appears; `get`, allowed to anyone, raises `AL-901`.
+- **JSON carries its header as a key.** JSON has no comments, so `surface.json` and the lock open with a
+  `"generated"` key holding the `Generated from … Do not edit.` line `AGENTS.md` asks for; `model.json` predates this
+  and is left as it is.
 - **Hand-written external functions** in `src/Budgets.sol` are not in this file. K7 F1 lets them be reached; M6.11 adds
   how, by classifying the compiled ABI in `ortho check` into a separate `generated/solidity/helpers.json`, so this file
   keeps one writer. The budgets example writes none.
@@ -219,13 +240,19 @@ generate. It holds every refusal of the project, whatever language raises it, Ef
 - **A changed shape keeps the code.** Adding or retyping a field gives the code a new wire identity; the old one moves to
   `earlier`, so a client still decodes an older contract (`evm#19`). `chain-evm`'s `RefusalLockEntry` is one EVM wire
   identity, current or earlier, read from this file.
-- **A rename is a new code.** An error whose name leaves the blueprint moves to `retired`, and its code is never given
+- **A rename of a declared error is a new code.** An error whose name leaves the blueprint moves to `retired`, and its code is never given
   again; a renamed error takes a new code, and `ortho check` reports the change as major. This replaces K7 Q5's "a
   rename of a published code is refused": the lock can't tell a rename from a removal and an addition, and refusing
   either would stop a developer renaming an error before anything is published.
+- **Generated refusals follow their thing.** The machine's refusal (`-900`) and not-found (`-901`) are named from the
+  thing and its first state (`describe.ts:101`, `found.ts`). Renaming either keeps the code, since it is the thing's
+  own slot, and moves the old wire identity to `earlier`; `ortho check` reports it as major.
 - **The runtime's codes are fixed by the lock too.** `AR-001` `NotAllowed` and `AR-002` `IdempotencyConflict` as today;
   the chain adds `AR-003` `SignatureExpired { deadline }`, `AR-004` `InvalidNonce { expected, got }`, `AR-005`
-  `BadSignature`, and `AR-006` `AlreadyExists { id }` (item 6). Effect never raises the four new ones.
+  `BadSignature`, and `AR-006` `AlreadyExists { id }` (item 6). Effect's server never raises the four new ones,
+  since it never takes a signed call; the TypeScript reference the fuzz runs does, in item 1's order, because the fuzz
+  drives the generated client (K7 Q8). Adding them to `RUNTIME_CODES` reserves the four names project-wide, as
+  `NotAllowed` is: a declared error can't take one.
 - **The lock's own reader** is the compiler. The model's `refusals` map is read from it, so every generator keeps
   reading codes from the model, as `codes.ts` says today.
 
@@ -236,7 +263,8 @@ K20's rule 6 and K25 item 4 hold: a declared role renders in every language, a `
 - An operation on a chain-stored thing may name only a `who` role whose field is an `account()`, or `.of(path)` to
   one, or a `holds` role whose holding thing lives in the same chain store, or `Blueprint.anyone`. The compiler refuses
   a `rule` role there, naming the operation and the role.
-- A `who` role on an account field compares the field with the acting account (item 1).
+- A `who` role on an account field compares the field with the acting account (item 1). K20 had the compiler refuse
+  a `who` field that holds no person's id; on a chain store an `account()` field is what it holds instead.
 - **On a creating move** (from no state), a `who` role on the operation's own thing is decided on the payload's field
   of the same name: the row about to be made. This is how a Safe grants an allowance that names it.
 - `Blueprint.signedIn` is refused on chain: every caller on chain has signed.
@@ -261,11 +289,18 @@ is `confirmed`, from the event it matched. `allowance.spend`'s `remaining` is al
 ### 8. What a chain operation doesn't declare
 
 The compiler refuses these on an operation of a chain-stored thing, naming each, rather than ignore them:
-- `steps`: the contract reaches only its own store and the account adapter, which the generated base calls;
+- `database` and `actor` steps: the contract reaches only its own store and the account adapter, which the generated
+  base calls. A call into someone else's contract stays a declared step with its one refusal (K7 Q2); budgets has none;
 - `idempotent`: the nonce makes every call land at most once;
 - `runs` (K25 item 6) and `signedBy` (item 1): both are worked out.
 
-A `budget`, which observability reads, stays allowed, and is judged on the time to `included`.
+A `budget`, which observability reads, stays allowed, and is judged on the time to `included`. The thing itself
+declares no invariants: a chain store given rules refuses them, naming the thing, until a slice enforces rules on
+chain (Goal 3's seam note; slice 4's check).
+
+The compiler also refuses a name that would collide in the generated contract: a payload field named `signer`,
+`nonce`, `deadline` or `signature`; an operation whose entry name equals another's `<name>BySig`; and an operation or
+read named like a generated entry (`nonces`, `hasRole`, `eip712Domain`, `grantRole`, `revokeRole`).
 
 ### 9. Reads of a chain-stored thing are public
 
@@ -342,4 +377,7 @@ account until then.
 
 - design/build-plan.md (D5): "(2) `signedBy: role`, where the signed payload is the operation's payload as EIP-712 typed data with a nonce and deadline, checked by OpenZeppelin's SignatureChecker." → "(2) No `signedBy`: every chain operation has a direct entry and a signed one, whose EIP-712 typed data is the payload with the signer, a nonce and a deadline, checked by OpenZeppelin's SignatureChecker (M6-chain item 1)."
 - design/milestones.md (M6.10): "renaming a published code is refused" → "renaming a locked error gives it a new code and retires the old one, and `ortho check` reports it as major (M6-chain item 4)"
+- design/decisions.md (on chain): "people sign with their own wallets (`signedBy: <role>`)" → "people sign with their own wallets; the role an operation allows is who must sign, and no `signedBy` is written (M6-chain item 1)"
+- design/decisions/K7-chain-languages.md (Q3, decided): "For a vote the intent is `(proposal, voter)`." → "The intent of a chain call is `(contract, by, nonce)` (M6-chain item 3)."
+- design/milestones.md (M2.17): "a `who` field that holds no person's id or email" → "a `who` field that holds no person's id, email or, on a chain store, account (M6-chain item 5)"
 - design/decisions/K7-chain-languages.md (Q5, decided item 1): "A rename of a published code is refused." → "A renamed error takes a new code and the old one is retired (M6-chain item 4)."
