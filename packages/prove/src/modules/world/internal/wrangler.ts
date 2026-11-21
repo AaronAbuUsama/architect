@@ -102,19 +102,26 @@ export const bringUp = (w: Wrangle, ready: string) => {
     const child = yield* startWrangler(w);
     // A worker that cannot be built (a missing file, an import of something not exported) leaves wrangler up, waiting for the
     // file to change: it never exits and never answers. Its log holds esbuild's error, so the wait ends the moment that shows.
-    const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent" | "unbuildable"> =>
-      child.exitCode !== null ? Effect.fail("exited")
-        : buildErrors(readLog(w.log).slice(from)) !== undefined ? Effect.fail("unbuildable")
-        : answers(url).pipe(Effect.mapError(() => "silent" as const)));
+    // A taken socket is told apart first: workerd's bind failure also prints a `✘ [ERROR]` line, and it is retried, not reported.
+    const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent" | "unbuildable" | "taken"> => {
+      const log = readLog(w.log).slice(from);
+      return taken(log) ? Effect.fail("taken")
+        : child.exitCode !== null ? Effect.fail("exited")
+        : buildErrors(log) !== undefined ? Effect.fail("unbuildable")
+        : answers(url).pipe(Effect.mapError(() => "silent" as const));
+    });
     yield* up.pipe(
       Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480, while: (e) => e === "silent" }),
       Effect.tapError(() => stop(child)),
       Effect.mapError((e) => {
-        const built = buildErrors(readLog(w.log).slice(from));
+        const log = readLog(w.log).slice(from);
+        const isTaken = e === "taken" || (e === "exited" && taken(log));
+        const built = isTaken ? undefined : buildErrors(log);
         return new WorldFailed({
-          message: built !== undefined ? `couldn't start the world: wrangler could not build the worker:\n${built}\nwrangler's output is in ${w.log}`
+          message: isTaken ? `the world's address was taken; see ${w.log}`
+            : built !== undefined ? `couldn't start the world: wrangler could not build the worker:\n${built}\nwrangler's output is in ${w.log}`
             : e === "exited" ? `the world exited (${child.exitCode}); see ${w.log}` : `the world didn't answer within 120 s; see ${w.log}`,
-          taken: e === "exited" && built === undefined && readLog(w.log).slice(from).includes("Address already in use"),
+          taken: isTaken,
         });
       }),
     );
@@ -124,6 +131,9 @@ export const bringUp = (w: Wrangle, ready: string) => {
 };
 
 const readLog = (log: string) => (existsSync(log) ? readFileSync(log, "utf8") : "");
+
+/** Whether workerd could not bind one of its sockets: another world took it first, and a fresh start picks again. */
+export const taken = (log: string): boolean => log.includes("Address already in use");
 
 const colour = /\u001b\[[0-9;]*m/g;
 
