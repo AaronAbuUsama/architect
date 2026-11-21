@@ -3,7 +3,9 @@
 //   1. a Rules section under a thing's lifecycle, one row per rule;
 //   2. every refusal a rule owns, on every surface that shows one, reads as the rule's sentence (generated from the model, or the rule's own
 //      `description`, which replaces it) and links to the rule's row;
-//   3. a "rules" stop on an operation's spine, between the move and the commit, for an operation that can break a rule.
+//   3. a "rules" stop on an operation's spine, between the move and the commit, for an operation that can break a rule. S-31 (design/decisions/S31-breaks.md):
+//      "can break" is the model's `operations.<op>.breaks`, every rule it can break, with or without a refusal, not `invariants` (only the rules that refuse):
+//      handle.claim's stop lists its two rules and `profile.onePagePerHandle`, which owns no refusal, so that one shows its sentence and its link and no refusal.
 // Plugged In keeps its three one-line `unique` rules until ST1.19, so the check works against them as they stand: the rules are read out of the wire
 // (`rules-fixture.ts` writes them in the way G5 section 3 says the model carries them) and the portal gets them from the wire alone. Not passable by
 // a portal with the words written in: the second variant renames the rules, changes one scope, re-words one rule and drops another's description.
@@ -14,9 +16,11 @@
 //                  when it owns none), data-described "true" when it carries a description; containing `rule-sentence`
 //   refusal        wherever the portal shows a refusal a rule owns (an operation's refusals, a thing's errors, the spine, the reference page):
 //                  data-refusal, data-rule, containing `refusal-sentence` and an `a[data-portal="rule-link"]` to `/portal/things/<thing>#<row id>`
-//   spine-stop     on an operation's page, data-stop "move" | "rules" | "commit" in that order, the rules stop with data-rules (comma joined)
+//   spine-stop     on an operation's page, data-stop "move" | "rules" | "commit" in that order, the rules stop with data-rules (comma joined, the model's `breaks`)
+//   spine-rule     in the rules stop, one per rule in `breaks`: data-rule "<thing>.<rule>", a `spine-rule-sentence` (the rule's own sentence) and one
+//                  `a[data-portal="rule-link"]` to its row; a rule that owns no refusal has no `refusal` in it, one that does may name it
 // The wire (ST1.17): `model.things.<t>.invariants.<rule>` { kind, fields, while, refuse?, description? } and `model.operations.<op>.invariants`
-// { <refusal>: "<thing>.<rule>" }; `Wire`'s schema keeps both (today it drops them: the fixture hands the portal the signed JSON). A refusal of a rule's is plain text nowhere. A sentence carries the model's thing, states and fields.
+// { <refusal>: "<thing>.<rule>" }, and `operations.<op>.breaks` ["<thing>.<rule>"]; `Wire`'s schema keeps all three (today it drops them: the fixture hands the portal the signed JSON). A refusal of a rule's is plain text nowhere. A sentence carries the model's thing, states and fields.
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -82,6 +86,10 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect(model.operations["handle.claim"]!.invariants).toEqual({ HandleTaken: "handle.oneHolderPerName", HandleAlreadyOwned: "handle.oneNamePerPerson" });
     expect(model.operations["handle.claim"]!.errors, "an invariant's error leaves `errors` (G5 section 3)").toEqual([]);
     expect(model.operations["handle.release"]!.invariants, "release only leaves `claimed`: no rule attached").toBeUndefined();
+    expect(model.operations["handle.claim"]!.breaks, "claim breaks all three, the page rule owns no refusal").toEqual(built.rules.map((r) => `${r.thing}.${r.name}`).sort());
+    expect(model.operations["handle.release"]!.breaks, "release breaks none").toEqual([]);
+    expect(model.operations["profile.get"]!.breaks, "profile.get is a read of a thing with no machine: section 3's third rule counts it").toEqual(["profile.onePagePerHandle"]);
+    expect(model.operations["profile.get"]!.invariants, "and the rule has no refusal to attach").toBeUndefined();
   });
 
   it("a portal drawn from the wire passes the judge, as Plugged In stands and as planted", { timeout: 120_000 }, async () => {
@@ -156,7 +164,7 @@ describe.each([
     expect(await said("refusals")).toEqual([]);
   });
 
-  it("handle.claim's spine has a rules stop between the move and the commit naming both rules, and handle.release's has none", { timeout: 300_000 }, async () => {
+  it("handle.claim's spine has a rules stop between the move and the commit listing all three rules it can break, the page rule with its sentence and its link and no refusal; handle.release's has none and profile.get's lists the page rule only", { timeout: 300_000 }, async () => {
     expect(await said("spine")).toEqual([]);
   });
 });
@@ -177,6 +185,21 @@ describe.each([
   ["a refusal listed twice on its operation's page", "refusals", "is shown 2 times", [["o.refusals.map((e) =>", "o.refusals.concat(o.refusals).map((e) =>"]]],
   ["a refusal its operation does not have", "refusals", "not one of its refusals", [["o.refusals.map((e) =>", `o.refusals.concat(["HandleNotClaimed"]).map((e) =>`], [`return "<span>" + esc(e) + "</span>";`, `return '<span data-portal="refusal" data-refusal="' + e + '" data-rule="">' + esc(e) + "</span>";`]]],
   ["a rules stop naming a rule twice", "spine", "names a rule twice", [[SPINE_RULES, `data-rules="' + rules.concat(rules).join(",")`]]],
+  // S-31: the stop lists `breaks`. Each plant is a portal that is wrong in one way the old stop (`invariants` only) or a lazy one could be.
+  ["a stop built from the refusals only (the portal before S-31)", "spine", "the model says it breaks", [[`rules = [...new Set(o.breaks ?? [])]`, `rules = [...new Set(Object.values(o.invariants ?? {}))]`]]],
+  ["a stop that leaves out the rules with no refusal", "spine", "is not what a person reads", [[`rules.map(stopRule).join("")`, `rules.filter((x) => m.things[x.split(".")[0]].invariants[x.split(".")[1]].refuse).map(stopRule).join("")`]]],
+  ["every rule of every thing on every operation", "spine", "can break no rule", [[`rules = [...new Set(o.breaks ?? [])]`, `rules = Object.entries(m.things).flatMap(([t, th]) => Object.keys(th.invariants ?? {}).map((n) => t + "." + n))`]]],
+  ["every rule of the operation's own thing", "spine", "can break no rule", [[`rules = [...new Set(o.breaks ?? [])]`, `rules = Object.keys(m.things[o.thing].invariants ?? {}).map((n) => o.thing + "." + n)`]]],
+  ["a rule listed twice in the stop", "spine", "one each", [[`rules.map(stopRule).join("")`, `rules.map((x) => stopRule(x) + stopRule(x)).join("")`]]],
+  ["a rule's entry in the stop hidden", "spine", "one each", [[`'<div data-portal="spine-rule"`, `'<div style="display:none" data-portal="spine-rule"`]]],
+  ["a rule's entry in the stop with no sentence element", "spine", "spine-rule-sentence", [[`<i data-portal="spine-rule-sentence">`, `<i>`]]],
+  ["a rule's entry in the stop with a sentence of its own", "spine", "one sentence on every surface", [[`esc(sentence(t, n, r))`, `esc(r.refuse ? sentence(t, n, r) : "see the rule")`]]],
+  ["a rule's entry in the stop with no link", "spine", "needs one", [[`<a data-portal="rule-link" data-in="stop"`, `<a data-in="stop"`]]],
+  ["a rule's entry in the stop that names the wrong rule", "spine", "does not name", [[`'">' + n + '</a>' + (r.refuse`, `'">rule</a>' + (r.refuse`]]],
+  ["a rule's entry in the stop linking to another rule's row", "spine", "not to exactly its row", [[`'#rule-' + n + '">' + n + '</a>' + (r.refuse`, `(r.refuse ? '#rule-' + n : '#rule-oneHolderPerName') + '">' + n + '</a>' + (r.refuse`]]],
+  ["a rule's entry in the stop linking outside the portal", "spine", "not to exactly its row", [[`data-in="stop" href="/portal/things/`, `data-in="stop" href="https://wrong.example/portal/things/`]]],
+  ["a refusal in the entry of a rule that owns none", "spine", "which owns none", [[`(r.refuse ? " " + view(o, r.refuse) : "") + "</div>"`, `(r.refuse ? " " + view(o, r.refuse) : '<span data-portal="refusal" data-refusal="Phantom" data-rule="">Phantom</span>') + "</div>"`]]],
+  ["an entry that sits outside the rules stop", "spine", "outside the rules stop", [[`'">rules: ' + rules.map(stopRule).join("") + '</div>'`, `'">rules</div>' + rules.map(stopRule).join("")`]]],
   // the five proofs' other ways (SKILL.md, proof 5), one planted fault each
   ["a sentence right for one rule and wrong for another", "sentences", "does not carry", [[`r.fields.join(' and '))`, `(thing === 'profile' ? 'x' : r.fields.join(' and ')))`]]],
   ["a scope wider than the model's", "section", `while "claimed,released"`, [[`'" data-while="' + r.while.join(",")`, `'" data-while="' + r.while.concat(["released"]).join(",")`]]],
@@ -193,8 +216,8 @@ describe.each([
   ["the rules after the operations", "section", "after the operations", [[`+ (rules.length ? '<section data-portal="rules">'`, `+ Object.values(m.operations).filter((o) => o.thing === name).map((o) => '<div data-portal="operation-row" data-operation="' + o.name + '">' + o.name + "</div>").join("") + (rules.length ? '<section data-portal="rules">'`]]],
   ["a generated sentence repeating another rule's description", "sentences", "repeats another rule's description", [[`' holds this '`, `' holds this you already hold a name '`]]],
   // an attribute says it, the page does not (and a link that leaves the portal)
-  ["a rules stop with data-rules and no names", "spine", "is not what a person reads", [[`'">rules: ' + rules.map((x) => x.split(".")[1]).join(", ") + '</div>'`, `'">rules</div>'`]]],
-  ["a rules stop that shows only one of its rules", "spine", "is not what a person reads", [[`rules.map((x) => x.split(".")[1])`, `rules.slice(1).map((x) => x.split(".")[1])`]]],
+  ["a rules stop with data-rules and no names", "spine", "is not what a person reads", [[`'">rules: ' + rules.map(stopRule).join("") + '</div>'`, `'">rules</div>'`]]],
+  ["a rules stop that shows only one of its rules", "spine", "is not what a person reads", [[`rules.map(stopRule).join("")`, `rules.slice(1).map(stopRule).join("")`]]],
   ["a commit stop that says something else", "spine", "not commit", [[`data-stop="commit">commit</div>'`, `data-stop="commit">done</div>'`]]],
   ["a row whose data-rule is not shown by name", "section", "does not show its name", [[`'"><b>' + n + '</b> <i data-portal="rule-sentence">'`, `'"><b></b> <i data-portal="rule-sentence">'`]]],
   ["a row whose data-refuse is not shown", "section", "does not show it", [[`(r.refuse ? " refuses " + view({ invariants: { [r.refuse]: name + "." + n } }, r.refuse) : "")`, `""`]]],

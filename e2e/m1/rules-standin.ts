@@ -25,10 +25,13 @@ fetch("/_portal/v1/blueprint").then((x) => x.json()).then((b) => {
       + Object.values(m.operations).filter((o) => o.thing === name).map((o) => '<div data-portal="operation-row" data-operation="' + o.name + '">' + o.name + "</div>").join("")
       + Object.keys(t.errors ?? {}).map((e) => "<p>" + view(Object.values(m.operations).find((o) => o.thing === name && ownerOf(o, e)) ?? {}, e) + "</p>").join("");
   } else if (kind === "operations" && m.operations[name]) {
-    const o = m.operations[name], rules = [...new Set(Object.values(o.invariants ?? {}))];
+    const o = m.operations[name], rules = [...new Set(o.breaks ?? [])];
+    // S-31: the rules stop lists every rule the operation can break (breaks), each with its sentence and a link to its row; a rule that refuses also names its refusal.
+    const stopRule = (full) => { const [t, n] = full.split("."), r = m.things[t].invariants[n];
+      return '<div data-portal="spine-rule" data-rule="' + full + '"><b>' + n + '</b> <i data-portal="spine-rule-sentence">' + esc(sentence(t, n, r)) + '</i> <a data-portal="rule-link" data-in="stop" href="/portal/things/' + t + '#rule-' + n + '">' + n + '</a>' + (r.refuse ? " " + view(o, r.refuse) : "") + "</div>"; };
     body = "<h1>" + name + "</h1><ul>" + o.refusals.map((e) => "<li>" + view(o, e) + "</li>").join("") + "</ul>"
       + (o.move ? '<div data-portal="spine-stop" data-stop="move">move</div>' : "")
-      + (rules.length ? '<div data-portal="spine-stop" data-stop="rules" data-rules="' + rules.join(",") + '">rules: ' + rules.map((x) => x.split(".")[1]).join(", ") + '</div>' : "")
+      + (rules.length ? '<div data-portal="spine-stop" data-stop="rules" data-rules="' + rules.join(",") + '">rules: ' + rules.map(stopRule).join("") + '</div>' : "")
       + '<div data-portal="spine-stop" data-stop="commit">commit</div>';
   } else if (route !== "/" && route !== "/reference/refusals") body = "<p>not found</p>";
   document.getElementById("root").innerHTML = '<main data-portal="page" data-ready="true" data-status="200">' + body + "</main>";

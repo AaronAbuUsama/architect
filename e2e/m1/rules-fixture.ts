@@ -7,7 +7,7 @@ import { Wire } from "@orthograph/portal";
 import type { ServedPortal } from "../served-portal/types.ts";
 
 export interface Rule { readonly thing: string; readonly name: string; readonly fields: ReadonlyArray<string>; readonly while: ReadonlyArray<string>; readonly refuse?: string; readonly description?: string }
-export interface Raw { model: { things: Record<string, { unique?: Record<string, { while?: ReadonlyArray<string> }>; invariants?: Record<string, unknown>; errors?: Record<string, unknown> }>; operations: Record<string, { thing: string; errors: Array<string>; refusals: Array<string>; invariants?: Record<string, string> }> }; digest?: string }
+export interface Raw { model: { things: Record<string, { unique?: Record<string, { while?: ReadonlyArray<string> }>; invariants?: Record<string, unknown>; errors?: Record<string, unknown> }>; operations: Record<string, { thing: string; errors: Array<string>; refusals: Array<string>; invariants?: Record<string, string>; breaks?: Array<string>; move?: unknown }> }; digest?: string }
 
 /** How a variant names the three rules, by `thing.field`; `while` overrides what the wire's `unique` says (a planted change). */
 export type Naming = Readonly<Record<string, { readonly name: string; readonly refuse?: string; readonly description?: string; readonly while?: ReadonlyArray<string> }>>;
@@ -23,6 +23,9 @@ export const PLANTED: Naming = {
   "handle.owner": { name: "ownerHoldsOneName", refuse: "HandleAlreadyOwned" },
   "profile.handle": { name: "pageIsUnique" },
 };
+
+/** The operations of Plugged In that can break a rule which owns no refusal, by the rule's `thing.field`: what the model's `breaks` holds beyond the rules `invariants` maps. */
+const BREAKS_WITH_NO_REFUSAL: Readonly<Record<string, ReadonlyArray<string>>> = { "handle.claim": ["profile.handle"], "profile.get": ["profile.handle"] };
 
 /** The wire with the rules, and the rules read back out of it. It is the signed JSON as a Worker would hold it, not a decoded one: `Wire.decode` drops what its schema does not name, and ST1.17 adds `invariants` to it. `keepUnique`: the one-liners stay (as they stand) or go (a wire from after ST1.20). */
 export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: boolean): Promise<{ readonly wire: Raw; readonly rules: ReadonlyArray<Rule> }> => {
@@ -51,6 +54,14 @@ export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: 
       }
     }
     if (!keepUnique) delete t.unique;
+  }
+  // S-31: every operation carries `breaks`, the way the compiler's `breakersOf` works it out: the full name of each rule it can break, refusal or not (G5 section 3;
+  // design/decisions/S31-breaks.md). The rules with a refusal are the ones `invariants` already maps; the rules with none are named here, from what Plugged In's blueprint
+  // does (handle.claim makes a profile, and profile.get is a read of a thing with no machine, which section 3's third rule counts as a breaker): a rule the wire's
+  // operation maps no refusal for, and the model still lists.
+  const fullName = (key: string) => { const [thing, field] = key.split("."); const rule = rules.find((r) => r.thing === thing && r.fields[0] === field); if (rule === undefined) throw new Error(`no rule on ${key}`); return `${rule.thing}.${rule.name}`; };
+  for (const [name, op] of Object.entries(unsigned.model.operations)) {
+    op.breaks = [...new Set([...Object.values(op.invariants ?? {}), ...(BREAKS_WITH_NO_REFUSAL[name] ?? []).map(fullName)])].sort();
   }
   return { wire: { ...unsigned, digest: Wire.digestOf(unsigned) }, rules };
 };
@@ -82,6 +93,7 @@ const SCAN = `(() => {
     refusals: q('[data-portal="refusal"]').map((e) => { const l = q('a[data-portal="rule-link"]', e)[0] ?? null; return { name: a(e, "data-refusal"), rule: a(e, "data-rule"), sentence: text(e, '[data-portal="refusal-sentence"]'), sentences: q('[data-portal="refusal-sentence"]', e).length, links: q('a[data-portal="rule-link"]', e).length, inSpine: e.closest('[data-portal="spine-stop"]') !== null, text: e.innerText, linkText: l === null ? "" : l.innerText.trim(), abs: l === null ? null : l.href, href: l === null ? null : a(l, "href") }; }),
     lifecycles: q('[data-portal="lifecycle"]').length,
     bare,
+    spineRules: q('[data-portal="spine-rule"]').map((e) => { const own = q('a[data-portal="rule-link"]', e).filter((x) => !x.closest('[data-portal="refusal"]')), l = own[0] ?? null; return { rule: a(e, "data-rule"), inRulesStop: e.closest('[data-portal="spine-stop"][data-stop="rules"]') !== null, sentence: text(e, '[data-portal="spine-rule-sentence"]'), sentences: q('[data-portal="spine-rule-sentence"]', e).length, links: own.length, linkText: l === null ? "" : l.innerText.trim(), abs: l === null ? null : l.href, href: l === null ? null : a(l, "href"), refusals: q('[data-portal="refusal"]', e).length }; }),
     stops: q('[data-portal="spine-stop"]').map((e) => ({ stop: a(e, "data-stop"), rules: a(e, "data-rules"), text: e.innerText })),
     ids: q("[id]").map((e) => e.id),
   };
@@ -90,6 +102,7 @@ interface Seen {
   origin: string; sectionText: string; lifecycleText: string; order: Array<string>; lifecycles: number; sections: number; strays: number; rules: Array<{ rule: string; fields: string; while: string; refuse: string; described: string; id: string; sentence: string; sentences: number; text: string }>;
   refusals: Array<{ name: string; rule: string; sentence: string; sentences: number; links: number; inSpine: boolean; text: string; linkText: string; abs: string | null; href: string | null }>; bare: Array<{ name: string; text: string }>;
   stops: Array<{ stop: string; rules: string; text: string }>; ids: Array<string>;
+  spineRules: Array<{ rule: string; inRulesStop: boolean; sentence: string; sentences: number; links: number; linkText: string; abs: string | null; href: string | null; refusals: number }>;
 }
 const scan = (portal: ServedPortal, route: string, names: ReadonlyArray<string>) => portal.evaluate<Seen>(route, SCAN.replace("__NAMES__", JSON.stringify(names)));
 
@@ -196,23 +209,45 @@ export const judge = async (portal: ServedPortal, wire: { model: Raw["model"] },
   }
 
   for (const [name, op] of Object.entries(wire.model.operations)) {
-    const stops = (await read(`/portal/operations/${name}`)).stops;
-    const attached = [...new Set(Object.values(op.invariants ?? {}))].sort();
+    const opPage = await read(`/portal/operations/${name}`);
+    const stops = opPage.stops;
+    // S-31: the stop lists what the model says the operation can BREAK (`breaks`), not only the rules it attaches a refusal for (`invariants`).
+    const attached = [...new Set(op.breaks ?? [])].sort();
+    const hasMove = op.move !== null && op.move !== undefined;
     for (const stop of new Set(stops.map((s) => s.stop))) if (stops.filter((s) => s.stop === stop).length > 1) out.spine.push(`${name}: the spine has the ${stop} stop more than once`);
     const at = stops.findIndex((s) => s.stop === "rules");
     if (attached.length === 0) { if (at >= 0) out.spine.push(`${name}: a rules stop on the spine of an operation that can break no rule`); continue; }
     const [move, commit] = [stops.findIndex((s) => s.stop === "move"), stops.findIndex((s) => s.stop === "commit")];
     if (at < 0) { out.spine.push(`${name}: the spine has no \`[data-portal="spine-stop"][data-stop="rules"]\``); continue; }
-    if (!(move >= 0 && move < at && at < commit)) out.spine.push(`${name}: the rules stop is not between the move and the commit (stops: ${stops.map((s) => s.stop)})`);
+    if (!((hasMove ? move >= 0 && move < at : true) && at < commit)) out.spine.push(`${name}: the rules stop is not between the move and the commit (stops: ${stops.map((s) => s.stop)})`);
     const rulesStop = stops[at]!;
     const everyRule = rules.map((r) => r.name);
     const shownNames = everyRule.filter((n) => new RegExp(`\\b${n}\\b`).test(rulesStop.text));
     const modelNames = attached.map((f) => f.split(".")[1]!).sort();
-    if (shownNames.slice().sort().join() !== modelNames.join()) out.spine.push(`${name}: the rules stop shows the rules [${shownNames}] but the model attaches [${modelNames}]: its data-rules is not what a person reads`);
+    if (shownNames.slice().sort().join() !== modelNames.join()) out.spine.push(`${name}: the rules stop shows the rules [${shownNames}] but the model says it breaks [${modelNames}]: its data-rules is not what a person reads`);
     for (const w of ["move", "commit"]) { const stop = stops.find((x) => x.stop === w); if (stop !== undefined && !new RegExp(w, "i").test(stop.text)) out.spine.push(`${name}: the ${w} stop's text says "${stop.text.trim()}", not ${w}`); }
     const listed = rulesStop.rules.split(",").filter(Boolean);
     if (new Set(listed).size !== listed.length) out.spine.push(`${name}: the rules stop names a rule twice ("${stops[at]!.rules}")`);
-    if ([...new Set(listed)].sort().join() !== attached.join()) out.spine.push(`${name}: the rules stop lists "${stops[at]!.rules}", the model attaches [${attached}]`);
+    if ([...new Set(listed)].sort().join() !== attached.join()) out.spine.push(`${name}: the rules stop lists "${stops[at]!.rules}", the model says it breaks [${attached}]`);
+    // Each rule in the stop is a `spine-rule`: its sentence (the rule's own, one sentence on every surface) and a link to its row; a rule that owns no
+    // refusal shows no refusal. One per broken rule, none for another.
+    const inStop = opPage.spineRules.filter((x) => x.inRulesStop);
+    if (opPage.spineRules.length !== inStop.length) out.spine.push(`${name}: a \`spine-rule\` outside the rules stop`);
+    const named = inStop.map((x) => x.rule);
+    if ([...new Set(named)].sort().join() !== attached.join() || named.length !== new Set(named).size) out.spine.push(`${name}: the rules stop has a \`[data-portal="spine-rule"]\` for [${named}], the model says it breaks [${attached}], one each`);
+    for (const x of inStop) {
+      const rule = rules.find((r) => full(r) === x.rule);
+      if (rule === undefined) continue;
+      const row = rows.get(x.rule);
+      if (x.sentences !== 1 || x.sentence !== row?.sentence) out.spine.push(`${name}: the rules stop says "${x.sentence}" (${x.sentences} \`spine-rule-sentence\`) for ${x.rule}, its row reads "${row?.sentence}": one sentence on every surface`);
+      if (!x.linkText.includes(rule.name)) out.spine.push(`${name}: the rules stop's link for ${x.rule} reads "${x.linkText}", it does not name ${rule.name}`);
+      if (x.links !== 1) out.spine.push(`${name}: the rules stop has ${x.links} \`rule-link\` anchors for ${x.rule}, it needs one`);
+      if (rule.refuse === undefined && x.refusals > 0) out.spine.push(`${name}: the rules stop shows a refusal for ${x.rule}, which owns none`);
+      const dest = x.abs === null ? undefined : new URL(x.abs);
+      const there = dest === undefined || dest.origin !== opPage.origin || dest.pathname !== `/portal/things/${rule.thing}` || dest.hash === "" ? undefined : await read(dest.pathname).catch(() => undefined);
+      const landed = there?.rules.find((r) => r.id === dest!.hash.slice(1));
+      if (landed?.rule !== x.rule || (there?.ids ?? []).filter((id) => id === dest!.hash.slice(1)).length !== 1) out.spine.push(`${name}: the rules stop's link for ${x.rule} goes to ${x.href ?? "nothing"}, not to exactly its row on /portal/things/${rule.thing}`);
+    }
   }
   return out;
 };
