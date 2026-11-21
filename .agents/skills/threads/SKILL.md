@@ -11,8 +11,8 @@ at a glance: `<emoji> <Type>: <subject>`, for example `🔨 Builder: L1.13 gener
 agent has tags or labels, tag it `thread:<type>`, in your agent's form (the table at the end).
 
 A goal reports through its own files and GitHub, not to a chat (K32): its brief's "Where it stands", rewritten at
-every merge; its snag file; a `goal-<n>` label on its pull requests and issues; and an issue labelled for another goal
-when it needs that goal to act. A goal may run in any harness and never depends on reaching the conductor. A thread
+every merge; Snag issues in its milestone; its milestone and `goal-<n>` label on its pull requests and issues; and an Ask issue
+in another goal's milestone when it needs that goal to act (K33, the `github` skill). A goal may run in any harness and never depends on reaching the conductor. A thread
 the conductor started also ends each turn with a `TO THE CONDUCTOR` block or a one-line status, and messages it where
 its agent can, but anything a message settles is written into a file or an issue.
 

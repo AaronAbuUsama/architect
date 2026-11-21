@@ -27,8 +27,8 @@ thread types, their emojis, their finish lines and your agent's word for each ac
    - **its scope,** and the threads it must not collide with;
    - **its branch;**
    - **its finish line:** the step's "done when" check, word for word;
-   - **how it reports:** for a goal, its brief's "Where it stands", its snag file, its `goal-<n>` label and issues
-     (K32); for a thread you started, also a message where its agent can send one and a one-line status at the end of
+   - **how it reports:** for a goal, its brief's "Where it stands", its milestone and `goal-<n>` label, and its Snag and
+     Ask issues (K32, K33; the `github` skill); for a thread you started, also a message where its agent can send one and a one-line status at the end of
      each turn.
 4. **Update Aaron's view** (below).
 
@@ -52,7 +52,7 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 ## Goals in other harnesses (K32)
 
 A goal may run in Amp, Codex or another account, started by Aaron with its brief's one-line start. You don't relay for
-it: read its brief's "Where it stands", its snag file, the `goal-<n>` label and the release milestones on GitHub. Before
+it: read its brief's "Where it stands", its milestone on GitHub, with its Snag and Ask issues (K33). Before
 it starts, cut and protect its branch. Answer cross-goal issues by deciding, as a decision, when two goals disagree.
 Keep `.agents/skills/kanban/STATE.md` as the index: each goal, its harness if known, its branch, brief and done check.
 
