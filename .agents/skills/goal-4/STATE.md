@@ -18,8 +18,8 @@ below in order as CI goes green, then get slice 3 built.
   CI, then merge.
 - Slice 2 (M6.02): the budgets blueprint and seven journeys, [#276](https://github.com/AaronAbuUsama/architect/pull/276) (🔍 passed); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
   (hostile pass, two 🔍 rounds, passed). Both wait on CI and on [#275](https://github.com/AaronAbuUsama/architect/pull/275).
-- Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), being aligned to M6-chain item 11; then a hostile
-  pass, a 🔍, and a framework builder.
+- Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass is running, then
+  a 🔍 and a framework builder. Its build waits on the money answers.
 - Slices 4 to 12: not started.
 
 ## Open pull requests, in merge order
@@ -29,7 +29,7 @@ below in order as CI goes green, then get slice 3 built.
 | [#275](https://github.com/AaronAbuUsama/architect/pull/275) | `goal-4/m6-chain` | the chain decision | CI |
 | [#276](https://github.com/AaronAbuUsama/architect/pull/276) | `goal-4/m602-journeys-check` | budgets blueprint and journeys | CI, [#275](https://github.com/AaronAbuUsama/architect/pull/275) |
 | [#279](https://github.com/AaronAbuUsama/architect/pull/279) | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI, [#276](https://github.com/AaronAbuUsama/architect/pull/276) |
-| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | item 11 alignment, hostile pass, 🔍 |
+| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | hostile pass, 🔍, the money answers |
 | [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
 
 After [#279](https://github.com/AaronAbuUsama/architect/pull/279) merges: add `e2e-on-chain` to `goal/on-chain`'s required checks (once it has run green) and record it in
