@@ -63,3 +63,17 @@ STEP 4 DONE: All four SafeTx signature formats executed and all three malformed 
    and `evidence/budget-anvil.txt`.
 
 STEP 5 DONE: All 13 Forge tests and the full Anvil script passed, including budgets, rollover, child-hat controls and exact token amounts.
+
+6. **The budget invariant passed and caught the planted mutant.** The handler
+   tracked person and child spend independently by hat and period, and changed
+   limits through signed Safe calls. Each action checked the on-chain rows and
+   reconciled Safe and recipient balances against the ledger. Seed `0x7` ran
+   128 sequences at depth 64 on the real module, for 8,192 calls. The stale
+   rollover mutant failed on the first run after nine calls. Foundry shrank
+   that to a full spend, a warp across the boundary and a limit change. The
+   mutant still showed 100 spent in the new period, where the ledger showed
+   zero. Both runs and exit codes are in `evidence/budget-invariant.txt`.
+   Keep the epoch alignment and permanent revocation in the final README's
+   open risks. Calendar months depend on K23 and M8.
+
+STEP 6 DONE: All 14 Forge tests passed on the real module, and the seeded invariant caught the stale rollover mutant.
