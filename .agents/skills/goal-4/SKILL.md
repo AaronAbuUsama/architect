@@ -21,12 +21,12 @@ merge, read them on their branches (`git show origin/<branch>:<path>`, branches 
 3. `design/goals/04-snags.md`: every snag, and who owns it.
 4. `design/decisions/M6-chain.md`: the chain decision every slice builds to (items 1 to 11).
 5. `AGENTS.md`, and the `threads`, `author` and `reviewer` skills.
-6. `gh pr list --base goal/on-chain` and `git log --oneline -15 origin/goal/on-chain`, to check STATE.md against GitHub.
+6. `gh issue list --label goal-4`, `gh pr list --base goal/on-chain` and `git log --oneline -15 origin/goal/on-chain`, to check STATE.md against GitHub.
    Where they disagree, GitHub is right: fix STATE.md.
 
 ## The loop, per slice
 
-1. **Start:** check `goal/stage-1` for anything that changes the plan (slice 1 waits for Goal 3's sign-in extraction,
+1. **Start:** read the open `goal-4` issues and pull requests into `goal/on-chain` (K32). Check `goal/stage-1` for anything that changes the plan (slice 1 waits for Goal 3's sign-in extraction,
    M2.05). Merge `origin/goal/stage-1` into the slice's first branch, by a merge, never a rebase.
 2. **Decision step,** if the slice needs one: the lead writes it in `design/decisions/` (take an ID from the goal
    file's "Decision IDs" table), runs `tools/ci/supersedes.sh`, and gets a 🔍 pass.
@@ -39,9 +39,10 @@ merge, read them on their branches (`git show origin/<branch>:<path>`, branches 
 6. **Build:** a framework builder on a `-build` branch turns the check green, removing only lines from
    `expected-failing/`. At most three builders at once. Then a 🔍.
 7. **Merge** when CI is green, every thread is answered and resolved, and the 🔍 passed: `gh pr merge <n> --merge`.
-8. **After the merge,** in one docs pull request: update `STATE.md`, `design/handoff.md` if it names Goal 4, and the
-   slice's line in the goal file. Then report to the conductor in two or three plain lines: the slice, its check, its
-   snags.
+8. **After the merge,** in the next pull request (CI-drafts: fold notes in, don't open a pull request for them alone):
+   rewrite the brief's "Where it stands" and `STATE.md`, and `design/handoff.md` if it names Goal 4. Say the slice, its
+   check and its snags there and in the pull request, for Aaron's ear (K32). A message to the conductor is welcome, but
+   nothing depends on it.
 
 ## How the roles were run (21 November 2026)
 
