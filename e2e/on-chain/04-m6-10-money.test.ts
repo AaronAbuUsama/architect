@@ -18,11 +18,13 @@
 //      (budgets' spend answer `remaining` is a field of the event's `remaining`, though they are separate objects; with other bits it is not);
 //   6b. the binding is keyed by store: `assets: { usdc: { budgets: Chain.evm.token("0x…") } }`; check names the asset and the store; bound for another store is not bound;
 //   8. the lock writes a money field as `{ value: "money", bits, signed, asset }`; `ortho check` reports as major a change of a money field's asset, bits or signed, and uint to money and back;
+//   9. the real examples/budgets blueprint (which M6-money's change moves to money.of) compiles to { field: "token" } money.
 //   7. the wire (c): the schema of a money field accepts only `^(0|[1-9][0-9]*)$` (`^(0|-?[1-9][0-9]*)$` when signed) within the bits' range, as a bigint of the digits, and refuses the rest.
 //      Planted rows: 1.5, 1e3, 01, +1, -0, " 1", "1 USDC", -1 on unsigned, 2^128 on 128 bits, and more; each judged by an oracle written from the rule, not read from the output.
 //
-// WHERE THE SPELLING IS MINE. M6-money names `Blueprint.money(asset, { signed })`, `Blueprint.money.of(x)`, `Blueprint.asset.token`, `.currency`, `Chain.evm.token` and `{ bits }`; where `bits` is given I
-// pass it to `Blueprint.money(asset, { bits })` (money.of takes no options here). The asset's model name is the file's name (`usdc`), the currency's lowercase file name. The refusals' words
+// A currency in a read: a read's fields are the thing's own, so the currency field of (b) is it; no separate case.
+// WHERE THE SPELLING IS MINE. M6-money names `Blueprint.money(asset, { signed })`, `Blueprint.money.of(x)`, `Blueprint.asset.token`, `.currency`, `Chain.evm.token` and `{ bits }`; where `bits` is given for
+// a fixed asset I pass it to `Blueprint.money(asset, { bits })`; `money.of(x, { signed, bits })` takes the same options (M6-money item 1) and the answer-equality rows pass them. The asset's model name is the file's name (`usdc`), the currency's lowercase file name. The refusals' words
 // (`money`, `asset`, `currency`, `chain`, `bind`, `environment`) are the keywords of what is refused. The environment's `Chain.evm.network("anvil")` is the budgets example's own spelling.
 //
 // THE CONTROLS plant wrong outputs against `wireProblems` (a decoder that accepts each bad row, refuses each good one, returns the wrong bigint or a number), and `moneyProblems`.
@@ -31,7 +33,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { lockProblems, solidityProblems } from "./chain-readers.ts";
-import { ASSETS, CHAIN_BASE, DB_BASE, NOTE, compiles, inFile, projectOf, put, refusalLines, refuses, run, swap, word, type Files } from "./chain-fixture.ts";
+import { copyOf, repo } from "../layer1/support.ts";
+import { ASSETS, CHAIN_BASE, DB_BASE, NOTE, compiles, inFile, projectOf, put, refusalLines, refuses, run, swap, word, type AnyModel, type Files } from "./chain-fixture.ts";
 
 const MONEY = (asset: Record<string, string>, bits = 128, signed = false) => ({ type: "money", bits, signed, asset });
 const FIELD = MONEY({ field: "token" });
@@ -350,5 +353,24 @@ describe("8. ortho check reports a change of a money field as major", () => {
   it("nothing changed: no major", () => {
     const out = major(MONEY_VALUE({ token: "usdc" }, 64), MONEY_VALUE({ token: "usdc" }, 64));
     expect(refusalLines(out, [/\bmajor\b/i])).toEqual([]);
+  });
+});
+
+describe("9. the real examples/budgets blueprint counts its amounts in the allowance's token", () => {
+  it("ortho model --json on a copy of the example (its journeys left out: they need later slices): every amount is { field: token }, 128 bits, unsigned, uint128", () => {
+    const copy = copyOf(join(repo, "examples/budgets"), ["ortho.config.ts", "blueprint", "package.json"]);
+    try {
+      const r = run(copy.root, "model", "--json");
+      expect(r.status, r.err.slice(0, 1500)).toBe(0);
+      const m = JSON.parse(r.out) as AnyModel;
+      const t = m.things["allowance"] as unknown as { fields: Record<string, { value: Meta; solidity?: string }>; events: Record<string, Record<string, { value: Meta }>> };
+      const ops = m.operations as unknown as Record<string, { payload: Record<string, { value: Meta }>; answer: Record<string, { value: Meta }> }>;
+      const fields: Array<readonly [string, unknown]> = [
+        ["limit", t.fields["limit"]], ["spent", t.fields["spent"]], ["spend.amount", ops["allowance.spend"]!.payload["amount"]], ["spend.remaining", ops["allowance.spend"]!.answer["remaining"]],
+        ["AllowanceSpent.amount", t.events["AllowanceSpent"]!["amount"]], ["AllowanceSpent.remaining", t.events["AllowanceSpent"]!["remaining"]],
+      ];
+      expect(moneyProblems(fields, FIELD), moneyProblems(fields, FIELD).join("\n")).toEqual([]);
+      expect(t.fields["limit"]?.solidity).toBe("uint128");
+    } finally { copy.remove(); }
   });
 });

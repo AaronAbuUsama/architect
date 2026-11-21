@@ -33,8 +33,9 @@ const GET = inFile(`blueprint/${V}/get.ts`);
 const spendWith = (line: string, base: Files = CHAIN_BASE): Files => swap(base, `${V}/spend.ts`, "  allowed: [grantee],\n", `  ${line}\n  allowed: [grantee],\n`);
 const withRule = (files: Files): Files => put(files, "things/allowance/roles.ts", `${files["things/allowance/roles.ts"]}export const auditor = Blueprint.role(Allowance, { rule: () => true });\n`);
 /** The words of the options an operation may not declare: a line that is one case's refusal must not carry another's. */
-const OPTIONS = { rule: /\brule\b/i, signedIn: /signedIn|signed.in/i, database: /database/i, actor: /actor/i, idempotent: /idempotent/i, runs: /\bruns\b/i, signedBy: /signedBy/ } as const;
-const only = (own: keyof typeof OPTIONS, files: Files, ...alternatives: ReadonlyArray<ReadonlyArray<RegExp>>) =>
+// Only the words that are never anything but an option's name: a correct message may say "a chain operation runs on chain, so declares no database step" or name an actor.
+const OPTIONS = { rule: /\brule\b/i, signedIn: /signedIn|signed.in/i, idempotent: /idempotent/i, signedBy: /signedBy/ } as const;
+const only = (own: string, files: Files, ...alternatives: ReadonlyArray<ReadonlyArray<RegExp>>) =>
   refusesWith(files, Object.entries(OPTIONS).filter(([k]) => k !== own).map(([, r]) => r), ...alternatives);
 const allowedSpend = (allowed: string, files: Files = CHAIN_BASE): Files => swap(files, `${V}/spend.ts`, "  allowed: [grantee],\n", `  allowed: [${allowed}],\n`);
 
@@ -108,10 +109,10 @@ describe("a name that would collide in the generated contract is refused", () =>
   }
   const copyOfRevoke = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/revoke.ts`]!);
   const copyOfGet = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/get.ts`]!);
-  for (const verb of ["nonces", "has-role", "eip712-domain", "grant-role", "revoke-role"]) {
+  for (const verb of ["nonces", "has-role", "eip712-domain", "grant-role", "revoke-role", "get-role-admin", "renounce-role"]) {
     it(`an operation named ${verb}`, () => refuses(copyOfRevoke(verb), [inFile(`blueprint/${V}/${verb}.ts`), /generated|entry|reserved|collid|clash/i]));
   }
-  for (const verb of ["nonces", "has-role"]) {
+  for (const verb of ["nonces", "has-role", "get-role-admin", "renounce-role"]) {
     it(`a read named ${verb}`, () => refuses(copyOfGet(verb), [inFile(`blueprint/${V}/${verb}.ts`), /generated|entry|reserved|collid|clash/i]));
   }
   it("an operation spend-by-sig beside spend, which has a spendBySig of its own", () => refuses(copyOfRevoke("spend-by-sig"), [inFile(`blueprint/${V}/spend-by-sig.ts`), /BySig/i], [SPEND, /BySig/i]));

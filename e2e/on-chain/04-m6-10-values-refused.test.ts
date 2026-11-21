@@ -79,7 +79,11 @@ describe("a chain store refuses what a public chain would show", () => {
       .replace("    by: Blueprint.account(),", "    by: Blueprint.account(),\n    balance: Blueprint.visibility.private(Blueprint.uint(64), grantee),"));
     refuses({ ...CHAIN_BASE, ...files }, [inFile("blueprint/things/note/thing.ts"), word("balance"), /private/i]);
   });
-  it("a private value on an event field", () => refuses(
+  it("a private field on an event, private to a role", () => refuses(
+    swap(swap(CHAIN_BASE, "things/allowance/events.ts", "export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id });", "export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id, why: Blueprint.visibility.private(Blueprint.uint(64), grantee) });"), "things/allowance/events.ts", 'import { Allowance } from "./thing.ts";', 'import { Allowance } from "./thing.ts";\nimport { grantee } from "./roles.ts";'),
+    [inFile("blueprint/things/allowance/events.ts"), word("why"), /private/i],
+  ));
+  it("a secret value on an event field", () => refuses(
     swap(CHAIN_BASE, "things/allowance/events.ts", "export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id });", "export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id, why: Blueprint.visibility.secret(Blueprint.text({ max: 20 })) });"),
     [inFile("blueprint/things/allowance/events.ts"), word("why"), /secret/i], [FILE, word("why"), /secret/i],
   ));
