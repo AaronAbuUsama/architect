@@ -5,6 +5,44 @@ takes each, check first, and the climber comes back to that step once it is fixe
 (by the journey author and the checks author) are logged the same way, with "Hit" naming who hit them. Status is one of
 `open`, `building` (with its PR), `fixed` (with the change), or `parked` (with an owner and a reason).
 
+## Triage, 21 November 2026
+
+The Goal 3 lead went through every snag whose Status was `open` in one pass, checking each against the code on
+`goal/stage-1` at `61a7df04`. The call for each is its Status line; Hit, Lost, Cause and Fix are unchanged. A snag blocks
+if it stands in the way of M2's auth journeys or principals, the story through the CLI, SDK, MCP and HTTP, `nx run
+e2e:stage1`, or a staging run (M7.03, M7.04); the seven journeys in `examples/plugged-in/journeys/` are green, so only
+future journeys count. S-29, S-30 and S-31 are in flight and S-01 to S-04, S-22, S-23 and S-25 were already fixed; none of
+them was touched.
+
+| Verdict | Count | Snags |
+|---|---|---|
+| Fixed already (found fixed in the code) | 3 | S-10 (#76), S-12 (#116, #117), S-19 (#205, #227, #229) |
+| Open, blocks | 3 | S-27, S-17 (HAN-15 only), S-11 |
+| Parked, with an owner | 14 | S-05 to S-09, S-13 to S-16, S-20, S-21, S-24, S-26, S-28 (S-17's HAN-13 and HAN-14 are parked inside its line) |
+
+That is 20 snags: S-05 to S-17 (13), S-19 to S-21 (3), S-24 and S-26 to S-28 (4). The brief counted 21 lines. This
+change also removes a stray second `Status: fixed (#148)` under S-27, a copy of S-25's left by a merge.
+
+**The blockers, in the order to fix them**
+
+1. **S-27, a throwing `pick` kills the run.** A small prove slice, and first because a single red step in the story or
+   the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
+   nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
+   is ready now.
+2. **S-17, HAN-15: the answer-shape eval lets a sign-in answer omit its issued token.** A checks slice. It must land
+   before M2.02's and M2.05's identity journeys are written, because a sign-in that issues no token would otherwise
+   pass the eval; after that the check cannot be added without moving a green journey.
+3. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
+   through the CLI and MCP, and the held-off grid cells `error.cli`, `error.mcp` and `invariant.cli` stay off. S-20
+   and S-16 ride on it.
+
+Everything parked is journey-language ergonomics no journey needs (S-05 to S-09), wallet and chain items (S-13, S-15, the
+device half of S-17), cells held off until M2.08 (S-20, S-16), and small hygiene (S-14, S-21, S-24, S-26, S-28). Each has
+an owner and a trigger in its line, and the ones without a milestone slice have a line in `design/later.md`.
+
+Not a snag, but the done check depends on it: `nx run e2e:stage1` has no target in `e2e/project.json` yet, and the
+staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because nothing has been hit.
+
 ## S-01 · prove · every run's numbers come from its text
 - Hit: the checks author, writing the climb recorder (#110): `ortho prove` prints only text, so `tools/climb/record.mjs`
   parses each journey's line to append `runs.jsonl`.
@@ -43,48 +81,48 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Hit: the journey author (#107): a world that claims a name can be used by one journey only, so five near-copies.
 - Cause: worlds share one database and names must differ.
 - Fix: framework or journey API, a world parameterised per journey (or names minted per run).
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the five worlds are near-copies but every stage 1 journey is green, and no planned journey needs a world shared by two journeys; M2's `founded` and `invited` worlds can each be per journey the same way. Owner: later.md (journey language). Revisit when a journey needs a world that two journeys share, or a world mints a value that must differ per run.
 
 ## S-06 · journeys · a world's `gives` returns only `s.last`
 - Hit: the journey author (#107).
 - Fix: journey API, `gives` names more than the last answer.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the journeys read what they need from the page and `s.last`, and no stage 1 or M2 journey needs an earlier answer from a world. Owner: later.md (journey language). Revisit when a starting world has to hand over an answer that is not its last call's.
 
 ## S-07 · journeys · a step can't compare against the previous answer
 - Hit: the journey author (#107).
 - Fix: journey API.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the journeys route around it with a world that gives the handle, and nothing in M2.02's list needs a comparison between two answers. Owner: later.md (journey language). Revisit when a journey must check a step's answer against the previous one and no world can give it.
 
 ## S-08 · journeys · a refused step leaves `s.last` unchanged
 - Hit: the journey author (#107): one step relies on it; it should be stated, or `s.last` should hold the refusal.
 - Fix: journey API, decide and document.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): `a stranger cannot edit a page` states the dependency in one place, and it is green; the call to make is a documentation line, not a blocker. Owner: later.md (journey language). Revisit when a journey or the journey docs next say what `s.last` holds after a refusal.
 
 ## S-09 · journeys · no journey can send a malformed payload
 - Hit: the journey author (#107): `InvalidPayload` can't be reached, so runtime refusals coverage stays 6 of 7.
 - Fix: journey API, a raw payload step.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): prove counts the runtime's own refusals but never requires them (`packages/prove/src/modules/evals/internal/run.ts:80`), so `InvalidPayload` unreached fails nothing. Owner: later.md (journey language). Revisit when a journey needs to send a payload its operation does not declare, which is also when S-14's undeclared-key hole matters.
 
 ## S-10 · scaffold · a handler scaffold misses declarations added after it was written
 - Hit: the journey author (#107): four handlers had to be re-scaffolded to pick up new refusals.
 - Fix: framework, K16 (#76) territory; recheck once #76 lands.
-- Status: open
+- Status: fixed (#76, K16): `ortho check` now warns when a declared refusal, state or step has no case in a handler that is already the project's (`packages/lint/src/modules/rules/internal/drift.ts`, checked by `e2e/m1/19-scaffold-explains.test.ts`, which names `AllowanceFrozen`). `ortho generate` still leaves an existing handler alone, by design: the warning is the answer.
 
 ## S-11 · grid · the CLI and MCP error cells can't be judged live
 - Hit: the checks author (#110): `error.cli` and `error.mcp` need the refused call seen through each client.
 - Fix: framework, `prove --through` (M2.08).
-- Status: open
+- Status: open, blocks M2.08, the story through the CLI and MCP, and the held-off cells `error.cli`, `error.mcp` and `invariant.cli`: `ortho prove --through cli|mcp` (M2.08, needs M2.05) runs a journey's steps through the clients and captures the refusal as data. `--through` exists nowhere in `packages/` today.
 
 ## S-12 · runtime · a reused request key with another payload is a defect (ledger HAN-10)
 - Hit: Aaron's review of #95.
 - Fix: framework, a typed built-in refusal `IdempotencyConflict` over HTTP, the SDK and the CLI; an early framework slice
   after #76 lands.
-- Status: open
+- Status: fixed (#116 the checks, #117 the build): `IdempotencyConflict` is the runtime's own refusal (`packages/language-effect/src/modules/handler/types.ts`; its exit 120 is in `packages/compiler/src/modules/model/internal/exits.ts:9`), reaching HTTP, the SDK and the CLI, and `e2e/m1/24-idempotency-conflict.test.ts` is green off the ratchet list.
 
 ## S-13 · wallets · a send that never reaches depth is a defect (ledger HAN-11)
 - Hit: the 🔍 review of #104.
 - Fix: framework, a typed failure in `SendRefused`; an early framework slice after #76 lands.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): stage 1 has no wallet and no chain; the send's depth defect is a stage 2 refusal, and S-18's chain-settings slice must land first to reach it from a journey. Owner: later.md (stage 2 wallets, with S-18). Revisit when ST2.01 starts, or when S-18's chain settings are taken (#113 and #114 stay open).
 
 ## S-14 · describe and portal · journey redaction is three rules, not one (ledger HAN-12)
 - Hit: the 🔍 review of #109 on m1 (advice item 5).
@@ -92,7 +130,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   public fields (undeclared keys hidden), but a completed operation's payload and `refuses` hide only declared non-public
   fields, so an undeclared key stays visible.
 - Fix: framework, one redaction rule shared with the visibility module (M1.35, #95), check first; after #95 lands.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the leak needs a journey payload or refusal carrying a key the operation does not declare, and no journey can send one (S-09); a declared secret is redacted at every site today (`journeys.ts:14-17`, `:76`). Owner: later.md (journey redaction, one rule with the visibility module). Revisit when S-09's raw payload step is built, or before the release pass M7.13, whichever comes first.
 
 ## S-15 · errors · a plugin's error has no `_tag` when it runs from source
 - Hit: the HAN-11 builder (#114): the check reads `_tag` on `SendNotIncluded` and `SendNotConfirmed`, but
@@ -104,13 +142,13 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Cause: a declared error's name comes only from generation.
 - Fix: framework, `Blueprint.error` (or the runtime) derives `_tag` from the declaring export, check first; then
   `names.ts` goes.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the name is only needed on the wallet's device path (`packages/wallets/src/modules/submit/internal/names.ts`); Plugged In's errors are all named by generation, and stage 1 has no wallet. Owner: later.md (stage 2 wallets). Revisit when ST2.01 starts, or when a plugin's error is read by `_tag` from source in a journey.
 
 ## S-16 · MCP · a tool call carries no request key (ledger HAN-16)
 - Hit: HAN-10's checks author (#116): an idempotent operation called over MCP can't be replayed, so
   `IdempotencyConflict` can't be reached there.
 - Fix: framework, with M1.12's request key, check first.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): a request key is optional (`packages/language-effect/src/modules/handler/service.ts:162`), so the story's single claim over MCP runs without one; only a replay through MCP needs it. Owner: M2.08 (journeys through the clients). Revisit when M2.08 replays a journey that sends a request key through MCP, which is `a name is claimed once`.
 
 ## S-17 · Codex on #95's code (ledger HAN-13, HAN-14, HAN-15)
 - Hit: Codex's review of #116 (the code is #95's, M1.35).
@@ -119,7 +157,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
   framework, check first.
 - HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
-- Status: open (HAN-13 parked, M7.03)
+- Status: open, blocks M2.05's sign-in journeys (HAN-15 only): a checks slice makes the answer-shape eval (`packages/prove/src/modules/evals/internal/calls.ts:49`) require a declared `Blueprint.issued` field to be present on a sign-in answer, before M2.05's identity journeys are written. HAN-14 is parked (Goal 3 lead, 21 November 2026): the device SDK is the wallet's browser path, Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03.
 
 ## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
 - Hit: the journeys for HAN-11's two new wallet refusals (#113, #114). The coverage eval rightly asks for a journey
@@ -132,7 +170,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   instead of the constants, and passed to the wallet. A framework slice: decision, then check, then builder.
 - Call (Goal 3 lead): park HAN-11 behind the climb. #113 and #114 stay open, unmerged; the slice is taken when a builder
   is free of S-04 and S-01 to S-03. No stub chain, no unreachable RPC, no coverage exemption.
-- Status: parked (Goal 3 lead): HAN-11 waits behind the climb; the chain-settings slice is taken when a builder is free.
+- Status: parked (Goal 3 lead): HAN-11 waits behind the climb; the chain-settings slice is taken when a builder is free. Revisit at ST2.01, stage 2's first chain slice (S-13 waits on it too).
 
 ## S-19 · records · a unique value moved between holders in one call passes in memory, fails on D1 (ledger HAN-18)
 - Hit: Codex's review of #118 (G4, S-04).
@@ -144,7 +182,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Owner: the decision is G5's (📐 invariants-ripple, which settles write-order semantics in both stores and a self-made
   conflict failing fast, ordered before the invariant runtime slice); the build is the Goal 3 lead's, check first, any
   time after the starting curve. No stage 1 journey moves a unique value between holders.
-- Status: open
+- Status: fixed (#205 the checks, #227 the build, #229 the follow-up): the unit orders its writes, frees before takes, and the memory store applies them one at a time (ST1.11, ST1.12; check 31).
 
 ## S-04 note · the spelling of unique fields is open with Aaron (conductor, 19 November 2026)
 - The conductor's recommendation to Aaron: `blueprint/things/<thing>/invariants.ts`, one named export per rule, e.g.
@@ -168,7 +206,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   (`e2e/grid/src/modules/refusal-evals/internal/facts.ts:48`). When these cells switch on, their facts come from the
   runtime's real refusal shapes, not the model's declared fields alone, and a test exercises a real not-found refusal.
 - Owner: Goal 3 lead, with S-11 (`prove --through`).
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): the cells it guards (`error.cli`, `error.mcp`, `invariant.cli`) are held off in `e2e/grid/held-off.json`, so no switched-on cell is wrong today. Owner: M2.08, with S-11 (`prove --through`). Revisit when `--through` lands and the held-off cells are switched on; the not-found facts then come from the runtime's real shapes.
 
 ## S-21 · prove · a journey whose starting world fails reports 0 of 0 steps, so the curve can't say N
 - Hit: the starting curve's dry run (the recorder from #110 over Plugged In, 19 November 2026). Five of seven journeys
@@ -177,7 +215,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Needs: prove's report gives a stopped journey its real step count (`total`, with `green: 0`), so "0 of N" is N.
 - Owner: Goal 3 lead; a small prove slice, check first. It doesn't block the climb: "claim a handle" (8 steps) runs
   from no world, and climbing it makes the worlds that the other journeys start from.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): every journey already reads all its steps green and the report says `no step ran` for a stopped one; only the count of an unwritten journey is wrong. Owner: later.md (prove report). Revisit when M2.07's tenancy journeys, which start from the `founded` and `invited` worlds, are climbed from red.
 
 ## S-22 · handle · "aaron cannot add a link before he has a page" and "aaron cannot claim a second name while he holds one": a handler can't find the caller's own handle
 - Hit: the climb of "claim a handle" (steps 3 and 7; 5 of 8 green with everything else written). `link.add` must refuse
@@ -219,8 +257,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   journey") fail the run too whenever `--only` runs one journey of seven, so "10 failing" stays after every step is green.
 - The scaffold's `Handlers.blank` placeholders gave the shape (step wrapping, refusal ifs) well; what it does not say is
   which `Records` call to use for "is this name taken", so the climber read `records/types.ts` and `examples/acme`.
-- Status: open (for the lessons step: scaffold comment naming `Records.findBy` for unique fields; `--only` should not count
-  coverage against the journeys it excluded)
+- Status: parked (Goal 3 lead, 21 November 2026): friction found while climbing, with no fix needed to proceed. The scaffold's missing `Records` call for a unique field is ST1.17's (the scaffold header names the rule); the install line and `--only` coverage are lessons. Owner: ST1.17 for the scaffold, later.md for `--only` coverage and the worktree install line. Revisit when ST1.17 builds, and at the lessons step (loop step 5).
 
 ## S-25 · prove · a run can land on another run's world or Collector, and report wrong verdicts instead of failing
 - Hit: the 🔍 reviewer of #140 re-ran `record.mjs --only "claim a handle"` in a fresh worktree while other sessions had
@@ -245,7 +282,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   scaffold, the handlers and the journeys at it. A check author then adds a lint or canon check that a state's name
   appears as a string only in `generated/`.
 - Owner: Goal 3 lead, for a framework builder after the M1.42 client slice.
-- Status: open
+- Status: parked (Goal 3 lead, 21 November 2026): every state string is a spelling the types catch only where they are typed against the state union, and `machine.states.<state>` references now exist (ST1.14); moving the four string sites and a lint for them waits for a slice, and no stage 1 or M2 journey depends on it. Owner: later.md (declared names as constants). Revisit when a state is renamed in a blueprint, or when the lint rule for declared names is written.
 
 ## S-27 · prove · a journey check that throws kills the run instead of failing its step
 - Hit: the checks author of #150, running the grid twice: `ortho prove` died with `TypeError: Cannot read properties of
@@ -272,7 +309,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   pattern only inside the Schema, so evals, docs and clients can't see it.
 - Fix: the framework records a value's pattern or format in the model.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open. The stopgap `max === 254` heuristic in `e2e/grid/src/modules/output-schema/internal/sample.ts` is deleted when it lands.
+- Status: parked (Goal 3 lead, 21 November 2026): the grid's stopgap (`max === 254`) keeps the output-schema eval judging Acme's email, and no other pattern-bearing value is declared. Owner: later.md (the model records a value's pattern). Revisit when a second value with a pattern is declared, or M2.05's person email needs a sample the heuristic cannot give.
 
 ## S-29 · prove · a handler that imports a rule `invariants.ts` doesn't export makes prove wait forever
 - Hit: with `oneHolderPerName` deleted from Plugged In's handle rules while the claim handler still imports it,

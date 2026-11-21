@@ -1,0 +1,7 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: false
+overrides:
+  kysely: 0.29.7
+minimumReleaseAge: 4320
