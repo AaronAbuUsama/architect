@@ -1,0 +1,84 @@
+{
+  "//": "Cut from origin/goal/stage-1 at eaf7a10e, examples/plugged-in/generated/model/model.json. Real.",
+  "operations": {
+    "handle.claim": {
+      "kind": "operation",
+      "name": "handle.claim",
+      "thing": "handle",
+      "verb": "claim",
+      "identifier": "claim",
+      "file": "blueprint/things/handle/verbs/claim.ts",
+      "from": {
+        "kind": "app"
+      },
+      "description": "Claim a free name and make it the address of your public page, with its profile.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name",
+          "description": "A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page."
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id",
+          "description": "The handle's own id."
+        }
+      },
+      "move": {
+        "key": "claim",
+        "from": [],
+        "to": [
+          "claimed"
+        ],
+        "emits": "HandleClaimed"
+      },
+      "errors": [
+        "HandleTaken",
+        "HandleAlreadyOwned"
+      ],
+      "refusals": [
+        "HandleTaken",
+        "HandleAlreadyOwned",
+        "NotAllowed",
+        "IdempotencyConflict"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "mints": "handle",
+      "steps": {
+        "load": {
+          "name": "handle.claim.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "handle.claim.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "2c184f936278b420"
+    }
+  },
+  "refusals": {
+    "HandleAlreadyOwned": "HN-002",
+    "HandleTaken": "HN-001",
+    "IdempotencyConflict": "AR-002",
+    "NotAllowed": "AR-001"
+  }
+}
