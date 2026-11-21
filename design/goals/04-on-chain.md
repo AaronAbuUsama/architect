@@ -43,7 +43,7 @@ K25, K26 and K27 landed there. The number came from the conductor.
 
 **Start, in any harness:** "You lead Goal 4. Read `AGENTS.md` and `design/goals/04-on-chain.md`, and run it." The lead's
 way of working and its live state are the `goal-4` skill (`.agents/skills/goal-4/SKILL.md` and `STATE.md`). Goal 4
-coordinates through git and GitHub (K32, K33): its milestone (`Goal 4: on chain`), the `goal-4` label and the
+coordinates through git and GitHub (K32, K33): its milestone (`Goal 4: on chain, end to end`), the `goal-4` label and the
 `release:1.0` label on every pull request and issue; the front matter above is what the sync reads (K33 item 5). New
 snags are Snag issues in the milestone; `04-snags.md` stays as the record of S-01 to S-12. Every comment Goal 4's
 agents post on GitHub starts with `[goal-4 · <role> · claude · <model>]`.
@@ -152,7 +152,7 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 >   before the next slice starts. So a fresh or compacted session, in any harness, continues where you stopped. The conductor keeps
 >   `.agents/skills/kanban/STATE.md` and the board from these; never edit them.
 > - **At every slice start:** read the open issues in Goal 4's milestone, Ask issues above all, and the open pull
->   requests into `goal/on-chain` (`gh issue list --milestone "Goal 4: on chain"`, `gh issue list --label goal-4`,
+>   requests into `goal/on-chain` (`gh issue list --milestone "Goal 4: on chain, end to end"`, `gh issue list --label goal-4`,
 >   `gh pr list --base goal/on-chain`); close each issue with the pull request that answers it.
 > - **Reporting:** through these files and GitHub, not a chat (K32). A slice's merge says, in its pull request and in
 >   "Where it stands", the slice, its check and its snags, written for Aaron's ear. A message to the conductor is
