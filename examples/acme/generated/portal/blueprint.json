@@ -699,6 +699,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -720,7 +721,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "6bed21e0ae22d8a8"
+        "hash": "dda468294d6b9bd5"
       },
       "allowance.grant": {
         "kind": "operation",
@@ -777,6 +778,7 @@
         "errors": [
           "AllowanceLimitTooHigh"
         ],
+        "breaks": [],
         "refusals": [
           "AllowanceLimitTooHigh",
           "PersonNotFound",
@@ -810,7 +812,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "05d96c688a802279"
+        "hash": "1d27a95e77670a13"
       },
       "allowance.revoke": {
         "kind": "operation",
@@ -845,6 +847,7 @@
           "emits": "AllowanceRevoked"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "AllowanceNotActive",
           "NotAllowed"
@@ -871,7 +874,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ff4138cdaf06af2e"
+        "hash": "d59fb51da22f3f00"
       },
       "allowance.spend": {
         "kind": "operation",
@@ -930,6 +933,7 @@
         "errors": [
           "AllowanceExceeded"
         ],
+        "breaks": [],
         "refusals": [
           "AllowanceExceeded",
           "AllowanceNotActive",
@@ -961,7 +965,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "1a96511a5550edcd"
+        "hash": "c5394cd5a630e83a"
       },
       "api-key.create": {
         "kind": "operation",
@@ -1010,6 +1014,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -1039,7 +1044,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "69f515f7088b2d8e"
+        "hash": "14deeff32922c212"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -1088,6 +1093,7 @@
           "emits": "InvitationAccepted"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "InvitationNotPending",
           "NotAllowed"
@@ -1113,7 +1119,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "2a36a93997c71f99"
+        "hash": "40cceacba00c0163"
       },
       "invitation.revoke": {
         "kind": "operation",
@@ -1147,6 +1153,7 @@
           "emits": "InvitationRevoked"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "InvitationNotPending",
           "NotAllowed"
@@ -1173,7 +1180,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "aacefd8778f73cb5"
+        "hash": "95edc097961ff88f"
       },
       "invitation.send": {
         "kind": "operation",
@@ -1220,6 +1227,7 @@
           "emits": "InvitationSent"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -1246,7 +1254,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "65b4785dba83b560"
+        "hash": "77c8ef0b1791ffb1"
       },
       "membership.get": {
         "kind": "read",
@@ -1293,6 +1301,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -1314,7 +1323,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "681858c8967f5976"
+        "hash": "d8557c04ed7f857c"
       },
       "organization.create": {
         "kind": "operation",
@@ -1362,6 +1371,7 @@
           "emits": "OrganizationCreated"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed",
           "IdempotencyConflict"
@@ -1388,7 +1398,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "31321a24dbb25334"
+        "hash": "9e58654e475e986e"
       },
       "organization.get": {
         "kind": "read",
@@ -1434,6 +1444,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -1450,7 +1461,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "fa554aa19547e5b1"
+        "hash": "8481a45e201eda3e"
       },
       "person.sign-up": {
         "kind": "operation",
@@ -1500,6 +1511,7 @@
         "errors": [
           "PersonEmailTaken"
         ],
+        "breaks": [],
         "refusals": [
           "PersonEmailTaken"
         ],
@@ -1520,7 +1532,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "e11e9d899807519a"
+        "hash": "79f794725e7f08d3"
       },
       "session.show": {
         "kind": "operation",
@@ -1552,6 +1564,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [
           "NotAllowed"
         ],
@@ -1567,7 +1580,7 @@
         "budget": {
           "p95Ms": 100
         },
-        "hash": "4c1f11c0f00cc6e0"
+        "hash": "fd19967b0d38e8da"
       },
       "session.sign-in": {
         "kind": "operation",
@@ -1621,6 +1634,7 @@
         "errors": [
           "SessionCredentialsWrong"
         ],
+        "breaks": [],
         "refusals": [
           "SessionCredentialsWrong"
         ],
@@ -1641,7 +1655,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "5613fa720dc82a20"
+        "hash": "e0820fd8a10524cf"
       },
       "system.health": {
         "kind": "operation",
@@ -1665,6 +1679,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [],
         "allowed": [
           {
@@ -1678,7 +1693,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "7e17e7bd40ff6ca9"
+        "hash": "ac3f84873bd5c233"
       }
     },
     "journeys": {
@@ -3917,86 +3932,86 @@
   },
   "dependsOnByOperation": {
     "allowance.get": {
-      "operation:allowance.get": "6bed21e0ae22d8a8",
+      "operation:allowance.get": "dda468294d6b9bd5",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.grant": {
-      "operation:allowance.grant": "05d96c688a802279",
+      "operation:allowance.grant": "1d27a95e77670a13",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.revoke": {
-      "operation:allowance.revoke": "ff4138cdaf06af2e",
+      "operation:allowance.revoke": "d59fb51da22f3f00",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "allowance.spend": {
-      "operation:allowance.spend": "1a96511a5550edcd",
+      "operation:allowance.spend": "c5394cd5a630e83a",
       "thing:allowance": "9618231166c0d7f1",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "api-key.create": {
-      "operation:api-key.create": "69f515f7088b2d8e",
+      "operation:api-key.create": "14deeff32922c212",
       "thing:api-key": "dec54cf75bd4acb9",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.accept": {
-      "operation:invitation.accept": "2a36a93997c71f99",
+      "operation:invitation.accept": "40cceacba00c0163",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.revoke": {
-      "operation:invitation.revoke": "aacefd8778f73cb5",
+      "operation:invitation.revoke": "95edc097961ff88f",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "invitation.send": {
-      "operation:invitation.send": "65b4785dba83b560",
+      "operation:invitation.send": "77c8ef0b1791ffb1",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "membership.get": {
-      "operation:membership.get": "681858c8967f5976",
+      "operation:membership.get": "d8557c04ed7f857c",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "organization.create": {
-      "operation:organization.create": "31321a24dbb25334",
+      "operation:organization.create": "9e58654e475e986e",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "organization.get": {
-      "operation:organization.get": "fa554aa19547e5b1",
+      "operation:organization.get": "8481a45e201eda3e",
       "thing:organization": "561078515c5ea01e",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "person.sign-up": {
-      "operation:person.sign-up": "e11e9d899807519a",
+      "operation:person.sign-up": "79f794725e7f08d3",
       "thing:person": "b9ea3faa6d8c2cff"
     },
     "session.show": {
-      "operation:session.show": "4c1f11c0f00cc6e0",
+      "operation:session.show": "fd19967b0d38e8da",
       "thing:person": "b9ea3faa6d8c2cff",
       "thing:session": "455311c2adae1097"
     },
     "session.sign-in": {
-      "operation:session.sign-in": "5613fa720dc82a20",
+      "operation:session.sign-in": "e0820fd8a10524cf",
       "thing:person": "b9ea3faa6d8c2cff",
       "thing:session": "455311c2adae1097"
     },
     "system.health": {
-      "operation:system.health": "7e17e7bd40ff6ca9",
+      "operation:system.health": "ac3f84873bd5c233",
       "thing:system": "357767c64efceced"
     }
   },
@@ -4039,5 +4054,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "3c3f100e72f5c9f381259c4293e27b67a638a504d370847963440039d3a5f144"
+  "digest": "3bc68abb075bc63c2391b51542f6d41c312052b7ebc2abed0b777b359831e9cf"
 }

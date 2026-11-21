@@ -1,4 +1,0 @@
-# S-29: a handler imports a rule its invariants.ts does not export, and prove waits for ever (found by #241's checks author). Both red tests pass when prove exits non-zero within 60 s and names the export and a file. The controls pass today.
-m1/36-s29-prove-names-a-missing-rule.test.ts > 36: a handler importing a rule its invariants.ts does not export fails fast and says which > a whole prove with oneHolderPerName removed exits non-zero within 60 s and names the export and a file
-m1/36-s29-prove-names-a-missing-rule.test.ts > 36: a handler importing a rule its invariants.ts does not export fails fast and says which > the same with `--only 'claim a handle'`: the world cannot start either
-m1/36-s29-prove-names-a-missing-rule.test.ts > 36: a handler importing a rule its invariants.ts does not export fails fast and says which > a whole prove with oneNamePerPerson removed (a rule only link.add imports): the same, naming that export, not the first
