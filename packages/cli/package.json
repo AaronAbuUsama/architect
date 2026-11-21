@@ -9,8 +9,8 @@
     "@orthograph/projections": "workspace:*",
     "@orthograph/prove": "workspace:*",
     "orthograph": "workspace:*",
-    "@effect/platform-node": "4.1.1",
-    "effect": "4.1.1",
+    "@effect/platform-node": "4.1.4",
+    "effect": "4.1.4",
     "nx": "24.0.3",
     "wrangler": "4.156.1"
   },

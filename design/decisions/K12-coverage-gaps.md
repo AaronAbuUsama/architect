@@ -155,6 +155,21 @@ K7 is merged and wallets is built, but the canon still says it waits (or "wait")
 `design/frame/writing-a-feature.md` describes the wallet before M1.29. There is no page for `chain-evm` and `wallets`. Docs are the spec, so the gap is a
 slice, done by the canon thread.
 
+### M1.39: what its builder settled
+
+The page is `docs/canon/chains-and-wallets.mdx`, the thirtieth in the outline (written after the layers, so numbered last),
+and it owns `chain port`, `signer`, `wallet`, `confirmation depth`, `submission` and `chain in a world`. Calls the builder made:
+
+- **K7 over K5 where they disagree.** The stores page's note said "pending until mined" belongs to the caller. K7 decided a chain
+  store's own commit may answer late with a submission, so the note now says both: a server call that sends a transaction is
+  still a workflow, and a chain store's commit returns a submission.
+- **Each "waits on K7" says what K7 decided and which slice builds it** (M6.10, M6.11, M6.14, ST2.02), and no more. Pages that
+  called the chain column "illustrative" now say it is K7's design, and the status tables read `specified`, not `open`.
+- **A stale note went with them.** `languages-and-hosts` still said no slice lifts the refusal of `runs: "client"`; M1.27 did.
+- **`design/frame/writing-a-feature.md`** is rewritten around what M1.29 built: five operations with `signer` and `label` in the
+  payload, CAIP-10 text values, four signers, no `needs`, and the chain as a host setting. The linked half (`challenge`,
+  `complete`, `link`) stays as a section marked proposed, for M2.13.
+
 ## 6. The portal's wire (inside M1.13)
 
 M1.13's row already carries `from`, events and errors with codes, journeys, starting worlds, stores and mounts (F8
@@ -215,3 +230,7 @@ the handler scaffold (`move.ts:61`); reads are served generically and need no ha
 | M1.10 built `ortho add` on `node:fs` | on Nx's `Tree` (M2.14) | the spec's decision, and edits in place need it |
 | visibility decided per output (L2, D3 #125 for MCP) | one rule in `language-effect` (M1.35) | three outputs applied none |
 | the wallet's `confirmed` at depth one | from the chain and environment (M1.38) | K7 F2 |
+
+## Supersedes
+
+- docs/canon/stores.mdx: "belongs to the caller, so a server call" → "A server call that sends a transaction is a workflow. K7 decided that a chain store's own commit may answer late"

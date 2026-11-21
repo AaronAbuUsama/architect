@@ -60,7 +60,7 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 
 All five must hold:
 1. **No conflicts:** the pull request merges cleanly.
-2. **A fresh CI run:** green on a head that includes the current `main`.
+2. **A fresh CI run:** green on the head that will merge; `main` checks every merge on its own push run (CI-drafts).
 3. **The layer's gate passes:** its one e2e suite, on a clean checkout.
 4. **A 🔍 pass, the gate.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that wrote
    none of it, against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
