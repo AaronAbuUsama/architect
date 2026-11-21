@@ -11,8 +11,9 @@ const toolDescription = (model: Model, o: Model["operations"][string]) =>
   [o.description, ...Object.keys(o.invariants ?? {}).flatMap((r) => { const rule = ruleBehind(model, o, r); return rule ? [`Refuses ${r} when ${rule.sentence}.`] : []; })].join(" ");
 
 export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
-  // MCP is the agent's way in: an operation a mount narrowed without Via.agent has no tool (M1-plugins section 3).
-  const ops = Object.values(model.operations).filter((o) => o.via === undefined || o.via.includes("agent"));
+  // MCP is the agent's way in: an operation is a tool when some `allowed` entry admits an agent and no mount narrowed `agent` away
+  // (M2-auth, fork 2): the model says so as `agentTool`.
+  const ops = Object.values(model.operations).filter((o) => o.agentTool && (o.via === undefined || o.via.includes("agent")));
   return [{
     path: "generated/mcp/src/index.ts",
     scaffold: false,

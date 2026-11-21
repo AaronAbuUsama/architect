@@ -1,9 +1,10 @@
 import { Effect, Layer } from "effect";
-import { Auth, AuthRefused, Principals } from "@orthograph/language-effect";
+import { Auth, AuthRefused, Principals, type PrincipalDoor } from "@orthograph/language-effect";
 import type { Principal } from "orthograph";
 import type { AuthD1Api, AuthInstance, CastMember } from "./types.ts";
 import { held, instance, statusOf, type BetterAuth } from "./internal/instance.ts";
-import { KEY_PREFIX } from "./internal/options.ts";
+import { ACTS_FOR_AN_AGENT, KEY_PREFIX } from "./internal/options.ts";
+import * as worldToken from "./internal/world-token.ts";
 import * as oauth from "./internal/oauth.ts";
 
 const ANONYMOUS: Principal = { kind: "anonymous" };
@@ -12,12 +13,32 @@ const ANONYMOUS: Principal = { kind: "anonymous" };
 const call = <A>(a: AuthInstance, f: (auth: BetterAuth) => Promise<A>) =>
   Effect.tryPromise({ try: () => held(a).auth().then(f), catch: (e) => e });
 
-const principalOf = (a: AuthInstance, authorization: string | undefined): Effect.Effect<Principal> => {
+/** Whether a key was made for an agent: its mark, which only the world (and, from M2.07, `api-key.create`) puts there. */
+const madeForAnAgent = (a: AuthInstance, key: string) =>
+  call(a, (auth) => auth.api.verifyApiKey({ body: { key } })).pipe(
+    Effect.map((r) => r.valid && (r.key?.metadata as { readonly acts?: unknown } | null | undefined)?.acts === ACTS_FOR_AN_AGENT),
+    Effect.orElseSucceed(() => false),
+  );
+
+/**
+ * Who a credential is (M2-auth, fork 2). A session token is a person by session; an `ak_` key is a person by key, or an agent when it
+ * was made for one; a world's token is the system or a service, where worlds are hosted. At the MCP door every credential makes an
+ * agent for its person. Nothing, or a credential that is not good, is anonymous, never an error.
+ */
+const principalOf = (a: AuthInstance, authorization: string | undefined, door: PrincipalDoor = "api"): Effect.Effect<Principal> => {
   const credential = authorization?.match(/^Bearer\s+(\S+)$/i)?.[1];
   if (!credential) return Effect.succeed(ANONYMOUS);
-  const headers = new Headers(credential.startsWith(KEY_PREFIX) ? { "x-api-key": credential } : { authorization: `Bearer ${credential}` });
+  if (credential.startsWith(worldToken.WORLD_PREFIX)) return held(a).worlds ? worldToken.principalOf(held(a).secret, credential) : Effect.succeed(ANONYMOUS);
+  const isKey = credential.startsWith(KEY_PREFIX);
+  const headers = new Headers(isKey ? { "x-api-key": credential } : { authorization: `Bearer ${credential}` });
   return call(a, (auth) => auth.api.getSession({ headers })).pipe(
-    Effect.map((s): Principal => (s ? { kind: "person", person: s.user.id, email: s.user.email } : ANONYMOUS)),
+    Effect.flatMap((s): Effect.Effect<Principal> => {
+      if (!s) return Effect.succeed(ANONYMOUS);
+      const who = { person: s.user.id, email: s.user.email };
+      return (door === "mcp" || !isKey ? Effect.succeed(door === "mcp") : madeForAnAgent(a, credential)).pipe(
+        Effect.map((agent): Principal => (agent ? { kind: "agent", ...who, via: "agent" } : { kind: "person", ...who, via: isKey ? "key" : "session" })),
+      );
+    }),
     Effect.orElseSucceed(() => ANONYMOUS),
   );
 };
@@ -27,7 +48,7 @@ const refused = (reason: "credentials" | "taken", status: number) => (e: unknown
 
 const layer: AuthD1Api["layer"] = (a) =>
   Layer.mergeAll(
-    Layer.succeed(Principals, { of: (authorization) => principalOf(a, authorization) }),
+    Layer.succeed(Principals, { of: (authorization, door) => principalOf(a, authorization, door) }),
     Layer.succeed(Auth, {
       signUp: (body) => call(a, (auth) => auth.api.signUpEmail({ body })).pipe(
         Effect.map((r) => ({ person: r.user.id })),
@@ -76,4 +97,11 @@ const castMember: AuthD1Api["castMember"] = (a, name, anonymous, stored) =>
     return { person, token, email: member.email, password: member.password } satisfies CastMember;
   });
 
-export const AuthD1: AuthD1Api = { make: instance, layer, handle, oauth: oauthApi, castMember };
+const credential: AuthD1Api["credential"] = (a, spec) =>
+  spec.kind === "system" || spec.kind === "service"
+    ? worldToken.mint(held(a).secret, spec.kind === "system" ? { kind: "system" } : { kind: "service", mount: spec.mount }).pipe(Effect.map((token) => ({ token })))
+    : call(a, (auth) => auth.api.createApiKey({
+        body: { userId: spec.person, name: `world ${spec.kind}`, ...(spec.kind === "agent" ? { metadata: { acts: ACTS_FOR_AN_AGENT } } : {}) },
+      })).pipe(Effect.map((r) => ({ token: r.key })), Effect.orDie);
+
+export const AuthD1: AuthD1Api = { make: instance, layer, handle, oauth: oauthApi, castMember, credential };
