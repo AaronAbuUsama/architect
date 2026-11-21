@@ -511,7 +511,7 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 
 ## Supersedes
 
-- design/milestones.md: "One `Graph` in `@orthograph/portal-ui`" → "One `Graph` in `@orthograph/shell`, on UI SDK"
+- design/milestones.md: "One `Graph` in `@orthograph/portal-ui` (`spikes/react-flow-graphs`, accepted" → "One `Graph` in `@orthograph/shell`, on UI SDK (`spikes/react-flow-graphs`, accepted"
 - design/milestones.md: "HeroUI Pro's Kanban parts through `@orthograph/portal-ui`'s `Board` (F7, M1.34)" → "a `Board` in `@orthograph/shell`, on UI SDK (HeroUI leaves in ST1.27)"
 - design/milestones.md: "loads `portal-ui` from the portal's built assets" → "loads `@orthograph/shell` from the portal's built assets"
 - design/milestones.md: "the shell and the chat parts come from `@orthograph/portal-ui` (M1.34)" → "the shell and the chat parts come from `@orthograph/shell` (K31)"
