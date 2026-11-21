@@ -205,6 +205,7 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
 | K31 | the app's map in the blueprint, and Goal 6 | reserved 21 November 2026 for the UI-layer thread (#285) |
 | K32 | goals coordinate themselves, through git and GitHub | `main`, by the conductor |
+| K34 | goals start by what they need, not by milestone order; the goal map | `conductor/goal-map`, by the conductor |
 
 **Next free:** D5, E2, F10, G9, H3, K33, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
