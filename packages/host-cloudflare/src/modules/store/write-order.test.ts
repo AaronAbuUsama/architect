@@ -4,7 +4,7 @@
 // Real workerd, real D1, the table of test/migrations/0007_moveables.sql. Written by the checks author; the builder never edits this file.
 //
 // The D1 cases pin what D1 does, so they pass now (the memory store must match them). The one case that goes through the unit and the store together fails until the
-// unit orders its writes. Spelled in G4's declaration, as the memory half is (see its header).
+// unit orders its writes. Respelled at ST1.20 onto G5's rule, as the memory half is (see its header): `handle.oneHolderPerName`, handed to the store and the unit.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { env } from "cloudflare:workers";
 import { Effect, Layer } from "effect";
@@ -18,9 +18,14 @@ const Handle = Blueprint.thing({
   description: "A name someone holds.",
   code: "HD",
   fields: { id: Blueprint.id("hdl"), name: Blueprint.text({ max: 40 }), owner: Blueprint.text({ max: 40 }) },
-  unique: { name: { while: ["claimed"] } },
 });
-const store = StoreD1.layer({ tables: [[Handle, "moveable"]] }).pipe(Layer.provide(Database.d1(env.DB)));
+const machine = Blueprint.machine(Handle, {
+  states: ["claimed", "released"],
+  moves: { claim: { from: [], to: "claimed", emits: Blueprint.event({}) }, release: { from: ["claimed"], to: "released", emits: Blueprint.event({}) } },
+  notFrom: { exit: 60 },
+});
+const rules = [{ name: "handle.oneHolderPerName", rule: (Blueprint as any).invariant.unique(Handle.fields.name, { while: [machine.states.claimed] }) }];
+const store = StoreD1.layer({ tables: [[Handle, "moveable"]], rules }).pipe(Layer.provide(Database.d1(env.DB)));
 const run = <A,>(program: Effect.Effect<A, never, Store>) => Effect.runPromise(program.pipe(Effect.provide(store)));
 
 const insert = (id: string, name: string, owner: string, state = "claimed"): Write => ({ kind: "insert", thing: Handle, fields: { id, name, owner }, state });
@@ -61,7 +66,7 @@ describe("S-19 through the unit and D1 together", () => {
     await run(commit(insert("hdl_u1", "xu", "u1"), insert("hdl_u2", "yu", "u2")));
     const outcome = await run(Effect.gen(function* () {
       const s = yield* Store;
-      const unit = yield* Unit.make(s);
+      const unit = yield* Unit.make(s, rules);
       yield* unit.records.update(Handle, "hdl_u1", { name: "yu" });
       yield* unit.records.update(Handle, "hdl_u2", { name: "zu" });
       return yield* s.commit({ writes: yield* unit.writes, entries: [] });
