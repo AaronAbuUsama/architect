@@ -43,6 +43,14 @@ all questions"; the conductor had given the same under his standing authority). 
 the wire, formatted at the faces; unsigned unless signed; built in slice 3. Slice 3's checks author (a subagent of
 this lead) was asked to add money's seven cases to [#283](https://github.com/AaronAbuUsama/architect/pull/283); Goal 7's lead (Foreman) was given the same shape.
 
+## Waiting on Goal 7 (Safe, Hats and budgets; Foreman runs it)
+
+Slice 7 (Host.chain and the safe adapter) rests on five runs Goal 7 took as A1 to A5 on `goal/safe-hats`, ahead of Hats:
+deploying a Safe from its release on Anvil; enabling a module on a 1-of-1 Safe; how a failed ERC-20 transfer through
+`execTransactionFromModule` comes back; a Safe signing our EIP-712 message through ERC-1271 with `SignatureChecker`;
+and a Safe calling the direct entry through `execTransaction`. Foreman reports the commit, and the evidence in
+`spikes/safe-hats-module/`, when it lands.
+
 ## Passed to Goal 3 (through the conductor)
 
 - Codex: `packages/compiler/src/modules/model/internal/invariants.ts:83`, a rule refusal's auto-filled field schemas
