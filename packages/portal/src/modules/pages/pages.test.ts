@@ -1,7 +1,7 @@
 // The route the client draws from the path, and the data it reads. The drawing itself is read in a browser (check 21, the grid).
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { load } from "./internal/load.ts";
+import { load, loadTrace } from "./internal/load.ts";
 import { routeOf } from "./internal/route.ts";
 import { rulesBroken } from "./internal/rules.ts";
 import type { BlueprintWire, OperationWire } from "#modules/wire/types.js";
@@ -70,6 +70,17 @@ describe("load", () => {
   it("fails naming the request it could not read, and never invents a snapshot", async () => {
     vi.stubGlobal("fetch", (path: string) => Promise.resolve(path.includes("blueprint") ? Response.json({ digest: "abc" }) : Response.json({}, { status: 409 })));
     expect(await Effect.runPromise(Effect.flip(load()))).toEqual({ _tag: "DataFailed", request: "/_portal/v1/snapshot?digest=abc", reason: "it answered 409" });
+  });
+});
+
+describe("loadTrace", () => {
+  it("reads the body of an answer that is neither 200 nor 404 before it fails, so no response is left unread", async () => {
+    let read = false;
+    const answer = new Response("boom", { status: 500 });
+    Object.defineProperty(answer, "text", { value: () => { read = true; return Promise.resolve("boom"); } });
+    vi.stubGlobal("fetch", () => Promise.resolve(answer));
+    expect(await Effect.runPromise(Effect.flip(loadTrace("abcdef012345")))).toMatchObject({ _tag: "DataFailed", reason: "it answered 500" });
+    expect(read).toBe(true);
   });
 });
 

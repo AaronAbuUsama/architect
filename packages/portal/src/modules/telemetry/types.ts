@@ -44,6 +44,8 @@ export interface PortalLive {
   /** The window's end, in ms since the epoch. A later `now` moves the window; nothing else does. */
   readonly now: number;
   readonly windowMs: number;
+  /** How far back the source can supply spans, in ms before `now`. Absent: as far as asked. A window longer than this holds only part of its history (a local world's feed holds one window), so it is not judged. */
+  readonly historyMs?: number;
 }
 
 // ---- what is put on the wire ----
@@ -78,8 +80,13 @@ export interface TelemetryCall {
   readonly roleHeld: null;
 }
 
+/** A call with the identity the telemetry grouping gave it: the span ids of its attempts. Never sent on the wire. */
+export interface MonitoredCall extends TelemetryCall { readonly attemptSpans: ReadonlyArray<string> }
+
 /** From the spans of the window. */
 export interface CallsView {
+  /** Per operation with a call in the window: the nearest-rank p95 of its calls' durations, over every call of the window (before `rows` is cut). */
+  readonly p95: Readonly<Record<string, number>>;
   /** Newest first, at most `ROWS_MAX`; a call that opened no span (a refusal at the door) is never a row. */
   readonly rows: ReadonlyArray<TelemetryCall>;
   /** How many calls the window held beyond `rows`. */
@@ -156,7 +163,7 @@ export interface TelemetryApi {
   /** Never fails: a source that cannot be read is a value inside the answer. */
   readonly read: (blueprint: BlueprintWire, live: PortalLive) => Effect.Effect<PortalTelemetry>;
   /** Every call the traces hold that started in `[since, now]`, newest first, with no row limit: what the monitor counts (M1.49). */
-  readonly calls: (blueprint: BlueprintWire, traces: ReadonlyMap<string, WindowTrace>, environment: string, window: { readonly since: number; readonly now: number }) => ReadonlyArray<TelemetryCall>;
+  readonly calls: (blueprint: BlueprintWire, traces: ReadonlyMap<string, WindowTrace>, environment: string, window: { readonly since: number; readonly now: number }) => ReadonlyArray<MonitoredCall>;
   /** One trace, scrubbed: `undefined` when the source has none of it. */
   readonly trace: (live: PortalLive, trace: string) => Effect.Effect<Availability<TraceView | undefined>>;
 }

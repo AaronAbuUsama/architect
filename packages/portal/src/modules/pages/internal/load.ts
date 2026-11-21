@@ -32,7 +32,7 @@ export const loadTrace = (id: string): Effect.Effect<TraceAnswer, DataFailed> =>
     if (response.status === 200) return jsonOf<Availability<TraceView>>(request, response);
     // A 404 with a reason is a portal with no live source; one without is a source that read fine and holds no such trace.
     if (response.status === 404) return jsonOf<{ readonly reason?: string }>(request, response).pipe(Effect.map((body): TraceAnswer => typeof body.reason === "string" ? { state: "unavailable", reason: body.reason } : { state: "missing" }));
-    return Effect.fail(failed(request, `it answered ${response.status}`));
+    return Effect.promise(() => response.text().catch(() => "")).pipe(Effect.flatMap(() => Effect.fail(failed(request, `it answered ${response.status}`))));
   };
   return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(Effect.flatMap(answer));
 };

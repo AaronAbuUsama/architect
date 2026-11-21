@@ -9,7 +9,9 @@ const read: MonitorApi["read"] = (blueprint, live, ledger) =>
   Effect.gen(function* () {
     const rules = (blueprint.model.alertRules ?? []).filter((r) => r.labels["environment"] === "*" || r.labels["environment"] === live.environment);
     // Each distinct window an alert names is read as it is named; a source that fails leaves what it would have filled unknown, never zero.
-    const windows = [...new Set([live.windowMs, ...rules.flatMap((r) => (r.alerts ?? []).flatMap((a) => a.windowsMs))])];
+    // A window longer than the history the source can supply holds only part of it: it is not read, and an alert that needs it is `unknown`, never judged on the part.
+    const reach = live.historyMs ?? Number.POSITIVE_INFINITY;
+    const windows = [...new Set([live.windowMs, ...rules.flatMap((r) => (r.alerts ?? []).flatMap((a) => a.windowsMs))])].filter((ms) => ms <= reach);
     const read = yield* Effect.forEach(windows, (ms) => live.source.window(ms, live.now).pipe(
       Effect.map((traces) => [ms, traces] as const),
       Effect.catchCause(() => Effect.succeed([ms, undefined] as const)),

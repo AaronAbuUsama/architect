@@ -1,16 +1,14 @@
 // Which step a defect died in, from the spans of its trace: the deepest span under the call's failing attempt that ended as an error, and the tag the
 // runtime wrote on the attempt (`error.tag`, M1.49). Pure. A defect no step explains (a commit that lost every retry ends no span as an error) opens no issue.
-import type { TelemetryCall, WindowSpan, WindowTrace } from "#modules/telemetry/types.js";
+import type { MonitoredCall, WindowSpan, WindowTrace } from "#modules/telemetry/types.js";
 
 export interface Failure { readonly step: string; readonly tag: string }
 
 const text = (value: unknown): string | undefined => (typeof value === "string" && value !== "" ? value : undefined);
 
-/** The attempt span that ended the call as an error: the last of the operation's own spans that started within the call's extent. */
-const failingAttempt = (call: TelemetryCall, spans: ReadonlyArray<WindowSpan>): WindowSpan | undefined =>
-  spans
-    .filter((s) => s.name === call.operation && s.attrs["operation"] === call.operation && s.status === 2 && s.start >= call.start && s.start <= call.start + call.durationMs)
-    .sort((a, b) => b.start - a.start)[0];
+/** The attempt span that ended the call as an error: the last of the call's own attempts (the span ids the telemetry grouping gave it), never another call's under the same trace. */
+const failingAttempt = (call: MonitoredCall, spans: ReadonlyArray<WindowSpan>): WindowSpan | undefined =>
+  spans.filter((s) => call.attemptSpans.includes(s.spanId) && s.status === 2).sort((a, b) => b.start - a.start)[0];
 
 /** The error spans under `root`, each with its depth below it. */
 const below = (root: WindowSpan, spans: ReadonlyArray<WindowSpan>): ReadonlyArray<{ readonly span: WindowSpan; readonly depth: number }> => {
@@ -25,7 +23,7 @@ const below = (root: WindowSpan, spans: ReadonlyArray<WindowSpan>): ReadonlyArra
   return found;
 };
 
-export const failureOf = (call: TelemetryCall, trace: WindowTrace | undefined): Failure | undefined => {
+export const failureOf = (call: MonitoredCall, trace: WindowTrace | undefined): Failure | undefined => {
   if (trace === undefined) return undefined;
   const attempt = failingAttempt(call, trace.spans);
   if (attempt === undefined) return undefined;

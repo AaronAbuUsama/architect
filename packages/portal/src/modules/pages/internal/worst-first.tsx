@@ -1,16 +1,14 @@
 // Home's worst-first list (M1.49): what needs a look before anything else, in this order: alerts firing (pages before tickets), then open issues, then
 // operations whose p95 is over their budget. Each item links to where it is shown. From the monitor's answer and the window's calls, nothing else.
 import type { PortalData } from "../types.ts";
-import { callsOf } from "./live.ts";
 import { worstFirst } from "./monitor.tsx";
 
-/** Operations whose nearest-rank p95 over the window's calls is over their declared budget. A median under it is not a breach. */
-export const breachesOf = (data: PortalData): ReadonlyArray<string> =>
-  Object.values(data.blueprint.model.operations).flatMap((op) => {
-    if (op.budget == null) return [];
-    const d = callsOf(data, [op.name]).map((c) => c.durationMs).sort((a, b) => a - b);
-    return d.length > 0 && d[Math.ceil(0.95 * d.length) - 1]! > op.budget.p95Ms ? [op.name] : [];
-  });
+/** Operations whose p95 over the whole window (the server's aggregate, taken before the calls table is cut) is over their declared budget. A median under it is not a breach. */
+export const breachesOf = (data: PortalData): ReadonlyArray<string> => {
+  const calls = data.snapshot.telemetry?.calls;
+  const p95 = calls?.state === "available" ? calls.value.p95 : {};
+  return Object.values(data.blueprint.model.operations).flatMap((op) => (op.budget != null && (p95[op.name] ?? 0) > op.budget.p95Ms ? [op.name] : []));
+};
 
 const Item = ({ kind, subject, href, children }: { readonly kind: string; readonly subject: string; readonly href: string; readonly children?: Readonly<Record<string, string>> }) => (
   <li data-portal="worst-item" data-kind={kind} data-subject={subject} {...children}><a href={href}>{subject}</a></li>

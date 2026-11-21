@@ -2,7 +2,7 @@
 // handed. The portal keeps nothing else anywhere: a different ledger is a portal that has seen nothing. A call is counted once however many times the window
 // is read (`seen` holds the calls still inside the window, by id, and is pruned as they leave it: a call that left cannot come back at a later `now`).
 import { Effect } from "effect";
-import type { PortalLive, TelemetryCall, WindowTrace } from "#modules/telemetry/types.js";
+import type { MonitoredCall, PortalLive, WindowTrace } from "#modules/telemetry/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
 import type { IssueRow, MonitorLedger, Seen } from "../types.ts";
 import { failureOf } from "./failing.ts";
@@ -31,9 +31,9 @@ const isStored = (x: unknown): x is Stored => {
 const heldOf = (value: unknown): Held =>
   typeof value === "object" && value !== null ? Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, v]) => isStored(v)) as Array<[string, Stored]>) : {};
 
-const callId = (c: TelemetryCall) => `${c.trace}/${c.operation}/${c.start}`;
+const callId = (c: MonitoredCall) => `${c.trace}/${c.operation}/${c.start}`;
 
-const add = (held: Held, key: string, call: TelemetryCall, step: string, tag: string, hash: string, live: PortalLive): Held => {
+const add = (held: Held, key: string, call: MonitoredCall, step: string, tag: string, hash: string, live: PortalLive): Held => {
   const issue = held[key];
   const at: Seen = { at: call.start, hash };
   if (issue === undefined) return { ...held, [key]: { operation: call.operation, step, tag, occurrences: 1, firstSeen: at, lastSeen: at, seen: { [callId(call)]: call.start } } };
@@ -57,7 +57,7 @@ const rowOf = (key: string, issue: Stored, blueprint: BlueprintWire): IssueRow =
 
 /** The issues the window's defects open, joined to the ones the ledger holds, written back when they changed. `calls` is `undefined` when the window could not be read. */
 export const keep = (
-  blueprint: BlueprintWire, live: PortalLive, traces: ReadonlyMap<string, WindowTrace> | undefined, calls: ReadonlyArray<TelemetryCall> | undefined, ledger: MonitorLedger | undefined,
+  blueprint: BlueprintWire, live: PortalLive, traces: ReadonlyMap<string, WindowTrace> | undefined, calls: ReadonlyArray<MonitoredCall> | undefined, ledger: MonitorLedger | undefined,
 ): Effect.Effect<ReadonlyArray<IssueRow>> =>
   Effect.gen(function* () {
     const before = ledger === undefined ? {} : heldOf(yield* ledger.get(KEY).pipe(Effect.catchCause(() => Effect.succeed(undefined))));
