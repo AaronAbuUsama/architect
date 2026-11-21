@@ -229,3 +229,14 @@ cut from `main` (or `goal/safe-hats` with `main` merged in), never more pushes t
 - **Steer 2, run 3.** A1 to A5 and the hat module were re-run by the lead and committed (149b7dfa); Goal 4 was told.
   Goal 4's money rule (`M6-money.md`, base units of the row's `token`, `uint128`) goes into the budgets module.
   Codex now ends its turn after each step and the lead commits (snag S-02).
+- **Steps 3 to 8, runs 3 to 7.** Each step ended Codex's turn, and the lead re-ran it, reviewed it and committed it:
+  - the Hats path on Anvil and the SafeTx signature format, with GS026 on three malformed cases;
+  - the budgets module (13 tests, then 14 with the fuzz);
+  - the invariant fuzz, which catches the planted rollover mutant;
+  - the decision draft;
+  - the README and `run-all.sh`, green from a fresh folder.
+
+  Codex is stopped; no Codex process is running. Its session stays resumable by the id above.
+- **Next: the done check.** A 🔍 reviewer runs `run-all.sh` from a clean clone. Then one draft pull request into
+  `main`, marked ready once (the CI-drafts rule). Pull request 293 was not yet merged when this was written, so the
+  branch is pushed only when the check has passed.
