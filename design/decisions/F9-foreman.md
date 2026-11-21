@@ -1,8 +1,8 @@
 # F9: Foreman, version zero
 
 Proposed 20 November 2026 as a draft for Aaron, and revised three times the same day after he read it (his answers relayed by
-the conductor; his own phrases are quoted). Parked the same evening at his call ("drop it for now and push on with the
-framework"). **Landed 21 November 2026 as the design record**, under his standing authority relayed by the conductor:
+the conductor; his own phrases are quoted). Parked the same evening at his call ("let's drop it for now and just push on with
+the framework"). **Landed 21 November 2026 as the design record**, under his standing authority relayed by the conductor:
 "anything that's waiting on me, just go with the recommendations. You have authority." So both forks at the end are
 settled at their recommendation, and recorded there. Nothing here is built, and building it stays parked until Aaron
 raises it. The architecture is the building agent's to decide (`AGENTS.md`, "Who decides").
