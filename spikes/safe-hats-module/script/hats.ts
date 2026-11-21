@@ -64,6 +64,26 @@ export async function proveHats(chain: Chain, world: World) {
   await chain.write(deployer, {
     address: hats, abi: hatsAbi, functionName: "setHatStatus", args: [personHat, true],
   }, "restore person hat")
+  const setWearerStatus = (eligible: boolean) => ({
+    address: hats, abi: hatsAbi, functionName: "setHatWearerStatus",
+    args: [personHat, wearer.address, eligible, eligible],
+  })
+  await chain.write(deployer, setWearerStatus(false), "make wearer ineligible")
+  assert.equal(await chain.read({
+    address: hats, abi: hatsAbi, functionName: "isEligible", args: [wearer.address, personHat],
+  }), false)
+  const ineligible = await chain.refuse(wearer, spend(zeroAddress, 10n), "NotHatWearer", [wearer.address, personHat])
+  console.log(`ineligible wearer refused ${ineligible.name} tx=${ineligible.hash}`)
+  await chain.write(deployer, setWearerStatus(true), "restore wearer eligibility")
+  await chain.write(deployer, {
+    address: hats, abi: hatsAbi, functionName: "mintHat", args: [personHat, wearer.address],
+  }, "remint person hat")
+  assert.equal(await chain.read({
+    address: hats, abi: hatsAbi, functionName: "isWearerOfHat", args: [wearer.address, personHat],
+  }), true)
+  assert.equal(await chain.publicClient.getBalance({ address: safe }), 90n)
+  assert.equal(await chain.read({ address: token, abi: tokenAbi, functionName: "balanceOf", args: [safe] }), 90n)
+
   await execute(chain, deployer, safe, owners, {
     address: safe, abi: safeAbi(), functionName: "disableModule",
     args: ["0x0000000000000000000000000000000000000001", module],

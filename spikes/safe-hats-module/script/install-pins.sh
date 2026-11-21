@@ -16,9 +16,11 @@ npm ci --ignore-scripts --no-audit --no-fund --no-update-notifier --cache "$scra
 
 for package in hats-protocol solbase forge-std; do
   mkdir -p "node_modules/$package"
+  archive="$scratch/$package.tar.gz"
   curl --fail --silent --show-error --location --max-time 60 \
-    "$(pin "git['$package'].archive")$(pin "git['$package'].commit")" |
-    tar xz --strip-components=1 -C "node_modules/$package"
+    "$(pin "git['$package'].archive")$(pin "git['$package'].commit")" -o "$archive"
+  echo "$(pin "git['$package'].sha256")  $archive" | shasum -a 256 -c -
+  tar xzf "$archive" --strip-components=1 -C "node_modules/$package"
 done
 
 version=$(pin tools.foundry.version)

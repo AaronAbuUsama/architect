@@ -30,3 +30,17 @@
    addresses control the two revocations. The Safe signing helper needed a
    narrower Solidity scope to stay within the compiler's stack limit.
    See `evidence/hat-foundry.txt`. Next is the same Hats path on Anvil.
+
+4. **Hats on Anvil and SafeTx formats passed.** The Anvil run now tests
+   eligibility loss in addition to the disabled module, ETH and ERC-20 spends,
+   the outsider and the inactive hat. It restores eligibility and remints the
+   hat because Hats burns it on revocation. Four payouts executed using typed
+   data, the EIP-191 form, an approved hash and a nested Safe as an
+   ERC-1271 owner. Reversed order, wrong v and replay all mined with GS026.
+   The README describes the exact wire format and links the two runs. The five
+   Foundry tests and TypeScript typecheck passed. A fresh install verified the
+   SHA-256 digests of Hats, solbase and forge-std before extracting them.
+   M6-money was read for the next step. The lead handles the commit.
+
+STEP 3 DONE: The pinned Hats and threshold Safe paid both assets and refused all four invalid paths on Anvil.
+STEP 4 DONE: All four SafeTx signature formats executed and all three malformed cases reverted with GS026.
