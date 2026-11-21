@@ -5,12 +5,14 @@ import { ErrorNames, EventNames, Scripting } from "orthograph/server";
 import type { CallRecord, Facts } from "../types.ts";
 import { stateOf } from "./world.ts";
 
-/** Values as they travel: bigints as text, so `500n` and `"500"` compare equal. */
-export const wireOf = (v: unknown): unknown =>
-  typeof v === "bigint" ? v.toString()
-  : Array.isArray(v) ? v.map(wireOf)
-  : typeof v === "object" && v !== null ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, wireOf(x)]))
-  : v;
+/** Values as they travel: bigints as text, so `500n` and `"500"` compare equal. A value that holds itself reads `"[Circular]"` where it loops back. */
+export const wireOf = (v: unknown, above: ReadonlyArray<object> = []): unknown => {
+  if (typeof v === "bigint") return v.toString();
+  if (typeof v !== "object" || v === null) return v;
+  if (above.includes(v)) return "[Circular]";
+  const path = [...above, v];
+  return Array.isArray(v) ? v.map((x) => wireOf(x, path)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, wireOf(x, path)]));
+};
 export const show = (v: unknown) => JSON.stringify(wireOf(v));
 
 export const tagOfClass = (cls: unknown): string =>
@@ -41,6 +43,23 @@ const tagOfRefusal = (error: Refusal, tableOf: (thing: Thing) => string | undefi
 
 const subset = (want: Readonly<Record<string, unknown>>, got: unknown) =>
   typeof got === "object" && got !== null && Object.entries(want).every(([k, v]) => show(v) === show((got as Record<string, unknown>)[k]));
+
+/**
+ * Journey code (a `pick`, a refusal's class, a machine) runs inside `Effect.try`: a throw is the step's failure, with the error's name and message,
+ * and never a defect that ends the run (S-27).
+ */
+const attempt = <A>(f: () => A) =>
+  Effect.try({ try: f, catch: (e) => (e instanceof Error ? `${e.name}: ${e.message}` : String(e)) }).pipe(
+    Effect.match({ onFailure: (threw) => ({ threw }) as const, onSuccess: (value) => ({ value }) as const }),
+  );
+
+/** The answer's top-level keys and never its values: an answer may hold a token, and the report is kept and shared. */
+const keysOf = (answer: unknown) =>
+  typeof answer === "object" && answer !== null && !Array.isArray(answer) ? `keys [${Object.keys(answer).join(", ")}]` : `no keys (${Array.isArray(answer) ? "a list" : typeof answer})`;
+
+/** What prove says of a check that threw: where, which keys the answer had and what the error said. No stack, no answer values. */
+const threwMessage = (call: CallRecord, env: Readonly<Record<string, unknown>>, threw: string) =>
+  `journey "${call.journey}" step "${call.step}": a check threw on an answer with ${keysOf(env["last"])}: ${threw}`;
 
 /** One failed check: the sentence prove prints, and the two halves of it when it has them. */
 export interface Finding { readonly message: string; readonly expected?: string; readonly got?: string }
@@ -73,19 +92,25 @@ export const runChecks = (
       if (check.kind === "expect") {
         if (call.status !== 200) bad(`expected an answer, ${said}`, "an answer", said);
         else {
-          const picked = check.pick(env["last"]);
+          const tried = yield* attempt(() => check.pick(env["last"]));
+          if ("threw" in tried) { bad(threwMessage(call, env, tried.threw)); continue; }
+          const picked = tried.value;
           if (!check.match.test(String(wireOf(picked)))) bad(`answer ${show(picked)} doesn't match ${check.match}`, String(check.match), show(picked));
         }
       } else if (check.kind === "expect-equal") {
         if (call.status !== 200) bad(`expected an answer, ${said}`, "an answer", said);
         else {
-          const picked = check.pick(env["last"]);
+          const tried = yield* attempt(() => check.pick(env["last"]));
+          if ("threw" in tried) { bad(threwMessage(call, env, tried.threw)); continue; }
+          const picked = tried.value;
           // The expected value may name the script (`s.olga.person`): it means what the run gave it.
           const value = Scripting.resolve(check.value, env).value;
           if (show(picked) !== show(value)) bad(`answer ${show(picked)}, expected ${show(value)}`, show(value), show(picked));
         }
       } else if (check.kind === "refuses") {
-        const tag = tagOfRefusal(check.error, world.tableOf);
+        const named = yield* attempt(() => tagOfRefusal(check.error, world.tableOf));
+        if ("threw" in named) { bad(`journey "${call.journey}" step "${call.step}": the refusal named in refuses() threw: ${named.threw}`); continue; }
+        const tag = named.value;
         if (refused !== tag) bad(`expected refused with ${tag}, ${said}`, `refused with ${tag}`, said);
         else if (!subset(check.fields, call.body)) bad(`refused with ${tag} ${show(call.body)}, expected ${show(check.fields)}`, show(check.fields), show(call.body));
       } else if (check.kind === "emits") {
