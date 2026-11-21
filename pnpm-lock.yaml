@@ -26,8 +26,8 @@ importers:
         specifier: npm:typescript@7.0.2
         version: typescript@7.0.2
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       nx:
         specifier: 24.0.3
         version: 24.0.3
@@ -114,11 +114,11 @@ importers:
   examples/acme:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
@@ -132,8 +132,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/projections
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../../packages/orthograph
@@ -176,11 +176,11 @@ importers:
   examples/plugged-in:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
@@ -194,8 +194,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/projections
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../../packages/orthograph
@@ -207,11 +207,11 @@ importers:
   examples/signup:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
@@ -222,8 +222,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../../packages/orthograph
@@ -235,11 +235,11 @@ importers:
   examples/starter:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
@@ -250,8 +250,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../../packages/orthograph
@@ -263,11 +263,11 @@ importers:
   examples/work:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
@@ -278,8 +278,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../../packages/orthograph
@@ -294,8 +294,8 @@ importers:
         specifier: workspace:*
         version: link:../language-effect
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       viem:
         specifier: 2.57.20
         version: 2.57.20(@typescript/typescript6@6.0.2)(zod@4.6.7)
@@ -303,8 +303,8 @@ importers:
   packages/cli:
     dependencies:
       '@effect/platform-node':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))
       '@orthograph/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -321,8 +321,8 @@ importers:
         specifier: workspace:*
         version: link:../prove
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       nx:
         specifier: 24.0.3
         version: 24.0.3
@@ -343,8 +343,8 @@ importers:
   packages/compiler:
     dependencies:
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -364,8 +364,8 @@ importers:
         specifier: workspace:*
         version: link:../projections
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -392,8 +392,8 @@ importers:
         specifier: 1.3.3
         version: 1.3.3
       '@effect/sql-d1':
-        specifier: 4.1.1
-        version: 4.1.1(effect@4.1.1)
+        specifier: 4.1.4
+        version: 4.1.4(effect@4.1.4)
       '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../language-effect
@@ -404,8 +404,8 @@ importers:
         specifier: 1.4.4
         version: 1.4.4(zod@4.6.7)
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       jose:
         specifier: 6.2.15
         version: 6.2.15
@@ -438,8 +438,8 @@ importers:
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.5.4)
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -454,8 +454,8 @@ importers:
   packages/logbook:
     dependencies:
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       jose:
         specifier: 6.2.15
         version: 6.2.15
@@ -473,14 +473,14 @@ importers:
   packages/orthograph:
     dependencies:
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
 
   packages/portal:
     dependencies:
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
     devDependencies:
       '@orthograph/logbook':
         specifier: workspace:*
@@ -621,8 +621,8 @@ importers:
         specifier: workspace:*
         version: link:../generators
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -637,8 +637,8 @@ importers:
         specifier: workspace:*
         version: link:../compiler
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -661,8 +661,8 @@ importers:
         specifier: workspace:*
         version: link:../logbook
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
@@ -689,8 +689,8 @@ importers:
   packages/services:
     dependencies:
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
       jose:
         specifier: 6.2.15
         version: 6.2.15
@@ -704,8 +704,8 @@ importers:
         specifier: workspace:*
         version: link:../chain-evm
       effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.4
+        version: 4.1.4
     devDependencies:
       '@orthograph/language-effect':
         specifier: workspace:*
@@ -1550,6 +1550,9 @@ packages:
   '@cloudflare/workers-types@5.20261101.1':
     resolution: {integrity: sha512-malJEW9V9x+MygAc9RDGiWF0I8HFYfMzY5CXMn3tbzCxUiQBHtHWUTG5aFmO9oaFenc2z5OyT7e+a46ZaGs3cQ==}
 
+  '@cloudflare/workers-types@5.20261118.1':
+    resolution: {integrity: sha512-b1ppAa/0wrXvboTHbfyYnyYsh13OHu4ONP1h0HclZ0fEabwh2qT18YPY/z+wjyOs3o/BkyD0HCA800Ox+nju/Q==}
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -1558,23 +1561,23 @@ packages:
     resolution: {integrity: sha512-y20e+e6dFYkOUUJLVUZTsJRuTiXZaUQ32WD+R/ux/HBybbTx4ge7cNINcua0pU8+SNkKuRbOF12mBmzuzM8n5w==}
     engines: {node: '>= 14.17.0'}
 
-  '@effect/platform-node-shared@4.1.2':
-    resolution: {integrity: sha512-wSwl9A/G1hcVvF8nLI+YfB3EyOIDvWS6+lsTZBkmgDnPBL7m8YWZF+1HD+mdEsb52SUGfukip46Q3gRwSdk3QA==}
+  '@effect/platform-node-shared@4.1.4':
+    resolution: {integrity: sha512-DWdfphHGOFJNj/mYadgpT3jIm8aRXDcPrQiGXFBH4p2H4XmA7iYMrPsI8NxVgZ7kNX0q1+FGJZJama0tINHRAg==}
     engines: {node: '>=22.19.0'}
     peerDependencies:
-      effect: ^4.1.2
+      effect: ^4.1.4
 
-  '@effect/platform-node@4.1.1':
-    resolution: {integrity: sha512-Oy3eP27XeipUgejftptHy0zf2W75HU8/yPKwBqdz8uYxAvWdf4c48OFYs6KJX/+uIEKdMjnF6mXYgbauWgIcVA==}
+  '@effect/platform-node@4.1.4':
+    resolution: {integrity: sha512-h7QExTPq/RfYtHP/8tMlgfBvqYsuJKhxfkU6w0+NaF/ihqQ8Y3GH9t28ltupQjoqMM7P6W5gy8rOji7F0qVrmg==}
     engines: {node: '>=22.19.0'}
     peerDependencies:
-      effect: ^4.1.1
+      effect: ^4.1.4
       redis: '>=5.1.0 <7.0.0'
 
-  '@effect/sql-d1@4.1.1':
-    resolution: {integrity: sha512-CQMOiw9bmj4ifsUA4KLwIgBJBMpPHaF3OYdXnA9oOxeEmD61+XDLkJUSA2mG7BWCIEZc7MquGxl3HuUVOeqtSA==}
+  '@effect/sql-d1@4.1.4':
+    resolution: {integrity: sha512-x7UtDPNCgcAz6lvGbrf0INHxztV0qV8i4qleqPb31ADeilz7MnGYJ5Qhprqod+ySBUNPdsvXNRE9vm36TznIdg==}
     peerDependencies:
-      effect: ^4.1.1
+      effect: ^4.1.4
 
   '@emnapi/core@1.4.5':
     resolution: {integrity: sha512-XsLw1dEOpkSX/WucdqUhPWP7hDxSvZiY+fsUC14h+FtQ2Ifni4znbBt8punRX+Uj2JG/uDb8nEHVKvrVlvdZ5Q==}
@@ -4237,8 +4240,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  effect@4.1.1:
-    resolution: {integrity: sha512-XYu65BrcmNqu5i7PPvP4dqL+R5ma37zIsfuSPjcn78mog+6e5PkilNg7Xo+pBpjXJYlWEIpH4j91tMrfW05CMw==}
+  effect@4.1.4:
+    resolution: {integrity: sha512-Tgrv/9FN+TZYyOn8XSli+fVqAfwDrDAkiX5Uu9vztINb675VTQdhD0gWI5Kzvhlh9QqzjZvw72iugqw5pwoghQ==}
 
   ejs@5.0.1:
     resolution: {integrity: sha512-COqBPFMxuPTPspXl2DkVYaDS3HtrD1GpzOGkNTJ1IYkifq/r9h8SVEFrjA3D9/VJGOEoMQcrlhpntcSUrM8k6A==}
@@ -6503,8 +6506,8 @@ packages:
     resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
     engines: {node: '>=20.18.1'}
 
-  undici@8.12.3:
-    resolution: {integrity: sha512-+fdndUTwBP86cVjihTp21hZHo7d6oj1c/47XPA3lL8mM0XHs+C4EkcjmgRsFnFk2f/UONGDy9ItBItmXsLOQHw==}
+  undici@8.12.4:
+    resolution: {integrity: sha512-8Mx+uNKKER2bA4AdtedkqRbwUCIJFr2nJckXRe5yrDqzePqwLP7VNcctN8/XdmDSbF7mS+jJKIszlL+vbam1VA==}
     engines: {node: '>=22.19.0'}
 
   unenv@2.0.0-rc.24:
@@ -7844,6 +7847,8 @@ snapshots:
 
   '@cloudflare/workers-types@5.20261101.1': {}
 
+  '@cloudflare/workers-types@5.20261118.1': {}
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -7868,29 +7873,29 @@ snapshots:
       tough-cookie: 5.1.2
       tunnel-agent: 0.6.0
 
-  '@effect/platform-node-shared@4.1.2(effect@4.1.1)':
+  '@effect/platform-node-shared@4.1.4(effect@4.1.4)':
     dependencies:
       '@types/ws': 8.18.2
-      effect: 4.1.1
+      effect: 4.1.4
       ws: 8.22.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))':
+  '@effect/platform-node@4.1.4(effect@4.1.4)(redis@6.3.1(@opentelemetry/api@1.10.0))':
     dependencies:
-      '@effect/platform-node-shared': 4.1.2(effect@4.1.1)
-      effect: 4.1.1
+      '@effect/platform-node-shared': 4.1.4(effect@4.1.4)
+      effect: 4.1.4
       redis: 6.3.1(@opentelemetry/api@1.10.0)
-      undici: 8.12.3
+      undici: 8.12.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/sql-d1@4.1.1(effect@4.1.1)':
+  '@effect/sql-d1@4.1.4(effect@4.1.4)':
     dependencies:
-      '@cloudflare/workers-types': 5.20261101.1
-      effect: 4.1.1
+      '@cloudflare/workers-types': 5.20261118.1
+      effect: 4.1.4
 
   '@emnapi/core@1.4.5':
     dependencies:
@@ -10283,7 +10288,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  effect@4.1.1: {}
+  effect@4.1.4: {}
 
   ejs@5.0.1: {}
 
@@ -13329,7 +13334,7 @@ snapshots:
 
   undici@7.30.1: {}
 
-  undici@8.12.3: {}
+  undici@8.12.4: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
