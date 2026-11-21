@@ -83,12 +83,13 @@ core everything else uses.
 
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
-| UI SDK as the interface base | Decided | the UI SDK decision, K24, in review | K24 |
+| UI SDK as the interface base | Decided | the UI SDK decision, K24 | K24 |
 | A generated piece per operation on UI SDK | Spiked | `spikes/ui-sdk-real-world`; no generator yet | ST1.25 (K29) |
 | Agent marks from blueprint meaning | Spiked | three of four map; approval and a hidden payload field can't be declared | none |
 | Actions: one per operation, for the page, MCP and the CLI | Spiked | `spikes/agent-native-compat`, `ui-sdk-real-world/src/action.ts` | M1.22, M1.23 (moved into stage 1 by K29) |
 | Approvals asked once | Spiked | agent-native checks 04 to 06 | M1.23, M1.37 |
 | Portal chat and "Needs you" | Partial | `portal-ui` has the chat parts; nothing uses them | M1.24 |
+| One package behind the portal's components (HeroUI Pro today, phased out by K24) | Built | `packages/portal-ui`, check 15 | M1.34 |
 | The portal off HeroUI, on UI SDK | None | `packages/portal-ui` wraps HeroUI Pro today (M1.34, check 15) | Goal 6's new client, then ST1.28 and ST1.27 at cutover (K29, K31) |
 
 ### On chain and wallets (1.0, stages 2 and 3)
@@ -136,7 +137,7 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 
 ## 4. Holes no slice owns
 
-1. The repository's `README.md` is empty, yet `AGENTS.md` serves "the goal in `README.md`".
+1. ~~The repository's `README.md` is empty, yet `AGENTS.md` serves "the goal in `README.md`"~~: it now holds the goal, from [`model/README.md`](model/README.md) (K30).
 2. ~~The npm preview has no slice~~: M1.51 now owns it (K28). The publish code still refuses npmjs.
 3. No Node host.
 4. Proving against a deployed address (staging) has no slice.
@@ -151,6 +152,6 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 1. Noir is under "Later" and in K5 as later, but is v1.0's stage 4.
 2. The release list: K9 says M7.01 to M7.04 and M7.06; `milestones.md` adds M7.13.
 3. The npm preview is promised after Gate M1, but M7 says npm waits on stage 4.
-4. Capxul: "built on it" from M2 in one place, off v1.0's path in another.
+4. Capxul: "built on it" from M2 in one place, off v1.0's path in another. Answered by K30, section 2: after the beta, beside the stages, never gating 1.0.
 5. Staging: after Gate M2 in the milestones, inside stage 1 in Goal 3.
 6. `milestones.md` still says "Everything runs locally: no cloud"; the ledger's summary counts are stale.

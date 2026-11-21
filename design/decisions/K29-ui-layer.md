@@ -524,3 +524,8 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 - design/later.md: "Waits for the second UI SDK spike to say" → "scheduled in stage 1 as ST1.25 and ST1.26"
 - design/later.md: "Waits until the HeroUI Pro licence lapses" → "scheduled in stage 1 as ST1.27 and ST1.28, on UI SDK"
 - design/decisions/K9-growing-example.md: "The react projection over the SDK" → "ST1.25, the web projection, one UI SDK piece per operation"
+- design/later.md: "The move waits for the second UI SDK spike, not for the licence" → "scheduled as Goal 6's new client and ST1.27's cutover (K29, K31)"
+- design/portal.md: "Its insides move to UI SDK one export at a time (K24)" → "a new client is built beside the old one on UI SDK, and the old client is deleted at cutover (K31)"
+- design/packages.md: "today the only importer of HeroUI Pro (phased out, K24)" → "the portal's components under our names; deleted at cutover"
+- design/milestones.md: "and K24 moves it to UI SDK, HeroUI phased out" → "HeroUI leaves in ST1.27, K29"
+- design/scope.md: "no generator, no slice" → "no generator yet"
