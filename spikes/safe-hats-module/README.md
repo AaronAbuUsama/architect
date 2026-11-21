@@ -63,7 +63,7 @@ on interruption. [Fresh-folder run](evidence/run-all.txt)
    Only a call from the paying Safe can create, change or revoke its budget.
    The person created a child hat for the agent. The agent spent under its
    own lower limit and lost access when the person turned its hat off.
-   [Budget run](evidence/budget-anvil.txt) · [Admin tests](evidence/budget-foundry.txt#L13)
+   [Budget run](evidence/budget-anvil.txt) · [Admin tests](evidence/budget-foundry.txt#L15)
 8. The signed spend checks the deadline, signature, nonce, row, hat, amount
    and payment in that order, then emits the spend. The module checks its
    own EIP-712 `BudgetSpend` signature through `SignatureChecker`. Use the
@@ -194,6 +194,13 @@ display. The signature workflow remains open for the workflows spike.
   rebasing behavior remain unverified. Forge also flagged the spend
   event emitted after payment. Event order with callback-capable
   tokens remains untested. [Build output](evidence/build.txt) · [Balance checks](script/budgets.ts)
+- A budget can't be in ETH. `createBudget` refuses a token address with no code, which includes address zero, so
+  only `HatSpendModule` reaches `SafePayment`'s ETH branch. The feature decides whether native-currency budgets exist.
+  [createBudget](src/HatBudgetModule.sol#L49)
+- A zero amount is accepted: a zero spend uses up a nonce and emits an event, and a budget may have a zero limit. The
+  feature should refuse a zero spend. [BudgetAuthorization](src/BudgetAuthorization.sol#L21)
+- `run-all.sh` rewrites the committed `evidence/` files on every run, so a re-run leaves the tree changed. Each run's
+  logs carry its local temp paths.
 
 > **TO THE CONDUCTOR**
 >
