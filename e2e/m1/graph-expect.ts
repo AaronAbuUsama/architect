@@ -59,7 +59,8 @@ export const mapSpec = (m: GraphModel): Spec => {
     if (target !== undefined && target !== op.thing && m.things[target] !== undefined) edges.push(edge("payload", nodeKey("thing", op.thing), nodeKey("thing", target), `${op.name} { ${field} }`));
   }
   if (things.some((t) => t.from.kind === "app")) for (const p of plugins) edges.push(edge("mounts", nodeKey("group", "app"), nodeKey("group", p), "mounts"));
-  for (const p of plugins) for (const n of m.mounts?.[p]?.needs ?? []) if (plugins.includes(n)) edges.push(edge("needs", nodeKey("group", p), nodeKey("group", n), "needs"));
+  // A mount's `needs` are `kind:name` ("feature:echo", as check 06 reads them); a group is the plugin's bare name. A need on a mount that holds no thing has no group to join.
+  for (const p of plugins) for (const need of m.mounts?.[p]?.needs ?? []) { const n = need.slice(need.indexOf(":") + 1); if (n !== p && plugins.includes(n)) edges.push(edge("needs", nodeKey("group", p), nodeKey("group", n), "needs")); }
   return { nodes, edges };
 };
 

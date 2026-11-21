@@ -68,8 +68,13 @@ export const ELK_MARKERS: ReadonlyArray<RegExp> = [/elkjs/i, /elk\.bundled/, /or
 export const elkInside = (files: Record<string, string>): ReadonlyArray<string> =>
   Object.entries(files).flatMap(([path, text]) => ELK_MARKERS.filter((m) => m.test(text)).map((m) => `${path} matches ${String(m)}`));
 
-/** The lockfile resolves `name` at `version` (a pin to a version that does not exist is no pin). */
-export const lockHas = (lock: string, name: string, version: string): boolean => lock.includes(`${name}@${version}:`) || lock.includes(`'${name}@${version}':`);
+/**
+ * The lockfile resolves `name` at `version` (a pin to a version that does not exist is no pin): a package key of its own, two spaces in, the whole name from the
+ * first character (so `foo-elkjs@0.12.1:` and `@scope/elkjs@0.12.1:` are other packages) and the whole version (so `0.12.10` is not `0.12.1`), quoted or not, with
+ * the peer suffix a snapshot key may carry.
+ */
+export const lockHas = (lock: string, name: string, version: string): boolean =>
+  new RegExp(`^ {2}'?${name.replace(/[/.@]/g, "\\$&")}@${version.replace(/[/.@]/g, "\\$&")}(?:\\([^\\n]*\\))?'?:[ ]*$`, "m").test(lock);
 
 const GENERATOR = "packages/generators/src/", PORTAL_UI = "packages/portal-ui/src/";
 /** Who imports what, over source files by path: `elkjs` in the generator's own source (its tests too) and nowhere else; `@xyflow/react` in portal-ui's and nowhere else; and each is imported where it belongs. */

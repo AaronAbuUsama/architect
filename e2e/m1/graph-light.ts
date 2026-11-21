@@ -3,8 +3,11 @@
 // Decisions of the checks author, for the builder (each is the model's own reading, none is a taste):
 //  - A TRACE is read from a journey's declared steps, in order: a step on an operation of this thing that has a move, whose checks `emits` an event,
 //    MOVED (its 1-based step number is on the move's edge, `data-moved`); one whose checks `refuses` an error the move can be turned back with was
-//    REFUSED (`data-refused`, "<step>:<error>"). A refusal at the door (`NotAllowed`, `IdempotencyConflict`) never reached the move and marks
-//    nothing; an answer with no event and no refusal (a replay) made no move. A move edge is lit when it moved or was refused; a state never is.
+//    REFUSED (`data-refused`, "<step>:<error>"). A refusal at the door (`NotAllowed`, `InvalidPayload`, `IdempotencyConflict`) never reached the move and marks
+//    nothing (the first two: `design/portal.md:318`, "a call refused at the door (`NotAllowed`, a bad payload) opens no span", and check 24's header, which lists them as the
+//    runtime's own refusals for every call; the third: check 24, which makes it the fourth of them). `<Thing>NotFound` is NOT a door: no source names it one (check 24 lists it
+//    beside them as a runtime refusal, `design/portal.md:318` leaves it out, and it is raised after the thing is read, inside the span), so a journey that refuses one on an
+//    operation with a move marks that move REFUSED, like any other refusal the move can be turned back with; an answer with no event and no refusal (a replay) made no move. A move edge is lit when it moved or was refused; a state never is.
 //  - LIVE counts are the moves committed in the window: an operation span (`attempt`) carrying `move.name` counts once, keyed by the operation's thing and
 //    that move; an attempt that was refused, or one outside the window, counts nothing. Counts sit on move edges (`data-count`), never on a state.
 import { createHash } from "node:crypto";
@@ -12,7 +15,7 @@ import { Effect } from "effect";
 import { SourceFailed, type Span, type Trace } from "@orthograph/prove";
 import type { GraphModel } from "./graph-expect.ts";
 
-export const DOOR: ReadonlyArray<string> = ["NotAllowed", "IdempotencyConflict"];
+export const DOOR: ReadonlyArray<string> = ["NotAllowed", "InvalidPayload", "IdempotencyConflict"];
 
 export interface Lit { readonly moved: ReadonlyArray<number>; readonly refused: ReadonlyArray<string> }
 
@@ -28,6 +31,12 @@ export const traceOf = (m: GraphModel, thing: string, journey: string): Readonly
     for (const c of step.checks) if (c.kind === "refuses" && c.error !== undefined && !DOOR.includes(c.error)) entry.refused.push(`${String(i + 1)}:${c.error}`);
   });
   return out;
+};
+
+/** The model with one more step at the end of a journey: a call of `operation` that a refusal `error` answers (no journey of Plugged In or acme refuses `InvalidPayload`, so the door's list is proved on this). */
+export const withRefusal = (m: GraphModel, journey: string, operation: string, error: string): GraphModel => {
+  const j = m.journeys[journey]!;
+  return { ...m, journeys: { ...m.journeys, [journey]: { ...j, steps: [...j.steps, { call: { operation }, checks: [{ kind: "refuses", error }] }] } } };
 };
 
 export const NOW = 1_800_000_000_000;

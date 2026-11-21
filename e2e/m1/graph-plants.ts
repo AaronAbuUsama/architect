@@ -10,7 +10,7 @@ const drop = <T>(list: ReadonlyArray<T>, item: T) => list.filter((x) => x !== it
 const mut = (l: Laid) => l as unknown as { nodes: Array<Placed>; edges: Array<Route> };
 const replace = (l: Laid, key: "nodes" | "edges", items: ReadonlyArray<unknown>) => { (l as unknown as Record<string, unknown>)[key] = items; };
 
-export interface Plant { readonly name: string; readonly model: "plugged-in" | "acme"; readonly says: string; readonly plant: Mut }
+export interface Plant { readonly name: string; readonly model: "plugged-in" | "acme" | "needs"; readonly says: string; readonly plant: Mut }
 
 export const LAID: ReadonlyArray<Plant> = [
   // left out
@@ -73,5 +73,11 @@ export const LAID: ReadonlyArray<Plant> = [
   { name: "a key in graphs nobody asked for", model: "plugged-in", says: "graphs.extra", plant: (g) => { (g as unknown as Record<string, unknown>)["extra"] = structuredClone(g.map); } },
   { name: "a graph that names itself like another", model: "plugged-in", says: "no two share a name", plant: (g) => { set(g.worlds, "id", g.map.id); } },
   { name: "a graph with no name", model: "plugged-in", says: "each graph names itself", plant: (g) => { set(g.machines["link"]!, "id", ""); } },
+  // `needs` edges, over a model where greet needs echo (`needs: ["feature:echo"]`) and extra needs nothing
+  { name: "a `needs` edge dropped: greet needs echo and the map does not say so", model: "needs", says: "the model has 1 edge `needs|group:greet|group:echo|needs` and the graph draws 0", plant: (g) => { replace(g.map, "edges", drop(g.map.edges, edge(g.map, "needs"))); } },
+  { name: "a `needs` edge turned round: echo needs greet", model: "needs", says: "the graph draws edge `needs|group:echo|group:greet|needs`", plant: (g) => { const e = edge(g.map, "needs"); set(e, "from", e.to); set(e, "to", "group:greet"); } },
+  { name: "a spurious `needs` edge: extra needs echo, and nothing says so", model: "needs", says: "the graph draws edge `needs|group:extra|group:echo|needs`", plant: (g) => { const e = edge(g.map, "needs"); mut(g.map).edges.push({ ...e, id: "needs:extra", from: "group:extra" }); } },
+  { name: "a `needs` edge drawn twice", model: "needs", says: "the model has 1 edge `needs|group:greet|group:echo|needs` and the graph draws 2", plant: (g) => { const e = edge(g.map, "needs"); mut(g.map).edges.push({ ...e, id: "needs:again" }); } },
+  { name: "a `needs` edge drawn as a `mounts` edge", model: "needs", says: "the graph draws edge `mounts|group:greet|group:echo|mounts`", plant: (g) => { const e = edge(g.map, "needs"); set(e, "kind", "mounts"); set(e, "label", "mounts"); } },
   { name: "a move whose note names every event of its thing", model: "plugged-in", says: "also names HandleReleased", plant: (g) => { set(edge(g.machines["handle"]!, "move", "claim"), "note", "emits HandleClaimed HandleReleased"); } },
 ];

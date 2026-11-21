@@ -1,6 +1,6 @@
 // The wrong pages check 40's controls plant (author skill, proof 5): the stand-in client (graph-standin.ts) with ONE line changed, the routes where the fault
 // shows, and what the judge must say. `from` is quoted from the stand-in; a control fails loudly if the stand-in no longer holds it.
-export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string }
+export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string; readonly model?: "invalid-payload" }
 
 const MAP = "/portal/map", WORLDS = "/portal/worlds";
 const STRUCT = "/portal/things/handle?lighting=structure";
@@ -62,14 +62,34 @@ export const PAGE: ReadonlyArray<PagePlant> = [
   { name: "a trace that lights nothing in the data's lit", from: "t.moved.length + t.refused.length > 0", to: "t.moved.length > 0", routes: [STRANGER], says: "has lit" },
   { name: "nodes that move when the lighting changes (in the data)", from: "data-x=\"' + n.x + '\"", to: "data-x=\"' + (mode === \"live\" ? n.x + 3 : n.x) + '\"", routes: [LIVE], says: "carries" },
   // found by the hostile pass
-  { name: "edges with no text", from: 'esc(e.label ?? "") + "</span>")', to: '"" + "</span>")', routes: [STRUCT, MAP], says: "does not say its label" },
-  { name: "edges that say something else", from: 'esc(e.label ?? "") + "</span>")', to: '"banana" + "</span>")', routes: [WORLDS, MAP], says: "does not say its label" },
+  { name: "edges with no text", from: 'esc(e.label ?? "") + "</text></g></svg>")', to: '"" + "</text></g></svg>")', routes: [STRUCT, MAP], says: "does not say its label" },
+  { name: "edges that say something else", from: 'esc(e.label ?? "") + "</text></g></svg>")', to: '"banana" + "</text></g></svg>")', routes: [WORLDS, MAP], says: "does not say its label" },
   { name: "nodes five times as tall as the data's", from: "'px;height:' + n.h * SCALE", to: "'px;height:' + n.h * SCALE * 5", routes: [STRUCT], says: "of its size" },
   { name: "a graph drawn as a speck", from: "const SCALE = 0.8;", to: "const SCALE = 0.1;", routes: [STRUCT], says: "nobody can read it" },
   { name: "a first node with no width", from: "'px;width:' + n.w * SCALE", to: "'px;width:' + (n.kind === \"start\" ? 0 : n.w * SCALE)", routes: [STRUCT], says: "has no size on the screen" },
   { name: "nodes faded to almost nothing", from: "outline:1px solid #999;font:11px sans-serif", to: "outline:1px solid #999;opacity:0.01;font:11px sans-serif", routes: [STRUCT], says: "is faded to" },
   { name: "a graph clipped to no height", from: "'px;margin:30px\">'", to: "'px;margin:30px;height:0;overflow:hidden\">'", routes: [STRUCT], says: "has no size on the screen" },
   { name: "a count beside each state, outside its text", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" && live ? \"<b>2</b>\" : \"\");", routes: [LIVE], says: "show in the graph outside a move" },
+  { name: "a count with a multiplication sign beside each state: `2×`", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" && live ? \"<b>2×</b>\" : \"\");", routes: [LIVE], says: "show in the graph outside a move" },
+  { name: "a count beside each state with the sign first: `x2`", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" && live ? \"<b>x2</b>\" : \"\");", routes: [LIVE], says: "show in the graph outside a move" },
+  { name: "a count beside each state in words: `2 moves`, as a bare text node", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" && live ? \" 2 moves\" : \"\");", routes: [LIVE], says: "show in the graph outside a move" },
+  { name: "a count beside each state, in structure lighting too", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" ? \"<b>2×</b>\" : \"\");", routes: [STRUCT], says: "show in the graph outside a move" },
+  { name: "a count hidden inside each state (`data-count` on a hidden child)", from: "+ esc(n.label) + g.nodes", to: "+ esc(n.label) + (n.kind === \"state\" ? '<i hidden data-count=\"2\"></i>' : \"\") + g.nodes", routes: [LIVE], says: "holds a count in it" },
+  { name: "a count in each state's title: `2 moves`", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' title=\"2 moves\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [LIVE], says: "has a number in its title" },
+  { name: "a count in each state's aria-label: `claimed, 2 moves`", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' aria-label=\"' + n.label + ', 2 moves\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [LIVE], says: "has a number in its aria-label" },
+  // the connectors (a line a person sees, from where the data's route starts to where it ends)
+  { name: "edges drawn as text with no line (an element, not a path)", from: '"><path d="M ', to: '"><g d="M ', routes: [STRUCT, MAP], says: "draws no line" },
+  { name: "edges whose line has no stroke", from: 'fill="none" stroke="#333" stroke-width="1.5"/>', to: 'fill="none" stroke="none" stroke-width="1.5"/>', routes: [STRUCT], says: "draws no line" },
+  { name: "edges whose line is as wide as nothing", from: 'stroke="#333" stroke-width="1.5"/>', to: 'stroke="#333" stroke-width="0"/>', routes: [WORLDS], says: "draws no line" },
+  { name: "edges whose line is all but transparent (a hit area, not a line)", from: 'stroke="#333" stroke-width="1.5"/>', to: 'stroke="#333" stroke-opacity="0.05" stroke-width="1.5"/>', routes: [MAP], says: "draws no line" },
+  { name: "edges whose line is hidden", from: '"><path d="M ', to: '"><path hidden d="M ', routes: [STRUCT], says: "draws no line" },
+  { name: "one edge with no line, the first of each graph", from: 'stroke="#333" stroke-width="1.5"/>', to: 'stroke="#333" stroke-width="\' + (e.id === g.edges[0].id ? 0 : 1.5) + \'"/>', routes: [STRUCT, MAP, WORLDS], says: "draws no line" },
+  { name: "lines that run somewhere else: all shifted 20 px right", from: 'e.points.map((p) => p.x * SCALE + " " + p.y * SCALE)', to: 'e.points.map((p) => (p.x + 20) * SCALE + " " + p.y * SCALE)', routes: [STRUCT, MAP], says: "the line is not where the data routes it" },
+  { name: "lines misrouted on one kind of edge only (map refs, 30 px down)", from: 'e.points.map((p) => p.x * SCALE + " " + p.y * SCALE)', to: 'e.points.map((p) => p.x * SCALE + " " + (p.y + (e.kind === "ref" ? 30 : 0)) * SCALE)', routes: [MAP], says: "the line is not where the data routes it" },
+  { name: "lines that end short of their target: the last point dropped", from: 'e.points.map((p) => p.x * SCALE + " " + p.y * SCALE)', to: 'e.points.slice(0, -1).concat([{ x: e.points[0].x + 5, y: e.points[0].y + 5 }]).map((p) => p.x * SCALE + " " + p.y * SCALE)', routes: [STRUCT, WORLDS], says: "the line is not where the data routes it" },
+  { name: "lines drawn the wrong way round: from the target to the source", from: 'e.points.map((p) => p.x * SCALE + " " + p.y * SCALE)', to: 'e.points.slice().reverse().map((p) => p.x * SCALE + " " + p.y * SCALE)', routes: [STRUCT, WORLDS], says: "the line is not where the data routes it" },
+  { name: "lines drawn at another scale than the nodes", from: 'e.points.map((p) => p.x * SCALE + " " + p.y * SCALE)', to: 'e.points.map((p) => p.x * SCALE * 1.5 + " " + p.y * SCALE * 1.5)', routes: [STRUCT], says: "the line is not where the data routes it" },
+  { name: "a trace that takes a refusal of `InvalidPayload` for a refusal of the move (the door list stops at two)", model: "invalid-payload", from: 'const DOOR = ["NotAllowed", "InvalidPayload", "IdempotencyConflict"];', to: 'const DOOR = ["NotAllowed", "IdempotencyConflict"];', routes: [STRANGER], says: "has refused" },
   { name: "a count on states by generated content", from: '<div id="root">', to: '<style>[data-kind=state]::after{content:"3"}</style><div id="root">', routes: [LIVE], says: "has generated content" },
   { name: "a state that is lit", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-lit=\"true\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "is lit" },
   { name: "a state that carries a trace mark", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-moved=\"1\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "carries a trace mark" },

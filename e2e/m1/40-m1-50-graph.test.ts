@@ -15,6 +15,10 @@
 //     event); the worlds have the empty world, each starting world and each journey, `from` edges along the chain and `starts` edges for the journeys.
 //  2. POSITIONS COME FROM THE GENERATOR: `elkjs` is a pinned dependency of `packages/generators` and of nothing else, imported nowhere but there; `@xyflow/react` is
 //     portal-ui's and nowhere else's; the built client holds no elk. `Wire`'s schema keeps `graphs`. Two generations, in two folders, write the same bytes.
+//     DIRECTION: the layered layouts (a machine, the worlds) run left to right, elk's `RIGHT`: the entry node is the left-most node of its graph, and an edge runs
+//     from the left to the right (`geometryProblems` reads this as "nothing lies left of the entry"). The map has no entry and no direction pinned.
+//     DOOR REFUSALS: a journey's refusal marks no move when it was made at the door: `NotAllowed`, `InvalidPayload` and `IdempotencyConflict` (`graph-light.ts` says
+//     where each is named); `<Thing>NotFound` is not one of them, so it marks the move it was made at.
 //  3. THE PAGES (hooks in `graph-page.ts`): `/portal/map`, `/portal/worlds`, and a thing's page holding its machine's graph inside `lifecycle` (checks 21 and 28 keep
 //     reading `lifecycle`). Nodes are our components, drawn where the data puts them; `?lighting=structure|live|trace` picks the lighting (default live when the
 //     portal has `live`), `&journey=<file name>` the trace's journey. Lighting never moves a node. Rules for each lighting are in `graph-light.ts`.
@@ -30,13 +34,14 @@ import { Wire } from "@orthograph/portal";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ServedPortals } from "../served-portal/service.ts";
 import type { ServedPortal } from "../served-portal/types.ts";
-import { graphProblems, machineSpec, machineThings, mapSpec, structureProblems, worldsSpec, type Graphs } from "./graph-expect.ts";
-import { fakeGraphs } from "./graph-fake.ts";
-import { liveContext, liveFixture, traceOf } from "./graph-light.ts";
+import { graphProblems, machineSpec, type GraphModel, machineThings, mapSpec, structureProblems, worldsSpec, type Graphs } from "./graph-expect.ts";
+import { fakeGraphs, withNeeds } from "./graph-fake.ts";
+import { liveContext, liveFixture, traceOf, withRefusal } from "./graph-light.ts";
+import { scan } from "./graph-page.ts";
 import { LAID } from "./graph-plants.ts";
 import { PAGE } from "./graph-page-plants.ts";
 import { run, standIn, standInServer } from "./graph-standin.ts";
-import { committed, generateAcme, generateChained, generatePluggedIn, generateWithPlugin, type Generated, type PortalData } from "./graph-project.ts";
+import { committed, generateAcme, generateChained, generatePluggedIn, generateWithNeeds, generateWithPlugin, type Generated, type PortalData } from "./graph-project.ts";
 import { allVisits, placesOf, plainVisit, visitProblems } from "./graph-routes.ts";
 import { elkDeclaration, elkInside, flowDeclaration, importProblems, importing, lockHas, manifests, sourcesUnder, type Manifest } from "./graph-seam.ts";
 import { textFiles } from "./portal-seam.ts";
@@ -77,6 +82,15 @@ describe("40 M1.50: the generator writes the portal's graphs", () => {
     expect(graphProblems(wire.graphs, wire.model), said(graphProblems(wire.graphs, wire.model))).toEqual([]);
   });
 
+  it("A: a plugin that needs another is drawn needing it: echo and greet mounted (greet's mount records `needs: [\"feature:echo\"]`) draw a `needs` edge from the greet group to the echo group, and no other", { timeout: 600_000 }, () => {
+    const { wire } = once("needs", generateWithNeeds);
+    expect(wire.model.mounts?.["greet"]?.needs, "the model records the need as check 06 reads it").toEqual(["feature:echo"]);
+    const needs = mapSpec(wire.model).edges.filter((e) => e.kind === "needs");
+    expect(needs.map((e) => `${e.from}>${e.to}`), "the model's needs").toEqual(["group:greet>group:echo"]);
+    expect(structureProblems("map", wire.graphs?.map, mapSpec(wire.model)), "the map of acme with echo and greet").toEqual([]);
+    expect(graphProblems(wire.graphs, wire.model), said(graphProblems(wire.graphs, wire.model))).toEqual([]);
+  });
+
   it("A: a changed model gives a changed, valid picture: one starting world moved onto another adds a `from` edge from it, and the worlds are laid out again", { timeout: 600_000 }, () => {
     const base = once("plugged", generatePluggedIn).wire;
     const { wire } = once("chained", generateChained);
@@ -84,7 +98,7 @@ describe("40 M1.50: the generator writes the portal's graphs", () => {
     expect(chain?.from, "the model chains the world").toBe("world:claimed");
     expect(graphProblems(wire.graphs, wire.model), said(graphProblems(wire.graphs, wire.model))).toEqual([]);
     expect(JSON.stringify(wire.graphs?.worlds.nodes.map((n) => [n.label, n.x, n.y])), "a different chain gives a different layout").not.toEqual(JSON.stringify(base.graphs?.worlds.nodes.map((n) => [n.label, n.x, n.y])));
-    expect(JSON.stringify(wire.graphs?.machines), "and the machines, which did not change, are laid out as they were").toEqual(JSON.stringify(base.graphs?.machines));
+    expect(wire.graphs?.machines, "and the machines, which did not change, are laid out as they were").toEqual(base.graphs?.machines);
   });
 
   it("B: two generations, in two folders, write byte-identical portal data (so identical layouts); a third over the same folder changes nothing", { timeout: 600_000 }, () => {
@@ -92,7 +106,7 @@ describe("40 M1.50: the generator writes the portal's graphs", () => {
     const b = once("again", generatePluggedIn);
     expect(a.root, "two folders").not.toBe(b.root);
     expect(a.wire.graphs, "the data has layouts to compare").toBeDefined();
-    expect(JSON.stringify(b.wire.graphs)).toEqual(JSON.stringify(a.wire.graphs));
+    expect(b.wire.graphs).toEqual(a.wire.graphs);
     expect(b.text, "the whole file, byte for byte").toEqual(a.text);
     succeeds(a.root, "generate");
     expect(textAt(a.root, "generated/portal/blueprint.json"), "a second generation over the same folder").toEqual(a.text);
@@ -100,7 +114,7 @@ describe("40 M1.50: the generator writes the portal's graphs", () => {
 
   it("B: Plugged In's committed portal data is what `ortho generate` writes, layouts included", { timeout: 600_000 }, () => {
     const fresh = once("plugged", generatePluggedIn).wire;
-    expect(JSON.stringify(committed().graphs), "regenerate examples/plugged-in and commit generated/portal/blueprint.json").toEqual(JSON.stringify(fresh.graphs));
+    expect(committed().graphs, "regenerate examples/plugged-in and commit generated/portal/blueprint.json").toEqual(fresh.graphs);
     expect(committed().graphs).toBeDefined();
   });
 
@@ -108,7 +122,7 @@ describe("40 M1.50: the generator writes the portal's graphs", () => {
     const { wire } = once("plugged", generatePluggedIn);
     const decoded = (await decode(wire)) as unknown as { graphs?: Graphs };
     expect(decoded.graphs, "Wire.decode(blueprint.json).graphs").toBeDefined();
-    expect(JSON.stringify(decoded.graphs)).toEqual(JSON.stringify(wire.graphs));
+    expect(decoded.graphs, "what Wire decodes is what the file holds, node for node and edge for edge").toEqual(wire.graphs);
   });
 });
 
@@ -229,6 +243,15 @@ describe("40 control: the geometry and structure judge names each wrong graph an
   it("a correct generator's graphs (the stand-in's plain layout) pass for Plugged In and for acme", () => {
     for (const m of [committed().model, acmeModel()]) expect(graphProblems(fakeGraphs(m), m), said(graphProblems(fakeGraphs(m), m))).toEqual([]);
   });
+  it("a plugin that needs another is expected to be drawn needing it: `feature:echo` is the group `echo`, one `needs` edge from greet, none from echo or extra, and the stand-in's picture of it passes", () => {
+    const n = withNeeds(committed().model);
+    expect(mapSpec(n).edges.filter((e) => e.kind === "needs").map((e) => `${e.from}>${e.to}:${String(e.label)}`)).toEqual(["group:greet>group:echo:needs"]);
+    expect(mapSpec(n).edges.filter((e) => e.kind === "mounts").map((e) => e.to).sort(), "each plugin is mounted by the app").toEqual(["group:echo", "group:extra", "group:greet"]);
+    expect(graphProblems(fakeGraphs(n), n), said(graphProblems(fakeGraphs(n), n))).toEqual([]);
+    const needing = (...needs: ReadonlyArray<string>): GraphModel => ({ ...n, mounts: { ...n.mounts, greet: { kind: "feature", needs } } });
+    expect(mapSpec(needing("echo")).edges.filter((e) => e.kind === "needs"), "a need with no kind in front of it is read by its name too").toHaveLength(1);
+    expect(mapSpec(needing("feature:nothing-mounted")).edges.filter((e) => e.kind === "needs"), "a need on a mount that holds no thing has no group to join").toEqual([]);
+  });
   it("labels that list a ref's fields in another order, and a group, edge or machine in another order, are the same graph", () => {
     const m = committed().model, g = structuredClone(fakeGraphs(acmeModel())) as Graphs;
     const acme = acmeModel();
@@ -240,7 +263,7 @@ describe("40 control: the geometry and structure judge names each wrong graph an
     expect(m).toBeDefined();
   });
   it.each(LAID)("$name", (p) => {
-    const m = p.model === "acme" ? acmeModel() : committed().model;
+    const m = p.model === "acme" ? acmeModel() : p.model === "needs" ? withNeeds(committed().model) : committed().model;
     const g = structuredClone(fakeGraphs(m)) as Graphs;
     p.plant(g);
     const found = graphProblems(g, m);
@@ -261,8 +284,11 @@ const clientWith = (changes: ReadonlyArray<readonly [string, string]>): string =
   writeFileSync(join(dir, "index.html"), html);
   return dir;
 };
-const stand = (graphs: Graphs, counts: unknown, changes: ReadonlyArray<readonly [string, string]> = []) =>
-  ServedPortals.open({ context: { blueprint: { ...committed(), graphs }, counts }, clientDir: clientWith(changes), server: standInServer, run });
+const stand = (graphs: Graphs, counts: unknown, changes: ReadonlyArray<readonly [string, string]> = [], model: GraphModel = committed().model) =>
+  ServedPortals.open({ context: { blueprint: { ...committed(), model, graphs }, counts }, clientDir: clientWith(changes), server: standInServer, run });
+/** A journey of Plugged In that ends with a call of `link.add` answered by `InvalidPayload`: nothing in the examples refuses that, so the door's list is proved on it. */
+const STRANGER_FILE = "journeys/a-stranger-cannot-edit-a-page.ts";
+const refusedBy = (error: string) => withRefusal(committed().model, Object.keys(committed().model.journeys).find((j) => j.endsWith(STRANGER_FILE))!, "link.add", error);
 
 describe("40 control: the page judge accepts a portal drawn from the data and names each wrong one", () => {
   const m = committed().model, graphs = fakeGraphs(m), live = liveFixture(m);
@@ -285,12 +311,32 @@ describe("40 control: the page judge accepts a portal drawn from the data and na
       expect(found, said(found)).toEqual([]);
     } finally { await acmePortal.close(); }
   });
+  it("the stand-in draws each edge as SVG, which has no `innerText`, and the judge reads it: every edge has a visible line and says its label (the control for a real React Flow's edges)", { timeout: 120_000 }, async () => {
+    const portal = await stand(graphs, live.counts);
+    try {
+      for (const route of ["/portal/map", "/portal/worlds", "/portal/things/link?lighting=structure"]) {
+        const seen = (await scan(portal, route)).graphs[0]!;
+        expect(seen.edges.length, `${route} draws edges`).toBeGreaterThan(0);
+        for (const e of seen.edges) expect(e.line.shown, `${route}: edge ${String(e.edge)} has a line`).toBe(1);
+        if (route !== "/portal/worlds") expect(seen.edges.some((e) => e.text !== ""), `${route}: an SVG edge's label is read from its text nodes (the worlds' edges have none)`).toBe(true);
+      }
+    } finally { await portal.close(); }
+  });
+  it("a refusal of `InvalidPayload` on a move marks nothing, as one at the door: the stand-in passes a journey that ends with one, and `HandleNotFound` (not a door) marks the move refused", { timeout: 120_000 }, async () => {
+    const m2 = refusedBy("InvalidPayload"), g2 = fakeGraphs(m2), l2 = liveFixture(m2);
+    const file = Object.keys(m2.journeys).find((j) => j.endsWith(STRANGER_FILE))!;
+    expect(traceOf(m2, "link", file)["add"], "the new step is step 8 or later and nothing was refused by it").toEqual({ moved: [], refused: ["1:LinkNeedsHandle"] });
+    expect(traceOf(withRefusal(m2, file, "link.add", "LinkNotFound"), "link", file)["add"]!.refused.map((r) => r.split(":")[1]), "a not-found is not a door").toEqual(["LinkNeedsHandle", "LinkNotFound"]);
+    const portal = await stand(g2, l2.counts, [], m2);
+    try { expect(await visitProblems(portal, g2, [...allVisits(m2, l2)].find((v) => v.route === `/portal/things/link?lighting=trace&journey=a-stranger-cannot-edit-a-page`)!)).toEqual([]); } finally { await portal.close(); }
+  });
   it.each(PAGE)("$name", { timeout: 120_000 }, async (p) => {
-    const portal = await stand(graphs, live.counts, [[p.from, p.to]]);
+    const pm = p.model === "invalid-payload" ? refusedBy("InvalidPayload") : m, pg = p.model === undefined ? graphs : fakeGraphs(pm), pl = p.model === undefined ? live : liveFixture(pm);
+    const portal = await stand(pg, pl.counts, [[p.from, p.to]], pm);
     try {
       const found: Array<string> = [];
       for (const route of p.routes) {
-        const visit = [...allVisits(m, live)].find((v) => v.route === route);
+        const visit = [...allVisits(pm, pl)].find((v) => v.route === route);
         if (visit === undefined) throw new Error(`the control names a route no pass visits: ${route}`);
         found.push(...await visitProblems(portal, graphs, visit));
       }
@@ -345,6 +391,12 @@ describe("40 control: the seam instruments", () => {
     expect(lockHas("  elkjs@0.12.1:\n", "elkjs", "0.0.0")).toBe(false);
     expect(lockHas("  elkjs@0.12.10:\n", "elkjs", "0.12.1")).toBe(false);
     expect(lockHas("", "elkjs", "none")).toBe(false);
+    expect(lockHas("  foo-elkjs@0.12.1:\n    resolution: {}", "elkjs", "0.12.1"), "another package whose name ends in elkjs").toBe(false);
+    expect(lockHas("  '@scope/elkjs@0.12.1':\n    resolution: {}", "elkjs", "0.12.1"), "a scoped package of the same last name").toBe(false);
+    expect(lockHas("  '@scope/elkjs@0.12.1':\n", "@xyflow/react", "0.12.1")).toBe(false);
+    expect(lockHas("    resolution: {integrity: elkjs@0.12.1:}\n  other: see elkjs@0.12.1: here", "elkjs", "0.12.1"), "the text in the middle of another line").toBe(false);
+    expect(lockHas("  '@xyflow/react@12.12.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':\n    dependencies: {}", "@xyflow/react", "12.12.1"), "a snapshot key with its peers").toBe(true);
+    expect(lockHas("  '@xyflow/react@12.12.10':\n", "@xyflow/react", "12.12.1")).toBe(false);
   });
   it("an import is found however it is written, and a package of a similar name is not one", () => {
     const files = { "a.ts": 'import ELK from "elkjs/lib/elk.bundled.js";', "b.ts": 'const e = await import("elkjs");', "c.ts": 'const e = require("elkjs")', "g.ts": 'const e = await import(`elkjs`);', "d.ts": 'import x from "elkjs-lite"', "e.ts": 'import { a } from "not-elkjs"', "f.ts": "// elkjs is the generator's" };

@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { GraphModel, Graphs } from "./graph-expect.ts";
 import { freshProject, requireExample } from "./loop.ts";
-import { acme, mountEcho, project, repo, succeeds, textAt, type Copy } from "./support.ts";
+import { acme, mountEcho, project, repo, succeeds, textAt, writeMount, type Copy } from "./support.ts";
 
 export interface PortalData { readonly model: GraphModel; readonly graphs?: Graphs; readonly [key: string]: unknown }
 export interface Generated { readonly root: string; readonly remove: () => void; readonly text: string; readonly wire: PortalData }
@@ -25,6 +25,12 @@ export const generateAcme = (): Generated => read(freshProject(acme));
 export const generateWithPlugin = (): Generated => {
   const copy = project("echo");
   try { mountEcho(copy.root); succeeds(copy.root, "generate"); return read(copy); } catch (error) { copy.remove(); throw error; }
+};
+
+/** Acme with echo and greet mounted, as check 06 does: greet's mount records `needs: ["feature:echo"]`, so the map draws a `needs` edge between their groups. */
+export const generateWithNeeds = (): Generated => {
+  const copy = project("echo", "greet");
+  try { mountEcho(copy.root); writeMount(copy.root, "feature", "greet", { pkg: "@fixture/greet", verbs: [] }); succeeds(copy.root, "generate"); return read(copy); } catch (error) { copy.remove(); throw error; }
 };
 
 /** Plugged In where `page-with-links` begins from `claimed` (a starting world's `from`), generated: the chain is two worlds deep. */

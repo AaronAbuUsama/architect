@@ -50,7 +50,9 @@ export const fakeLaid = (id: string, spec: Spec): Laid => {
   };
   const edges = edgesOf.map((e, i): Route => {
     const a = abs(e.from), b = abs(e.to);
-    return { id: `${e.kind}:${String(i)}`, kind: e.kind, from: e.from, to: e.to, ...(e.label === null ? {} : { label: e.label }), ...(e.noteHas === undefined ? {} : { note: `emits ${e.noteHas}` }), points: [{ x: a.x + a.w / 2, y: a.y + a.h / 2 }, { x: b.x + b.w / 2, y: b.y + b.h / 2 }] };
+    // A move from a state to itself is a loop under the box (a route of no length is no line).
+    const loop = e.from === e.to ? [{ x: a.x + a.w * 0.75, y: a.y + a.h }, { x: a.x + a.w * 0.75, y: a.y + a.h + 14 }, { x: a.x + a.w * 0.25, y: a.y + a.h + 14 }, { x: a.x + a.w * 0.25, y: a.y + a.h }] : undefined;
+    return { id: `${e.kind}:${String(i)}`, kind: e.kind, from: e.from, to: e.to, ...(e.label === null ? {} : { label: e.label }), ...(e.noteHas === undefined ? {} : { note: `emits ${e.noteHas}` }), points: loop ?? [{ x: a.x + a.w / 2, y: a.y + a.h / 2 }, { x: b.x + b.w / 2, y: b.y + b.h / 2 }] };
   });
   return { id, width: Math.max(right, 1), height: Math.max(height, down, 1), nodes: spec.nodes.map((n) => placed.get(n.key)!), edges };
 };
@@ -61,3 +63,16 @@ export const fakeGraphs = (m: GraphModel): Graphs => ({
   worlds: fakeLaid("worlds", worldsSpec(m)),
   machines: Object.fromEntries(machineThings(m).map((t) => [t, fakeLaid(`machine-${t}`, machineSpec(m, t))])),
 });
+
+/**
+ * A model whose greet plugin needs the echo plugin, as check 06 reads one off a real project (`mounts.greet.needs` is `["feature:echo"]`: kind, a colon, the
+ * mount's name), over Plugged In: an echo thing and a greet thing, each from its own mount, and `extra`, a third plugin that needs nothing.
+ */
+export const withNeeds = (m: GraphModel): GraphModel => {
+  const thing = (name: string, mount: string) => [name, { name, from: { kind: "feature", mount }, fields: {}, events: {}, machine: null }] as const;
+  return {
+    ...m,
+    things: { ...m.things, ...Object.fromEntries([thing("echo", "echo"), thing("greet", "greet"), thing("extra", "extra")]) },
+    mounts: { ...m.mounts, echo: { kind: "feature", needs: [] }, greet: { kind: "feature", needs: ["feature:echo"] }, extra: { kind: "feature", needs: [] } },
+  };
+};
