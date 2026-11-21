@@ -48,7 +48,8 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
       // Present, it is still checked below. A public field has no visibility, so a public field that is missing still fails.
       // An issued field (`Blueprint.issued`) is the exception: the call that issues it hands it to its own caller, so presence is required.
       // Visibility decides what is displayed, never whether the field is there. The report names the field and never prints a value.
-      const issued = op.answer[k]?.issued === true || declared[k]?.issued === true;
+      // The model decides: the compiler copies `issued` from the declaration into the model, and refuses it anywhere but a secret answer value.
+      const issued = op.answer[k]?.issued === true;
       if (issued && hasResponse && !Object.hasOwn(answer, k)) return [`${where(e)}: answer.${k}: issued by ${op.name}, missing from its answer`];
       if (hasResponse && !issued && op.answer[k]?.visibility !== undefined && !Object.hasOwn(answer, k)) return [];
       // Live telemetry has no response and an external sink also drops email (D3 #120).

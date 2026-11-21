@@ -9,12 +9,12 @@ import { answerShape } from "./internal/calls.ts";
 const TOKEN = "tok_0123456789abcdef";
 
 const secret = (max: number) => ({ value: { type: "text", max }, visibility: "secret" });
-const model = (answer: Record<string, unknown>, kind = "operation") => ({
-  name: "session.sign-in", thing: "session", verb: "sign-in", kind, move: null, refusals: [], allowed: [{ kind: "anyone" }], steps: {}, budget: null, payload: {}, answer,
+const model = (answer: Record<string, unknown>, kind = "operation", name = "session.sign-in") => ({
+  name, thing: name.split(".")[0], verb: name.split(".")[1], kind, move: null, refusals: [], allowed: [{ kind: "anyone" }], steps: {}, budget: null, payload: {}, answer,
 }) as unknown as OperationModel;
 
 const issuing = model({ session: { value: { type: "id", prefix: "ses" }, visibility: "secret", issued: true }, token: { ...secret(512), issued: true }, nickname: { value: { type: "text", max: 30 } } });
-const declare = (answer: object, kind = "operation") => ({ operations: new Map([["session.sign-in", { kind, answer }]]) });
+const declare = (answer: object, kind = "operation", name = "session.sign-in") => ({ operations: new Map([[name, { kind, answer }]]) });
 const issuedDeclaration = declare({
   session: Blueprint.issued(Blueprint.visibility.secret(Blueprint.id("ses"))), token: Blueprint.issued(Blueprint.visibility.secret(Blueprint.text({ max: 512 }))), nickname: Blueprint.text({ max: 30 }),
 });
@@ -81,6 +81,30 @@ describe("answer shape: an issued field must be on the answer", () => {
   it("control: a read's secret field is not issued, so a stranger's answer may omit it", () => {
     const op = model({ code: secret(60) }, "read");
     const declaration = declare({ code: Blueprint.visibility.secret(Blueprint.text({ max: 60 })) }, "read");
+    expect(judge(seen({}, op), op, declaration)).toEqual([]);
+  });
+
+  it("is not about sign-in: any operation that issues a field must answer it, whatever the operation and field are called", () => {
+    const op = model({ key: { ...secret(64), issued: true }, label: { value: { type: "text", max: 30 } } }, "operation", "api-key.create");
+    const declaration = declare({ key: Blueprint.issued(Blueprint.visibility.secret(Blueprint.text({ max: 64 }))), label: Blueprint.text({ max: 30 }) }, "operation", "api-key.create");
+    const failures = judge(seen({ label: "ci" }, op), op, declaration);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toContain("answer.key");
+    expect(failures[0]).toContain("api-key.create");
+    expect(judge(seen({ key: "k-1", label: "ci" }, op), op, declaration)).toEqual([]);
+  });
+
+  it("the model decides: a field the model marks issued is required even when the declaration does not say so", () => {
+    const op = model({ token: { ...secret(512), issued: true } });
+    const declaration = declare({ token: Blueprint.visibility.secret(Blueprint.text({ max: 512 })) });
+    const failures = judge(seen({}, op), op, declaration);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toContain("answer.token");
+  });
+
+  it("the model decides: a declaration's issued mark the model does not carry (the compiler refuses it outside a secret answer) does not make a field required", () => {
+    const op = model({ token: secret(512) });
+    const declaration = declare({ token: Blueprint.issued(Blueprint.visibility.secret(Blueprint.text({ max: 512 }))) });
     expect(judge(seen({}, op), op, declaration)).toEqual([]);
   });
 });
