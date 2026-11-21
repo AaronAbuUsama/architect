@@ -146,10 +146,13 @@ export const steps: PerOperation = (op, evidence) =>
     return [...missing, ...late];
   }));
 
-/** 9. Every declared refusal has the log that decided it, inside the operation's span. */
+/** 9. Every declared refusal, and every rule's refusal (the runtime's own, G5), has the log that decided it, inside the operation's span. A rule's log names the rule. */
 export const explainability: PerOperation = (op, evidence) =>
   verdict("explainability", op.name, evidence.flatMap((e) => {
-    if (!e.refusal || !op.errors.includes(e.refusal)) return [];
+    const rule = e.refusal === undefined ? undefined : op.invariants?.[e.refusal];
+    if (!e.refusal || (!op.errors.includes(e.refusal) && rule === undefined)) return [];
     const ids = new Set(subtree(e.trace, e.opSpan).map((s) => s.spanId));
-    return e.trace.logs.some((l) => ids.has(l.spanId)) ? [] : [`${where(e)}: ${e.refusal} has no deciding log`];
+    const inside = e.trace.logs.filter((l) => ids.has(l.spanId));
+    if (rule !== undefined) return inside.some((l) => l.body.includes(rule)) ? [] : [`${where(e)}: ${e.refusal} has no deciding log naming ${rule}`];
+    return inside.length > 0 ? [] : [`${where(e)}: ${e.refusal} has no deciding log`];
   }));
