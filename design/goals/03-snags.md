@@ -272,16 +272,15 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open. The stopgap `max === 254` heuristic in `e2e/grid/src/modules/output-schema/internal/sample.ts` is deleted when it lands.
 
-
 ## S-29 · prove · a handler that imports a rule `invariants.ts` doesn't export makes prove wait forever
-- Hit: the checks author of #241 (ST1.19's checks), planting a wrong build: with `oneHolderPerName` deleted from
-  `examples/plugged-in/blueprint/things/handle/invariants.ts` while `src/handle/claim.ts` still imports it, `ortho prove`
-  printed nothing for 150 s and the world never started. The 🔍 of #241 reproduced it.
-- Lost: a builder sees a hang instead of a named error, and CI waits until the job's own timeout. Check 34 stops its own
-  prove at 240 s so it fails rather than hangs.
+- Hit: with `oneHolderPerName` deleted from Plugged In's handle rules while the claim handler still imports it,
+  `ortho prove` waits forever: the world never gets its up. Seen by the checks author of #241 (ST1.19's checks) on a
+  stand-in, and reproduced by the 🔍 of #241 on its own wrong builds.
+- Lost: a builder would see a hang instead of a named error, and CI would wait until the job's own timeout. Check 34
+  stops its own prove at 240 s so it fails rather than hangs.
 - Cause: not yet traced. It has the same shape as check 33, a missing handler. Something in prove's start-up waits on a
   module that fails to load and never reports the failure.
-- Fix: framework. Prove exits non-zero within 60 s and names the file and the missing export. A checks author first
-  adds the case beside check 33.
+- Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
+  export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open
