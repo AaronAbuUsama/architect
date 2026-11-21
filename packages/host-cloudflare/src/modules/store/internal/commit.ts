@@ -1,4 +1,4 @@
-// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch. A guard that lost, or a unique index that refused (G4), is a `conflict`: the call runs again.
+// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch. A guard that lost, or a unique index that refused (G5), is a `conflict`: the call runs again.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
