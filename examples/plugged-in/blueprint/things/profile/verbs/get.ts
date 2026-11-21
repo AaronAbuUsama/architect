@@ -16,6 +16,6 @@ export default Blueprint.operation(Profile, {
   answer: { handle: Handle.fields.name, links: PageLinks },
   errors: [ProfileNotFound],
   allowed: [Blueprint.anyone],
-  steps: { load: Blueprint.step.database() },
+  steps: { load: Blueprint.step.database({ writes: [] }) },
   budget: { p95: "150 millis" },
 });

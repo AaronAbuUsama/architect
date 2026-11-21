@@ -17,8 +17,8 @@ them was touched.
 | Verdict | Count | Snags |
 |---|---|---|
 | Fixed already (found fixed in the code) | 3 | S-10 (#76), S-12 (#116, #117), S-19 (#205, #227, #229) |
-| Open, blocks | 3 | S-27, S-17 (HAN-15 only), S-11 |
-| Parked, with an owner | 14 | S-05 to S-09, S-13 to S-16, S-20, S-21, S-24, S-26, S-28 (S-17's HAN-13 and HAN-14 are parked inside its line) |
+| Open, blocks | 2 | S-27, S-11 (S-17's HAN-15 is fixed) |
+| Parked, with an owner | 15 | S-05 to S-09, S-13 to S-17, S-20, S-21, S-24, S-26, S-28 (S-17: HAN-13 and HAN-14 are parked, HAN-15 is fixed) |
 
 That is 20 snags: S-05 to S-17 (13), S-19 to S-21 (3), S-24 and S-26 to S-28 (4). The brief counted 21 lines. This
 change also removes a stray second `Status: fixed (#148)` under S-27, a copy of S-25's left by a merge.
@@ -29,7 +29,7 @@ change also removes a stray second `Status: fixed (#148)` under S-27, a copy of 
    the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
    nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
    is ready now.
-2. **S-17, HAN-15: the answer-shape eval lets a sign-in answer omit its issued token.** A checks slice. It must land
+2. **S-17, HAN-15: the answer-shape eval lets a sign-in answer omit its issued token.** Fixed, a checks slice. It had to land
    before M2.02's and M2.05's identity journeys are written, because a sign-in that issues no token would otherwise
    pass the eval; after that the check cannot be added without moving a green journey.
 3. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
@@ -156,8 +156,8 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   no world outlives an upgrade before M7.
 - HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
   framework, check first.
-- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
-- Status: open, blocks M2.05's sign-in journeys (HAN-15 only): a checks slice makes the answer-shape eval (`packages/prove/src/modules/evals/internal/calls.ts:49`) require a declared `Blueprint.issued` field to be present on a sign-in answer, before M2.05's identity journeys are written. HAN-14 is parked (Goal 3 lead, 21 November 2026): the device SDK is the wallet's browser path, Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03.
+- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Fixed: the eval requires every issued answer field (`packages/prove/src/modules/evals/issued.test.ts`).
+- Status: open for HAN-14 only. HAN-14 is parked (Goal 3 lead, 21 November 2026): the device SDK is the wallet's browser path, Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03. HAN-15 is fixed, so M2.05's sign-in journeys are no longer blocked on it.
 
 ## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
 - Hit: the journeys for HAN-11's two new wallet refusals (#113, #114). The coverage eval rightly asks for a journey
@@ -325,7 +325,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: check written (#253)
+- Status: fix built (`bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
 
 ## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
 - Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
@@ -348,12 +348,12 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   rule an operation can break (`breaks`), but the model keeps only `refusals` (`operations.<op>.invariants`, refusal to
   rule), so the wire never carries a rule with no refusal on an operation.
 - Fix: framework. The model carries each operation's `breaks`, and the portal's spine reads it. Check 28 pins the stop to
-  the rules the model attaches today (`e2e/m1/rules-fixture.ts:215`), so a checks author first moves it to `breaks`.
+  the rules the model attaches today (`e2e/m1/rules-fixture.ts`), so a checks author first moves it to `breaks`.
   Amended 21 November 2026 (`design/decisions/S31-breaks.md`, point 4): a database step with `writes` unset stays
   unknown and breaks the rules of a machine-less thing; `writes: []` is reads only. `profile.get` declares it and has no
   rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: checks written (#252)
+- Status: built (#255)
 
 ## S-32 · prove · journey code that throws while the compiler describes a blueprint kills the run with no report
 - Hit: the 🔍 of #264 (S-27), reading what the `Effect.try` there does not cover. Not run on a planted journey yet: read from the code.

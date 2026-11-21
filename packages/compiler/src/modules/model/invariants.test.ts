@@ -142,7 +142,7 @@ describe("G5: which operations can break a rule (section 3)", () => {
     for (const op of Object.values(m.operations)) expect(op.errors).not.toContain("HandleTaken");
   });
 
-  it("a rule with no `while` is broken by any move, and a thing with no machine by any database step on it", async () => {
+  it("a rule with no `while` is broken by any move, and a thing with no machine by any database step on it that leaves `writes` unset", async () => {
     const anywhere = await model({ "things/handle/invariants.ts": RULES(`export const r = Blueprint.invariant.unique(Handle.fields.name, { refuse: HandleTaken });`), ...verbs });
     expect(anywhere.operations["handle.release"]?.invariants).toEqual({ HandleTaken: "handle.r" });
     const noMachine = await model({

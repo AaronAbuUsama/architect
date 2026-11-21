@@ -35,7 +35,13 @@ const stopsOf = (b: BlueprintWire, op: OperationWire): ReadonlyArray<Stop> => {
       detail: (
         <span>
           {"A move is checked against these rules before it commits; a call that breaks one stops here and is refused as the rule's sentence. "}
-          {broken.map((r) => <span key={r.full} className="rule-stop"><a href={ruleHref(r)}>{r.name}</a>{` ${r.sentence}`}</span>)}
+          {broken.map((r) => (
+            <span key={r.full} className="rule-stop" data-portal="spine-rule" data-rule={r.full}>
+              <a className="rule-link" data-portal="rule-link" href={ruleHref(r)}>{r.name}</a>
+              {" "}
+              <span data-portal="spine-rule-sentence">{r.sentence}</span>
+            </span>
+          ))}
         </span>
       ),
     }]),
