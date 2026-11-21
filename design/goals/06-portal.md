@@ -70,7 +70,9 @@ want this to be able to run in parallel to the other work that's actually runnin
 1. **The map falls out.** An app declares its map in the blueprint (K31), and the router, the shell, the palette, the
    breadcrumbs and the agent's map (as data) come from it. The rest of K31's table, the docs' page per screen,
    `ortho add page`, the agent's `map` tool on an app and `open(pages.x)` in `ortho prove`, is not in this goal; it is
-   in `design/later.md`, "The rest of the app's map".
+   in `design/later.md`, "The rest of the app's map". Aaron's call on composite components (K36, 21 November 2026:
+   "C, wiring declared") adds `Blueprint.component` to slice 3 and a page's components to slice 4's agent map and
+   palette index; the rest of K36 waits in the same `later.md` item.
 2. **Our own components are enough.** The portal is rebuilt on UI SDK, the Orthograph theme and our shell, with no
    HeroUI and no licence anywhere.
 3. **Nothing is lost.** Every check that holds the old portal passes on the new one before the old one goes.
@@ -150,8 +152,8 @@ want this to be able to run in parallel to the other work that's actually runnin
 
   A change that needs any other existing file is an Ask issue in that goal's milestone, never an edit here.
   The new modules are `packages/orthograph/src/modules/app/` (`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`,
-  `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results),
-  `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals) and
+  `Blueprint.nav`, `Blueprint.component` (K36); a page's type is `AppPage`, since `Page` is already a read's page of results),
+  `packages/compiler/src/modules/app/` (`model.app`, its hash and the five refusals (K31, K36)) and
   `packages/projections/src/modules/app/` (the app projection); the new packages are `packages/theme`,
   `packages/shell` and `packages/portal-next`.
 - **Outside, never edited before cutover:** `packages/portal` (the old client, the wire and the server half),
@@ -271,9 +273,9 @@ Each slice starts with its check, written first and failing, and ends with it gr
 | # | Slice | Done when |
 |---|---|---|
 | 1 | **The theme.** `@orthograph/theme`: one stylesheet on UI SDK's `--ui-*` tokens (K29 Q3), the type scale and spacing, light and dark | its check (written first): a fixture page on it in Chromium resolves every `--ui-*` token to the theme's value, in both schemes, and builds with `HEROUI_AUTH_TOKEN` unset |
-| 2 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's four refusals (K31), a page that shows no read and types its parameter with a value (the portal's case: `/things/:name` over the data API) compiling, a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call, and **the byte-identical check**: acme's and Plugged In's `model.json` and every generated file equal `goal/stage-1`'s, byte for byte, with the map modules in | they fail with the map empty, except the byte-identical check, which passes and must keep passing; the old client's checks still pass |
-| 3 | **The map language.** `Blueprint.app`, `Blueprint.page`, `Blueprint.layout`, `Blueprint.nav` in `orthograph`'s new `app` module; `model.app` in the compiler's new `app` module, hashed; the four compile errors; registered in the four files the bound names | slice 2's language and compiler checks; the byte-identical check |
-| 4 | **The app projection.** `generated/app/`, for a project that mounts it: the route table, a typed link per page, the navigation, the palette's index and the agent's map, as data; with no `app.ts`, the derived default, worked out here and never written into the model | slice 2's projection checks; the byte-identical check |
+| 2 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's five refusals (K31's four, K36's one), a page that shows no read and types its parameter with a value (the portal's case: `/things/:name` over the data API) compiling, a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call, and **the byte-identical check**: acme's and Plugged In's `model.json` and every generated file equal `goal/stage-1`'s, byte for byte, with the map modules in | they fail with the map empty, except the byte-identical check, which passes and must keep passing; the old client's checks still pass |
+| 3 | **The map language.** `Blueprint.app`, `Blueprint.page`, `Blueprint.component` (K36), `Blueprint.layout`, `Blueprint.nav` in `orthograph`'s new `app` module; `model.app` in the compiler's new `app` module, hashed; the five compile errors (K31, K36), and a page's effective `shows` and `offers` with its components' (K36); registered in the four files the bound names | slice 2's language and compiler checks; the byte-identical check |
+| 4 | **The app projection.** `generated/app/`, for a project that mounts it: the route table, a typed link per page, the navigation, the palette's index and the agent's map, as data, each page with its components and what they offer (K36); with no `app.ts`, the derived default, worked out here and never written into the model | slice 2's projection checks; the byte-identical check |
 | 5 | **The shell.** `@orthograph/shell`: the router over the route table, the layouts (`sidebar`, `topNav`, `none`) and their slots, the navigation, the breadcrumb and the ⌘K palette, on UI SDK (`navigation-menu`, `collapsible`, `scroll-area`, `command`, `menu`) and the theme | slice 2's shell checks in Chromium; an agent's `snapshot()` on a fixture shell lists its navigation and palette by name |
 
 **The theme landing, after slice 1:** one pull request from `goal/portal` into `goal/stage-1` carrying only

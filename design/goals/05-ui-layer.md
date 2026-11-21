@@ -63,7 +63,8 @@ UI SDK's tokens, and the beta generates React only ([`../decisions/K29-ui-layer.
 The same day Aaron answered the app map grill (K31, [`../decisions/K31-app-map.md`](../decisions/K31-app-map.md)): the
 portal is rebuilt as a new client on the app's map, by Goal 6 ([`06-portal.md`](06-portal.md)), so the portal and the
 theme are Goal 6's. This goal's done check never waits on Goal 6: Plugged In's pages declare themselves in the map
-language as a follow-on, once it lands.
+language as a follow-on, once it lands. His call on composite components (K36, "C, wiring declared") leaves slice 5
+unchanged: the link list is hand-written first, and declared as a component once the map language lands.
 
 ## What this goal proves
 
@@ -265,7 +266,7 @@ These touch only new code and their own checks, none of what Goal 3 or Goal 6 is
 - **Goal 3 changes nothing here.** It never waits on this goal, and its model work merges in at every slice.
 - **Where it meets Goal 6.** Goal 6 owns `@orthograph/theme` and lands it in `goal/stage-1` first; slice 5 takes it
   up. Goal 6 then lands the map language and the shell. **The follow-on, not in this done check:** once they are on
-  `goal/stage-1`, Plugged In's three pages are declared in `blueprint/app/` (K31) and `main.tsx`'s routes give way to
+  `goal/stage-1`, Plugged In's three pages and its link list are declared in `blueprint/app/` (K31, K36) and `main.tsx`'s routes give way to
   the generated route table, as one small slice in whichever goal is open then. The pieces and the shell meet only
   through a page's `shows` and `offers`, so neither goal edits the other's packages.
 
