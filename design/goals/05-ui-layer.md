@@ -9,6 +9,9 @@ questions it raised were answered 1A 2A 3A 4A by the conductor, under the standi
 "anything that's waiting on me, just go with the recommendations. You have authority." So actions come into stage 1,
 the screens are built from generated pieces, HeroUI leaves the portal in one change, there is one Orthograph theme on
 UI SDK's tokens, and the beta generates React only ([`../decisions/K29-ui-layer.md`](../decisions/K29-ui-layer.md)).
+The same day Aaron answered the app map grill (KXX, [`../decisions/KXX-app-map.md`](../decisions/KXX-app-map.md)): the
+portal is rebuilt as a new client on the app's map, by Goal 6 ([`06-portal.md`](06-portal.md)), so the portal and the
+theme are Goal 6's, and this goal's screens declare their pages in the map language.
 
 ## What this goal proves
 
@@ -20,7 +23,6 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
    and UI SDK's components, with one component of its own (the link list).
 3. **People and agents use the same page.** An agent in the browser sees every control by name, waits for a person's
    yes where one is declared, and is refused with the same code a person sees.
-4. **No licence anywhere.** The portal runs on UI SDK, and nothing in the repository installs HeroUI.
 
 ## The words
 
@@ -28,7 +30,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
   value, and an approval when one is declared (M1.23, M1.22).
 - **A piece** is one generated UI SDK primitive per operation or read, bound to its action, with React parts beside it
   (`generated/web/<thing>/<verb>.ts` and `.react.tsx`). It is a move, a write or a read, worked out from the model.
-- **`@orthograph/web`** is the package every piece shares: the browser host, the piece runtime and the Orthograph theme.
+- **`@orthograph/web`** is the package every piece shares: the browser host and the piece runtime. The theme is `@orthograph/theme`, Goal 6's.
 
 ## The prompt
 
@@ -37,10 +39,9 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K24, K13 and K28;
-> - `design/ui/heroui-inventory.md` (every HeroUI use, with what replaces it);
-> - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25 to ST1.28 and ST1.04
->   rows of `design/milestones.md`;
+> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), KXX (the app's map), K24, K13 and K28;
+> - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25, ST1.26 and ST1.04 rows of
+>   `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
 > - the `ui-sdk`, `conductor`, `reviewer`, `author`, `threads` and `kanban` skills.
 >
@@ -69,6 +70,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
   - the rest of `examples/plugged-in` (its blueprint, journeys, handlers and auth) and every Goal 3 journey and check;
   - the shell's chat and "Needs you" (M1.24), MCP from the whole model (M1.37) and the host's caller for actions outside
     our portal (ST1.05): all still M3;
+  - the portal, `@orthograph/portal-ui`, the map language, the shell and the theme: all Goal 6's;
   - frameworks other than React (Q4), server rendering, and a lighter client than the generated SDK (`later.md`).
 - **Local, never fake:** Chromium through Playwright for every browser check, never jsdom; real workerd and D1 under
   `ortho prove`. No cloud, no Docker, no keys.
@@ -77,10 +79,6 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
   (`.agents/skills/ui-sdk/README.md`, "Updating it").
 - **Goal 3's hotspots** (from its open pull requests on 21 November 2026). Merge often, and keep each slice small where
   it touches them:
-  - the portal's pages (`packages/portal/src/modules/pages/internal/`, `wire/`, `telemetry/`): S-31 adds each
-    operation's rules (#269) and M1.12a adds the request key to the calls table (#270). ST1.27's first half stays
-    inside `packages/portal-ui` and `portal.css`; its second half (the frame's parts as UI SDK's) touches these files,
-    so it waits for both to merge, or merges them in first;
   - the compiler's model (#269, and ST1.14 to ST1.16 before it): the actions and web projections read the model and
     never change it. A field they need that the model lacks is a snag for Goal 3, not an edit here;
   - `orthograph`'s front door (ST1.14): M1.23's actions module sits beside it, so merge before touching the module
@@ -89,20 +87,23 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
     own checks;
   - the expected-failure lists.
 - **Cloud spend: $0.**
+- **Goal 6's files:** `packages/shell`, `packages/theme`, `packages/portal-next`, the app projection and the map
+  declarations in `orthograph` are Goal 6's. This goal never edits them, and Goal 6 never edits `packages/web` or the
+  web projection.
 - **At most three builders at once.** Every agent stops the processes it starts, by PID, before it reports.
 
 ## The five roles
 
 | Role | Writes | Never touches |
 |---|---|---|
-| **Checks author** | each slice's failing check, first, on a `-check` branch, including check 15's rewrite and the `e2e:ui-layer` target | handlers, the framework, the journeys, `src/web/` |
+| **Checks author** | each slice's failing check, first, on a `-check` branch, including the `e2e:ui-layer` target | handlers, the framework, the journeys, `src/web/` |
 | **Framework builder** | `packages/`, on a `-build` branch, to turn a check green | the journeys, any check, `src/web/` |
 | **User** (the DX trial) | only `examples/plugged-in/src/web/`, using only what a user has: the generated pieces, UI SDK, the `ui-sdk` skill, the generated docs | the blueprint, the journeys, `packages/`, any check, `generated/` |
 | **Goal 3** | Plugged In's blueprint, journeys and handlers, on `goal/stage-1` | this goal's branch |
 | **🔍 Reviewer** | a verdict on each pull request | anything it reviews |
 
 When the user is stuck on something it can't fix inside `src/web/`, it writes a snag in `design/goals/05-snags.md` and
-moves on. It never writes a fetch, a hand-made form or a HeroUI import to get round a piece. The lead creates
+moves on. It never writes a fetch or a hand-made form to get round a piece. The lead creates
 `05-snags.md` in slice 1, in the shape of `03-snags.md`:
 
 ```md
@@ -118,36 +119,36 @@ moves on. It never writes a fetch, a hand-made form or a HeroUI import to get ro
 
 Each slice starts with its check, written first and failing, and ends with that check green on `goal/ui-layer`.
 
-### Part 1: start today, beside Goal 3
+### Part 1: start today, beside Goal 3 and Goal 6
 
-These touch only `packages/portal-ui`, `portal.css`, CI, lint and new code, none of what Goal 3 is changing.
+These touch only new code and their own checks, none of what Goal 3 or Goal 6 is changing.
 
 | # | Slice | Done when |
 |---|---|---|
-| 1 | **ST1.28, the checks for the portal off HeroUI** (checks author): check 15 rewritten, a planted HeroUI import fails lint, the portal builds with `HEROUI_AUTH_TOKEN` unset; and the `e2e:ui-layer` target, red until the goal is done | they fail on `goal/ui-layer` for HeroUI's imports only; checks 21, 26, 27 and 28 still pass |
-| 2 | **ST1.27, first half: inside `portal-ui`.** `Card` and `Widget` as our markup, `Timeline` as UI SDK's, `portal.css` on the Orthograph theme (`@orthograph/web/theme.css`, created here), the 15 unused names deleted, HeroUI's peers, scripts, CI step and cache removed (K29 section 7, items 1, 3 and 4) | ST1.28's checks pass; checks 21, 26, 27 and 28 still pass (ST1.27's `snapshot()` check is slice 7's) |
-| 3 | **M1.23, the actions module** in `orthograph`, in Effect, agent-native's field names | M1.23's check |
-| 4 | **ST1.26, the web projection's checks** (checks author), on Plugged In, against empty pieces: a name claimed once `--through web`, `HandleTaken` with `HN-001` under the field and failing an agent's step, a release that waits for a person's yes, a read that loads again after a write, pending observed before the answer | they fail with the web projection empty |
+| 1 | **M1.23, the actions module** in `orthograph`, in Effect, agent-native's field names; and the `e2e:ui-layer` target (checks author), red until the goal is done | M1.23's check |
+| 2 | **ST1.26, the web projection's checks** (checks author), on Plugged In, against empty pieces: a name claimed once `--through web`, `HandleTaken` with `HN-001` under the field and failing an agent's step, a release that waits for a person's yes, a read that loads again after a write, pending observed before the answer | they fail with the web projection empty |
 
 ### Part 2: after Part 1, merging Goal 3 in often
 
 | # | Slice | Done when |
 |---|---|---|
-| 5 | **M1.22, the actions projection**: one generated action per operation in `generated/actions/` | M1.22's check |
-| 6 | **ST1.25, the web projection**: `@orthograph/web` (the browser host and the piece runtime), the pieces' templates, `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for `generated/web/` with check 26 still holding the Worker line (K29 sections 3 and 6) | ST1.26's checks |
-| 7 | **ST1.27, second half: the frame's parts as UI SDK's** (search, the environment picker, the tree, the tabs, the calls filter), each keeping its `data-portal` hook. Waits for #269 and #270 to reach `goal/stage-1`. ST1.27 is done when both halves are | ST1.27's check: an agent's `snapshot()` on the portal lists the search, the tree and the tabs by name |
-| 8 | **ST1.04's three screens** (the user): `/@name`, `/claim` and `/edit` in `examples/plugged-in/src/web/`, built on the pieces, with the app's own link list (K29 section 5). Needs ST1.03, Goal 3's handles plugin, on `goal/stage-1` | in Chromium a claim and a link show on `/@aaron`; Plugged In's claim, links and page journeys pass `--through web` |
+| 3 | **M1.22, the actions projection**: one generated action per operation in `generated/actions/` | M1.22's check |
+| 4 | **ST1.25, the web projection**: `@orthograph/web` (the browser host and the piece runtime), the pieces' templates, `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for `generated/web/` with check 26 still holding the Worker line (K29 sections 3 and 6) | ST1.26's checks |
+| 5 | **ST1.04's three screens** (the user): Plugged In's three pages declared in `blueprint/app/` (KXX), and their code in `examples/plugged-in/src/web/`, built on the pieces, with the app's own link list (K29 section 5). Needs ST1.03 (Goal 3's handles plugin) and Goal 6's first landing (the map language and the shell) on `goal/stage-1` | in Chromium a claim and a link show on `/@aaron`; Plugged In's claim, links and page journeys pass `--through web` |
 
 ### Where it meets Goal 3
 
 - **The screens are part of Goal 3's done check.** `nx run e2e:stage1` needs every stage 1 journey green, and ST1.04
-  is a stage 1 slice. Goal 3 builds ST1.04's `profile`, `link` and handlers; this goal builds its screens. Slice 8
+  is a stage 1 slice. Goal 3 builds ST1.04's `profile`, `link` and handlers; this goal builds its screens. Slice 5
   lands in `goal/stage-1` before Goal 3 can finish.
 - **The sign-in piece waits for the auth plugin.** Signing in on a page needs `@orthograph/auth`'s identity (M2.05) and
   its ways in (M2.06), both Goal 3's. Until they land, the screens claim and edit as the test people Plugged In's
   journeys already use. ST1.06 (the pieces behind a signed-in session) is built after M2.06, in whichever goal is open
   then; it is not in this goal's done check.
-- **Goal 3 changes nothing here.** It never waits on this goal, and its portal and model work merges in at every slice.
+- **Goal 3 changes nothing here.** It never waits on this goal, and its model work merges in at every slice.
+- **Where it meets Goal 6.** Goal 6 builds the map language and the shell and lands them in `goal/stage-1` early;
+  slice 5 declares Plugged In's pages with them. The pieces and the shell meet only through a page's `shows` and
+  `offers`, so neither goal edits the other's files.
 
 ## Decision IDs
 
@@ -165,38 +166,32 @@ nx run e2e:ui-layer
 ```
 
 It passes only when all of these hold, in CI on `goal/ui-layer`:
-- ST1.26's and ST1.28's checks, and M1.22's and M1.23's, are green;
+- ST1.26's checks, and M1.22's and M1.23's, are green;
 - Plugged In's claim, links and page journeys pass `--through web`, with their test people, and the same verdicts as
   over HTTP;
-- in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/`;
-- the portal and every package build with `HEROUI_AUTH_TOKEN` unset; no `package.json` and no lockfile names
-  `@heroui`, and nothing in `packages/` or `examples/` imports it;
-- checks 21, 26, 27 and 28 still pass, and acme's and Plugged In's existing generated files are unchanged (only
+- in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/` and no route
+  matched by hand;
+- check 26 still passes, and acme's and Plugged In's existing generated files are unchanged (only
   `generated/actions/` and `generated/web/` are new);
 - every snag in `05-snags.md` is fixed, or parked with an owner and a reason.
 
 ## Landing
 
-Two merges, both into `goal/stage-1`, since Goal 3 is open and its done check needs the screens.
-- **The portal, early.** Once slice 2 is green, open one pull request from `goal/ui-layer` into `goal/stage-1`, so Goal
-  3's portal work builds on UI SDK from then on. Merge `goal/stage-1` in first, by a merge. It merges when CI is green
-  and a 🔍 reviewer that wrote none of it passed it.
-- **The rest, at the done check.** When `nx run e2e:ui-layer` passes, open one more pull request into `goal/stage-1`.
-  It merges when CI is green, Goal 3's checks still pass on it, and a 🔍 reviewer has passed the whole branch, reading
-  this file, the snag log, each slice's check and the evidence below. It reaches `main` with stage 1.
+When `nx run e2e:ui-layer` passes, open one pull request from `goal/ui-layer` into `goal/stage-1`, since Goal 3 is open
+and its done check needs the screens. Merge `goal/stage-1` in first, by a merge. It merges when CI is green, Goal 3's
+checks still pass on it, and a 🔍 reviewer has passed the whole branch, reading this file, the snag log, each slice's
+check and the evidence below. It reaches `main` with stage 1.
 
 ## Evidence for Aaron
 
 - **The DX trial:** what a person writes, in full (Plugged In's `src/web/`), beside what was generated for it.
 - **A browser video,** recorded by Playwright, of a claim, a taken name refused under the field, three links added and
   ordered, and the public page; then the same flow driven by an agent in the browser, waiting for a yes on release.
-- **The portal,** a screenshot of every page at desktop width, before and after HeroUI leaves.
 - **The snag log,** each snag linked to its fix, and each slice's check with its run.
 
 ## Estimate
 
 From Goal 3's pace (a medium slice takes three to six hours from opening to merge, checks first).
-- Part 1: about 8 to 12 hours. The portal change is small (three components used, K29 section 7), and M1.23 is a small
-  slice with agent-native's shape already spiked.
+- Part 1: about 4 to 8 hours. M1.23 is a small slice with agent-native's shape already spiked.
 - Part 2: about 16 to 24 hours. The web projection is the new machinery; #222 proved each part by hand.
-- Both: about 24 to 36 hours of continuous running, with slice 8 waiting on Goal 3's ST1.03.
+- Both: about 20 to 32 hours of continuous running, with slice 5 waiting on Goal 3's ST1.03 and Goal 6's first landing.

@@ -1101,23 +1101,22 @@ a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-41
 scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
 command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
-## The portal's components behind one package (F7, K29)
+## The portal's components behind one package (F7, K29, KXX)
 
 Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md).
-K29 (21 November 2026, Aaron's answer 2A) moves what is behind the seam from HeroUI Pro to UI SDK, in one change
-(ST1.27), with check 15 rewritten first (ST1.28). In short:
+K29 (21 November 2026) moved what is behind the seam from HeroUI Pro to UI SDK; KXX, the same day, changed how: a new
+client, `packages/portal-next`, is built beside the old one on UI SDK, `@orthograph/theme`, `@orthograph/shell` and a
+map declared in its own `blueprint/app/`, and the old client is deleted at cutover (Goal 6, [`goals/06-portal.md`](goals/06-portal.md)).
+This file's pages, routes and information architecture stay as agreed; only how they are built changes. In short:
 
-- **`@orthograph/portal-ui`** (`packages/portal-ui`) exports our own names, shaped by these pages: `Shell` (tree, top
-  bar, rail, drawer), `Board`, `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`,
-  `Editor` and the `Chat` parts. Every page in this file, M1.24's shell and chat parts, and every extension face
-  import from it, never from the library under it. Until ST1.27 that library is HeroUI Pro, a peer dependency never
-  bundled; after it, UI SDK's components on the Orthograph theme (`@orthograph/web/theme.css`).
-  The names nobody calls yet are deleted in ST1.27 and come back, on UI SDK, with the first page that needs each.
-- **A lint rule** bans `@heroui-pro/*` everywhere; after ST1.27 no package imports it, and a planted import fails.
-- **No licence at build time** after ST1.27: the portal builds with `HEROUI_AUTH_TOKEN` unset. Until then Pro installs
-  from that CI secret, never committed, never run on pull requests from forks.
-- **What changes on the pages** is listed in K29 section 7 and `ui/heroui-inventory.md`: only Card, Widget and Timeline
-  are used today, so the pages don't change.
+- **Until cutover**, the old client builds on `@orthograph/portal-ui` (`packages/portal-ui`), which wraps HeroUI Pro, a
+  peer dependency never bundled, installed in CI from the `HEROUI_AUTH_TOKEN` secret and never on pull requests from
+  forks. A lint rule bans `@heroui-pro/*` everywhere else.
+- **The new client** keeps F7's names for its components (`Shell`, `Board`, `Grid`, `Chart`, `Stat`, `Card`, `Widget`,
+  `Timeline`, `Command`, `Code`, `Markdown`, `Editor`, the `Chat` parts), each built on UI SDK when a page first needs
+  it, and every `data-portal` hook the checks read.
+- **At cutover** the new client is served at `/portal`, the old client, `portal-ui`'s HeroUI and the licence machinery
+  are deleted, check 15 (rewritten first) passes, and the portal builds with `HEROUI_AUTH_TOKEN` unset.
 
 This replaces round 1's "clean-room the components we need" with one place to do it.
 
