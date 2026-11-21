@@ -254,9 +254,19 @@ Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "
   again; a renamed error takes a new code, and `ortho check` reports the change as major. This replaces K7 Q5's "a
   rename of a published code is refused": the lock can't tell a rename from a removal and an addition, and refusing
   either would stop a developer renaming an error before anything is published.
+- **A name that comes back takes its own code back** (built in slice 3, 21 November 2026). An entry is keyed by its
+  name and its owner. A retired code is never given to another name; when the same name comes back to the same thing,
+  it takes its old code out of `retired` rather than a new one (`packages/compiler/src/modules/lock/internal/evolve.ts`,
+  `assign`). One name is never both live and retired, and the lock's reader refuses a lock where it is.
 - **Generated refusals follow their thing.** The machine's refusal (`-900`) and not-found (`-901`) are named from the
   thing and its first state (`describe.ts:101`, `found.ts`). Renaming either keeps the code, since it is the thing's
   own slot, and moves the old wire identity to `earlier`; `ortho check` reports it as major.
+- **The machine refusal's `state` field is a state, not text** (21 November 2026). Slice 3 writes it as
+  `{ "value": "text", "max": 64 }`, which is right for the Effect wire, where it carries the state's name, but would give
+  a `string` in a Solidity signature where item 2 gives a state as `uint8`. Slice 4, which adds the Solidity wire,
+  gives the lock a `{ "value": "state", "of": "<thing>" }` field: the name on the Effect and JSON wires, the `uint8` of
+  item 2's table on chain. The Effect tag does not change, so nothing moves to `earlier`. Slice 4's checks author
+  extends `lockProblems` to read it. Not-found's `id` is the thing's id (`{ "value": "id", "prefix": … }`), as built.
 - **The runtime's codes are fixed by the lock too.** `AR-001` `NotAllowed` and `AR-002` `IdempotencyConflict` as today;
   the chain adds `AR-003` `SignatureExpired { deadline }`, `AR-004` `InvalidNonce { expected, got }`, `AR-005`
   `BadSignature`, and `AR-006` `AlreadyExists { id }` (item 6). Effect's server never raises the four new ones,
