@@ -7,7 +7,7 @@ branch: goal/events
 base: goal/stage-1
 status: ready          # ready | running | landing | done | parked
 lead:
-  harness: null        # claude | amp | codex, set by the lead when it starts
+  harness: null        # claude | codex | opencode | amp, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
 done_check: nx run e2e:events
@@ -30,7 +30,7 @@ slices:
 Branch `goal/events`, cut from `goal/stage-1`. Written 21 November 2026 by the 🎼 conductor, from the goal map
 (`design/goals/map.md`, K34) and K35. Milestone `Goal 11: events in and out`, label `release:1.0` (K33).
 
-**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 11. Read `AGENTS.md` and
+**To start it, in any harness** (Claude Code, Codex, OpenCode, Amp): "You lead Goal 11. Read `AGENTS.md` and
 `design/goals/11-events.md`, and run it." Nothing else is needed.
 
 ## The goal, in plain words
