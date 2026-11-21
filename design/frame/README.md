@@ -151,9 +151,9 @@ description and judged against it.
 |---|---|
 | anonymous | nothing; only `anyone` admits it |
 | person | `Via.session`, `Via.key` or `Via.device` |
-| agent, acting for a person | `Via.agent`: an OAuth token from the MCP sign-in |
+| agent, acting for a person | `Via.agent`: a credential made for an agent, such as an OAuth token from the MCP sign-in or a key made for an agent |
 | service | an adapter's door: the outside system's own verification, such as Stripe's signature |
-| system | the keeper's own key, limited to time moves |
+| system | the runtime's own work: the keeper, `on:` and workflows; it has no credential |
 
 ### Audiences
 

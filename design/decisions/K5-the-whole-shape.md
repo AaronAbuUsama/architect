@@ -195,7 +195,7 @@ export default Blueprint.operation(Draft, {
   and notes. A store's binding shows per environment.
 
 A chain is a host. The store kind that runs on it is `chain`, supplied by `language-solidity` (K3 item 2) (superseded by K27, 20 November 2026: supplied by `Host.chain`, written for by `language-solidity`). "Pending
-until mined" belongs to the caller, so a server call that sends a transaction is a workflow (seam 6).
+until mined" belongs to the caller (superseded by K7, 18 November 2026: a chain store's own commit may answer late, with a submission), so a server call that sends a transaction is a workflow (seam 6).
 
 ### 3. An Effect operation: editing a draft
 

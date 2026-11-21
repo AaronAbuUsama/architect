@@ -22,8 +22,8 @@ and time, and never counts or browses the app's stored data.
 - **Q8, HeroUI Pro: neither A nor B.** "We're using it privately anyway, so it's no problem for now. If it ever does
   become a problem, we'll just clean-room the components that we need." So the portal is HeroUI Pro only, with no free
   face. **Fallback, recorded:** if Pro's licence ever blocks distribution, we clean-room the components the portal uses
-  into our own package; the page contract stays as it is, so only the face changes. "HeroUI Pro behind one package (F7)"
-  below settles how.
+  into our own package; the page contract stays as it is, so only the face changes. "One package behind the portal's components (F7, K24)"
+  below settles how. Superseded by K24, 20 November 2026: UI SDK is the base and HeroUI is phased out; today the portal still uses HeroUI Pro behind `portal-ui`.
 
 ### Round 2 (19 November 2026, in the chat: "Agreed to all questions")
 
@@ -313,7 +313,7 @@ opens its trace in the drawer. It replaces the Spans tab.
 | Caller kind: anyone, signed-in | derived from `principal.kind` or the presence of `principal.person`, never the id | carried (derived) |
 | Caller kind: a role, an agent | the role the caller held; an agent principal | **not carried**: role is a hole; agents arrive with M2.03 and ST1.05 |
 | Environment | the span's `environment` attribute | **red**: check 17 (`e2e/m1/17-telemetry-model.test.ts:267-281`), M1.36. Each environment's portal reads only its own sink, so in the product this filter is the environment switcher |
-| Request key | the call's idempotency key | **not carried**: no span or label has it (only `request.replayed`); no slice. A hole |
+| Request key | the call's idempotency key | `request.key` on the operation's span (M1.12a, check 38): the key as the caller sent it, on every attempt, on a replay and on `<op>.refused`; none on a call made without one. A key is chosen by the caller and is shown in the portal and in traces, so it must never carry a secret. Read into `TelemetryCall.requestKey` (`null` when none): the key any of the call's attempt spans carries, so a source that kept only the first or only the retry's span still gives it (check 38 B). Shown as `none` for a keyless call in a window that has keys, `not yet` where no call in the window has one |
 
 A call refused at the door (`NotAllowed`, a bad payload) opens no span, so it is never a row: it is counted in the
 tiles and named in the table's footer. The full delta for this table is in "Calls table vs spans", below.
@@ -1037,8 +1037,8 @@ Row = one call. A "call" on m1 is the operation span(s) in one trace: one per at
 | caller kind: role | no | what is recorded is the operation's declared `allowed` (`T:89`), not the role the caller held; M1.35's `Audience` holds roles for visibility only (`MS:222`) | **HOLE** (derivable: signed-in + `allowed` of kind role + answered implies the role held) |
 | who (principal) | span has `principal.person` | `AT:17-18` | must not render (no-leak, `MS:205`); show kind only; **no per-person view without breaking M1.13's check** |
 | environment | resource attribute yes; per-call span attribute no | `deployment.environment` on the resource (`host-cloudflare/src/modules/telemetry/service.ts:9`); sources filter on it (`axiom-source.ts:93`); span attribute `environment` is M1.36 and red | see check 17 below; also each environment's portal reads only its own sink (`PM:463-464`), so the column is constant and a filter is a switcher |
-| request key | **no** | only `request.replayed: true` (`HS:68`); the key lives in the store as `<op>|<who>|<request>` (`HS:109`) and in the SDK's `idempotency-key` header (M1.12, `MS:203`); no attribute, no label; free text is untraced by default (M1.19, `MS:210`) | **HOLE** (no slice) |
-| request key filter | no | same | **HOLE** |
+| request key | **yes since M1.12a**: `request.key` on the operation span | (was: only `request.replayed: true` (`HS:68`); the key lives in the store as `<op>|<who>|<request>` (`HS:109`) and in the SDK's `idempotency-key` header (M1.12, `MS:203`); no attribute, no label; free text is untraced by default (M1.19, `MS:210`); the key is an id, so traced) | **filled** (M1.12a) |
+| request key filter | yes since M1.12a | the calls table filters on `TelemetryCall.requestKey`; it is available when the window's calls carry a key, `not yet` otherwise | **filled** (M1.12a) |
 | time filter | yes | `TraceSource.window(since, now)` `TS:68` | ok, within 15 s lag and 50k spans |
 | filters generally | only inside the window, client-side | `TraceSource` has no query-by-attribute (`TS:51-69`); the Axiom window is a fixed APL (`axiom-source.ts:89-95`) | any filter beyond the window or the 50k cap: **HOLE** |
 
@@ -1048,7 +1048,7 @@ The environment assertion is at `e2e/m1/17-telemetry-model.test.ts:267-281` ("wr
 
 ### Holes (no slice)
 
-1. Request key per call (column and filter): not on any span or label; no slice puts it in telemetry (M1.19 keeps free text out by default).
+1. Request key per call (column and filter): filled by M1.12a, no longer a hole. `request.key` is on the operation's span (an id, so M1.19's free-text rule does not apply), the calls table shows it and filters by part of it; check 38 judges it.
 2. Metrics reader: `ortho.calls` and `ortho.call.duration` have producers (M1.20) but no portal-side reader; `TraceSource` is spans only. Rail numbers, per-minute bars, door-refusal counts, refusal-by-code counts and every "trend" cell rest on it. The 28-day latency objective and error budget need history far beyond `window` (M7.14 is sink-side, after the cloud pass).
 3. Per-eval verdicts (nine evals x environment on the Proof tab): the logbook stores one aggregate verdict (`WS:8`); no slice records per-eval results. The drawing's "review" state is not a `ProofState`.
 4. Step-level journey verdicts and failure details ("fails at step 5", "links[0].title was GitHub"): the logbook stores a pass/fail per (operation, journey), repeated calls sharing one (`M1-verdicts.md:3-6`).
@@ -1103,23 +1103,23 @@ a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-41
 scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
 command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
-## HeroUI Pro behind one package (F7)
+## One package behind the portal's components (F7, K24)
 
-Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md),
-with the licence clauses. In short:
+Aaron, 19 November 2026: "Yes, add the seam" ([`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md)). On
+20 November 2026 he decided UI SDK is the interface base and HeroUI is phased out
+([`decisions/K24-ui-sdk.md`](decisions/K24-ui-sdk.md)). Today the portal uses HeroUI Pro behind `portal-ui`; new
+screens build on UI SDK, and HeroUI goes when nothing imports it. In short:
 
-- **`@orthograph/portal-ui`** (`packages/portal-ui`) is the only importer of `@heroui-pro/react`, which it takes as a
-  peer dependency and never bundles, so it is published like our other packages and each user brings their own Pro
-  licence (Aaron: "we can import it"). It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
+- **`@orthograph/portal-ui`** (`packages/portal-ui`) is the only package the portal imports components from. Today it
+  wraps `@heroui-pro/react`, taken as a peer dependency and never bundled, so each user brings their own Pro licence.
+  Its insides move to UI SDK one export at a time (K24). It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
   `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor` and the `Chat` parts. Every page in this
-  file, M1.24's shell and chat parts, and every extension face import from it, never from Pro.
-- **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included. Spikes are exempt.
-- **Pro installs at build time** from the `HEROUI_AUTH_TOKEN` CI secret (Aaron created it on 19 November 2026), never committed, never run on
-  pull requests from forks. Locally it installs from his `heroui-pro login`, as the mock does.
-- **The fallback**, if the licence lapses or its terms change, rebuilds `portal-ui`'s exports on open libraries; the
-  pages don't change. It is later work (`later.md`).
+  file, M1.24's shell and chat parts, and every extension face import from it, never from a library.
+- **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included, until HeroUI is removed (K24). Spikes are exempt.
+- **Until then Pro installs at build time** from the `HEROUI_AUTH_TOKEN` CI secret, never committed, never run on
+  pull requests from forks. Locally it installs from `heroui-pro login`, as the mock does. Both go when HeroUI does.
+- **The data grid and the board go last**, because UI SDK has neither; they are built on its behaviours.
 
-This replaces round 1's "clean-room the components we need" with one place to do it.
 
 ## What this changes elsewhere
 

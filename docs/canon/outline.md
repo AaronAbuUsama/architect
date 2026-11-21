@@ -1,6 +1,6 @@
 # The canon's outline
 
-There are twenty-nine concept pages and three reference pages, in the order a newcomer reads them. Each page explains
+There are thirty concept pages and three reference pages, in the order a newcomer reads them. Each page explains
 one idea, and each word in the glossary (`design/docs/index.html`, the table headed "Word") has exactly one page that
 owns it. Other pages link to that page and never explain the word again.
 
@@ -37,9 +37,11 @@ the tests and gates run on.
 **Names.** The framework is Orthograph, its command `ortho` (K5, "Names"). Pages say Orthograph and `ortho` in prose,
 and quote code by today's paths and output (K6, `design/naming.md`).
 
-**Chain.** A chain is a host, and its store kind is `chain` (K3 item 2). How an operation maps to a contract, which
-functions clients may reach, and how Solidity, Noir and Solana fit together all wait on K7. Until K7 lands, a page
-says that a chain part waits on K7. It doesn't guess.
+**Chain.** A chain is a host, and its store kind is `chain` (K3 item 2). K7 decided how an operation maps to a contract,
+which functions clients may reach, and how Solidity, Noir and Solana fit together; K25 decided how a thing says it lives
+on a chain. [`chains-and-wallets`](chains-and-wallets.mdx) (page 30, written with M1.39 after the layers, so numbered
+last) holds the answers and says which slice builds each. A page that touches a chain says what K7 decided and
+links there. It doesn't guess.
 
 ## Layer 1: the shape
 
@@ -47,9 +49,9 @@ says that a chain part waits on K7. It doesn't guess.
 |---|---|---|---|---|---|---|
 | 1 | `orthograph` | Describe a system once; each operation is enforced in one place, and everything else falls out | the loop, projection (as an idea), behaviour as the only freehand, Orthograph | What is Orthograph? What is made for me, and what is the only code I write by hand? How does the loop close? | blueprint, languages-and-hosts, plugins, data, doors | built (the loop closes at M3) |
 | 2 | `blueprint` | What you write, and the model it compiles to | blueprint, declaration, model, name from path, `ortho check` | What goes in `blueprint/`, and where does each declaration live? How does a name come from its path, and why is it never written as a string? What is the model, and what does `ortho check` tell me? | orthograph, things, operations, journeys, plugins, handlers | built · blanks and journeys in the model M1.03 |
-| 3 | `languages-and-hosts` | What behaviour is written in, and where it runs | language, host, `runs` | What is a language, and what does it own? What is a host, and what does it supply? Why does a language never choose where it runs? Where does a chain fit? | orthograph, doors, data, handlers | Effect and Cloudflare built · chain languages wait on K7 |
+| 3 | `languages-and-hosts` | What behaviour is written in, and where it runs | language, host, `runs` | What is a language, and what does it own? What is a host, and what does it supply? Why does a language never choose where it runs? Where does a chain fit? | orthograph, doors, data, handlers | Effect and Cloudflare built · chain languages decided in K7, built M6.01 onwards |
 | 4 | `plugins` | Built once, mounted anywhere: the five kinds and the one-file mount | plugin, feature, adapter, projection (as kinds), mount, choose, include, narrow, omit, choice, setting, need | What are the five kinds, and how do I pick? What can a mount say, and why only that? A choice or a setting? | orthograph, features, adapters, projections | M1.06 to M1.13 |
-| 5 | `data` | Where every kind of data lives, and who may write it | `lives`, a projection's own state | Where does my data live? What is a store, a source and a view, and how do I tell them apart? Who may write each? Where does the portal keep its own state? | things, stores, views, adapters, portal | database, actor built · views M5 · chain waits on K7 |
+| 5 | `data` | Where every kind of data lives, and who may write it | `lives`, a projection's own state | Where does my data live? What is a store, a source and a view, and how do I tell them apart? Who may write each? Where does the portal keep its own state? | things, stores, views, adapters, portal | database, actor built · views M5 · chain decided in K7 and K25, built M6.10 |
 | 6 | `doors` | One enforcer per operation, and every door that reaches it | door, enforcer, served operation, SDK contract, request key, action | What enforces an operation, and where? What does each door make, and from what? How does the SDK carry the caller, retries and refusals? What is an action, and why does it hold no authority? | operations, handlers, roles, projections, portal | HTTP, SDK, CLI, MCP built · SDK contract M1.12 · actions M1.22, M1.23 |
 
 ## Layer 2: the core
@@ -76,7 +78,7 @@ says that a chain part waits on K7. It doesn't guess.
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 17 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, actor built · stores M1.17 · chain waits on K7 |
+| 17 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, actor built · stores M1.17 · chain decided in K7 and K25, built M6.10 |
 | 18 | `views` | Lists across stores and sources, kept from events | view, data map | How do I list things that live as actors, or across stores? How fresh is a view? Where do I see all my data? | data, stores, machines, adapters | M5 |
 
 ## Layer 5: plugins in depth
@@ -88,6 +90,7 @@ says that a chain part waits on K7. It doesn't guess.
 | 21 | `projections` | What the model becomes, as plugins | output, artifact, the replay rule | What does each projection make from one operation? Why must every client leave the same evidence? How is a projection mounted? | plugins, doors, portal, proof | built · as plugins M1.11 to M1.13 |
 | 22 | `portal` | The builder's place to understand and plan with the running system | portal, note, live evidence | What does the portal show first, and why? How does live evidence light up the declaration? What is ported from agent-native, and what isn't? | projections, doors, data, traces | design M1.25 · port M1.23, M1.24 · built M1.13 |
 | 23 | `secrets` | A value the description names but never holds | secret, stored, generated, runtime / release / builder | Who may read a secret? Where does its value come from per environment? Why never in a world? | adapters, environments | M2 |
+| 30 | `chains-and-wallets` | How Orthograph reaches a chain, and the wallet that signs and sends on it | chain port, signer, wallet, confirmation depth, submission, chain in a world | How does Orthograph reach a chain? What is a wallet, and where does its key live? What does a send do, and what does `confirmed` mean? How does a world get a chain? What did K7 decide about contracts, and which of it is built? | languages-and-hosts, plugins, data, stores, operations, doors, journeys, proof, stand-ins | device half built · contracts M6.10 · linking M2.13 |
 
 ## Layer 6: running
 

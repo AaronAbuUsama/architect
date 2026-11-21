@@ -22,7 +22,7 @@ A store is a place where things live. One rule decides what counts: **a place is
 and every write to it goes through Orthograph's commit.** The commit takes everything one call changes (its writes, the
 events its move recorded, and the answer kept under its request key) and lands all of it or none of it, guarded by a
 version. The kinds of store are open. A host or a language supplies a kind by implementing one port. Orthograph ships
-`database` and `actor`. A chain is a host, and the store kind it runs is `chain` (K3 item 2); its details wait on K7.
+`database` and `actor`. A chain is a host, and the store kind it runs is `chain` (K3 item 2). K7 and K25 decided its details: a chain store is a file, its commit answers late with a submission, and it is built in M6.10 ([chains-and-wallets](chains-and-wallets.mdx)).
 KV, R2 and caches can't take that commit, so a thing never lives in one. A
 database someone else owns isn't a store either: it is a source, and you reach it through an adapter.
 
@@ -168,7 +168,7 @@ times:
 
 ```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=165-172
 const loop = (number: number, callId: string): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key, number, callId).pipe(
+  attempt(payload, principal, key, key === undefined ? undefined : request, number, callId).pipe(
     Effect.catch((e) =>
       !(e instanceof Conflict) ? Effect.fail(e)
       : number < ATTEMPTS ? loop(number + 1, callId)
@@ -288,7 +288,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 
 ### Which kind
 
-| | `database` (the default) | `actor` | `chain` (waits on K7) |
+| | `database` (the default) | `actor` | `chain` (specified, M6.10) |
 |---|---|---|---|
 | What it is | D1, one row per instance, with a version column | one Durable Object per instance: its own SQLite, its own outbox | a contract, generated in the Solidity language |
 | Supplied by | `@orthograph/host-cloudflare` | `@orthograph/host-cloudflare` | `Host.chain`, written for by `@orthograph/language-solidity` (K27) |
@@ -350,7 +350,7 @@ local-first, Noir on Aztec.
 | A list over actors refused | proved | layer 1 | the compiler's describe step |
 | Declared stores, open kinds, typed bindings, migrations per store, plugin stores | specified | M1.17 | a second store in acme, its own D1, its own migrations |
 | The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `ortho check` |
-| The `chain` kind | waits on K7 | M6.10 | K3 item 2 and K5 seam 2 (the note under Notes) |
+| The `chain` kind | specified | M6.10 | K3 item 2, K5 seam 2, K7 and K25 (the note under Notes) |
 | Sources through adapters | specified | M5.13 | a fixture adapter over MariaDB that Orthograph never migrates |
 | The data map | specified | M5.06 | the map lists every store and source |
 
@@ -394,11 +394,12 @@ local-first, Noir on Aztec.
   which.
 </Note>
 
-<Note kind="decision" decision="K5">
+<Note kind="decision" decision="K7">
   Is a chain a store? Settled by K3 item 2 and K5 seam 2: a chain is a host, and the store kind it runs is `chain`.
-  The contract commits per transaction, with one writer. "Pending until mined" belongs to the caller, so a server call
-  that sends a transaction is a workflow, not a commit that answers later. How an operation maps to a contract, and
-  everything else about chain storage, waits on K7. Aaron's doubt (18 November 2026, said in the canon session on PR #38: "it just doesn't seem like a
+  The contract commits per transaction, with one writer. A server call that sends a transaction is a workflow. K7 decided
+  that a chain store's own commit may answer late, and its caller
+  gets a submission (`simulated` to `confirmed`); how an operation maps to a contract, and the rest of chain storage, are
+  K7's and K25's ([chains-and-wallets](chains-and-wallets.mdx)). Aaron's doubt (18 November 2026, said in the canon session on PR #38: "it just doesn't seem like a
   thing that makes sense") is why the pending part moved to the caller.
 </Note>
 
