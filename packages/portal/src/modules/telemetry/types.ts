@@ -164,6 +164,8 @@ export interface TelemetryApi {
   readonly read: (blueprint: BlueprintWire, live: PortalLive) => Effect.Effect<PortalTelemetry>;
   /** Every call the traces hold that started in `[since, now]`, newest first, with no row limit: what the monitor counts (M1.49). */
   readonly calls: (blueprint: BlueprintWire, traces: ReadonlyMap<string, WindowTrace>, environment: string, window: { readonly since: number; readonly now: number }) => ReadonlyArray<MonitoredCall>;
+  /** The one identity of a call: its trace and the span ids of its attempts, never a time. Two calls that look alike in every value are two calls. */
+  readonly identity: (call: MonitoredCall) => string;
   /** One trace, scrubbed: `undefined` when the source has none of it. */
   readonly trace: (live: PortalLive, trace: string) => Effect.Effect<Availability<TraceView | undefined>>;
 }

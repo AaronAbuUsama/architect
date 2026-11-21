@@ -32,4 +32,6 @@ const trace: TelemetryApi["trace"] = (live, id) =>
 
 const calls: TelemetryApi["calls"] = (blueprint, traces, environment, window) => callsOf(traces, environment, {}, kindsOf(blueprint), window).all;
 
-export const Telemetry: TelemetryApi = { read, calls, trace };
+const identity: TelemetryApi["identity"] = (call) => `${call.trace}/${[...call.attemptSpans].sort().join(",")}`;
+
+export const Telemetry: TelemetryApi = { read, calls, identity, trace };

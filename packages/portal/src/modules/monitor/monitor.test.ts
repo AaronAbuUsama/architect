@@ -1,5 +1,6 @@
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { Telemetry } from "#modules/telemetry/service.js";
 import type { PortalLive, WindowSpan, WindowTrace } from "#modules/telemetry/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
 import type { MonitorLedger } from "./types.ts";
@@ -77,7 +78,32 @@ describe("a source that reaches back only so far", () => {
   });
 });
 
+describe("one read", () => {
+  it("groups each distinct window once, however many rules and alerts read it", async () => {
+    const rules = Array.from({ length: 30 }, (_, i) => ({ ...rule(0.9), id: `latency:a.go${i}`, labels: { ...rule(0.9).labels, operation: "a.go" } }));
+    const many = { ...wire(), model: { ...wire().model, alertRules: rules } } as unknown as BlueprintWire;
+    const grouping = vi.spyOn(Telemetry, "calls");
+    try {
+      await read(many, liveOf([call(1, 500)]));
+      // The windows named are 60 and 5 minutes, and the issues' own 30: three passes, not 30 rules times their windows.
+      expect(grouping).toHaveBeenCalledTimes(3);
+    } finally { grouping.mockRestore(); }
+  });
+});
+
 describe("issues", () => {
+  it("two distinct calls alike in trace, operation, start and step are two occurrences: a call is its attempt spans, never a time", async () => {
+    const at = NOW - 5 * MIN;
+    const span = (id: string, parent: string, name: string, extra: Record<string, unknown> = {}): WindowSpan => ({ spanId: id, parentSpanId: parent, name, ms: 100, start: at, status: 2, attrs: extra });
+    const trace: readonly [string, WindowTrace] = ["00000001", { logs: [], spans: [
+      span("a1", "", "a.go", { operation: "a.go", attempt: 1, "call.id": "A", "error.tag": "Boom", defect: "x" }), span("a2", "a1", "a.go.record"),
+      span("b1", "", "a.go", { operation: "a.go", attempt: 1, "call.id": "B", "error.tag": "Boom", defect: "x" }), span("b2", "b1", "a.go.record"),
+    ] }];
+    const ledger = held();
+    expect((await read(wire(), liveOf([trace]), ledger)).issues[0]).toMatchObject({ key: "a.go/record/Boom", occurrences: 2 });
+    expect((await read(wire(), liveOf([trace], NOW + MIN), ledger)).issues[0]).toMatchObject({ occurrences: 2 });
+  });
+
   it("two calls overlapping under one trace each keep their own step and tag", async () => {
     const span = (id: string, parent: string, name: string, start: number, extra: Record<string, unknown> = {}): WindowSpan => ({ spanId: id, parentSpanId: parent, name, ms: 100, start, status: 2, attrs: extra });
     const trace: readonly [string, WindowTrace] = ["00000001", { logs: [], spans: [

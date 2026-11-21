@@ -2,6 +2,7 @@
 // handed. The portal keeps nothing else anywhere: a different ledger is a portal that has seen nothing. A call is counted once however many times the window
 // is read (`seen` holds the calls still inside the window, by id, and is pruned as they leave it: a call that left cannot come back at a later `now`).
 import { Effect } from "effect";
+import { Telemetry } from "#modules/telemetry/service.js";
 import type { MonitoredCall, PortalLive, WindowTrace } from "#modules/telemetry/types.js";
 import type { BlueprintWire } from "#modules/wire/types.js";
 import type { IssueRow, MonitorLedger, Seen } from "../types.ts";
@@ -31,7 +32,7 @@ const isStored = (x: unknown): x is Stored => {
 const heldOf = (value: unknown): Held =>
   typeof value === "object" && value !== null ? Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, v]) => isStored(v)) as Array<[string, Stored]>) : {};
 
-const callId = (c: MonitoredCall) => `${c.trace}/${c.operation}/${c.start}`;
+const callId = (c: MonitoredCall) => Telemetry.identity(c);
 
 const add = (held: Held, key: string, call: MonitoredCall, step: string, tag: string, hash: string, live: PortalLive): Held => {
   const issue = held[key];
