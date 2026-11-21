@@ -7,8 +7,10 @@ import { parse } from "yaml";
 
 const TOKEN = "${{ secrets.CLOUDFLARE_API_TOKEN }}";
 const ACCOUNT = "${{ vars.CLOUDFLARE_ACCOUNT_ID }}";
+/** The account's workers.dev subdomain, for the story's address (check 41): a repository variable, not a credential, since the story step holds none. */
+const SUBDOMAIN = "${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}";
 /** Every `${{ }}` in the file, comments included, is one of these: there is no way to reach another secret, `toJSON(secrets)`, a token or an input. */
-const EXPRESSIONS = new Set(["github.run_id", "github.run_attempt", "steps.plan.outputs.prefix", "steps.up.outcome", "steps.story.outcome", "secrets.CLOUDFLARE_API_TOKEN", "vars.CLOUDFLARE_ACCOUNT_ID"]);
+const EXPRESSIONS = new Set(["github.run_id", "github.run_attempt", "steps.plan.outputs.prefix", "steps.up.outcome", "steps.story.outcome", "secrets.CLOUDFLARE_API_TOKEN", "vars.CLOUDFLARE_ACCOUNT_ID", "vars.CLOUDFLARE_WORKERS_SUBDOMAIN"]);
 const USES = /^(actions\/checkout|pnpm\/action-setup|actions\/setup-node|actions\/upload-artifact)@v\d+\.\d+\.\d+$/;
 /**
  * The only files the evidence upload may name (the repository is public, so anyone can download them): the plan, the story, the verdict, and the listings cut to the run's prefix. The whole-account
@@ -28,7 +30,7 @@ const STEPS = [
   { id: "before", run: SNAPSHOT("before"), credentials: true },
   { id: "up", run: '$ORTHO env up staging --run "$RUN" --root examples/plugged-in', credentials: true, continues: true },
   { id: "during", run: SNAPSHOT("during"), credentials: true, if: UPSTREAM },
-  { id: "story", run: /^\$ORTHO prove --env staging --run "\$RUN" --root examples\/plugged-in [^\n|;&]* 2>&1 \| tee "\$EVIDENCE\/story\.txt"; exit "\$\{PIPESTATUS\[0\]\}"$/, continues: true, if: UPSTREAM },
+  { id: "story", run: /^\$ORTHO prove --env staging --run "\$RUN" --root examples\/plugged-in [^\n|;&]* 2>&1 \| tee "\$EVIDENCE\/story\.txt"; exit "\$\{PIPESTATUS\[0\]\}"$/, continues: true, if: UPSTREAM, env: { ORTHO_STAGING_SUBDOMAIN: SUBDOMAIN } },
   { id: "destroy", run: '$ORTHO env destroy staging --run "$RUN" --root examples/plugged-in', credentials: true, if: "always()" },
   { id: "after", run: SNAPSHOT("after"), credentials: true, if: "always()" },
   { id: "judge", if: "always()", env: { PREFIX: "${{ steps.plan.outputs.prefix }}", UP: "${{ steps.up.outcome }}" },

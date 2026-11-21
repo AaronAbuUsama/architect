@@ -85,7 +85,9 @@ describe("the judge fails each planted wrong workflow", () => {
     // ---- credentials, and nothing printed ----
     ["the token in the job's env", () => swap("      EVIDENCE: tmp/staging\n", `      EVIDENCE: tmp/staging\n      ${TOKEN}\n`), /job's env/],
     ["the token in the workflow's env", () => swap("permissions:\n", `env:\n  ${TOKEN}\npermissions:\n`), /top level/],
-    ["the token on the story, which needs none", () => swap("        id: story\n", `        id: story\n        env:\n          ${TOKEN}\n`).replace("        id: story\n        env:\n", "        id: story\n        env:\n"), /story: its env/],
+    ["the token on the story, which needs none", () => swap("          ORTHO_STAGING_SUBDOMAIN:", `          ${TOKEN}\n          ORTHO_STAGING_SUBDOMAIN:`), /story: its env/],
+    ["the story with no subdomain (its address cannot be formed)", () => swap("        env:\n          ORTHO_STAGING_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}\n", ""), /story: its env/],
+    ["the story's subdomain taken from a secret", () => swap("vars.CLOUDFLARE_WORKERS_SUBDOMAIN", "secrets.CLOUDFLARE_WORKERS_SUBDOMAIN"), /story: its env|the expression/],
     ["the token on the plan", () => swap("        id: plan\n", `        id: plan\n        env:\n          ${TOKEN}\n`), /plan: its env/],
     ["the token on the judgement", () => swap("          UP: ${{ steps.up.outcome }}\n\n      # The run's own", `          UP: \${{ steps.up.outcome }}\n          ${TOKEN}\n\n      # The run's own`), /judge: its env/],
     ["destroy without the token", () => swap(`${DESTROY_HEAD}        if: always()\n        run: $ORTHO env destroy staging --run "$RUN" --root examples/plugged-in\n        env:\n          ${TOKEN}\n`, `${DESTROY_HEAD}        if: always()\n        run: $ORTHO env destroy staging --run "$RUN" --root examples/plugged-in\n        env:\n          X: y\n`), /destroy: its env/],
