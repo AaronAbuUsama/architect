@@ -15,7 +15,6 @@ Test: `records.test.ts`.
 A store and a unit hold the project's rules, each as a `NamedRule` (the invariant as declared, and its full name,
 `handle.oneHolderPerName`): `storeMemory(initial, rules)` and `Store.rules` for a host's, `Unit.make(store, rules?)`
 (defaulting to the store's) for the call. `invariantsIn(thing, module)` reads them from a thing's `invariants.ts`.
-G4's `thing.unique` fields are read as rules too, until ST1.20.
 
 - `findBy(rule, value)` finds the one holder within the rule's scope, as the call's own writes left it.
 - `unit.check` runs after the move and before the commit: the first rule a row breaks by taking a key another instance

@@ -305,3 +305,15 @@ The spelling spreads nowhere else meanwhile.
 A checks author writes ST1.11 and ST1.13 (builders never edit checks); a builder each of ST1.12, ST1.14 to ST1.18 and
 ST1.20; Plugged In's journey author and climber ST1.19, in their own lanes (the blueprint and the handlers); the canon
 thread ST1.21, which owns `docs/canon/check.mjs`; the portal designer ST1.22 after the grill, once a checks author has written its Chromium check.
+
+## Supersedes
+
+ST1.20 (21 November 2026) retired G4's spelling in the live docs.
+
+- design/frame/writing-a-feature.md: "unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)" → "`wallet/invariants.ts` declares `Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])`"
+
+## Supersedes
+
+ST1.20 (21 November 2026) retired G4's spelling in the live docs.
+
+- design/frame/writing-a-feature.md: "unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)" → "`wallet/invariants.ts` declares `Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])`"

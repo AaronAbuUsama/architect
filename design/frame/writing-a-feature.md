@@ -84,9 +84,11 @@ import { Address, ChainId } from "../../values/chain.ts";
 export const Wallet = Blueprint.thing({
   description: "A key, on a device or in a server's key store as the wallet declares, linked to an account.",
   fields: { id: Blueprint.id("wal"), person: Person.fields.id, address: Address, chain: ChainId },
-  unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)
 });
 ```
+
+One account per address on a chain is a rule, not a field of the thing: `wallet/invariants.ts` declares
+`Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])` (G5).
 
 ```ts
 // wallets/blueprint/things/challenge/thing.ts

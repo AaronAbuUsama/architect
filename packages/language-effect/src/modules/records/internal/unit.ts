@@ -34,13 +34,12 @@ export const makeUnit = (store: Store["Service"], given?: ReadonlyArray<NamedRul
       });
     const holder = holderOf(store, find, (thing) => held.filter((h) => h.thing === thing).map((h) => h.id));
 
-    /** `findBy(rule, value)` (G5), or G4's `findBy(thing, field, value)`: the holder of a key, as this call's own writes left it, else the store's. */
-    const findBy = (first: Thing | Unique, ...rest: ReadonlyArray<unknown>) =>
+    /** `findBy(rule, value)` (G5): the holder of a key, as this call's own writes left it, else the store's. */
+    const findBy = (rule: Unique, value: unknown) =>
       Effect.gen(function* () {
-        const [field, value] = first.kind === "invariant" ? [undefined, rest[0]] : [rest[0] as string, rest[1]];
-        const rule = first.kind === "invariant" ? rules.named(first) : rules.of(first).find((r) => r.declared === undefined && r.name === field);
-        if (!rule) return yield* Effect.die(new Error(first.kind === "invariant" ? "findBy(rule, value): that rule is not one this store holds" : `${field} is not declared unique on this thing`));
-        return yield* holder(rule, rowOf(rule, value), undefined);
+        const named = rules.named(rule);
+        if (!named) return yield* Effect.die(new Error("findBy(rule, value): that rule is not one this store holds"));
+        return yield* holder(named, rowOf(named, value), undefined);
       });
 
     const change = (thing: Thing, id: string, fields: Record<string, unknown>, state: string | undefined) =>

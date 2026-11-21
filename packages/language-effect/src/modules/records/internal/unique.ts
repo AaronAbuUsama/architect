@@ -1,32 +1,29 @@
 // A thing's rules as the stores and the unit read them (G5): which instances are in a rule's scope, what key an instance holds under it, and whether a set
-// of rows breaks one. G4's unique fields are read the same way, each as a rule of one field named for it, until ST1.20 retires that spelling.
+// of rows breaks one.
 import { Option, Schema } from "effect";
 import type { Thing, Unique } from "orthograph";
 import type { Instance, NamedRule } from "../types.ts";
 
-/** One rule, whichever way it was declared: its name, the thing it constrains, its key's fields, and the states it holds in (all of them when absent). */
+/** One rule: its name, the thing it constrains, its key's fields, and the states it holds in (all of them when absent). */
 export interface Rule {
   readonly name: string;
   readonly thing: Thing;
   readonly fields: ReadonlyArray<string>;
   readonly scope: ReadonlyArray<string> | undefined;
-  /** The declaration, or undefined for a G4 unique field. */
-  readonly declared: Unique | undefined;
+  readonly declared: Unique;
 }
 
 const ofDeclared = ({ name, rule }: NamedRule): Rule => ({
   name, thing: rule.fields[0].of, fields: rule.fields.map((f) => f.key),
   scope: rule.while?.map((s) => s.key), declared: rule,
 });
-const ofThing = (thing: Thing): ReadonlyArray<Rule> =>
-  Object.entries(thing.unique).map(([field, { while: states }]) => ({ name: field, thing, fields: [field], scope: states, declared: undefined }));
 
-/** The rules in force: the ones handed in, and each thing's own G4 fields. Read once per store or unit. */
+/** The rules in force: the ones handed in. Read once per store or unit. */
 export const rulesOf = (given: ReadonlyArray<NamedRule>) => {
   const declared = given.map(ofDeclared);
   const byThing = new Map<Thing, ReadonlyArray<Rule>>();
   return {
-    of: (thing: Thing): ReadonlyArray<Rule> => byThing.get(thing) ?? byThing.set(thing, [...ofThing(thing), ...declared.filter((r) => r.thing === thing)]).get(thing)!,
+    of: (thing: Thing): ReadonlyArray<Rule> => byThing.get(thing) ?? byThing.set(thing, declared.filter((r) => r.thing === thing)).get(thing)!,
     named: (rule: Unique) => declared.find((r) => r.declared === rule),
   };
 };
