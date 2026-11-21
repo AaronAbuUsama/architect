@@ -1918,7 +1918,7 @@
   "what": "Secrets by declaration: Blueprint.secret, names from mount and export, Redacted through the plugin's layer, ortho secrets and secrets set locally"
  },
  "M2-05": {
-  "doneWhen": "the identity journeys pass with acme mounting it, and the pair merges green after the author recaptures the baselines",
+  "doneWhen": "the identity journeys pass with acme mounting it, starter, plugged-in, signup and work still prove, and the pair merges green after the author recaptures the baselines",
   "history": [],
   "id": "M2-05",
   "kind": "build",
@@ -4640,7 +4640,7 @@
   "title": "links mounts auth",
   "updatedAt": "2026-11-19T09:38:00Z",
   "waiting": null,
-  "what": "Plugged In mounts auth: the copied identity deleted (one of the three M2.05b waits on)"
+  "what": "Plugged In mounts auth: the copied identity deleted (one of the four M2.05b waits on)"
  },
  "ST1-08": {
   "doneWhen": "no file outside the records names examples/signup; e2e/layer1/08-* proves links",
@@ -5709,10 +5709,11 @@
   "needs": [
    "ST1.07",
    "M2.09",
-   "ST1.08"
+   "ST1.08",
+   "M2.11"
   ],
-  "needsText": "ST1.07, M2.09, ST1.08",
-  "order": 59,
+  "needsText": "ST1.07, M2.09, ST1.08, M2.11",
+  "order": 59.5,
   "plain": "",
   "pr": null,
   "ref": "M2.05b",
@@ -5722,6 +5723,6 @@
   "title": "The host's Better Auth removed",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "host-cloudflare loses AuthD1, its Better Auth dependencies and the world's fallback for an app with no identity mounted (decisions/M2-auth.md, Smaller calls 4)"
+  "what": "host-cloudflare loses AuthD1, its Better Auth dependencies and the world's fallback for an app with no identity mounted, and the server generator's no-identity branch emits Identity.none (decisions/M2-auth.md, Smaller calls 4)"
  }
 }
