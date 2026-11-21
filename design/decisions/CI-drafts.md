@@ -34,3 +34,6 @@ own. GitHub's merge queue would batch merges, but it needs the repository in an 
 ## Supersedes
 
 - `.agents/skills/conductor/SKILL.md`: "**A fresh CI run:** green on a head that includes the current `main`." → "**A fresh CI run:** green on the head that will merge; `main` checks every merge on its own push run (CI-drafts)."
+- `.github/workflows/ci.yml`: "main is strict, so every pull request reruns all of CI each time another lands" → "a docs change cannot move them"
+- `design/decisions/CI-docs-fast-path.md` (dated, noted in place): "**Main stays strict.**" → "`main` no longer requires up to date; its own push run checks every merge"
+- `design/decisions/CI-branch-protection.md` (dated, noted in place): "the branch must contain the current `main` before it merges" → "`false` on `main` now"
