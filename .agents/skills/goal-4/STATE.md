@@ -41,13 +41,22 @@ all questions"; the conductor had given the same under his standing authority). 
 the wire, formatted at the faces; unsigned unless signed; built in slice 3. Slice 3's checks author (a subagent of
 this lead) was asked to add money's seven cases to [#283](https://github.com/AaronAbuUsama/architect/pull/283); Goal 7's lead (Foreman) was given the same shape.
 
-## Waiting on Goal 7 (Safe, Hats and budgets; Foreman runs it)
+## From Goal 7 (Safe, Hats and budgets; Foreman runs it)
 
-Slice 7 (Host.chain and the safe adapter) rests on five runs Goal 7 took as A1 to A5 on `goal/safe-hats`, ahead of Hats:
-deploying a Safe from its release on Anvil; enabling a module on a 1-of-1 Safe; how a failed ERC-20 transfer through
-`execTransactionFromModule` comes back; a Safe signing our EIP-712 message through ERC-1271 with `SignatureChecker`;
-and a Safe calling the direct entry through `execTransaction`. Foreman reports the commit, and the evidence in
-`spikes/safe-hats-module/`, when it lands.
+Slice 7's five Safe questions are answered with runs on Anvil: commit 149b7dfa on `goal/safe-hats`, evidence in
+`spikes/safe-hats-module/evidence/goal-4.txt`, code in `script/goal4.ts`, `script/safe.ts`, `test/SafeFixtures.sol`.
+Read first-hand by the lead, 21 November 2026.
+
+1. Safe 1.5.0: its singleton, proxy factory and CompatibilityFallbackHandler are enough (no MultiSend).
+2. `enableModule` through a signed Safe transaction works on a 1-of-1 and a 2-of-3 Safe.
+3. A token returning `false` still makes `execTransactionFromModule` return `true`; a reverting token makes it return
+   `false` without reverting. So the module uses `execTransactionFromModuleReturnData` and checks both itself (snag
+   S-12, for slice 4's decision step).
+4. A Safe signing the Budgets typed data through ERC-1271 (SafeMessage via the fallback handler) is accepted by
+   OpenZeppelin 5.7.0's `SignatureChecker`; a tampered signature is refused.
+5. Anyone can relay a Safe's call to the direct entry: 93,260 gas, against 90,770 for the signed route.
+
+Goal 7 puts M6-money's shape into its budgets module next.
 
 ## Passed to Goal 3 (through the conductor)
 
@@ -60,7 +69,7 @@ and a Safe calling the direct entry through `execTransaction`. Foreman reports t
 
 ## Snags
 
-S-01 to S-11 open (`design/goals/04-snags.md`): each a framework piece the budgets journeys need, each naming its slice.
+S-01 to S-12 open (`design/goals/04-snags.md`): each a framework piece the budgets journeys need, each naming its slice.
 
 ## What went well
 
