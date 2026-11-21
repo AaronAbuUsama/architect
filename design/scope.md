@@ -151,6 +151,6 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 1. Noir is under "Later" and in K5 as later, but is v1.0's stage 4.
 2. The release list: K9 says M7.01 to M7.04 and M7.06; `milestones.md` adds M7.13.
 3. The npm preview is promised after Gate M1, but M7 says npm waits on stage 4.
-4. Capxul: "built on it" from M2 in one place, off v1.0's path in another.
+4. Capxul: "built on it" from M2 in one place, off v1.0's path in another. Answered by K30, section 2: after the beta, beside the stages, never gating 1.0.
 5. Staging: after Gate M2 in the milestones, inside stage 1 in Goal 3.
 6. `milestones.md` still says "Everything runs locally: no cloud"; the ledger's summary counts are stale.

@@ -16,8 +16,10 @@ Every claim carries a mark:
 - **designed**: written down, not built, with the design file.
 - **open**: nobody has decided it yet.
 
-The words are the canon's (`docs/canon/outline.md`). Three working words sort packages into buckets: **core**,
-**standard library** and **ours** (Capxul's own). They are not canon words; the canon's words are the plugin kinds.
+The words are the canon's (`docs/canon/outline.md`). Three words sort packages into buckets. **Core** is the scope map's
+word for the framework's own packages (`../scope.md`, "The core"); the canon's layer "the core" is the declarations
+those packages compile. **Standard library** is what the canon's last layer calls "what Orthograph ships": plugins an
+app chooses to mount. **Ours** is what only Capxul needs. The canon's words for what a plugin is are its five kinds.
 
 ## 1. What Orthograph is
 
@@ -96,7 +98,7 @@ starter (`examples/starter/`).
 
 A rule owns its refusal. The claim operation declares no errors of its own, because the runtime refuses `HandleTaken`
 and `HandleAlreadyOwned` for the rules (`examples/plugged-in/blueprint/things/handle/verbs/claim.ts:5`), and the
-handler no longer checks them by hand (`examples/plugged-in/src/handle/claim.ts:45`).
+handler no longer checks them by hand (`examples/plugged-in/src/handle/claim.ts:46`).
 
 ### How to think in Orthograph
 
@@ -109,9 +111,10 @@ handler no longer checks them by hand (`examples/plugged-in/src/handle/claim.ts:
    anyone builds (`AGENTS.md`, "Journeys and checks come first"; `ortho prove --empty`, `packages/cli/src/main.ts:71`).
    Building is climbing: run prove, fix the handler, run again, until every journey is green. **built**: Plugged In's
    seven journeys pass, 56 of 56 steps, as a required check on `goal/stage-1` (`../scope.md`, "Stage 1").
-4. **The grid is the guardrail.** Fourteen building blocks by nine outputs, 126 cards, each an eval
-   (`design/grid/grid.json`, its `summary`; `design/decisions/K14-the-grid.md`). The climb proves the app works; the
-   grid proves every output carries every building block. **built** as data and a CI check (`e2e-grid`).
+4. **The grid is the guardrail.** Every building block in every output is an eval: does the SDK carry the events,
+   does the CLI carry the refusals (`design/decisions/K14-the-grid.md`; the cards in `design/grid/grid.json`). The climb
+   proves the app works; the grid proves every output carries every building block. **built** as a CI check,
+   `e2e-grid`, green in the scope map (`../scope.md`, "Climb check and the grid").
 5. **Outputs fall out.** You never write the SDK, the CLI, MCP or the docs. A change to the blueprint changes all of them
    (`packages/generators/src/modules/render/service.ts:11-21`). **built**
 
@@ -121,23 +124,23 @@ handler no longer checks them by hand (`examples/plugged-in/src/handle/claim.ts:
 
 1. **Name the idea in one sentence.** Plugged In's: "claim `@name`; a public page of links" (`design/milestones.md`,
    the stage table). A habit, no command.
-2. **Declare the things.** `ortho add thing handle` writes six files: the thing, its machine, roles, events, errors and
-   values, each gap a blank (`packages/cli/src/modules/add/internal/templates.ts:7-69`). **built**
+2. **Declare the things.** `ortho add thing handle` writes seven files: the thing, its machine, roles, events, errors,
+   rules and values, each gap a blank (`packages/cli/src/modules/add/internal/templates.ts:7-69`). **built**
 3. **Declare the operations.** `ortho add operation handle.claim`, once per verb
    (`packages/cli/src/modules/add/internal/templates.ts:72`). **built**
 4. **Maybe a machine and states.** Fill the blank in `machine.ts` by hand today. Saying the states and verbs on
    `ortho add thing` is the call in K30, section 3; `ortho add move` and the kinds that edit in place are
    **designed** (`design/milestones.md`, M2.15).
-5. **Maybe rules.** Write `invariants.ts` beside the machine. **built**
+5. **Maybe rules.** Fill in the `invariants.ts` stub beside the machine. **built**
 6. **Journeys.** `ortho add journeys handle` writes a stub for every path through the machine, every role and every
    declared refusal (`packages/cli/src/main.ts:170`; `packages/cli/src/modules/add/README.md:7`). A journey author fills
    them in. **built**
 7. **Check.** `ortho check` names blanks, type errors, lint findings and drift. **built**
 8. **Climb.** `ortho generate`, then `ortho prove`, then fix handlers until green. **built**
 9. **The portal.** It opens on the app's things, operations, lifecycles, rules, traces and journeys. **built**, with
-   pieces missing (`../scope.md`, "Portal viewer").
+   pieces missing (`../scope.md`, the portal viewer's row).
 10. **The demo.** A person uses the generated CLI against `ortho dev`. **built**. Plugged In has no web pages yet: the
-    three screens are the beta's (`../scope.md`, "Plugged In's three screens").
+    three screens are the beta's (`../scope.md`, the row for Plugged In's three screens).
 
 **The friction in steps 2 to 6.** "Declaring what I know" is four or more separate commands, and each writes blanks for
 things you already knew. A thing with three verbs and a known machine is `ortho add thing handle`, then
@@ -166,14 +169,15 @@ and `ortho brief` reads both (`packages/cli/src/main.ts:278`). **open**
    **built**
 4. **`ortho prove`**: a world, every journey, nine evals per operation, and a report with `--report` or `--json`
    (`packages/cli/src/main.ts:65-78`). `--only <journey>` runs one; `--changed` runs only what a change touched.
-   `ortho dev` keeps a warm world that prove reuses (`design/milestones.md`, ST1.24 ✅). **built**
+   `ortho dev` keeps a warm world that prove reuses (the warm-world slice, ST1.24, done). **built**
 5. **`ortho impact`**: what the change made stale, from the ledger the last full prove wrote. Editing one handler makes
-   only that operation stale (M1 gate item 3; M1.04 ✅). **built**, locally only: CI never reads it (section 5).
+   only that operation stale (M1 gate item 3; verdicts keyed by each handler's hash, M1.04, done). **built**, locally only: CI never reads it (section 5).
 6. **See it.** The portal shows the live calls `ortho dev` and prove make. **built**
 
 ### The extraction loop: from app code to a plugin
 
-Aaron's rule: build a thing once inside an app, use it, then extract it. Here is the loop with the real candidate: the
+Aaron's rule, as the conductor relayed it on 20 November 2026 and K30 now records it: build a thing once inside an
+app, use it, then extract it. Here is the loop with the real candidate: the
 starter's hand-written people, sessions, organisations and invitations.
 
 **What the candidate looks like today.** The starter declares `person`, `session`, `api-key`, `organization`,
@@ -207,10 +211,11 @@ export const Organization = Blueprint.thing({
    preview's (K28, M1.51).
 7. **Mount it with one file.** `ortho add feature @orthograph/auth` pins the version, refuses one under three days old,
    writes the mount and lists unmet needs (`packages/cli/src/modules/mounting/README.md:3-8`). **built**
-8. **Delete the copy.** The starter keeps no `person/` or `organization/` folder (M2.07's done-when). **designed**
+8. **Delete the copy.** Identity's copies go with the auth plugin (M2.05); acme keeps no `organization/` folder once
+   organisations are a plugin (M2.07's done-when). **designed**
 
 **What exists today.** Mounting is real: descriptors, the four verbs, needs and clashes are built and checked
-(`design/milestones.md`, M1.07 and M1.08 ✅). `packages/wallets` is the one feature plugin, with its own journeys
+(`design/milestones.md`, the verbs slice M1.07 and the needs slice M1.08, both done). `packages/wallets` is the one feature plugin, with its own journeys
 (`packages/wallets/blueprint/journeys/`). Six projections are plugins an app mounts: model, API, server, SDK, CLI and
 MCP (`packages/projections/src/main.ts:4-9`; Plugged In mounts all six in `examples/plugged-in/blueprint/projections/`).
 
@@ -231,7 +236,10 @@ green first.
 (K30, section 1). That is the `Blueprint` API, the compiler, the generators, the Effect language, the Cloudflare host,
 prove with its evals and the ledger, the logbook, the `ortho` command and its lint rules, and three projections: the
 model, the API and the server. With only the core you can write Plugged In, generate its server and API, and climb its
-journeys. That is **built** today.
+journeys. The pieces are **built**; the bucket itself is **designed** (K30). Three edges cross it today, and K30
+section 1 names them: the generators import the portal (`packages/generators/package.json:8`), prove imports the EVM
+chain port for wallet worlds (`packages/prove/package.json:14`), and the command depends on the whole projections
+package, SDK, CLI and MCP included (`packages/cli/package.json:9`). No check yet proves an app with only the core.
 
 ### The extension points
 
@@ -286,8 +294,9 @@ payments into ERPNext, and the bench.
 
 Two repositories (K30, section 2):
 
-- **`orthograph`**: the core and the standard library, one monorepo, as today. Nx tags mark each package's bucket, and
-  lint holds the line: the core may not import the standard library.
+- **`orthograph`**: the core and the standard library, one monorepo, as today. Nx tags would mark each package's
+  bucket, and lint would hold the line that the core imports nothing from the standard library. **designed**: today's
+  tags are the scope and environment tags (`design/packages.md`, "Rules"), not these buckets.
 - **`capxul`**: the app, plus its own plugins in `plugins/`, mounting Orthograph's packages from the registry.
 - **Later, only if release pace differs:** the standard library in its own repository.
 
@@ -318,8 +327,8 @@ Every package in `packages/`, by bucket:
 Only the edges that block a loop are here. Every other hole, with the slice that owns it, is in
 [`../scope.md`](../scope.md), "Holes no slice owns".
 
-**Starting an app** (the demo of 20 November, `.claude/worktrees/invariant-screens-c4a7f1/demo-out/README.md`, in
-another worktree, so each fact is said here in place):
+**Starting an app** (found by a live demo on 20 November 2026; its recordings live outside this repository, so each
+fact is said here in place):
 
 - Orthograph is not on public npm, so a new app needs a throwaway local registry and a publish first. The preview
   fixes this (K28, M1.51).
@@ -329,8 +338,8 @@ another worktree, so each fact is said here in place):
 - Plugged In's own README still says "declarations and empty handlers only" (`examples/plugged-in/README.md:3-4`).
 
 **Writing journeys** (`design/goals/03-snags.md`, all parked for stage 1): a starting world serves one journey and gives
-back only the last answer (S-05, S-06); a step can't compare with the answer before it (S-07); no journey can send a
-malformed payload (S-09); machine states are written as strings (S-26).
+back only the last answer; a step can't compare with the answer before it; no journey can send a malformed payload;
+and a handler or journey can name a machine state only as a string.
 
 **Proving every client.** Journeys call the server over plain HTTP
 (`packages/prove/src/modules/journeys/internal/world.ts:18`), so the SDK, the CLI and MCP are never proved by a

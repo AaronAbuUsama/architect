@@ -14,8 +14,10 @@ question on extraction changed its answer on the re-read; that section says why.
 - **extract**: move code from an app into a plugin package, then mount it back.
 - **ledger**: the file the last full prove wrote, which `ortho impact` and `ortho prove --changed` read.
 
-Core, standard library and ours are working words for buckets, not canon words. The canon's words are the plugin kinds:
-feature, adapter, projection, language and host (`design/decisions/K27-three-plugin-kinds.md`).
+**Core** is the scope map's word for the same set (`design/scope.md`, "The core"); the canon's layer "the core" is the
+declarations those packages compile. **Standard library** is what the canon's layer 7 calls "what Orthograph ships".
+What a plugin is stays the canon's five kinds: feature, adapter, projection, language and host
+(`design/decisions/K27-three-plugin-kinds.md`).
 
 ## 1 — Where does the core end?
 
@@ -37,7 +39,8 @@ If nobody decides, each slice that moves a projection picks its own home, and th
 
 | Dependent | Why it cares |
 |---|---|
-| docs and the portal (M1.13, M3.21) | the portal as a viewer now, its faces later; both need a home |
+| docs and the portal | built in today; moving them to mounts is a new slice (section 6) |
+| the edges that cross the line today | the generators import `@orthograph/portal` (`packages/generators/package.json:8`); prove imports `@orthograph/chain-evm` (`packages/prove/package.json:14`); the command depends on all of `@orthograph/projections` (`packages/cli/package.json:9`) |
 | `packages/projections` | one package holds core and standard projections today |
 | the repositories (section 2) | the core's edge is the split's edge |
 | the portal's components (K24) | HeroUI Pro today, UI SDK next; neither should be a core dependency |
@@ -51,7 +54,7 @@ portal are built in (above).
 ```ts
 // blueprint/projections/portal.ts: an app that wants the portal mounts it, as it mounts the CLI today
 import { Blueprint } from "orthograph";
-import { portal } from "@orthograph/portal";
+import { portal } from "@orthograph/projections";   // one package, as M1-plugins X-10 says; the bucket is a tag
 export default Blueprint.use(portal);
 ```
 
@@ -87,8 +90,11 @@ export default Blueprint.use(server, (s) => [s.choose(s.choices.host.cloudflare)
 
 **The call: A.** The core is the `Blueprint` API, the compiler, the generators, the Effect language, the Cloudflare
 host, prove and the ledger, the logbook, the `ortho` command, its lint rules, and the model, API and server
-projections. Everything else is standard library. Docs and the portal become mounted projections when their slices
-move them (M1.13, M3.21); until then they stay built in, and nothing breaks.
+projections. Everything else is standard library. Docs and the portal become mounted projections in a new slice
+(section 6), not in the portal viewer slice (done) or the faces slice; until then they stay built in, and nothing
+breaks. The line is drawn by Nx tags, not by splitting `@orthograph/projections`. The three edges above are cut
+before the line is enforced: the portal is reached as a mounted projection, the wallet world's chain through the
+wallets plugin, and the command loads projections from the app's mounts.
 
 ## 2 — How should the repositories split?
 
@@ -96,8 +102,12 @@ move them (M1.13, M3.21); until then they stay built in, and nothing breaks.
 overlap with Plugged In's stage 3 plugins.
 
 ```ts
-// capxul-next, packages/core/src/handlers.ts:2 (read at 50851875): Capxul's own registry, one file per domain
-// "A new domain is one import here and one entry in each group it serves"
+// capxul-next, packages/core/src/handlers.ts:21-25 (read at 50851875): Capxul's own registry, one file per domain
+export const WorldHandlers = WorldRpcs.toLayer({
+  ...Organizations.world,
+  ...People.world,
+  ...Board.world,
+  ...Budgets.world,
 ```
 
 If nobody decides, Capxul's plugins get written twice: once for stage 3 here and once in Capxul.
@@ -151,7 +161,10 @@ orthograph/examples/capxul/   orthograph/plugins/capxul-*/
 | Correctness | ✅ Capxul consumes Orthograph as anyone would | ✅ | ❌ never proves the published path |
 | Fit | ✅ "built once, mounted anywhere" | ⚠️ | ❌ |
 
-**The call: A.** Capxul is the first real outside user, which is the test the framework needs. The standard library
+**The call: A.** Capxul is the first real outside user, which is the test the framework needs. It moves onto
+Orthograph after the beta (workable, the end of M2, as `design/milestones.md` opens by saying), beside the stages, and
+never gates 1.0: that is both halves of the scope map's fourth disagreement, which said "built on it from M2" in one
+place and "off v1.0's path" in another. Until then `capxul-next` goes on as it is. The standard library
 moves to a repository of its own only if its release pace ever differs from the core's. Hats, budgets and the Safe
 adapter are standard library, because stage 3 needs them too; approvals, payments into ERPNext and the bench stay ours
 until a second app needs them.
@@ -211,7 +224,7 @@ ortho check   # blanks ✘ 7 …
 
 | Scenario | A · flags on add | B · write directly | C · a describe file |
 |---|---|---|---|
-| A person knows the states and verbs | one command | write six files by hand | write one file, then run |
+| A person knows the states and verbs | one command | write seven files by hand | write one file, then run |
 | An agent declares a thing | one command, nothing to mis-shape | it may mis-shape a file; check catches it | one file |
 | Later you add a verb | `ortho add operation`, or `ortho add move` (M2.15) | edit by hand | edit the file, rerun: does it overwrite yours? |
 | A new word to learn | none | none | a new file kind |
@@ -242,6 +255,9 @@ fields: {
   name: HandleName,
   owner: Blueprint.described(Blueprint.id("per"), "The person who holds the name."),
 ```
+
+Aaron's rule, as the conductor relayed it on 20 November 2026: "build a thing once inside an app, use it, then extract
+it into a plugin; don't build plugins speculatively". This record is its first dated home.
 
 If nobody decides, either code is extracted before anyone has used it (against Aaron's rule), or it is copied into each
 new app and drifts.
@@ -295,7 +311,8 @@ ortho new feature budgets   # before any app uses it
 | Correctness | ✅ shaped by real use | ✅ | ❌ |
 | Fit | ✅ Aaron's rule, and K28's beta | ⚠️ stricter than Aaron's rule | ❌ against Aaron's rule |
 
-**The call: A.** The draft recommended B. Re-read, B is stricter than Aaron's rule, which is "build it once inside an
+**The call: A. It replaces the draft's stricter rule.** The draft of 20 November recommended B, "extract at the second
+real user". Re-read, B is stricter than Aaron's rule, which is "build it once inside an
 app, use it, then extract it", not "wait for a second app". Handles has been built and climbed green in Plugged In, and
 K28's beta already counts on its plugin. So the plan stands: auth, organisations and handles are extracted for the
 beta, and stage 3's pieces are built inside an app before they become plugins.
@@ -374,7 +391,8 @@ prove still on every push to a protected branch. CI-speed's "Not done" stands as
    [`../model/README.md`](../model/README.md), section 6; the frame's generated skills (`design/frame/skills.md`) are
    their home.
 2. **Slices these calls need**, for the conductor to place:
-   - docs and the portal as mounted projections (with M1.13 and M3.21);
+   - docs and the portal as mounted projections, a new slice;
+   - the three edges in section 1 cut, then the core's line held by Nx tags and lint;
    - `--states` and `--verbs` on `ortho add thing` (with M2.15);
    - the prove tests' hidden inputs declared in `nx.json`, then measured.
 3. **The repository's goal.** `README.md` now carries the short version of what Orthograph is, from the model page,
@@ -382,6 +400,10 @@ prove still on every push to a protected branch. CI-speed's "Not done" stands as
 
 ## Supersedes
 
-Nothing. `git grep` finds no live doc that says otherwise: the frame already calls docs and the portal projections
-(`design/frame/projections.md`, 3.7 and 3.8), the milestones already extract auth, organisations and handles, and
-`design/decisions/CI-speed.md`'s "Not done" is conditional on the inputs, which this record leaves to a slice.
+Nothing. `git grep` finds no live doc that says otherwise:
+
+- the frame already calls docs and the portal projections (`design/frame/projections.md`, 3.7 and 3.8), and they stay
+  in the one `@orthograph/projections` package that `M1-plugins` X-10 names;
+- the milestones already extract auth, organisations and handles, and no live doc says "a second app";
+- `design/decisions/CI-speed.md`'s "Not done" is conditional on the inputs, which this record leaves to a slice;
+- the scope map's fourth disagreement (Capxul's timing) is answered in section 2, and marked so in `design/scope.md`.
