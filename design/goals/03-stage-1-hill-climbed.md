@@ -1,7 +1,7 @@
 ---
 goal: 3
 title: stage 1 of Plugged In, hill-climbed through its journeys
-milestone: "Goal 3: stage 1, hill-climbed"
+milestone: "Goal 3: stage 1 of Plugged In, hill-climbed through its journeys"
 release: beta
 branch: goal/stage-1
 base: main
