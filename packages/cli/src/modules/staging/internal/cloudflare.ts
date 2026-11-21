@@ -14,6 +14,9 @@ interface Body {
   readonly result_info?: { readonly cursor?: string };
 }
 
+/** What Cloudflare says is cut short and never holds the token or the account id. */
+const clip = (text: string, c: Credentials) => text.split(c.token).join("[token]").split(c.account).join("[account]").slice(0, 300);
+
 const call = (credentials: Credentials, what: string, method: string, path: string, body?: unknown): Effect.Effect<Body, StagingFailed> =>
   Effect.tryPromise({
     try: (signal) =>
@@ -28,7 +31,7 @@ const call = (credentials: Credentials, what: string, method: string, path: stri
     Effect.flatMap(({ res, body: answered }) =>
       res.ok && answered.success !== false
         ? Effect.succeed(answered)
-        : Effect.fail(new StagingFailed({ message: `Cloudflare refused to ${what}: HTTP ${res.status} ${JSON.stringify((answered.errors ?? []).map((e) => ({ code: e.code, message: e.message })))}` })),
+        : Effect.fail(new StagingFailed({ message: `Cloudflare refused to ${what}: HTTP ${res.status} ${clip(JSON.stringify((answered.errors ?? []).map((e) => ({ code: e.code, message: e.message }))), credentials)}` })),
     ),
   );
 

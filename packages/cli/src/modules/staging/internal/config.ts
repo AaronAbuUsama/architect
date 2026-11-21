@@ -12,6 +12,9 @@ interface Generated {
   readonly vars?: Record<string, string>;
 }
 
+/** The keys of the generated config the plan covers: databases and Durable Objects are planned; the rest is plain settings. Anything else is refused. */
+const COVERED = new Set(["name", "main", "compatibility_date", "compatibility_flags", "d1_databases", "durable_objects", "migrations", "vars"]);
+
 /** The generated file is JSONC with whole-line comments only. */
 export const parseGenerated = (text: string): Effect.Effect<Generated & Record<string, unknown>, StagingFailed> =>
   Effect.try({
@@ -32,6 +35,11 @@ export interface Derive {
 /** Every database the generated config binds is one the plan names, and the other way round: the plan and the projection cannot drift apart unseen. */
 export const deployConfig = ({ generated, generatedPath, plan, ids, built }: Derive): Effect.Effect<string, StagingFailed> =>
   Effect.gen(function* () {
+    // Only what the plan covers may be bound: a binding of another kind (R2, KV, queues, services...) would be made by `up` and not deleted by `destroy`.
+    const odd = Object.keys(generated).filter((k) => !COVERED.has(k));
+    if (odd.length > 0) {
+      return yield* new StagingFailed({ message: `generated/server/wrangler.jsonc has ${odd.join(", ")}, which the staging plan does not cover: plan it (and its destroy) before it is deployed` });
+    }
     const planned = plan.resources.filter((r) => r.kind === "d1");
     const bound = (generated.d1_databases ?? []).map((d) => String(d["binding"]));
     const unplanned = bound.filter((b) => !planned.some((r) => r.binding === b));

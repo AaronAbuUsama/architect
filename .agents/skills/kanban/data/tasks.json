@@ -4215,7 +4215,7 @@
   "title": "The infra projection",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "The infra projection: an Alchemy stack per environment from the model and mounts"
+  "what": "The infra projection: the plan of an environment's cloud resources from the model and mounts, made by wrangler and Cloudflare's REST API"
  },
  "M7-04": {
   "doneWhen": "ortho env destroy leaves nothing with its run's prefix in the account and changes nothing without it",

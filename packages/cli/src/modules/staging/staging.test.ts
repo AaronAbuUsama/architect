@@ -1,6 +1,6 @@
 // `ortho env up|destroy staging` against a pretend account, in this process: what the real verbs do with the plan, with no cloud, no wrangler and no credential. Check 37 (e2e/m1) runs the printed plan through the real command.
-import { cpSync, mkdirSync, readFileSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { makeStaging, prefixOf, stagingUrl } from "./service.ts";
@@ -132,5 +132,26 @@ describe("staging up and destroy", () => {
     expect(said.err).toContain("the deploy failed");
     expect(said.err).not.toContain(credentials.token);
     expect(said.err).not.toContain(credentials.account);
+  });
+
+  it("a relative --root (the workflow passes examples/plugged-in) still gives wrangler an absolute config path", async () => {
+    const configs: string[] = [];
+    const world = pretend([], [], (args) => { const at = args.indexOf("--config"); if (at >= 0) configs.push(String(args[at + 1])); return { status: 0, output: "" }; });
+    const said = await run(makeStaging(world.tools).up({ ...options("81"), root: relative(process.cwd(), root) }));
+    expect(said.exit, said.err).toBe(0);
+    expect(configs.length).toBeGreaterThan(0);
+    for (const c of configs) { expect(isAbsolute(c), c).toBe(true); expect(existsSync(c), c).toBe(true); }
+  });
+
+  it("a generated config that binds something the plan does not cover (R2) is refused before anything is deployed", async () => {
+    const path = join(root, "generated/server/wrangler.jsonc");
+    const before = readFileSync(path, "utf8");
+    writeFileSync(path, before.replace('"vars"', '"r2_buckets": [{ "binding": "B", "bucket_name": "b" }],\n  "vars"'));
+    const world = pretend();
+    const said = await run(makeStaging(world.tools).up(options("82")));
+    writeFileSync(path, before);
+    expect(said.exit).toBe(1);
+    expect(said.err).toContain("r2_buckets");
+    expect(world.calls.filter((c) => c.startsWith("wrangler"))).toEqual([]);
   });
 });

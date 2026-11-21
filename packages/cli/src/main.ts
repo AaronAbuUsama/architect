@@ -310,7 +310,7 @@ const cloud = (verb: "up" | "destroy", env: string, plan: boolean, run: Option.O
 };
 
 // `ortho env up|down|status <env>`: a long-lived local environment (D3 #4).
-const environment =(verb: "up" | "down" | "status") =>
+const environment = (verb: "up" | "down" | "status") =>
   Command.make(
     verb,
     {

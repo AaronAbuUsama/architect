@@ -27,7 +27,7 @@ export const live = (pause: Tools["pause"], env: Readonly<Record<string, string 
       },
       catch: () => new StagingFailed({ message: "wrangler could not be started" }),
     }),
-  probe: (url) => Effect.tryPromise({ try: (signal) => fetch(url, { signal }).then((res) => res.status), catch: () => 0 }).pipe(Effect.orElseSucceed(() => 0)),
+  probe: (url) => Effect.tryPromise({ try: (signal) => fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]) }).then((res) => res.status), catch: () => 0 }).pipe(Effect.orElseSucceed(() => 0)),
   pause,
   secret: () => randomBytes(32).toString("hex"),
   build: (root) =>

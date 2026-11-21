@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@orthograph/compiler";
@@ -39,17 +39,22 @@ const credentialsOf = ({ token, account }: Options["credentials"]): Effect.Effec
 const settle = (work: Effect.Effect<Said, StagingRefused | StagingFailed>): Effect.Effect<Said> =>
   work.pipe(Effect.catchTags({ StagingRefused: (e) => Effect.succeed(refusal(e.message, 2)), StagingFailed: (e) => Effect.succeed(refusal(e.message, 1)) }));
 
+/** The root, made absolute once: wrangler runs in another folder, so a relative `--root` (the workflow passes `examples/plugged-in`) would name a config that is not there. */
+const absolute = (options: Options): Options => ({ ...options, root: resolve(options.root) });
+
 export const makeStaging = (tools: Tools): StagingApi => ({
-  plan: (options) => settle(planOf(options).pipe(Effect.map((p) => said(render(p))))),
-  up: (options) =>
+  plan: (given) => settle(planOf(absolute(given)).pipe(Effect.map((p) => said(render(p))))),
+  up: (given) =>
     settle(Effect.gen(function* () {
+      const options = absolute(given);
       const p = yield* planOf(options);
       const credentials = yield* credentialsOf(options.credentials);
       const url = yield* up(tools, credentials, options.root, p);
       return said(`${p.environment} up ${url}\n`);
     })),
-  destroy: (options) =>
+  destroy: (given) =>
     settle(Effect.gen(function* () {
+      const options = absolute(given);
       const p = yield* planOf(options);
       const credentials = yield* credentialsOf(options.credentials);
       const done = yield* destroy(tools, credentials, p);

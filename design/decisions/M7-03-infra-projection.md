@@ -39,4 +39,6 @@ The portal's client is not part of the staging Worker (snag 5).
 - design/frame/deployment.md: "`ortho env destroy <name>` removes its Alchemy stack." → "`ortho env destroy <name> --run <id>` deletes what the run's prefix owns."
 - design/frame/deployment.md: "an Alchemy stack generated from the model and mounts" → "a plan generated from the model and mounts, carried out with wrangler and the REST API"
 - design/frame/projections.md: "Infrastructure is the Alchemy stack per environment: Workers" → "Infrastructure is the plan per environment, carried out with wrangler and Cloudflare's REST API: Workers"
+- .agents/skills/kanban/data/tasks.json: "an Alchemy stack per environment from the model and mounts" → "the plan of an environment's cloud resources from the model and mounts, made by wrangler and Cloudflare's REST API"
+- design/frame/generators.md: "an Alchemy stack |" → "a plan, made by wrangler and the REST API |"
 - design/frame/projections.md: "D3 #5 deferred Alchemy to the cloud pass." → "M7-03 builds staging on wrangler and Cloudflare's REST API, not Alchemy."
