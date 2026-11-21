@@ -398,6 +398,11 @@
           "HandleTaken": "handle.oneHolderPerName",
           "HandleAlreadyOwned": "handle.oneNamePerPerson"
         },
+        "breaks": [
+          "handle.oneHolderPerName",
+          "handle.oneNamePerPerson",
+          "profile.onePagePerHandle"
+        ],
         "refusals": [
           "HandleTaken",
           "HandleAlreadyOwned",
@@ -413,7 +418,10 @@
         "steps": {
           "record": {
             "name": "handle.claim.record",
-            "type": "database"
+            "type": "database",
+            "writes": [
+              "profile"
+            ]
           }
         },
         "idempotent": "request",
@@ -422,7 +430,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ec57bf4d03bb379c"
+        "hash": "f3b0ba5eb265de74"
       },
       "handle.release": {
         "kind": "operation",
@@ -457,6 +465,7 @@
           "emits": "HandleReleased"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "HandleNotClaimed",
           "NotAllowed"
@@ -482,7 +491,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "2e2a0634cc287ac4"
+        "hash": "f875bc245f1b5a16"
       },
       "handle.resolve": {
         "kind": "operation",
@@ -519,6 +528,7 @@
         "errors": [
           "HandleNotFound"
         ],
+        "breaks": [],
         "refusals": [
           "HandleNotFound"
         ],
@@ -539,7 +549,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ec35f5ac1d996508"
+        "hash": "fbe1dbfa3de5ad1f"
       },
       "link.add": {
         "kind": "operation",
@@ -592,6 +602,7 @@
         "errors": [
           "LinkNeedsHandle"
         ],
+        "breaks": [],
         "refusals": [
           "LinkNeedsHandle",
           "NotAllowed",
@@ -619,7 +630,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "852d172add3d2ea9"
+        "hash": "68e3a0e037ae0530"
       },
       "link.order": {
         "kind": "operation",
@@ -655,6 +666,7 @@
         "errors": [
           "LinkAlreadyRemoved"
         ],
+        "breaks": [],
         "refusals": [
           "LinkAlreadyRemoved",
           "NotAllowed"
@@ -684,7 +696,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "4382439fbc661685"
+        "hash": "6955c4a359ef7c40"
       },
       "link.remove": {
         "kind": "operation",
@@ -719,6 +731,7 @@
           "emits": "LinkRemoved"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "LinkNotListed",
           "NotAllowed"
@@ -744,7 +757,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "7f27cb775ec09be1"
+        "hash": "c5986166d415489f"
       },
       "profile.get": {
         "kind": "operation",
@@ -786,6 +799,7 @@
         "errors": [
           "ProfileNotFound"
         ],
+        "breaks": [],
         "refusals": [
           "ProfileNotFound"
         ],
@@ -797,7 +811,8 @@
         "steps": {
           "load": {
             "name": "profile.get.load",
-            "type": "database"
+            "type": "database",
+            "writes": []
           }
         },
         "idempotent": null,
@@ -806,7 +821,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "f6e1480cfdff97f8"
+        "hash": "f7c27314764a8886"
       }
     },
     "journeys": {
@@ -3034,37 +3049,37 @@
   },
   "dependsOnByOperation": {
     "handle.claim": {
-      "operation:handle.claim": "ec57bf4d03bb379c",
+      "operation:handle.claim": "f3b0ba5eb265de74",
       "thing:handle": "d9dcca222783bbef"
     },
     "handle.release": {
-      "operation:handle.release": "2e2a0634cc287ac4",
+      "operation:handle.release": "f875bc245f1b5a16",
       "thing:handle": "d9dcca222783bbef"
     },
     "handle.resolve": {
-      "operation:handle.resolve": "ec35f5ac1d996508",
+      "operation:handle.resolve": "fbe1dbfa3de5ad1f",
       "thing:handle": "d9dcca222783bbef"
     },
     "link.add": {
-      "operation:link.add": "852d172add3d2ea9",
+      "operation:link.add": "68e3a0e037ae0530",
       "thing:handle": "d9dcca222783bbef",
       "thing:link": "72c22f92188f5790",
       "thing:profile": "b6fe73c29fc30ccb"
     },
     "link.order": {
-      "operation:link.order": "4382439fbc661685",
+      "operation:link.order": "6955c4a359ef7c40",
       "thing:handle": "d9dcca222783bbef",
       "thing:link": "72c22f92188f5790",
       "thing:profile": "b6fe73c29fc30ccb"
     },
     "link.remove": {
-      "operation:link.remove": "7f27cb775ec09be1",
+      "operation:link.remove": "c5986166d415489f",
       "thing:handle": "d9dcca222783bbef",
       "thing:link": "72c22f92188f5790",
       "thing:profile": "b6fe73c29fc30ccb"
     },
     "profile.get": {
-      "operation:profile.get": "f6e1480cfdff97f8",
+      "operation:profile.get": "f7c27314764a8886",
       "thing:handle": "d9dcca222783bbef",
       "thing:profile": "b6fe73c29fc30ccb"
     }
@@ -3095,5 +3110,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "1de0eb28e3ffe5eb4cfa094a35307b4079dd13951d7f4c3ced6062cb0e56b506"
+  "digest": "a4bf2becadbf88459d00dcc09b1df6780e47442ce96bfff9ba357e3e7f539630"
 }

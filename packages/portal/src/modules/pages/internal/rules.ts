@@ -1,5 +1,5 @@
 // What the pages read of the blueprint's rules (G5): each thing's rules, the rule each refusal belongs to, and the one sentence a rule is said in.
-// Everything is the wire's (`things.<t>.invariants`, `operations.<op>.invariants`); the sentence is `orthograph/sentences`, the same the docs say.
+// Everything is the wire's (`things.<t>.invariants`, `operations.<op>.breaks`, `operations.<op>.invariants`); the sentence is `orthograph/sentences`, the same the docs say.
 import { ruleSentence } from "orthograph/sentences";
 import type { BlueprintWire, OperationWire, ThingWire } from "#modules/wire/types.js";
 
@@ -36,9 +36,9 @@ export const ruleNamed = (b: BlueprintWire, full: string): RuleRef | undefined =
 export const refusalOwners = (b: BlueprintWire): ReadonlyMap<string, RuleRef> =>
   new Map(Object.values(b.model.things).flatMap((t) => rulesOf(t).flatMap((r): ReadonlyArray<readonly [string, RuleRef]> => (r.rule.refuse === undefined ? [] : [[r.rule.refuse, r]]))));
 
-/** The rules an operation can break, each once, with the refusal it owns on this operation. */
+/** The rules an operation can break (`op.breaks`), each once, whether or not a rule owns a refusal. */
 export const rulesBroken = (b: BlueprintWire, op: OperationWire): ReadonlyArray<RuleRef> => {
-  const found = Object.values(op.invariants ?? {}).flatMap((full) => ruleNamed(b, full) ?? []);
+  const found = (op.breaks ?? []).flatMap((full) => ruleNamed(b, full) ?? []);
   return found.filter((r, i) => found.findIndex((o) => o.full === r.full) === i);
 };
 

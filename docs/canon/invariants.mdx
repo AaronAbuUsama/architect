@@ -62,11 +62,16 @@ And the operation that claims a name no longer lists the refusals, because they 
 `HandleAlreadyOwned` are in no `errors:`). The compiled model says which operations a rule touches, and which refusal
 belongs to which rule:
 
-```json file=examples/plugged-in/generated/model/model.json lines=393-402
+```json file=examples/plugged-in/generated/model/model.json lines=393-407
 "invariants": {
   "HandleTaken": "handle.oneHolderPerName",
   "HandleAlreadyOwned": "handle.oneNamePerPerson"
 },
+"breaks": [
+  "handle.oneHolderPerName",
+  "handle.oneNamePerPerson",
+  "profile.onePagePerHandle"
+],
 "refusals": [
   "HandleTaken",
   "HandleAlreadyOwned",
@@ -74,6 +79,8 @@ belongs to which rule:
   "IdempotencyConflict"
 ],
 ```
+
+`breaks` also names `profile.onePagePerHandle`, a rule that refuses nothing: claiming a name writes a profile, and its step says so (`writes: [Profile]`).
 
 A journey sees the refusal as it sees any other. Bob claims a name Aaron holds:
 
@@ -132,16 +139,18 @@ The model keeps each rule under its thing, with its key, its states and its refu
 ```
 
 The compiler then works out which operations can break each rule, and adds the rule's refusal to those operations'
-`refusals`, with a map back to the rule (`operations.<op>.invariants`). An operation breaks a rule when its move ends
-in one of the rule's `while` states, or one of its database steps names the thing in `writes`, or the thing has no
-machine and the operation has a database step:
+`refusals`, with a map back to the rule (`operations.<op>.invariants`), and lists every rule the operation can break,
+with a refusal or without, in `operations.<op>.breaks`, which the portal's rules stop reads. An operation breaks a rule
+when its move ends in one of the rule's `while` states, or one of its database steps names the thing in `writes`, or the
+thing has no machine and the operation has a database step that leaves `writes` unset. A step that says `writes: []`
+reads only and breaks nothing:
 
 ```ts file=packages/compiler/src/modules/model/internal/invariants.ts name=breakersOf lines=107-115
 for (const [name, rule] of Object.entries(t.invariants ?? {})) {
   const own = op.thing === thing;
   const byMove = own && op.move !== null && (rule.while === undefined || op.move.to.some((s) => rule.while!.includes(s)));
   const byWrites = database.some((s) => s.writes?.includes(thing));
-  const bare = own && t.machine === null && database.length > 0;
+  const bare = own && t.machine === null && database.some((s) => s.writes === undefined);
   if (!byMove && !byWrites && !bare) continue;
   breaks.push(`${thing}.${name}`);
   if (rule.refuse !== undefined) refusals[rule.refuse] = `${thing}.${name}`;
@@ -237,11 +246,11 @@ The portal's page for a thing shows its rules under the lifecycle, one row per r
 reads as the rule's sentence and links to its row (ST1.22, as decided on 20 November 2026). An operation that can
 break a rule gets a "rules" stop on its spine, between the move and the commit. The portal reads all of it off the
 model it is given, so a renamed or re-worded rule shows as it is declared; the rules an operation's spine names are
-the ones the model attaches to it:
+the ones in the operation's `breaks`, with a refusal or without:
 
 ```ts file=packages/portal/src/modules/pages/internal/rules.ts name=rulesBroken lines=40-43
 export const rulesBroken = (b: BlueprintWire, op: OperationWire): ReadonlyArray<RuleRef> => {
-  const found = Object.values(op.invariants ?? {}).flatMap((full) => ruleNamed(b, full) ?? []);
+  const found = (op.breaks ?? []).flatMap((full) => ruleNamed(b, full) ?? []);
   return found.filter((r, i) => found.findIndex((o) => o.full === r.full) === i);
 };
 ```
