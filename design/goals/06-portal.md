@@ -2,6 +2,9 @@
 
 Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31, on terms agreed with the conductor the same day.
 
+**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 6. Read `design/goals/06-portal.md` and run
+it." Nothing else is needed.
+
 ## Aaron's words, 21 November 2026
 
 After the app map grill ("I agree with all of your defaults"), to the 📐 designer thread: kick off a new goal "against
@@ -35,18 +38,18 @@ want this to be able to run in parallel to the other work that's actually runnin
 >
 > This file is the whole brief: it holds every agreement this goal depends on (below, "The agreements"), so a lead
 > starting cold, on any account or session, needs only the repository. Read "Where it stands" at the end first, and
-> rewrite it at every slice merge. The conductor is whichever session runs the `conductor` skill;
-> `.agents/skills/kanban/STATE.md` says where the whole project stands.
+> rewrite it at every slice merge. You coordinate yourself, through the repository and GitHub only ("How this goal
+> coordinates", below); `.agents/skills/kanban/STATE.md` says where the whole project stands.
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K31-app-map.md` (the map), `K29-ui-layer.md` (the pieces, UI SDK) and `K19-portal-prebuilt.md` (the portal's
+> - `design/decisions/K31-app-map.md` (the map), `K29-ui-layer.md` (the pieces, UI SDK), `K32-goals-coordinate-themselves.md` (how goals coordinate) and `K19-portal-prebuilt.md` (the portal's
 >   server and client line), and `design/ui/heroui-inventory.md` (every part of the old client, with what replaces it);
 > - `design/portal.md` (the agreed information architecture: keep it; this goal changes how the portal is built, not
 >   what it shows) and the `portal-design` skill (the process and the style guide);
 > - `e2e/m1/21-portal-viewer.test.ts`, `28-st1-22-rules-in-the-portal.test.ts`, `e2e/served-portal/` and the grid's
 >   portal evals: the checks that hold the old client;
-> - the `ui-sdk`, `conductor`, `reviewer`, `author`, `threads`, `kanban` and `portal-design` skills.
+> - the `ui-sdk`, `reviewer`, `author`, `threads`, `kanban` and `portal-design` skills.
 >
 > - **Branch:** `goal/portal`, cut from the tip of `goal/stage-1` when this goal starts.
 >   - Every change reaches it through a pull request into `goal/portal`, merged when CI is green and a 🔍 reviewer
@@ -62,11 +65,12 @@ want this to be able to run in parallel to the other work that's actually runnin
 >   the board (the `kanban` skill), and rewrite "Where it stands" in the same pull request.
 > - **Ownership between goals:** Goal 5 owns the actions, `@orthograph/web` and the web projection; you own the map, the
 >   shell, the theme and the new client. Neither goal edits the other's packages.
-> - **Reporting:** each time a slice merges, report to the conductor session, in two or three lines: the slice, its
->   check, the parity list's length. Write for Aaron's ear.
-> - **Cutover goes through the conductor** (the protocol, point 5). Never merge into `goal/stage-1` without the yes it
+> - **Reporting:** "Where it stands", rewritten in the pull request that merges each slice. Nobody is messaged.
+> - **Cutover follows the protocol, point 5.** Never merge cutover into `goal/stage-1` without the freeze and the yes it
 >   names.
-> - **Branch protection:** ask the conductor to protect `goal/portal` like `goal/stage-1` before the first pull request.
+> - **Branch protection** is set on `goal/portal` before this goal starts, like `goal/stage-1`
+>   (`design/decisions/CI-branch-protection.md`). If `gh api repos/AaronAbuUsama/architect/branches/goal/portal/protection`
+>   finds none, it needs an admin: write that in "Where it stands" and stop before the first pull request.
 
 ## The bound
 
@@ -90,7 +94,8 @@ want this to be able to run in parallel to the other work that's actually runnin
   | `pnpm-lock.yaml` | what `pnpm install` writes for the above |
   | `design/handoff.md`, `STATE.md`, the board, `design/milestones.md` | this goal's own lines |
 
-  A change that needs any other existing file is a snag for its owner, through the conductor, never an edit here.
+  A change that needs any other existing file is a snag for its owner (a line in its snag log, or an issue with its
+  label), never an edit here.
   The new modules are `packages/orthograph/src/modules/app/` (`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`,
   `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results),
   `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals) and
@@ -120,14 +125,21 @@ key in the calls table, #270). So:
    lands red on the new client, and the merge adds its line. So anything Goal 3 adds to the old portal is owed by the
    new one automatically, and nothing is forgotten.
 4. **Data goes through Goal 3.** The new client reads the data API and the wire types as they are. A field it needs and
-   the API lacks is an additive request to Goal 3 through the conductor, never an edit here.
-5. **The cut-off, through the conductor.** When the parity list is empty and the done check passes, the lead tells the
-   conductor. The conductor agrees a freeze with Goal 3's lead: from then Goal 3 adds nothing to the old client.
-   Cutover's pull request into `goal/stage-1` merges only with Goal 3's lead's yes, written on the pull request, and a
-   🔍 reviewer's pass. From then on all portal work goes to the new client.
+   the API lacks is an additive request to Goal 3, a line in `03-snags.md` or an issue labelled `goal-3`, never an edit
+   here.
+5. **The cut-off, on GitHub.** When the parity list is empty and the done check passes:
+   - **The freeze.** The lead opens a pull request into `goal/stage-1` that adds one line to Goal 3's brief
+     (`design/goals/03-stage-1-hill-climbed.md`, under its "Where it stands", or at its end if it has none): "The old
+     portal client is frozen for Goal 6's cutover: add nothing to it; portal work goes to `packages/portal-next`."
+     It is labelled `goal-3`. Goal 3's lead merging it is the freeze.
+   - **The cutover.** Only then, the cutover pull request into `goal/stage-1`, labelled `goal-3` and asking Goal 3's
+     lead in its description. It merges once Goal 3's lead has written its yes on it and a 🔍 reviewer has passed it.
+     (Every agent here works under one GitHub account, so the yes is a comment, not a formal review.)
+   - From then on all portal work goes to the new client.
 6. **One owner for each shared piece.** The theme is this goal's, built first and landed early, so Goal 5's screens
    take it up; until it lands, Goal 5's pieces use UI SDK's default tokens. The actions and `@orthograph/web` are Goal
-   5's. Neither goal edits the other's packages; a need on the other side is a snag through the conductor.
+   5's. Neither goal edits the other's packages; a need on the other side is a line in its snag log or an issue
+   with its label.
 
 ## The five roles
 
@@ -143,11 +155,29 @@ When the portal builder is stuck on something it can't fix inside `packages/port
 `design/goals/06-snags.md` (created in slice 1, the shape of Goal 3's snag log) and moves on. It never works around the map
 or the shell from inside the client.
 
+## How this goal coordinates (K32)
+
+This goal coordinates itself. It talks to Goal 3, Goal 5 and any other goal only through the repository and GitHub,
+never through a chat or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
+
+- **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges a
+  slice: the slice, its check, the parity list's length, what is next, open snags, in two or three lines written for
+  Aaron's ear. That is the report; nobody is messaged.
+- **Asking another goal for something.** Add a line to that goal's snag log (`design/goals/03-snags.md` for Goal 3,
+  `05-snags.md` for Goal 5) by a pull request into its branch, or open a GitHub issue with its label (`goal-3`,
+  `goal-5`). Never edit its files to get around it.
+- **Asks to this goal** arrive the same way: at the start of every slice, read `06-snags.md` and the open issues
+  labelled `goal-6` after merging `goal/stage-1` in, and answer each one in the slice that handles it.
+- **Decisions** this goal makes are named `GOAL6-<slug>` (`GOAL6-theme.md`), so they never collide with another goal's;
+  each is listed under "Decision IDs" below and in `design/handoff.md`'s list.
+- **Changing an agreement** below is one pull request that edits this brief and the other goal's together, and merges
+  only with that goal's lead's yes written on it.
+
 ## The agreements (21 November 2026)
 
 Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when this goal was split from
-Goal 5. They hold whoever leads either goal; changing one goes through the conductor and is written here and in Goal
-5's brief.
+Goal 5. They hold whoever leads either goal; changing one is a pull request that edits this brief and Goal 5's
+together.
 
 1. **The theme is this goal's,** built as slice 1 and landed in `goal/stage-1` on its own. Until it lands, Goal 5's
    pieces use UI SDK's default tokens; Goal 5's screens slice takes it up.
@@ -155,15 +185,14 @@ Goal 5. They hold whoever leads either goal; changing one goes through the condu
    named files, and byte-identical output for a blueprint with no app and no pages, proved by slice 2's check.
 3. **Neither goal edits the other's packages.** Goal 5 owns the actions module, `packages/web`, the actions and web
    projections and Plugged In's `src/web/`; this goal owns `packages/theme`, `packages/shell`, `packages/portal-next`,
-   the app projection and the `app` modules. A need on the other side is a snag sent to its owner through the
-   conductor.
+   the app projection and the `app` modules. A need on the other side is a line in its snag log or an issue with
+   its label, never an edit.
 4. **Goal 5 never waits on the map.** Plugged In's pages are declared in the map language as a follow-on, after the
    map landing.
 5. **The parity list only shrinks,** except for a portal check that arrives by a merge from `goal/stage-1`, which lands
    red with its line (the protocol, point 3).
-6. **Cutover goes through the conductor:** this goal says when the list is empty; the conductor agrees the freeze with
-   Goal 3's lead; the cutover pull request into `goal/stage-1` merges with Goal 3's lead's yes and a 🔍 pass (the
-   protocol, point 5).
+6. **Cutover, on GitHub:** when the list is empty, Goal 3's lead merges the freeze into Goal 3's brief; then the
+   cutover pull request into `goal/stage-1` merges with Goal 3's lead's yes and a 🔍 pass (the protocol, point 5).
 7. **Goal 5's waits are not this goal's:** its screens wait on ST1.03 and its sign-in on M2.05 and M2.06, both Goal
    3's. Nothing here waits on Goal 5.
 
@@ -189,7 +218,8 @@ green and a 🔍 reviewer passed it.
 **The map landing, after slice 5:** the same, for the map language, the app projection and the shell, so Plugged In's
 pages can declare themselves (Goal 5's follow-on). The byte-identical check must pass on it. It registers the new
 modules in `orthograph`'s index and the compiler's model service, which are Goal 3's busiest files, so tell Goal 3's
-lead through the conductor before it opens, and merge `goal/stage-1` in last thing.
+lead before it opens (a line in `03-snags.md`, or an issue labelled `goal-3`), and merge `goal/stage-1` in last
+thing.
 
 ### Part 2: the new client
 
@@ -206,17 +236,16 @@ lead through the conductor before it opens, and merge `goal/stage-1` in last thi
 
 | # | Slice | Done when |
 |---|---|---|
-| 12 | **Cutover (ST1.27)**, after the cut-off (the protocol, point 5). Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`, HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step and cache, `ortho/no-pro-outside-portal-ui`), folds `e2e:portal-next` into the normal portal checks, and rewrites every live doc line that still names `portal-ui` or HeroUI as current (`git grep -n "portal-ui\|HeroUI"` outside `design/decisions/`, `design/history/` and `design/process/`: the `portal-design` skill, `design/walkthrough/journey.md`, `design/ui/heroui-inventory.md` section 8, `portal.md`, `packages.md`), with a Supersedes list. It merges with Goal 3's lead's yes and a 🔍 pass | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
+| 12 | **Cutover (ST1.27)**, after the cut-off (the protocol, point 5). Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`, HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step and cache, `ortho/no-pro-outside-portal-ui`), folds `e2e:portal-next` into the normal portal checks, and rewrites every live doc line that still names `portal-ui` or HeroUI as current (`git grep -n "portal-ui\|HeroUI"` outside `design/decisions/`, `design/history/` and `design/process/`: the `portal-design` skill, `design/walkthrough/journey.md`, `design/ui/heroui-inventory.md` section 8, `portal.md`, `packages.md`), with a Supersedes list. It merges after the freeze, with Goal 3's lead's yes and a 🔍 pass | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
 
 ## Decision IDs
 
-The lead keeps this list; ask the lead for the next one before writing a decision on this branch.
+A decision this goal makes is named `GOAL6-<slug>` (K32), never a number, so no allocator is needed: the lead lists
+each one here and in `design/handoff.md`'s list, in the pull request that adds it.
 
 | ID | File | Taken by |
 |---|---|---|
 | K31 | `design/decisions/K31-app-map.md` | the 📐 designer, before this goal started |
-
-The next free IDs are in `design/handoff.md`; take one through the conductor, as the `threads` skill says.
 
 ## The done check
 
@@ -234,7 +263,7 @@ It passes only when all of these hold, in CI on `goal/portal`:
   `HEROUI_AUTH_TOKEN` unset;
 - every snag in `06-snags.md` is fixed, or parked with an owner and a reason.
 
-Then cutover (slice 12) lands through the conductor, and the goal is done.
+Then the freeze and cutover (slice 12) land on GitHub, as the protocol's point 5 says, and the goal is done.
 
 ## Evidence for Aaron
 

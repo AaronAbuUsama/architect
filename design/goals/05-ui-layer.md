@@ -2,6 +2,9 @@
 
 Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K29.
 
+**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 5. Read `design/goals/05-ui-layer.md` and
+run it." Nothing else is needed.
+
 ## Aaron's words
 
 On 21 November 2026 Aaron asked for the UI layer to be designed on UI SDK, with HeroUI phased out (K24). The four
@@ -42,16 +45,17 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >
 > This file is the whole brief: it holds every agreement this goal depends on (below, "The agreements"), so a lead
 > starting cold, on any account or session, needs only the repository. Read "Where it stands" at the end first, and
-> rewrite it at every slice merge. The conductor is whichever session runs the `conductor` skill;
-> `.agents/skills/kanban/STATE.md` says where the whole project stands.
+> rewrite it at every slice merge. You coordinate yourself, through the repository and GitHub only ("How this goal
+> coordinates", below); `.agents/skills/kanban/STATE.md` says where the whole project stands.
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K24, K13 and K28;
+> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K32 (how goals
+>   coordinate), K24, K13 and K28;
 > - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25, ST1.26 and ST1.04 rows of
 >   `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
-> - the `ui-sdk`, `conductor`, `reviewer`, `author`, `threads` and `kanban` skills.
+> - the `ui-sdk`, `reviewer`, `author`, `threads` and `kanban` skills.
 >
 > - **Branch:** `goal/ui-layer`, cut from the tip of `goal/stage-1` when this goal starts.
 >   - Every change reaches it through a pull request into `goal/ui-layer`. Merge each one when CI is green and a 🔍
@@ -65,10 +69,11 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 > - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
 >   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
 >   Rewrite "Where it stands" in the same pull request.
-> - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
->   three lines: the slice, its check, its snags. Write for Aaron's ear.
-> - **Branch protection:** ask the conductor to protect `goal/ui-layer` like `goal/stage-1` before the first pull
->   request (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved.
+> - **Reporting:** "Where it stands", rewritten in the pull request that merges each slice. Nobody is messaged.
+> - **Branch protection** is set on `goal/ui-layer` before this goal starts, like `goal/stage-1`
+>   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. If
+>   `gh api repos/AaronAbuUsama/architect/branches/goal/ui-layer/protection` finds none, it needs an admin: write that
+>   in "Where it stands" and stop before the first pull request.
 
 ## The bound
 
@@ -124,10 +129,28 @@ moves on. It never writes a fetch or a hand-made form to get round a piece. The 
 - Status: fixed
 ```
 
+## How this goal coordinates (K32)
+
+This goal coordinates itself. It talks to Goal 3, Goal 6 and any other goal only through the repository and GitHub,
+never through a chat or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
+
+- **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges a
+  slice: the slice, its check, what is next, open snags, in two or three lines written for Aaron's ear. That is the
+  report; nobody is messaged.
+- **Asking another goal for something.** Add a line to that goal's snag log (`design/goals/03-snags.md` for Goal 3,
+  `06-snags.md` for Goal 6) by a pull request into its branch, or open a GitHub issue with its label (`goal-3`,
+  `goal-6`). Never edit its files to get around it.
+- **Asks to this goal** arrive the same way: at the start of every slice, read `05-snags.md` and the open issues
+  labelled `goal-5` after merging `goal/stage-1` in, and answer each one in the slice that handles it.
+- **Decisions** this goal makes are named `GOAL5-<slug>` (`GOAL5-piece-state.md`), so they never collide with another
+  goal's; each is listed under "Decision IDs" below and in `design/handoff.md`'s list.
+- **Changing an agreement** below is one pull request that edits this brief and the other goal's together, and merges
+  only with that goal's lead's yes written on it.
+
 ## The agreements (21 November 2026)
 
 Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when Goal 6 was split off. They
-hold whoever leads either goal; changing one goes through the conductor and is written here and in Goal 6's brief.
+hold whoever leads either goal; changing one is a pull request that edits this brief and Goal 6's together.
 
 1. **The theme is Goal 6's.** `@orthograph/theme` is Goal 6's first slice, landed in `goal/stage-1` on its own. Until
    it lands, the pieces use UI SDK's default tokens; this goal's screens slice (slice 5) takes it up.
@@ -136,15 +159,16 @@ hold whoever leads either goal; changing one goes through the conductor and is w
    goal's "existing generated files unchanged" keeps holding while Goal 6 lands.
 3. **Neither goal edits the other's packages.** This goal owns the actions module in `orthograph`, `packages/web`, the
    actions and web projections and `examples/plugged-in/src/web/`. Goal 6 owns `packages/theme`, `packages/shell`,
-   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is a snag sent to its
-   owner through the conductor.
+   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is a line in its snag log or an
+   issue with its label (above), never an edit.
 4. **This done check never waits on the map.** Plugged In's pages are declared in the map language as a follow-on,
    once Goal 6's map landing reaches `goal/stage-1` (see "Where it meets Goal 6").
 5. **The waits.** The screens (slice 5) wait on ST1.03, Goal 3's handles plugin. The sign-in piece waits on M2.05 and
    M2.06, Goal 3's auth plugin; until then the screens use the test people Plugged In's journeys use, and ST1.06 is not
    in this done check.
 6. **The portal is Goal 6's.** It is rebuilt beside the old one; a list of the portal checks the new client fails only
-   shrinks; cutover lands in `goal/stage-1` only with Goal 3's lead's yes and a 🔍 pass, agreed through the conductor.
+   shrinks; cutover lands in `goal/stage-1` only after Goal 3's lead has merged the freeze into Goal 3's brief, with Goal 3's
+   lead's yes on the cutover pull request and a 🔍 pass.
    This goal never edits either client.
 
 ## The slices
@@ -186,9 +210,8 @@ These touch only new code and their own checks, none of what Goal 3 or Goal 6 is
 
 ## Decision IDs
 
-The lead keeps this list (the `threads` skill: decision IDs come from one allocator; on a goal, the goal file). Ask the
-lead for the next one before writing a decision file on this branch. None is reserved yet: K29 settles the shape, and a
-question the slices raise gets the next free ID from `design/handoff.md`.
+K29 settles the shape. A question the slices raise is a decision named `GOAL5-<slug>` (K32), never a number, so no
+allocator is needed: the lead lists each one here and in `design/handoff.md`'s list, in the pull request that adds it.
 
 | ID | File | Taken by |
 |---|---|---|
