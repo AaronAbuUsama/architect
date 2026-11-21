@@ -1,3 +1,41 @@
+---
+goal: 4
+title: on chain, end to end
+milestone: "Goal 4: on chain"
+release: 1.0
+branch: goal/on-chain
+base: goal/stage-1
+status: running        # ready | running | landing | done | parked
+lead:
+  harness: claude-code
+  model: claude-opus-5-5
+  since: 2026-11-21
+done_check: nx run e2e:on-chain
+owns:
+  - examples/budgets/
+  - e2e/on-chain/
+  - design/goals/04-on-chain.md
+  - design/goals/04-snags.md
+  - .agents/skills/goal-4/
+  - design/decisions/M6-chain.md
+  - design/decisions/M6-money.md
+slices:
+  - "0 · K27, the three plugin kinds"
+  - "1 · the language and host seam, on Effect alone"
+  - "1b · M6.01, the chain decision"
+  - "2 · M6.02, the budgets journeys and the e2e:on-chain done check"
+  - "3 · M6.10, the chain store, values and money"
+  - "4 · M6.11, the Solidity language renders the base contract and surface.json"
+  - "5 · M6.12, the scaffold and the Foundry tests"
+  - "6 · M6.13, the user fills the hook; the fuzz"
+  - "7 · Host.chain and the safe adapter"
+  - "8 · M6.14, the client from surface.json"
+  - "9 · M6.07, the relayer actor"
+  - "10 · M6.09, the follower actor"
+  - "11 · M6.15, the signing flow and the submission lifecycle"
+  - "12 · M6.16 to M6.18, worlds with a chain, redeploy on new bytecode, key hygiene"
+---
+
 # Goal 4: on chain, end to end
 
 `design/goals/04-on-chain.md`, on `goal/on-chain`, cut from `goal/stage-1` at `9f855a91` on 20 November 2026, after
@@ -5,7 +43,10 @@ K25, K26 and K27 landed there. The number came from the conductor.
 
 **Start, in any harness:** "You lead Goal 4. Read `AGENTS.md` and `design/goals/04-on-chain.md`, and run it." The lead's
 way of working and its live state are the `goal-4` skill (`.agents/skills/goal-4/SKILL.md` and `STATE.md`). Goal 4
-coordinates through git and GitHub (K32): label `goal-4` and milestone `1.0` on every pull request and issue.
+coordinates through git and GitHub (K32, K33): its milestone (`Goal 4: on chain`), the `goal-4` label and the
+`release:1.0` label on every pull request and issue; the front matter above is what the sync reads (K33 item 5). New
+snags are Snag issues in the milestone; `04-snags.md` stays as the record of S-01 to S-12. Every comment Goal 4's
+agents post on GitHub starts with `[goal-4 · <role> · claude · <model>]`.
 
 ## Where it stands
 
@@ -88,12 +129,13 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 > - **Roles:** keep the five roles below apart. No agent plays two of them on the same slice.
 > - **Ownership:** you own the architecture, as `AGENTS.md` says. Where code and design disagree, decide, fix the
 >   other in the same change, and record it.
-> - **The handoff:** at every merge, rewrite "Where it stands" above and `.agents/skills/goal-4/STATE.md` in the same
->   pull request, so a fresh or compacted session, in any harness, continues where you stopped. The conductor keeps
+> - **The handoff:** rewrite "Where it stands" above and `.agents/skills/goal-4/STATE.md` for every merge into
+>   `goal/on-chain`: in the pull request that merges, or the next one when CI-drafts folds the note in, but always
+>   before the next slice starts. So a fresh or compacted session, in any harness, continues where you stopped. The conductor keeps
 >   `.agents/skills/kanban/STATE.md` and the board from these; never edit them.
-> - **At every slice start:** read the open `goal-4` issues and the open pull requests into `goal/on-chain`
->   (`gh issue list --label goal-4`, `gh pr list --base goal/on-chain`); close each issue with the pull request that
->   answers it.
+> - **At every slice start:** read the open issues in Goal 4's milestone, Ask issues above all, and the open pull
+>   requests into `goal/on-chain` (`gh issue list --milestone "Goal 4: on chain"`, `gh issue list --label goal-4`,
+>   `gh pr list --base goal/on-chain`); close each issue with the pull request that answers it.
 > - **Reporting:** through these files and GitHub, not a chat (K32). A slice's merge says, in its pull request and in
 >   "Where it stands", the slice, its check and its snags, written for Aaron's ear. A message to the conductor is
 >   welcome where both can reach each other, but nothing depends on it: what a message settles goes into a file or an

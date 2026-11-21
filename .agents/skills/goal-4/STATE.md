@@ -27,16 +27,16 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
+| [#303](https://github.com/AaronAbuUsama/architect/pull/303) | `goal-4/main-merge` | main merged in; K32 and K33 | 🔍, then ready |
 | [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | CI (🔍 passed) |
 | [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | CI (🔍 passed); merge after [#287](https://github.com/AaronAbuUsama/architect/pull/287) |
 
 `e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
 
-**Next main merge into `goal/on-chain`** (a pull request, never a push): wait for Goal 3's Effect bump (4.1.1 to 4.1.4,
-for Alchemy) to reach `main`, then bring `main` in once. It carries CI-drafts (#293, `130dd4ad`). In the same change,
-add the draft guard in #293's shape (`github.event.pull_request.draft != true`, joined to any existing `if`) to
-`e2e-on-chain` and any other job only `goal/on-chain`'s `ci.yml` has. Until then a draft into `goal/on-chain` still
-runs CI on the jobs `main` doesn't guard here, so keep drafts few.
+**`main` merged in** by [#303](https://github.com/AaronAbuUsama/architect/pull/303) (draft, 🔍 round 2): through Goal 3's own main merge (#277, now on
+`goal/stage-1`), then `origin/main`: CI-drafts (#293) and Effect 4.1.4 (#295) everywhere, the draft guard on
+`e2e-on-chain`, and the brief adopting K32 and K33 (front matter, "Where it stands", owned paths). When
+[#287](https://github.com/AaronAbuUsama/architect/pull/287) merges, its own row puts `M6-money` in the brief's decision list.
 
 ## Waiting on Aaron
 
@@ -86,6 +86,9 @@ Goal 4:
 ## Snags
 
 S-01 to S-12 open (`design/goals/04-snags.md`): each a framework piece the budgets journeys need, each naming its slice.
+From K33 (21 November 2026), new snags are Snag issues in Goal 4's milestone. The done check's snag line
+(`e2e/on-chain/03-snags.test.ts`) reads only `04-snags.md`, so a checks author must extend it to require every Snag
+issue in the milestone closed or parked, before the goal lands.
 
 ## What went well
 
