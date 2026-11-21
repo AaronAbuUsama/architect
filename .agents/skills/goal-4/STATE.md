@@ -4,8 +4,8 @@ Updated 21 November 2026 by the Goal 4 lead. Check against GitHub before acting 
 
 ## Hand-over in one line
 
-Lead Goal 4: read this file, then the goal-4 skill's "Resume in this order". Next action: merge [#279](https://github.com/AaronAbuUsama/architect/pull/279) when CI is
-green, then get slice 3 built.
+Lead Goal 4: read this file, then the goal-4 skill's "Resume in this order". Next action: merge [#287](https://github.com/AaronAbuUsama/architect/pull/287) (money) when
+CI is green, then get slice 3's checks (with money's cases) through a hostile pass and a 🔍, then build slice 3.
 
 ## Where it stands
 
@@ -16,8 +16,8 @@ green, then get slice 3 built.
   (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start: M2.05's row in
   `git show origin/goal/stage-1:design/milestones.md` is ticked ✅, or `gh pr list --base goal/stage-1 --state merged --search M2.05`.
 - Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, **merged** 21 November 2026 ([#275](https://github.com/AaronAbuUsama/architect/pull/275), `dee1926b`).
-- Slice 2 (M6.02): the budgets blueprint and seven journeys, **merged** 21 November 2026 ([#276](https://github.com/AaronAbuUsama/architect/pull/276), `b776818d`); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
-  (hostile pass, two 🔍 rounds, passed), waits on CI. Its `e2e-on-chain` job has already run green.
+- Slice 2 (M6.02): the budgets blueprint and seven journeys, **merged** 21 November 2026 ([#276](https://github.com/AaronAbuUsama/architect/pull/276), `b776818d`); the `e2e:on-chain` done check, **merged** 21 November 2026 ([#279](https://github.com/AaronAbuUsama/architect/pull/279), `607d62cf`);
+  `e2e-on-chain` is now a required check on `goal/on-chain`. Slice 2 is done.
 - Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass was running (a subagent of the old lead; if its result isn't on #283, run it again), then
   a 🔍 and a framework builder. Its build waits on money's cases (M6-money).
 - Slices 4 to 12: not started.
@@ -26,19 +26,17 @@ green, then get slice 3 built.
 
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
-| [#279](https://github.com/AaronAbuUsama/architect/pull/279) | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI |
-| [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | 🔍, CI |
-| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | hostile pass, money's cases (after [#287](https://github.com/AaronAbuUsama/architect/pull/287)), 🔍 |
+| [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | CI (🔍 passed) |
+| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | conflicts with `goal/on-chain` (merge it in), hostile pass, money's cases (after [#287](https://github.com/AaronAbuUsama/architect/pull/287)), 🔍 |
 | [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
 
-After [#279](https://github.com/AaronAbuUsama/architect/pull/279) merges: add `e2e-on-chain` to `goal/on-chain`'s required checks (once it has run green) and record it in
-`design/decisions/CI-branch-protection.md`.
+`e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
 
 ## Waiting on Aaron
 
 Nothing. Money (ledger `THI-07`) was answered by Aaron himself on 21 November 2026, all five recommendations ("agreed on
 all questions"; the conductor had given the same under his standing authority). Recorded in
-`design/decisions/M6-money.md`, [#287](https://github.com/AaronAbuUsama/architect/pull/287) (🔍 running): every amount names its asset (fixed, or
+`design/decisions/M6-money.md`, [#287](https://github.com/AaronAbuUsama/architect/pull/287) (🔍 passed on the second round; waits on CI): every amount names its asset (fixed, or
 `money.of` a field of the same thing); assets are files in `blueprint/assets/`; base units everywhere, digits-only on
 the wire, formatted at the faces; unsigned unless signed; built in slice 3. Slice 3's checks author (a subagent of
 this lead) was asked to add money's seven cases to [#283](https://github.com/AaronAbuUsama/architect/pull/283); Goal 7's lead (Foreman) was given the same shape.
