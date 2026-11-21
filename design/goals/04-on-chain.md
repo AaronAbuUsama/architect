@@ -3,6 +3,31 @@
 `design/goals/04-on-chain.md`, on `goal/on-chain`, cut from `goal/stage-1` at `9f855a91` on 20 November 2026, after
 K25, K26 and K27 landed there. The number came from the conductor.
 
+**Start, in any harness:** "You lead Goal 4. Read `AGENTS.md` and `design/goals/04-on-chain.md`, and run it." The lead's
+way of working and its live state are the `goal-4` skill (`.agents/skills/goal-4/SKILL.md` and `STATE.md`). Goal 4
+coordinates through git and GitHub (K32): label `goal-4` and milestone `1.0` on every pull request and issue.
+
+## Where it stands
+
+Rewritten by the lead at every merge into `goal/on-chain` (K32); `.agents/skills/goal-4/STATE.md` has the detail.
+21 November 2026:
+
+- **Landed:** slice 0 (K27); slice 1b, the chain decision ([#275](https://github.com/AaronAbuUsama/architect/pull/275)); slice 2, the budgets example, its
+  seven journeys and the `e2e:on-chain` done check ([#276](https://github.com/AaronAbuUsama/architect/pull/276), [#279](https://github.com/AaronAbuUsama/architect/pull/279)); the goal-4 skill ([#284](https://github.com/AaronAbuUsama/architect/pull/284)).
+- **Open:** money, M6-money ([#287](https://github.com/AaronAbuUsama/architect/pull/287)); slice 3's checks ([#283](https://github.com/AaronAbuUsama/architect/pull/283), 🔍 passed); slice 3's build
+  (`goal-4/m610-build`, a draft when it opens); this merge of `main`.
+- **Waits on:** slice 1 waits for Goal 3's sign-in extraction (M2.05) on `goal/stage-1` (K28). Snags S-01 to S-12 are
+  open, each naming its slice.
+
+## The paths Goal 4 owns
+
+`examples/budgets/`, `e2e/on-chain/` (its checks, by their authors), `design/goals/04-on-chain.md`,
+`design/goals/04-snags.md`, `.agents/skills/goal-4/`, `design/decisions/M6-*.md`, and the new packages its slices
+make (`language-solidity`, `host-chain`, the `safe` adapter). The engine packages (`orthograph`, `compiler`,
+`generators`, `projections`, `language-effect`) and `chain-evm` are shared: Goal 4 changes them on this branch
+(K26 item 4) and keeps Goal 3's intent where they meet. Anything else, another goal's path above all, is a cross-goal
+ask: an issue labelled for that goal (K32 item 3), never a quiet edit.
+
 ## Aaron's words, 20 November 2026
 
 "Can we actually build this now? Separately from the goal that's running ... I want to run a goal, but like a bounded
@@ -63,10 +88,16 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 > - **Roles:** keep the five roles below apart. No agent plays two of them on the same slice.
 > - **Ownership:** you own the architecture, as `AGENTS.md` says. Where code and design disagree, decide, fix the
 >   other in the same change, and record it.
-> - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
->   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
-> - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
->   three lines: the slice, its check, its snags. Write for Aaron's ear.
+> - **The handoff:** at every merge, rewrite "Where it stands" above and `.agents/skills/goal-4/STATE.md` in the same
+>   pull request, so a fresh or compacted session, in any harness, continues where you stopped. The conductor keeps
+>   `.agents/skills/kanban/STATE.md` and the board from these; never edit them.
+> - **At every slice start:** read the open `goal-4` issues and the open pull requests into `goal/on-chain`
+>   (`gh issue list --label goal-4`, `gh pr list --base goal/on-chain`); close each issue with the pull request that
+>   answers it.
+> - **Reporting:** through these files and GitHub, not a chat (K32). A slice's merge says, in its pull request and in
+>   "Where it stands", the slice, its check and its snags, written for Aaron's ear. A message to the conductor is
+>   welcome where both can reach each other, but nothing depends on it: what a message settles goes into a file or an
+>   issue.
 > - **Branch protection:** `goal/on-chain` is protected like `goal/stage-1` since 21 November 2026, admins included
 >   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. Never push to
 >   `goal/on-chain` directly.
@@ -178,8 +209,10 @@ Slice 1 also carries what K27 left for it:
 
 ## Decision IDs
 
-The lead keeps this list (the `threads` skill: decision IDs come from one allocator; on a goal, the goal file). Ask the
-lead for the next one before writing a decision file on this branch.
+Goal 4 names its calls by milestone or area and a slug (`M6-chain`, `M6-money`), or `GOAL4-<slug>` for a call that
+belongs to this goal and no milestone (K32 item 4). The lead keeps this list. Before using a name, check that no file
+starts with it on `main` or any open branch (`git ls-tree -r --name-only origin/<branch> design/decisions/`).
+Lettered IDs (`K32`) come only from the conductor's list in `design/handoff.md`, for calls that cross goals.
 
 | ID | File | Taken by |
 |---|---|---|
