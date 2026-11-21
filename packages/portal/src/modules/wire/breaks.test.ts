@@ -11,11 +11,19 @@ const withBreaks = (breaks: ReadonlyArray<string>): ModelWire => {
   const model = acmeModel();
   return { ...model, operations: { ...model.operations, "allowance.spend": { ...model.operations["allowance.spend"]!, breaks, hash: "with-breaks" } as never } };
 };
+// An older wire: every operation without `breaks`, built from a copy so the controls hold whether or not acme's committed model carries the key.
+const olderWire = (): ModelWire => {
+  const model = acmeModel();
+  return { ...model, operations: Object.fromEntries(Object.entries(model.operations).map(([name, operation]) => {
+    const { breaks: _, ...older } = operation as typeof operation & { breaks?: unknown }; // the model type names `breaks` only after the S-31 build
+    return [name, older];
+  })) as never };
+};
 const roundTrip = (model: ModelWire) => Effect.runPromise(Wire.decode(JSON.parse(JSON.stringify(blueprintOf(model)))));
 
 describe("S-31 control: an operation with no rules to break", () => {
   it("round-trips without `breaks`, and the wire built from the model is the same wire as before", async () => {
-    const decoded = await roundTrip(acmeModel());
+    const decoded = await roundTrip(olderWire());
     expect(decoded.model.operations["allowance.spend"]).not.toHaveProperty("breaks");
   });
 });
@@ -30,7 +38,8 @@ describe("S-31: the wire keeps `breaks`", () => {
   it("an empty list stays an empty list (not absent), and an operation that never had one stays without", async () => {
     const decoded = await roundTrip(withBreaks([]));
     expect((decoded.model.operations["allowance.spend"] as unknown as { breaks?: ReadonlyArray<string> }).breaks).toEqual([]);
-    expect(decoded.model.operations["allowance.grant"]).not.toHaveProperty("breaks");
+    const older = await roundTrip({ ...olderWire(), operations: { ...olderWire().operations, "allowance.spend": withBreaks([]).operations["allowance.spend"]! } });
+    expect(older.model.operations["allowance.grant"]).not.toHaveProperty("breaks");
   });
 
   it("the digest depends on it: two wires that differ only in what an operation breaks are two wires", () => {
