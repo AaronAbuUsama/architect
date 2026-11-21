@@ -63,7 +63,8 @@ UI SDK's tokens, and the beta generates React only ([`../decisions/K29-ui-layer.
 The same day Aaron answered the app map grill (K31, [`../decisions/K31-app-map.md`](../decisions/K31-app-map.md)): the
 portal is rebuilt as a new client on the app's map, by Goal 6 ([`06-portal.md`](06-portal.md)), so the portal and the
 theme are Goal 6's. This goal's done check never waits on Goal 6: Plugged In's pages declare themselves in the map
-language as a follow-on, once it lands.
+language as a follow-on, once it lands. His call on composite components (K36, "C, wiring declared") leaves slice 5
+unchanged: the link list is hand-written first, and declared as a component once the map language lands.
 
 ## What this goal proves
 

@@ -7,7 +7,9 @@ belongs to, and why it waits.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
 - **The rest of the app's map** (K31): the docs' page per screen, `ortho add page <name>`, the agent's `map` tool on
-  an app, and `open(pages.x)` in `ortho prove --through web`. Goal 6 builds the map, the app projection and the shell
+  an app, and `open(pages.x)` in `ortho prove --through web`; and K36's rest: the web projection's component wiring,
+  `ortho add component <name>`, a component on its screen's docs page, a journey acting on a component, and Plugged
+  In's link list declared. Goal 6 builds the map, the app projection and the shell
   first, and proves them on the portal; these wait until an app other than the portal has a declared map.
 - **Scaffolds that follow the blueprint** (Aaron, 21 November 2026, with the 📐 designer thread): a file scaffolded
   once and "yours from now on" falls out of line when its declaration changes later, so it must be marked and
