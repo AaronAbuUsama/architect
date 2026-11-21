@@ -4,7 +4,7 @@
 // checks after each, so it refuses what D1 refuses. The D1 half, with the same cases and the same answers, is
 // `packages/host-cloudflare/src/modules/store/write-order.test.ts`. Written by the checks author; the builder never edits this file.
 //
-// SPELLING. Respelled at ST1.20 from G4's declaration (`unique: { name: ..., owner: ... }`) onto G5's rules (`Blueprint.invariant.unique`), handed to the store and the unit
+// SPELLING. Respelled at ST1.20 from G4's `unique` property (one entry per field) onto G5's rules (`Blueprint.invariant.unique`), handed to the store and the unit
 // as `{ name, rule }`; the defect's name is the rule's full name (`handle.oneHolderPerName`, `handle.oneNamePerPerson`). The cases and their answers did not change. The unit's
 // `writes` are in commit order and fail as a defect (never a typed failure) when the call's own rows clash or cycle, with a message that names the rule.
 // Today the memory store checks final values only and the unit writes in the order the handler made them, so the cases below that move a value fail.

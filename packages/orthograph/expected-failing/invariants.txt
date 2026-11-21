@@ -1,2 +1,1 @@
 test/invariants.test.ts > G4's spelling is retired (ST1.20) > `unique:` is not a property of `Blueprint.thing`, and a thing carries no `unique`
-test/invariants.test.ts > G4's spelling is retired (ST1.20) > no thing in the repository's blueprints is declared with `unique:`

@@ -5,7 +5,7 @@
 //
 // Real workerd and a real local D1, no Docker, port from the OS, on the fixtures `unique-fields` (`handle`, whose rule `handle.oneHolderPerName` holds a name once while `claimed`, in `invariants.ts`) overlaid
 // with `value-moves` (two operations that write two handles in one call: `handle.rename-two`, and `handle.claim-twice`, which makes its own row and one more under one name).
-// Respelled at ST1.20 from G4's `unique:` onto `invariants.ts`, and the defect's name is now the rule's (`handle.oneHolderPerName`); the cases and their answers did not change.
+// Respelled at ST1.20 from G4's `unique` property onto `invariants.ts`, and the defect's name is now the rule's (`handle.oneHolderPerName`); the cases and their answers did not change.
 // The same cases at the stores themselves are `packages/language-effect/src/modules/records/write-order.test.ts` (unit and memory) and
 // `packages/host-cloudflare/src/modules/store/write-order.test.ts` (D1). Written by the checks author; a builder never edits this file or those fixtures.
 //
@@ -112,7 +112,8 @@ describe("31 S-19: a value moving between holders in one call", () => {
     const swapped = await call("handle/rename-two", { first: a, second: b, firstTo: "swap-y", secondTo: "swap-x" });
     expect(swapped.status, "a defect, not a refusal and not a success").toBeGreaterThanOrEqual(500);
     const seen = await trace("handle.rename-two", swapped);
-    expect(seen.defect, "the defect's first line says which rule").toMatch(/handle\.oneHolderPerName/);
+    expect(seen.defect, "the defect's first line says which rule").toMatch(/unique rule handle\.oneHolderPerName\b/);
+    expect(seen.defect, "the app's own bug and the compiler's list are other defects").not.toMatch(/names no refusal|did not list/);
     expect(seen.defect, "never the retry loop's words").not.toMatch(/version race/);
     expect(seen.commits, "no retry: the call cannot succeed however often it runs").toBeLessThanOrEqual(1);
     expect(tag(await call("handle/claim", { name: "swap-x" })), "x is still held").toBe("HandleTaken");
@@ -124,8 +125,10 @@ describe("31 S-19: a value moving between holders in one call", () => {
     expect(clashed.status, `a defect, not HandleTaken: ${JSON.stringify(clashed.body)}`).toBeGreaterThanOrEqual(500);
     expect(tag(clashed)).not.toBe("HandleTaken");
     const seen = await trace("handle.claim-twice", clashed);
-    expect(seen.defect, "the defect's first line says which rule").toMatch(/handle\.oneHolderPerName/);
+    expect(seen.defect, "the defect's first line says which rule").toMatch(/unique rule handle\.oneHolderPerName\b/);
+    expect(seen.defect, "the app's own bug and the compiler's list are other defects").not.toMatch(/names no refusal|did not list/);
     expect(seen.defect).not.toMatch(/version race/);
+    expect(seen.defect, "not the other defects").not.toMatch(/names no refusal|did not list/);
     expect(seen.commits, "no retry").toBeLessThanOrEqual(1);
     expect((await call("handle/claim", { name: "clash-n" })).status, "nothing of that call was written").toBe(200);
   });

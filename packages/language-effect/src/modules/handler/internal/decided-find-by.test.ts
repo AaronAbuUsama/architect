@@ -1,7 +1,7 @@
 // G4 (S-04), Codex P2 on #118: the Records a handler is actually given is the unit's, wrapped by `logs.watching` (service.ts), so
 // that wrapper must carry `findBy` too: a lookup through it finds the holder, and what it found is learned for the log's
 // redaction like any other read. Written by the checks author; the builder never edits this file.
-// SPELLING: respelled at ST1.20 from G4's `unique:` and `findBy(Handle, "name", value)` onto G5's rule and `findBy(rule, value)`.
+// SPELLING: respelled at ST1.20 from G4's `unique` property and `findBy(Handle, "name", value)` onto G5's rule and `findBy(rule, value)`.
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "orthograph";
