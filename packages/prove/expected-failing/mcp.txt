@@ -1,0 +1,3 @@
+# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
+src/modules/world/mcp.test.ts > the remote MCP server > exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL
+src/modules/world/mcp.test.ts > the remote MCP server > serves one tool per operation and read, behind OAuth, as the person the token names

@@ -119,9 +119,9 @@ beforeAll(async () => {
 afterAll(() => reference?.remove());
 
 describe("30 controls: the reference, and the instruments", () => {
-  it("a cold prove of the project, with the fixture, passes all 12 journeys and starts a world of its own (the poll sees it), saying nothing of reusing one", () => {
+  it("a cold prove of the project, with the fixture, passes all 16 journeys and starts a world of its own (the poll sees it), saying nothing of reusing one", () => {
     expect(cold.status, why(cold)).toBe(0);
-    expect(cold.report?.journeys).toHaveLength(12);
+    expect(cold.report?.journeys).toHaveLength(16);
     expect(cold.worlds.size, "the poll never saw the cold prove's wrangler or workerd").toBeGreaterThan(0);
     expect(cold.out).not.toMatch(REUSING);
     console.log(`30: a cold prove took ${cold.seconds.toFixed(1)} s`);

@@ -60,6 +60,37 @@ describe("lacks, on a .tools() call", () => {
   });
 });
 
+// `has` is `lacks` turned over: every named operation is in the tools list. Same rules against a hollow pass.
+describe("has, on a .tools() call", () => {
+  const send = { marker: "send" };
+  const show = { marker: "show" };
+  const names = new Map<unknown, string>([[send, "invitation.send"], [show, "session.show"]]);
+  const judge = async (operations: ReadonlyArray<unknown>, answer: { readonly status: number; readonly body: unknown }, named = true) => {
+    const call = { journey: "j", step: "s", actor: "a", person: "p", operation: "tools/list", payload: {}, status: answer.status, body: answer.body, trace: "", parent: "", mayCall: true, journal: [] } as never;
+    const world = { facts: { record: () => Effect.succeed(null), journal: () => Effect.succeed([]) }, tableOf: () => undefined, ...(named ? { nameOf: (op: unknown) => names.get(op) } : {}) };
+    const { runChecks } = await import("./internal/checks.ts");
+    return (await Effect.runPromise(runChecks([{ kind: "has", operations } as never], call, {}, world as never))).failures;
+  };
+  const listed = (...tools: ReadonlyArray<string>) => ({ status: 200, body: { tools } });
+
+  it("passes when all are listed, whatever else is", async () => {
+    expect(await judge([send, show], listed("session.show", "invitation.send", "x"))).toEqual([]);
+  });
+  it("fails when one is missing, and names it", async () => {
+    expect(await judge([send, show], listed("session.show"))).toEqual(["tools list lacks invitation.send"]);
+  });
+  it("must fail on an empty list", async () => {
+    expect(await judge([send], listed())).toEqual(["tools list lacks invitation.send"]);
+  });
+  it("must fail on an undeclared operation, no `nameOf`, no operations, and an answer that is not a tools list", async () => {
+    expect(await judge([send, { marker: "stranger" }], listed("invitation.send"))).toEqual(["has names an operation the project does not declare"]);
+    expect(await judge([send], listed("invitation.send"), false)).toEqual(["has names an operation the project does not declare"]);
+    expect(await judge([], listed("invitation.send"))).toEqual(["has names no operation"]);
+    expect(await judge([send], { status: 200, body: { organization: "org_1" } })).toHaveLength(1);
+    expect(await judge([send], { status: 401, body: {} })).toHaveLength(1);
+  });
+});
+
 // A machine's own refusal is tagged `<Thing>Not<FirstState>`. Today `machine.states` is the declared array; ST1.14 (G5 section 1) makes it a record of state references and keeps the
 // array as `declared`. The check reads the first declared state in either shape, so it gives acme's tag today and the same tag once the record lands.
 describe("a machine's own refusal tag, whichever shape its states have", () => {

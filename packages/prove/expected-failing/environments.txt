@@ -1,0 +1,5 @@
+# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
+src/modules/environments/environments.test.ts > ortho env > down leaves nothing running, and down on a stopped environment is not an error
+src/modules/environments/environments.test.ts > ortho env > is told which of an environment's name it may start, and which it may not
+src/modules/environments/environments.test.ts > ortho env > puts secrets in a file only its owner reads, never on a command line
+src/modules/environments/environments.test.ts > ortho env > runs staging and production at once, each with its own state, which a restart keeps

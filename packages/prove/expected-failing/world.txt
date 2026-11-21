@@ -1,0 +1,3 @@
+# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
+src/modules/world/world.test.ts > a local world > serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500
+src/modules/world/world.test.ts > a local world > the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer

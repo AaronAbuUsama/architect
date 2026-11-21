@@ -1,0 +1,4 @@
+# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
+src/modules/promote/promote.test.ts > ortho promote > production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production
+src/modules/promote/promote.test.ts > ortho promote > refuses a dirty tree and a revision with no built bundle, each naming what is wrong
+src/modules/promote/promote.test.ts > ortho promote > refuses a revision without main test verdicts, naming what is missing, and accepts one that has them
