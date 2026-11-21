@@ -159,16 +159,26 @@ links for Goals 5 and 6 work once this change merges.
 
 ## After the move into an organization (2A)
 
-The issues, milestones and labels move with the repository. The Project and the issue types belong to the owner, so:
+The issues, milestones and labels move with the repository; the Project and the issue types belong to the owner. The
+organization is Aaron's call: `Open-Harness`, which he already owns and offered for this on 21 November 2026, or a new
+one (`orthograph` is taken by someone else). Then:
 
-1. Aaron creates the organization (GitHub has no API for it), and the repository is transferred into it on his yes.
-   Links to the old address redirect.
-2. Aaron reinstalls the GitHub apps on the organization (Codex's connector, Claude's), and its branch protection and
-   secrets are checked.
-3. The live docs that name the old address (`AaronAbuUsama/architect`) are rewritten, and the forms move from the
-   native types to the new ones (`type: Snag` and the rest).
+1. If it is a new organization, Aaron creates it (GitHub has no API for that). The repository is transferred on his
+   yes. Links to the old address redirect.
+2. Straight after the transfer, before the sync runs, check:
+   - branch protection on `main`, `m1` and every `goal/*`, against the conductor's snapshot taken before the move;
+   - the `staging` environment and its branch rule;
+   - the repository's Actions secrets, by name only, never read;
+   - that the required checks still report;
+   - the GitHub apps, reinstalled on the organization by Aaron: Codex review, Claude and Auto-fix;
+   - that git remotes and `gh` still resolve, through GitHub's redirect.
+3. The live docs that name the old address (`AaronAbuUsama/architect`) are rewritten to the new one, and dated
+   records keep their words. The forms move from the native types to the new ones (`type: Snag` and the rest).
 4. One sync run makes the six issue types and sets each issue's, and makes the Project again under the organization,
    items and fields included. The one under Aaron's account is then closed.
+
+Follow-ups an organization opens, not part of this change: a merge queue on `main`, and Blacksmith's free tier for CI
+runners.
 
 ## Not chosen
 
