@@ -79,7 +79,7 @@ describe("controls: lockProblems refuses each wrong lock", () => {
     expect(plant((l) => { l.refusals["TK-001"].earlier[0].solidity = { signature: "TicketTooBig()", selector: "0x12345678" }; })).toHaveLength(1);
   });
   it("refuses a tag that is not the name, an earlier that is not a list or holds an empty identity, a field value of a wrong shape", () => {
-    expect(plant((l) => { l.refusals["TK-001"].wire.effect.tag = "TicketBig"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].wire.effect.tag = "TicketBig"; })).not.toEqual([]);
     expect(plant((l) => { l.refusals["TK-001"].earlier = {}; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].earlier = [{}]; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "bigint" }; })).toHaveLength(1);
@@ -95,11 +95,17 @@ describe("controls: lockProblems refuses each wrong lock", () => {
     expect(plant((l) => { l.retired["TK-001"] = l.retired["TK-002"]; })).toHaveLength(1);
   });
   it("refuses an owner unrelated to its code's prefix, a runtime code under a made-up name, and an owner that does not fit the code's kind", () => {
-    expect(plant((l) => { l.refusals["TK-001"].owner = "other"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].owner = "other"; })).not.toEqual([]);
+    expect(plant((l) => { l.refusals["TK-001"].owner = "other"; l.refusals["TK-001"].from = "blueprint/things/other/errors.ts"; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].owner = "runtime"; })).not.toEqual([]);
     expect(plant((l) => { l.refusals["AR-001"].owner = "ticket"; })).not.toEqual([]);
     expect(plant((l) => { l.refusals["AR-001"].name = "Banana"; l.refusals["AR-001"].wire.effect.tag = "Banana"; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["AR-002"] = runtime("NotAllowed"); })).not.toEqual([]);
+  });
+  it("refuses a money asset name that is no file name, and a `from` that is another thing's errors.ts", () => {
+    for (const bad of ["US DC", "USDC", "", "1usdc"]) expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 64, signed: false, asset: { token: bad } }; }), bad).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].from = "blueprint/things/other/errors.ts"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].from = "blueprint/things/ticket/thing.ts"; })).toHaveLength(1);
   });
   it("refuses `from` where it does not belong, and its absence where it does", () => {
     expect(plant((l) => { delete l.refusals["TK-001"].from; })).toHaveLength(1);

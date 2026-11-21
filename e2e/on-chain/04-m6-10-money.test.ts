@@ -207,6 +207,8 @@ ${chain ? '  stores: { budgets: Chain.evm.network("anvil") },\n' : ""}${assets} 
   const USES = withField("price: Blueprint.money(usdc)", USDC);
   const checked = (files: Files) => { const p = projectOf(files); try { return run(p.root, "check"); } finally { p.remove(); } };
   const said = (out: string) => refusalLines(out, [word("usdc"), word("budgets"), /bind|environment/i]);
+  /** Where nothing is refused: no line of check says bind or environment at all (a wrong check that refuses "asset token is not bound" would not say usdc and budgets together). */
+  const silent = (out: string) => refusalLines(out, [/bind|environment/i]);
   it("a chain store and a fixed token used, with no binding: check refuses, naming usdc and the store budgets", () => {
     const c = checked(put(USES, "environments/local.ts", ENV("")));
     expect(c.status, c.out).toBe(1);
@@ -217,10 +219,10 @@ ${chain ? '  stores: { budgets: Chain.evm.network("anvil") },\n' : ""}${assets} 
     expect(c.status, c.out).toBe(1);
     expect(said(c.out), `no line holds usdc and budgets and bind or environment:\n${c.out}`).not.toEqual([]);
   });
-  it("bound: not refused for it", () => { const c = checked(put(USES, "environments/local.ts", ENV(BOUND))); expect(said(c.out), c.out).toEqual([]); expect(c.out).not.toContain("model ✘"); });
-  it("no chain store in the environment: not refused", () => { const c = checked(put(USES, "environments/local.ts", ENV("", false))); expect(said(c.out), c.out).toEqual([]); });
-  it("a chain store and a token asset declared but used by nothing: not refused", () => { const c = checked(put({ ...ASSETS, ...CHAIN_BASE }, "environments/local.ts", ENV(""))); expect(said(c.out), c.out).toEqual([]); });
-  it("a chain store and only per-row tokens (the budgets shape): not refused", () => { const c = checked(put(CHAIN_BASE, "environments/local.ts", ENV(""))); expect(said(c.out), c.out).toEqual([]); expect(c.out).not.toContain("model ✘"); });
+  it("bound: not refused for it", () => { const c = checked(put(USES, "environments/local.ts", ENV(BOUND))); expect(silent(c.out), c.out).toEqual([]); expect(c.out).not.toContain("model ✘"); });
+  it("no chain store in the environment: not refused", () => { const c = checked(put(USES, "environments/local.ts", ENV("", false))); expect(silent(c.out), c.out).toEqual([]); });
+  it("a chain store and a token asset declared but used by nothing: not refused", () => { const c = checked(put({ ...ASSETS, ...CHAIN_BASE }, "environments/local.ts", ENV(""))); expect(silent(c.out), c.out).toEqual([]); });
+  it("a chain store and only per-row tokens (the budgets shape): not refused", () => { const c = checked(put(CHAIN_BASE, "environments/local.ts", ENV(""))); expect(silent(c.out), c.out).toEqual([]); expect(c.out).not.toContain("model ✘"); });
 });
 
 // ---- 7. the wire ----
@@ -235,13 +237,13 @@ const oracle = (kind: Kind, text: unknown): boolean => {
   const n = BigInt(text);
   return n >= RANGE[kind][0] && n <= RANGE[kind][1];
 };
-type Seen = readonly [Kind, unknown, "ok" | "refused", string?, string?];
+type Seen = readonly [Kind, unknown, "ok" | "refused", string?, string?, string?];
 /** What is wrong with a decoder's answers: a row accepted that the rule refuses, refused that it accepts, or accepted as anything but the bigint of its digits. */
 const wireProblems = (seen: ReadonlyArray<Seen>): ReadonlyArray<string> =>
-  seen.flatMap(([kind, text, verdict, value, type]) => {
+  seen.flatMap(([kind, text, verdict, value, type, encoded]) => {
     const at = `${kind} ${JSON.stringify(text)}`;
     if (!oracle(kind, text)) return verdict === "ok" ? [`${at}: accepted, but refused by the rule`] : [];
-    return verdict !== "ok" ? [`${at}: refused, but the rule accepts it`] : value === String(text) && type === "bigint" ? [] : [`${at}: decoded as ${String(value)} (${String(type)}), not the bigint ${String(text)}`];
+    return verdict !== "ok" ? [`${at}: refused, but the rule accepts it`] : value !== String(text) || type !== "bigint" ? [`${at}: decoded as ${String(value)} (${String(type)}), not the bigint ${String(text)}`] : encoded === text ? [] : [`${at}: encoded back as ${JSON.stringify(encoded)}, not the digits ${JSON.stringify(text)}`];
   });
 
 const MAX = 2n ** 128n - 1n;
@@ -257,18 +259,21 @@ const ROWS: ReadonlyArray<readonly [Kind, unknown]> = [
 ];
 
 describe("controls: wireProblems refuses a decoder that is wrong on one row", () => {
-  const right = (): Seen[] => ROWS.map(([k, t]) => (oracle(k, t) ? [k, t, "ok", String(t), "bigint"] : [k, t, "refused"]) as Seen);
+  const right = (): Seen[] => ROWS.map(([k, t]) => (oracle(k, t) ? [k, t, "ok", String(t), "bigint", String(t)] : [k, t, "refused"]) as Seen);
   it("accepts the right answers", () => expect(wireProblems(right())).toEqual([]));
+  it("refuses an encode that does not give the digits back: a number, a padded or a signed-plus string, or none", () => {
+    for (const enc of ["10n", "010", "+10", "10.0", undefined]) expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "10" ? ([s[0], s[1], "ok", "10", "bigint", enc] as Seen) : s))), String(enc)).toHaveLength(1);
+  });
   it("refuses each bad row accepted, each good row refused, a number or a wrong value, one at a time", () => {
     for (const bad of ["1.5", "1e3", "01", "+1", "-0", " 1", "1 USDC", "-1", String(MAX + 1n)]) {
-      const seen = right().map((s) => (s[0] === "unsigned" && s[1] === bad ? ([s[0], s[1], "ok", String(s[1]), "bigint"] as Seen) : s));
+      const seen = right().map((s) => (s[0] === "unsigned" && s[1] === bad ? ([s[0], s[1], "ok", String(s[1]), "bigint", String(s[1])] as Seen) : s));
       expect(wireProblems(seen), bad).toHaveLength(1);
     }
     expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "1250000" ? ([s[0], s[1], "refused"] as Seen) : s)))).toHaveLength(1);
     expect(wireProblems(right().map((s) => (s[0] === "signed" && s[1] === "-1" ? ([s[0], s[1], "refused"] as Seen) : s)))).toHaveLength(1);
-    expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "10" ? ([s[0], s[1], "ok", "10", "number"] as Seen) : s)))).toHaveLength(1);
-    expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "10" ? ([s[0], s[1], "ok", "11", "bigint"] as Seen) : s)))).toHaveLength(1);
-    expect(wireProblems(right().map((s) => (s[0] === "u8" && s[1] === "256" ? ([s[0], s[1], "ok", "256", "bigint"] as Seen) : s)))).toHaveLength(1);
+    expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "10" ? ([s[0], s[1], "ok", "10", "number", "10"] as Seen) : s)))).toHaveLength(1);
+    expect(wireProblems(right().map((s) => (s[0] === "unsigned" && s[1] === "10" ? ([s[0], s[1], "ok", "11", "bigint", "11"] as Seen) : s)))).toHaveLength(1);
+    expect(wireProblems(right().map((s) => (s[0] === "u8" && s[1] === "256" ? ([s[0], s[1], "ok", "256", "bigint", "256"] as Seen) : s)))).toHaveLength(1);
   });
 });
 
@@ -281,7 +286,7 @@ const usdc = Blueprint.asset.token({ symbol: "USDC", decimals: 6 });
 const kinds = { unsigned: Blueprint.money(usdc), signed: Blueprint.money(usdc, { signed: true }), u8: Blueprint.money(usdc, { bits: 8 }), uint: Blueprint.uint(128), uint8: Blueprint.uint(8), of: Blueprint.money.of(Blueprint.account()) };
 const rows = JSON.parse(process.argv[2]);
 const out = rows.map(([kind, text]) => {
-  try { const v = Schema.decodeUnknownSync(kinds[kind].schema)(text); return [kind, text, "ok", String(v), typeof v]; } catch { return [kind, text, "refused"]; }
+  try { const v = Schema.decodeUnknownSync(kinds[kind].schema)(text); return [kind, text, "ok", String(v), typeof v, Schema.encodeSync(kinds[kind].schema)(v)]; } catch { return [kind, text, "refused"]; }
 });
 console.log(JSON.stringify(out));
 `;

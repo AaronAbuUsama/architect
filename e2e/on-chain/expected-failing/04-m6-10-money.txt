@@ -34,3 +34,4 @@ on-chain/04-m6-10-money.test.ts > 8. ortho check reports a change of a money fie
 on-chain/04-m6-10-money.test.ts > 8. ortho check reports a change of a money field as major > the bits change (64 to 128)
 on-chain/04-m6-10-money.test.ts > 8. ortho check reports a change of a money field as major > uint becomes money
 on-chain/04-m6-10-money.test.ts > 8. the lock writes money as { value: money, bits, signed, asset } > a declared error's money field: a token and a currency, with their bits and sign
+on-chain/04-m6-10-money.test.ts > 9. the real examples/budgets blueprint counts its amounts in the allowance's token > ortho model --json on a copy of the example (its journeys left out: they need later slices): every amount is { field: token }, 128 bits, unsigned, uint128

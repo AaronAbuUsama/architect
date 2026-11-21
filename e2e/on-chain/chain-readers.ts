@@ -74,8 +74,8 @@ const valueProblems = (at: string, v: unknown): ReadonlyArray<string> => {
     case "text": return [...extra(["value", "max"]), ...(typeof o["max"] === "number" && Number.isInteger(o["max"]) && o["max"] >= 1 ? [] : [`${at}: text with a max of ${JSON.stringify(o["max"])}`])];
     case "money": {
       const asset = record(o["asset"]);
-      const one = Object.keys(asset).length === 1 && ["token", "currency", "field"].includes(Object.keys(asset)[0]!) && typeof Object.values(asset)[0] === "string" && Object.values(asset)[0] !== "";
-      return [...extra(["value", "bits", "signed", "asset"]), ...(bitsOk(o["bits"]) ? [] : [`${at}: money of ${JSON.stringify(o["bits"])} bits is not 8 to 256 in steps of 8`]), ...(typeof o["signed"] === "boolean" ? [] : [`${at}: money without signed`]), ...(one ? [] : [`${at}: money's asset is not one of token, currency or field, a name`])];
+      const one = Object.keys(asset).length === 1 && ["token", "currency", "field"].includes(Object.keys(asset)[0]!) && typeof Object.values(asset)[0] === "string" && /^[a-z][A-Za-z0-9-]*$/.test(Object.values(asset)[0] as string);
+      return [...extra(["value", "bits", "signed", "asset"]), ...(bitsOk(o["bits"]) ? [] : [`${at}: money of ${JSON.stringify(o["bits"])} bits is not 8 to 256 in steps of 8`]), ...(typeof o["signed"] === "boolean" ? [] : [`${at}: money without signed`]), ...(one ? [] : [`${at}: money's asset is not one of token, currency or field, with a file-name-shaped name`])];
     }
     case "account": case "schema": return extra(["value"]);
     default: return [`${at}: value is ${JSON.stringify(o["value"])}, not uint, id, text, money, account or schema`];
@@ -134,6 +134,7 @@ const entryProblems = (at: string, code: string, e: unknown, opts: LockOptions):
   if (declared && o["from"] === undefined) out.push(`${at}: a declared error has no \`from\`, the file it is declared in`);
   if (!declared && o["from"] !== undefined) out.push(`${at}: ${runtime ? "a runtime refusal" : "a generated refusal"} has a \`from\`, but is declared in no file`);
   if (o["from"] !== undefined && (typeof o["from"] !== "string" || !/^blueprint\/.+\.ts$/.test(o["from"]))) out.push(`${at}: from ${JSON.stringify(o["from"])} is not a file under blueprint/`);
+  else if (declared && typeof o["from"] === "string" && typeof owner === "string" && o["from"] !== `blueprint/things/${owner}/errors.ts`) out.push(`${at}: from ${o["from"]} is not the errors.ts of its owner ${owner}`);
   if (o["fields"] === undefined || typeof o["fields"] !== "object") out.push(`${at}: no fields`);
   else for (const [k, v] of Object.entries(record(o["fields"]))) out.push(...valueProblems(`${at}.fields.${k}`, v));
   out.push(...wireProblems(`${at}.wire`, o["wire"], name, true, opts.solidity !== false));

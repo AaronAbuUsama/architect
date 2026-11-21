@@ -4,12 +4,16 @@ on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the 
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a payload field named nonce
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a payload field named signature
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a payload field named signer
+on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a read named get-role-admin
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a read named has-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a read named nonces
+on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > a read named renounce-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named eip712-domain
+on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named get-role-admin
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named grant-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named has-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named nonces
+on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named renounce-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation named revoke-role
 on-chain/04-m6-10-operations-refused.test.ts > a name that would collide in the generated contract is refused > an operation spend-by-sig beside spend, which has a spendBySig of its own
 on-chain/04-m6-10-operations-refused.test.ts > a read of a chain-stored thing is public: only [Blueprint.anyone] > allowed to a role
