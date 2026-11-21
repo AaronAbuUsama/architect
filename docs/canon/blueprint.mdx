@@ -10,7 +10,7 @@ status: specified
 milestone: M1
 slices: [M1.03, M1.06]
 decisions: [K5, K2, D2]
-links: [orthograph, things, operations, journeys, plugins, handlers, data]
+links: [orthograph, things, invariants, operations, journeys, plugins, handlers, data]
 ---
 
 ## The idea
@@ -41,7 +41,9 @@ The sign-up sheet's blueprint, and the name each file gives:
 | `examples/signup/blueprint/starting-worlds/opened.ts` | a starting world | read by prove, not the compiler |
 
 The sign-up sheet has no roles, because anyone may call. A role would sit in the thing's `roles.ts`, named by its
-export, as acme's `allowance.grantee` is.
+export, as acme's `allowance.grantee` is. It has no rules either, because nothing in it is held by one record. A rule
+would sit in the thing's `invariants.ts`, named by its export, as Plugged In's `handle.oneHolderPerName` is
+(`examples/plugged-in/blueprint/things/handle/invariants.ts`, and [invariants](invariants.mdx)).
 
 The operation's file never says its own name. It imports everything else it means, so each name it uses is a
 reference the compiler can follow:
@@ -184,7 +186,7 @@ called in its handler ([handlers](handlers.mdx)).
 | a thing | `blueprint/things/` then the thing's folder, `thing.ts` | yes, exactly one |
 | its machine | `machine.ts` in the thing's folder | yes, exactly one |
 | an operation or a read | the thing's `verbs` folder, one file per verb | yes, the default export |
-| roles, events, errors | `roles.ts`, `events.ts`, `errors.ts` in the thing's folder | no, each export is one |
+| roles, events, errors, rules | `roles.ts`, `events.ts`, `errors.ts`, `invariants.ts` in the thing's folder | no, each export is one |
 | values | any file in `blueprint/values/` | no, each export is one |
 | an environment | `blueprint/environments/`, one file per environment | yes, the default export |
 | a starting world | `blueprint/starting-worlds/` | read by prove |

@@ -13,7 +13,7 @@ status: draft
 milestone: M1
 slices: [M1.17, M5.13, M5.06]
 decisions: [K3, D1, D2, K5]
-links: [data, things, operations, views, adapters, workflows, environments, features]
+links: [data, things, invariants, operations, views, adapters, workflows, environments, features]
 ---
 
 ## The idea
@@ -182,6 +182,29 @@ with the same key, it finds the first answer and changes nothing:
 
 <Scenario journey="examples/acme/journeys/spend-twice-with-one-request.ts" step="the same request again gives the same answer and spends nothing" />
 
+### A rule is held at commit too
+
+A thing's rules ([invariants](invariants.mdx)) are checked by the runtime before the commit, against the state the call
+read. Another call can commit in between, so the store holds each rule as well: one unique index per rule, named after
+it, over the rule's key and within its `while` states. Plugged In's `profile` rule has no `while`, so its index covers
+every row:
+
+```sql file=examples/plugged-in/generated/server/migrations/0001_things.sql lines=27
+CREATE UNIQUE INDEX "profile_onePagePerHandle" ON "profile" ("handle");
+```
+
+Of two racing commits, the index refuses the second. The host recognises a failure of one of those indexes, and only
+those, and answers `conflict` instead of dying:
+
+```ts file=packages/host-cloudflare/src/modules/store/internal/unique.ts name=lostUnique lines=11-12
+export const lostUnique = (error: unknown, writes: ReadonlyArray<Write>, tableOf: (thing: Write["thing"]) => string, rules: ReadonlyArray<NamedRule> = []): boolean => {
+  const columns = new Set(writes.flatMap((w) => columnsOf(w.thing, tableOf(w.thing), rules)));
+```
+
+So a lost race for a name is the same retry as a lost version race. The call runs again, its check finds the winner,
+and the runtime refuses with the rule's own error. Any other constraint failure stays a defect. A thing that lives as
+actors can't hold a rule: each instance is its own Durable Object, so there is no table to put an index on.
+
 ### Why the commit is the test
 
 The rule isn't about which software it is. It is about whether a place can take that commit:
@@ -284,6 +307,7 @@ local-first, Noir on Aztec.
   calls, with typed errors and its own stand-in. Orthograph never migrates it. See `adapters`.
 - **Not a view.** A view is a list kept from events, across stores and sources. It can be rebuilt. A store holds the
   truth. See `views`.
+- **Not a rule.** A rule is declared on its thing and refused by the runtime; the store only holds it as an index. See `invariants`.
 - **Not a table.** A store holds the tables of every thing that lives in it, plus its journal and its kept answers.
 - **Not chosen per environment.** The kind is in the model, so it is the same everywhere. Only the binding changes
   per environment. See `environments`.
@@ -299,6 +323,7 @@ local-first, Noir on Aztec.
 | The one commit per call, and the rerun on conflict | `packages/language-effect/src/modules/handler/service.ts:71` | built |
 | The `database` kind, on D1 | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
 | The `actor` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/actors/service.ts:28` | built |
+| A rule's unique index, and a lost race as a conflict | `packages/host-cloudflare/src/modules/store/internal/unique.ts:11` | built |
 | The compiler refusing a list over actors | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |
 | Migrations from the model | `packages/projections/src/modules/server/internal/worker-config.ts:55` | built, one store |
 | `Blueprint.store.<kind>()`, and `lives` taking a store | `packages/orthograph/src/modules/stores/` | planned, M1.17 |
@@ -313,6 +338,7 @@ local-first, Noir on Aztec.
 | One commit per call: writes, journal and request answer together | proved | layer 1 | `packages/language-effect/src/modules/records/records.test.ts:33` (one wins, the other is `conflict` and writes nothing) |
 | A retried request changes nothing | proved | layer 1 | the `spend twice with one request` journey |
 | The `database` and `actor` kinds | proved | layer 1 | Gate 1 on `main` |
+| A rule held by an index at commit, a lost race a conflict, and the call refused on its retry | proved | ST1.16 | `packages/host-cloudflare/src/modules/store/unique.test.ts`, and ten racing claims in `e2e/m1/25-unique-fields.test.ts:184` |
 | A list over actors refused | proved | layer 1 | the compiler's describe step |
 | Declared stores, open kinds, typed bindings, migrations per store, plugin stores | specified | M1.17 | a second store in acme, its own D1, its own migrations |
 | The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `ortho check` |
