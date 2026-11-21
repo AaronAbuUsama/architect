@@ -52,9 +52,10 @@ Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31
 - **It is:** a new portal beside the old one, a way for any app to declare its pages and menus, the frame that draws
   them, and one shared look for everything we draw.
 - **It isn't:** a redesign (the pages stay as they are), new data (it reads what the old one reads), or the generated
-  forms and views (that's the UI-layer goal).
+  forms and views (the goal making web building blocks for every app does those).
 - **Done when:** every test that guards today's portal passes on the new one, and then the old one is deleted.
-- **Waits on:** nothing to start. The switch-over needs the stage-one goal's yes.
+- **Waits on:** nothing to start. The switch-over needs a yes from the goal building the example app's first release,
+  since it changes files that goal uses.
 - **Words used:** the portal: the web page every project gets for looking inside it. Its map: an app's pages, their
   addresses and its menus.
 

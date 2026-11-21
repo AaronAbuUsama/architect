@@ -109,7 +109,7 @@ export const sliceBody = (g, s, briefUrl) =>
     sliceMarker(g.number, s.number),
     `Slice ${s.number} of Goal ${g.number}. What it is and its "done when" are in [the brief](${briefUrl}), slice ${s.number}.`,
     s.after.length ? `It starts after slice${s.after.length > 1 ? "s" : ""} ${s.after.join(", ")} (the "blocked by" links).` : null,
-    "Close it with the pull request that lands it (`Closes #<this>`).",
+    "It closes when the pull request that lands it merges: `Closes #<this>` into main, or `gh issue close` by its author into a goal branch (the `github` skill).",
   ]
     .filter((x) => x !== null)
     .join("\n");

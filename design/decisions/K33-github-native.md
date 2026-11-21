@@ -58,8 +58,9 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
    top of the nearest native type. If the repository moves to an organization, each kind becomes its own type and the
    labels go.
 3. **Three links, each with one job** (Aaron, 3A). The **milestone** says which goal. **Sub-issues** are the goal's
-   steps: the goal issue's sub-issue list is the brief's slice list, so GitHub's bar counts only slices, and a pull
-   request closes its slice with `Closes #<n>`. **Blocked by** says what waits on what: the sync links each slice to the
+   steps: the goal issue's sub-issue list is the brief's slice list, so GitHub's bar counts only slices. A slice
+   closes when the pull request that lands it merges: by `Closes #<n>` into main, or by its author with `gh issue
+   close` into a goal branch, since GitHub closes issues by keyword only on the default branch. **Blocked by** says what waits on what: the sync links each slice to the
    slices the brief says it comes after (`"5 · The shell (after 4)"`), and an agent links a slice to the snag or the
    ask that stops it, by hand (the `github` skill).
 4. **Who works on what is written in three places,** since one account does everything:
@@ -68,7 +69,8 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
    - every pull request's labels, `role:<role>` and `harness:<harness>` (`harness:claude`, `harness:amp`,
      `harness:codex`), and the template's "Harness and model" line; a model is never a label, since models change
      weekly;
-   - a comment on the slice issue when an agent takes it: "Taking this: <harness>, <model>, <role>".
+   - a comment on the slice issue when an agent takes it: `[goal-<n> · <role> · <harness> · <model>] Taking this.`;
+   - and the same first line on every comment an agent posts, anywhere (item 15).
    None of this is an attribution line in a commit; it is data on the work.
 5. **Front matter on every goal brief.** A small YAML subset (the parser in `tools/github/frontmatter.mjs` refuses
    anything else): `goal`, `title`, `milestone`, `release`, `branch`, `base`, `status`, `lead`, `done_check`, `owns`,
@@ -99,12 +101,34 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
     issues in the milestone and the slice each blocks; what waits on other goals (an open issue in another milestone
     that blocks one of its slices); who leads it (status, harness, model, since); the brief's "Where it stands"; and the
     details (branch, release, done check, what it owns). The `goals` workflow (`.github/workflows/goals.yml`) reruns the
-    sync, one run at a time, when a brief changes on `main` and when an issue opens, closes or changes milestone, so the
-    page stays true without anyone running it. It reads the briefs on `main` and, for a goal whose brief is only on its
-    goal branch, that branch (`--goal-branches`).
+    sync, one run at a time, when a brief changes on `main`, when an issue opens, closes or changes milestone or label,
+    and every three hours, so the page stays true without anyone running it. It reads the briefs on `main` and, for a
+    goal whose brief is only on its goal branch, that branch (`--goal-branches`); a goal's status, lead and "Where it
+    stands" come from its goal branch whenever the brief is there, since the lead rewrites them in each slice's pull
+    request into that branch.
 14. **Only trusted issues count.** The repository is public and a form adds its kind label, so the sync takes an issue
     for its own, or lists it on a goal page, only when the owner, a collaborator or the workflow opened it; and the
     oldest wins, so a later copy of a marker displaces nothing.
+15. **Every comment an agent posts names itself** (Aaron, to the conductor: goals "can leave comments and … identify
+    where they've come from, who they are"). Its first line is `[goal-<n> · <role> · <harness> · <model>]`, the
+    conductor writing `conductor` in the goal's place. It is data on the work, like the labels, not an attribution line.
+16. **One GitHub Project, "Orthograph", over every goal** (Aaron, to the conductor, 21 November 2026: "we will be
+    moving to GitHub projects with each of these goals being native to that GitHub projects … Goals are independent and
+    asynchronous … they own their own goal"). One user-level Project, not one per goal, so every goal shows on one board
+    and an ask between two goals is seen by both. It is laid over the milestones, sub-issues and labels, which stay as
+    above, and holds:
+    - **items:** every goal, slice, snag, ask, decision and gap issue in a goal's milestone;
+    - **fields:** Goal, Kind, Status (Ready, Running, Blocked, Landing, Done, Parked), Release, Harness, Model (text,
+      since models change weekly) and Lead role;
+    - **views:** "All goals" (a table), "By status" (a board), and one table per goal, filtered by Goal.
+    The sync keeps it (`--project`): it adds the items and keeps their fields equal to the briefs and the issues. A goal
+    item's Status, Harness and Model come from its brief's `status:` and `lead:`; a slice's or snag's Status is Done
+    when closed, Blocked while an open issue blocks it, Running once an agent has put its `harness:` label on it, and
+    Ready otherwise. Model and Lead role are set when known and never cleared, so an agent may set them by hand. A
+    user's Project needs the token's `project` scope: without it a dry run shows the Project's plan and `--apply` writes
+    nothing. The `goals` workflow's own token can't reach a user's Project, so it keeps the Project only once a token
+    with that scope is saved as the `ORTHOGRAPH_PROJECT_TOKEN` secret, which is a credential and waits on Aaron's yes;
+    until then a local run keeps it.
 
 ## Seeded, 21 November 2026
 
@@ -122,10 +146,8 @@ edit (K32 already asks each to adopt it, #299 and #300).
 
 ## Not chosen
 
-- **A GitHub Projects board now.** It would give a board with custom fields (harness, model) beside the milestones,
-  but the token lacks the `project` scope (Aaron would run `gh auth refresh -s project`), and K32 found a second board
-  beside the repository's own data no gain. Milestones, sub-issues and labels give the view today; a board can be laid
-  over them later, read from the same labels.
+- **A Project per goal:** an ask between two goals would sit on one goal's board only, and nothing would show every
+  goal at once. One Project with a view per goal gives both.
 - **Milestones per release** (K32's first form): a goal's work would be split across three pages and mixed with every
   other goal's.
 - **Assignees per agent:** every agent is one GitHub account.

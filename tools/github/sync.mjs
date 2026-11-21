@@ -13,14 +13,17 @@
 //
 // It needs `gh`, signed in with the `repo` scope (in CI, GH_TOKEN). It never deletes anything. Run one at a time: two
 // runs at once can both create the same issue, so the workflow (.github/workflows/goals.yml) runs it in one queue.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { readGoal } from "./frontmatter.mjs";
 import { plan } from "./plan.mjs";
+import { projectPlan } from "./project.mjs";
+import { applyProject, hasProjectScope, readProject } from "./projectGh.mjs";
 
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
 const migrate = args.includes("--migrate");
+const withProject = args.includes("--project");
 const goalBranches = args.includes("--goal-branches");
 const extra = args.flatMap((a, i) => (a === "--brief" ? [args[i + 1]] : []));
 const git = (...argv) => execFileSync("git", argv, { encoding: "utf8" });
@@ -39,6 +42,15 @@ const ghAll = (path) => {
 };
 
 const repo = execFileSync("gh", ["repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"], { encoding: "utf8" }).trim();
+const owner = repo.split("/")[0];
+
+// The Project is the owner's, so it needs the token's `project` scope. Without it a dry run shows the Project's plan
+// from nothing, and --apply writes nothing at all.
+const projectScope = withProject && hasProjectScope();
+if (withProject && apply && !projectScope) {
+  process.stderr.write("The token lacks the project scope, so nothing was written. Run: gh auth refresh -s project\n");
+  process.exit(3);
+}
 
 const sources = [
   ...readdirSync("design/goals")
@@ -79,17 +91,31 @@ for (const s of sources) {
   goals.push({ ...r.goal, ref: s.ref });
 }
 if (process.exitCode) process.exit();
+
+// Until a goal lands, its lead keeps its own lines on the goal branch: its status, its lead and "Where it stands". So
+// those come from the brief on that branch when the branch has one, even when main has the rest of the brief.
+for (const g of goals) {
+  if (!g.branch || g.ref) continue;
+  const spec = `origin/${g.branch}:${g.brief}`;
+  if (spawnSync("git", ["cat-file", "-e", spec]).status !== 0) continue;
+  const r = readGoal(g.brief, git("show", spec));
+  if (r.error || r.goal.number !== g.number) continue;
+  Object.assign(g, { status: r.goal.status, lead: r.goal.lead, stands: r.goal.stands });
+}
 const old = new Set([1, 2]); // finished before K33: no milestone
-const live = goals.filter((g) => !old.has(g.number));
+const live = goals.filter((g) => !old.has(g.number)).sort((a, b) => a.number - b.number);
 
 const briefUrl = (g) => `https://github.com/${repo}/blob/${g.ref ? g.ref.replace(/^origin\//, "") : "main"}/${g.brief}`;
 
+const readState = () => {
 const issues = ghAll(`repos/${repo}/issues?state=all&per_page=100`);
 const goalNumbers = issues.filter((i) => !i.pull_request && i.labels.some((l) => l.name === "kind:goal")).map((i) => i.number);
 const sliceNumbers = issues.filter((i) => !i.pull_request && i.labels.some((l) => l.name === "kind:slice")).map((i) => i.number);
 const subIssues = new Map(goalNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/sub_issues?per_page=100`).map((x) => x.number)]));
-const blockedBy = new Map(sliceNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/dependencies/blocked_by?per_page=100`).map((x) => x.number)]));
-const state = {
+// Only blockers in this repository: GitHub allows a blocker from another, whose number would name a different issue here.
+const blockedBy = new Map(sliceNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/dependencies/blocked_by?per_page=100`)
+  .filter((x) => x.repository_url?.endsWith(`/repos/${repo}`)).map((x) => x.number)]));
+return {
   labels: ghAll(`repos/${repo}/labels?per_page=100`).map((l) => ({ name: l.name, color: l.color, description: l.description ?? "" })),
   milestones: ghAll(`repos/${repo}/milestones?state=all&per_page=100`).map((m) => ({ number: m.number, title: m.title, description: m.description ?? "" })),
   issues: issues.map((i) => ({
@@ -107,13 +133,24 @@ const state = {
     type: i.type?.name ?? null,
     subIssues: subIssues.get(i.number) ?? [],
     blockedBy: blockedBy.get(i.number) ?? [],
+    nodeId: i.node_id,
   })),
 };
+};
+const state = readState();
 
 const steps = plan({ goals: live, state, briefUrl, migrate });
 for (const s of steps) process.stdout.write(`${apply ? "do" : "would"} ${s.do} ${s.title ?? s.name ?? s.number ?? ""}${s.child ? ` ← ${s.child}` : ""}\n`);
+const say = (line) => process.stdout.write(`${line}\n`);
 if (!apply) {
-  process.stdout.write(`${steps.length} step(s). Dry run: nothing written. Add --apply to write.\n`);
+  if (withProject) {
+    const project = projectScope ? readProject(owner, repo).project : null;
+    if (!projectScope) say("(no project scope: the Project's plan from nothing; run gh auth refresh -s project)");
+    const pSteps = projectPlan({ goals: live, issues: state.issues, project });
+    for (const s of pSteps) say(`would ${s.do} ${s.title ?? s.name ?? ""}`);
+    say(`${pSteps.length} Project step(s), not counting the items for issues this run would create.`);
+  }
+  say(`${steps.length} step(s). Dry run: nothing written. Add --apply to write.`);
   process.exit();
 }
 
@@ -137,4 +174,5 @@ for (const s of steps) {
     if (s.addLabels.length) gh(`repos/${repo}/issues/${s.number}/labels`, { method: "POST", body: { labels: s.addLabels } });
   }
 }
-process.stdout.write(`${steps.length} step(s) written to ${repo}.\n`);
+say(`${steps.length} step(s) written to ${repo}.`);
+if (withProject) say(`The Project: ${applyProject({ owner, repo, goals: live, issues: readState().issues, log: say })}`);

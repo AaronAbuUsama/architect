@@ -1,14 +1,18 @@
 name: goals
 
 # Keeps each goal's page on GitHub current (K33): the goal issue, its slices, their order and its progress, written by
-# tools/github/sync.mjs from the briefs on main and on the goal branches. It runs when a brief changes on main and when
-# an issue opens, closes or changes milestone, so the progress, the open snags and what waits on other goals stay true.
+# tools/github/sync.mjs from the briefs on main and on the goal branches (a lead's status, lead and "Where it stands"
+# come from its goal branch). It runs when a brief changes on main, when an issue opens, closes, changes milestone or
+# label, and every three hours, so the progress, the open snags and what waits on other goals stay true.
 on:
   push:
     branches: [main]
     paths: ["design/goals/**", "tools/github/**"]
   issues:
-    types: [opened, closed, reopened, milestoned, demilestoned]
+    types: [opened, closed, reopened, milestoned, demilestoned, labeled, unlabeled]
+  # A lead's push to its goal branch and a new blocked-by link raise no event here, so it also runs every three hours.
+  schedule:
+    - cron: "17 */3 * * *"
   workflow_dispatch:
 
 permissions:
@@ -30,7 +34,12 @@ jobs:
         with:
           node-version: 24
       - run: git fetch --no-tags origin '+refs/heads/goal/*:refs/remotes/origin/goal/*'
-      - run: node --test tools/github/sync.test.mjs
-      - run: node tools/github/sync.mjs --goal-branches --apply
+      - run: node --test tools/github/sync.test.mjs tools/github/project.test.mjs
+      # The Project is Aaron's, and this workflow's own token can't reach a user's Project. With a token holding the
+      # project scope saved as ORTHOGRAPH_PROJECT_TOKEN (only on Aaron's yes: AGENTS.md), the run keeps the Project
+      # too; without one it keeps the issues and the goal pages, and the Project is kept by a local
+      # `node tools/github/sync.mjs --goal-branches --project --apply`.
+      - run: node tools/github/sync.mjs --goal-branches --apply ${PROJECT_TOKEN:+--project}
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ORTHOGRAPH_PROJECT_TOKEN || github.token }}
+          PROJECT_TOKEN: ${{ secrets.ORTHOGRAPH_PROJECT_TOKEN }}

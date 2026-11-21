@@ -24,6 +24,7 @@ works under one GitHub account, so who did what is said by labels and the templa
 | What waits on what | a **blocked-by** link from the slice to the snag or ask that stops it | you (below) |
 | Blocked | the label `blocked`, and `needs-aaron` when only Aaron can unblock it | you |
 | Where a goal is | the **goal issue's body**: card, progress, snags, waits, lead, "Where it stands" | the sync, rerun by the `goals` workflow |
+| Every goal at once | the **"Orthograph" Project**: a view per goal, "All goals", and a board "By status" | the sync, `--project` |
 
 GitHub allows one milestone per issue, so the milestone says which goal and the release is a label. The `goal-<n>` label
 mirrors the milestone, so a list of pull requests filters by goal too. A model is never a label (models change weekly):
@@ -97,20 +98,52 @@ and never deletes anything. You rarely run it: the `goals` workflow runs it, one
 on `main` and when an issue opens, closes or changes milestone. A brief with no front matter still gets its milestone
 and goal issue, from its file name and heading; the page then says it has no card yet.
 
+## The Project
+
+One user-level Project, "Orthograph", holds every goal, slice, snag, ask, decision and gap issue, with the fields Goal,
+Kind, Status, Release, Harness, Model and Lead role. Open your goal's view (named `Goal <n>`) to see your work, or
+"By status" to see every goal's. You don't edit Goal, Kind, Status, Release or Harness there: the sync writes them from
+the briefs and the issues, so change the brief or the issue (put your `harness:` label on a slice you take, link what
+blocks it, close it when it lands). Model and Lead role you may set by hand on an item; the sync never clears them.
+
+```bash
+node tools/github/sync.mjs --goal-branches --project            # what it would change, issues and Project
+node tools/github/sync.mjs --goal-branches --project --apply    # needs the token's project scope
+```
+
 ## Working a slice
 
 1. At the start: merge your base in; read the open issues in your milestone with `kind:ask` (asks to you) and answer
    or schedule each.
-2. Comment on the slice issue: "Taking this: <harness>, <model>, <role>." Add your `harness:` label to it.
-3. Open the pull request from the template. `Closes #<slice>`, your milestone, your `role:`, `harness:` and `release:`
-   labels. Fill every line; "none" is an answer.
-4. When it merges, rewrite the brief's "Where it stands" in the same pull request. The slice issue closes itself.
+2. Comment on the slice issue: `[goal-6 · builder · amp · claude-opus-5-5] Taking this.` Add your `harness:` label to
+   it; the Project then shows it as Running.
+3. Open the pull request from the template: `Lands #<slice>`, your milestone, your `role:`, `harness:` and `release:`
+   labels. Fill every line; "none" is an answer. Rewrite the brief's "Where it stands" in the same pull request.
+4. When it merges, close the slice yourself. GitHub closes an issue from `Closes #<n>` only when a pull request merges
+   into main, and a slice's pull request merges into its goal branch:
+
+   ```bash
+   gh issue close <slice> --comment "[goal-6 · builder · amp · claude-opus-5-5] Landed in #<pr>."
+   ```
 
 ```bash
 gh pr create --base goal/portal --milestone "Goal 6: the new portal" \
   --label role:builder --label harness:amp --label release:beta --body-file pr.md
 gh issue list --milestone "Goal 6: the new portal" --label kind:ask --state open
 ```
+
+## Every comment names itself
+
+Every agent works under one GitHub account, so every comment an agent posts (on an issue, a pull request, a review, a
+reply) opens with one line saying who wrote it:
+
+```text
+[goal-6 · builder · amp · claude-opus-5-5]
+```
+
+Goal, role, harness, model. Outside a goal, write what you are in the goal's place (`[conductor · lead · claude ·
+claude-opus-5-5]`). It is data on the work, like the labels, not an attribution line, and it is how a reader of any
+thread tells which goal, harness and model is speaking.
 
 ## Snags, asks and the ledger
 

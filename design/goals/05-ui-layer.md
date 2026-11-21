@@ -38,18 +38,18 @@ Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K
 
 - **In one sentence:** Give every app ready-made web building blocks, one for each thing a person can do in it, made
   from what the app already declares, and build our example app's screens from them.
-- **Why:** An app gets its command line and its agent tools for free from its description, but its web pages are
+- **Why:** An app gets its command line and the tools an AI agent uses for free from its description, but its web pages are
   written by hand, so every form repeats the same checks, errors and waiting, and an agent in a browser can't rely on them.
 - **When it's done, you can:** open the example app in a browser, claim a name, add links and see your page; get a clear
   message when the name is taken; and watch an agent do the same on the same page, stopping where a person must say yes.
 - **It is:** a generated building block for every action and every view of data, the small shared browser runtime
   they run on, and the example app's three screens, built from those blocks.
 - **It isn't:** the portal, or an app's list of pages and its menus (both belong to the new-portal goal), the example
-  app's server side, or any framework but React.
-- **Done when:** the example app's claim, links and page tests pass in a real browser, the same way they pass without one,
-  and nothing the app already generates has changed.
-- **Waits on:** nothing to start. The last step, the three screens, needs claiming a name to work, which the stage-one
-  goal is building.
+  app's server side, or any web toolkit but React, the one we build on.
+- **Done when:** the example app's tests for claiming a name, adding links and showing the page pass in a real browser,
+  with the same results they already give without one, and nothing the app already generates has changed.
+- **Waits on:** nothing to start. The last step, the three screens, needs claiming a name to work, which the goal
+  building the example app's first release is making.
 - **Words used:** a building block (a "piece"): a ready-made form or view for one action, with its errors and its waiting
   built in. The example app (Plugged In): a page of links under a name you claim.
 
