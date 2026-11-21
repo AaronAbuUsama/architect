@@ -13,7 +13,7 @@ works under one GitHub account, so who did what is said by labels and the templa
 
 | Thing | On GitHub | Made by |
 |---|---|---|
-| A goal | a **milestone** `Goal <n>: <title>`, and a **goal issue** (type Feature, `kind:goal`) | `tools/github/sync.mjs`, from the brief's front matter |
+| A goal | a **milestone** `Goal <n>: <title>` and the label `goal-<n>` on everything of it, and a **goal issue** (type Feature, `kind:goal`) | `tools/github/sync.mjs`, from the brief's front matter |
 | A slice | a **sub-issue** of the goal issue (type Task, `kind:slice`) | the sync, from the brief's `slices:` |
 | A snag (your goal's own) | an issue, type Bug, `kind:snag`, your milestone | you, with the Snag form |
 | An ask to another goal | an issue, type Task, `kind:ask`, **the acting goal's** milestone | you, with the Ask form |
@@ -23,7 +23,9 @@ works under one GitHub account, so who did what is said by labels and the templa
 | Who did it | labels `role:<role>` and `harness:<harness>`, and the template's lines | you, on every pull request |
 | Blocked | the label `blocked`, and `needs-aaron` when only Aaron can unblock it | you |
 
-GitHub allows one milestone per issue, so the milestone says which goal, and the release is a label.
+GitHub allows one milestone per issue, so the milestone says which goal and the release is a label. The `goal-<n>` label
+mirrors the milestone, so a list of pull requests filters by goal too. A model is never a label (models change weekly):
+it goes in the pull request's "Harness and model" line and the brief's `lead:`.
 
 ## A goal's brief
 
@@ -39,7 +41,7 @@ branch: goal/portal
 base: goal/stage-1
 status: running               # ready | running | landing | done | parked
 lead:
-  harness: amp                # claude-code | amp | codex
+  harness: amp                # claude | amp | codex
   model: claude-opus-5-5      # the model id the lead runs on
   since: 2026-11-22
 done_check: nx run e2e:portal-next

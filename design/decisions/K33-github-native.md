@@ -33,7 +33,7 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
 1. **A milestone per goal** (Aaron). `Goal <n>: <title>`, its description naming the brief and the done check. Every
    issue and pull request of a goal carries it, so the milestone page is the goal's progress. GitHub allows one
    milestone per issue, so **the release becomes a label**: `release:preview`, `release:beta`, `release:1.0` (K28's
-   three). The `goal-<n>` labels K32 made are no longer applied; the milestone says which goal.
+   three). The `goal-<n>` labels K32 made stay, mirroring the milestone, so lists of pull requests filter by goal too.
 2. **Six kinds of issue, each a native type, a `kind:` label and a form** (`.github/ISSUE_TEMPLATE/`, blank issues
    off):
 
@@ -54,7 +54,9 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
 4. **Who works on what is written in three places,** since one account does everything:
    - the brief's front matter, `lead: { harness, model, since }` and `status:`, set by the lead when it starts and
      mirrored into the goal issue;
-   - every pull request's labels, `role:<role>` and `harness:<harness>`, and the template's "Harness and model" line;
+   - every pull request's labels, `role:<role>` and `harness:<harness>` (`harness:claude`, `harness:amp`,
+     `harness:codex`), and the template's "Harness and model" line; a model is never a label, since models change
+     weekly;
    - a comment on the slice issue when an agent takes it: "Taking this: <harness>, <model>, <role>".
    None of this is an attribution line in a commit; it is data on the work.
 5. **Front matter on every goal brief.** A small YAML subset (the parser in `tools/github/frontmatter.mjs` refuses
@@ -110,7 +112,10 @@ milestones can be renamed or closed by hand; the briefs keep the truth either wa
 
 ## Supersedes
 
-K32 (#298) had not merged when this was written; its conductor carries the milestone per goal and snags as issues into
-K32's own words, or this list gains K32's lines if it merges first. From #285:
+From K32 (#298), which merged as written; its words gain a "Superseded by K33" note:
+
+- design/decisions/K32-goals-coordinate-themselves.md: "**A milestone per release** (K28)" → "**A milestone per goal** (K33), and a `release:<name>` label per release"
+
+From #285:
 
 - design/milestones.md: "Goal 3's lead has agreed the freeze on a `goal-3` issue" → "Goal 3's lead has agreed the freeze on an Ask issue in Goal 3's milestone"

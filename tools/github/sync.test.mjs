@@ -60,7 +60,7 @@ test("from nothing: every label, the milestone, the goal issue, and each slice u
   assert.ok(steps.some((s) => s.do === "createMilestone" && s.title === "Goal 6: the new portal"));
   const g = steps.find((s) => s.do === "createIssue" && s.key === "goal 6");
   assert.equal(g.type, "Feature");
-  assert.deepEqual(g.labels, ["kind:goal", "release:beta"]);
+  assert.deepEqual(g.labels, ["kind:goal", "goal-6", "release:beta"]);
   assert.ok(g.body.includes(goalMarker(6)) && g.body.includes("amp"));
   assert.deepEqual(
     steps.filter((s) => s.do === "addSubIssue").map((s) => s.child),

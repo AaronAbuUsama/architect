@@ -17,7 +17,7 @@ export const LABELS = [
   ["role:reviewer", "ededed", "A 🔍 verdict"],
   ["role:designer", "ededed", "A decision worked through with Aaron"],
   ["role:spike", "ededed", "Throwaway code that answers one question"],
-  ["harness:claude-code", "f9d0c4", "Worked in Claude Code"],
+  ["harness:claude", "f9d0c4", "Worked in Claude Code"],
   ["harness:amp", "f9d0c4", "Worked in Amp"],
   ["harness:codex", "f9d0c4", "Worked in Codex"],
   ["blocked", "b60205", "Waiting on something outside its goal; the body says what"],
@@ -58,7 +58,7 @@ export const sliceBody = (g, s, briefUrl) =>
     "Close it with the pull request that lands it (`Closes #<this>`).",
   ].join("\n");
 
-const labelsFor = (g, kind) => [kind, ...(g.release && RELEASE[g.release] ? [RELEASE[g.release]] : [])];
+const labelsFor = (g, kind) => [kind, `goal-${g.number}`, ...(g.release && RELEASE[g.release] ? [RELEASE[g.release]] : [])];
 
 /**
  * goals: what `readGoal` returned for each brief. state: { labels, milestones, issues } as GitHub holds them
