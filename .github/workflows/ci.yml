@@ -479,6 +479,37 @@ jobs:
           key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       - run: pnpm nx run e2e:climb --outputStyle=static
 
+  # Goal 3's done check, begun (`e2e/stage1/README.md`): Plugged In's seven journeys green in `--env local` and `--env test`, through the
+  # ratchet. Only for the goal's own branch: pull requests into goal/stage-1 and pushes to it. Skipped on a docs-only pull request, where a
+  # skip counts as passed (CI-docs-fast-path.md). Should `changes` itself fail, this runs. No secret and no `id-token` permission: the test half
+  # signs its verdicts with the local OIDC issuer of e2e/layer2/services.ts. About 1 minute on a Mac, so one runner and one job (CI-speed.md).
+  e2e-stage1:
+    needs: changes
+    if: ${{ !cancelled() && ((github.event_name == 'pull_request' && github.base_ref == 'goal/stage-1') || github.ref == 'refs/heads/goal/stage-1') && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      - run: pnpm nx run e2e:stage1 --outputStyle=static
+
   # Goal 3's grid runner (`e2e/grid/README.md`): its unit tests, then `ortho prove` and every switched-on cell, with the ratchet of
   # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
   e2e-grid:
