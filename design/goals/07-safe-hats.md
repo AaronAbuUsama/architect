@@ -219,3 +219,6 @@ cut from `main` (or `goal/safe-hats` with `main` merged in), never more pushes t
   - its errors.
 
   The A1 to A5 findings come first in the README, under "For Goal 4".
+- **Steer 2, run 3.** A1 to A5 and the hat module were re-run by the lead and committed (149b7dfa); Goal 4 was told.
+  Goal 4's money rule (`M6-money.md`, base units of the row's `token`, `uint128`) goes into the budgets module.
+  Codex now ends its turn after each step and the lead commits (snag S-02).
