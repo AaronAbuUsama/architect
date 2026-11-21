@@ -96,6 +96,7 @@ why. The throwaway was deleted.
 
 ## Supersedes
 
+- design/decisions/K23-time.md: "fixed for the whole request (as workerd fixes" → "the world's instant, live: a handler that reads `Clock` after a durable sleep reads the instant the sleep woke at"
 - design/milestones.md: "Listed in `e2e/m8/expected-failing.txt`" → "Listed in `e2e/m8/expected-failing/`"
 - design/milestones.md: "Better Auth refuses a session and an invitation after their life" → "Better Auth refuses a session after its life"
 - design/milestones.md: "in a dev world at the default speed a transaction sent a minute after the start is mined with a block time within one tick of the world's" → "(moved to M8.18)"
