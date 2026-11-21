@@ -122,8 +122,10 @@ export default Blueprint.thing({ description: "…", fields: { … }, lives: led
 
 The kinds are supplied by hosts, and a language writes for them ([languages-and-hosts](languages-and-hosts.mdx)):
 `database` (D1) and `actor` (a Durable Object per instance) by the Cloudflare host. A chain is a host too, and the store
-kind that runs on it is `chain`, supplied by `Host.chain` and written for by the Solidity language (K27). How a thing
-that lives on a chain is declared, and what its commit looks like, waits on K7.
+kind that runs on it is `chain`, supplied by `Host.chain` and written for by the Solidity language (K27). A thing lives
+on a chain by living in a chain store, a file such as `blueprint/stores/budgets.ts` that says
+`Blueprint.store.chain.evm()` (K7 Q4, K25). Its commit answers late, with a submission, not `committed` or `conflict` on
+the spot (K7). Both are built in M6.10; [chains-and-wallets](chains-and-wallets.mdx) has the whole of it.
 
 ### What crosses the edge of a store
 
@@ -210,7 +212,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 | a projection's own state, in its own store | specified | M1.24 | K3 item 7, K5 seam 10 |
 | sources through adapters | specified | M5.07 | K3 item 8 |
 | views | specified | M5.05 | K3 item 9 |
-| a thing on a chain | waits on K7 | M6.10 | |
+| a thing on a chain | specified | M6.10 | K7, K25 |
 
 ## Notes
 
@@ -218,8 +220,10 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 its commit. Anything else is a source, reached through an adapter. The word "home" is retired (ledger `G-03`).</Note>
 
 <Note kind="decision" decision="K5">A chain is a host, and its store kind is `chain`. A server call that sends a
-transaction writes two stores, so it is a workflow. Everything else about chain data (how a thing is declared on one,
-what its commit returns to a caller, where private state fits, ledger `G-04`, `STO-02` and `X-18`) waits on K7.</Note>
+transaction writes two stores, so it is a workflow. K7 settled the rest of chain data: a thing is declared on one by living
+in a chain store (K25); its commit returns a submission, because a chain store may answer late; and private state is a
+capability of one kind, Aztec's `private`, while a public chain store refuses a secret or private field (ledger `G-04`,
+`STO-02` and `X-18`).</Note>
 
 <Note kind="question" id="kind-capabilities" slice="M1.17">A store kind is to declare what it can serve (lists,
 search, private state), so the compiler can refuse a read it can't serve. No shape for that declaration exists yet
