@@ -178,7 +178,7 @@ the same list in its goal file. Taken from every file in `design/decisions/` on 
 open remote branch, 20 November 2026. An ID is the part before the first `-` (`K16a` in `K16a-scaffold-build.md`).
 
 **On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines, CI-speed · D1, D2, D3 · E1 · F1, F2,
-F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1, O2 · P1 · R1 · S1.
+F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1, O2 · P1 · R1 · S1.
 
 **Only on other branches:**
 
@@ -203,7 +203,7 @@ F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1
 | K28 | releases (scope map) | open PR #262, reserved 21 November 2026 |
 | K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
 
-**Next free:** D5, E2, F9, G9, H3, K30, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F10, G9, H3, K30, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered, and still go on this list.
 
