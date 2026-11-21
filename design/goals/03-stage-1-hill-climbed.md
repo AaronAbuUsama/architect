@@ -197,5 +197,8 @@ It passes only when all of these hold, in CI on `goal/stage-1`:
 
 ## Landing
 
-When the done check passes, open one pull request from `goal/stage-1` to `main`. It merges when Gates M1 and M2 pass on
-it, `nx run e2e:stage1` passes in CI, and a 🔍 reviewer passed the whole branch. Then tag `plugged-in/stage-1`.
+Two merges. First the preview (K28): once Gate M1's slices are green on `goal/stage-1`, open one pull request from
+`goal/stage-1` to `main`. It merges when CI is green, Gate M1 passes on it, and a 🔍 reviewer that wrote none of it passed
+the whole branch; the goal then carries on from its branch. Then, when the done check passes, open one more pull
+request from `goal/stage-1` to `main`. It merges when Gates M1 and M2 pass on it, `nx run e2e:stage1` passes in CI, and
+a 🔍 reviewer passed the whole branch. Then tag `plugged-in/stage-1`.
