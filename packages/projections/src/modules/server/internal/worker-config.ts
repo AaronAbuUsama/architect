@@ -61,17 +61,12 @@ const tablesOf = (things: ReadonlyArray<ThingModel>) =>
     // Empty until the thing's first move sets it.
     if (t.machine) columns.push(`  "state" TEXT`);
     columns.push(`  "version" INTEGER NOT NULL DEFAULT 0`);
-    // A unique field (G4) is a partial unique index over its scope: the store refuses a second holder at commit.
-    const indexes = Object.entries(t.unique ?? {}).map(([field, { while: states }]) => {
-      const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
-      return `CREATE UNIQUE INDEX "${t.name}_${field}_unique" ON "${t.name}" ("${field}")${scope};`;
-    });
     // A rule (G5) is one partial unique index too, named after it (`<table>_<rule>`) so two rules over one field keep two: over the rule's key, within its `while` states.
     const ruleIndexes = Object.entries(t.invariants ?? {}).map(([rule, { fields, while: states }]) => {
       const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
       return `CREATE UNIQUE INDEX "${t.name}_${rule}" ON "${t.name}" (${fields.map((f) => `"${f}"`).join(", ")})${scope};`;
     });
-    return [`CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`, ...indexes, ...ruleIndexes].join("\n");
+    return [`CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`, ...ruleIndexes].join("\n");
   });
 
 const header = (...extra: ReadonlyArray<string>) => [

@@ -1,10 +1,9 @@
-// A rule's index refusing a commit (G4, G5): D1 words it `UNIQUE constraint failed: <table>.<column>[, <table>.<column>]`, naming the key's columns and never the index.
+// A rule's index refusing a commit (G5): D1 words it `UNIQUE constraint failed: <table>.<column>[, <table>.<column>]`, naming the key's columns and never the index.
 // The table is the generated one, hyphens and all (`user-handle`). Only a column this commit's things have a rule over counts, so any other constraint failure stays a defect.
 import type { NamedRule, Write } from "@orthograph/language-effect";
 
-/** The columns a thing's rules are over: each declared rule's key (from the model's invariants), and G4's unique fields. */
+/** The columns a thing's rules are over: each declared rule's key (from the model's invariants). */
 const columnsOf = (thing: Write["thing"], table: string, rules: ReadonlyArray<NamedRule>) => [
-  ...Object.keys(thing.unique),
   ...rules.filter(({ rule }) => rule.fields[0].of === thing).flatMap(({ rule }) => rule.fields.map((f) => f.key)),
 ].map((field) => `${table}.${field}`);
 

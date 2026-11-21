@@ -12,7 +12,6 @@ import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
-import { uniqueOf } from "./unique.ts";
 import { breakersOf, declaredErrors, invariantsOf } from "./invariants.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
@@ -102,11 +101,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
-    const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
     const invariants = invariantsOf(t, { thingNames, errorNames, verbs }, problems);
     const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), ...(invariants ? { invariants } : {}), machine,
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(invariants ? { invariants } : {}), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
       errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),

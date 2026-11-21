@@ -97,7 +97,6 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
         ...Object.entries(t.machine.moves).map(([k, m]) => `| ${k} | ${m.from.join(", ") || "(creates)"} | ${m.to.join(", ")} | ${m.emits} |`)] : [],
       Object.keys(t.invariants ?? {}).length ? ["", "## Invariants", "", ...invariantRows(t)] : [],
       Object.keys(t.events).length ? ["", "## Events", "", ...eventRows(t)] : [],
-      Object.keys(t.unique ?? {}).length ? ["", "## Unique", "", ...Object.entries(t.unique ?? {}).map(([k, u]) => `- ${k}: unique ${u.while ? `while ${u.while.join(", ")}` : "in every state"}`)] : [],
       t.roles.length ? ["", "## Roles", "", ...t.roles.map((r) => `- ${r}`)] : [],
       "", "## Operations", "", ops.length ? ops.map((o) => `- [${o.name}](${o.verb}.md): ${o.description}`) : ["(none yet)"],
     ),

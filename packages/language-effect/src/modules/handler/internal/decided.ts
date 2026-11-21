@@ -57,10 +57,10 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
   };
   const watching = (records: Records["Service"]): Records["Service"] => ({
     find: (thing, id) => records.find(thing, id).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); }))),
-    findBy: ((first: Thing | Unique, ...rest: ReadonlyArray<unknown>) => {
-      // G4's `findBy(thing, field, value)`, or G5's `findBy(rule, value)`: the thing is the first, or the rule's key's.
-      const thing = first.kind === "thing" ? first : first.fields[0].of;
-      return (records.findBy as (...args: ReadonlyArray<unknown>) => ReturnType<Records["Service"]["findBy"]>)(first, ...rest).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); })));
+    findBy: ((rule: Unique, value: unknown) => {
+      // `findBy(rule, value)` (G5): the thing is the rule's key's.
+      const thing = rule.fields[0].of;
+      return (records.findBy as (...args: ReadonlyArray<unknown>) => ReturnType<Records["Service"]["findBy"]>)(rule, value).pipe(Effect.tap((found) => Effect.sync(() => { if (found) learn(thing, found); })));
     }) as Records["Service"]["findBy"],
     insert: (thing, values, state) => { learn(thing, values); return records.insert(thing, values, state); },
     update: (thing, id, changes) => { learn(thing, changes); return records.update(thing, id, changes); },

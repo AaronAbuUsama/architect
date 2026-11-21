@@ -61,8 +61,6 @@ export interface ThingModel {
   readonly lives: "database" | "actor";
   /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
   readonly store?: string;
-  /** Its unique fields (G4), by field: no two instances hold one value within `while`'s states, or in any state without it. Absent when none. */
-  readonly unique?: Readonly<Record<string, { readonly while?: ReadonlyArray<string> }>>;
   /** Its rules (G5), by name: what stays true among its instances. Absent when it has none; a rule's full name is `<thing>.<name>`. */
   readonly invariants?: Readonly<Record<string, InvariantModel>>;
   readonly machine: MachineModel | null;
