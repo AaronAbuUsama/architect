@@ -13,6 +13,7 @@ lead:
 done_check: nx run e2e:workflows
 owns:
   - packages/workflows/
+  - packages/orthograph/src/modules/workflows/
   - packages/host-cloudflare/src/modules/workflows/
   - examples/workflows/
   - e2e/workflows/

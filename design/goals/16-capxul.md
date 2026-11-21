@@ -10,7 +10,7 @@ lead:
   harness: null        # claude | amp | codex, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
-done_check: Capxul's first feature's journeys are green in Capxul's staging
+done_check: M7.11: Capxul's first feature's journeys green in Capxul's staging
 owns:
   - design/decisions/M7-capxul.md
   - design/goals/16-capxul.md
@@ -58,7 +58,7 @@ Slice 1 is a decision on paper; it can start now. Slice 2 runs in Capxul's own r
 
 It owns the paths in the front matter, and nothing else. It owns no package here. Every Orthograph gap the map finds is an Ask issue to the goal that owns that path (`design/goals/map.md`).
 
-**Done check:** `Capxul's first feature's journeys are green in Capxul's staging` passes on `goal/capxul` (M7.11). It lands in `main` by one pull request
+**Done check:** `M7.11: Capxul's first feature's journeys green in Capxul's staging` passes on `goal/capxul`. It lands in `main` by one pull request
 once `goal/stage-1` has, or into `goal/stage-1` by one pull request if Goal 3 is still open.
 
 ## How it runs
@@ -82,7 +82,7 @@ The rules every goal shares, so this brief stays short. Where they and this file
   every comment an agent posts starts `[goal-16 · <role> · <harness> · <model>]` (the `github` skill).
 - **State.** Set `status` and `lead` in the front matter when you start, and rewrite "Where it stands" in the pull
   request that merges each slice. Decisions this goal makes are named `M7-<slug>` or `GOAL16-<slug>` (K32).
-- **Limits.** No cloud and no keys here; Capxul's staging is Capxul's own. Stop every process you start, by its id, before you report.
+- **Limits.** No cloud and no keys in this repository; Capxul's staging belongs to Capxul's repository and is never touched from here. Stop every process you start, by its id, before you report.
 
 ## Where it stands
 

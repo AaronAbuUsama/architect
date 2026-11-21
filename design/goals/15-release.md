@@ -42,9 +42,9 @@ Branch `goal/release`, cut from `goal/stage-1`. Written 21 November 2026 by the 
 - **Why:** Until it is released, nobody outside can use it, and 1.0 means real releases that anyone can check.
 - **When it's done, you can:** install Orthograph and an app's command from the real package registries, see each pull request get a signed verdict, and get an alert when calls slow down.
 - **It is:** the credentials a release needs, the release jobs, signed verdicts, real vendors' test modes, contracts on a test network, and the monitors.
-- **It isn't:** the early preview on npm (the first goal ships that) or staging itself (also the first goal).
+- **It isn't:** the early preview on npm or staging itself (the goal building Plugged In's first release ships both).
 - **Done when:** the cloud milestone's final check passes and everything it made is destroyed.
-- **Waits on:** Aaron's written yes for each credential, and staging from the first goal for the slices that run there.
+- **Waits on:** Aaron's written yes for each credential, and staging from the goal building Plugged In's first release, for the slices that run there.
 - **Words used:** a credential: a key or account the release uses. A verdict: the signed result of running the checks.
 
 ## Read first

@@ -51,7 +51,7 @@ Branch `goal/time`, cut from `goal/stage-1`. Written 21 November 2026 by the �
 - **It is:** the world's clock, timers that work across processes, things declared to happen at a time, the keeper that makes them happen, and a check that each happened on time.
 - **It isn't:** workflows (their goal waits through this clock) or agents (the same).
 - **Done when:** the time milestone's final check passes on the main line.
-- **Waits on:** nothing to start. Three slices need stage 1's test harness, and one needs the on-chain goal's chain follower.
+- **Waits on:** nothing to start. Three slices need the test harness from the goal building Plugged In's first release, and one needs the on-chain goal's chain follower.
 - **Words used:** a world: a throwaway copy of the whole app, made for one test run. The keeper: the part that wakes things when they fall due.
 
 ## Read first
@@ -84,7 +84,8 @@ table. "After" names this goal's own earlier slices; "Waits on" names work anoth
 | 15 | The follower keeps time with the world | M8.17 | 6 | the chain follower, M6.09 (Goal 4) |
 | 16 | Gate M8 | M8.16 | 1 to 15 | — |
 
-M8.01 (Aaron's yes) and M8.05 (the wall-clock spike, #210) are done. Goal 8's slice 3, Goal 10's slice 12 and Goal 4's moves made by time in Solidity wait on this goal's slices 5
+M8.01 (Aaron's yes) and M8.05 (the wall-clock spike, #210) are done. M1.30 and M1.13, which slices 10 and 12 also
+need, are ✅ on `goal/stage-1`. Goal 8's slice 3, Goal 10's slice 12 and Goal 4's moves made by time in Solidity wait on this goal's slices 5
 and 7, so land them early and answer their Ask issues on `Timers`' shape first.
 
 ## What it owns, and the seams it touches

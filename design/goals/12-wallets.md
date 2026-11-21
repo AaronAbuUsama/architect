@@ -22,7 +22,7 @@ slices:
   - "3 · Pieces for payments as they go through the chain"
   - "4 · Plugged In at stage 2 (after 1, 2, 3)"
   - "5 · The gates' test app moves to Plugged In (after 4)"
-  - "6 · The stage 2 gate (after 1, 2, 3, 4, 5)"
+  - "6 · The stage 2 gate (after 1, 2, 3, 4)"
 ---
 # Goal 12: wallets, stage 2 of Plugged In
 
@@ -40,7 +40,7 @@ Branch `goal/wallets`, cut from `goal/stage-1`. Written 21 November 2026 by the 
 - **It is:** typed adapters for any existing contract, payment building blocks that show each stage of a payment, and the example app's wallet pages.
 - **It isn't:** the chain machinery itself (the on-chain goal), shared Safes and budgets (the vault goal), or any real network: it all runs on a local test chain.
 - **Done when:** the stage 2 final check passes: two people, one creating and one linking a wallet, and a payment by name that is simulated, confirmed and shown.
-- **Waits on:** its first slice can start now. The rest needs the on-chain goal's store, client and follower, the events goal's incoming events, and the first goal's linking step.
+- **Waits on:** its first slice can start now. The rest needs the on-chain goal's store, client and follower, the events goal's incoming events, and the goal building Plugged In's first release, for linking a wallet.
 - **Words used:** an ABI: the published description of a contract's calls and events. A handle: the name a person claims, like a username.
 
 ## Read first
@@ -57,10 +57,10 @@ table. "After" names this goal's own earlier slices; "Waits on" names work anoth
 |---|---|---|---|---|
 | 1 | Adapters made from a contract's ABI | ST2.02 | — | — |
 | 2 | Journeys for stage 2 | ST2.01 | — | the chain store's checks, M6.02 (Goal 4) |
-| 3 | Pieces for payments as they go through the chain | ST2.03 | — | ST1.01 (Goal 3); the client, M6.15 (Goal 4) |
+| 3 | Pieces for payments as they go through the chain | ST2.03 | — | the web projection, ST1.25 (Goal 5); the client, M6.15 (Goal 4) |
 | 4 | Plugged In at stage 2 | ST2.04 | 1, 2, 3 | M2.13 (Goal 3); the follower, M6.09 (Goal 4); events in, M5.03 (Goal 11) |
 | 5 | The gates' test app moves to Plugged In | ST2.05 | 4 | Goal 3's yes (it changes every gate suite) |
-| 6 | The stage 2 gate | ST2.06 | 1 to 5 | the stage's milestone slices (Goals 3, 4, 11) |
+| 6 | The stage 2 gate | ST2.06 | 1, 2, 3, 4 | the stage's milestone slices (Goals 3, 4, 11) |
 
 Slice 1 needs only M1.30 and M1.31, both done on `goal/stage-1`. Slice 5 moves every gate suite's fixture from acme
 to Plugged In: its author asks Goal 3's lead first, by an Ask issue, since those suites are Goal 3's gates.

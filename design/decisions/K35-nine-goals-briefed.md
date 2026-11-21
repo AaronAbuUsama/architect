@@ -41,3 +41,8 @@ to write and review, and most of their words would repeat `AGENTS.md`.
 
 - `design/milestones.md`: "ST3.05, M3.03, M6.15" → "ST3.05, M3.28, M6.15"
 - `design/goals/map.md`: "none: ST4.01 reads the budgets declaration in `examples/budgets` (Goal 4)" → "ST4.01 to ST4.04: none, ST4.01 reading the budgets declaration in `examples/budgets` (Goal 4); ST4.05, and so ST4.06 to ST4.08: the budgets journeys and feature, ST3.03 and ST3.05 (Goal 13, K35)"
+- `design/milestones.md`: "M3.16 to M3.26, M1.24" → "M3.16 to M3.28, M1.24"
+- `design/milestones.md`: "| ST4.04 | build | the budgets journeys pass on Aztec" → "| ST4.04, ST3.03, ST3.05 (K35) | build | the budgets journeys pass on Aztec"
+- `design/goals/map.md`: "and M3.03 (Goal 8)" → "and M3.28 (Goal 8)"
+- `design/goals/map.md`: "| 1.0 | planned |" → "| 1.0 | ready |"
+- `design/goals/map.md`: "ST2.03: ST1.01 and M6.15" → "ST2.03: ST1.25 (Goal 5) and M6.15"
