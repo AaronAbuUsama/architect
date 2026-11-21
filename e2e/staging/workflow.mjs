@@ -8,18 +8,23 @@ import { parse } from "yaml";
 const TOKEN = "${{ secrets.CLOUDFLARE_API_TOKEN }}";
 const ACCOUNT = "${{ vars.CLOUDFLARE_ACCOUNT_ID }}";
 /** Every `${{ }}` in the file, comments included, is one of these: there is no way to reach another secret, `toJSON(secrets)`, a token or an input. */
-const EXPRESSIONS = new Set(["github.run_id", "steps.plan.outputs.prefix", "steps.up.outcome", "steps.story.outcome", "secrets.CLOUDFLARE_API_TOKEN", "vars.CLOUDFLARE_ACCOUNT_ID"]);
+const EXPRESSIONS = new Set(["github.run_id", "github.run_attempt", "steps.plan.outputs.prefix", "steps.up.outcome", "steps.story.outcome", "secrets.CLOUDFLARE_API_TOKEN", "vars.CLOUDFLARE_ACCOUNT_ID"]);
 const USES = /^(actions\/checkout|pnpm\/action-setup|actions\/setup-node|actions\/upload-artifact)@v\d+\.\d+\.\d+$/;
-const EVIDENCE = /^tmp\/staging\/[a-z]+\.(json|txt)$/;
+/**
+ * The only files the evidence upload may name (the repository is public, so anyone can download them): the plan, the story, the verdict, and the listings cut to the run's prefix. The whole-account
+ * listings (`tmp/staging/private/`) hold every Worker, database, namespace and bucket of the account, other apps' included, and are never uploaded.
+ */
+const EVIDENCE = new Set(["tmp/staging/plan.json", "tmp/staging/story.txt", "tmp/staging/verdict.txt", "tmp/staging/during-run.json", "tmp/staging/after-run.json"]);
+const UPLOAD_WITH = ["name", "path", "if-no-files-found", "retention-days"];
 /** An `if`, with its `${{ }}` taken off. */
 const cond = (step) => (step.if === undefined ? undefined : String(step.if).replace(/^\s*\$\{\{\s*|\s*\}\}\s*$/g, "").trim());
 const CREDENTIALS = { CLOUDFLARE_API_TOKEN: TOKEN, CLOUDFLARE_ACCOUNT_ID: ACCOUNT };
-const SNAPSHOT = (name) => `node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/${name}.json"`;
+const SNAPSHOT = (name) => `node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/private/${name}.json"`;
 const UPSTREAM = "steps.up.outcome == 'success'";
 
 /** What each named step must be: its `if`, whether it continues on error, whether it holds the credentials, and its script (exactly, or a pattern for the story and the judge). */
 const STEPS = [
-  { id: "plan", run: /^mkdir -p "\$EVIDENCE"\n\$ORTHO env up staging --plan --run "\$RUN" --root examples\/plugged-in > "\$EVIDENCE\/plan\.json"\necho "prefix=\$\(jq -r \.prefix "\$EVIDENCE\/plan\.json"\)" >> "\$GITHUB_OUTPUT"$/ },
+  { id: "plan", run: /^mkdir -p "\$EVIDENCE\/private"\n\$ORTHO env up staging --plan --run "\$RUN" --root examples\/plugged-in > "\$EVIDENCE\/plan\.json"\necho "prefix=\$\(jq -r \.prefix "\$EVIDENCE\/plan\.json"\)" >> "\$GITHUB_OUTPUT"$/ },
   { id: "before", run: SNAPSHOT("before"), credentials: true },
   { id: "up", run: '$ORTHO env up staging --run "$RUN" --root examples/plugged-in', credentials: true, continues: true },
   { id: "during", run: SNAPSHOT("during"), credentials: true, if: UPSTREAM },
@@ -27,7 +32,8 @@ const STEPS = [
   { id: "destroy", run: '$ORTHO env destroy staging --run "$RUN" --root examples/plugged-in', credentials: true, if: "always()" },
   { id: "after", run: SNAPSHOT("after"), credentials: true, if: "always()" },
   { id: "judge", if: "always()", env: { PREFIX: "${{ steps.plan.outputs.prefix }}", UP: "${{ steps.up.outcome }}" },
-    run: /^args=\(--prefix "\$PREFIX" --after "\$EVIDENCE\/after\.json" --before "\$EVIDENCE\/before\.json"\)\nif \[ "\$UP" = success \]; then args\+=\(--during "\$EVIDENCE\/during\.json" --plan "\$EVIDENCE\/plan\.json"\); fi\nnode e2e\/staging\/leftovers\.mjs judge "\$\{args\[@\]\}" 2>&1 \| tee "\$EVIDENCE\/verdict\.txt"; exit "\$\{PIPESTATUS\[0\]\}"$/ },
+    run: /^args=\(--prefix "\$PREFIX" --after "\$EVIDENCE\/private\/after\.json" --before "\$EVIDENCE\/private\/before\.json"\)\nif \[ "\$UP" = success \]; then args\+=\(--during "\$EVIDENCE\/private\/during\.json" --plan "\$EVIDENCE\/plan\.json"\); fi\nnode e2e\/staging\/leftovers\.mjs judge "\$\{args\[@\]\}" 2>&1 \| tee "\$EVIDENCE\/verdict\.txt"; exit "\$\{PIPESTATUS\[0\]\}"$/ },
+  { id: "evidence", if: "always()", env: { PREFIX: "${{ steps.plan.outputs.prefix }}" }, run: 'node e2e/staging/leftovers.mjs filter "$PREFIX" "$EVIDENCE/private" "$EVIDENCE"' },
   { id: undefined, name: "the final failure", if: "always() && (steps.up.outcome == 'failure' || steps.story.outcome == 'failure')", env: { UP: "${{ steps.up.outcome }}", STORY: "${{ steps.story.outcome }}" }, run: /^echo "::error::[^\n]*"\nexit 1$/ },
 ];
 
@@ -46,11 +52,12 @@ export const problems = (source) => {
   const jobs = Object.entries(doc?.jobs ?? {});
   if (jobs.length !== 1) return [...out, `it has ${jobs.length} jobs; up, the story, destroy and the listing are one job`];
   const [, job] = jobs[0];
-  const stray = Object.keys(job).filter((k) => !["runs-on", "timeout-minutes", "env", "steps"].includes(k));
-  if (stray.length > 0) out.push(`the job has ${stray.join(", ")}: only runs-on, timeout-minutes, env and steps (no if, matrix, defaults, permissions)`);
+  const stray = Object.keys(job).filter((k) => !["runs-on", "environment", "timeout-minutes", "env", "steps"].includes(k));
+  if (stray.length > 0) out.push(`the job has ${stray.join(", ")}: only runs-on, environment, timeout-minutes, env and steps (no if, matrix, defaults, permissions)`);
+  if (job.environment !== "staging") out.push(`the job's environment is ${JSON.stringify(job.environment)}, and must be "staging": a protected environment, so the deploy can be limited to protected branches`);
   if (!Number.isInteger(job["timeout-minutes"]) || job["timeout-minutes"] < 1 || job["timeout-minutes"] > 60) out.push("the job has no timeout of 1 to 60 whole minutes");
   const jobEnv = JSON.stringify(job.env ?? {});
-  if (jobEnv !== JSON.stringify({ RUN: "${{ github.run_id }}", ORTHO: "node packages/cli/src/main.ts", EVIDENCE: "tmp/staging" })) out.push("the job's env is not exactly RUN (the run id), ORTHO (the cli) and EVIDENCE (tmp/staging): no credential and no typed run belongs there");
+  if (jobEnv !== JSON.stringify({ RUN: "${{ github.run_id }}${{ github.run_attempt }}", ORTHO: "node packages/cli/src/main.ts", EVIDENCE: "tmp/staging" })) out.push("the job's env is not exactly RUN (the run id), ORTHO (the cli) and EVIDENCE (tmp/staging): no credential and no typed run belongs there");
 
   for (const [, body] of [...source.matchAll(/\$\{\{([\s\S]*?)\}\}/g)].map((m) => [m[0], m[1].trim()])) {
     if (!EXPRESSIONS.has(body)) out.push(`the expression \${{ ${body} }} is not one of the ${EXPRESSIONS.size} this workflow may use (the two credentials, the run id, the plan's prefix, two outcomes)`);
@@ -79,7 +86,9 @@ export const problems = (source) => {
     if (!USES.test(s.uses ?? "")) { out.push(`${s.name ?? s.uses ?? "a step"} is not one of the four actions this workflow uses, at a pinned version`); continue; }
     if (/upload-artifact/.test(s.uses)) {
       const paths = String(s.with?.path ?? "").split("\n").map((p) => p.trim()).filter(Boolean);
-      if (paths.length === 0 || paths.some((p) => !EVIDENCE.test(p))) out.push("the evidence upload is not a list of tmp/staging/<name>.json and .txt files");
+      if (paths.length === 0 || paths.some((p) => !EVIDENCE.has(p)) || new Set(paths).size !== paths.length) out.push(`the evidence upload is not a list of only ${[...EVIDENCE].join(", ")}: no whole-account listing, no folder, no glob (the repository is public)`);
+      for (const key of Object.keys(s.with ?? {})) if (!UPLOAD_WITH.includes(key)) out.push(`the evidence upload sets ${key}: only ${UPLOAD_WITH.join(", ")}`);
+      if (s.with?.["retention-days"] !== 7) out.push("the evidence upload does not keep for 7 days (retention-days: 7)");
       if (cond(s) !== "always()") out.push("the evidence upload does not run `if: always()`");
     } else if (s.run !== undefined || s.env !== undefined || s["continue-on-error"] !== undefined || s.shell !== undefined) out.push(`${s.uses} carries a script, env or continue-on-error`);
   }

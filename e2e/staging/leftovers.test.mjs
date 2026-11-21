@@ -2,12 +2,12 @@
 // account's other resources renamed) and on planted ones. Nothing here touches the cloud: `snapshot` is run against a fake account served from this machine.
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, test } from "node:test";
-import { KINDS, leftovers, made, owns, read, untouched, worst } from "./listing.mjs";
+import { KINDS, leftovers, made, owns, ownedOnly, read, untouched, worst } from "./listing.mjs";
 
 const here = import.meta.dirname;
 const recorded = (name) => JSON.parse(readFileSync(join(here, "recorded", `${name}.json`), "utf8"));
@@ -169,24 +169,43 @@ describe("untouched: nothing without the prefix changed between before up and af
     assert.equal(untouched(plus(up(), "d1", "unrelated-db"), after(), P).exit, 0);
   });
   for (const label of KINDS) {
-    test(`an unrelated ${label} entry gone after destroy: fails, REMOVED, naming it`, () => {
+    test(`an unrelated ${label} entry gone after destroy: fails, REMOVED, by kind and count and never by name`, () => {
       const gone = before().find((e) => e.label === label).names[0];
       const v = untouched(before(), minus(after(), label, gone), P);
       assert.equal(v.exit, 1);
-      assert.match(lines(v), new RegExp(`REMOVED ${label}: ${gone.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+      assert.match(lines(v), new RegExp(`REMOVED 1 ${label} \\(not this run's\\)`));
+      assert.ok(!lines(v).includes(gone), `the verdict names ${gone}: it is uploaded from a public repository`);
     });
     test(`an unrelated ${label} entry that was not there before: fails, APPEARED`, () => {
       const added = label === "durable-object-namespaces" ? "someone:Thing:someone_Thing" : "someone-elses-new-thing";
       const v = untouched(before(), plus(after(), label, added), P);
       assert.equal(v.exit, 1);
-      assert.match(lines(v), new RegExp(`APPEARED ${label}: ${added}`));
+      assert.match(lines(v), new RegExp(`APPEARED 1 ${label} \\(not this run's\\)`));
+      assert.ok(!lines(v).includes(added), `the verdict names ${added}`);
     });
   }
   test("a lookalike of the run's name that destroy removed (the next run's, a longer id) fails: it was never the run's", () => {
     const withLook = plus(before(), "workers", `${P}0-worker`);
     const v = untouched(withLook, after(), P);
     assert.equal(v.exit, 1);
-    assert.match(lines(v), /REMOVED workers: .*0-worker/);
+    assert.match(lines(v), /REMOVED 1 workers/);
+    assert.ok(!lines(v).includes("0-worker"));
+  });
+  test("PRIVACY: whatever the account holds outside the prefix, no verdict line of any judgement carries one of its names", () => {
+    const secret = ["workers", "d1", "r2"].map((label) => [label, `someone-elses-${label}-canary`]);
+    const wrong = (listing) => secret.reduce((l, [label, name]) => plus(l, label, name), listing);
+    const ns = "canary-script:Canary:canary-script_Canary";
+    const all = [
+      untouched(plus(wrong(before()), "durable-object-namespaces", ns), after(), P),
+      untouched(before(), plus(wrong(after()), "durable-object-namespaces", ns), P),
+      untouched(plus(before(), "workers", "dup-canary", "dup-canary"), after(), P),
+      untouched(plus(before(), "durable-object-namespaces", "canary:bad"), after(), P),
+      leftovers(plus(wrong(clean()), "workers", "dup-canary", "dup-canary"), P),
+      leftovers(plus(wrong(clean()), "durable-object-namespaces", "canary:bad", `${P}-w:World:x`), P),
+      made({ prefix: P, resources: [{ kind: "worker", name: `${P}-worker` }] }, plus(wrong(clean()), "durable-object-namespaces", ns), P),
+    ];
+    for (const v of all) assert.ok(!/canary|someone-elses/.test(lines(v)), lines(v));
+    assert.equal(all[0].exit, 1);
   });
   test("a duplicate in either listing is not a clean pass (the account lists a name once)", () => {
     assert.equal(untouched(plus(before(), "workers", "other", "other"), plus(after(), "workers", "other"), P).exit, 2);
@@ -195,8 +214,9 @@ describe("untouched: nothing without the prefix changed between before up and af
   test("a resource moved between kinds (a worker gone, a bucket of the same name appeared) is two changes", () => {
     const v = untouched(plus(before(), "workers", "shared-name"), plus(after(), "r2", "shared-name"), P);
     assert.equal(v.exit, 1);
-    assert.match(lines(v), /REMOVED workers: shared-name/);
-    assert.match(lines(v), /APPEARED r2: shared-name/);
+    assert.match(lines(v), /REMOVED 1 workers/);
+    assert.match(lines(v), /APPEARED 1 r2/);
+    assert.ok(!lines(v).includes("shared-name"));
   });
   test("an unreadable before, or an unreadable after, cannot say nothing changed (2), and a bad prefix too", () => {
     assert.equal(untouched(before().filter((e) => e.label !== "r2"), after(), P).exit, 2);
@@ -274,10 +294,18 @@ describe("the command: judge reads listings from files and exits as it judges", 
     assert.match(r.stdout, /LEFTOVER r2: .*-bucket/);
     assert.match(r.stdout, /STAGING FAILED/);
   });
+  test("PRIVACY: an unrelated resource removed or added: the printed verdict says the kind and the count, never the name", () => {
+    const removed = clean()[0].names[0];
+    const r = run("--prefix", P, "--before", file("b9.json", clean()), "--after", file("a9.json", plus(minus(clean(), "workers", removed), "r2", "someone-elses-canary-bucket")));
+    assert.equal(r.status, 1);
+    assert.ok(!r.stdout.includes(removed) && !r.stdout.includes("someone-elses-canary-bucket"), r.stdout);
+    assert.match(r.stdout, /REMOVED 1 workers/);
+    assert.match(r.stdout, /APPEARED 1 r2/);
+  });
   test("an unrelated resource removed: exit 1 although nothing of the run's is left", () => {
     const r = run("--prefix", P, "--before", file("b2.json", clean()), "--after", file("a2.json", minus(clean(), "workers", clean()[0].names[0])));
     assert.equal(r.status, 1);
-    assert.match(r.stdout, /REMOVED workers/);
+    assert.match(r.stdout, /REMOVED 1 workers/);
   });
   test("during and plan together: up made what the plan said, or it fails", () => {
     const Q = "ortho-pluggedin-stg-5";
@@ -375,4 +403,49 @@ describe("snapshot: the lister reads a whole account, pages included, and never 
       assert.equal(fake.seen.length, 0);
     });
   });
+});
+
+describe("filter: only the run's own names leave the machine", () => {
+  const dir = mkdtempSync(join(tmpdir(), "staging-filter-"));
+  const from = join(dir, "private"), to = join(dir, "out");
+  mkdirSync(from); mkdirSync(to);
+  const run = (...args) => spawnSync(process.execPath, [join(here, "leftovers.mjs"), "filter", ...args], { encoding: "utf8" });
+  const Q = "ortho-pluggedin-stg-51";
+  test("ownedOnly keeps the prefix's resources in every kind (a namespace by its script) and no other name, and keeps an error as an error", () => {
+    const whole = plus(plus(plus(plus(up(), "workers", `${Q}-worker`, `${Q}0-worker`, "someone-else"), "d1", `${Q}-db`), "r2", `${Q}-bucket`), "durable-object-namespaces", `${Q}-worker:World:x`, "someone:World:y");
+    const kept = ownedOnly(whole.map((e) => (e.label === "r2" ? { label: "r2", error: "HTTP 500", names: ["someone-elses-r2"] } : e)), Q);
+    assert.deepEqual(kept.map((e) => e.label), KINDS);
+    assert.deepEqual(kept[0].names, [`${Q}-worker`]);
+    assert.deepEqual(kept[1].names, [`${Q}-db`]);
+    assert.deepEqual(kept[2].names, [`${Q}-worker:World:x`]);
+    assert.deepEqual(kept[3], { label: "r2", names: [], error: "HTTP 500" });
+    assert.equal(JSON.stringify(kept).includes("someone"), false);
+  });
+  test("a prefix that is not a run's, or a listing that is not a list, cuts nothing (never the whole listing by mistake)", () => {
+    for (const bad of ["", "ortho", undefined, `${Q}-`]) assert.equal(ownedOnly(clean(), bad), undefined);
+    assert.equal(ownedOnly({}, Q), undefined);
+  });
+  test("the command: during.json and after.json become during-run.json and after-run.json with the run's names only; the whole listings are not copied", () => {
+    writeFileSync(join(from, "during.json"), JSON.stringify(plus(up(), "workers", `${Q}-worker`, "someone-elses-canary")));
+    writeFileSync(join(from, "after.json"), JSON.stringify(plus(clean(), "workers", "someone-elses-canary")));
+    writeFileSync(join(from, "before.json"), JSON.stringify(plus(clean(), "workers", "someone-elses-canary")));
+    const r = run(Q, from, to);
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(readdirSync(to).sort(), ["after-run.json", "during-run.json"]);
+    for (const name of readdirSync(to)) assert.equal(/canary|someone/.test(readFileSync(join(to, name), "utf8")), false, name);
+    assert.deepEqual(JSON.parse(readFileSync(join(to, "during-run.json"), "utf8"))[0].names, [`${Q}-worker`]);
+    assert.ok(!/canary|someone/.test(r.stdout));
+  });
+  test("a bad prefix is exit 2 and writes nothing", () => {
+    for (const name of readdirSync(to)) rmSync(join(to, name));
+    assert.equal(run("", from, to).status, 2);
+    assert.equal(run("ortho-x", from, to).status, 2);
+    assert.deepEqual(readdirSync(to), []);
+  });
+  test("an absent listing is skipped, not made up", () => {
+    for (const name of readdirSync(from)) rmSync(join(from, name));
+    assert.equal(run(Q, from, to).status, 0);
+    assert.deepEqual(readdirSync(to), []);
+  });
+  test("cleanup", () => rmSync(dir, { recursive: true, force: true }));
 });

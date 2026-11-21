@@ -45,6 +45,23 @@ export const expected = (model: PlanModel, prefix: string): ReadonlyArray<Resour
   ];
 };
 
+/**
+ * The longest a name the plan makes may be: 63 characters. A Worker script name must be 63 characters or less while `workers.dev` is on (it becomes a DNS label in the Worker's address;
+ * Cloudflare's docs, "workers.dev" page, Limitations: "Must be 63 characters or less"; 255 without it). Staging deploys to `workers.dev`, so the Worker is held to 63. Cloudflare's docs state no
+ * limit for a D1 database name (checked 21 November 2026: the D1 limits page, the `d1 create` API schema and the Wrangler D1 commands page say nothing), so a database name is held to the same 63:
+ * a plan that refuses early is cheaper than a deploy that fails halfway and has to destroy. The plan refuses an app or a store whose names would be longer, before it makes anything.
+ */
+export const MAX_NAME = 63;
+/** The longest name `expected` gives for a model and a prefix. */
+export const longestName = (model: PlanModel, prefix: string) => Math.max(...expected(model, prefix).map((r) => (r.name ?? r.script ?? "").length));
+
+/** The most letters and digits an app's name may have for a run: the Worker `ortho-<app>-stg-<run>-worker` must still be MAX_NAME. */
+export const maxApp = (run: string) => MAX_NAME - `ortho--${SHORT}-${run}-worker`.length;
+/** The most letters a database store's name may have for an app and a run: `<prefix>-db-<store>` must still be MAX_NAME. */
+export const maxStore = (app: string, run: string) => MAX_NAME - `${prefixOf(app, run)}-db-`.length;
+/** `blueprint/stores/<name>.ts` with one database store and one thing living in it. */
+export const storeVariant = (name: string): Variant => ({ files: { [`blueprint/stores/${name}.ts`]: STORE("database"), "blueprint/things/note/thing.ts": THING("Note", "NT", "not", "store", `import store from "../../stores/${name}.ts";`) } });
+
 const FIELDS: Record<Kind, ReadonlyArray<string>> = {
   worker: ["kind", "name"], d1: ["kind", "name", "binding"], "durable-object-namespace": ["kind", "script", "class"], r2: ["kind", "name"],
 };

@@ -38,14 +38,15 @@ Red today on one reason: `ortho env` has `up`, `down` and `status` for a long-li
 
 | Step | Credentials | What it judges |
 |---|---|---|
-| plan | none | `ortho env up staging --plan --run $GITHUB_RUN_ID` prints a plan; `prefix` is read from it and never typed again |
-| snapshot before | token, account | the account's whole listing before anything is made |
+| plan | none | `ortho env up staging --plan --run <run id>` prints a plan; `prefix` is read from it and never typed again |
+| snapshot before | token, account | the account's whole listing before anything is made, kept in `tmp/staging/private/` and never uploaded |
 | up | token, account | `ortho env up staging --run <id>`; allowed to fail so that destroy runs, and still fails the job |
 | snapshot while up | token, account | what the account holds with the run up |
 | the story | none | `ortho prove --env staging --run <id> --only "the story"`; allowed to fail, still fails the job |
 | destroy | token, account | `ortho env destroy staging --run <id>`, **`if: always()`** |
 | snapshot after | token, account | the listing after destroy, **`if: always()`** |
 | judge | none | from the files alone, **`if: always()`**; see below |
+| the run's own listings | none | `leftovers.mjs filter`: `during.json` and `after.json` cut to the names the prefix owns, as `during-run.json` and `after-run.json`; **`if: always()`** |
 
 The judge (`leftovers.mjs judge`, [`listing.mjs`](listing.mjs)) fails the job on any of:
 
@@ -56,8 +57,13 @@ The judge (`leftovers.mjs judge`, [`listing.mjs`](listing.mjs)) fails the job on
 A listing that cannot be read is never a pass: a kind the token may not read, a kind never listed, a bad prefix or an unreadable file exits 2. A prefix is matched at a dash: run `1` does not own run `12`'s
 resources, and a name that merely contains the prefix is not the run's (the spike's `includes` called it ours). The spike's `leftovers.mjs` is the logic reused: the same four REST listings, now judged by `listing.mjs`.
 
+**Privacy (the repository is public, so anyone can download an artifact).** The whole-account listings stay in `tmp/staging/private/` and are never uploaded: the account holds other apps' Workers, databases,
+namespaces and buckets. The upload is exactly `plan.json`, `story.txt`, `verdict.txt` and the two `-run.json` listings, with `retention-days: 7`. The verdict names a resource outside the prefix only by kind and
+count (`REMOVED 2 workers (not this run's)`), never by name. The run id is `${{ github.run_id }}${{ github.run_attempt }}` (still `[a-z0-9]{1,20}`), so a re-run of the job is a new run and cannot meet the
+first attempt's leftovers; the job names `environment: staging`, which GitHub can restrict to protected branches (its rule is set on GitHub, not here).
+
 `workflow.mjs` judges the workflow's own text (by hand only; destroy, the listing and the judge always; the two credentials only in the four steps that talk to Cloudflare, and only as `secrets.CLOUDFLARE_API_TOKEN` and
-`vars.CLOUDFLARE_ACCOUNT_ID`; nothing prints the environment; the evidence is named `.json` and `.txt` files, never wrangler's log). Both its tests and the lister's run in `nx run e2e:test`.
+`vars.CLOUDFLARE_ACCOUNT_ID`; nothing prints the environment; the evidence is those five named files, never wrangler's log or a whole-account listing). Both its tests and the lister's run in `nx run e2e:test`.
 
 **What is not checked here, and why.** The story step calls `ortho prove --env staging`, which does not exist (spike snags 14 to 17: prove speaks only `http:`, reads D1 facts through a world's `/_world` route and wants a
 collector's folder). Until the slice that lets prove reach a URL lands, the lead may swap that one step for the SDK story (it passed against the deployed Worker in the spike); the other steps do not depend on its verdict.

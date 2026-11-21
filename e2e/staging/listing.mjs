@@ -39,9 +39,12 @@ export const read = (listing) => {
     else if (names === undefined) problems.push(`${label} has no list of names`);
     by.set(label, names);
     if (names === undefined) continue;
-    for (const dup of names.filter((n, i) => names.indexOf(n) !== i)) problems.push(`${label} lists ${dup} twice`);
+    // PRIVACY: the verdict is uploaded from a public repository, so a problem with a name says how many, never which: the account holds other apps' resources.
+    const twice = names.filter((n, i) => names.indexOf(n) !== i).length;
+    if (twice > 0) problems.push(`${label} lists ${twice} name${twice === 1 ? "" : "s"} twice`);
     // A namespace is `<script>:<class>:<name>`, three parts and no more; anything else cannot be told from another script's.
-    if (label === "durable-object-namespaces") for (const n of names.filter((x) => x.split(":").length !== 3 || x.split(":").some((part) => part.trim() === ""))) problems.push(`${label} has ${JSON.stringify(n)}, which is not script:class:name`);
+    const odd = label === "durable-object-namespaces" ? names.filter((x) => x.split(":").length !== 3 || x.split(":").some((part) => part.trim() === "")).length : 0;
+    if (odd > 0) problems.push(`${label} has ${odd} entr${odd === 1 ? "y" : "ies"} that ${odd === 1 ? "is" : "are"} not script:class:name`);
   }
   for (const label of KINDS) if (!by.has(label)) problems.push(`${label} was never listed`);
   return { by, problems };
@@ -75,7 +78,9 @@ export const untouched = (before, after, prefix) => {
   if (problems.length > 0) return { exit: UNREADABLE, lines: [...problems.map((p) => `UNREADABLE ${p}`), "cannot say nothing else changed"] };
   const was = new Set(rows(a.by, prefix, false).map(show));
   const is = new Set(rows(b.by, prefix, false).map(show));
-  const lines = [...[...was].filter((r) => !is.has(r)).map((r) => `REMOVED ${r} (not this run's)`), ...[...is].filter((r) => !was.has(r)).map((r) => `APPEARED ${r} (not this run's)`)];
+  // PRIVACY: a resource outside the prefix is named by its kind and a count, never by its name (this verdict is uploaded from a public repository).
+  const counted = (verb, set) => KINDS.map((label) => [label, [...set].filter((r) => r.startsWith(`${label}: `)).length]).filter(([, n]) => n > 0).map(([label, n]) => `${verb} ${n} ${label} (not this run's)`);
+  const lines = [...counted("REMOVED", [...was].filter((r) => !is.has(r))), ...counted("APPEARED", [...is].filter((r) => !was.has(r)))];
   return lines.length > 0 ? { exit: FAILED, lines } : { exit: CLEAN, lines: [`nothing without the prefix changed (${was.size} resources of others, all still there)`] };
 };
 
@@ -118,3 +123,16 @@ export const made = (plan, during, prefix) => {
 
 /** The worst of several verdicts: a failure beats an unreadable listing beats a pass. */
 export const worst = (verdicts) => (verdicts.some((v) => v.exit === FAILED) ? FAILED : verdicts.some((v) => v.exit === UNREADABLE) ? UNREADABLE : CLEAN);
+
+/**
+ * The listing cut down to what the run's prefix owns, for the evidence upload: the account's other resources are not the run's to publish, and the repository is public. Errors stay (they say
+ * which kind could not be read, never a name); every other name goes. A bad prefix returns nothing, so no listing is ever written whole by mistake.
+ */
+export const ownedOnly = (listing, prefix) => {
+  if (refuse(prefix) || !Array.isArray(listing)) return undefined;
+  return listing.map((e) => {
+    const names = Array.isArray(e?.names) ? { names: e.names.filter((n) => typeof n === "string" && owns(prefix, ownerOf(e.label, n))) } : {};
+    const error = e?.error !== undefined ? { error: String(e.error) } : Array.isArray(e?.names) ? {} : { error: "no list of names" };
+    return { label: e?.label, ...names, ...error };
+  });
+};

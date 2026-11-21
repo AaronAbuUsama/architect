@@ -25,6 +25,8 @@
 //     is the first to live as an actor: the model has no one-namespace-per-thing rule to pin, and the plan follows the model's;
 //   - no R2 bucket (nothing in the model needs one) and no Worker for a collector or a sink. Staging carries none: a Worker cannot export OTLP to another `workers.dev` Worker (spike
 //     snag 8) and `M7-cloud.md` has staging run without traces until an external sink is set. The list is exact: a resource the model does not need fails as surely as a missing one.
+//   - a name Cloudflare would reject is refused: the plan exits 2 with no plan when the app's name or a database store's name would make a resource name longer than 63 characters (a Worker's
+//     limit with `workers.dev`; Cloudflare states none for D1, so 63 is held there too), and says which name is too long. The longest that is still planned is planned.
 //   - the run id is `[a-z0-9]{1,20}`; no `--run`, an empty, upper-case, dashed, slashed or too long one is refused with exit 2 and no plan, so a prefix can never be ambiguous.
 // The same plan, byte for byte, on every run with the same inputs. `up` and `destroy` without credentials say so (naming `CLOUDFLARE_API_TOKEN`) and do not reach for the network.
 //
@@ -39,7 +41,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import {
-  DENIED, ENVIRONMENT, VARIANTS, expected, modelOf, ortho, owns, plan, planOf, prefixOf, problems, project, pluggedIn, quiet, says, snapshot,
+  DENIED, ENVIRONMENT, MAX_NAME, VARIANTS, expected, longestName, maxApp, maxStore, modelOf, storeVariant, ortho, owns, plan, planOf, prefixOf, problems, project, pluggedIn, quiet, says, snapshot,
   type Plan, type PlanModel, type Project, type Resource, type Variant,
 } from "./staging-plan.ts";
 
@@ -279,6 +281,49 @@ describe("37: the infra projection plans staging (M7.03), with no cloud", () => 
       expect(ran.out.trim()).toBe("");
       expect(ran.err).toMatch(/--run|run id/i);
       expect(ran.err).not.toContain(DENIED);
+    });
+
+    it("the limit's arithmetic: with a 10-character run an app of maxApp letters makes a 63-character Worker, and one more makes 64; a store likewise (a control, true today)", () => {
+      const m = modelOf(base().root);
+      expect(MAX_NAME).toBe(63);
+      expect(longestName(m, prefixOf("a".repeat(maxApp(RUN)), RUN))).toBe(MAX_NAME);
+      expect(longestName(m, prefixOf("a".repeat(maxApp(RUN) + 1), RUN))).toBe(MAX_NAME + 1);
+      expect(`${prefixOf(base().app, RUN)}-db-${"s".repeat(maxStore(base().app, RUN))}`).toHaveLength(MAX_NAME);
+    });
+
+    it("an app whose name would make a Worker name over 63 characters is refused: exit 2, a line saying the name is too long, no plan on stdout", () => {
+      const copy = copyOf("long-app", { name: "a".repeat(maxApp(RUN) + 1) });
+      for (const verb of ["up", "destroy"] as const) {
+        const ran = plan(copy.root, verb, RUN);
+        expect(ran.status, `${verb}: ${says(ran)}`).toBe(2);
+        expect(ran.out.trim()).toBe("");
+        expect(ran.err).toMatch(/too long|63/i);
+        expect(ran.err).not.toContain(DENIED);
+      }
+    });
+
+    it("an app of exactly the longest name is planned, every name 63 characters or fewer", () => {
+      const copy = copyOf("longest-app", { name: "a".repeat(maxApp(RUN)) });
+      const made = planOf(plan(copy.root, "up", RUN), "the plan for the longest app") as Plan;
+      expect(made.resources.map((r) => (r.name ?? r.script ?? "").length).filter((n) => n > MAX_NAME)).toEqual([]);
+      expect(problems(made, modelOf(copy.root), copy.app, RUN)).toEqual([]);
+    });
+
+    it("a database store whose name would make a database name over 63 characters is refused: exit 2, a line naming the store, no plan on stdout", () => {
+      const store = "s".repeat(maxStore(base().app, RUN) + 1);
+      const ran = plan(copyOf("long-store", storeVariant(store)).root, "up", RUN);
+      expect(ran.status, says(ran)).toBe(2);
+      expect(ran.out.trim()).toBe("");
+      expect(ran.err).toContain(store);
+      expect(ran.err).toMatch(/too long|63/i);
+    });
+
+    it("a database store of exactly the longest name is planned", () => {
+      const store = "s".repeat(maxStore(base().app, RUN));
+      const copy = copyOf("longest-store", storeVariant(store));
+      const made = planOf(plan(copy.root, "up", RUN), "the plan for the longest store") as Plan;
+      expect(made.resources.map((r) => r.name)).toContain(`${prefixOf(copy.app, RUN)}-db-${store}`);
+      expect(problems(made, modelOf(copy.root), copy.app, RUN)).toEqual([]);
     });
 
     it("an environment that is not declared is refused naming it, with no plan", () => {

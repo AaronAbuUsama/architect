@@ -6,11 +6,16 @@
 //   node e2e/staging/leftovers.mjs judge --prefix <p> --after <f> [--before <f>] [--during <f> --plan <f>]
 //     Judges listings already written; no network, no credential. `--after` must hold nothing with the prefix; with `--before` nothing without it changed; with `--during` and `--plan`
 //     `up` made exactly what the plan said. Exit 0 every judgement holds, 1 one fails, 2 a listing cannot be read.
+//   node e2e/staging/leftovers.mjs filter <prefix> <from-dir> <to-dir>
+//     The evidence that may be published. Reads `during.json` and `after.json` in <from-dir> (the account's whole listings, which are never uploaded: the account holds other apps' resource
+//     names and the repository is public) and writes `during-run.json` and `after-run.json` in <to-dir>, each cut to the names the prefix owns. A file that is not there is skipped; a bad
+//     prefix writes nothing and exits 2.
 //
 // `ORTHO_STAGING_API` points `snapshot` at another address, and only a loopback one (the check's own tests serve a fake account from this machine); the real account is the default.
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { CLEAN, FAILED, UNREADABLE, leftovers, made, untouched, worst } from "./listing.mjs";
+import { CLEAN, FAILED, UNREADABLE, leftovers, made, ownedOnly, untouched, worst } from "./listing.mjs";
 
 const LOOPBACK = /^http:\/\/(127\.\d+\.\d+\.\d+|localhost|\[::1\]):\d+$/;
 
@@ -76,6 +81,19 @@ export const judge = (argv) => {
   return { exit: worst(verdicts), lines: verdicts.flatMap((v) => [`== ${v.name}`, ...v.lines.map((l) => `   ${l}`)]) };
 };
 
+/** The run's own part of each listing in `from`, written to `to`. Returns the files it wrote. */
+export const filter = (prefix, from, to) => {
+  const wrote = [];
+  for (const name of ["during", "after"]) {
+    if (!existsSync(join(from, `${name}.json`))) continue;
+    const kept = ownedOnly(json(join(from, `${name}.json`)), prefix);
+    if (kept === undefined) return { exit: UNREADABLE, wrote: [] };
+    writeFileSync(join(to, `${name}-run.json`), JSON.stringify(kept, null, 2));
+    wrote.push(`${name}-run.json`);
+  }
+  return { exit: CLEAN, wrote };
+};
+
 /** The command: the only place here that reads the process, prints or exits. */
 const main = async () => {
   const [verb, ...rest] = process.argv.slice(2);
@@ -86,13 +104,18 @@ const main = async () => {
     for (const r of done.listing) console.log(`${r.label}: ${r.error ? `ERROR ${r.error}` : `${r.names.length} in the account`}`);
     process.exit(done.listing.some((r) => r.error) ? UNREADABLE : CLEAN);
   }
+  if (verb === "filter" && rest.length === 3) {
+    const done = filter(rest[0], rest[1], rest[2]);
+    console.log(done.exit === CLEAN ? `the run's own listings: ${done.wrote.join(", ") || "none"}` : "cannot cut the listings: the prefix is not a run's or a listing is not readable");
+    process.exit(done.exit);
+  }
   if (verb === "judge") {
     const done = judge(rest);
     console.log(done.lines.join("\n"));
     console.log(done.exit === CLEAN ? "STAGING CLEAN" : done.exit === FAILED ? "STAGING FAILED" : "STAGING UNREADABLE");
     process.exit(done.exit);
   }
-  console.error("usage: leftovers.mjs snapshot <out.json> | judge --prefix <p> --after <f> [--before <f>] [--during <f> --plan <f>]");
+  console.error("usage: leftovers.mjs snapshot <out.json> | filter <prefix> <from-dir> <to-dir> | judge --prefix <p> --after <f> [--before <f>] [--during <f> --plan <f>]");
   process.exit(UNREADABLE);
 };
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

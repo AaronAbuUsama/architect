@@ -8,7 +8,8 @@ name: staging
 # (check 37 pins their `--plan`); this workflow only calls them. e2e/staging/README.md says what each step judges. The lead decides when the first real run happens.
 #
 # The credentials are only `secrets.CLOUDFLARE_API_TOKEN` and `vars.CLOUDFLARE_ACCOUNT_ID`, and each is in the `env` of the steps that talk to Cloudflare (the two snapshots, up and
-# destroy) and nowhere else. Nothing here prints or writes either. The evidence uploaded is the plan and the listings: names, never a credential and never wrangler's own log.
+# destroy) and nowhere else. Nothing here prints or writes either. The evidence uploaded is the plan, the story, the verdict and the listings cut to the run's prefix: never a credential, never wrangler's own log, and never a name that
+# is not the run's (the repository is public, and the account holds other apps' resources).
 on:
   workflow_dispatch:
 
@@ -24,10 +25,12 @@ concurrency:
 jobs:
   staging:
     runs-on: ubuntu-latest
+    # A protected environment: its branch rule (protected branches only) is set on GitHub by Aaron or the lead; this file only names it.
+    environment: staging
     timeout-minutes: 30
     env:
       # The run id is the run's name: `ortho env up staging --plan` makes the prefix from it, and everything below reads the prefix from that plan, never forming it again.
-      RUN: ${{ github.run_id }}
+      RUN: ${{ github.run_id }}${{ github.run_attempt }}
       ORTHO: node packages/cli/src/main.ts
       EVIDENCE: tmp/staging
     steps:
@@ -43,14 +46,14 @@ jobs:
       - name: plan
         id: plan
         run: |
-          mkdir -p "$EVIDENCE"
+          mkdir -p "$EVIDENCE/private"
           $ORTHO env up staging --plan --run "$RUN" --root examples/plugged-in > "$EVIDENCE/plan.json"
           echo "prefix=$(jq -r .prefix "$EVIDENCE/plan.json")" >> "$GITHUB_OUTPUT"
 
       # What the account holds before anything is made: the baseline for "nothing without the prefix changed". If it cannot be read, nothing is made.
       - name: snapshot before
         id: before
-        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/before.json"
+        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/private/before.json"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
@@ -67,7 +70,7 @@ jobs:
       - name: snapshot while up
         id: during
         if: steps.up.outcome == 'success'
-        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/during.json"
+        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/private/during.json"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
@@ -93,7 +96,7 @@ jobs:
       - name: snapshot after destroy
         id: after
         if: always()
-        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/after.json"
+        run: node e2e/staging/leftovers.mjs snapshot "$EVIDENCE/private/after.json"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
@@ -104,12 +107,21 @@ jobs:
         id: judge
         if: always()
         run: |
-          args=(--prefix "$PREFIX" --after "$EVIDENCE/after.json" --before "$EVIDENCE/before.json")
-          if [ "$UP" = success ]; then args+=(--during "$EVIDENCE/during.json" --plan "$EVIDENCE/plan.json"); fi
+          args=(--prefix "$PREFIX" --after "$EVIDENCE/private/after.json" --before "$EVIDENCE/private/before.json")
+          if [ "$UP" = success ]; then args+=(--during "$EVIDENCE/private/during.json" --plan "$EVIDENCE/plan.json"); fi
           node e2e/staging/leftovers.mjs judge "${args[@]}" 2>&1 | tee "$EVIDENCE/verdict.txt"; exit "${PIPESTATUS[0]}"
         env:
           PREFIX: ${{ steps.plan.outputs.prefix }}
           UP: ${{ steps.up.outcome }}
+
+      # The run's own part of the listings, for the evidence. The whole-account listings stay in tmp/staging/private and are never uploaded: the repository is public and the account
+      # holds other apps' resources.
+      - name: the run's own listings
+        id: evidence
+        if: always()
+        run: node e2e/staging/leftovers.mjs filter "$PREFIX" "$EVIDENCE/private" "$EVIDENCE"
+        env:
+          PREFIX: ${{ steps.plan.outputs.prefix }}
 
       # up and the story were allowed to fail so that destroy and the listing could run; they still fail the job.
       - name: up and the story must have passed
@@ -127,9 +139,9 @@ jobs:
           name: staging-evidence-${{ github.run_id }}
           path: |
             tmp/staging/plan.json
-            tmp/staging/before.json
-            tmp/staging/during.json
-            tmp/staging/after.json
-            tmp/staging/verdict.txt
             tmp/staging/story.txt
+            tmp/staging/verdict.txt
+            tmp/staging/during-run.json
+            tmp/staging/after-run.json
           if-no-files-found: warn
+          retention-days: 7
