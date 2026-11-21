@@ -34,6 +34,14 @@ describe("values", () => {
     expect(decode(U8.schema, "0")).toBe("Success");
   });
 
+  it("a width that is no whole number does not throw while the blueprint loads, and accepts nothing", () => {
+    for (const bits of [Number.NaN, 1.5, Number.POSITIVE_INFINITY, 0, -8]) {
+      expect(() => Values.uint(bits), String(bits)).not.toThrow();
+      expect(decode(Values.uint(bits).schema, "0"), String(bits)).toBe("Failure");
+      expect(() => Values.money({ kind: "asset", of: "currency", code: "EUR" }, { bits }), String(bits)).not.toThrow();
+    }
+  });
+
   it("an account is CAIP-10 text", () => {
     expect(Values.account().meta).toEqual({ type: "account" });
     expect(decode(Values.account().schema, "eip155:31337:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).toBe("Success");

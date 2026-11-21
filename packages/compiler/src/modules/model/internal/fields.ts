@@ -54,6 +54,10 @@ export const fieldsOf = ({ valueNames, schemaNames, thingNames, roleNames, names
     const visibility = visibilityModel(input.visibility, where);
     const issued = issuedIn(input, where, ctx.place);
     const meta = metaOf(value.meta, where, ctx.owner, names, problems);
+    // A width that is no whole number from 1 to 256 is refused for every store; on a chain it must also be a multiple of 8 (chain.ts).
+    if ((meta.type === "uint" || meta.type === "money") && !(Number.isInteger(meta.bits) && meta.bits >= 1 && meta.bits <= 256)) {
+      problems.push(`${where}: a ${meta.type} of ${String(meta.bits)} bits is no width: bits is a whole number from 1 to 256 (a chain store needs 8 to 256, in steps of 8)`);
+    }
     const solidity = ctx.chain ? chainField(value, meta, input.visibility, where, problems) : undefined;
     return { value: meta, ...(solidity === undefined ? {} : { solidity }), ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(input.description === undefined ? {} : { description: input.description }), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
   };

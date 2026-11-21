@@ -97,8 +97,8 @@ export const describe = (layout: Layout, before: Lock = EMPTY_LOCK): { model: Mo
     const op = declared;
     const chain = onChain(layout.things.get(thing)?.thing);
     const onDevice = op.runs === "client" && (layout.things.get(thing)?.from.kind ?? "app") !== "app"; // a plugin's, with its code for each host
-    if (chain) { /* where it runs is the compiler's word, refused when written */ }
-    else if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
+    // On a chain store where it runs is the compiler's word, so a written `runs` is refused in operations.ts.
+    if (!chain && op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
     const machine = things[thing]?.machine;
     const move = op.move
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
