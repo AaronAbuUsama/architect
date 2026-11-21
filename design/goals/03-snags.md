@@ -278,12 +278,15 @@ takes each, check first, and the climber comes back to that step once it is fixe
   stand-in, and reproduced by the 🔍 of #241 on its own wrong builds.
 - Lost: a builder would see a hang instead of a named error, and CI would wait until the job's own timeout. Check 34
   stops its own prove at 240 s so it fails rather than hangs.
-- Cause: not yet traced. It has the same shape as check 33, a missing handler. Something in prove's start-up waits on a
-  module that fails to load and never reports the failure.
+- Cause: traced by the 🔍 of #253. Prove prints nothing. Wrangler's log (`.ortho/prove/wrangler.log` in the copy) holds
+  esbuild's error, coloured even when written to a file with `CI=1`: `✘ [ERROR] No matching export in
+  "../../blueprint/things/handle/invariants.ts" for import "oneHolderPerName"`. Wrangler stays up waiting for file
+  changes, and prove keeps polling for the world: that is the hang. The polling is `bringUp` in
+  `packages/prove/src/modules/world/internal/wrangler.ts`.
 - Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open
+- Status: check written (#253)
 
 ## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
 - Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
