@@ -388,3 +388,20 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   `packages/compiler/expected-failing/rule-name-case.txt` (G11).
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open; checks written (this pull request)
+
+## S-35 · language-effect · the pre-commit unique check rescans every written row once for each row it checks
+- Hit: Codex on #283 (Goal 4). `holderOf` (`packages/language-effect/src/modules/records/internal/holder.ts:28-31`) loops
+  `for (const id of written(rule.thing))` and calls `find` for each, and the unit's check (`internal/unit.ts`) calls it for every row it writes.
+- Reproduced (21 November 2026, a call that inserts n rows under one unique rule, then `unit.check`): the looks at a key
+  (`holds` and `ruleKey`) are 40,400 for 200 rows and 361,200 for 600 (9 times for 3 times the rows). `find` itself walks the
+  call's held rows (`heldFor`), so the time is cubic: 3,000 rows had not finished after minutes.
+- Lost: a bulk write (a seed, an import, a handler that writes a few thousand rows) holds its worker for minutes, with the
+  work synchronous, so no timeout can stop it.
+- Cause: the held rows are never indexed by rule and key; each row's lookup walks all of them and reads each again.
+- Fix: framework. Index the call's held rows by rule and key once per check, so each lookup is constant time. Checks:
+  `packages/language-effect/src/modules/records/unique-bulk-scale.test.ts`, held on
+  `packages/language-effect/expected-failing/unique-bulk-scale.txt` (G11). They count the looks at keys through the rule
+  module's seam (at most 6 a row), not the clock; a 4,000 ms bound on the 3,000-row call is the secondary check. A scan that
+  compares keys worked out once is not caught (cheap string compares), and is not what this snag is about.
+- Owner: Goal 3 lead, for a framework builder in `language-effect`.
+- Status: open; checks written (this pull request)
