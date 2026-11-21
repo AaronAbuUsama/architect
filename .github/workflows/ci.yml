@@ -3,8 +3,8 @@ name: ci
 on:
   push:
     branches: [main, "layer/**", "m[0-9]", "goal/**"]
-  # ready_for_review: a draft runs nothing (every job below starts with the draft guard), and marking it ready runs CI
-  # once (design/decisions/CI-drafts.md).
+  # ready_for_review: a draft runs only the `ready` job below, and marking it ready runs CI once
+  # (design/decisions/CI-drafts.md, CI-drafts-race.md).
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -13,18 +13,61 @@ permissions:
 
 # A newer push to the same pull request cancels the run it supersedes, so the queue holds only live work.
 # Every push to main, a milestone branch or a goal branch gets its own group, so none is cancelled or dropped.
+# A run that cancels another always starts after it, and so reads the pull request's draft state later (`ready` below).
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Branch protection reads the required checks from the latest `ci` run on the head, and the event's payload can be stale:
+# a push made just before `gh pr ready` can deliver `draft: true` after the ready event. So no job trusts the payload.
+# The `ready` job reads the pull request's live draft state, and every other job needs it (CI-drafts-race.md). The
+# required checks (`check`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, `builder-paths`) follow two more rules, which
+# tools/ci/required-jobs.sh holds in check-static:
+#   1. On a ready run a required job never skips. It runs, and decides in its steps; GitHub counts a skipped required
+#      check as passed.
+#   2. Its name is `${{ needs.ready.outputs.draft != 'false' && '<id> (draft)' || '<id>' }}`. GitHub never evaluates a
+#      skipped job's name, so a draft run's skipped jobs carry that text, not the required name, and the checks stay
+#      expected: a draft run can never pass one.
+
 # Every job has a timeout, about twice its longest green run, so a hung run or one left behind by a closed pull request
 # frees its runner instead of holding it for hours.
 jobs:
+  # Is the pull request a draft now? Read from the API, not the payload. A push run is never a draft.
+  ready:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      draft: ${{ steps.live.outputs.draft }}
+    steps:
+      - id: live
+        run: |
+          if [[ "$EVENT" == pull_request ]]; then
+            # Three tries: should the API fail, every job skips and the pull request waits for a rerun.
+            for try in 1 2 3; do
+              draft=$(gh api "repos/$REPO/pulls/$PR" --jq .draft) && break
+              [[ "$try" == 3 ]] && exit 1
+              sleep 5
+            done
+          else
+            draft=false
+          fi
+          echo "draft=$draft" >> "$GITHUB_OUTPUT"
+          echo "payload draft: $PAYLOAD_DRAFT; live draft: $draft"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          PAYLOAD_DRAFT: ${{ github.event.pull_request.draft }}
+
   # `check` (required) is every project's lint, typecheck and tests, the sync check and the CI scripts' own tests. It runs
   # as three jobs side by side (design/decisions/CI-speed.md): prove's tests alone took 13 of check's 16 minutes, so they
   # run in shards, and the rest runs beside them. The small `check` job at the end passes only when both did.
   check-static:
-    if: github.event.pull_request.draft != true
+    needs: ready
+    if: needs.ready.outputs.draft == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -42,15 +85,18 @@ jobs:
       - run: pnpm nx run-many -t lint,typecheck -p prove --outputStyle=static
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
-      # The CI guards' own scripts (builder-paths, supersedes, codex-state, gate), each case on a throwaway repository.
+      # The CI guards' own scripts (builder-paths, supersedes, codex-state, gate, required-jobs), each case on a throwaway
+      # repository.
       - run: bash tools/ci/ci.test.sh
+      # No draft run can pass a required check. When a branch's protection requires a new check, add its job here.
+      - run: tools/ci/required-jobs.sh .github/workflows/ci.yml check e2e-layer1 e2e-layer2 e2e-m0 builder-paths
 
   # prove's tests, split by file into three shards (vitest's --shard), each on its own runner with the same steps as
   # check-static. Every shard runs to the end (no fail-fast), so one run shows every failure. Skipped on a docs-only pull
-  # request, like the layer gates: no prove test reads design/ or a doc outside packages/ (CI-speed.md).
+  # request, as no branch requires it: no prove test reads design/ or a doc outside packages/ (CI-speed.md).
   prove-tests:
-    needs: changes
-    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
+    needs: [ready, changes]
+    if: ${{ needs.ready.outputs.draft == 'false' && !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
     name: prove-tests (${{ matrix.shard }}/3)
     strategy:
       fail-fast: false
@@ -74,8 +120,9 @@ jobs:
   # did, and tools/ci/gate.sh fails it unless check-static passed and every prove-tests shard passed, or the shards were
   # skipped by the docs fast path.
   check:
-    needs: [changes, check-static, prove-tests]
-    if: ${{ github.event.pull_request.draft != true && (!cancelled()) }}
+    name: ${{ needs.ready.outputs.draft != 'false' && 'check (draft)' || 'check' }}
+    needs: [ready, changes, check-static, prove-tests]
+    if: ${{ needs.ready.outputs.draft == 'false' && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -90,26 +137,35 @@ jobs:
 
   # A builder never edits journeys, evals or the runner's checks (AGENTS.md; proposal 6 in design/process/proposals.md).
   # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
-  # Any other pull request or push skips it, and a skipped job counts as passed where it is required.
+  # On any other pull request or push the job still runs and passes at once, guarding nothing: a required job never skips.
   builder-paths:
-    if: github.event.pull_request.draft != true && (github.event_name == 'pull_request' && endsWith(github.head_ref, '-build'))
+    name: ${{ needs.ready.outputs.draft != 'false' && 'builder-paths (draft)' || 'builder-paths' }}
+    needs: ready
+    if: needs.ready.outputs.draft == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      GUARDED: ${{ github.event_name == 'pull_request' && endsWith(github.head_ref, '-build') }}
     steps:
+      - if: env.GUARDED != 'true'
+        run: echo "Not a pull request from a -build branch, so there is nothing to guard."
       - uses: actions/checkout@v7.0.1
+        if: env.GUARDED == 'true'
         with:
           fetch-depth: 0
-      - run: tools/ci/builder-paths.sh "origin/$BASE_REF" HEAD
+      - if: env.GUARDED == 'true'
+        run: tools/ci/builder-paths.sh "origin/$BASE_REF" HEAD
         env:
           BASE_REF: ${{ github.base_ref }}
 
-  # Is this pull request docs only? Then the layer gates below and prove-tests skip (design/decisions/CI-docs-fast-path.md,
-  # CI-speed.md): a docs change cannot move them. Docs-only is every changed path under design/, or a *.md file outside packages/, e2e/ and examples/
+  # Is this pull request docs only? Then the layer gates below pass without running their steps, and prove-tests and
+  # e2e-m8 skip (design/decisions/CI-docs-fast-path.md, CI-speed.md): a docs change cannot move them. Docs-only is every changed path under design/, or a *.md file outside packages/, e2e/ and examples/
   # (tools/ci/docs-only.sh). A push, or a pull request with any other change, runs everything. check-static and `e2e-m0`
   # always run, since they lint the docs, total the e2e READMEs, build the design docs and run the supersedes guard.
   # Never workflow-level `paths-ignore`: a workflow that never starts leaves its required checks pending forever.
   changes:
-    if: github.event.pull_request.draft != true
+    needs: ready
+    if: needs.ready.outputs.draft == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -133,44 +189,66 @@ jobs:
 
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
-    # Skipped on a docs-only pull request, where a skip counts as passed. Should `changes` itself fail, this runs.
-    needs: changes
-    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
+    # On a docs-only pull request the job runs and passes without its steps: a required job never skips. Should
+    # `changes` itself fail, the steps run.
+    name: ${{ needs.ready.outputs.draft != 'false' && 'e2e-layer1 (draft)' || 'e2e-layer1' }}
+    needs: [ready, changes]
+    if: ${{ needs.ready.outputs.draft == 'false' && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      DOCS_ONLY: ${{ needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true' }}
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: pnpm/action-setup@v6.1.0
-      - uses: actions/setup-node@v7.1.0
+      - if: env.DOCS_ONLY == 'true'
+        run: echo "A docs-only pull request, which cannot move this gate (design/decisions/CI-docs-fast-path.md)."
+      - if: env.DOCS_ONLY != 'true'
+        uses: actions/checkout@v7.0.1
+      - if: env.DOCS_ONLY != 'true'
+        uses: pnpm/action-setup@v6.1.0
+      - if: env.DOCS_ONLY != 'true'
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - if: env.DOCS_ONLY != 'true'
+        run: pnpm install --frozen-lockfile
       # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
       # The key is given only to pull requests into main and pushes to main, so layer-branch pushes spend nothing
       # (each run is capped at $5, and the cap across everything is $10 a day; D3 #71).
-      - run: pnpm nx run e2e:layer1 --outputStyle=static
+      - if: env.DOCS_ONLY != 'true'
+        run: pnpm nx run e2e:layer1 --outputStyle=static
         env:
           ANTHROPIC_API_KEY: ${{ ((github.event_name == 'pull_request' && github.base_ref == 'main') || github.ref == 'refs/heads/main') && secrets.ANTHROPIC_API_KEY || '' }}
 
   # Gate 2 (L2.11): all eight authored shipping checks, including the Linux Homebrew install.
   e2e-layer2:
-    # Skipped on a docs-only pull request, where a skip counts as passed. Should `changes` itself fail, this runs.
-    needs: changes
-    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
+    # On a docs-only pull request the job runs and passes without its steps: a required job never skips. Should
+    # `changes` itself fail, the steps run.
+    name: ${{ needs.ready.outputs.draft != 'false' && 'e2e-layer2 (draft)' || 'e2e-layer2' }}
+    needs: [ready, changes]
+    if: ${{ needs.ready.outputs.draft == 'false' && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      DOCS_ONLY: ${{ needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true' }}
     steps:
-      - uses: actions/checkout@v7.0.1
+      - if: env.DOCS_ONLY == 'true'
+        run: echo "A docs-only pull request, which cannot move this gate (design/decisions/CI-docs-fast-path.md)."
+      - if: env.DOCS_ONLY != 'true'
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v6.1.0
-      - uses: actions/setup-node@v7.1.0
+      - if: env.DOCS_ONLY != 'true'
+        uses: pnpm/action-setup@v6.1.0
+      - if: env.DOCS_ONLY != 'true'
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24.22.2
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Require Homebrew for Gate 2
+      - if: env.DOCS_ONLY != 'true'
+        run: pnpm install --frozen-lockfile
+      - if: env.DOCS_ONLY != 'true'
+        name: Require Homebrew for Gate 2
         shell: bash
         run: |
           brew_bin=/home/linuxbrew/.linuxbrew/bin
@@ -180,13 +258,14 @@ jobs:
           fi
           echo "$brew_bin" >> "$GITHUB_PATH"
           "$brew_bin/brew" --version
-      - run: NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
+      - if: env.DOCS_ONLY != 'true'
+        run: NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
 
   # M8's checks (e2e/m8/README.md), written before time is built: the ratchet passes while every failure is listed in
-  # e2e/m8/expected-failing/, and fails on any other. Skipped on a docs-only pull request, like the gates above.
+  # e2e/m8/expected-failing/, and fails on any other. Skipped on a docs-only pull request; no branch requires it.
   e2e-m8:
-    needs: changes
-    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
+    needs: [ready, changes]
+    if: ${{ needs.ready.outputs.draft == 'false' && !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -203,7 +282,9 @@ jobs:
   # The canon's check (docs/canon/README.md) runs beside it: every quote, reference and component in the MDX pages.
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
   e2e-m0:
-    if: github.event.pull_request.draft != true
+    name: ${{ needs.ready.outputs.draft != 'false' && 'e2e-m0 (draft)' || 'e2e-m0' }}
+    needs: ready
+    if: needs.ready.outputs.draft == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
