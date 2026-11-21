@@ -344,7 +344,14 @@ describe("snapshot: the lister reads a whole account, pages included, and never 
       if (url.pathname.endsWith("/workers/scripts")) return ok(Array.from({ length: 150 }, (_, i) => ({ id: `w${i}` })).slice((page - 1) * 100, page * 100));
       if (url.pathname.endsWith("/d1/database")) return ok(page === 1 ? [{ name: "db-one" }] : []);
       if (url.pathname.endsWith("/durable_objects/namespaces")) return ok(page === 1 ? [{ script: "s", class: "C", name: "s_C" }] : []);
-      if (url.pathname.endsWith("/r2/buckets")) return options.refuseR2 ? send(403, { success: false, errors: [{ code: 10000, message: "Authentication error" }] }) : ok({ buckets: page === 1 ? [{ name: "bucket-one" }] : [] });
+      if (url.pathname.endsWith("/r2/buckets")) {
+        if (options.refuseR2) return send(403, { success: false, errors: [{ code: 10000, message: "Authentication error" }] });
+        // R2 pages by cursor, as Cloudflare's List Buckets does: `page` is ignored, so a lister that pages by number sees the first 100 over and over. 150 buckets, the last of them a run's leftover.
+        const names = [...Array.from({ length: 149 }, (_, i) => `other-bucket-${i}`), "ortho-pluggedin-stg-1-bucket"];
+        const start = Number(url.searchParams.get("cursor") ?? 0);
+        const slice = names.slice(start, start + 100).map((name) => ({ name }));
+        return send(200, { success: true, errors: [], result: { buckets: slice }, result_info: { per_page: 100, cursor: start + 100 < names.length ? String(start + 100) : undefined } });
+      }
       return send(404, { success: false, errors: [] });
     });
     server.listen(0, "127.0.0.1", () => resolve({ server, seen, base: `http://127.0.0.1:${server.address().port}` }));
@@ -363,7 +370,7 @@ describe("snapshot: the lister reads a whole account, pages included, and never 
     try { await body(fake, join(dir, "listing.json")); } finally { fake.server.close(); rmSync(dir, { recursive: true, force: true }); }
   };
 
-  test("every kind, every page: 150 workers over two pages, and the listing is judgeable as it stands", async () => {
+  test("every kind, every page: 150 workers over two pages and 150 R2 buckets over two cursors, and the listing is judgeable as it stands", async () => {
     await withServer({}, async (fake, out) => {
       const r = await snapshot({ CLOUDFLARE_API_TOKEN: TOKEN, CLOUDFLARE_ACCOUNT_ID: ACCOUNT, ORTHO_STAGING_API: fake.base }, out);
       assert.equal(r.status, 0, r.text);
@@ -372,8 +379,10 @@ describe("snapshot: the lister reads a whole account, pages included, and never 
       assert.equal(listing[0].names.length, 150);
       assert.deepEqual(listing[1].names, ["db-one"]);
       assert.deepEqual(listing[2].names, ["s:C:s_C"]);
-      assert.deepEqual(listing[3].names, ["bucket-one"]);
-      assert.equal(leftovers(listing, "ortho-pluggedin-stg-1").exit, 0);
+      assert.equal(listing[3].names.length, 150);
+      assert.equal(listing[3].names.at(-1), "ortho-pluggedin-stg-1-bucket");
+      // The leftover is on R2's second cursor: a lister that paged R2 by number would have called this clean.
+      assert.equal(leftovers(listing, "ortho-pluggedin-stg-1").exit, 1);
     });
   });
   test("the token is sent as the bearer and to the account's own path, and neither it nor the account id is printed or written", async () => {

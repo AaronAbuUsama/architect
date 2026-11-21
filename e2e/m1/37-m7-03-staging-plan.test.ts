@@ -170,6 +170,22 @@ describe("37: the infra projection plans staging (M7.03), with no cloud", () => 
       expect(local.stdout).toContain("went on");
     });
 
+    it("the network guard also ends a direct connection by address (net.createConnection and net.connect, which bypass DNS), and lets a local one through", () => {
+      const probe = (code: string) => spawnSync(process.execPath, ["--input-type=module", "-e", `import net from "node:net"; ${code}; await new Promise((r) => setTimeout(r, 300)); console.log("went on");`], { encoding: "utf8", env: quiet(), timeout: 30_000 });
+      for (const [what, code] of [
+        ["createConnection with an options object", `net.createConnection({ host: "203.0.113.7", port: 9 }).on("error", () => {})`],
+        ["connect with a port and a host", `net.connect(9, "203.0.113.7").on("error", () => {})`],
+        ["a socket's own connect", `new net.Socket().on("error", () => {}).connect({ host: "203.0.113.7", port: 9 })`],
+      ] as const) {
+        const ran = probe(code);
+        expect(ran.stderr, what).toContain(`${DENIED} 203.0.113.7`);
+        expect(ran.stdout, what).not.toContain("went on");
+      }
+      const local = probe(`net.createConnection({ host: "127.0.0.1", port: 9 }).on("error", () => {})`);
+      expect(local.stderr).not.toContain(DENIED);
+      expect(local.stdout).toContain("went on");
+    });
+
     it("the command's environment has no Cloudflare credential, whatever the shell holds", () => {
       const held = process.env["CLOUDFLARE_API_TOKEN"];
       process.env["CLOUDFLARE_API_TOKEN"] = "not-a-token";

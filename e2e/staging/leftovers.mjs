@@ -27,16 +27,29 @@ const apiOf = (env) => {
   return { base: `${given ?? "https://api.cloudflare.com"}/client/v4/accounts/${account}`, headers: { authorization: `Bearer ${token}` } };
 };
 
-/** One kind, every page. A page that adds nothing new ends it, so an endpoint that ignores `page` cannot loop. */
-const list = async (api, label, path, nameOf) => {
+/**
+ * One kind, every page. Workers and D1 are paged by number; R2 is paged by cursor (Cloudflare's List Buckets: `result_info.cursor`, sent back as `cursor`), and a request without it repeats the
+ * first page, so R2 follows the cursor until none comes. A page that adds nothing new ends a numbered listing, so an endpoint that ignores `page` cannot loop; a cursor that does not move is an
+ * error, never a short list.
+ */
+const list = async (api, label, path, nameOf, cursored = false) => {
   const names = new Set();
-  for (let page = 1; page < 50; page++) {
-    const res = await fetch(`${api.base}${path}${path.includes("?") ? "&" : "?"}page=${page}&per_page=100`, { headers: api.headers });
+  let cursor;
+  for (let page = 1; page < 500; page++) {
+    const paging = cursored ? `per_page=100${cursor === undefined ? "" : `&cursor=${encodeURIComponent(cursor)}`}` : `page=${page}&per_page=100`;
+    const res = await fetch(`${api.base}${path}${path.includes("?") ? "&" : "?"}${paging}`, { headers: api.headers });
     const body = await res.json().catch(() => ({}));
     if (!res.ok || body.success === false) return { label, error: `HTTP ${res.status} ${JSON.stringify((body.errors ?? []).map((e) => ({ code: e.code, message: e.message })))}` };
     const found = Array.isArray(body.result) ? body.result : (body.result?.buckets ?? []);
     const before = names.size;
     for (const row of found) names.add(nameOf(row));
+    if (cursored) {
+      const next = body.result_info?.cursor;
+      if (typeof next !== "string" || next === "" || found.length === 0) break;
+      if (next === cursor) return { label, error: "the cursor did not move: the listing is incomplete" };
+      cursor = next;
+      continue;
+    }
     if (found.length < 100 || names.size === before) break;
   }
   return { label, names: [...names] };
@@ -50,7 +63,7 @@ export const snapshot = async (env) => {
       await list(api, "workers", "/workers/scripts", (r) => r.id),
       await list(api, "d1", "/d1/database", (r) => r.name),
       await list(api, "durable-object-namespaces", "/workers/durable_objects/namespaces", (r) => `${r.script}:${r.class}:${r.name}`),
-      await list(api, "r2", "/r2/buckets", (r) => r.name),
+      await list(api, "r2", "/r2/buckets", (r) => r.name, true),
     ],
   };
 };

@@ -11,11 +11,15 @@ const deny = (host) => {
 };
 
 const connect = net.Socket.prototype.connect;
+/** Where a `connect` call goes, or `undefined` for a path (a local socket). `net.createConnection` hands `connect` one normalized argument: `[options, callback]`, so the options are unwrapped first. */
+const target = (args) => {
+  const first = Array.isArray(args[0]) ? args[0][0] : args[0];
+  if (typeof first === "object" && first !== null) return first.path ? undefined : (first.host ?? "localhost");
+  return typeof args[1] === "string" ? args[1] : "localhost";
+};
 net.Socket.prototype.connect = function (...args) {
-  const first = args[0];
-  if (typeof first === "object" && first !== null && first.path) return connect.apply(this, args);
-  const host = typeof first === "object" && first !== null ? (first.host ?? "localhost") : (typeof args[1] === "string" ? args[1] : "localhost");
-  if (!LOCAL.test(String(host))) deny(host);
+  const host = target(args);
+  if (host !== undefined && !LOCAL.test(String(host))) deny(host);
   return connect.apply(this, args);
 };
 const lookup = dns.lookup;
