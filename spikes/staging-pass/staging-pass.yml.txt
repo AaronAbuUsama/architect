@@ -1,0 +1,95 @@
+name: staging-pass
+
+# A spike (spikes/staging-pass): deploys Plugged In to Cloudflare workers.dev, exercises it, destroys it, lists the account.
+# Runs only for the spike's own branch, or by hand. Every resource is named ortho-staging-pass-<run id>-*.
+on:
+  push:
+    branches: [spike/staging-pass]
+    paths-ignore: ["spikes/staging-pass/README.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-pass
+  cancel-in-progress: false
+
+jobs:
+  pass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # The credentials are in the environment of the steps that talk to Cloudflare, and nowhere else.
+      - name: up
+        id: up
+        continue-on-error: true
+        run: bash spikes/staging-pass/up.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: story and probes against the deployed URL
+        id: exercise
+        continue-on-error: true
+        if: steps.up.outcome == 'success'
+        working-directory: examples/plugged-in
+        run: |
+          URL=$(cat ../../spikes/staging-pass/evidence/url.txt)
+          SINK=$(cat ../../spikes/staging-pass/evidence/sink-url.txt)
+          ../../node_modules/.bin/tsx ../../spikes/staging-pass/exercise.ts "$URL" "$SINK" ../../spikes/staging-pass/evidence 2>&1 | tee ../../spikes/staging-pass/evidence/exercise.log
+
+      - name: ortho prove's library entry against the deployed URL, as it stands
+        continue-on-error: true
+        if: steps.up.outcome == 'success'
+        working-directory: packages/cli
+        run: |
+          URL=$(cat ../../spikes/staging-pass/evidence/url.txt)
+          SINK=$(cat ../../spikes/staging-pass/evidence/sink-url.txt)
+          timeout 300 ../../node_modules/.bin/tsx ../../spikes/staging-pass/prove-against.ts "$URL" "$SINK" ../../spikes/staging-pass/evidence plain 2>&1 | tee ../../spikes/staging-pass/evidence/prove-against-plain.log
+
+      - name: the same, with https and a telemetry folder fed from the sink (what a cloud pass would have to supply)
+        continue-on-error: true
+        if: steps.up.outcome == 'success'
+        working-directory: packages/cli
+        run: |
+          URL=$(cat ../../spikes/staging-pass/evidence/url.txt)
+          SINK=$(cat ../../spikes/staging-pass/evidence/sink-url.txt)
+          timeout 900 ../../node_modules/.bin/tsx ../../spikes/staging-pass/prove-against.ts "$URL" "$SINK" ../../spikes/staging-pass/evidence shimmed 2>&1 | tee ../../spikes/staging-pass/evidence/prove-against-shimmed.log
+
+      - name: snapshot of the account while the resources are up
+        if: always()
+        continue-on-error: true
+        run: node spikes/staging-pass/leftovers.mjs spikes/staging-pass/evidence/during.json during 2>&1 | tee spikes/staging-pass/evidence/during.log
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: destroy
+        if: always()
+        run: bash spikes/staging-pass/destroy.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: leftover listing (fails if any resource of this run remains)
+        if: always()
+        run: node spikes/staging-pass/leftovers.mjs spikes/staging-pass/evidence/leftovers.json 2>&1 | tee spikes/staging-pass/evidence/leftovers.log; exit "${PIPESTATUS[0]}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: staging-pass-evidence-${{ github.run_id }}
+          path: spikes/staging-pass/evidence/
+          if-no-files-found: warn

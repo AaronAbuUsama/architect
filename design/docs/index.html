@@ -725,8 +725,8 @@ export const keys = Blueprint.choice.one({ apiKeys: { default: true }, none: {} 
 issues: [Via.session, Via.key, Via.device, Via.agent],</code></pre>
 
 <h4>Use their roles in your own things</h4>
-<pre><code class="ts">// a rule is the model; organizations exports holds as a shortcut that makes one
-export const owner = organizations.roles.holds(Organization, ["owner"]);
+<pre><code class="ts">// a role is a rule, or declared with who or holds (K20); organizations' owner and member are holds roles
+export const owner = Blueprint.role(Organization, { holds: Membership.fields.organization, who: Membership.fields.person, where: { role: "owner" } });
 
 allowed: [organizations.roles.owner.of("organization").via(Via.session, Via.key)]</code></pre>
 
@@ -1121,7 +1121,8 @@ passes on <code>main</code>. Orthograph is <b>workable at the end of M2</b>: fro
 <tr><td>M5</td><td>Reach out</td><td>adapters both ways, Stripe and email, views, the outbox, workflows for processes</td><td>the payments and notifications examples green in worlds</td></tr>
 <tr><td>M6</td><td>On chain</td><td>wallets, the Solidity language, Anvil, the relayer and follower</td><td>the on-chain allowance, with no key on the server</td></tr>
 <tr><td>M7</td><td>The cloud, then Capxul</td><td>the cloud pass, then Capxul rebuilt on Orthograph</td><td>acme in staging and production; Capxul's first feature</td></tr>
-<tr><td>Later</td><td></td><td>Noir, the Python client, the world clock and moves made by time</td><td></td></tr>
+<tr><td>M8</td><td>Time</td><td>one clock per world: stepped in journeys, flowing and fast in <code>ortho dev</code>, moves made by time, the keeper (K23)</td><td>a journey moves a month in seconds and a renewal happens once, on time</td></tr>
+<tr><td>Later</td><td></td><td>Noir, the Python client</td><td></td></tr>
 </table></div>
 </section>
 

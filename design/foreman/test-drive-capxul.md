@@ -423,6 +423,21 @@ Batched, for the ear, each with a recommendation first. The first four block the
 Each answer goes in the brief's Decisions (F9, section 5), and the blanks it closes are filled the same turn. Agreeing
 the slice's brief and blueprint, and moving to the next stage, are the two things Foreman asks for (F9, section 10).
 
+**The calls, 21 November 2026.** This record landed under Aaron's standing authority to take the recommendation on
+anything waiting on him (F9, opening). Where Aaron had already answered in Capxul's own session on 20 November, by
+saying yes to that session's recommendations as a batch, his answer stands instead of this one:
+
+| # | Call | Why |
+|---|---|---|
+| 1 | Answered by Capxul's own call: people without a key sign in through an embedded wallet (Openfort), agents and everyone else bring their own key, and personal accounts are ordinary deployed Safes. The email sign-in recommended here is only Orthograph's floor until then | Capxul's call is newer and Aaron's |
+| 2 | No Safe in this slice. And this slice is no longer Capxul's first: Capxul's own call puts one person getting paid ahead of the Safe plugin, the company and invitations | Capxul's call |
+| 3 | Capxul's own code first, extracted when a second app needs it | the recommendation |
+| 4 | "Company" | the recommendation, and Capxul's own call; K22 now lets an app give a mounted thing its own name, so the clash with "organisation" goes away |
+| 5 | Only the founder invites, with Directors added once the Director role can be written (K20 decides how) | the recommendation |
+| 6 | Founded in one step with its Directors named | the recommendation |
+| 7 | Locally for this slice; in the cloud when the chain and the business site join | the recommendation |
+| 8 | Revoke now, by the founder; no expiry | the recommendation |
+
 ## 5. Findings
 
 ### Where Orthograph fell short
@@ -438,7 +453,8 @@ the slice's brief and blueprint, and moving to the next stage, are the two thing
 3. **A role can't say "a Director of this company" or "a member of this company".** A role is a rule over one record
    (`examples/starter/blueprint/things/organization/roles.ts:5`), and Directors are rows of another thing. The planned
    `holds` (M2.07, `design/milestones.md:261`) is meant for this. Until then the Director role is a blank, and listing a
-   company's people is founder-only.
+   company's people is founder-only. *Decided since (not built):* a role can be held through another thing's rows
+   (`design/decisions/K20-roles-across-things.md`, 20 November 2026).
 4. **No uniqueness over two fields.** Unique keys are one field each (`packages/orthograph/src/modules/things/types.ts:46`
    on goal/stage-1), though the decision designs a tuple of fields for a composite key
    (`design/decisions/G5-invariants.md:90` on goal/stage-1, which replaces the per-field `unique:` spelling this slice
@@ -446,7 +462,9 @@ the slice's brief and blueprint, and moving to the next stage, are the two thing
    invitation per company and email, both need it. Story 6 can't be walked without a handler doing the store's job.
 5. **No "nothing changed" move.** Capxul's machine answers accepting an accepted invitation with no change
    (`packages/blueprint/src/things/invitation/lifecycle.ts:39`). Orthograph's `notFrom` refuses every move from a wrong
-   state (`examples/starter/blueprint/things/invitation/machine.ts:12`).
+   state (`examples/starter/blueprint/things/invitation/machine.ts:12`). *Decided since (not built), with finding 6:* a
+   repeated call answers, changes nothing and emits nothing, rather than being refused
+   (`design/decisions/K21-a-repeat-changes-nothing.md`, 20 November 2026).
 6. **Idempotent by intent, not only by request.** Capxul's founding answers `Resumed` for the same founding sent again
    and refuses a changed one with `FoundingChanged`, with no request key
    (`packages/blueprint/src/things/company/verbs/create.ts:40-47`, `:152-155`). Orthograph's `idempotent: "request"`
@@ -457,11 +475,13 @@ the slice's brief and blueprint, and moving to the next stage, are the two thing
 8. **No declared signing by several people.** Capxul's founding answers the approvals its Directors must sign, and a
    later `approval.sign` collects them (`packages/blueprint/src/things/company/verbs/create.ts:147-149`). Orthograph's
    nearest is an action that asks its own caller first (`needsApproval`, M1.23); the Safe, hats and budgets are stage 3
-   plans (the model draft, section 4).
+   plans (the model draft, section 4), and so part of the 1.0 release, not the preview or the beta (K28, on pull request
+   262).
 9. **A mount can't rename what it brings.** A mount's verbs are choose, include, narrow and omit
    (`packages/orthograph/src/modules/plugins/service.ts:36-39` on goal/stage-1), and `ortho add feature --as <name>`
    names the mount, not its things (`packages/cli/src/modules/mounting/README.md:3` on goal/stage-1), so a plugin's
-   "organisation" can't be an app's "company".
+   "organisation" can't be an app's "company". *Decided since (not built):* an app can give a mounted thing its own name
+   (`design/decisions/K22-a-mount-names-its-things.md`, 20 November 2026).
 10. **A mount is app-wide.** It can't be limited to the development environment (`use` takes the plugin and its verbs, and no environment: `packages/orthograph/src/modules/plugins/service.ts:31` on
     `goal/stage-1`).
 11. **No list of references in a payload.** Field values are an id, a number, text or a raw schema

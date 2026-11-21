@@ -1,8 +1,11 @@
 # F9: Foreman, version zero
 
 Proposed 20 November 2026 as a draft for Aaron, and revised three times the same day after he read it (his answers relayed by
-the conductor; his own phrases are quoted). Nothing here is built. The architecture is the building agent's to decide
-(`AGENTS.md`, "Who decides"); the two forks at the end are the ones his answers left open.
+the conductor; his own phrases are quoted). Parked the same evening at his call ("drop it for now and push on with the
+framework"). **Landed 21 November 2026 as the design record**, under his standing authority relayed by the conductor:
+"anything that's waiting on me, just go with the recommendations. You have authority." So both forks at the end are
+settled at their recommendation, and recorded there. Nothing here is built, and building it stays parked until Aaron
+raises it. The architecture is the building agent's to decide (`AGENTS.md`, "Who decides").
 
 **The name is open.** Aaron keeps "Foreman" for now, because it fits the blueprint theme, and floated "who makes an
 Orthograph?" as a way to find a better one. Nothing is renamed here. Read aloud, "Foreman" sounds like "Forman", the
@@ -151,7 +154,8 @@ typed-in status drifts, as the board's ticks did (lesson 18).
 
 - **Now:** the kanban board as it is, with the fields above added. It works today and Aaron already uses it.
 - **Next, when Capxul starts:** the same shape, declared as Orthograph things in Capxul's own blueprint, as ordinary app
-  code, built once and used. The board's data moves over with one import.
+  code, built once and used. The board's data moves over with one import. Capxul needs people signed in, which is the
+  beta in the three releases (preview, beta and 1.0, K28 on pull request 262), so this step comes no earlier than that.
 - **Later:** extracted as a feature when a second app (Orthograph's own project) needs it. The always-on loop is then a
   Durable Object calling those operations. K11's work board is the design that extraction meets.
 
@@ -183,8 +187,10 @@ export const Blocked = Blueprint.event({ task: Task.fields.id, by: Blueprint.ref
 export const Unblocked = Blueprint.event({ task: Task.fields.id, by: Blueprint.refAny() });
 ```
 
-Declaring it finds two gaps. **There is no time value**, so `createdAt`, `lastCheckIn` and `nextCheckIn` can't be
-fields, and the journal keeps order and the trace, not a clock time:
+Declaring it finds two gaps. **There is no time value yet**, so `createdAt`, `lastCheckIn` and `nextCheckIn` can't be
+fields today, and the journal keeps order and the trace, not a clock time (time is now its own milestone, M8, designed
+in `design/decisions/K23-time.md`, whose sketches already use time fields such as `startedAt` at lines 161-163; not
+built):
 
 ```sql
 -- packages/host-cloudflare/test/migrations-vault/0001_vault.sql:7-15, on goal/stage-1
@@ -253,7 +259,9 @@ reads code still knows the app is correct, and it shows the brief and the board 
 
 Version zero is honest about the gap: the portal shows live calls only during a prove (the model draft, section 5), and
 the board is the kanban artifact until Capxul declares it (section 5). Until then Foreman says it, and draws it when the
-brief's "Working with you" says visual.
+brief's "Working with you" says visual. When the portal does show the board, it is built on UI SDK, the interface base
+that replaces HeroUI (K24, on pull request 217). UI SDK has no kanban board of its own, so the board is built on its
+reorder behaviours (`createReorder`, `createTransfer`), as K24 notes.
 
 ## 8. Personality is routines
 
@@ -371,10 +379,10 @@ is never patched in the app. It becomes a framework item with a journey that can
 
 ## 12. What this changes
 
-- No live document's words change in this draft, so there is no `## Supersedes` section yet; section 9 says which
-  change will carry one.
-- `design/handoff.md`'s decision list gains this record, F9, as a draft for Aaron.
-- Building it is a goal of its own, after Aaron's answers below.
+- No live document's words change in this record, so there is no `## Supersedes` section; section 9 says which change
+  will carry one.
+- `design/handoff.md`'s decision list gains this record, F9, on `main`.
+- Building it is a goal of its own, and it stays parked until Aaron raises Foreman again.
 
 ---
 
@@ -392,7 +400,8 @@ Aaron's answers have settled the rest, and those forks are dropped:
 | the shape of its state | the brief and the board | section 5 |
 | which store holds it, where it runs, where it first lives | answered by the floor: the kanban artifact now, Capxul's blueprint next | section 5 |
 
-Two remain. Aaron may still amend the direction in section 5, so these are asked against it.
+Two remained, asked against section 5's direction. Both are settled at their recommendation, as "The calls" at the end
+records.
 
 Shared terms for this round:
 
@@ -541,10 +550,12 @@ already uses, and Capxul's declaration then starts from a shape proved by use.
 
 ## At a glance
 
-| # | Joint | Recommendation |
-|---|---|---|
-| 1 | Where the brief lives, and how it is agreed | A · a file in the repository, the agreed revision recorded in its Decisions |
-| 2 | Where the board lives first | A · the kanban artifact with the new fields now; declared in Capxul when Capxul starts |
+| # | Joint | Recommendation | Call, 21 November 2026 |
+|---|---|---|---|
+| 1 | Where the brief lives, and how it is agreed | A · a file in the repository, the agreed revision recorded in its Decisions | **A**, under Aaron's standing authority |
+| 2 | Where the board lives first | A · the kanban artifact with the new fields now; declared in Capxul when Capxul starts | **A**, under Aaron's standing authority |
 
-**Answer key.** Reply with the question number and a letter, for example "1 A, 2 A". Anything you don't answer takes
-the recommendation.
+**The calls.** Aaron gave the conductor standing authority on 21 November 2026 to take the recommendation on anything
+waiting on him, so both forks are settled at A. Question 1: a project's brief is a file in its repository, and the
+revision the person agreed is one line in its Decisions. Question 2: the board stays the kanban artifact, gaining the
+fields in section 5, and is declared in Capxul's blueprint when Capxul starts. Neither is built: Foreman stays parked.
