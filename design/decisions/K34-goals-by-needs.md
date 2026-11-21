@@ -27,6 +27,7 @@ what M2 builds, so the order costs parallel work and buys nothing.
 
    | Slice | Its `needs` was | Now | Why |
    |---|---|---|---|
+   | M6.01, the chain decision | Gate M5 (the stage table: Gate M2) | none | K26, item 1, already started it on 20 November; this writes that on `main` |
    | M3.01, workflows' shape | Gate M2 (the stage table: "Gate M2, unchanged") | none | a decision; the engine it settles on is the one the workflows spike proved (#289), and the builds after it (M3.02, M3.03) need it, not M2 |
    | M4.01, agents' shape | Gate M3 (the stage table: the stage 2 gate, ST2.06) | none | a decision; nothing in M4.02 to M4.10 reads M3 or stage 2 |
    | M5.01, views and the outbox | Gate M4 (the stage table: Gate M2) | none | a decision; M5.03's `on:` reads only M5.01 |
@@ -47,7 +48,8 @@ what M2 builds, so the order costs parallel work and buys nothing.
 | Dependent | Change |
 |---|---|
 | `AGENTS.md`, "How work flows" | the milestone rule, as below |
-| `design/milestones.md` | the six needs cells above, and the stage table's "Read it as" column |
+| `design/milestones.md`, the build plan's rule 2 | "Nothing in milestone n+1 starts until gate n" becomes the needs rule; each milestone still ends in its gate |
+| `design/milestones.md` | the seven needs cells above, and the stage table's "Read it as" column for M3.01, M4.01, M5.01, M6.01 and M7.13 (M7.01 keeps Gate M2, and is ✅ on `goal/stage-1`) |
 | `design/goals/03-stage-1-hill-climbed.md` | its quote of the old rule, rewritten; Goal 3's copy on `goal/stage-1` takes it when it merges `main` in |
 | K26 (dated record, on `goal/stage-1`) | a Superseded note on item 5, by a pull request Goal 3 merges |
 | `design/goals/map.md` | the goals and their needs, drawn from the cells above |
@@ -57,3 +59,4 @@ what M2 builds, so the order costs parallel work and buys nothing.
 - `AGENTS.md`: "until the previous milestone's gate passes on `main`" → "until what it needs has landed, in any milestone order (K34); a milestone is done when its gate passes on `main`."
 - `design/milestones.md`: "Gate M2, unchanged" → "none (K34): a decision; the engine is the one the workflows spike proved (#289)"
 - `design/milestones.md`: "M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it" → "M7.13: M7.01 alone (K34), and every other M7 slice needs it"
+- `design/milestones.md`: "Nothing in milestone n+1 starts until gate n" → "A milestone is done when its gate passes on `main` from a clean checkout, locally and in CI. A slice starts once what it `needs` has landed, in any milestone order (K34)."

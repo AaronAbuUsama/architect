@@ -35,8 +35,9 @@ The build plan's rules, unchanged except for names:
 
 1. **One slice, one session.** A slice ends green: every existing check passes. It is proved by its *done when*, a
    command and its expected output. A slice that won't fit a session is split before it starts.
-2. **Gates.** Each milestone ends in one e2e suite, `nx run e2e:m<n>`. Nothing in milestone n+1 starts until gate n
-   passes on `main` from a clean checkout, locally and in CI. **After Gate M2 the order is by stage** ("v1.0: four
+2. **Gates.** Each milestone ends in one e2e suite, `nx run e2e:m<n>`. A milestone is done when its gate
+   passes on `main` from a clean checkout, locally and in CI. A slice starts once what it `needs` has landed, in any
+   milestone order (K34). **After Gate M2 the order is by stage** ("v1.0: four
    stages" below, K9): a stage's slices may come from any milestone, and each stage ends in its own gate.
 3. **Decisions just in time.** A decision slice sits right before the first slice that needs it and ends with a record
    in `design/decisions/`.
@@ -84,7 +85,7 @@ slice's `needs` named one of those gates, it is read as below; K34 rewrote the o
 
 | Slice | Its `needs` said | Read it as |
 |---|---|---|
-| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |
+| M6.01 (stage 2's chain decision) | Gate M5 | none: started 20 November 2026 (K26, Aaron's exception) |
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | none (K34): a decision |
 | M3.01 (workflows, stage 3) | Gate M2 | none (K34): a decision; the engine is the one the workflows spike proved (#289) |
 | M4.01 (agents, stage 3) | Gate M3 | none (K34): a decision |
@@ -420,7 +421,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | none (K26, K34) | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for the chain: contracts, the relayer and the follower (Codex's planned files `06` to `08`; the wallet's are M1.28 and M2.13) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | Moved to M1.29 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.04 | Moved to M2.13 (K7 F4: the wallet is the first plugin) | | | | |
