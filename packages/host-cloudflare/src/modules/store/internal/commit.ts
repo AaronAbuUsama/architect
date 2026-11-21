@@ -1,8 +1,8 @@
-// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch. A guard that lost, or a unique index that refused (G4), is a `conflict`: the call runs again.
+// One commit to one database: the call's inserts, its guarded updates, its journal entries and its request key, as one D1 batch. A guard that lost, or a unique index that refused (G5), is a `conflict`: the call runs again.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
-import type { Commit, Entry, Write } from "@orthograph/language-effect";
+import type { Commit, Entry, NamedRule, Write } from "@orthograph/language-effect";
 import { encodeFields, lostGuard } from "./rows.ts";
 import { lostUnique } from "./unique.ts";
 
@@ -12,7 +12,7 @@ export interface Db {
   readonly d1: D1Client.D1Client;
 }
 
-export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => string, { writes, entries, request }: Commit) => {
+export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => string, { writes, entries, request }: Commit, rules: ReadonlyArray<NamedRule> = []) => {
   const statementOf = (w: Write) =>
     Effect.gen(function* () {
       const table = sql(tableOf(w.thing));
@@ -36,7 +36,7 @@ export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => st
     if (statements.length === 0) return "committed" as const;
     return yield* d1.batch(statements).pipe(
       Effect.as("committed" as const),
-      Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf) ? Effect.succeed("conflict" as const) : Effect.die(e))),
+      Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf, rules) ? Effect.succeed("conflict" as const) : Effect.die(e))),
     );
   });
 };

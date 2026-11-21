@@ -1,6 +1,6 @@
 # The canon's outline
 
-There are twenty-eight concept pages and three reference pages, in the order a newcomer reads them. Each page explains
+There are twenty-nine concept pages and three reference pages, in the order a newcomer reads them. Each page explains
 one idea, and each word in the glossary (`design/docs/index.html`, the table headed "Word") has exactly one page that
 owns it. Other pages link to that page and never explain the word again.
 
@@ -22,7 +22,7 @@ level, and the details wait for the layers that own them.
 | Layer | Pages | Leans on |
 |---|---|---|
 | 1 · the shape | `orthograph`, `blueprint`, `languages-and-hosts`, `plugins`, `data`, `doors` | nothing |
-| 2 · the core | `things`, `machines`, `operations` (with steps), `roles`, `handlers` | 1 |
+| 2 · the core | `things`, `machines`, `invariants`, `operations` (with steps), `roles`, `handlers` | 1 |
 | 3 · proof | `journeys`, `proof`, `traces`, `stand-ins` | 2, and the doors (replay) |
 | 4 · data in depth | `stores`, `views`, sources (on `adapters`) | 2 and 3 |
 | 5 · plugins in depth | `features`, `adapters`, `projections`, `portal`, `secrets` | 1 to 4 |
@@ -57,52 +57,53 @@ says that a chain part waits on K7. It doesn't guess.
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
 | 7 | `things` | A noun with an id and fields, living in a store | thing, value, field, id, visibility (public, secret, private) | What is a thing? Why are values named? Who may see a field? | blueprint, data, machines, stores | built |
-| 8 | `machines` | A thing's states, the moves between them, and what each move records | machine, state, move, event | Why a machine and not a status field? What happens on a move from the wrong state? What is an event for? | things, operations, views | built |
-| 9 | `operations` | A verb on a thing, and everything it declares | operation, read, payload, answer, error (refusal), step, optional step, budget, idempotent, `emits` | What does an operation declare, and why each part? What is a refusal? What is a step, and when is one optional? What does `idempotent: "request"` promise? When does an operation emit its own event? | machines, roles, handlers, doors, traces | built · optional steps M1.26 · `emits` M3.16 |
-| 10 | `roles` | Who may call, and how they got in | role, principal, way in (`Via.*`), `anyone`, `signedIn`, `system` | When is a role checked? Which principals are there? How does an agent acting for Ada pass Ada's roles? | operations, doors, auth, agents | person built · the rest M2 |
-| 11 | `handlers` | The only freehand code, and the frame it must fit | blank, handler, frame, scaffold, wired scaffold, generated vs scaffolded | What does a handler get and return? Which files are mine? What does the scaffold write for me? What is a blank, and who fills it? | operations, doors, journeys, proof | built · the wired scaffold M1.26 · blanks in the model M1.03 |
+| 8 | `machines` | A thing's states, the moves between them, and what each move records | machine, state, move, event | Why a machine and not a status field? What happens on a move from the wrong state? What is an event for? | things, invariants, operations, views | built |
+| 9 | `invariants` | What stays true among many records of one thing, and who refuses when it breaks | invariant, rule, unique | Why a rule and not a check in every handler? Where is a rule written, and which operations does it touch? Who refuses a break, and when? How does a handler read through a rule (`findBy`)? What happens when two calls race for one name? | things, machines, operations, stores, handlers | built |
+| 10 | `operations` | A verb on a thing, and everything it declares | operation, read, payload, answer, error (refusal), step, optional step, budget, idempotent, `emits` | What does an operation declare, and why each part? What is a refusal, and which of the four places makes it? What is a step, and when is one optional? What does `idempotent: "request"` promise? When does an operation emit its own event? | machines, invariants, roles, handlers, doors, traces | built · optional steps M1.26 · `emits` M3.16 |
+| 11 | `roles` | Who may call, and how they got in | role, principal, way in (`Via.*`), `anyone`, `signedIn`, `system` | When is a role checked? Which principals are there? How does an agent acting for Ada pass Ada's roles? | operations, doors, auth, agents | person built · the rest M2 |
+| 12 | `handlers` | The only freehand code, and the frame it must fit | blank, handler, frame, scaffold, wired scaffold, generated vs scaffolded | What does a handler get and return? Which files are mine? What does the scaffold write for me? What is a blank, and who fills it? | operations, doors, journeys, proof | built · the wired scaffold M1.26 · blanks in the model M1.03 |
 
 ## Layer 3: proof
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 12 | `journeys` | Proof written as stories through real operations | journey, story, starting world, cast, the empty-handler rule | Why does a different agent write the journey? Why are starting worlds made by operations? What does "proved by the description" mean? | operations, proof | executable built · stories M1 · `prove --empty` M1.16 |
-| 13 | `proof` | Facts, not claims: worlds, evidence, evals, verdicts | world, evidence, eval, verdict, stale, ratchet | What does `prove` do, step by step? What do the nine evals check? Who may write a verdict? What makes a verdict stale? | journeys, traces, stand-ins | built · per-operation verdicts M1.04 |
-| 14 | **`traces`** | What a call leaves behind, made from the declaration | span, refusal vs defect (in a trace), attribute, `ortho.calls`, sink, step signal | Where do spans come from? Why is a refusal not red? What do I look for? What is never traced? | operations, proof, environments | spans built · gaps M1.18 to M1.20 · step signals M1.21 |
-| 15 | `stand-ins` | Local, never fake | stand-in, the ladder, conformance | What plays Stripe in a world? Why never our own fake? How does a stand-in stay honest? | adapters, proof | the ladder M5 |
+| 13 | `journeys` | Proof written as stories through real operations | journey, story, starting world, cast, the empty-handler rule | Why does a different agent write the journey? Why are starting worlds made by operations? What does "proved by the description" mean? | operations, proof | executable built · stories M1 · `prove --empty` M1.16 |
+| 14 | `proof` | Facts, not claims: worlds, evidence, evals, verdicts | world, evidence, eval, verdict, stale, ratchet | What does `prove` do, step by step? What do the nine evals check? Who may write a verdict? What makes a verdict stale? | journeys, traces, stand-ins | built · per-operation verdicts M1.04 |
+| 15 | **`traces`** | What a call leaves behind, made from the declaration | span, refusal vs defect (in a trace), attribute, `ortho.calls`, sink, step signal | Where do spans come from? Why is a refusal not red? What do I look for? What is never traced? | operations, proof, environments | spans built · gaps M1.18 to M1.20 · step signals M1.21 |
+| 16 | `stand-ins` | Local, never fake | stand-in, the ladder, conformance | What plays Stripe in a world? Why never our own fake? How does a stand-in stay honest? | adapters, proof | the ladder M5 |
 
 ## Layer 4: data in depth
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 16 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, actor built · stores M1.17 · chain waits on K7 |
-| 17 | `views` | Lists across stores and sources, kept from events | view, data map | How do I list things that live as actors, or across stores? How fresh is a view? Where do I see all my data? | data, stores, machines, adapters | M5 |
+| 17 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, actor built · stores M1.17 · chain waits on K7 |
+| 18 | `views` | Lists across stores and sources, kept from events | view, data map | How do I list things that live as actors, or across stores? How fresh is a view? Where do I see all my data? | data, stores, machines, adapters | M5 |
 
 ## Layer 5: plugins in depth
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 18 | `features` | Adding to what the system is | feature, export, root feature | What does a feature add? How does my app use what a feature exports? How is a feature proved alone? | plugins, stores, auth | M1 · tooling M2 |
-| 19 | `adapters` | Bringing the outside in, both ways, and sources | adapter, call, source, `on:`, `service(<mount>)` | How do I call Stripe? How do events come in? Where does a database we don't own go? A contract we didn't write? | plugins, data, stand-ins, secrets, roles | core M1 · Stripe M5 · sources M5 |
-| 20 | `projections` | What the model becomes, as plugins | output, artifact, the replay rule | What does each projection make from one operation? Why must every client leave the same evidence? How is a projection mounted? | plugins, doors, portal, proof | built · as plugins M1.11 to M1.13 |
-| 21 | `portal` | The builder's place to understand and plan with the running system | portal, note, live evidence | What does the portal show first, and why? How does live evidence light up the declaration? What is ported from agent-native, and what isn't? | projections, doors, data, traces | design M1.25 · port M1.23, M1.24 · built M1.13 |
-| 22 | `secrets` | A value the description names but never holds | secret, stored, generated, runtime / release / builder | Who may read a secret? Where does its value come from per environment? Why never in a world? | adapters, environments | M2 |
+| 19 | `features` | Adding to what the system is | feature, export, root feature | What does a feature add? How does my app use what a feature exports? How is a feature proved alone? | plugins, stores, auth | M1 · tooling M2 |
+| 20 | `adapters` | Bringing the outside in, both ways, and sources | adapter, call, source, `on:`, `service(<mount>)` | How do I call Stripe? How do events come in? Where does a database we don't own go? A contract we didn't write? | plugins, data, stand-ins, secrets, roles | core M1 · Stripe M5 · sources M5 |
+| 21 | `projections` | What the model becomes, as plugins | output, artifact, the replay rule | What does each projection make from one operation? Why must every client leave the same evidence? How is a projection mounted? | plugins, doors, portal, proof | built · as plugins M1.11 to M1.13 |
+| 22 | `portal` | The builder's place to understand and plan with the running system | portal, note, live evidence | What does the portal show first, and why? How does live evidence light up the declaration? What is ported from agent-native, and what isn't? | projections, doors, data, traces | design M1.25 · port M1.23, M1.24 · built M1.13 |
+| 23 | `secrets` | A value the description names but never holds | secret, stored, generated, runtime / release / builder | Who may read a secret? Where does its value come from per environment? Why never in a world? | adapters, environments | M2 |
 
 ## Layer 6: running
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 23 | `workflows` | Durable work: processes that wait, and work across stores and owners | workflow, activity, the replay rule for workflows | When do I need a workflow and not a step? Why does an activity run once even after an eviction? How do I work across D1 and a chain? | stores, adapters, agents, operations | M3.01 |
-| 24 | `environments` | Where each projection lives, and how a revision moves | environment, place, promote, release, version, rollback, destroy | What goes in an environment file, and what doesn't? How is a version worked out? How do I roll back? | projections, secrets, stores, proof | built locally · cloud M7 |
+| 24 | `workflows` | Durable work: processes that wait, and work across stores and owners | workflow, activity, the replay rule for workflows | When do I need a workflow and not a step? Why does an activity run once even after an eviction? How do I work across D1 and a chain? | stores, adapters, agents, operations | M3.01 |
+| 25 | `environments` | Where each projection lives, and how a revision moves | environment, place, promote, release, version, rollback, destroy | What goes in an environment file, and what doesn't? How is a version worked out? How do I roll back? | projections, secrets, stores, proof | built locally · cloud M7 |
 
 ## Layer 7: what Orthograph ships
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 25 | `auth` | Identity and tenancy, as two features | `@orthograph/auth`, `@orthograph/organizations`, membership, invitation, `holds` | Why two plugins? What do I mount, and what do I get in each client? How do my roles use organisations? | roles, features, secrets | M2 |
-| 26 | `agents` | Durable agents inside the app: runs, declarations, model providers | run, `Blueprint.agent`, model provider | What is a run, and where does its loop live? Who may start one? How is an agent limited? How does the portal's chat use one? | features, roles, adapters, workflows | M4 · the portal's chat M4.16 |
-| 27 | `factory` | The feature that builds projects: work worked out from facts | mission, milestone, task, attention, fact, worker | Where do tasks come from? What closes one? People or agents? | agents, proof, handlers | M3 · its portal surfaces parked (M3.14) |
-| 28 | `agent-kit` | How any agent builds an Orthograph app | agent kit, skill, role definition, code mode, `bp` | What does `ortho new` give my agents? What may a builder touch? Why code mode? | factory, handlers, journeys | parked with the skills design (M3.12) |
+| 26 | `auth` | Identity and tenancy, as two features | `@orthograph/auth`, `@orthograph/organizations`, membership, invitation, `holds` | Why two plugins? What do I mount, and what do I get in each client? How do my roles use organisations? | roles, features, secrets | M2 |
+| 27 | `agents` | Durable agents inside the app: runs, declarations, model providers | run, `Blueprint.agent`, model provider | What is a run, and where does its loop live? Who may start one? How is an agent limited? How does the portal's chat use one? | features, roles, adapters, workflows | M4 · the portal's chat M4.16 |
+| 28 | `factory` | The feature that builds projects: work worked out from facts | mission, milestone, task, attention, fact, worker | Where do tasks come from? What closes one? People or agents? | agents, proof, handlers | M3 · its portal surfaces parked (M3.14) |
+| 29 | `agent-kit` | How any agent builds an Orthograph app | agent kit, skill, role definition, code mode, `bp` | What does `ortho new` give my agents? What may a builder touch? Why code mode? | factory, handlers, journeys | parked with the skills design (M3.12) |
 
 ## Reference (generated, never hand-written)
 
@@ -128,6 +129,9 @@ says that a chain part waits on K7. It doesn't guess.
 
 ## What was split, and why
 
+- **`invariants`** has its own page, apart from `machines` and `operations` (G5). A machine holds across one record's
+  states and a rule across many records, and a reader who asks "can two people hold this name?" is not asking about a
+  move. `machines` and `operations` each say where a refusal comes from and link here for the rule's.
 - **`blueprint`** has its own page, apart from `orthograph`. `orthograph` is why: one description, one enforcer per
   operation, and the loop. `blueprint` is what you actually write: the folder, one declaration per file, names from
   paths, and the model `ortho check` compiles.

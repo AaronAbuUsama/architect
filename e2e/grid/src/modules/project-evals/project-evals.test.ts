@@ -13,7 +13,7 @@ const list = Grid.parse(read("switched-on.json"));
 const held = read<{ readonly cells: Readonly<Record<string, string>> }>("held-off.json").cells;
 const grid = JSON.parse(readFileSync(join(import.meta.dirname, "../../../../../design/grid/grid.json"), "utf8")) as { readonly cells: ReadonlyArray<{ readonly id: string }> };
 const judged: ReadonlyArray<string> = [...RefusalEvals.evals, ...ProjectEvals.evals].map((e) => e.cell);
-const TOUCHED_ROWS = ["error", "event", "journey", "machine", "operation", "step", "thing"];
+const TOUCHED_ROWS = ["error", "event", "invariant", "journey", "machine", "operation", "step", "thing"];
 
 describe("the evals", () => {
   it("are one per cell, so no cell is judged twice", () => {
@@ -23,7 +23,7 @@ describe("the evals", () => {
     const cells = new Set(grid.cells.map((c) => c.id));
     for (const cell of judged) expect(cells.has(cell), cell).toBe(true);
   });
-  it("cover every output of the seven rows the journeys touch, except the cells held off", () => {
+  it("cover every output of the eight rows the journeys touch, except the cells held off", () => {
     const wanted = TOUCHED_ROWS.flatMap((row) => OUTPUTS.map((output) => `${row}.${output}`));
     const missing = wanted.filter((cell) => !judged.includes(cell) && held[cell] === undefined);
     expect(missing).toEqual([]);
@@ -52,8 +52,8 @@ describe("the held-off cells", () => {
       expect(reason.length, cell).toBeGreaterThan(20);
     }
   });
-  it("are ten: error.cli and error.mcp (prove --through), and the eight not-needed cells K14 asks Aaron about", () => {
-    expect(Object.keys(held).sort()).toEqual(["error.cli", "error.mcp", "event.api", "event.cli", "event.mcp", "event.sdk", "journey.api", "journey.cli", "journey.mcp", "journey.sdk"]);
+  it("are eleven: error.cli, error.mcp and invariant.cli (prove --through), and the eight not-needed cells K14 asks Aaron about", () => {
+    expect(Object.keys(held).sort()).toEqual(["error.cli", "error.mcp", "event.api", "event.cli", "event.mcp", "event.sdk", "invariant.cli", "journey.api", "journey.cli", "journey.mcp", "journey.sdk"]);
   });
 });
 
@@ -68,6 +68,6 @@ describe("the expected-red list", () => {
     expect(pairs.map((p) => `${p.cell}:${p.subject}`).filter((k) => !on.has(k))).toEqual([]);
   });
   it("names, for each pair, a slice or a package file that turns it green", () => {
-    for (const p of pairs) expect(p.waitsOn, `${p.cell}:${p.subject}`).toMatch(/M\d|packages\//);
+    for (const p of pairs) expect(p.waitsOn, `${p.cell}:${p.subject}`).toMatch(/M\d|ST\d|packages\//);
   });
 });

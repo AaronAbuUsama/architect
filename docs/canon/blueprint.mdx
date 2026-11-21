@@ -10,7 +10,7 @@ status: specified
 milestone: M1
 slices: [M1.03, M1.06]
 decisions: [K5, K2, D2]
-links: [orthograph, things, operations, journeys, plugins, handlers, data]
+links: [orthograph, things, invariants, operations, journeys, plugins, handlers, data]
 ---
 
 ## The idea
@@ -41,7 +41,9 @@ The sign-up sheet's blueprint, and the name each file gives:
 | `examples/signup/blueprint/starting-worlds/opened.ts` | a starting world | read by prove, not the compiler |
 
 The sign-up sheet has no roles, because anyone may call. A role would sit in the thing's `roles.ts`, named by its
-export, as acme's `allowance.grantee` is.
+export, as acme's `allowance.grantee` is. It has no rules either, because nothing in it is held by one record. A rule
+would sit in the thing's `invariants.ts`, named by its export, as Plugged In's `handle.oneHolderPerName` is
+(`examples/plugged-in/blueprint/things/handle/invariants.ts`, and [invariants](invariants.mdx)).
 
 The operation's file never says its own name. It imports everything else it means, so each name it uses is a
 reference the compiler can follow:
@@ -70,7 +72,7 @@ This is what the model says about it, rendered from the sign-up sheet's compiled
 3. **The path says what a file is.** `readLayout` splits each path and decides from it alone. Under `blueprint/things/`,
    the folder is the thing's name, and the rest of the path says which part of it the file holds:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=132-139
+```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=134-141
 if (parts[0] !== "things" || parts.length < 3) {
   layout.problems.push(`${at(path)}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts, stores/<name>.ts, things/<thing>/..., or a mount in features/, adapters/ or projections/)`);
   continue;
@@ -83,7 +85,7 @@ const file = parts.slice(2).join("/");
 
    A file in a thing's `verbs` folder is one operation, named by its file and nothing else:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=155-161
+```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=159-165
 } else if (parts[2] === "verbs" && parts.length === 4) {
   const verb = parts[3]!;
   if (!NAME.test(verb)) layout.problems.push(`${at(path)}: verb "${verb}" must be lowercase words joined by dashes`);
@@ -111,7 +113,7 @@ declaration instead.
 
 The model is the one contract every projection is made from (K5, seam 1). Today it has eleven parts. This is its type:
 
-```ts file=packages/compiler/src/modules/model/types.ts name=Model lines=207-228
+```ts file=packages/compiler/src/modules/model/types.ts name=Model lines=222-243
 export interface Model {
   /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
   readonly refusals: Readonly<Record<string, string>>;
@@ -184,7 +186,7 @@ called in its handler ([handlers](handlers.mdx)).
 | a thing | `blueprint/things/` then the thing's folder, `thing.ts` | yes, exactly one |
 | its machine | `machine.ts` in the thing's folder | yes, exactly one |
 | an operation or a read | the thing's `verbs` folder, one file per verb | yes, the default export |
-| roles, events, errors | `roles.ts`, `events.ts`, `errors.ts` in the thing's folder | no, each export is one |
+| roles, events, errors, rules | `roles.ts`, `events.ts`, `errors.ts`, `invariants.ts` in the thing's folder | no, each export is one |
 | values | any file in `blueprint/values/` | no, each export is one |
 | an environment | `blueprint/environments/`, one file per environment | yes, the default export |
 | a starting world | `blueprint/starting-worlds/` | read by prove |

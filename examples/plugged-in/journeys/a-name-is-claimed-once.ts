@@ -23,14 +23,14 @@ export default Blueprint.journey("a name is claimed once", {
       s.bob.run(claim, { name: "claimedname" }, { request: "bobs-claim" }),
       refuses(HandleTaken),
       noEvents(),
-      spans({ present: ["handle.claim", "handle.claim.load"], absent: ["handle.claim.record"] }),
+      spans({ present: ["handle.claim"], absent: ["handle.claim.commit"] }),
     ),
     s.step(
       "another person's request key is not aaron's: still refused",
       s.bob.run(claim, { name: "claimedname" }, { request: "first-claim" }),
       refuses(HandleTaken),
       noEvents(),
-      spans({ absent: ["handle.claim.record"] }),
+      spans({ absent: ["handle.claim.commit"] }),
     ),
     s.step(
       "the name still resolves to aaron's handle",

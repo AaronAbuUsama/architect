@@ -3,8 +3,12 @@
 // runtime's `Mcp`, which leaves out whatever is not public). The server wires each entry to its served operation.
 import { Names } from "orthograph/server";
 import type { Model } from "@orthograph/compiler";
-import { GENERATED, lines, opVar } from "#modules/names/service.js";
+import { GENERATED, lines, opVar, ruleBehind } from "#modules/names/service.js";
 import type { RenderedFile } from "#modules/names/types.js";
+
+/** The operation's description, then each refusal the runtime makes for a rule and why, in the rule's one sentence (G5): an agent reads it before it calls. */
+const toolDescription = (model: Model, o: Model["operations"][string]) =>
+  [o.description, ...Object.keys(o.invariants ?? {}).flatMap((r) => { const rule = ruleBehind(model, o, r); return rule ? [`Refuses ${r} when ${rule.sentence}.`] : []; })].join(" ");
 
 export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
   // MCP is the agent's way in: an operation a mount narrowed without Via.agent has no tool (M1-plugins section 3).
@@ -21,7 +25,7 @@ export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
       "export const catalog = {",
       ops.map((o) => {
         const states = model.things[o.thing]?.machine?.states ?? [];
-        return `  "${o.name}": { description: ${JSON.stringify(o.description)}, operation: ${opVar(o)}${states.length > 0 ? `, states: ${JSON.stringify(states)}` : ""}${o.move ? `, move: ${JSON.stringify(o.move)}` : ""} },`;
+        return `  "${o.name}": { description: ${JSON.stringify(toolDescription(model, o))}, operation: ${opVar(o)}${states.length > 0 ? `, states: ${JSON.stringify(states)}` : ""}${o.move ? `, move: ${JSON.stringify(o.move)}` : ""} },`;
       }),
       "} as const satisfies { readonly [name: string]: McpEntry };",
     ),

@@ -143,6 +143,8 @@ export interface HandlerApi {
     readonly notFound?: Readonly<Record<string, string>>;
     /** Each refusal's code by tag (`Errors.codes`), so a refused call's span says `refusal.code`. */
     readonly codes?: Readonly<Record<string, string>>;
+    /** Each refusal the runtime makes for a rule this operation can break (G5), by the error's tag, and the full name of the rule (`handle.oneHolderPerName`). */
+    readonly invariants?: Readonly<Record<string, string>>;
   }) => Served<O, R>;
   readonly blank: {
     /** What a scaffold returns until it is written: dies with `BlankReached`, typed as anything. */

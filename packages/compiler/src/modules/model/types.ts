@@ -37,6 +37,19 @@ export interface MachineModel {
   readonly notFrom: { readonly error: string; readonly exit: number; readonly code: string };
 }
 
+/** One rule of a thing (G5): the fields that are one instance's alone, within the states it is `while`, refused with `refuse` when broken. */
+export interface InvariantModel {
+  readonly kind: "unique";
+  /** The key's fields, in the order written. */
+  readonly fields: ReadonlyArray<string>;
+  /** Absent: the rule holds in every state. */
+  readonly while?: ReadonlyArray<string>;
+  /** The thing's own error the runtime refuses with; absent when no caller can break the rule. */
+  readonly refuse?: string;
+  /** Written words that replace the sentence generated from the rule. */
+  readonly description?: string;
+}
+
 export interface ThingModel {
   readonly name: string;
   readonly identifier: string;
@@ -48,8 +61,8 @@ export interface ThingModel {
   readonly lives: "database" | "actor";
   /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
   readonly store?: string;
-  /** Its unique fields (G4), by field: no two instances hold one value within `while`'s states, or in any state without it. Absent when none. */
-  readonly unique?: Readonly<Record<string, { readonly while?: ReadonlyArray<string> }>>;
+  /** Its rules (G5), by name: what stays true among its instances. Absent when it has none; a rule's full name is `<thing>.<name>`. */
+  readonly invariants?: Readonly<Record<string, InvariantModel>>;
   readonly machine: MachineModel | null;
   /**
    * Its not-found refusal, present only when some operation can refuse it (K16): the one it declares under the name
@@ -96,6 +109,8 @@ export interface OperationModel {
   readonly move: { readonly key: string; readonly from: ReadonlyArray<string>; readonly to: ReadonlyArray<string>; readonly emits: string } | null;
   /** Declared errors, then the generated ones the runtime can refuse with: the machine's, `<Thing>NotFound`, and NotAllowed. */
   readonly errors: ReadonlyArray<string>;
+  /** The refusals the runtime makes for this operation, never in `errors`: each to the full name of the rule it refuses for (`handle.oneHolderPerName`), G5. Absent when none. */
+  readonly invariants?: Readonly<Record<string, string>>;
   readonly refusals: ReadonlyArray<string>;
   /** Each payload field holding some thing's id, and that thing: read before the handler and handed in as `refs.<field>`. */
   readonly refs?: Readonly<Record<string, string>>;

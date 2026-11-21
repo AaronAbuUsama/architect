@@ -20,6 +20,16 @@ export const performance: PerOperation = (op, evidence) => {
 
 type Sets = ReturnType<typeof reachedIn>;
 
+/** A rule's refusal is counted once for the rule, whichever operation broke it: its key is the rule's full name (`handle.oneHolderPerName`), never an operation's. */
+const ruleKey = (rule: string) => `rule:${rule}`;
+
+/** The rule a refused call was refused for: the span's `refusal.invariant`, else the rule the operation lists for that refusal. */
+const ruleOf = (model: Model, e: Evidence): ReadonlyArray<string> => {
+  const onSpan = attr(e, "refusal.invariant");
+  const rule = typeof onSpan === "string" ? onSpan : e.refusal === undefined ? undefined : model.operations[e.call.operation]?.invariants?.[e.refusal];
+  return rule === undefined ? [] : [ruleKey(rule)];
+};
+
 /** What the whole run reached: operations called, moves made, outcomes reached, refusals given. */
 const reachedIn = (model: Model, evidence: ReadonlyArray<Evidence>) => {
   const thingOf = (e: Evidence) => model.operations[e.call.operation]?.thing;
@@ -28,7 +38,7 @@ const reachedIn = (model: Model, evidence: ReadonlyArray<Evidence>) => {
     called: new Set(evidence.map((e) => e.call.operation)),
     moved: new Set(moving.map((e) => `${thingOf(e)}.${model.operations[e.call.operation]?.move?.key}`)),
     reached: new Set(moving.map((e) => `${thingOf(e)}:${String(attr(e, "move.to"))}`)),
-    refused: new Set(evidence.flatMap((e) => (e.refusal ? [`${e.call.operation}:${e.refusal}`] : []))),
+    refused: new Set(evidence.flatMap((e) => (e.refusal ? [`${e.call.operation}:${e.refusal}`, ...ruleOf(model, e)] : []))),
   };
 };
 
@@ -49,7 +59,9 @@ const required = (op: OperationModel, skip: ReadonlySet<string> = new Set()) => 
   move: op.move ? [`${op.thing}.${op.move.key}`] : [],
   outcomes: op.move ? op.move.to.map((s) => `${op.thing}:${s}`) : [],
   errors: op.errors.map((x) => `${op.name}:${x}`),
-  runtime: op.refusals.filter((r) => !op.errors.includes(r) && !skip.has(r)).map((r) => `${op.name}:${r}`),
+  // The rules this operation can break, each by its full name: the runtime's refusals for them are the rule's, counted with the declared ones.
+  rules: [...new Set(Object.values(op.invariants ?? {}))].map(ruleKey),
+  runtime: op.refusals.filter((r) => !op.errors.includes(r) && !(r in (op.invariants ?? {})) && !skip.has(r)).map((r) => `${op.name}:${r}`),
 });
 
 const gaps = (op: OperationModel, sets: Sets) => {
@@ -59,6 +71,7 @@ const gaps = (op: OperationModel, sets: Sets) => {
     ...r.move.filter((m) => !sets.moved.has(m)).map((m) => `move ${m} made by no journey`),
     ...r.outcomes.filter((s) => !sets.reached.has(s)).map((s) => `outcome ${s.replace(":", " ")} reached by no journey`),
     ...r.errors.filter((x) => !sets.refused.has(x)).map((x) => `${x.replace(":", " refusing ")} reached by no journey`),
+    ...r.rules.filter((x) => !sets.refused.has(x)).map((x) => `rule ${x.slice("rule:".length)} refused by no journey`),
   ];
 };
 
@@ -79,6 +92,6 @@ export const coverageSummary = (model: Model, evidence: ReadonlyArray<Evidence>)
   const count = (xs: ReadonlyArray<string>, hit: ReadonlySet<string>) => `${xs.filter((x) => hit.has(x)).length}/${xs.length}`;
   const left = [...skip].filter((name) => Object.values(model.operations).some((op) => op.refusals.includes(name) && !op.errors.includes(name)));
   const flat = (k: keyof ReturnType<typeof required>) => [...new Set(all.flatMap((r) => r[k]))];
-  const notes = [`moves ${count(flat("move"), sets.moved)} · outcomes ${count(flat("outcomes"), sets.reached)} · refusals ${count(flat("errors"), sets.refused)} · runtime refusals ${count(flat("runtime"), sets.refused)}${left.length ? ` (not counted: ${left.join(", ")}, which no journey can cause: a step cannot send a second payload under a held request key)` : ""}`];
+  const notes = [`moves ${count(flat("move"), sets.moved)} · outcomes ${count(flat("outcomes"), sets.reached)} · refusals ${count([...flat("errors"), ...flat("rules")], sets.refused)} · runtime refusals ${count(flat("runtime"), sets.refused)}${left.length ? ` (not counted: ${left.join(", ")}, which no journey can cause: a step cannot send a second payload under a held request key)` : ""}`];
   return { eval: "coverage", operation: undefined, failures: [], notes };
 };

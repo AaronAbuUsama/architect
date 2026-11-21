@@ -412,7 +412,6 @@
     {
       "cell": "step.api",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -428,7 +427,6 @@
     {
       "cell": "step.cli",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -444,7 +442,6 @@
     {
       "cell": "step.docs",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -460,7 +457,6 @@
     {
       "cell": "step.mcp",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -476,7 +472,6 @@
     {
       "cell": "step.model",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -492,7 +487,6 @@
     {
       "cell": "step.portal",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -508,7 +502,6 @@
     {
       "cell": "step.sdk",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -524,7 +517,6 @@
     {
       "cell": "step.server",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -540,7 +532,6 @@
     {
       "cell": "step.telemetry",
       "subjects": [
-        "handle.claim.load",
         "handle.claim.record",
         "handle.resolve.load",
         "handle.release.record",
@@ -633,6 +624,78 @@
         "profile"
       ],
       "switchedBy": "a name is claimed once"
+    },
+    {
+      "cell": "invariant.model",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.api",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.server",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.sdk",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.mcp",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.docs",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.portal",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
+    },
+    {
+      "cell": "invariant.telemetry",
+      "subjects": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
+      "switchedBy": "claim a handle"
     }
   ]
 }

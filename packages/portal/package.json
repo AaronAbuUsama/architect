@@ -19,6 +19,7 @@
     "@orthograph/services": "workspace:*",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "orthograph": "workspace:*",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "vite": "8.3.5"

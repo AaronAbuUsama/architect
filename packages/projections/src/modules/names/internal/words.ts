@@ -1,11 +1,12 @@
 // The small pieces of English the generated outputs share: an article that fits the word, a name as words, and what a flag says of its field.
-import type { FieldModel, OperationModel } from "@orthograph/compiler";
+import type { FieldModel, Model, OperationModel } from "@orthograph/compiler";
+import { ruleSentence, words } from "orthograph/sentences";
+
+// The sentence for a rule, and a name as words, are `orthograph`'s: the portal's browser client says them too, and a runtime package cannot import this one.
+export { ruleSentence, words };
 
 /** `a handle`, `an allowance`, `an hour`-less: by the first letter, which is right for every name a blueprint is likely to give. */
 export const article = (word: string) => (/^[aeiou]/i.test(word) ? "an" : "a");
-
-/** `HandleName` and `sign-in` as `handle name` and `sign in`. */
-export const words = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/[-_]+/g, " ").toLowerCase();
 
 const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -51,4 +52,25 @@ export const flagCode = (name: string, f: FieldModel): string => {
   return f.value.type === "uint" && f.value.bits <= 53
     ? `Flag.Int("${name}").pipe(Flag.map(String), ${note})`
     : `Flag.String("${name}").pipe(Flag.withMetavar(${JSON.stringify(metavar(f))}), ${note})`;
+};
+
+/** The rule behind one of an operation's refusals, by the model: its full name (`handle.oneHolderPerName`), the thing that holds it, and the sentence every output says. */
+export interface RuleBehind {
+  readonly full: string;
+  readonly thing: string;
+  readonly name: string;
+  readonly sentence: string;
+  /** The fields the rule keys on, which the refusal carries by place. */
+  readonly fields: ReadonlyArray<string>;
+}
+
+/** The rule an operation's refusal is made for (`op.invariants`), or undefined when the runtime refuses it for another reason. */
+export const ruleBehind = (model: Model, op: OperationModel, refusal: string): RuleBehind | undefined => {
+  const full = op.invariants?.[refusal];
+  if (full === undefined) return undefined;
+  const at = full.lastIndexOf(".");
+  const thing = full.slice(0, at);
+  const name = full.slice(at + 1);
+  const rule = model.things[thing]?.invariants?.[name];
+  return rule === undefined ? undefined : { full, thing, name, sentence: ruleSentence(thing, rule), fields: rule.fields };
 };

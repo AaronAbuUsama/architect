@@ -7,7 +7,7 @@ import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Principals, Reads, Store, Wire, invariantsIn, thingIn } from "@orthograph/language-effect";
 import { Mcp, type McpResult, type ShownOperation } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
@@ -29,10 +29,12 @@ import profileGetHandler from "../../src/profile/get.ts";
 import * as handleThing from "../../blueprint/things/handle/thing.ts";
 import * as linkThing from "../../blueprint/things/link/thing.ts";
 import * as profileThing from "../../blueprint/things/profile/thing.ts";
+import * as handleInvariants from "../../blueprint/things/handle/invariants.ts";
+import * as profileInvariants from "../../blueprint/things/profile/invariants.ts";
 
 export { World } from "@orthograph/host-cloudflare";
 
-const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, codes: Errors.codes });
+const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, invariants: { HandleTaken: "handle.oneHolderPerName", HandleAlreadyOwned: "handle.oneNamePerPerson" }, codes: Errors.codes });
 const handleReleaseServed = Handlers.serve({ name: "handle.release", operation: handleRelease.declaration, handler: handleReleaseHandler, notFrom: "HandleNotClaimed", codes: Errors.codes });
 const handleResolveServed = Handlers.serve({ name: "handle.resolve", operation: handleResolve.declaration, handler: handleResolveHandler, codes: Errors.codes });
 const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler, codes: Errors.codes });
@@ -42,6 +44,9 @@ const profileGetServed = Handlers.serve({ name: "profile.get", operation: profil
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
 const tables = [[thingIn(handleThing), "handle"], [thingIn(linkThing), "link"], [thingIn(profileThing), "profile"]] as const;
+
+/** Each rule (G5) under its full name, `<thing>.<rule>`: the store's index refuses a second holder at commit, and the runtime refuses before it. */
+const rules = [...invariantsIn("handle", handleInvariants), ...invariantsIn("profile", profileInvariants)] as const;
 
 const refusals = Wire.refusals(Errors.wire);
 const CallApi = Api.middleware(CallTelemetry);
@@ -103,7 +108,7 @@ export interface Env {
 
 /** Which steps each operation runs, by the operation's name: the server's own record, never in the API package (the caller's contract names no step, K14). */
 export const steps = {
-  "handle.claim": ["handle.claim.load", "handle.claim.record"],
+  "handle.claim": ["handle.claim.record"],
   "handle.release": ["handle.release.record"],
   "handle.resolve": ["handle.resolve.load"],
   "link.add": ["link.add.load", "link.add.record"],
@@ -122,7 +127,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([HandleLive, LinkLive, ProfileLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables, rules }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -153,7 +158,7 @@ const tools = Mcp.tools<Services>({
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables, rules }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;

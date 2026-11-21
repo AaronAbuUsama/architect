@@ -9,6 +9,7 @@
     "journey.api": "not needed: journeys run through the clients, never in them (K14 Q2, Aaron has not answered)",
     "journey.sdk": "not needed: journeys run through the clients, never in them (K14 Q2, Aaron has not answered)",
     "journey.cli": "not needed: journeys run through the clients, never in them (K14 Q2, Aaron has not answered)",
-    "journey.mcp": "not needed: journeys run through the clients, never in them (K14 Q2, Aaron has not answered)"
+    "journey.mcp": "not needed: journeys run through the clients, never in them (K14 Q2, Aaron has not answered)",
+    "invariant.cli": "needs the refused call seen through the CLI as data, as error.cli does: `prove --through` (S-11, M2.08) and structured evidence (S-20); the rule's refusal is `[code] Tag` and the refusal's exit, which only a call through the CLI shows"
   }
 }

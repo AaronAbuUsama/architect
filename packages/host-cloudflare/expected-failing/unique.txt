@@ -1,6 +1,0 @@
-src/modules/store/unique.test.ts > a rule in D1 (G5) > is a conflict even when one commit breaks both rules at once
-src/modules/store/unique.test.ts > a rule in D1 (G5) > is a conflict however many race: of ten concurrent first claims of one name, one commits and nine conflict, none dies
-src/modules/store/unique.test.ts > a rule in D1 (G5) > refuses a move back into the scope while another holds the name, and lets it land once they let go
-src/modules/store/unique.test.ts > a rule in D1 (G5) > refuses a second holder of a name as a conflict, and writes none of that commit
-src/modules/store/unique.test.ts > a rule in D1 (G5) > refuses a second rule on its own key: one owner, two names, as a conflict
-src/modules/store/unique.test.ts > a rule on a thing with a hyphenated table (G5) > a duplicate claim is a conflict, not a defect, and concurrent ones leave one owner

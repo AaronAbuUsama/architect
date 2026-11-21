@@ -4,6 +4,9 @@ import type { OperationWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
 import { journeysCalling, refusalsFor } from "./model.ts";
 import { refusalCount, whyNot } from "./live.ts";
+import { ruleBehind } from "./rules.ts";
+import { Refusal } from "./rules.tsx";
+import { Spine } from "./spine.tsx";
 import { NotYet } from "./not-yet.tsx";
 import { Banner, FieldRows, Page, who } from "./parts.tsx";
 import { DocsTab, MetricsTab, NotesTab, ProofTab } from "./op-tabs.tsx";
@@ -25,12 +28,20 @@ const Contract = ({ data, op }: { readonly data: PortalData; readonly op: Operat
       {op.move ? <p>{`Move ${op.move.key}: from ${op.move.from.join(" or ") || "nothing (it creates)"} to ${op.move.to.join(" or ")}, emitting ${op.move.emits}.`}</p> : null}
       <h3>Refusals</h3>
       {why === undefined ? null : <p>Refusal counts: <NotYet hole="metrics" what={why} /></p>}
-      <ul>
+      {/* One short list per refusal: a rule's refusal is an element that holds its name as a list item, then the rule's sentence and its link. */}
+      <div className="refusals">
         {refusalsFor(blueprint, op).map(([name, code]) => {
           const count = refusalCount(data, name, op.name);
-          return <li key={name}><span data-portal="refusal-code" data-refusal={name} data-code={code} {...(count === null ? {} : { "data-count": String(count) })}>{name}</span></li>;
+          return (
+            <Refusal key={name} name={name} owner={ruleBehind(blueprint, op, name)} code={code} count={count}>
+              <ul>
+                <li><span data-portal="refusal-code" data-refusal={name} data-code={code} {...(count === null ? {} : { "data-count": String(count) })}>{name}</span></li>
+              </ul>
+            </Refusal>
+          );
         })}
-      </ul>
+      </div>
+      <Spine blueprint={blueprint} op={op} />
       {steps.length > 0 ? <><h3>Steps</h3><ul>{steps.map((st) => <li key={st.name}>{`${st.name} (${st.type})`}</li>)}</ul></> : null}
       <h3>Journeys that call it</h3>
       {journeys.length === 0

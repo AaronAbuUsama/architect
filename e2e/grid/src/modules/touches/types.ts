@@ -37,12 +37,16 @@ export interface TouchModel {
     readonly steps?: Readonly<Record<string, { readonly name: string }>>;
     readonly payload?: Readonly<Record<string, { readonly visibility?: unknown }>>;
     readonly answer?: Readonly<Record<string, { readonly visibility?: unknown }>>;
+    /** From each refusal a rule owns, the rule that gives it (`HandleTaken` to `handle.oneHolderPerName`). */
+    readonly invariants?: Readonly<Record<string, string>>;
   }>>;
   readonly things: Readonly<Record<string, {
     readonly machine?: null | { readonly notFrom: { readonly error: string } };
     /** The refusal for an id that names no such thing, when the thing can be missed (`PersonNotFound`). */
     readonly notFound?: { readonly error: string };
     readonly fields?: Readonly<Record<string, { readonly visibility?: unknown }>>;
+    /** The thing's rules by their own name; a rule's subject is `<thing>.<rule>`. */
+    readonly invariants?: Readonly<Record<string, unknown>>;
   }>>;
 }
 

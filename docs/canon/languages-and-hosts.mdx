@@ -73,9 +73,11 @@ The compiled model records the operation's place, `runs: "server"`, the only one
 2. **The language names what it needs from a host, as services.** The store is one of them. The language declares the
    port and says what a store must do; it never says how:
 
-```ts file=packages/language-effect/src/modules/records/types.ts name=Store lines=61-70
+```ts file=packages/language-effect/src/modules/records/types.ts name=Store lines=67-78
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
+  /** The rules this store enforces at commit (G5), as the model carries them; a unit made over it looks through the same ones. Absent when the project declares none. */
+  readonly rules?: ReadonlyArray<NamedRule>;
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
   /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
   readonly list: (query: ListQuery) => Effect.Effect<Listed>;
@@ -99,7 +101,7 @@ export type Runs = "client" | "server" | "chain";
 
    The compiler refuses the other two, and says what a project would need to run them:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts name=describe lines=151-152
+```ts file=packages/compiler/src/modules/model/internal/describe.ts name=describe lines=152-153
 const onDevice = op.runs === "client" && (layout.things.get(thing)?.from.kind ?? "app") !== "app"; // a plugin's, with its code for each host
 if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
 ```

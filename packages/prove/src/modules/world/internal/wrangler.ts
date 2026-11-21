@@ -84,8 +84,9 @@ export const stop = (child: ChildProcess) =>
     child.kill("SIGTERM");
   });
 
+/** One look at `url`, given up after a second: while the worker cannot build, wrangler takes the connection and never answers it. */
 const answers = (url: string) =>
-  Effect.tryPromise({ try: () => fetch(url).then((r) => r.ok), catch: () => false }).pipe(
+  Effect.tryPromise({ try: () => fetch(url, { signal: AbortSignal.timeout(1000) }).then((r) => r.ok), catch: () => false }).pipe(
     Effect.flatMap((ok) => (ok ? Effect.void : Effect.fail(false))),
   );
 
@@ -99,15 +100,30 @@ export const bringUp = (w: Wrangle, ready: string) => {
   const attempt = Effect.gen(function* () {
     const from = readLog(w.log).length;
     const child = yield* startWrangler(w);
-    const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent"> =>
-      child.exitCode !== null ? Effect.fail("exited") : answers(url).pipe(Effect.mapError(() => "silent" as const)));
+    // A worker that cannot be built (a missing file, an import of something not exported) leaves wrangler up, waiting for the
+    // file to change: it never exits and never answers. Its log holds esbuild's error, so the wait ends the moment that shows.
+    // A taken socket is told apart first: workerd's bind failure also prints a `✘ [ERROR]` line, and it is retried, not reported.
+    const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent" | "unbuildable" | "taken"> => {
+      const log = readLog(w.log).slice(from);
+      return taken(log) ? Effect.fail("taken")
+        : child.exitCode !== null ? Effect.fail("exited")
+        : buildErrors(log) !== undefined ? Effect.fail("unbuildable")
+        : answers(url).pipe(Effect.mapError(() => "silent" as const));
+    });
     yield* up.pipe(
-      Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480, while: (e) => e !== "exited" }),
+      Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480, while: (e) => e === "silent" }),
       Effect.tapError(() => stop(child)),
-      Effect.mapError((e) => new WorldFailed({
-        message: e === "exited" ? `the world exited (${child.exitCode}); see ${w.log}` : `the world didn't answer within 120 s; see ${w.log}`,
-        taken: e === "exited" && readLog(w.log).slice(from).includes("Address already in use"),
-      })),
+      Effect.mapError((e) => {
+        const log = readLog(w.log).slice(from);
+        const isTaken = e === "taken" || (e === "exited" && taken(log));
+        const built = isTaken ? undefined : buildErrors(log);
+        return new WorldFailed({
+          message: isTaken ? `the world's address was taken; see ${w.log}`
+            : built !== undefined ? `couldn't start the world: wrangler could not build the worker:\n${built}\nwrangler's output is in ${w.log}`
+            : e === "exited" ? `the world exited (${child.exitCode}); see ${w.log}` : `the world didn't answer within 120 s; see ${w.log}`,
+          taken: isTaken,
+        });
+      }),
     );
     return child;
   });
@@ -115,3 +131,22 @@ export const bringUp = (w: Wrangle, ready: string) => {
 };
 
 const readLog = (log: string) => (existsSync(log) ? readFileSync(log, "utf8") : "");
+
+/** Whether workerd could not bind one of its sockets: another world took it first, and a fresh start picks again. */
+export const taken = (log: string): boolean => log.includes("Address already in use");
+
+const colour = /\u001b\[[0-9;]*m/g;
+
+/**
+ * What esbuild said when it could not build the worker, colour stripped: each `✘ [ERROR]` line and the line after it that
+ * names the importing file (`path:line:column:`). `undefined` while the log holds no build error.
+ */
+export const buildErrors = (log: string): string | undefined => {
+  const lines = log.replace(colour, "").split("\n");
+  const found = lines.flatMap((line, i) => {
+    if (!line.includes("✘ [ERROR]")) return [];
+    const where = lines.slice(i + 1, i + 4).find((l) => /^\s+\S+:\d+:\d+:\s*$/.test(l));
+    return [where === undefined ? line.trim() : `${line.trim()}\n${where.trimEnd()}`];
+  });
+  return found.length === 0 ? undefined : found.slice(0, 5).join("\n");
+};

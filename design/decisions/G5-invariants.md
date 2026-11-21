@@ -138,8 +138,8 @@ The rule owns its refusal, once. (A rule with no `refuse` attaches nothing: a br
   default step). The model can't see which fields a step changes, so an operation with no move that rewrites a key on
   a record in scope is missed; the runtime then dies naming the rule and the operation (5), so the blind spot is
   loud, and the author's fix is `writes: [Handle]` on that step, until field-level `writes` (7) make breakers exact.
-  Rule 3 is coarse on purpose: it makes `profile.get` (a read) a breaker of `onePagePerHandle`, and misses
-  `handle.claim`, which makes a profile without `writes: [Profile]`. Both are accepted for a rule with no `refuse`,
+  Rule 3 is coarse on purpose (_Superseded by S31, 21 November 2026 amendment: it applies only to a database step that leaves `writes` unset, and `writes: []` means reads only, so `profile.get` declares it and breaks nothing_): it makes `profile.get` (a read) a breaker of `onePagePerHandle`, and misses
+  `handle.claim`, which makes a profile without `writes: [Profile]`. Both are accepted for a rule with no `refuse` (_Superseded by S31, 21 November 2026: `handle.claim` names its `writes: [Profile]`, and the model carries each operation's `breaks`_),
   where a breaker attaches no refusal and the runtime's check dies on a break whichever operation made it.
 
   ```jsonc
@@ -305,3 +305,9 @@ The spelling spreads nowhere else meanwhile.
 A checks author writes ST1.11 and ST1.13 (builders never edit checks); a builder each of ST1.12, ST1.14 to ST1.18 and
 ST1.20; Plugged In's journey author and climber ST1.19, in their own lanes (the blueprint and the handlers); the canon
 thread ST1.21, which owns `docs/canon/check.mjs`; the portal designer ST1.22 after the grill, once a checks author has written its Chromium check.
+
+## Supersedes
+
+ST1.20 (21 November 2026) retired G4's spelling in the live docs.
+
+- design/frame/writing-a-feature.md: "unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)" → "`wallet/invariants.ts` declares `Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])`"
