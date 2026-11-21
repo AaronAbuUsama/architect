@@ -11,7 +11,7 @@ record settles:
 
 Building the budgets example also needs answers K7 and K25 did not give: which roles an operation on chain may name,
 who mints a new row's id, what an operation's answer is when the call lands later, and what a read of a chain-stored
-thing may require. Those are settled here too (items 5 to 9), because the journey author (slice 2) writes against them.
+thing may require. Those are settled here too (items 5 to 10), because the journey author (slice 2) writes against them.
 
 This is the building agent's call under `AGENTS.md` ("Who decides"). Aaron can overrule any item.
 
@@ -311,6 +311,31 @@ read named like a generated entry (`nonces`, `eip712Domain` and `IAccessControl`
 A public chain shows every row (K25 item 5's reason), so a declared read of a chain-stored thing is a generated `view`
 entry, called with `eth_call` at the environment's confirmation level, and its `allowed` must be `[Blueprint.anyone]`.
 The compiler refuses a role there. Reads move to the follower's view in slice 10.
+
+### 10. What a journey writes for a chain operation
+
+The journey author of slice 2 (#276) asked ten questions; these are the answers, and the journeys' spellings are
+accepted as written. The slices that build each (S-01 to S-10 in `04-snags.md`) build to these words.
+
+- **A cast member holds an account.** `s.<name>.account` is its CAIP-10 account, from a key the world makes and funds
+  (M1.31). A wallet holder with no role in the operation is cast as `Blueprint.anyone`.
+- **Acting as the Safe.** `cast: { ada: treasury }` makes ada the owner of the world's Safe: her run of an operation
+  that `treasury` allows is made by the Safe, through its owners. Slice 7 decides the route (item 1, "A Safe as signer").
+- **`receipts({ sent, reverted, transfers })`** judges one step: the transactions its call sent, how many of them
+  reverted, and the token transfers they made, read from their receipts. A step refused by simulation has `sent: 0`.
+- **`{ signing: "<name>" }`** on `run` names a call as signed once: a second run with the same name sends the same
+  nonce (and, on the signed entry, the same typed data and signature). It is how a journey replays a call.
+- **The `safe` adapter's starting world** is named `safe` and gives `safe` and `token`: a Safe owned by the first cast
+  member allowed as the Safe, with the budgets module enabled and the token minted to it.
+- **`Blueprint.account()`** is a value, like `Blueprint.id(...)`: used directly as a field, or named with
+  `Blueprint.value(...)`.
+- **`Chain`** is imported from `orthograph`, as `Cloud` is: `stores: { budgets: Chain.evm.network("anvil") }`.
+- **Identity** stays `Identity.testPrincipals` for now; how sign-in links a person to an account is M2.13's.
+- **No MCP for budgets.** Signed operations are left out of MCP: an agent holds no wallet of ours (the allowance
+  example's frame).
+- **`emits` may name `by`,** since every chain event carries it (item 3).
+- **`BadSignature` and `SignatureExpired`** are reached by the generated Foundry tests (slice 5), not by journeys: no
+  cast member forges a signature, and a journey doesn't move block time (M6.21).
 
 ## The budgets example, as the journey author will write it
 
