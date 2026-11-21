@@ -3,6 +3,8 @@ import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { load } from "./internal/load.ts";
 import { routeOf } from "./internal/route.ts";
+import { rulesBroken } from "./internal/rules.ts";
+import type { BlueprintWire, OperationWire } from "#modules/wire/types.js";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -50,5 +52,21 @@ describe("load", () => {
   it("fails naming the request it could not read, and never invents a snapshot", async () => {
     vi.stubGlobal("fetch", (path: string) => Promise.resolve(path.includes("blueprint") ? Response.json({ digest: "abc" }) : Response.json({}, { status: 409 })));
     expect(await Effect.runPromise(Effect.flip(load()))).toEqual({ _tag: "DataFailed", request: "/_portal/v1/snapshot?digest=abc", reason: "it answered 409" });
+  });
+});
+
+describe("rulesBroken", () => {
+  const rule = (refuse?: string) => ({ kind: "unique", fields: ["name"], ...(refuse === undefined ? {} : { refuse }) });
+  const blueprint = { model: { things: { handle: { name: "handle", invariants: { owned: rule("HandleTaken"), quiet: rule() } } } } } as unknown as BlueprintWire;
+  const op = (more: object) => ({ name: "handle.claim", ...more }) as unknown as OperationWire;
+
+  it("a wire with `breaks` is read by it: a rule that owns no refusal shows, and `[]` is none", () => {
+    expect(rulesBroken(blueprint, op({ breaks: ["handle.quiet", "handle.owned"], invariants: { HandleTaken: "handle.owned" } })).map((r) => r.full)).toEqual(["handle.quiet", "handle.owned"]);
+    expect(rulesBroken(blueprint, op({ breaks: [], invariants: { HandleTaken: "handle.owned" } }))).toEqual([]);
+  });
+
+  it("an older wire has no `breaks`: the rules behind the operation's refusals stand in, as they did before", () => {
+    expect(rulesBroken(blueprint, op({ invariants: { HandleTaken: "handle.owned" } })).map((r) => r.full)).toEqual(["handle.owned"]);
+    expect(rulesBroken(blueprint, op({}))).toEqual([]);
   });
 });

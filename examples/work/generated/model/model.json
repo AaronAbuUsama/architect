@@ -1152,6 +1152,7 @@
         "emits": "AttentionApproved"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "AttentionNotOpen",
         "AttentionNotFound",
@@ -1183,7 +1184,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "131a6e986c72c8b6"
+      "hash": "2e54f07444e8bd32"
     },
     "attention.decline": {
       "kind": "operation",
@@ -1231,6 +1232,7 @@
         "emits": "AttentionDeclined"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "AttentionNotOpen",
         "AttentionNotFound",
@@ -1262,7 +1264,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "4b26ec125aa0b371"
+      "hash": "acf14768a906379f"
     },
     "attention.list": {
       "kind": "read",
@@ -1313,6 +1315,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -1338,7 +1341,7 @@
         "order": "newest",
         "page": 50
       },
-      "hash": "cc78b4cc39d07c14"
+      "hash": "546ee9ed061133d6"
     },
     "attention.raise": {
       "kind": "operation",
@@ -1411,6 +1414,7 @@
       "errors": [
         "MissionNotRunning"
       ],
+      "breaks": [],
       "refusals": [
         "MissionNotRunning",
         "NotAllowed",
@@ -1439,7 +1443,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "03066524d86e3afc"
+      "hash": "63f3e3a9a1f76c0b"
     },
     "milestone.add": {
       "kind": "operation",
@@ -1511,6 +1515,7 @@
       "errors": [
         "MissionClosed"
       ],
+      "breaks": [],
       "refusals": [
         "MissionClosed",
         "NotAllowed",
@@ -1539,7 +1544,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "24dc94f8f150cc71"
+      "hash": "8741d706f606dbdd"
     },
     "milestone.drop": {
       "kind": "operation",
@@ -1580,6 +1585,7 @@
         "emits": "MilestoneDropped"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "MilestoneNotActive",
         "MilestoneNotFound",
@@ -1611,7 +1617,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "1ea7d4b4137829b7"
+      "hash": "d8f6c3099dcbaac2"
     },
     "milestone.list": {
       "kind": "read",
@@ -1662,6 +1668,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -1687,7 +1694,7 @@
         "order": "oldest",
         "page": 50
       },
-      "hash": "7cbce0299615e512"
+      "hash": "54e4a92d5603079f"
     },
     "mission.finish": {
       "kind": "operation",
@@ -1723,6 +1730,7 @@
       "errors": [
         "MissionHasOpenTasks"
       ],
+      "breaks": [],
       "refusals": [
         "MissionHasOpenTasks",
         "MissionNotIntake",
@@ -1750,7 +1758,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "a3ed9540ff6aa421"
+      "hash": "b2b695ae86f9580f"
     },
     "mission.get": {
       "kind": "read",
@@ -1812,6 +1820,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -1828,7 +1837,7 @@
       "budget": {
         "p95Ms": 50
       },
-      "hash": "d24a033df2942c68"
+      "hash": "e859421e4d1e9557"
     },
     "mission.list": {
       "kind": "read",
@@ -1879,6 +1888,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -1902,7 +1912,7 @@
         "order": "newest",
         "page": 20
       },
-      "hash": "563d1741eaaa5853"
+      "hash": "4878b1ae7dcb07b5"
     },
     "mission.open": {
       "kind": "operation",
@@ -1958,6 +1968,7 @@
         "emits": "MissionOpened"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed",
         "IdempotencyConflict"
@@ -1980,7 +1991,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "c3aa421dc35ca37e"
+      "hash": "7696cc08ce2c8120"
     },
     "mission.pause": {
       "kind": "operation",
@@ -2021,6 +2032,7 @@
         "emits": "MissionPaused"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "MissionNotIntake",
         "NotAllowed"
@@ -2047,7 +2059,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "cc6ea6a1ec26490d"
+      "hash": "8f544f950aed776a"
     },
     "mission.resume": {
       "kind": "operation",
@@ -2081,6 +2093,7 @@
         "emits": "MissionResumed"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "MissionNotIntake",
         "NotAllowed"
@@ -2107,7 +2120,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "26edb948031b1f9c"
+      "hash": "4f9b6a7aa4f5f2c2"
     },
     "mission.start": {
       "kind": "operation",
@@ -2143,6 +2156,7 @@
       "errors": [
         "MissionHasOpenQuestions"
       ],
+      "breaks": [],
       "refusals": [
         "MissionHasOpenQuestions",
         "MissionNotIntake",
@@ -2170,7 +2184,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "98ff5eec1a5db8c5"
+      "hash": "53dad46d247f945e"
     },
     "mission.stop": {
       "kind": "operation",
@@ -2213,6 +2227,7 @@
         "emits": "MissionStopped"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "MissionNotIntake",
         "NotAllowed"
@@ -2239,7 +2254,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "ef2c9fdaa4601f9b"
+      "hash": "5cb491a38ce99ed2"
     },
     "mission.tasks": {
       "kind": "operation",
@@ -2271,6 +2286,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -2303,7 +2319,7 @@
       "budget": {
         "p95Ms": 300
       },
-      "hash": "a48f9550336a0b96"
+      "hash": "e8d289654ab045c9"
     },
     "question.answer": {
       "kind": "operation",
@@ -2353,6 +2369,7 @@
       "errors": [
         "QuestionNoSuchOption"
       ],
+      "breaks": [],
       "refusals": [
         "QuestionNoSuchOption",
         "QuestionNotAsked",
@@ -2385,7 +2402,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "605f95192849673d"
+      "hash": "b72ab7ff0d0ad02e"
     },
     "question.ask": {
       "kind": "operation",
@@ -2458,6 +2475,7 @@
       "errors": [
         "MissionNotInIntake"
       ],
+      "breaks": [],
       "refusals": [
         "MissionNotInIntake",
         "NotAllowed",
@@ -2486,7 +2504,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "5ecd531639beea5d"
+      "hash": "4cc965ca9f7d7451"
     },
     "question.list": {
       "kind": "read",
@@ -2537,6 +2555,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -2562,7 +2581,7 @@
         "order": "oldest",
         "page": 50
       },
-      "hash": "5c42bd65c2ffaa2b"
+      "hash": "3d5ece99d11d56cd"
     },
     "question.spike": {
       "kind": "operation",
@@ -2603,6 +2622,7 @@
         "emits": "QuestionSpiked"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "QuestionNotAsked",
         "QuestionNotFound",
@@ -2634,7 +2654,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "d8e24d90f0808483"
+      "hash": "700b27c086fa0126"
     },
     "run.fail": {
       "kind": "operation",
@@ -2683,6 +2703,7 @@
         "emits": "RunFailed"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "RunNotRunning",
         "RunNotFound",
@@ -2714,7 +2735,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "749551d27d4662bd"
+      "hash": "ac5714fe9cb41265"
     },
     "run.finish": {
       "kind": "operation",
@@ -2762,6 +2783,7 @@
         "emits": "RunFinished"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "RunNotRunning",
         "RunNotFound",
@@ -2793,7 +2815,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "b082c4dcabf398c3"
+      "hash": "84023d7e9325fec7"
     },
     "run.list": {
       "kind": "read",
@@ -2853,6 +2875,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [
         "NotAllowed"
       ],
@@ -2879,7 +2902,7 @@
         "order": "newest",
         "page": 50
       },
-      "hash": "678f742fc7725426"
+      "hash": "491af709ada6a32f"
     },
     "run.report": {
       "kind": "operation",
@@ -2935,6 +2958,7 @@
         "emits": "RunReported"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "RunNotRunning",
         "RunNotFound",
@@ -2966,7 +2990,7 @@
       "budget": {
         "p95Ms": 100
       },
-      "hash": "ecf3bd3d483b03fa"
+      "hash": "17c2439292ac201d"
     },
     "run.start": {
       "kind": "operation",
@@ -3043,6 +3067,7 @@
         "RunAgentCannot",
         "RunTaskClaimed"
       ],
+      "breaks": [],
       "refusals": [
         "MissionNotRunning",
         "RunOverBudget",
@@ -3074,7 +3099,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "9d9c8d6c1469858f"
+      "hash": "fdf1cc6613c27598"
     },
     "run.stop": {
       "kind": "operation",
@@ -3123,6 +3148,7 @@
         "emits": "RunStopped"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "RunNotRunning",
         "RunNotFound",
@@ -3154,7 +3180,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "ffb0f809b5394489"
+      "hash": "12ffa9f2539b3fd6"
     }
   },
   "journeys": {},

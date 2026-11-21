@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { editSpans, judge } from "../project-evidence/testing.ts";
 import { InvariantEvals } from "./service.ts";
-import { standIn, withModel, withPage, withRule, withText } from "./testing.ts";
+import { portalPages, standIn, withModel, withOperation, withPage, withRule, withText } from "./testing.ts";
 
 const pluggedIn = await standIn();
 const check = (cell: string, subject: string, e = pluggedIn) => judge(InvariantEvals.evals, `invariant.${cell}`, subject, e);
@@ -111,6 +111,15 @@ describe("invariant.portal: the Rules section, the refusal's link and the spine 
     expect(has(why("portal", T, withPage(pluggedIn, claim, /<li data-portal="spine-stop" data-stop="rules"[^>]*>rules<\/li>/, "")), "needs one rules stop between move and commit")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, /<ol>.*<\/ol>/, '<ol><li data-portal="spine-stop" data-stop="rules" data-rules="handle.oneHolderPerName">rules</li><li data-portal="spine-stop" data-stop="move">move</li><li data-portal="spine-stop" data-stop="commit">commit</li></ol>')), "needs one rules stop")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-rules="handle.oneHolderPerName,handle.oneNamePerPerson"', 'data-rules="handle.oneNamePerPerson"')), "the model says the operation can break handle.oneHolderPerName, handle.oneNamePerPerson")).toBe(true);
+  });
+  it("the rules stop names what the model's breaks says, a rule that refuses nothing included, and no other", () => {
+    const breaking = withOperation(pluggedIn, "handle.claim", (o) => ({ ...o, breaks: [T, O, P] }));
+    const drawn = { ...breaking, portal: portalPages(breaking.model) };
+    expect(why("portal", T, drawn)).toEqual([]);
+    expect(why("portal", O, drawn)).toEqual([]);
+    expect(has(why("portal", T, withPage(drawn, claim, `data-rules="${T},${O},${P}"`, `data-rules="${T},${O}"`)), `the model says the operation can break ${[T, O, P].sort().join(", ")}`)).toBe(true);
+    expect(has(why("portal", T, withPage(drawn, claim, `data-rules="${T},${O},${P}"`, `data-rules="${T},${O},${P},handle.bogus"`)), "the model says the operation can break")).toBe(true);
+    expect(has(why("portal", T, { ...drawn, portal: portalPages(pluggedIn.model) }), "the model says the operation can break")).toBe(true);
   });
   it("a rule that refuses nothing needs only its row", () => {
     expect(why("portal", P)).toEqual([]);

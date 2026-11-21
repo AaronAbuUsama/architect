@@ -130,6 +130,8 @@ K25 item 5 gave each value its Solidity type. Across the three places a value tr
   round. Goal 4 does not need it to prove the chain: an allowance names its token as an account, and its amounts are
   `uint(128)` in the token's base units, with no decimals in the value. The Safe pays with the token's
   `transfer(to, amount)` through the account adapter. When THI-07 is designed, its amount wraps this.
+  Superseded by M6-money, 21 November 2026: Aaron decided THI-07 (every amount names its asset, `Blueprint.money.of`
+  the allowance's token for budgets, still `uint128` in base units), built in slice 3.
 
 ### 3. `generated/solidity/surface.json`
 
@@ -191,6 +193,8 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
 }
 ```
 
+Superseded by M6-money, 21 November 2026: an amount's input is written `"value": "money"` with its `asset` (M6-money item 5); its Solidity type is unchanged.
+
 - **Entries are sorted** by operation name, then path, then reads and generated entries by name, so the file is stable.
 - **Every event on chain carries `by` and `nonce`** before its declared fields: the acting account and the nonce its
   call took. K7 Q3 says `confirmed` means the follower saw the declared event for the call's intent, and gave a vote's
@@ -236,6 +240,8 @@ generate. It holds every refusal of the project, whatever language raises it, Ef
   "retired": { }                         // code → the entry as it was when its name left the blueprint
 }
 ```
+
+Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "money", "bits": 128, "signed": false, "asset": { "field": "token" } }` (M6-money item 5).
 
 - **The first lock keeps today's codes.** The first generate after this lands numbers every existing refusal exactly as
   `describe.ts` does now, so acme's and Plugged In's codes and generated files do not change.
@@ -388,6 +394,8 @@ export const grantee = Blueprint.role(Allowance, { who: Allowance.fields.member 
 // { allowance, amount, to }), revoke (allowed: [treasury]), get (allowed: [Blueprint.anyone], item 9)
 ```
 
+Superseded by M6-money, 21 November 2026: `values/money.ts` is gone; every amount is `Blueprint.money.of` the allowance's token (M6-money, "The budgets example").
+
 The Safe and its test token come from the `safe` adapter's starting world (slice 7): a Safe owned by the cast's `ada`,
 with the budgets module enabled and a test token minted to it. The budgets example's `funded` world starts from it.
 Before slice 7, the generated Foundry tests and the fuzz treat the Safe as any account. A `Safe` thing behind the
@@ -399,7 +407,7 @@ account until then.
 - **The fuzz's oracle for the developer's body.** The reference machine is generated from the blueprint, but the
   body (`_spend`'s limit check) is written only in Solidity. How the fuzz judges what the body decides (the blueprint's
   declared outcomes only, or a TypeScript body beside it) is slice 6's decision step, with its checks author.
-- **Money** (THI-07): Aaron's round, unchanged.
+- **Money** (THI-07): Aaron's round, unchanged. Superseded by M6-money, 21 November 2026: decided.
 - **Unordered nonces, ERC-7579 accounts, Solana and Aztec signing:** later, as above and in K7.
 
 ## Not chosen, and why
