@@ -20,7 +20,7 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 - Slice 2 (M6.02): the budgets blueprint and seven journeys, **merged** 21 November 2026 ([#276](https://github.com/AaronAbuUsama/architect/pull/276), `b776818d`); the `e2e:on-chain` done check, **merged** 21 November 2026 ([#279](https://github.com/AaronAbuUsama/architect/pull/279), `607d62cf`);
   `e2e-on-chain` is now a required check on `goal/on-chain`. Slice 2 is done.
 - Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass was running (a subagent of the old lead; if its result isn't on #283, run it again), then
-  a 🔍 and a framework builder. Money's cases and the first hostile pass's fixes are in; a 🔍 blocked on proof 2 (a throwaway implementation that passes), sent back to the checks author with six notes. Merge [#287](https://github.com/AaronAbuUsama/architect/pull/287) before #283 (item 11 cites M6-money). Tell slice 3's builder: `02-seam-byte-identical` needs acme's and Plugged In's `blueprint/refusals.lock` committed.
+  a 🔍 and a framework builder. Money's cases, two hostile passes' fixes and proof 2 (a stand-in ortho passing every 04 file) are in; the 🔍 passed on its second round (head `763b6d1c`), and #283 is ready, in CI. A framework builder (a subagent of this lead, its own worktree) builds on `goal-4/m610-build` from the checks plus M6-money, and opens a draft. Merge [#287](https://github.com/AaronAbuUsama/architect/pull/287) before #283 (item 11 cites M6-money). Tell slice 3's builder: `02-seam-byte-identical` needs acme's and Plugged In's `blueprint/refusals.lock` committed.
 - Slices 4 to 12: not started.
 
 ## Open pull requests, in merge order
@@ -28,7 +28,7 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
 | [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | CI (🔍 passed) |
-| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | conflicts with `goal/on-chain` (merge it in), hostile pass, money's cases (after [#287](https://github.com/AaronAbuUsama/architect/pull/287)), 🔍 |
+| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | CI (🔍 passed); merge after [#287](https://github.com/AaronAbuUsama/architect/pull/287) |
 
 `e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
 
