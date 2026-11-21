@@ -41,9 +41,13 @@ export async function withAnvil<T>(run: (chain: Chain) => Promise<T>) {
     child.once("close", () => { exited = true; resolve() })
     child.once("error", () => {})
   })
-  const terminate = () => { if (!exited) child.kill("SIGTERM") }
-  const interrupt = () => { terminate(); process.exit(130) }
-  const signal = () => { terminate(); process.exit(143) }
+  const terminate = () => { if (!exited && !child.killed) child.kill("SIGTERM") }
+  const stop = (status: number) => {
+    terminate()
+    void closed.then(() => process.exit(status))
+  }
+  const interrupt = () => stop(130)
+  const signal = () => stop(143)
   process.once("exit", terminate)
   process.once("SIGINT", interrupt)
   process.once("SIGTERM", signal)

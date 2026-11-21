@@ -51,7 +51,7 @@ case $(uname -s)/$(uname -m) in
   Linux/x86_64) asset=solc-static-linux ;;
   *) echo 'The pinned native solc supports macOS and Linux x86-64 in this runner' >&2; exit 1 ;;
 esac
-curl --fail --silent --show-error --location --max-time 60 \
+curl --fail --silent --show-error --location --max-time 180 \
   "https://github.com/argotorg/solidity/releases/download/v$solc_version/$asset" -o node_modules/.bin/solc
 chmod +x node_modules/.bin/solc
 node_modules/.bin/solc --version | grep -F "$solc_version+commit.$(pin tools.solc.commit)"

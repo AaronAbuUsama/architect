@@ -86,3 +86,21 @@ STEP 6 DONE: All 14 Forge tests passed on the real module, and the seeded invari
    the calendar-month and regrant gaps for review.
 
 STEP 7 DONE: Drafted the stage-three budgets decision with verified source references and left signature collection open.
+
+8. **The reproduction passed from a fresh folder.** The first attempt timed
+   out downloading solc. The installer now allows three minutes for that
+   download. From a second copy without node_modules, out or cache, the
+   install, offline Forge build, 14 tests, expected mutant failure, typecheck
+   and full Anvil run all passed. A separate SIGTERM check confirmed the
+   launcher waited for its own Anvil process to exit. The run and its timings
+   are in `evidence/run-all.txt`.
+
+## Final summary
+
+The spike proved that a real Safe can pay a live hat wearer through an enabled
+module, with a separate budget for an agent's child hat. It recorded the exact
+SafeTx signature formats and caught a rollover defect with the seeded fuzz.
+The stage-three budgets decision is drafted. The owner-signature workflow
+and calendar-month budgets remain follow-up work.
+
+STEP 8 DONE: The README and runner are complete, and every check passed from a fresh folder with the expected mutant failure.

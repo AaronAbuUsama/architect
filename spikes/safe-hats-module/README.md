@@ -1,4 +1,92 @@
-# Safe, Hats and budgets spike
+# Spike: Safe, Hats and budgets
+
+**Question.** Can a Safe let a Hats Protocol wearer spend from a budget per
+hat and period, and what exactly does a client need the Safe owners to sign?
+
+**Answer.** Yes. On Anvil, a wearer paid from a Safe with the module enabled,
+and an agent paid from its own smaller budget. To act through the Safe's
+owner threshold, the client builds the exact [SafeTx](#safetx-signatures) and
+packs the owner signatures in address order.
+
+## What was tried
+
+The spike deployed Safe Smart Account 1.5.0 and Hats Protocol v1 from their
+pinned sources on local Anvil. It enabled a module by having owners sign
+real Safe transactions. It exercised ETH and ERC-20 payouts, put two Safes
+behind one budget module, and moved time across a budget boundary. Foundry
+checked the spending limits against an independent ledger and tested a
+deliberately broken rollover. [Release pins](versions.json)
+
+Run `./run-all.sh` with the pinned Node and npm versions from
+`versions.json`. The install checks the release archives and prepares the
+toolchain. Forge builds and tests offline. The final script starts Anvil
+on a free loopback port and waits for its own process to exit, including
+on interruption. [Fresh-folder run](evidence/run-all.txt)
+
+## What was found
+
+### For Goal 4
+
+1. **A1. Deploy Safe.** Safe 1.5.0 supplies the hash-based ERC-1271
+   owner-signature path used in the spike. The run deployed the `Safe` singleton,
+   `SafeProxyFactory` and `CompatibilityFallbackHandler`. Single calls
+   needed no MultiSend. [Deployment](evidence/goal-4.txt#L1)
+2. **A2. Enable a module.** The 1-of-1 and 2-of-3 Safes both enabled a
+   module through signed SafeTx calls. The script read back that each was
+   enabled. The four signature formats executed, and Safe refused reversed
+   owner order, a wrong recovery value and a nonce replay with `GS026`.
+   [Enablement](evidence/goal-4.txt#L11) · [Signature run](evidence/safe-signatures.txt)
+3. **A3. Pay an ERC-20 from the Safe.** The boolean-only module entry
+   returned true when the token returned false. For a reverting token it
+   returned false. The return-data entry let the payment code distinguish
+   `TokenRejectedTransfer()` from `PaymentReverted(bytes)`.
+   [Token payouts and refusals](evidence/goal-4.txt#L14)
+4. **A4. Use a Safe as a signer.** The owners signed a `SafeMessage`
+   wrapping the module's EIP-712 digest. The Safe's compatibility handler
+   returned ERC-1271's magic value and OpenZeppelin's `SignatureChecker`
+   accepted it. The module refused a tampered signature.
+   [ERC-1271 run](evidence/goal-4.txt#L30)
+5. **A5. Call the direct entry through Safe.** An address outside the
+   owner set submitted the signed SafeTx and the recipient was paid.
+   The gas for this route and A4 is recorded below.
+   [Direct relay](evidence/goal-4.txt#L33)
+
+### The hat module
+
+6. A real hat wearer spent ETH and ERC-20. A disabled module, an outsider,
+   an inactive hat and an ineligible wearer were all refused.
+   [Anvil run](evidence/hat-anvil.txt) · [Foundry run](evidence/hat-foundry.txt)
+
+### The budgets module
+
+7. One module served two Safes, with separate rows for each Safe and hat pair.
+   Only a call from the paying Safe can create, change or revoke its budget.
+   The person created a child hat for the agent. The agent spent under its
+   own lower limit and lost access when the person turned its hat off.
+   [Budget run](evidence/budget-anvil.txt) · [Admin tests](evidence/budget-foundry.txt#L13)
+8. The signed spend checks the deadline, signature, nonce, row, hat, amount
+   and payment in that order, then emits the spend. The module checks its
+   own EIP-712 `BudgetSpend` signature through `SignatureChecker`. Use the
+   module address as the verifying contract and `Budgets` and `1` for the
+   domain name and version. The same nonce sequence covers direct and
+   relayed spends. Budget events start with indexed `by` and then `nonce`.
+   [Anvil relay](evidence/budget-anvil.txt#L17) · [Signature tests](evidence/budget-foundry.txt#L19) · [Typed-data encoder](script/budget-data.ts)
+9. Money stays in unsigned `uint128` base units of the row's ERC-20.
+   The wire uses digit strings. The two tokens displayed exactly
+   `1.250001 SPIKE6` and `1.250000000000000001 SPIKE`. Foundry also
+   paid the full `uint128` maximum. The Anvil run restored the full limit
+   after a period elapsed and matched the Safe balance change to the
+   payouts. [Money and rollover](evidence/budget-anvil.txt#L20) · [Maximum amount test](evidence/budget-foundry.txt#L21)
+
+### The fuzz
+
+10. All 8,192 calls passed over 128 sequences at depth 64 using seed
+    `0x7`. The handler compared both hats' spend by period with an
+    independent ledger and checked the Safe and recipient balances.
+    The mutant failed on its first run. Foundry shrank it to a spend, a
+    warp across the boundary and a limit change. The previous period's
+    100 units were still charged in the new period, which should start
+    at zero. [Invariant and mutant](evidence/budget-invariant.txt)
 
 ## SafeTx signatures
 
@@ -52,34 +140,69 @@ identical old calldata and signature blob. Safe recomputes the signed hash with
 its current nonce, so the old signatures fail the owner validation.
 [Signature run](evidence/safe-signatures.txt), [Runnable checks](script/safe-signatures.ts)
 
-## Budget findings
+## Measurements
 
-1. One budget module served two Safes. Each row is keyed by the paying Safe
-   and hat. Only a call from that Safe can create, change or revoke its budget.
-   The person used their own admin hat to mint a child hat for the agent and
-   later turn it off. The agent could spend under the child hat up to its own
-   lower limit. [Anvil run](evidence/budget-anvil.txt)
-2. Direct spends take the caller from `msg.sender`. Relayed spends check an
-   EIP-712 signature with OpenZeppelin's `SignatureChecker`. The domain is
-   `{ name: "Budgets", version: "1", chainId, verifyingContract }`, where
-   `verifyingContract` is the budget module. The type is
-   `BudgetSpend(address safe,uint256 hatId,address to,uint128 amount,address signer,uint256 nonce,uint256 deadline)`.
-   The signed path checks deadline, signature, nonce, row, hat, amount and
-   payment, in that order, then emits the spend. A signer's nonce is shared
-   across both entries and all rows in this module. The module's budget events
-   put indexed `by` first and `nonce` second. [Encoder](script/budget-data.ts),
-   [Foundry run](evidence/budget-foundry.txt)
-3. The row's ERC-20 supplies the units. Limit, spent, amount and remaining
-   are unsigned `uint128` base units and travel on the wire as digit strings.
-   The client reads the token's symbol and decimals for display. The run
-   showed exactly `1.250001 SPIKE6` and `1.250000000000000001 SPIKE`. Foundry
-   paid the full `uint128` maximum. The module widens the amount for ERC-20
-   `transfer` through Safe's `execTransactionFromModuleReturnData` so a token
-   returning false can be refused. [Money evidence](evidence/budget-anvil.txt),
-   [Payout code](src/SafePayment.sol)
-4. The prototype uses fixed periods starting at Unix epoch multiples of the
-   configured length. It restores the full limit at the next boundary. The
-   Safe can change the limit during a period while keeping prior spend charged.
-   It can revoke the row permanently. Token and period length are fixed at
-   creation. Calendar-month rules and payouts from fee-on-transfer or rebasing
-   tokens are outside this proof. [Rollover and limit tests](evidence/budget-foundry.txt)
+These are receipt gas totals from one clean Anvil run. The calls use
+different calldata and storage states. The approved-hash path shows the cost
+of the separate approval as well. [Anvil receipts](evidence/anvil.txt)
+
+| Transaction | Gas used |
+| --- | ---: |
+| Direct budget spend after rollover | 94,430 |
+| Relayed budget spend | 115,435 |
+| Hat module enable by a 2-of-3 Safe | 103,666 |
+| Person budget creation by the Safe | 157,921 |
+| SafeTx with typed-data ECDSA | 65,609 |
+| SafeTx with prefixed ECDSA | 66,064 |
+| SafeTx with an approved hash | 64,120 |
+| Separate `approveHash` call | 52,626 |
+| SafeTx with an ERC-1271 owner | 111,058 |
+| Goal 4 module call with a Safe as signer, A4 | 90,824 |
+| Goal 4 direct call through the Safe, A5 | 93,375 |
+
+| Check | Time |
+| --- | ---: |
+| Full `forge test` command, including the invariant | 2.104 s |
+| Real-module invariant suite | 1.94 s |
+| Mutant command, including shrinking | 2.241 s |
+| Whole Anvil script, including process shutdown | 3.489 s |
+
+[Forge suite timing](evidence/forge-test.txt) · [Mutant timing](evidence/mutant.txt) · [Runner log](evidence/run-all.txt)
+
+## The decision it supports
+
+The stage-three budgets draft puts budget enforcement, hat authority and
+payout truth on chain. It uses D1 for app records and a read copy for
+display. The signature workflow remains open for the workflows spike.
+[Draft decision](../../design/decisions/ST3-budgets.md)
+
+## Open risks
+
+- Fixed periods use `block.timestamp / periodSeconds`, so they align
+  with 1970. Calendar months and grant anchors depend on the time
+  milestone. [Calendar anchors](../../design/decisions/K23-time.md#4-calendar-anchors)
+- Revocation is permanent for a Safe and hat pair. Creating the row again
+  returns `AlreadyExists`. [Revocation test](evidence/budget-foundry.txt#L15)
+- The fuzz covers direct spends. Relayed spends have Foundry and Anvil
+  examples. [Fuzz run](evidence/budget-invariant.txt) · [Anvil relay](evidence/budget-anvil.txt#L17)
+- This spike uses Hats v1 from July 2023. Compatibility with newer Hats
+  releases remains open. [Pinned releases](versions.json)
+- Safe's boolean-only module entry returns true for a token returning
+  false. ERC-20 payout modules must use the return-data entry and check
+  the token result. [False-returning token](evidence/goal-4.txt#L21)
+- The payout tests use standard ERC-20 balances. Fee-on-transfer and
+  rebasing behavior remain unverified. Forge also flagged the spend
+  event emitted after payment. Event order with callback-capable
+  tokens remains untested. [Build output](evidence/build.txt) · [Balance checks](script/budgets.ts)
+
+> **TO THE CONDUCTOR**
+>
+> The Safe and Hats spike (ST3.01) shows that a real Safe pays through an
+> enabled module after a Hats check, that a child hat can spend within its
+> own budget, and exactly what clients sign for a SafeTx.
+>
+> The stage-three budgets decision (ST3.02) is drafted for review. The
+> evidence informs the journey checks (ST3.03), the Safe and Hats adapters
+> (ST3.04), and the budgets feature and fuzz comparison (ST3.05).
+> The owner-signature workflow (ST3.06) remains open for the workflows spike.
+> [Milestone rows](../../design/milestones.md#L127)
