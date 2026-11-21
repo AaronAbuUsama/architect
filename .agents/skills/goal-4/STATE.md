@@ -2,18 +2,23 @@
 
 Updated 21 November 2026 by the Goal 4 lead. Check against GitHub before acting (the skill's resume step 6).
 
+## Hand-over in one line
+
+Lead Goal 4: read this file, then the goal-4 skill's "Resume in this order". Next action: merge the open pull requests
+below in order as CI goes green, then get slice 3 built.
+
 ## Where it stands
 
-- `goal/on-chain` has stage 1 merged in at `37778735` (#273, merged as `51c0bd87`), the snag log, and the branch's
+- `goal/on-chain` has stage 1 merged in at `37778735` ([#273](https://github.com/AaronAbuUsama/architect/pull/273), merged as `51c0bd87`), the snag log, and the branch's
   protection recorded.
 - Slice 0 (K27): done before the goal.
 - Slice 1 (the language and host seam): **held** until Goal 3's sign-in extraction (M2.05) merges on `goal/stage-1`
   (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start.
-- Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, #275. 🔍 passed after two rounds; waiting on
+- Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, [#275](https://github.com/AaronAbuUsama/architect/pull/275). 🔍 passed after two rounds; waiting on
   CI, then merge.
-- Slice 2 (M6.02): the budgets blueprint and seven journeys, #276 (🔍 passed); the `e2e:on-chain` done check, #279
-  (hostile pass, two 🔍 rounds, passed). Both wait on CI and on #275.
-- Slice 3 (M6.10, the chain store and values): checks written, #283, being aligned to M6-chain item 11; then a hostile
+- Slice 2 (M6.02): the budgets blueprint and seven journeys, [#276](https://github.com/AaronAbuUsama/architect/pull/276) (🔍 passed); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
+  (hostile pass, two 🔍 rounds, passed). Both wait on CI and on [#275](https://github.com/AaronAbuUsama/architect/pull/275).
+- Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), being aligned to M6-chain item 11; then a hostile
   pass, a 🔍, and a framework builder.
 - Slices 4 to 12: not started.
 
@@ -21,20 +26,25 @@ Updated 21 November 2026 by the Goal 4 lead. Check against GitHub before acting 
 
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
-| #275 | `goal-4/m6-chain` | the chain decision | CI |
-| #276 | `goal-4/m602-journeys-check` | budgets blueprint and journeys | CI, #275 |
-| #279 | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI, #276 |
-| #283 | `goal-4/m610-check` | slice 3's checks | item 11 alignment, hostile pass, 🔍 |
-| (this one) | `goal-4/state-skill` | this skill | CI |
+| [#275](https://github.com/AaronAbuUsama/architect/pull/275) | `goal-4/m6-chain` | the chain decision | CI |
+| [#276](https://github.com/AaronAbuUsama/architect/pull/276) | `goal-4/m602-journeys-check` | budgets blueprint and journeys | CI, [#275](https://github.com/AaronAbuUsama/architect/pull/275) |
+| [#279](https://github.com/AaronAbuUsama/architect/pull/279) | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI, [#276](https://github.com/AaronAbuUsama/architect/pull/276) |
+| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | item 11 alignment, hostile pass, 🔍 |
+| [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
 
-After #279 merges: add `e2e-on-chain` to `goal/on-chain`'s required checks (once it has run green) and record it in
+After [#279](https://github.com/AaronAbuUsama/architect/pull/279) merges: add `e2e-on-chain` to `goal/on-chain`'s required checks (once it has run green) and record it in
 `design/decisions/CI-branch-protection.md`.
 
 ## Waiting on Aaron
 
 - **Money** (ledger `THI-07`): a value for money. Goal 4 does not need it to prove the chain (M6-chain item 2 uses a
   token account plus base units), but slice 3 builds values, so deciding now lets slice 3 build it once. Grilled 21
-  November 2026; record his answers as a decision and update item 2.
+  November 2026 in five questions, a recommendation each (all A): every amount names its asset, fixed or from a field
+  on the row; an asset is a file in `blueprint/assets/` (a token with symbol and decimals, its address bound per
+  network; or a currency by its code); base units everywhere data goes, formatted only at the faces; unsigned unless a
+  field opts in to signed; built now, in slice 3. When he answers: record a decision (take an ID from the goal file),
+  update M6-chain item 2 and the budgets values, and have slice 3's checks author add money's cases to
+  [#283](https://github.com/AaronAbuUsama/architect/pull/283) before its builder starts.
 
 ## Passed to Goal 3 (through the conductor)
 
