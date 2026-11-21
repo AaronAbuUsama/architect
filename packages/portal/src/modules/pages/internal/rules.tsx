@@ -1,5 +1,5 @@
 // How a rule shows (G5, decided 20 November 2026: 1A 2A 3A 4A): a Rules section under a thing's lifecycle, a refusal a rule owns read as the rule's
-// sentence with a link to the rule's row, wherever it is shown. Check 28's hooks: `rules`, `rule`, `rule-sentence`, `refusal`, `refusal-sentence`, `rule-link`.
+// sentence with a link to the rule's row, wherever it is shown. Check 28's hooks: `rules`, `rule`, `rule-sentence`, `refusal`, `refusal-sentence`, `rule-link`; the spine's (`spine.tsx`): `spine-stop`, `spine-rule`, `spine-rule-sentence`.
 import { Widget } from "@orthograph/portal-ui";
 import { Fragment, useEffect, type ReactNode } from "react";
 import type { ThingWire } from "#modules/wire/types.js";
