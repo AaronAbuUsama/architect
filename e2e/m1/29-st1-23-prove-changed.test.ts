@@ -163,7 +163,7 @@ describe("29 controls: the instruments, and what today's prove already does", ()
     expect(calling(map, "allowance.grant")).toEqual([...GRANT_JOURNEYS].sort());
     expect(calling(map, "allowance.get")).toEqual(["read an allowance", "spend twice with one request"]);
     expect(calling(map, "allowance.revoke")).toEqual(["an outsider cannot revoke", "revoke then spend"]);
-    expect(all.filter((name) => !SPEND_JOURNEYS.includes(name))).toHaveLength(8);
+    expect(all.filter((name) => !SPEND_JOURNEYS.includes(name))).toHaveLength(12);
   });
 
   it("a break planted in spend.ts fails exactly 2 of the 3 journeys that call spend, on a full prove: the planted failure is real", async () => {
@@ -272,12 +272,12 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     nothingRunning(root);
   });
 
-  it("a change to spend.ts proves the 3 journeys that call spend and names the 8 it skipped", async () => {
+  it("a change to spend.ts proves the 3 journeys that call spend and names the 12 it skipped", async () => {
     const root = seeded();
     plantHandler(root);
     const proved = await prove(root, "--changed");
     judged(proved, expecting(SPEND_JOURNEYS, { judges: ["allowance.spend"] }));
-    expect(proved.report?.changed?.skipped).toHaveLength(8);
+    expect(proved.report?.changed?.skipped).toHaveLength(12);
     nothingRunning(root);
   });
 
@@ -347,12 +347,12 @@ describe("29 ST1.23: ortho prove --changed proves what a change touches, names w
     nothingRunning(root);
   });
 
-  it("a changed starting world one other is made from (`founded`) proves every journey that stands on it, through `funded` and `invited`: 9", async () => {
+  it("a changed starting world one other is made from (`founded`) proves every journey that stands on it, through `funded` and `invited`: 12", async () => {
     const root = seeded();
     append(root, `${WORLD}/founded.ts`, note());
     const proved = await prove(root, "--changed");
     judged(proved, expecting(standingOn(map, "founded")));
-    expect(proved.report?.changed?.rerun).toHaveLength(9);
+    expect(proved.report?.changed?.rerun).toHaveLength(12);
     nothingRunning(root);
   });
 
@@ -508,8 +508,8 @@ describe("29 ST1.23, two more false greens Codex found in the build: a mounted d
   }, 900_000);
   afterAll(() => { echoBase?.remove(); twinBase?.remove(); });
 
-  it("controls: the plugin's journey is the only one that calls its operations (1 of 12), and an edit to a file of the package is seen by `ortho impact` as stale on that mount's operations", () => {
-    expect(echoAll).toHaveLength(12);
+  it("controls: the plugin's journey is the only one that calls its operations (1 of 16), and an edit to a file of the package is seen by `ortho impact` as stale on that mount's operations", () => {
+    expect(echoAll).toHaveLength(16);
     expect(calling(echoMap, "echo.repeat", "echo.shout")).toEqual([echoJourneyTitle]);
     const root = echoSeeded();
     expect(run(root, "impact").out, "before any change").toMatch(/^stale none$/m);
@@ -519,8 +519,8 @@ describe("29 ST1.23, two more false greens Codex found in the build: a mounted d
     expect(impact.out.match(/^stale (.*)$/m)?.[1], "today's impact sees the package's bytes: it is the operations of the mount").toBe("echo.repeat, echo.shout");
   });
 
-  it("controls: two journey files of one name are accepted, the full prove runs both (12 journeys, the name twice), and the judge tells the twin from the original by its steps", () => {
-    expect(twinAll).toHaveLength(12);
+  it("controls: two journey files of one name are accepted, the full prove runs both (16 journeys, the name twice), and the judge tells the twin from the original by its steps", () => {
+    expect(twinAll).toHaveLength(16);
     expect(twinAll.filter((name) => name === SAME)).toHaveLength(2);
     const right = perfect(withTwin(TWIN_STEP));
     expect(problems(right, withTwin(TWIN_STEP))).toEqual([]);

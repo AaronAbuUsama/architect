@@ -49,7 +49,7 @@ export const runChecks = (
   checks: ReadonlyArray<Assertion>,
   call: CallRecord,
   env: Readonly<Record<string, unknown>>,
-  world: { readonly facts: Facts; readonly tableOf: (thing: Thing) => string | undefined },
+  world: { readonly facts: Facts; readonly tableOf: (thing: Thing) => string | undefined; readonly nameOf?: (operation: unknown) => string | undefined },
 ) =>
   Effect.gen(function* () {
     const failures: Array<string> = [];
@@ -95,6 +95,19 @@ export const runChecks = (
         else if (!subset(check.fields, found.fields)) bad(`${name} ${show(found.fields)}, expected ${show(check.fields)}`, show(check.fields), show(found.fields));
       } else if (check.kind === "no-events") {
         if (call.journal.length > 0) bad(`expected no events, journal has ${call.journal.map((e) => e.event).join(", ")}`, "no events", call.journal.map((e) => e.event).join(", "));
+      } else if ((check as { readonly kind: string }).kind === "lacks") {
+        // `lacks(...operations)` on a `.tools()` call (M2.02, M2-auth fork 2): none of these is a tool. It can't pass by saying nothing: the call must have
+        // answered a tools list, it must name at least one operation, and every operation it names must be one the project declares.
+        const asked = (check as unknown as { readonly operations: ReadonlyArray<unknown> }).operations;
+        const listed = (call.body as { readonly tools?: unknown } | null)?.tools;
+        const names = asked.map((op) => world.nameOf?.(op));
+        if (call.status !== 200 || !Array.isArray(listed)) bad(`expected a tools list, ${said}`, "a tools list", said);
+        else if (asked.length === 0) bad("lacks names no operation", "at least one operation", "none");
+        else if (names.some((n) => n === undefined)) bad("lacks names an operation the project does not declare", "declared operations", `${names.filter((n) => n === undefined).length} undeclared`);
+        else {
+          const held = names.filter((n): n is string => n !== undefined && (listed as ReadonlyArray<unknown>).includes(n));
+          if (held.length > 0) bad(`tools list holds ${held.join(", ")}`, "none of them", held.join(", "));
+        }
       } else if (check.kind === "is-in") {
         const table = world.tableOf(check.thing as Thing);
         const state = table ? yield* stateOf(world.facts, table, String(check.id)) : undefined;

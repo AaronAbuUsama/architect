@@ -10,14 +10,53 @@ describe("loading a project", () => {
   it("finds acme's journeys, its starting worlds, and the very declarations they import", async () => {
     const project = await Effect.runPromise(Compiler.model.pipe(Effect.provide(nodeSource(acme)), Effect.flatMap((m) => Journeys.load(acme, m))));
     expect(project.journeys.map((j) => j.name).sort()).toEqual([
-      "an invitation is used once", "an outsider cannot revoke", "an owner makes an api key", "grant an allowance", "health is up",
-      "invite and accept", "read an allowance", "revoke then spend", "sign up and sign in", "spend twice with one request",
-      "spend within an allowance",
+      "a key and a session are the same person", "an agent cannot consent for a person", "an agent passes the owner rule", "an invitation is used once",
+      "an outsider cannot revoke", "an owner makes an api key", "grant an allowance", "health is up", "invite and accept", "read an allowance",
+      "revoke then spend", "sign up and sign in", "spend twice with one request", "spend within an allowance", "the system is nobody signed in",
     ]);
     expect([...project.startingWorlds.keys()].sort()).toEqual(["founded", "funded", "invited"]);
     const grant = (await import(resolve(acme, "blueprint/things/allowance/verbs/grant.ts"))).default;
     expect(project.operations.get("allowance.grant")).toBe(grant);
     expect([...project.things.keys()].sort()).toEqual(["allowance", "api-key", "invitation", "membership", "organization", "person", "session", "system"]);
+  });
+});
+
+// `lacks` (M2.02): none of the named operations is in a `.tools()` answer. It never passes by saying nothing; each case below is a plausible wrong
+// answer, and the ones marked "must fail" are the plants that stop a hollow pass.
+describe("lacks, on a .tools() call", () => {
+  const accept = { marker: "accept" };
+  const createKey = { marker: "createKey" };
+  const names = new Map<unknown, string>([[accept, "invitation.accept"], [createKey, "api-key.create"]]);
+  const judge = async (assertion: { readonly operations: ReadonlyArray<unknown> }, answer: { readonly status: number; readonly body: unknown }, named = true) => {
+    const call = { journey: "j", step: "s", actor: "a", person: "p", operation: "tools/list", payload: {}, status: answer.status, body: answer.body, trace: "", parent: "", mayCall: true, journal: [] } as never;
+    const world = { facts: { record: () => Effect.succeed(null), journal: () => Effect.succeed([]) }, tableOf: () => undefined, ...(named ? { nameOf: (op: unknown) => names.get(op) } : {}) };
+    const { runChecks } = await import("./internal/checks.ts");
+    return (await Effect.runPromise(runChecks([{ kind: "lacks", ...assertion } as never], call, {}, world as never))).failures;
+  };
+  const listed = (...tools: ReadonlyArray<string>) => ({ status: 200, body: { tools } });
+
+  it("passes when none of them is listed, whatever else is", async () => {
+    expect(await judge({ operations: [accept, createKey] }, listed("invitation.send", "session.show"))).toEqual([]);
+  });
+  it("fails when one is listed, and names it", async () => {
+    expect(await judge({ operations: [accept, createKey] }, listed("invitation.send", "api-key.create"))).toEqual(["tools list holds api-key.create"]);
+  });
+  it("fails when all are listed", async () => {
+    expect(await judge({ operations: [accept, createKey] }, listed("invitation.accept", "api-key.create"))).toHaveLength(1);
+  });
+  it("must fail on an operation the project does not declare (it would be absent from any list)", async () => {
+    expect(await judge({ operations: [accept, { marker: "stranger" }] }, listed("invitation.send"))).toEqual(["lacks names an operation the project does not declare"]);
+  });
+  it("must fail when the runner names no operations at all (a runner that passes no `nameOf`)", async () => {
+    expect(await judge({ operations: [accept] }, listed("invitation.send"), false)).toEqual(["lacks names an operation the project does not declare"]);
+  });
+  it("must fail when it names no operation", async () => {
+    expect(await judge({ operations: [] }, listed("invitation.send"))).toEqual(["lacks names no operation"]);
+  });
+  it("must fail on a call that did not answer a tools list: a refusal, an error, or an answer with no `tools`", async () => {
+    expect(await judge({ operations: [accept] }, { status: 401, body: { error: "unauthorized" } })).toHaveLength(1);
+    expect(await judge({ operations: [accept] }, { status: 200, body: { organization: "org_1" } })).toHaveLength(1);
+    expect(await judge({ operations: [accept] }, { status: 200, body: { tools: "invitation.send" } })).toHaveLength(1);
   });
 });
 

@@ -1,4 +1,4 @@
-// Check 38 (M2.02, the principal part; M2.03 builds it): the principal journeys of M2-auth, run for real. Written by the checks author; a builder never
+// Check 42 (M2.02, the principal part; M2.03 builds it): the principal journeys of M2-auth, run for real. Written by the checks author; a builder never
 // edits this file, the journeys or the fixture app (AGENTS.md, "Journeys and checks come first"). It is authored on `goal-3/m2-03-check` and lands with
 // M2.03 as a pair (`design/decisions/G12-paired-landing.md`).
 //
@@ -16,7 +16,7 @@
 // THE RED REASON. Today `Role` and `RoleOf` have no `.via` or `.notVia`, so acme's `api-key.create` and `invitation.accept` do not load; the journeys use
 // `lacks`, `Blueprint.system`, an actor's `.via(...)` and `.tools()`, none of which exists; `session.show` answers no `via`; there is no `service` role.
 // Every test below that runs acme is red for those and nothing else, and so is every other check that copies acme until M2.03 builds them (the pair's
-// accepted state, G12). The controls pass today: the fixture app without its service role proves, and the journeys are where the table says.
+// accepted state, G12). The control (the fixture app without its service role proves) is red too: the fixture app's environments say `issues:`, which today's `Blueprint.environment` does not know (M2-auth, "Smaller calls" 4).
 // No Docker. Prove's own world uses port 0.
 import { cpSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -80,41 +80,45 @@ const blockOf = (out: string, name: string) => {
 };
 
 /** The journey, run alone: prove must have written a report holding it, with every step passing. */
-const passes = (proved: Proved, name: string) => {
+const passes = (proved: Proved, name: string, steps: number) => {
   expect(proved.report, `prove wrote no report:\n${proved.out.slice(-1500)}`).toBeDefined();
   const journeys = proved.report!.journeys;
   expect(journeys.map((j) => j.name), proved.out.slice(-800)).toEqual([name]);
   const journey = journeys[0]!;
   const here = blockOf(proved.out, name);
   expect(journey.steps.filter((s) => s.verdict !== "pass").map((s) => s.name), `${name}: the steps that did not pass\n${here}`).toEqual([]);
+  expect(journey.steps, `${name}: every step ran, none skipped`).toHaveLength(steps);
   expect(journey.verdict, `${name}\n${here}`).toBe("pass");
 };
 
-describe("38 control: the fixture app proves on today's build", () => {
+describe("42 control: the fixture app proves", () => {
   it("the adapter fixture app without its service role proves `a person is signed in`: a person is let through `signedIn`", async () => {
     const root = serviceApp("control");
     const proved = await prove(root, "--only", "a person is signed in");
-    passes(proved, "a person is signed in");
+    passes(proved, "a person is signed in", 1);
     expect(named(spansOf(root), "probe.who"), "the call reached the operation").toHaveLength(1);
     nothingRunning(root);
   }, 600_000);
 });
 
-describe("38 M2.02: acme's principal journeys (M2.03)", () => {
+describe("42 M2.02: acme's principal journeys (M2.03)", () => {
   it("a key and a session are the same person: show answers the same person, and `via` as session, key and agent", async () => {
     const root = acmeCopy();
     const proved = await prove(root, "--only", "a key and a session are the same person");
-    passes(proved, "a key and a session are the same person");
+    passes(proved, "a key and a session are the same person", 3);
     const shows = named(spansOf(root), "session.show");
     expect(shows, "one span for each of the three calls").toHaveLength(3);
     expect(kinds(shows).filter((k) => k === "agent"), "the agent key's call is traced as an agent").toEqual(["agent"]);
+    const persons = shows.filter((s) => s.attributes["principal.kind"] !== "agent");
+    expect(persons.map((s) => s.attributes["principal.person"] ?? ""), "the session's and the key's calls name the one person").toEqual([persons[0]!.attributes["principal.person"], persons[0]!.attributes["principal.person"]]);
+    expect(persons[0]!.attributes["principal.person"], "and name one").toMatch(/^per_/);
     nothingRunning(root);
   }, 600_000);
 
   it("an agent passes the owner rule: it invites and reads as Ada, and is refused a key that a key or an agent would make", async () => {
     const root = acmeCopy();
     const proved = await prove(root, "--only", "an agent passes the owner rule");
-    passes(proved, "an agent passes the owner rule");
+    passes(proved, "an agent passes the owner rule", 5);
     const spans = spansOf(root);
     expect(kinds(named(spans, "api-key.create.refused")), "Ada's agent and Ada's key, refused").toEqual(["agent", "person"]);
     expect(named(spans, "api-key.create"), "only Ada's own session reached the handler").toHaveLength(1);
@@ -125,19 +129,19 @@ describe("38 M2.02: acme's principal journeys (M2.03)", () => {
   it("an agent cannot consent for a person: Olga's agent is refused the accept and her tools lack it, and Olga accepts herself", async () => {
     const root = acmeCopy();
     const proved = await prove(root, "--only", "an agent cannot consent for a person");
-    passes(proved, "an agent cannot consent for a person");
+    passes(proved, "an agent cannot consent for a person", 5);
     const spans = spansOf(root);
     expect(kinds(named(spans, "invitation.accept.refused")), "the refusal is the agent's").toEqual(["agent"]);
-    expect(named(spans, "invitation.accept"), "Olga's own accept reached the handler once").toHaveLength(1);
+    expect(named(spans, "invitation.accept"), "Bob and Olga, accepting for themselves, reached the handler").toHaveLength(2);
     nothingRunning(root);
   }, 600_000);
 
   it("the system is nobody signed in: signedIn and a rule role refuse it, and its refusals name no person", async () => {
     const root = acmeCopy();
     const proved = await prove(root, "--only", "the system is nobody signed in");
-    passes(proved, "the system is nobody signed in");
+    passes(proved, "the system is nobody signed in", 4);
     const spans = spansOf(root);
-    for (const name of ["session.show.refused", "organization.create.refused"]) {
+    for (const name of ["session.show.refused", "organization.create.refused", "invitation.send.refused"]) {
       const refused = named(spans, name).filter((s) => s.attributes["principal.kind"] === "system");
       expect(refused, `${name} with principal.kind=system`).toHaveLength(1);
       expect(refused[0]!.attributes["principal.person"], `${name} writes no person`).toBeUndefined();
@@ -146,20 +150,25 @@ describe("38 M2.02: acme's principal journeys (M2.03)", () => {
   }, 600_000);
 });
 
-describe("38 M2.02: the adapter fixture app's service journey (M2.03)", () => {
+describe("42 M2.02: the adapter fixture app's service journey (M2.03)", () => {
   it("a service is nobody signed in: a service role admits its own mount only, and signedIn refuses a service", async () => {
     const root = serviceApp();
     const proved = await prove(root, "--only", "a service is nobody signed in");
-    passes(proved, "a service is nobody signed in");
+    passes(proved, "a service is nobody signed in", 14);
     const spans = spansOf(root);
     expect(kinds(named(spans, "probe.who.refused")), "the service refused where a person is needed").toEqual(["service"]);
-    expect(kinds(named(spans, "probe.price.refused")), "the other mount's service and a person, refused").toEqual(["person", "service"]);
+    expect(kinds(named(spans, "probe.price.refused")), "the other mount's service, a person, an agent and the system, refused").toEqual(["agent", "person", "service", "system"]);
     expect(kinds(named(spans, "probe.price")), "the pricing service reached its own operation").toEqual(["service"]);
+    expect(kinds(named(spans, "probe.ping")), "anyone admitted the system and a service, traced as each").toEqual(["service", "system"]);
+    expect(kinds(named(spans, "probe.tick")), "the system reached what is for it, traced as the system").toEqual(["system"]);
+    expect(kinds(named(spans, "probe.tick.refused")), "a person and a service, refused what is for the system").toEqual(["person", "service"]);
+    expect(kinds(named(spans, "probe.ledger")), "the ledger service reached its own operation").toEqual(["service"]);
+    expect(kinds(named(spans, "probe.ledger.refused")), "the pricing service, refused it").toEqual(["service"]);
     nothingRunning(root);
   }, 600_000);
 });
 
-describe("38 M2.02: what the model records of the declarations (M2.03)", () => {
+describe("42 M2.02: what the model records of the declarations (M2.03)", () => {
   it("the two narrowings keep their ways in, only an operation an agent may call is a tool, and `session.show` answers `via`", () => {
     const root = acmeCopy();
     const operations = (modelOf(root) as unknown as { operations: Record<string, { allowed: ReadonlyArray<{ via?: ReadonlyArray<string> }>; agentTool?: boolean; answer?: Record<string, unknown> }> }).operations;
@@ -170,6 +179,8 @@ describe("38 M2.02: what the model records of the declarations (M2.03)", () => {
     expect(operations["api-key.create"]!.agentTool, "no entry admits an agent").toBe(false);
     expect(operations["invitation.send"]!.agentTool).toBe(true);
     expect(operations["session.show"]!.agentTool).toBe(true);
+    expect(operations["organization.create"]!.agentTool, "signedIn admits an agent").toBe(true);
+    expect(operations["system.health"]!.agentTool, "anyone admits an agent").toBe(true);
     for (const [name, op] of Object.entries(operations)) expect(typeof op.agentTool, `${name} says whether it is a tool`).toBe("boolean");
     expect(Object.keys(operations["session.show"]!.answer ?? {}), "show answers via beside the person and the email").toEqual(expect.arrayContaining(["person", "email", "via"]));
     expect(succeeds(root, "check").status).toBe(0);
