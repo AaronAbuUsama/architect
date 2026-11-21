@@ -1,7 +1,7 @@
 name: Snag
 description: Something a goal hit and couldn't fix inside its own paths. Its own snags only; to ask another goal, use Ask.
 title: "Snag: <what went wrong, in plain words>"
-type: Bug
+type: Snag
 labels: ["kind:snag"]
 body:
   - type: markdown

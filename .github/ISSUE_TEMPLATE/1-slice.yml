@@ -1,7 +1,7 @@
 name: Slice
 description: One slice of a goal, a sub-issue of its goal issue. Usually made by tools/github/sync.mjs from the brief.
 title: "Goal <n> · <slice> · <what it is>"
-type: Task
+type: Slice
 labels: ["kind:slice"]
 body:
   - type: markdown

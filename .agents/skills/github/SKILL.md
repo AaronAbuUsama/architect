@@ -158,8 +158,8 @@ thread tells which goal, harness and model is speaking.
   goal page lists it under "Open snags" or "Waiting on other goals":
 
   ```bash
-  id=$(gh api repos/AaronAbuUsama/architect/issues/<snag-or-ask> --jq .id)
-  gh api -X POST repos/AaronAbuUsama/architect/issues/<slice>/dependencies/blocked_by -F issue_id="$id"
+  id=$(gh api repos/Open-Harness/architect/issues/<snag-or-ask> --jq .id)
+  gh api -X POST repos/Open-Harness/architect/issues/<slice>/dependencies/blocked_by -F issue_id="$id"
   ```
 - **The ledger** (`design/ledger.md`) stays one file: hundreds of rows, cited by id. A row becomes a Gap issue only
   when someone picks it up or a release needs it; the issue's title starts with its id, and the row gets the issue's

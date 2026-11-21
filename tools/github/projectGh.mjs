@@ -14,12 +14,12 @@ const graphql = (query, variables = {}) => {
   return json.data;
 };
 
-/** True when the signed-in token carries `project`. Reads only the scope header. */
-export const hasProjectScope = () => {
+/** The signed-in token's scopes, from the scope header only (never the token). Empty for a token without one. */
+export const tokenScopes = () => {
   const head = execFileSync("gh", ["api", "-i", "user"], { encoding: "utf8" }).split("\r\n\r\n")[0];
-  const scopes = /^x-oauth-scopes:\s*(.*)$/im.exec(head)?.[1] ?? "";
-  return scopes.split(",").map((s) => s.trim()).includes("project");
+  return new Set((/^x-oauth-scopes:\s*(.*)$/im.exec(head)?.[1] ?? "").split(",").map((s) => s.trim()).filter(Boolean));
 };
+export const hasProjectScope = () => tokenScopes().has("project");
 
 const FIELDS = `fields(first: 50) { nodes {
   ... on ProjectV2FieldCommon { id name dataType }

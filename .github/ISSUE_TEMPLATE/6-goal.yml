@@ -1,7 +1,7 @@
 name: Goal
 description: A new goal. Write its brief first (design/goals/<nn>-<name>.md, with front matter); tools/github/sync.mjs then makes this issue and its milestone for you.
 title: "Goal <n>: <what it proves>"
-type: Feature
+type: Goal
 labels: ["kind:goal"]
 body:
   - type: markdown

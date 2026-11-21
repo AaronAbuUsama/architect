@@ -1,7 +1,7 @@
 name: Gap from the ledger
 description: A row of design/ledger.md picked up as work. The ledger stays the full list; only rows being worked become issues.
 title: "<ledger id>: <the gap, in plain words>"
-type: Task
+type: Gap
 labels: ["kind:gap"]
 body:
   - type: markdown

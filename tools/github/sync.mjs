@@ -18,7 +18,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { readGoal } from "./frontmatter.mjs";
 import { plan } from "./plan.mjs";
 import { projectPlan } from "./project.mjs";
-import { applyProject, hasProjectScope, readProject } from "./projectGh.mjs";
+import { applyProject, hasProjectScope, readProject, tokenScopes } from "./projectGh.mjs";
 
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
@@ -148,6 +148,11 @@ const state = readState();
 const steps = plan({ goals: live, state, briefUrl, migrate });
 for (const s of steps) process.stdout.write(`${apply ? "do" : "would"} ${s.do} ${s.title ?? s.name ?? s.number ?? ""}${s.child ? ` ← ${s.child}` : ""}\n`);
 const say = (line) => process.stdout.write(`${line}\n`);
+// An organization's issue types need `admin:org`: stop before writing anything rather than halfway through.
+if (apply && steps.some((s) => s.do === "createIssueType") && !["admin:org", "user"].some((x) => tokenScopes().has(x))) {
+  process.stderr.write("Making the issue types needs the admin:org scope, so nothing was written. Run: gh auth refresh -s admin:org\n");
+  process.exit(3);
+}
 if (!apply) {
   if (withProject) {
     const project = projectScope ? readProject(owner, repo).project : null;

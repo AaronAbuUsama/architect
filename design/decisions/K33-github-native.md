@@ -157,25 +157,33 @@ Goals 3, 4 and 7 get their cards and slices on GitHub when their leads add front
 brief edit (K32 already asks each to adopt it, #299 and #300). The goal pages link to their briefs on `main`, so the
 links for Goals 5 and 6 work once this change merges.
 
-## After the move into an organization (2A)
+## Moved into Open-Harness, 21 November 2026 (2A)
 
-The issues, milestones and labels move with the repository; the Project and the issue types belong to the owner. The
-organization is Aaron's call: `Open-Harness`, which he already owns and offered for this on 21 November 2026, or a new
-one (`orthograph` is taken by someone else). Then:
+Aaron chose `Open-Harness`, an organization he already owns ("Open harnes"), and the repository was transferred on his
+yes: it is `Open-Harness/architect`, and the old address redirects. The issues, milestones, labels, sub-issues and
+blocked-by links moved with it. Checked straight after the transfer, against a snapshot taken just before it:
 
-1. If it is a new organization, Aaron creates it (GitHub has no API for that). The repository is transferred on his
-   yes. Links to the old address redirect.
-2. Straight after the transfer, before the sync runs, check:
-   - branch protection on `main`, `m1` and every `goal/*`, against the conductor's snapshot taken before the move;
-   - the `staging` environment and its branch rule;
-   - the repository's Actions secrets, by name only, never read;
-   - that the required checks still report;
-   - the GitHub apps, reinstalled on the organization by Aaron: Codex review, Claude and Auto-fix;
-   - that git remotes and `gh` still resolve, through GitHub's redirect.
-3. The live docs that name the old address (`AaronAbuUsama/architect`) are rewritten to the new one, and dated
-   records keep their words. The forms move from the native types to the new ones (`type: Snag` and the rest).
-4. One sync run makes the six issue types and sets each issue's, and makes the Project again under the organization,
-   items and fields included. The one under Aaron's account is then closed.
+- branch protection on `main`, `m1`, `goal/stage-1`, `goal/ui-layer`, `goal/portal` and `goal/on-chain`: the same;
+- the `staging` and `links-staging` environments, their branch rules and their secrets' names: the same;
+- the repository's Actions secrets, by name only: the same three; its settings and its Actions permissions: the same;
+- git remotes and `gh`: they resolve through GitHub's redirect.
+
+Still to do, in this order:
+
+1. **Aaron gives the apps the repository.** The Claude app is installed on Open-Harness for selected repositories, so
+   `architect` is added to it; Codex's connector is installed on the organization. Until then, Codex reviews and
+   Claude's Auto-fix don't reach this repository.
+2. **Aaron grants the token `admin:org`** (`gh auth refresh -s admin:org`): GitHub requires it to make an
+   organization's issue types. The sync stops before writing anything without it.
+3. **One sync run** (`--goal-branches --project --apply`) makes the six types and sets each issue's, rewrites the goal
+   pages with the new address, and makes the Project again under Open-Harness, items and fields included. The one
+   under Aaron's account is then closed.
+4. The issue forms already name the new types (`type: Snag` and the rest), so this change merges after step 3, or a
+   form would name a type that doesn't exist yet.
+
+The live docs now name `Open-Harness/architect`. The old address stays in the dated records, in spikes (records of
+their run), and in the naming check (`e2e/m0/names.test.ts`, which tests that the address isn't flagged); the redirect
+covers each.
 
 Follow-ups an organization opens, not part of this change: a merge queue on `main`, and Blacksmith's free tier for CI
 runners.

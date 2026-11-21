@@ -1,7 +1,7 @@
 name: Decision to make
 description: A call that needs making. Closed by the pull request that records it in design/decisions/.
 title: "Decide: <the question>"
-type: Task
+type: Decision
 labels: ["kind:decision"]
 body:
   - type: markdown

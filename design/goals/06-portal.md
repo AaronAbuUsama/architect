@@ -123,7 +123,7 @@ want this to be able to run in parallel to the other work that's actually runnin
 > - **Cutover follows the protocol, point 5.** Never merge cutover into `goal/stage-1` without the freeze and the yes it
 >   names.
 > - **Branch protection** is set on `goal/portal` before this goal starts, like `goal/stage-1`
->   (`design/decisions/CI-branch-protection.md`). If `gh api repos/AaronAbuUsama/architect/branches/goal/portal/protection`
+>   (`design/decisions/CI-branch-protection.md`). If `gh api repos/Open-Harness/architect/branches/goal/portal/protection`
 >   finds none, it needs an admin: write that in "Where it stands" and stop before the first pull request.
 
 ## The bound
@@ -237,7 +237,7 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
   design/decisions/`), and list it under "Decision IDs" below.
 - **Changing an agreement** below is an Ask issue in the other goal's milestone; each lead then edits only its own brief.
 - **Branch protection** on `goal/portal` is set by the conductor before this goal starts (K32). If
-  `gh api repos/AaronAbuUsama/architect/branches/goal/portal/protection` finds none, write that in "Where it stands" and stop
+  `gh api repos/Open-Harness/architect/branches/goal/portal/protection` finds none, write that in "Where it stands" and stop
   before the first pull request.
 
 ## The agreements (21 November 2026)

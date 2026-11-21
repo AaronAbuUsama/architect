@@ -7,7 +7,7 @@ move with the account. The repository does, so everything needed is here or link
 
 ## Pick up from here
 
-1. Open a session in a fresh worktree of `AaronAbuUsama/architect` from `main`. Read `AGENTS.md`, this file,
+1. Open a session in a fresh worktree of `Open-Harness/architect` from `main`. Read `AGENTS.md`, this file,
    `design/scope.md` (what is built and what is left), `design/decisions/K28-releases.md` (the three releases), and
    `design/handoff.md`.
 2. You are the 🎛 conductor (`.agents/skills/conductor/`, `.agents/skills/threads/`). List the open pull requests
