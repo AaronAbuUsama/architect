@@ -510,6 +510,49 @@ jobs:
           key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       - run: pnpm nx run e2e:stage1 --outputStyle=static
 
+  # Goal 4's done check, begun (`e2e/on-chain/README.md`): the budgets journeys, the seam, the snag log and each slice's check, through the
+  # ratchet, so it is green while every failure is listed. `nx run e2e:on-chain` itself (red while anything is listed) is the done check and
+  # is run by hand and at landing. Only for the goal's own branch: pull requests into goal/on-chain and pushes to it. Skipped on a docs-only
+  # pull request, where a skip counts as passed (CI-docs-fast-path.md); should `changes` itself fail, this runs. No secret and no `id-token`.
+  e2e-on-chain:
+    needs: changes
+    if: ${{ !cancelled() && ((github.event_name == 'pull_request' && github.base_ref == 'goal/on-chain') || github.ref == 'refs/heads/goal/on-chain') && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The whole history, every branch: check 03 reads `git log HEAD` for the pull requests and commits a snag cites, and check 02 compares
+      # with Goal 3's output at `git merge-base HEAD origin/goal/stage-1`.
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
+      # A world's chain is Anvil as a plain process (K10 section 8: no container, no Docker step). Foundry is pinned
+      # to an exact version, the same as the check jobs: the budgets journeys and each slice's check run on Anvil.
+      - uses: foundry-rs/foundry-toolchain@v1.9.2
+        with:
+          version: v1.8.6
+      - run: anvil --version
+      - run: pnpm nx run e2e:on-chain-ratchet --outputStyle=static
+        env:
+          ORTHO_CHAIN_EVM_ANVIL: "1"
+
   # Goal 3's grid runner (`e2e/grid/README.md`): its unit tests, then `ortho prove` and every switched-on cell, with the ratchet of
   # `design/decisions/G7-grid-ratchet.md`: a red pair not on `e2e/grid/expected-red.json` fails, and so does a listed pair that is green.
   e2e-grid:

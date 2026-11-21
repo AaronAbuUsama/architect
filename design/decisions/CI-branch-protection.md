@@ -83,8 +83,9 @@ conversation resolution required, no required approvals, no force pushes or dele
 required checks are the nine `goal/stage-1` had that day: `check`, `portal-ui`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`,
 `e2e-m1`, `e2e-climb`, `e2e-grid` and `builder-paths`. Read back with
 `gh api repos/AaronAbuUsama/architect/branches/goal%2Fon-chain/protection` on 21 November 2026. A check added to
-`goal/stage-1` later (`e2e-stage1`, K28) joins this list only once `goal/on-chain` runs it, and the done check's own
-job, `e2e-on-chain`, joins once slice 2 adds it.
+`goal/stage-1` later (`e2e-stage1`, K28) joins this list only once `goal/on-chain` runs it. The done check's own job,
+`e2e-on-chain`, joined on 21 November 2026, once slice 2 had added it and it had run green
+([#279](https://github.com/AaronAbuUsama/architect/pull/279)): ten required checks, read back the same day.
 
 ## The checks that are new
 

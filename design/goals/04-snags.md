@@ -79,3 +79,17 @@ Numbers are this log's own, from S-01; they never refer to Goal 3's log.
 - Cause: M6-chain item 3 adds `by` and `nonce` to every chain event outside the declared fields.
 - Fix: framework, let `emits` check `by` on a chain event, slice 4 (M6.11) and the runner.
 - Status: open
+
+## S-11 · budgets · "prove's report doesn't say who signed"
+- Hit: the checks author, writing `e2e/on-chain/01-budgets-journeys.test.ts`: the done check requires each operation signed by its person, and `ortho prove --report` has nothing that says who signed a step.
+- Lost: check 01 cannot tell a runner that signs every step with one key from one that signs with each actor's wallet.
+- Cause: the report's steps carry no actor, signer or receipt; a cast member has no account in the report (S-04).
+- Fix: framework, the fields in prove's report: per journey `cast: { <name>: { account } }` (CAIP-10, `eip155:<chain>:0x<40 hex>`, one account per cast member); per step `actor` and `operation`, and for a chain operation `signer: { actor, account }` (the cast member's name and the account that signed) and, when a transaction is sent, `tx: { hash, by }`, `by` the account that sent it. Slice 8 for direct sends and slice 11 for signed ones.
+- Status: open
+
+## S-12 · budgets · "a failed payment comes back as success"
+- Hit: the lead, reading Goal 7's Safe runs (`spikes/safe-hats-module/evidence/goal-4.txt` on `goal/safe-hats`, commit 149b7dfa, A3): a token whose `transfer` returns `false` still makes the Safe's `execTransactionFromModule` return `true`; a token that reverts makes it return `false` without reverting.
+- Lost: a spend that paid nothing would count as spent and emit `AllowanceSpent`, if the generated payment step trusts the Safe's own answer.
+- Cause: M6-chain items 1 and 2 put the payment through `execTransactionFromModule` but name no refusal for a payment that fails, and say nothing about the token's own return value.
+- Fix: framework, decided in slice 4's decision step and built in slices 4 and 7: the payment goes through `execTransactionFromModuleReturnData`, refuses when the Safe answers `false` or the token answers anything but empty or `true`, and names that refusal in the lock and `surface.json`.
+- Status: open
