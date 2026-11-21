@@ -5,6 +5,8 @@ import type { PortalProof, PortalSnapshot } from "#modules/snapshot/types.js";
 import type { FieldWire, OperationWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
 import { Chrome } from "./chrome.tsx";
+import type { RuleRef } from "./rules.ts";
+import { withRefusals } from "./rules.tsx";
 
 /** The page's one root: `data-ready` says it has drawn from the data API, `data-status` is its own verdict (404 for a route that is not a page). */
 export const Page = ({ status, ready = true, data, scope = "all", operations, children }: {
@@ -72,5 +74,5 @@ export const FieldRows = ({ fields }: { readonly fields: Readonly<Record<string,
 export const who = (op: OperationWire): string =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : `${a.kind} ${a.role ?? ""}${a.path ? ` of its ${a.path}` : ""}`.trim())).join(", or ");
 
-/** The generated doc of a page, as text, under a Docs heading: the last thing on the page, and not the portal's own part of it. */
-export const Docs = ({ text }: { readonly text: string | undefined }) => (text === undefined ? null : <><h2>Docs</h2><pre>{text}</pre></>);
+/** The generated doc of a page, as text, under a Docs heading: the last thing on the page, and not the portal's own part of it. A refusal a rule owns reads as the rule's, here as everywhere. */
+export const Docs = ({ text, owners }: { readonly text: string | undefined; readonly owners: ReadonlyMap<string, RuleRef> }) => (text === undefined ? null : <><h2>Docs</h2><pre>{withRefusals(text, owners)}</pre></>);

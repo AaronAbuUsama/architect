@@ -6,7 +6,7 @@ file, a store's file and a handler are imported from (the project's by path, a p
 refuses a mount named otherwise (`MountedElsewhere`): the other tools read `generated/server/` and `generated/api/` by
 those names, so the mount's name must be one of them until M1.13 threads the name through. Test: `names.test.ts`.
 
-`ruleSentence` is the one sentence for a rule (G5): its written `description` (a closing full stop dropped), else one made from
+`ruleSentence` (kept in `orthograph`, as `orthograph/sentences`, and re-exported here) is the one sentence for a rule (G5): its written `description` (a closing full stop dropped), else one made from
 the thing, the states it holds in and its key ("another claimed handle holds this name"). `ruleBehind(model, op, refusal)` finds the
 rule an operation's refusal is made for, from `op.invariants`, with its owning thing, which may not be the operation's own. The docs,
 MCP's tool description, the scaffold's header and the portal all say that sentence.
