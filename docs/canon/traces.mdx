@@ -163,6 +163,8 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
   the read.
 - **`attempt` above 1**, after a commit with `commit.outcome=conflict`, is a version race. Many of them mean
   contention on one thing (see `stores`).
+- **`request.key`** is the idempotency key the call was made with, as the caller sent it, on the operation's span (and on `<operation>.refused`)
+  of an operation that honours one. It is an id, so it is traced. The portal's calls table shows it and filters by it.
 - **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:60`).
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
