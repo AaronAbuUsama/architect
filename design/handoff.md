@@ -7,6 +7,8 @@ Everything open, promised, deferred or stale, with its source, canon page and ow
 
 ## START HERE (21 November 2026): the conductor's handoff
 
+Pull request states change hourly, so this file names pull requests for the record and never keeps their status: GitHub is the status, and Goal 3's is in its goal file's "Where it stands".
+
 Rewritten on 21 November by the Goal 3 lead, merging `main` into `goal/stage-1`. Read `.agents/skills/kanban/STATE.md`
 for the same picture in a page; this file keeps the standing directions, the lines of work and the decision ids.
 
@@ -14,8 +16,7 @@ for the same picture in a page; this file keeps the standing directions, the lin
 listed under "Every open line", and Gate M1 (M1.15) is not run yet. Plugged In's seven journeys run green in CI, in
 local and in test (`e2e-stage1`, a required check), and the climb is green: 331 of 331 cell-and-subject pairs. Goal 4 (on-chain)
 has started on `goal/on-chain`. K28 (21 November) cut three releases: the preview (Gate M1 on `main` plus npm under
-`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (PR #272, open and ready for
-review) decides the UI layer, under Aaron's standing authority of 21 November; Goal 5 waits on #272 merging.
+`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (`design/decisions/K29-*.md`, PR #272) decides the UI layer, under Aaron's standing authority of 21 November; Goal 5 starts once it is on `main`.
 
 **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Rows below that say `links` predate it;
 `milestones.md` is renamed in place ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)).
@@ -111,11 +112,11 @@ Goals run the work now (`design/goals/`), each on its own branch. The conductor 
 | Line | Branch | PRs | Done when | State, 21 November 2026 |
 |---|---|---|---|---|
 | **Goal 3, stage 1 (Plugged In)** | `goal/stage-1` | open and merged pull requests: see the goal file | `nx run e2e:stage1` and Gates M1 and M2 pass; the staging run; one pull request to `main` at the done check, after the preview merge (K28) | Kept in one place, rewritten at every slice merge: "Where it stands" at the end of [`goals/03-stage-1-hill-climbed.md`](goals/03-stage-1-hill-climbed.md) |
-| **Goal 4, on-chain (1.0)** | `goal/on-chain` | #273 (start), #275 (chain decision, M6.01) | stage 2 and 3 slices, from `design/goals/04-on-chain.md` | Started 21 November. Its seam slice waits on M2.05, because both reshape `host-cloudflare` |
-| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, open, ready for review, into `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Not started: K29 is decided in #272 under Aaron's standing authority of 21 November, and Goal 5 waits on #272 merging. A Goal 5 lead will run it |
+| **Goal 4, on-chain (1.0)** | `goal/on-chain` | see `design/goals/04-on-chain.md` | stage 2 and 3 slices, from `design/goals/04-on-chain.md` | Started 21 November. Its seam slice waits on M2.05, because both reshape `host-cloudflare` |
+| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, into `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Starts once K29 is on `main`; a Goal 5 lead runs it |
 | **Foreman** | `claude/foreman-c521e2` | #187 | the design and a Capxul test drive | Merged into `main` on 21 November (#187, F9); the branch is kept |
-| **K24, UI SDK** | `conductor/k24-ui-sdk` | #217, #215 | K24 decided, the verb-primitive spike | Open; K29 builds on K24 |
-| **M8, time's checks** | `main` | #274 | the checks for M8.02 to M8.04 | The checks are on `main` (#213); #274 names two dependency changes under Supersedes |
+| **K24, UI SDK** | `conductor/k24-ui-sdk` | #217, #215 | K24 decided, the verb-primitive spike | K29 builds on K24 |
+| **M8, time's checks** | `main` | #274 | the checks for M8.02 to M8.04 | The checks are on `main` (#213, #274) |
 
 **Closed, branches kept:**
 - **#48, span fixes (O3).** It edited journeys and evals, which a builder may not do. Its draft stays on
@@ -169,16 +170,16 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 ·
 | ID | Title | Where |
 |---|---|---|
 | D4 | kits, dependencies and the chain | `author/stage4-checks` |
-| G3 | the runtime's exits are 0 to 4 and 120 to 125 | `goal-3/han-10-build` (#117, open). An earlier G3 for the grid's verdicts, on merged `goal-3/prove-names-files`, became G6: G3 is taken twice |
+| G3 | the runtime's exits are 0 to 4 and 120 to 125 | `goal-3/han-10-build` (#117). An earlier G3 for the grid's verdicts, on merged `goal-3/prove-names-files`, became G6: G3 is taken twice |
 | G4 | a field can be declared unique | `goal/stage-1` |
-| G5 | invariants are their own kind of declaration | `designer/g5-invariants` (#123, open) |
+| G5 | invariants are their own kind of declaration | `designer/g5-invariants` (#123) |
 | G6 | the grid's verdicts go to a file first | `goal/stage-1` |
 | G7 | red grid cells are listed and may not grow | `goal/stage-1` |
 | G8 | a refused call is traced in `<operation>.refused` | `goal/stage-1` |
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
-| M7 | the cloud pass for staging (`M7-cloud`, M7.01) | `goal/stage-1`, `goal/on-chain` (#266 edits it) |
+| M7 | the cloud pass for staging (`M7-cloud`, M7.01) | `goal/stage-1`, `goal/on-chain` |
 | M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
 | S31 | an operation's model carries `breaks`, every rule it can break (`S31-breaks`) | `goal/stage-1` (#269, merged) |
@@ -187,8 +188,8 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 ·
 | W2 | an operation's docs page shows each journey as a worked example (`W2-docs-worked-examples`) | `goal/stage-1`, `goal/on-chain` |
 
 **Also taken, off `main`:** K24 (UI SDK is the base, #217), K25 (the blueprint on chain), K26 (on-chain pulled forward), K27 (three plugin kinds), K29
-(the UI layer, #272, open), K30 (where the core ends, the repositories, declaring what you know, #185, open into `main`), G12 (a slice that changes acme's wire lands as a pair, #263, open),
-G9 to G11 (`goal/stage-1`), `M2-auth` (#263, #267), `M6-chain` (#275, #276, #279), `M7-03-infra-projection` (#282, open). `ST1-25-flakes` is a
+(the UI layer, #272), K30 (where the core ends, the repositories, declaring what you know, #185), G12 (a slice that changes acme's wire lands as a pair, #263),
+G9 to G11 (`goal/stage-1`), `M2-auth` (#263, #267), `M6-chain` (#275, #276, #279), `M7-03-infra-projection` (#282). `ST1-25-flakes` is a
 decision file; K29's ST1.25 is a slice id, and the two are unrelated.
 
 **Next free:** D5, E2, F10, G13, H3, K31, N2, O4, P2, R2, S32, W3. Never fill a gap (F3, F4, G2): it may have been handed out
