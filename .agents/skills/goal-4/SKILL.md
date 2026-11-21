@@ -67,6 +67,10 @@ review findings back to the author who wrote the check. In another harness, use 
   `pnpm-lock.yaml` importer so `--frozen-lockfile` passes.
 - **CI takes 45 to 60 minutes a pull request.** Batch a pull request's fixes into one push, and work the next slice
   while it runs.
+- **CI-drafts (the conductor's decision, 21 November 2026, #293).** Open every pull request as a draft: a draft runs no
+  CI. Get its 🔍 and run the affected checks locally, then mark it ready, and CI runs once. Push to a ready pull
+  request only to answer review or CI. Keep at most two of Goal 4's pull requests ready at once; fold small fixes
+  (like STATE.md notes) into the next one.
 - **Builders may only shrink `e2e/on-chain/expected-failing/`;** `tools/ci/builder-paths.sh` enforces it once #279 has
   merged.
 

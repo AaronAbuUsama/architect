@@ -32,6 +32,12 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 
 `e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
 
+**Next main merge into `goal/on-chain`** (a pull request, never a push): wait for Goal 3's Effect bump (4.1.1 to 4.1.4,
+for Alchemy) to reach `main`, then bring `main` in once. It carries CI-drafts (#293, `130dd4ad`). In the same change,
+add the draft guard in #293's shape (`github.event.pull_request.draft != true`, joined to any existing `if`) to
+`e2e-on-chain` and any other job only `goal/on-chain`'s `ci.yml` has. Until then a draft into `goal/on-chain` still
+runs CI on the jobs `main` doesn't guard here, so keep drafts few.
+
 ## Waiting on Aaron
 
 Nothing. Money (ledger `THI-07`) was answered by Aaron himself on 21 November 2026, all five recommendations ("agreed on
