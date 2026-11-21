@@ -394,10 +394,10 @@ local-first, Noir on Aztec.
   which.
 </Note>
 
-<Note kind="decision" decision="K5">
+<Note kind="decision" decision="K7">
   Is a chain a store? Settled by K3 item 2 and K5 seam 2: a chain is a host, and the store kind it runs is `chain`.
-  The contract commits per transaction, with one writer. "Pending until mined" belongs to the caller, so a server call
-  that sends a transaction is a workflow. K7 then decided that a chain store's own commit may answer late, and its caller
+  The contract commits per transaction, with one writer. A server call that sends a transaction is a workflow. K7 decided
+  that a chain store's own commit may answer late, and its caller
   gets a submission (`simulated` to `confirmed`); how an operation maps to a contract, and the rest of chain storage, are
   K7's and K25's ([chains-and-wallets](chains-and-wallets.mdx)). Aaron's doubt (18 November 2026, said in the canon session on PR #38: "it just doesn't seem like a
   thing that makes sense") is why the pending part moved to the caller.

@@ -230,3 +230,7 @@ the handler scaffold (`move.ts:61`); reads are served generically and need no ha
 | M1.10 built `ortho add` on `node:fs` | on Nx's `Tree` (M2.14) | the spec's decision, and edits in place need it |
 | visibility decided per output (L2, D3 #125 for MCP) | one rule in `language-effect` (M1.35) | three outputs applied none |
 | the wallet's `confirmed` at depth one | from the chain and environment (M1.38) | K7 F2 |
+
+## Supersedes
+
+- docs/canon/stores.mdx: "belongs to the caller, so a server call" → "A server call that sends a transaction is a workflow. K7 decided that a chain store's own commit may answer late"
