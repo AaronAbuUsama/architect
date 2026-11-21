@@ -14,7 +14,7 @@ move with the account. The repository does, so everything needed is here or link
    (`gh pr list`) and compare them with "The lanes" below. A lane whose lead is gone is restarted from its brief, as
    that lane's row says. Each lead keeps its own state in its goal's files on its branch, so read that first.
 3. Snapshots of the claude.ai pages (the walkthrough board, the scope page, the to-do page, the grills) are in
-   `design/artifacts/`. Republish any you need on the new account. The repository's design files stay the source of
+   `design/history/artifacts-2026-11-21/`. Republish any you need on the new account. The repository's design files stay the source of
    truth; the snapshots are pictures of them.
 
 ## The releases (K28, Aaron, 21 November)
@@ -61,7 +61,7 @@ How Goals 5 and 6 meet the others (agreed 21 November):
 
 - 🗺 The walkthrough board (Aaron's "1 board, 6 zones"): the pitch, the concept map, the tour, swap the example, UI,
   hard questions; each card tinted by `design/scope.md`. Built; zone 5 (UI) is being filled by the UI thread. Snapshot in
-  `design/artifacts/walkthrough-board.data.json` (open with `design/artifacts/_whiteboard-shell.html`).
+  `design/history/artifacts-2026-11-21/walkthrough-board.data.json` (open with `design/history/artifacts-2026-11-21/_whiteboard-shell.html`).
 - 📐 The UI thread: K29 (#272), K31 and Goal 6's brief (#285). Hands both goals to the conductor to start.
 - 🧭 "What Orthograph is" (#185, K30, and the goal in `README.md`): passed review; merges after K24 (#217).
 - ✍ Time checks: done (#213 and its follow-up #274 merged).
