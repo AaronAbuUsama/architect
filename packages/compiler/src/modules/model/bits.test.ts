@@ -28,7 +28,7 @@ void eur;
   return root;
 };
 const modelOf = (root: string) => Effect.runPromiseExit(Effect.provide(Compiler.model, nodeSource(root)));
-const problems = (exit: Exit.Exit<unknown, { readonly problems?: ReadonlyArray<string> }>): string =>
+const problems = (exit: Exit.Exit<unknown, unknown>): string =>
   Exit.isFailure(exit) ? JSON.stringify(exit.cause) : "";
 
 describe("a width that is no whole number from 1 to 256", () => {
