@@ -68,6 +68,23 @@ export const goalView = (g, state) => {
   };
 };
 
+// GitHub breaks an issue body's lines where the source wraps them, so a brief's wrapped prose is joined back into
+// whole lines: a continuation (an indented line, or prose after prose) joins the line before it.
+export const unwrap = (text) => {
+  const out = [];
+  let fence = false;
+  for (const line of text.split("\n")) {
+    const opens = line.trimStart().startsWith("```");
+    const prev = out.length ? out[out.length - 1] : "";
+    const joins = !fence && !opens && line.trim() !== "" && prev.trim() !== "" && !/^\s*(\||#|```)/.test(prev) &&
+      !/^\s*([-*+] |\d+\. |#|>|\|)/.test(line);
+    if (joins) out[out.length - 1] = `${prev} ${line.trim()}`;
+    else out.push(line);
+    if (opens) fence = !fence;
+  }
+  return out.join("\n");
+};
+
 const blocksText = (b) => (b.length ? ` (blocks slice${b.length > 1 ? "s" : ""} ${b.join(", ")})` : "");
 
 /** The goal issue's body: the plain card, the progress, what is stuck, who leads it and where it stands (K33). */
@@ -78,7 +95,7 @@ export const goalBody = (g, briefUrl, view) =>
     "",
     "## The goal, in plain words",
     "",
-    g.card ?? "_The brief has no plain goal card yet: its lead adds one (the `github` skill, \"A goal's brief\")._",
+    g.card ? unwrap(g.card) : "_The brief has no plain goal card yet: its lead adds one (the `github` skill, \"A goal's brief\")._",
     "",
     "## Progress",
     "",
@@ -103,7 +120,7 @@ export const goalBody = (g, briefUrl, view) =>
     "",
     "## Where it stands",
     "",
-    g.stands ?? "Nothing yet: the lead rewrites the brief's last section at every merge.",
+    g.stands ? unwrap(g.stands) : "Nothing yet: the lead rewrites the brief's last section at every merge.",
     "",
     "## The details",
     "",

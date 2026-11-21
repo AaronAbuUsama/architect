@@ -135,23 +135,40 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
     with that scope is saved as the `ORTHOGRAPH_PROJECT_TOKEN` secret, which is a credential and waits on Aaron's yes;
     until then a local run keeps it.
 
-## Seeding, after the move
+## Seeded, 21 November 2026
 
-Nothing is seeded yet. The Project and the issue types belong to the repository's owner, so seeding waits for the
-move into an organization (2A); a Project made under Aaron's own account now would be made twice. The order:
+Aaron said "lets do github now", so the sync ran before the move (`--goal-branches --migrate --project --apply`), from
+the briefs on `main` and on the goal branches. It made:
 
-1. Aaron creates the organization (GitHub has no API for it) and the repository is transferred into it, on his yes.
+- the 20 labels in `tools/github/plan.mjs`;
+- five milestones, one per goal: Goal 3 (from `03-stage-1-hill-climbed.md` on `main`), Goal 4 (`04-on-chain.md` on
+  `goal/on-chain`), Goals 5 and 6 (this change) and Goal 7 (`07-safe-hats.md` on `goal/safe-hats`);
+- a goal issue each, written as the goal's page: #307 (Goal 3), #308 (Goal 4), #309 (Goal 5), #315 (Goal 6) and
+  #328 (Goal 7);
+- for Goals 5 and 6, the briefs with front matter, 17 slice issues as sub-issues of their goal issue, and 20
+  blocked-by links for their order;
+- 19 open issues and pull requests moved from their `goal-<n>` labels and release milestones to their goal's milestone
+  and release label;
+- the Project, [Orthograph](https://github.com/users/AaronAbuUsama/projects/3), under Aaron's account, with its nine
+  fields, eight views (All goals, By status, Roadmap, and one per goal) and all 22 issues as items, their fields set.
+
+The Preview, Beta and 1.0 milestones were then empty, and were closed, not deleted. A second dry run planned nothing.
+Goals 3, 4 and 7 get their cards and slices on GitHub when their leads add front matter to their briefs, as their next
+brief edit (K32 already asks each to adopt it, #299 and #300). The goal pages link to their briefs on `main`, so the
+links for Goals 5 and 6 work once this change merges.
+
+## After the move into an organization (2A)
+
+The issues, milestones and labels move with the repository. The Project and the issue types belong to the owner, so:
+
+1. Aaron creates the organization (GitHub has no API for it), and the repository is transferred into it on his yes.
    Links to the old address redirect.
 2. Aaron reinstalls the GitHub apps on the organization (Codex's connector, Claude's), and its branch protection and
    secrets are checked.
 3. The live docs that name the old address (`AaronAbuUsama/architect`) are rewritten, and the forms move from the
    native types to the new ones (`type: Snag` and the rest).
-4. `node tools/github/sync.mjs --goal-branches --migrate --project --apply` makes the types, the labels, a milestone
-   and a goal issue per goal, the slices and their order, the Project with its fields and views, and moves every open
-   issue and pull request to its goal's milestone and release label. The empty Preview, Beta and 1.0 milestones are
-   then closed, never deleted.
-
-This section is rewritten with what the run made, in the pull request that records it.
+4. One sync run makes the six issue types and sets each issue's, and makes the Project again under the organization,
+   items and fields included. The one under Aaron's account is then closed.
 
 ## Not chosen
 

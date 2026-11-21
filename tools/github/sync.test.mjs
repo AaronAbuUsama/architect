@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readGoal, splitFrontMatter } from "./frontmatter.mjs";
-import { ISSUE_TYPES, LABELS, goalBody, goalMarker, goalView, plan, sliceMarker } from "./plan.mjs";
+import { ISSUE_TYPES, LABELS, unwrap, goalBody, goalMarker, goalView, plan, sliceMarker } from "./plan.mjs";
 
 const brief = `---
 goal: 6
@@ -176,4 +176,10 @@ test("in an organization each kind is its own type: made once, set on new and ex
   assert.deepEqual(steps.find((s) => s.do === "setType"), { do: "setType", number: 40, type: "Snag" });
   const after = { ...state, types: [...state.types, ...ISSUE_TYPES.map((x) => x.name)], issues: [{ ...state.issues[0], type: "Snag" }] };
   assert.ok(!plan({ goals: [goal], state: after, briefUrl: url }).some((s) => s.do === "createIssueType" || s.do === "setType"));
+});
+
+test("wrapped prose is joined into whole lines, and lists, headings, tables and code keep theirs", () => {
+  const src = "- **Why:** one\n  two\n- **It is:** three\n\nA para\nwraps here.\n\n| a |\n| b |\n```\nx\ny\n```";
+  assert.equal(unwrap("## H\ntext\n```\ncode\n```\nafter"), "## H\ntext\n```\ncode\n```\nafter");
+  assert.equal(unwrap(src), "- **Why:** one two\n- **It is:** three\n\nA para wraps here.\n\n| a |\n| b |\n```\nx y\n```".replace("x y", "x\ny"));
 });
