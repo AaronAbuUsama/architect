@@ -117,7 +117,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Hit: Aaron's review of #95.
 - Fix: framework, a typed built-in refusal `IdempotencyConflict` over HTTP, the SDK and the CLI; an early framework slice
   after #76 lands.
-- Status: fixed (#116 the checks, #117 the build): `IdempotencyConflict` is the runtime's own refusal (`packages/language-effect/src/modules/handler/types.ts`, exit 120), reaching HTTP, the SDK and the CLI, and `e2e/m1/24-idempotency-conflict.test.ts` is green off the ratchet list.
+- Status: fixed (#116 the checks, #117 the build): `IdempotencyConflict` is the runtime's own refusal (`packages/language-effect/src/modules/handler/types.ts`; its exit 120 is in `packages/compiler/src/modules/model/internal/exits.ts:9`), reaching HTTP, the SDK and the CLI, and `e2e/m1/24-idempotency-conflict.test.ts` is green off the ratchet list.
 
 ## S-13 · wallets · a send that never reaches depth is a defect (ledger HAN-11)
 - Hit: the 🔍 review of #104.
@@ -170,7 +170,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   instead of the constants, and passed to the wallet. A framework slice: decision, then check, then builder.
 - Call (Goal 3 lead): park HAN-11 behind the climb. #113 and #114 stay open, unmerged; the slice is taken when a builder
   is free of S-04 and S-01 to S-03. No stub chain, no unreachable RPC, no coverage exemption.
-- Status: parked (Goal 3 lead): HAN-11 waits behind the climb; the chain-settings slice is taken when a builder is free.
+- Status: parked (Goal 3 lead): HAN-11 waits behind the climb; the chain-settings slice is taken when a builder is free. Revisit at ST2.01, stage 2's first chain slice (S-13 waits on it too).
 
 ## S-19 · records · a unique value moved between holders in one call passes in memory, fails on D1 (ledger HAN-18)
 - Hit: Codex's review of #118 (G4, S-04).
@@ -215,7 +215,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Needs: prove's report gives a stopped journey its real step count (`total`, with `green: 0`), so "0 of N" is N.
 - Owner: Goal 3 lead; a small prove slice, check first. It doesn't block the climb: "claim a handle" (8 steps) runs
   from no world, and climbing it makes the worlds that the other journeys start from.
-- Status: parked (Goal 3 lead, 21 November 2026): the curve already reads 13 of 13 on all seven journeys and the report says `no step ran` for a stopped one; only the count of an unwritten journey is wrong. Owner: later.md (prove report). Revisit when M2.07's tenancy journeys, which start from the `founded` and `invited` worlds, are climbed from red.
+- Status: parked (Goal 3 lead, 21 November 2026): every journey already reads all its steps green and the report says `no step ran` for a stopped one; only the count of an unwritten journey is wrong. Owner: later.md (prove report). Revisit when M2.07's tenancy journeys, which start from the `founded` and `invited` worlds, are climbed from red.
 
 ## S-22 · handle · "aaron cannot add a link before he has a page" and "aaron cannot claim a second name while he holds one": a handler can't find the caller's own handle
 - Hit: the climb of "claim a handle" (steps 3 and 7; 5 of 8 green with everything else written). `link.add` must refuse
@@ -295,7 +295,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open, blocks the climb and `e2e:climb`: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 66 and 72) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
+- Status: open, blocks the climb and `e2e:climb`: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
 - Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's
