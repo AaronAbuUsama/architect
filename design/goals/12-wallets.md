@@ -86,9 +86,10 @@ The rules every goal shares, so this brief stays short. Where they and this file
   `reviewer` skill), then mark ready; merge when CI is green and every thread is resolved. At most two ready pull
   requests in CI at once.
 - **Its needs.** A slice builds once what it needs has landed (K34, `design/goals/map.md`). A slice that needs another
-  goal's work writes its checks first and waits for the build; it never builds a stand-in for the other goal. A slice another goal needs lands early, by its own pull request
-  into `goal/stage-1` (into `main` once Goal 3 has landed) carrying only that slice and what it rests on, once its
-  check is green; ask for one by an Ask issue in its goal's milestone (K38).
+  goal's work writes its checks first and waits for the build; it never builds a stand-in for the other goal.
+  A slice another goal needs lands early, once its check is green: a branch `goal/<name>-early-<slice>` cut at the
+  commit that ends it, merged into `goal/stage-1` by a merge commit, never squashed (K38). Ask for one by an Ask
+  issue in the owning goal's milestone.
 - **Asks.** Anything outside "What it owns" is an Ask issue in the owning goal's milestone, naming this goal and what
   done looks like (K32, K33). Read this goal's own open issues at every slice start.
 - **On GitHub.** Every issue and pull request carries the milestone `Goal 12: wallets` and the label `release:1.0`;
