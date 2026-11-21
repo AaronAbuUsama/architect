@@ -434,8 +434,9 @@ Nothing above changes; this records what the row left to the builder.
   is handed (`PortalContext.ledger`). A Worker's ledger is `env.PORTAL_LEDGER`, a key-value binding (the shape of Workers KV); without one, a book that lives as long as the
   isolate does. A portal handed no ledger keeps nothing and shows the window's issues only. The book holds, per issue, its key, count, first and last seen with their hashes,
   and the calls still inside the window by id (pruned as they leave it, which is what makes a call count once). It holds no payload, no person and no log: a trace id, an
-  operation, a step, a tag and a hash. Nothing in the generated wrangler config binds `PORTAL_LEDGER` yet: that is the first cloud slice's (M7.14); until then a deployed
-  portal's issues last as long as its isolate. The read-modify-write is not atomic across requests, so two requests racing can lose a count, never invent one.
+  operation, a step, a tag and a hash. Nothing in the generated wrangler config binds `PORTAL_LEDGER` yet, and no slice
+  owned it: snag #438 does (the binding, planned and destroyed by staging, and the key scoped by environment); until then a deployed portal's issues last as long
+  as its isolate. The read-modify-write is not atomic across requests, so two requests racing can lose a count, never invent one.
 - **Calls come from spans.** Windows are counted from the calls the spans of `live.source.window(ms, now)` hold (the telemetry module's, so a retry is one call and its
   duration is the extent of its attempts). A refusal that opened no span (the door's) is counted by `ortho.calls` and is not a call to the monitor; the monitor does not
   read `live.metrics`. An anomaly or a verdict has no burn to read: its row is `unknown`, never `ok` (check 39 does not judge their firing).
