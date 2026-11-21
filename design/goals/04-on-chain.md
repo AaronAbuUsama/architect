@@ -1,7 +1,7 @@
 ---
 goal: 4
 title: on chain, end to end
-milestone: "Goal 4: on chain"
+milestone: "Goal 4: on chain, end to end"
 release: 1.0
 branch: goal/on-chain
 base: goal/stage-1
