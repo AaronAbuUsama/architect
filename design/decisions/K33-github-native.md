@@ -160,7 +160,8 @@ links for Goals 5 and 6 work once this change merges.
 ## Moved into Open-Harness, 21 November 2026 (2A)
 
 Aaron chose `Open-Harness`, an organization he already owns ("Open harnes"), and the repository was transferred on his
-yes: it is `Open-Harness/architect`, and the old address redirects. The issues, milestones, labels, sub-issues and
+yes: it was `Open-Harness/architect`, and the old address redirects. The same day Aaron renamed it ("since we are here we
+rename orthograph"): it is `Open-Harness/orthograph`, and both old addresses redirect. The issues, milestones, labels, sub-issues and
 blocked-by links moved with it. Checked straight after the transfer, against a snapshot taken just before it:
 
 - branch protection on `main`, `m1`, `goal/stage-1`, `goal/ui-layer`, `goal/portal` and `goal/on-chain`: the same;
@@ -182,7 +183,7 @@ Still to do, in this order:
    to the new one.
 3. The issue forms name the new types (`type: Snag` and the rest), which now exist, so this change can merge.
 
-The live docs now name `Open-Harness/architect`. The old address stays in the dated records, in spikes (records of
+The live docs now name `Open-Harness/orthograph`. The old address stays in the dated records, in spikes (records of
 their run), and in the naming check (`e2e/m0/names.test.ts`, which tests that the address isn't flagged); the redirect
 covers each.
 

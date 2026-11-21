@@ -120,7 +120,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 > - **Reporting:** "Where it stands", rewritten in the pull request that merges each slice. Nobody is messaged.
 > - **Branch protection** is set on `goal/ui-layer` before this goal starts, like `goal/stage-1`
 >   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. If
->   `gh api repos/Open-Harness/architect/branches/goal/ui-layer/protection` finds none, it needs an admin: write that
+>   `gh api repos/Open-Harness/orthograph/branches/goal/ui-layer/protection` finds none, it needs an admin: write that
 >   in "Where it stands" and stop before the first pull request.
 
 ## The bound
@@ -205,7 +205,7 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
   design/decisions/`), and list it under "Decision IDs" below.
 - **Changing an agreement** below is an Ask issue in the other goal's milestone; each lead then edits only its own brief.
 - **Branch protection** on `goal/ui-layer` is set by the conductor before this goal starts (K32). If
-  `gh api repos/Open-Harness/architect/branches/goal/ui-layer/protection` finds none, write that in "Where it stands" and stop
+  `gh api repos/Open-Harness/orthograph/branches/goal/ui-layer/protection` finds none, write that in "Where it stands" and stop
   before the first pull request.
 
 ## The agreements (21 November 2026)
