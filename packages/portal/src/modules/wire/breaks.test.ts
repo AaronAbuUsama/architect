@@ -14,7 +14,10 @@ const withBreaks = (breaks: ReadonlyArray<string>): ModelWire => {
 // An older wire: every operation without `breaks`, built from a copy so the controls hold whether or not acme's committed model carries the key.
 const olderWire = (): ModelWire => {
   const model = acmeModel();
-  return { ...model, operations: Object.fromEntries(Object.entries(model.operations).map(([name, { breaks: _, ...older }]) => [name, older])) as never };
+  return { ...model, operations: Object.fromEntries(Object.entries(model.operations).map(([name, operation]) => {
+    const { breaks: _, ...older } = operation as typeof operation & { breaks?: unknown }; // the model type names `breaks` only after the S-31 build
+    return [name, older];
+  })) as never };
 };
 const roundTrip = (model: ModelWire) => Effect.runPromise(Wire.decode(JSON.parse(JSON.stringify(blueprintOf(model)))));
 
