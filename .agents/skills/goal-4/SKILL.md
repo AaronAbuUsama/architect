@@ -11,6 +11,10 @@ memory.** Read it before anything else, and update it in the same pull request a
 
 ## Resume in this order
 
+Some files below arrive with open pull requests (`M6-chain.md` with #275, `e2e/on-chain/` with #279); until they
+merge, read them on their branches (`git show origin/<branch>:<path>`, branches in STATE.md).
+
+
 1. `STATE.md` (this folder): where it stands, what is open, the next step, lessons.
 2. `design/goals/04-on-chain.md` word for word, especially "The prompt", "The bound", "The five roles", the slice
    tables and "The done check".
@@ -63,7 +67,8 @@ review findings back to the author who wrote the check. In another harness, use 
   `pnpm-lock.yaml` importer so `--frozen-lockfile` passes.
 - **CI takes 45 to 60 minutes a pull request.** Batch a pull request's fixes into one push, and work the next slice
   while it runs.
-- **Builders may only shrink `e2e/on-chain/expected-failing/`;** `tools/ci/builder-paths.sh` enforces it (#279).
+- **Builders may only shrink `e2e/on-chain/expected-failing/`;** `tools/ci/builder-paths.sh` enforces it once #279 has
+  merged.
 
 ## Talking to Aaron
 

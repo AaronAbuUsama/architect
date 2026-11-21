@@ -13,12 +13,13 @@ below in order as CI goes green, then get slice 3 built.
   protection recorded.
 - Slice 0 (K27): done before the goal.
 - Slice 1 (the language and host seam): **held** until Goal 3's sign-in extraction (M2.05) merges on `goal/stage-1`
-  (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start.
+  (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start: M2.05's row in
+  `git show origin/goal/stage-1:design/milestones.md` is ticked ✅, or `gh pr list --base goal/stage-1 --state merged --search M2.05`.
 - Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, [#275](https://github.com/AaronAbuUsama/architect/pull/275). 🔍 passed after two rounds; waiting on
   CI, then merge.
 - Slice 2 (M6.02): the budgets blueprint and seven journeys, [#276](https://github.com/AaronAbuUsama/architect/pull/276) (🔍 passed); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
   (hostile pass, two 🔍 rounds, passed). Both wait on CI and on [#275](https://github.com/AaronAbuUsama/architect/pull/275).
-- Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass is running, then
+- Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass was running (a subagent of the old lead; if its result isn't on #283, run it again), then
   a 🔍 and a framework builder. Its build waits on the money answers.
 - Slices 4 to 12: not started.
 
