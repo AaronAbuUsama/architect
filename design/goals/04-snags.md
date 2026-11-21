@@ -34,8 +34,8 @@ Numbers are this log's own, from S-01; they never refer to Goal 3's log.
 ## S-04 · budgets · "a cast member has no wallet or account"
 - Hit: the journey author: a journey needs `s.olga.account` (the account a cast member signs with) and a cast member who holds a wallet but no role (`bob`, the wrong signer, written `Blueprint.anyone`). `Actor` has `person`, `email` and `password` only (`journeys/types.ts`), and `Blueprint.signedIn` is refused on chain (M6-chain item 5).
 - Lost: the journeys cannot name who signs, which the done check requires ("each operation signed by its person").
-- Cause: nothing gives a cast member a wallet yet, and no cast kind means "holds a wallet, no role".
-- Fix: framework, `Actor.account`, a wallet per cast member made by the world, and a cast kind for a bare wallet; the runner signs each call with its actor's wallet. Slices 7 and 8, and the checks author's runner work.
+- Cause: nothing gives a cast member a wallet yet. A wallet holder with no role is cast as `Blueprint.anyone` (M6-chain item 10).
+- Fix: framework, `Actor.account` and a wallet per cast member made by the world; the runner signs each call with its actor's wallet, and lets an `anyone` cast member sign on chain. Slices 7 and 8, and the checks author's runner work.
 - Status: open
 
 ## S-05 · budgets · "a journey cannot see a transaction or a token move"
@@ -49,7 +49,7 @@ Numbers are this log's own, from S-01; they never refer to Goal 3's log.
 - Hit: the journey author: "a spend submitted twice" needs `{ signing: "<name>" }` on `run` (the same nonce sent again), and a spend whose signature is bob's but names olga as signer (`BadSignature`, AR-005) cannot be said at all. `run`'s options have only `request`.
 - Lost: the replay journey needs an option that does not exist; the BadSignature case is not covered by any journey.
 - Cause: a journey step calls the operation once and signs with its actor's key.
-- Fix: framework, a `signing` option on `run`, and (if wanted) a way to sign as another actor's key, slice 11 (M6.15) for the replay; the bad-signature case waits for a decision on whether a journey may forge.
+- Fix: framework, a `signing` option on `run`, and (if wanted) a way to sign as another actor's key, slice 11 (M6.15) for the replay. `BadSignature` and `SignatureExpired` are reached by the generated Foundry tests in slice 5, not by journeys (M6-chain item 10).
 - Status: open
 
 ## S-07 · budgets · "no InvalidNonce to refuse with"
