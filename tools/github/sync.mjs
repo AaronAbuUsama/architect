@@ -82,15 +82,16 @@ if (goalBranches) {
 const goals = [];
 for (const s of sources) {
   const r = readGoal(s.path, s.text);
+  // A brief it can't read skips only its own goal: the other goals' pages stay fresh, and the run still ends with exit
+  // code 2, so the workflow shows red until the brief is fixed.
   if (r.error) {
-    process.stderr.write(`${r.error}\n`);
+    process.stderr.write(`skipped: ${r.error}\n`);
     process.exitCode = 2;
     continue;
   }
   if (goals.some((g) => g.number === r.goal.number)) continue; // the checkout's copy wins over a branch's
   goals.push({ ...r.goal, ref: s.ref });
 }
-if (process.exitCode) process.exit();
 
 // Until a goal lands, its lead keeps its own lines on the goal branch: its status, its lead and "Where it stands". So
 // those come from the brief on that branch when the branch has one, even when main has the rest of the brief.
