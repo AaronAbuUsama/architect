@@ -116,6 +116,13 @@ From K32 (#298), which merged as written; its words gain a "Superseded by K33" n
 
 - design/decisions/K32-goals-coordinate-themselves.md: "**A milestone per release** (K28)" → "**A milestone per goal** (K33), and a `release:<name>` label per release"
 
+From the live docs that still said release milestones and snag files:
+
+- AGENTS.md: "a `goal-<n>` label, the release milestones, and issues for asks between goals" → "its goal's milestone and `goal-<n>` label, and Snag and Ask issues in that milestone"
+- .agents/skills/conductor/SKILL.md: "its snag file, its `goal-<n>` label and issues" → "its milestone and `goal-<n>` label, and its Snag and Ask issues"
+- .agents/skills/conductor/SKILL.md: "its snag file, the `goal-<n>` label and the release milestones on GitHub" → "its milestone on GitHub, with its Snag and Ask issues"
+- .agents/skills/threads/SKILL.md: "its snag file; a `goal-<n>` label on its pull requests and issues; and an issue labelled for another goal" → "Snag issues in its milestone; its milestone and `goal-<n>` label on its pull requests and issues; and an Ask issue in another goal's milestone"
+
 From #285:
 
 - design/milestones.md: "Goal 3's lead has agreed the freeze on a `goal-3` issue" → "Goal 3's lead has agreed the freeze on an Ask issue in Goal 3's milestone"

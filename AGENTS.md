@@ -38,8 +38,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   generate, run, fix until the check passes, then moves on. The milestone reaches `main` by one pull request, merged
   when CI is green, its gate passes and a 🔍 reviewer subagent passed it. Threads are optional, for work that truly runs in
   parallel. A goal may run in any harness (Claude Code, Amp, Codex) and coordinates only through the repository and
-  GitHub: its brief's "Where it stands", a `goal-<n>` label, the release milestones, and issues for asks between goals
-  (`design/decisions/K32-goals-coordinate-themselves.md`).
+  GitHub: its brief's "Where it stands", its goal's milestone and `goal-<n>` label, and Snag and Ask issues in that milestone
+  (`design/decisions/K32-goals-coordinate-themselves.md`, `K33-github-native.md`; the `github` skill says how).
 - **Spikes** answer one question in throwaway code under `spikes/<name>/`, on a `spike/<name>` branch. Each ends with
   a README (question, tried, found, the decision it supports, open risks) and is merged into `main` for the record.
   Spike code is never imported by packages.
@@ -102,5 +102,6 @@ word for starting, messaging, reading and archiving a thread), `conductor` (the 
 `author` (writing journeys and checks, and proving each fair), `reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
 the process and the style guide), `kanban` (the board Aaron and the conductor track every slice on, its data saved
 in the repo, and `STATE.md`, where the project stands) and `ui-sdk` (UI SDK's own skill, vendored at the pinned version, for
-the generated pieces, pages and the portal's components on it; its `README.md` says how we use it). `.claude/skills` and `.claude/agents/reviewer.md`
+the generated pieces, pages and the portal's components on it; its `README.md` says how we use it), and `github` (how the
+work lives on GitHub: a milestone per goal, the issue kinds and forms, labels, the pull request template and the sync, K33). `.claude/skills` and `.claude/agents/reviewer.md`
 are links to it; edit them only in `.agents/skills/`.
