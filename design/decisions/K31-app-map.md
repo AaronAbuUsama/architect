@@ -34,7 +34,9 @@ Plugged In has no map at all. UI SDK has `navigation-menu`, `menu`, `menubar`, `
 1. **The map lives in the blueprint, as its own declarations** (Q1). `blueprint/app/app.ts` is the app (its layout,
    home and navigation) and `blueprint/app/pages/<name>.ts` is one page, named by its path like every declaration. Both
    compile into the model as `model.app`, hashed like things and operations, so every projection and check reads it.
-   Not settings on the web plugin, which would tie the map to the browser; not conventions read from code.
+   `model.app` is present only when the blueprint has an `app/` folder, like `stores` and `environments`, so a blueprint
+   with no app generates exactly what it did before, byte for byte. Not settings on the web plugin, which would tie the
+   map to the browser; not conventions read from code.
 2. **A page declares the what, never the look** (Q2): its route with typed parameters, who may open it, which reads
    it shows, which operations it offers, and its parent. The look is the page's own code in `src/web/`.
 3. **The shell is a layout with named slots and navigation groups** (Q3). The app names a layout (`sidebar`,
@@ -44,9 +46,10 @@ Plugged In has no map at all. UI SDK has `navigation-menu`, `menu`, `menubar`, `
 4. **The palette, the breadcrumbs and the agent's map are derived** (Q4). The palette lists the pages the caller
    may open and the operations it may call where it is; the breadcrumb comes from each page's parent and route; the
    agent gets the whole map as a tool (where it can go, what it can do there). Overrides: hide, rename, a shortcut.
-5. **A derived default until you declare, with the staleness ratchet** (Q5). With no `app.ts`, generate derives a map:
-   a home listing the things, a page per thing with its operations offered, and a sidebar of things, which is what the
-   portal's tree does today. `ortho add page <name>` writes a page declaration and scaffolds its code once. A declared
+5. **A derived default until you declare, with the staleness ratchet** (Q5). With no `app.ts`, the app projection
+   derives a map, for a project that mounts it: a home listing the things, a page per thing with its operations
+   offered, and a sidebar of things, which is what the portal's tree does today. The default is worked out there and
+   never written into the model. `ortho add page <name>` writes a page declaration and scaffolds its code once. A declared
    map wins. Page code that falls behind its declaration follows "Scaffolds that follow the blueprint"
    ([`../later.md`](../later.md)).
 6. **The portal uses the same language** (Q6). A new portal declares its map this way, and a feature's portal pages
@@ -94,7 +97,8 @@ export default Blueprint.page({
 });
 ```
 
-`allowed` uses the same roles as an operation. A feature's pages and slot parts come with its mount, chosen like its
+`allowed` uses the same roles as an operation. A page's type is `AppPage`, since `orthograph` already exports `Page`
+(a read's page of results). A feature's pages and slot parts come with its mount, chosen like its
 other parts (`Blueprint.use(organizations, (o) => [..., o.pages.members, o.slots.switcher])`).
 
 ## What the compiler checks
@@ -124,16 +128,29 @@ and web projection, never inside them, so the goal that builds the pieces (Goal 
 (Goal 6) never edit the same file. The router is ours, a small runtime over the generated route table and the history
 API, since every route is known at build time; no router dependency. Reversible: the table is data.
 
-**The theme moves to its own package,** `@orthograph/theme` (one stylesheet on UI SDK's `--ui-*` tokens), for the same
-reason: the shell, the pieces and the new portal all use it. It is Q3 of K29 unchanged, in a different place.
+**The theme is its own package,** `@orthograph/theme` (one stylesheet on UI SDK's `--ui-*` tokens), for the same
+reason: the shell, the pieces and the new portal all use it. It is Q3 of K29 unchanged, in its own place. Goal 6 owns
+it and builds it first, and lands it in `goal/stage-1` on its own, so Goal 5's screens take it up; until then the
+pieces use UI SDK's default tokens.
+
+**New modules, not edits.** The language and the compiler gain an `app` module each
+(`packages/orthograph/src/modules/app/`, `packages/compiler/src/modules/app/`); the existing modules only register
+them. Goal 6's brief names every existing file it may touch, and a check proves the byte-for-byte rule above.
 
 ## What changes for K29 and Goal 5
 
-- K29 section 7 (the old portal moved off HeroUI in place) is replaced: the new portal is built beside the old one and
-  the old client is deleted at cutover (Goal 6). The in-place slice becomes the cutover; check 15's rewrite stays and
-  gates it.
-- Goal 5 keeps the actions, the web projection and Plugged In's screens. Its screens slice declares Plugged In's three
-  pages in this language once Goal 6's first landing reaches `goal/stage-1`.
+K29 had not merged, so it was written to these words in its own pull request (#272), not superseded:
+
+- K29 section 7 is now "off HeroUI, by a new client": the new portal is built beside the old one and the old client
+  is retired at cutover (ST1.27, Goal 6's last slice), once every portal check passes on the new one. Check 15's
+  rewrite (ST1.28) gates it. Cutover deletes `@orthograph/portal-ui` too; F7's names come back on UI SDK with the
+  first page that needs them.
+- K29's page layer is the look; the map is declared here.
+- Goal 5 keeps the actions, `@orthograph/web`, the web projection and Plugged In's screens, and its done check never
+  waits on the map. Plugged In's three pages are declared in this language as a follow-on, once Goal 6's map landing
+  reaches `goal/stage-1`.
+- Neither goal edits the other's packages. Cutover goes through the conductor, with Goal 3's lead's yes
+  ([`../goals/06-portal.md`](../goals/06-portal.md), the protocol).
 
 ## Not chosen, and why
 
@@ -149,4 +166,5 @@ deleted is a route gone, which the compiler then reports wherever it was named.
 
 ## Supersedes
 
-(Filled in with the slice ids, in the same pull request.)
+Nothing yet: K29 and the live docs it touched (`portal.md`, `packages.md`, `scope.md`, `milestones.md`, Goal 5's brief)
+took these words before either merged.
