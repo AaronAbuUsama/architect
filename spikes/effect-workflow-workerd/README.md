@@ -18,8 +18,9 @@ already finished? Can a workflow wait on an event? Can it wait on a durable cloc
   stepped world can't move it. So in Orthograph every wait is a row in the world's timer table plus a `DurableDeferred`
   that the world completes. That works: a 30-day wait fired on the world's 30th day, at the world's time.
 - **Condition 2: an activity runs at least once, not exactly once.** An eviction in the middle of an activity's body runs
-  the body again. So every activity must carry its request key, `Activity.idempotencyKey(name)`. That key is K5 seam
-  6's "run id plus activity name", and it is what kept the effect to one.
+  the body again. So every activity must carry its request key, `Activity.idempotencyKey(name)`. That key is a hash of
+  the execution id (itself derived from the workflow's `idempotencyKey`, here the run) plus the activity name: K5 seam
+  6's "run id plus activity name". It is what kept the effect to one.
 
 ## What was tried
 
@@ -59,8 +60,8 @@ Three scenarios:
 
 ## What was found
 
-All 14 checks pass on two runs in a row: `pnpm build && pnpm spike`. Each run's JSON lines are in `findings/run-1.jsonl` and
-`findings/run-2.jsonl`; the quotes below are from run 1.
+All 14 checks pass on three runs: `pnpm build && pnpm spike`. Each run's JSON lines are in `findings/run-1.jsonl` and
+`findings/run-2.jsonl`, plus `findings/run-3.jsonl` with the sharper A5. The quotes below are from run 1.
 
 1. **A replay skips finished activities: across an eviction, and across a workerd restart.**
    - **Where it's stored.** The engine stores each finished activity's exit in the execution's own SQLite, keyed by
@@ -86,8 +87,10 @@ All 14 checks pass on two runs in a row: `pnpm build && pnpm spike`. Each run's 
 3. **A wake-up is deduplicated, by the engine.**
    - **The rule.** `saveDeferred` refuses a second exit for a name it already holds (`workflowStorage.js:90`), and
      `completeDeferred` then returns without waking (`workflowRuntime.js:238`).
-   - **A5.** A second `confirmed` carrying a different value (`proposal-8`) changed nothing: `link` stays at one call,
-     with `proposal-7`.
+   - **A5.** A second `confirmed` carrying a different value (`proposal-8`) is refused. The execution's stored exit for
+     `confirmed` still holds `proposal-7` (one row, no `proposal-8`), and `link` stays at one call, with `proposal-7`.
+     That is checked in `findings/run-3.jsonl`, after the 🔍 review asked for a sharper probe. Runs 1 and 2 checked only
+     the ledger, which would pass anyway, since `link` was already stored.
    - **A9.** The same timer fired again by the world, followed by an eviction: `settle` stays at one call, and the
      result is unchanged.
    - **What it means.** The world needs no dedup of its own beyond its `fired` flag. A timer delivered twice, or at
@@ -114,11 +117,12 @@ All 14 checks pass on two runs in a row: `pnpm build && pnpm spike`. Each run's 
    - **C1.** The 30-day sleep was due `2026-12-21T09:49Z`, 30 days from the real clock, while the world read
      `2026-12-01`.
    - **C2.** Stepping the world 45 days and running the object's alarm by hand doesn't wake it: `fired: 0`, and the
-     run is still parked.
+     run is still parked. C2 alone would pass for any reason the alarm stays quiet. With C1 it shows that the due time
+     is on the wall clock.
 
 6. **The world's clock can't simply be handed to the engine.**
-   - **Why.** The object program uses the same `now()` for its resume-guard alarm, `now() + 60 s`
-     (`workflowRuntime.js:74`). That alarm is how a run lost with its object comes back (finding 7). On a stepped
+   - **Why (from reading the code, not run).** The object program uses the same `now()` for its resume-guard alarm,
+     `now() + 60 s` (`workflowRuntime.js:74`). That alarm is how a run lost with its object comes back (finding 7). On a stepped
      clock, the guard would sit in the world's past or future, and workerd's real alarm wouldn't fire when intended.
    - **What the spike does.** The program keeps the platform clock. The workflow's handler gets the world's clock,
      through the registration's context: a `Clock` provided to `PublishLayer` reaches its activities.

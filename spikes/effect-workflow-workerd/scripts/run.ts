@@ -96,12 +96,15 @@ await mf.ready;
     world0.timers.length === 1 && world0.timers[0].at === T0 + 30 * DAY && world0.timers[0].set_at === T0,
     { worldNow: world0.now, timers: world0.timers.map((r: any) => ({ ...r, at: iso(r.at), set_at: iso(r.set_at) })), realNow: iso(Date.now()) });
 
+  const bornBeforeDup = linked.value.object.born;
   const dup = await call("/confirm", { run, proposal: "proposal-8" });
   await sleep(500);
   const afterDup = await status(run);
-  check("A5 a second delivery of the event (a different value) wakes nothing: link still ran once, with the first value",
-    same(afterDup.ledger.calls, { freeze: 1, propose: 1, link: 1 }) && afterDup.ledger.effects.link === "proposal-7" && afterDup.object.execution.result.includes("Suspended"),
-    { secondConfirm: dup, ledger: afterDup.ledger });
+  const storedEvent = afterDup.object.deferredExits.confirmed as string;
+  check("A5 a second delivery of the event (a different value) is refused by the engine: the stored exit still holds the first value, and link still ran once with it",
+    storedEvent.includes("proposal-7") && !storedEvent.includes("proposal-8") && afterDup.object.deferreds.filter((n: string) => n === "confirmed").length === 1
+      && same(afterDup.ledger.calls, { freeze: 1, propose: 1, link: 1 }) && afterDup.ledger.effects.link === "proposal-7" && afterDup.object.execution.result.includes("Suspended"),
+    { secondConfirm: dup, storedEvent, sameInstance: afterDup.object.born === bornBeforeDup, ledger: afterDup.ledger });
 
   const almost = await call("/advance", { days: 29 });
   await sleep(300);

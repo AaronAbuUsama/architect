@@ -54,6 +54,7 @@ export class ClusterWorkflow extends DurableObject<Env> {
       execution: sql.exec("SELECT execution_id, result, resume_pending FROM workflow_execution").toArray()[0],
       activities: sql.exec<{ key: string }>("SELECT key FROM workflow_activities ORDER BY rowid").toArray().map((r) => r.key),
       deferreds: sql.exec<{ name: string }>("SELECT name FROM workflow_deferreds ORDER BY rowid").toArray().map((r) => r.name),
+      deferredExits: Object.fromEntries(sql.exec<{ name: string; exit: string }>("SELECT name, exit FROM workflow_deferreds").toArray().map((r) => [r.name, r.exit])),
       clocks: sql.exec("SELECT name, wake_up, fired FROM workflow_clocks").toArray(),
       alarm: await this.ctx.storage.getAlarm(),
     };
