@@ -97,8 +97,8 @@ Values are named for three reasons:
 
 - **One meaning everywhere.** The model records each field's value and its name (`named: "Count"`). So every output
   reads the same type: a `bigint` in Effect, a decimal string on the wire. `places` and `taken` are both a `Count`, so
-  they can never drift apart, and changing `Count` once changes both. A value's type in a chain language waits on K7
-  (ledger `THI-01`).
+  they can never drift apart, and changing `Count` once changes both. A value's type on a chain is worked out from the value, not
+  written by hand (K25 item 5: `uint(bits)` is `uint<bits>`, `account()` is `address`; ledger `THI-01`, built in M6.10).
 - **One mark everywhere.** Visibility rides on the value. acme's `Password` is marked secret once, and every payload
   field made of it, in `sign-up` and `sign-in`, is secret with no further word.
 - **A name a reader can say.** `places: Count` says what the field is. `places: Blueprint.uint(32)` only says how big
@@ -395,14 +395,16 @@ secret field at rest. Everything else on it is proved or specified.
 
 <Note kind="question" id="visibility-on-a-store" slice="M1.17">
   What each visibility means in each kind of store is open, above all for private state on a chain (ledger `G-04`).
-  Chain store kinds wait on K7. That question belongs to [stores](stores.mdx), as its note `visibility-per-kind`.
+  K7 and K25 decided the chain kinds: a public chain store refuses a secret or private field, and Aztec's `private` is a
+  capability of its own kind (ledger `G-04`). That question belongs to [stores](stores.mdx), as its note `visibility-per-kind`.
 </Note>
 
 <Note kind="question" id="lives-closed-list" slice="M1.17">
   Ledger `X-17` and `STO-26`. A thing's store is still a closed list in code: `"database"` or `"actor"`
   (`packages/orthograph/src/modules/things/types.ts:32`, and again in `packages/compiler/src/modules/model/types.ts:41`).
   K3 says a thing lives in a store of an open kind, and K5 makes a chain a host whose store kind is `chain`. What a
-  thing declares to live on a chain waits on K7. The change is in [stores](stores.mdx).
+  thing declares to live on a chain is K25's: it lives in a chain store, a file saying `Blueprint.store.chain.evm()`, built in
+  M6.10. The change is in [stores](stores.mdx).
 </Note>
 
 <Note kind="question" id="file-as-field">
