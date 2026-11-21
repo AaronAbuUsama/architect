@@ -22,9 +22,18 @@ const copy = (): string => {
   return root;
 };
 const HANDLE = "blueprint/things/handle/thing.ts";
-const said = (exit: Exit.Exit<unknown, unknown>): string => (Exit.isFailure(exit) ? `${Cause.pretty(exit.cause)} ${JSON.stringify(exit.cause)}` : "");
-const meaning = (text: string) => ({
-  thing: text.split("\n").some((line) => /\bhandle\b/i.test(line) && /\bunique\b/i.test(line)) || /\bhandle\b[^\n]*\bunique\b|\bunique\b[^\n]*\bhandle\b/i.test(text),
+const edit = (root: string, file: string, change: (text: string) => string) => { const path = join(root, file); writeFileSync(path, change(readFileSync(path, "utf8"))); };
+/** What a failed model says, as lines: the typed failure's problems or message, and the cause as printed. Never a JSON dump of the whole cause. */
+const said = (exit: Exit.Exit<unknown, unknown>): string => {
+  if (!Exit.isFailure(exit)) return "";
+  const own = exit.cause.reasons.filter(Cause.isFailReason).map((r) => r.error).flatMap((e) => {
+    const f = e as { readonly problems?: ReadonlyArray<string>; readonly message?: string };
+    return [...(f.problems ?? []), ...(typeof f.message === "string" ? [f.message] : [])];
+  });
+  return [...own, Cause.pretty(exit.cause)].join("\n");
+};
+const meaning = (text: string, thing: string) => ({
+  thing: text.split("\n").some((line) => new RegExp(`\\b${thing}\\b`, "i").test(line) && /(?<!invariant\.)\bunique\b/i.test(line)),
   pointer: /invariants\.ts|Blueprint\.invariant\.unique/.test(text),
 });
 
@@ -36,21 +45,35 @@ describe("retired unique: controls", () => {
     if (Exit.isSuccess(exit)) expect(Object.keys(exit.value.things)).toContain("handle");
   });
   it("the reader tells a good refusal from a hollow one", () => {
-    expect(meaning("thing handle declares unique: use Blueprint.invariant.unique")).toEqual({ thing: true, pointer: true });
-    expect(meaning("compile failed")).toEqual({ thing: false, pointer: false });
-    expect(meaning("thing handle is retired")).toEqual({ thing: false, pointer: false });
-    expect(meaning("unique is retired, see invariants.ts")).toEqual({ thing: false, pointer: true });
+    expect(meaning("thing handle declares unique: use Blueprint.invariant.unique", "handle")).toEqual({ thing: true, pointer: true });
+    expect(meaning("compile failed", "handle")).toEqual({ thing: false, pointer: false });
+    expect(meaning("thing handle is retired", "handle")).toEqual({ thing: false, pointer: false });
+    expect(meaning("unique is retired, see invariants.ts", "handle")).toEqual({ thing: false, pointer: true });
+    expect(meaning("can't load blueprint/things/handle/invariants.ts: Blueprint.invariant.unique is not a function", "handle"), "an unrelated failure on a handle file").toEqual({ thing: false, pointer: true });
+    expect(meaning("thing handle declares unique: use Blueprint.invariant.unique", "profile").thing, "another thing").toBe(false);
   });
 });
 
-describe("retired unique: refused", () => {
+const ways: Readonly<Record<string, { readonly thing: string; readonly prepare: (root: string) => void }>> = {
+  "a `// @ts-ignore`d `unique` on handle": { thing: "handle", prepare: (root) => edit(root, HANDLE, (t) => t.replace('  code: "HN",\n', '  code: "HN",\n  // @ts-ignore\n  unique: { name: { while: ["claimed"] } },\n')) },
+  "a `// @ts-ignore`d `unique` on profile": { thing: "profile", prepare: (root) => edit(root, "blueprint/things/profile/thing.ts", (t) => t.replace('  code: "PR",\n', '  code: "PR",\n  // @ts-ignore\n  unique: { handle: { while: ["claimed"] } },\n')) },
+  "handle declared in a plain .js file that thing.ts re-exports": {
+    thing: "handle",
+    prepare: (root) => {
+      const js = readFileSync(join(root, HANDLE), "utf8").replace('  code: "HN",\n', '  code: "HN",\n  unique: { name: { while: ["claimed"] } },\n');
+      writeFileSync(join(root, "blueprint/things/handle/thing.impl.js"), js);
+      writeFileSync(join(root, HANDLE), 'export { Handle } from "./thing.impl.js";\n');
+    },
+  },
+};
+
+describe.each(Object.entries(ways))("retired unique: %s is refused", (_way, { thing, prepare }) => {
   afterAll(() => rmSync(scratch, { recursive: true, force: true }));
-  it("a `// @ts-ignore`d `unique` on handle fails the model, naming handle and pointing at invariants.ts / Blueprint.invariant.unique", async () => {
+  it(`fails the model, naming ${"the thing"} with unique on one line and pointing at invariants.ts / Blueprint.invariant.unique`, async () => {
     const root = copy();
-    const path = join(root, HANDLE);
-    writeFileSync(path, readFileSync(path, "utf8").replace('  code: "HN",\n', '  code: "HN",\n  // @ts-ignore\n  unique: { name: { while: ["claimed"] } },\n'));
+    prepare(root);
     const exit = await modelOf(root);
     expect(Exit.isFailure(exit), "the model was made, and the rule dropped").toBe(true);
-    expect(meaning(said(exit)), said(exit).slice(0, 500)).toEqual({ thing: true, pointer: true });
+    expect(meaning(said(exit), thing), said(exit).slice(0, 500)).toEqual({ thing: true, pointer: true });
   });
 });

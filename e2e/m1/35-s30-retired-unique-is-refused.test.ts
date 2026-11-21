@@ -8,7 +8,8 @@
 //   - `ortho model` and `ortho generate` exit non-zero (a failed compile that says why);
 //   - what they print names the thing, says `unique` (the thing and `unique` on one line), and points at `invariants.ts` or `Blueprint.invariant.unique` (G5);
 //   - nothing is written: every file of the copy is byte for byte what it was. For generate the copy's `generated/` is removed first, so a compiler that
-//     went on would write it again, and the check then finds it still absent.
+//     went on would write it again, and the check then finds it still absent. The copy's folders are read-only while the command runs (so writing
+//     then deleting fails too). Dot-files count; only node_modules is left out.
 // Where the property is caught (in `Blueprint.thing`, in the loader, in the compiler) is the builder's choice; this check reads only the command line.
 // Variants: the property on handle and on profile (the thing's name is not hard-coded), behind `// @ts-ignore`; and handle declared in a plain `.js` file
 // that the blueprint's `thing.ts` re-exports (the compiler walks only `.ts` blueprint files, so a `.js` one is reached by import).
@@ -16,7 +17,7 @@
 // named `unique` is not the retired property and compiles; the message reader knows a good message from a hollow one. Not passable hollow: a compiler
 // that refuses everything fails the controls; a message with no thing, no `unique` or no pointer fails the reader.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { copyOf, ortho } from "../layer1/support.ts";
@@ -24,7 +25,9 @@ import { repo } from "./support.ts";
 
 const example = join(repo, "examples/plugged-in");
 const copies: Array<ReturnType<typeof copyOf>> = [];
-afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
+const folders = (root: string) => [root, ...readdirSync(root, { recursive: true, withFileTypes: true }).filter((d) => d.isDirectory() && !join(d.parentPath, d.name).startsWith(join(root, "node_modules"))).map((d) => join(d.parentPath, d.name))];
+const lock = (root: string, mode: number) => { for (const dir of folders(root)) chmodSync(dir, mode); };
+afterEach(() => { for (const copy of copies.splice(0)) { try { lock(copy.root, 0o755); } catch { /* removed */ } copy.remove(); } });
 const fresh = () => { const copy = copyOf(example); copies.push(copy); return copy.root; };
 const edit = (root: string, file: string, change: (text: string) => string) => { const path = join(root, file); writeFileSync(path, change(readFileSync(path, "utf8"))); };
 
@@ -32,17 +35,19 @@ const HANDLE = "blueprint/things/handle/thing.ts";
 const PROFILE = "blueprint/things/profile/thing.ts";
 const RETIRED = (field: string) => `  // @ts-ignore: G4's retired property, as a project that skips typecheck would carry it\n  unique: { ${field}: { while: ["claimed"] } },\n`;
 
-/** Every file of a folder but node_modules and dot-folders, by path, with a digest: what "nothing is written" is judged against. */
+/** Every file of a folder but node_modules (dot-files and dot-folders included), by path, with a digest: what "nothing is written" is judged against. */
 const tree = (root: string): Readonly<Record<string, string>> =>
   Object.fromEntries(readdirSync(root, { recursive: true, withFileTypes: true })
     .filter((d) => d.isFile()).map((d) => join(d.parentPath, d.name).slice(root.length + 1))
-    .filter((p) => !p.startsWith("node_modules/") && !/(^|\/)\./.test(p)).sort()
+    .filter((p) => !p.startsWith("node_modules/")).sort()
     .map((p) => [p, createHash("sha256").update(readFileSync(join(root, p))).digest("hex")]));
 
 interface Way { readonly thing: string; readonly prepare: (root: string) => void }
 const ways: Readonly<Record<string, Way>> = {
   "a `// @ts-ignore`d `unique` on handle": { thing: "handle", prepare: (root) => edit(root, HANDLE, (t) => t.replace('  code: "HN",\n', `  code: "HN",\n${RETIRED("name")}`)) },
   "a `// @ts-ignore`d `unique` on profile (the thing's name is not hard-coded)": { thing: "profile", prepare: (root) => edit(root, PROFILE, (t) => t.replace('  code: "PR",\n', `  code: "PR",\n${RETIRED("handle")}`)) },
+  "a one-line quoted `\"unique\"` as the last key of link, a third thing": { thing: "link", prepare: (root) => edit(root, "blueprint/things/link/thing.ts", (t) => t.replace(/\n  \},\n\}\);\n$/, '\n  },\n  // @ts-ignore\n  "unique": { url: { while: ["listed"] } } });\n')) },
+  "`unique` smuggled in through a spread on profile": { thing: "profile", prepare: (root) => edit(root, PROFILE, (t) => t.replace("Blueprint.thing({", 'Blueprint.thing({ ...({ unique: { handle: {} } } as object),')) },
   "handle declared in a plain .js file that thing.ts re-exports": {
     thing: "handle",
     prepare: (root) => {
@@ -55,7 +60,7 @@ const ways: Readonly<Record<string, Way>> = {
 
 /** What a refusal must say: a line with the thing and `unique`, and a pointer to where the rule goes now. Meaning, not wording. */
 const says = (out: string, thing: string) => ({
-  names: out.split("\n").some((line) => new RegExp(`\\b${thing}\\b`, "i").test(line) && /\bunique\b/i.test(line)),
+  names: out.split("\n").some((line) => new RegExp(`\\b${thing}\\b`, "i").test(line) && /(?<!invariant\.)\bunique\b/i.test(line)),
   points: /invariants\.ts|Blueprint\.invariant\.unique/.test(out),
 });
 
@@ -69,6 +74,7 @@ describe("35 controls: the message reader and an intact copy", () => {
     expect(says("handle: unique is retired", "handle")).toEqual({ names: true, points: false });
     expect(says("a thing declares unique: see invariants.ts", "handle")).toEqual({ names: false, points: true });
     expect(says("handle is fine\nunique rows are fine\nsee invariants.ts", "handle").names, "the thing and `unique` on different lines").toBe(false);
+    expect(says("can't load blueprint/things/handle/invariants.ts: Blueprint.invariant.unique is not a function", "handle"), "an unrelated failure on a handle file").toEqual({ names: false, points: true });
     expect(says("", "handle")).toEqual({ names: false, points: false });
   });
 
@@ -88,6 +94,14 @@ describe("35 controls: the message reader and an intact copy", () => {
     expect(tree(join(root, "generated"))).toEqual(committed);
   });
 
+  it("the shape `unique: {` in a comment and in a description is not the retired property: it compiles", () => {
+    const root = fresh();
+    edit(root, HANDLE, (t) => t.replace('  code: "HN",\n', '  code: "HN",\n  // unique: { name: { while: ["claimed"] } } was G4\'s spelling\n').replace("A public name", "A public name (unique: { x: 1 } is retired)"));
+    const model = ortho(root, "model");
+    expect(model.status, model.stderr + model.stdout).toBe(0);
+    expect(model.stdout).toMatch(/^thing handle /m);
+  });
+
   it("a thing with a FIELD called unique is not the retired property: it compiles", () => {
     const root = fresh();
     edit(root, HANDLE, (t) => t.replace("    owner:", '    unique: Blueprint.described(Blueprint.id("per"), "A field that happens to be called unique."),\n    owner:'));
@@ -102,6 +116,7 @@ describe.each(Object.entries(ways))("35: %s is refused, in words, and nothing is
     const root = fresh();
     prepare(root);
     const before = tree(root);
+    lock(root, 0o555);
     const model = ortho(root, "model");
     const out = `${model.stdout}\n${model.stderr}`;
     expect(model.status, `compiled with exit 0 and said: ${JSON.stringify(out.slice(0, 200))}`).not.toBe(0);
@@ -115,6 +130,7 @@ describe.each(Object.entries(ways))("35: %s is refused, in words, and nothing is
     prepare(root);
     rmSync(join(root, "generated"), { recursive: true });
     const before = tree(root);
+    lock(root, 0o555); // a refusal needs no write: a compiler that writes (and deletes after) meets a read-only folder
     const generate = ortho(root, "generate");
     const out = `${generate.stdout}\n${generate.stderr}`;
     expect(generate.status, `generated with exit 0 and said: ${JSON.stringify(out.slice(0, 200))}`).not.toBe(0);
