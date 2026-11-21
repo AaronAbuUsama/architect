@@ -35,9 +35,6 @@ belongs to, and why it waits.
   confirms before calling. Waits for a design pass; the second UI SDK spike (PR #222) shows what drives it.
 - **Page marks for secret and hidden fields** (ledger PRJ-55, K24): the language has secret, private and issued;
   mapping them onto the page agent's marks waits for the second UI SDK spike (PR #222).
-- **Generated typed pieces** (ledger PRJ-56, K24): a form per operation, a list per read and a button per move,
-  generated on UI SDK, so ST1.04's screens need not be written by hand. Waits for the second UI SDK spike to say
-  whether it belongs in stage 1 or later.
 
 ## From stage two (layer one)
 
@@ -103,6 +100,3 @@ belongs to, and why it waits.
 - **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
 - **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
 - **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
-- **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
-  Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
-  or its terms stop a framework importing it.

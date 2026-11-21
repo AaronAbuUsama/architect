@@ -65,7 +65,7 @@ Two packages of ours hold what is written once, by hand:
 - **`orthograph/actions`** (M1.23): `defineAction`, `ActionRefusal`, the registry. Effect only, no browser.
 - **`@orthograph/web`** (new): the browser host and the piece runtime. The host gives an action its client (the
   generated SDK's layer), the caller (`person` or `agent`, from UI SDK's `details.source`), one request key per form
-  open kept across retries (ST1.01's rule, moved here), and a person to ask. The runtime is what every generated piece
+  open kept across retries (the rule of ST1.01, which ST1.25 replaces, moved here), and a person to ask. The runtime is what every generated piece
   shares: its state shape (`pending`, `error`, `refusal`, `done`, `value`), reading a form into a payload, mapping a
   refusal into the state the bridge reads, and the `dispatch` and `settle` adapter. It is the only place the two
   spike workarounds live. Framework-free; it imports `@ui-sdk/core`, `orthograph` and Effect.
@@ -425,7 +425,8 @@ nine of its tokens. Everything else is plain HTML that our checks read by `data-
    F7's names stay the words those pieces will have.
 4. **HeroUI comes out in the same change** (K24, step 4): the peers, `pro.mjs`, `sheets.mjs`, the gated typecheck,
    the `HEROUI_AUTH_TOKEN` step and cache in CI, and `ortho/no-pro-outside-portal-ui`. Check 15 is a check, so a checks
-   author rewrites it (to: "only portal-ui and `generated/web/` import `@ui-sdk/*`; nothing imports HeroUI"), and the
+   author rewrites it (to: "only `@orthograph/portal-ui`, `@orthograph/web`, `generated/web/` and an app's `src/web/`
+   import `@ui-sdk/*`, nothing a Worker reaches imports them (check 26); nothing imports HeroUI"), and the
    builder never touches it. Checks 26 and 27 stay.
 
 ## 8. Plugged In at the end of stage 1
@@ -511,4 +512,6 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 - design/frame/generators.md: "@orthograph/react/agents/skills/build-a-screen/" → "@orthograph/web/agents/skills/build-a-screen/"
 - design/walkthrough/journey.md: "a proof tab, built on HeroUI Pro" → "a proof tab, built through `@orthograph/portal-ui`"
 - design/walkthrough/journey.md: "the React hooks and three screens" → "the web pieces and three screens"
+- design/later.md: "Waits for the second UI SDK spike to say" → "scheduled in stage 1 as ST1.25 and ST1.26"
+- design/later.md: "Waits until the HeroUI Pro licence lapses" → "scheduled in stage 1 as ST1.27 and ST1.28, on UI SDK"
 - design/decisions/K9-growing-example.md: "The react projection over the SDK" → "ST1.25, the web projection, one UI SDK piece per operation"
