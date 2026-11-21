@@ -11,7 +11,9 @@ want this to be able to run in parallel to the other work that's actually runnin
 ## What this goal proves
 
 1. **The map falls out.** An app declares its map in the blueprint (K31), and the router, the shell, the palette, the
-   breadcrumbs, the agent's map and the docs come from it.
+   breadcrumbs and the agent's map (as data) come from it. The rest of K31's table, the docs' page per screen,
+   `ortho add page`, the agent's `map` tool on an app and `open(pages.x)` in `ortho prove`, is not in this goal; it is
+   in `design/later.md`, "The rest of the app's map".
 2. **Our own components are enough.** The portal is rebuilt on UI SDK, the Orthograph theme and our shell, with no
    HeroUI and no licence anywhere.
 3. **Nothing is lost.** Every check that holds the old portal passes on the new one before the old one goes.
@@ -30,6 +32,11 @@ want this to be able to run in parallel to the other work that's actually runnin
 
 > You lead Goal 6 in this repository. Run it as one autonomous goal until the done check below passes on
 > `goal/portal` and cutover has landed, or until you are truly blocked as `AGENTS.md` defines it.
+>
+> This file is the whole brief: it holds every agreement this goal depends on (below, "The agreements"), so a lead
+> starting cold, on any account or session, needs only the repository. Read "Where it stands" at the end first, and
+> rewrite it at every slice merge. The conductor is whichever session runs the `conductor` skill;
+> `.agents/skills/kanban/STATE.md` says where the whole project stands.
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
@@ -52,9 +59,9 @@ want this to be able to run in parallel to the other work that's actually runnin
 > - **Ownership:** you own the architecture, as `AGENTS.md` says. Where code and design disagree, decide, fix the other
 >   in the same change, and record it.
 > - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
->   the board (the `kanban` skill).
->   Goal 5 owns the actions, `@orthograph/web` and the web projection; you own the map, the shell, the theme and the new
->   client. Neither goal edits the other's packages.
+>   the board (the `kanban` skill), and rewrite "Where it stands" in the same pull request.
+> - **Ownership between goals:** Goal 5 owns the actions, `@orthograph/web` and the web projection; you own the map, the
+>   shell, the theme and the new client. Neither goal edits the other's packages.
 > - **Reporting:** each time a slice merges, report to the conductor session, in two or three lines: the slice, its
 >   check, the parity list's length. Write for Aaron's ear.
 > - **Cutover goes through the conductor** (the protocol, point 5). Never merge into `goal/stage-1` without the yes it
@@ -76,7 +83,7 @@ want this to be able to run in parallel to the other work that's actually runnin
   | `packages/compiler/src/modules/model/service.ts` | set the `blueprint/app/` files aside before `readLayout`, and call the new `app` module after `describe`, adding `app` to the model only when one is declared |
   | `packages/compiler/src/modules/model/types.ts` | `readonly app?: AppModel` on `Model`, "present only when the blueprint has an `app/` folder", the type imported from the new module |
   | `packages/projections/src/main.ts` | export the `app` projection |
-  | `.oxlintrc.json` | the module-boundary tags for `scope:shell`, `scope:theme` and `scope:portal-next` |
+  | `.oxlintrc.json` | the module-boundary tags `scope:theme`, `scope:shell` and `scope:portal-next`, for `packages/theme/`, `packages/shell/` and `packages/portal-next/` |
   | `e2e/served-portal/` | the checks author's `PORTAL_CLIENT=old|next` switch, the old client the default |
   | `e2e/project.json`, `e2e/package.json` | the `portal-next` target and the new packages as workspace dependencies |
   | `.github/workflows/ci.yml` | one job that runs the portal checks against the new client, not yet blocking |
@@ -85,8 +92,10 @@ want this to be able to run in parallel to the other work that's actually runnin
 
   A change that needs any other existing file is a snag for its owner, through the conductor, never an edit here.
   The new modules are `packages/orthograph/src/modules/app/` (`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`,
-  `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results) and
-  `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals).
+  `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results),
+  `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals) and
+  `packages/projections/src/modules/app/` (the app projection); the new packages are `packages/theme`,
+  `packages/shell` and `packages/portal-next`.
 - **Outside, never edited before cutover:** `packages/portal` (the old client, the wire and the server half),
   `packages/portal-ui`, the actions, `@orthograph/web` and the web projection (Goal 5's), Plugged In, and every Goal 3
   journey and check. Only cutover's own pull request touches `packages/portal` and `packages/portal-ui`.
@@ -134,6 +143,30 @@ When the portal builder is stuck on something it can't fix inside `packages/port
 `design/goals/06-snags.md` (created in slice 1, the shape of Goal 3's snag log) and moves on. It never works around the map
 or the shell from inside the client.
 
+## The agreements (21 November 2026)
+
+Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when this goal was split from
+Goal 5. They hold whoever leads either goal; changing one goes through the conductor and is written here and in Goal
+5's brief.
+
+1. **The theme is this goal's,** built as slice 1 and landed in `goal/stage-1` on its own. Until it lands, Goal 5's
+   pieces use UI SDK's default tokens; Goal 5's screens slice takes it up.
+2. **The app-map language is additive** (the core-language rule in the bound): new modules only, registered in the
+   named files, and byte-identical output for a blueprint with no app and no pages, proved by slice 2's check.
+3. **Neither goal edits the other's packages.** Goal 5 owns the actions module, `packages/web`, the actions and web
+   projections and Plugged In's `src/web/`; this goal owns `packages/theme`, `packages/shell`, `packages/portal-next`,
+   the app projection and the `app` modules. A need on the other side is a snag sent to its owner through the
+   conductor.
+4. **Goal 5 never waits on the map.** Plugged In's pages are declared in the map language as a follow-on, after the
+   map landing.
+5. **The parity list only shrinks,** except for a portal check that arrives by a merge from `goal/stage-1`, which lands
+   red with its line (the protocol, point 3).
+6. **Cutover goes through the conductor:** this goal says when the list is empty; the conductor agrees the freeze with
+   Goal 3's lead; the cutover pull request into `goal/stage-1` merges with Goal 3's lead's yes and a 🔍 pass (the
+   protocol, point 5).
+7. **Goal 5's waits are not this goal's:** its screens wait on ST1.03 and its sign-in on M2.05 and M2.06, both Goal
+   3's. Nothing here waits on Goal 5.
+
 ## The slices
 
 Each slice starts with its check, written first and failing, and ends with it green on `goal/portal`.
@@ -143,17 +176,20 @@ Each slice starts with its check, written first and failing, and ends with it gr
 | # | Slice | Done when |
 |---|---|---|
 | 1 | **The theme.** `@orthograph/theme`: one stylesheet on UI SDK's `--ui-*` tokens (K29 Q3), the type scale and spacing, light and dark; the snag log | its check (written first): a fixture page on it in Chromium resolves every `--ui-*` token to the theme's value, in both schemes, and builds with `HEROUI_AUTH_TOKEN` unset |
-| 2 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's four refusals (K31), a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call, and **the byte-identical check**: acme's and Plugged In's `model.json` and every generated file equal `goal/stage-1`'s, byte for byte, with the map modules in | they fail with the map empty, except the byte-identical check, which passes and must keep passing; the old client's checks still pass |
+| 2 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's four refusals (K31), a page that shows no read and types its parameter with a value (the portal's case: `/things/:name` over the data API) compiling, a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call, and **the byte-identical check**: acme's and Plugged In's `model.json` and every generated file equal `goal/stage-1`'s, byte for byte, with the map modules in | they fail with the map empty, except the byte-identical check, which passes and must keep passing; the old client's checks still pass |
 | 3 | **The map language.** `Blueprint.app`, `Blueprint.page`, `Blueprint.layout`, `Blueprint.nav` in `orthograph`'s new `app` module; `model.app` in the compiler's new `app` module, hashed; the four compile errors; registered in the four files the bound names | slice 2's language and compiler checks; the byte-identical check |
 | 4 | **The app projection.** `generated/app/`, for a project that mounts it: the route table, a typed link per page, the navigation, the palette's index and the agent's map, as data; with no `app.ts`, the derived default, worked out here and never written into the model | slice 2's projection checks; the byte-identical check |
 | 5 | **The shell.** `@orthograph/shell`: the router over the route table, the layouts (`sidebar`, `topNav`, `none`) and their slots, the navigation, the breadcrumb and the ⌘K palette, on UI SDK (`navigation-menu`, `collapsible`, `scroll-area`, `command`, `menu`) and the theme | slice 2's shell checks in Chromium; an agent's `snapshot()` on a fixture shell lists its navigation and palette by name |
 
 **The theme landing, after slice 1:** one pull request from `goal/portal` into `goal/stage-1` carrying only
-`packages/theme` and its check, so Goal 5's screens take it up. Merge `goal/stage-1` in first. It merges when CI is
+`packages/theme`, its check and the bound table's lines it needs (`scope:theme` in `.oxlintrc.json`, the lockfile,
+its `e2e/project.json` target), so Goal 5's screens take it up. Merge `goal/stage-1` in first. It merges when CI is
 green and a 🔍 reviewer passed it.
 
 **The map landing, after slice 5:** the same, for the map language, the app projection and the shell, so Plugged In's
-pages can declare themselves (Goal 5's follow-on). The byte-identical check must pass on it.
+pages can declare themselves (Goal 5's follow-on). The byte-identical check must pass on it. It registers the new
+modules in `orthograph`'s index and the compiler's model service, which are Goal 3's busiest files, so tell Goal 3's
+lead through the conductor before it opens, and merge `goal/stage-1` in last thing.
 
 ### Part 2: the new client
 
@@ -170,7 +206,7 @@ pages can declare themselves (Goal 5's follow-on). The byte-identical check must
 
 | # | Slice | Done when |
 |---|---|---|
-| 12 | **Cutover (ST1.27)**, after the cut-off (the protocol, point 5). Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`, HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step and cache, `ortho/no-pro-outside-portal-ui`), and folds `e2e:portal-next` into the normal portal checks. It merges with Goal 3's lead's yes and a 🔍 pass | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
+| 12 | **Cutover (ST1.27)**, after the cut-off (the protocol, point 5). Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`, HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step and cache, `ortho/no-pro-outside-portal-ui`), folds `e2e:portal-next` into the normal portal checks, and rewrites every live doc line that still names `portal-ui` or HeroUI as current (`git grep -n "portal-ui\|HeroUI"` outside `design/decisions/`, `design/history/` and `design/process/`: the `portal-design` skill, `design/walkthrough/journey.md`, `design/ui/heroui-inventory.md` section 8, `portal.md`, `packages.md`), with a Supersedes list. It merges with Goal 3's lead's yes and a 🔍 pass | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
 
 ## Decision IDs
 
@@ -213,3 +249,5 @@ Then cutover (slice 12) lands through the conductor, and the goal is done.
 From Goal 3's pace (a medium slice three to six hours, checks first). Part 1: about 16 to 22 hours, the theme first,
 the map language and the shell being new. Part 2: about 18 to 26 hours, six pages whose content and checks already exist. Cutover: 2 to
 4 hours. All: about 36 to 52 hours, with slice 12 waiting on the cut-off.
+
+## Where it stands

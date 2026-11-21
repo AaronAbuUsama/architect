@@ -105,8 +105,10 @@ other parts (`Blueprint.use(organizations, (o) => [..., o.pages.members, o.slots
 
 Each is a compile error naming the file, so a map that can't work never generates:
 
-- a route parameter that no shown read's payload takes, or a shown read's payload field that no parameter, session
-  or `allowed` role supplies;
+- on a page that shows reads, a route parameter that no shown read's payload takes, or a shown read's payload field
+  that no parameter, session or `allowed` role supplies. A page that shows no read (one whose data comes from
+  elsewhere, like the portal's pages over its own data API) types each parameter with a value (`Blueprint.text()`,
+  a field's value) and is checked only for that;
 - a page that offers an operation none of the page's `allowed` roles may call;
 - a nav group, `home` or `parent` naming a page that isn't declared, and a cycle of parents;
 - two pages with the same route.
@@ -166,5 +168,5 @@ deleted is a route gone, which the compiler then reports wherever it was named.
 
 ## Supersedes
 
-Nothing yet: K29 and the live docs it touched (`portal.md`, `packages.md`, `scope.md`, `milestones.md`, Goal 5's brief)
-took these words before either merged.
+Nothing: K29 and the live docs it touched (`portal.md`, `packages.md`, `scope.md`, `milestones.md`, Goal 5's brief and
+the `ui-sdk` skill's README) took these words in #272, before either merged, so no merged phrase is replaced.
