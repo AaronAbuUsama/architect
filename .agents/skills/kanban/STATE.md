@@ -39,6 +39,7 @@ rebase, and never push to another lane's branch.
 | 🎯 Goal 3: stage 1 of Plugged In (the beta, critical path) | `goal/stage-1` | `design/goals/03-stage-1-hill-climbed.md` | `nx run e2e:stage1`, staging included | 7 of 7 journeys green and a required check. Milestone 2 started: M2.01 (#263) in its third review, M2.02's checks (#267). Staging up and destroy (#282), request keys in traces (#270, #281), the chains page (#271), the graphs' checks (#280), two compiler snags from Goal 4 (#278), main merged in with K28 (#277) |
 | 🎯 Goal 4: on chain, end to end (1.0) | `goal/on-chain` | `design/goals/04-on-chain.md` on its branch, and the lead's own skill and state (#284) | `nx run e2e:on-chain` in CI | Start-up (#273), the chain decision (#275), budgets journeys (#276), the done check, red (#279), slice 3's checks (#283). Its seam slice waits until Goal 3's M2.05 (auth out of the host) merges, because both reshape `host-cloudflare` |
 | 🎯 Goal 5: the UI layer (generated pieces on UI SDK) | `goal/ui-layer`, from `goal/stage-1` | `design/goals/05-ui-layer.md` (in #272) | in the brief | Not started. K29 decided (#272, waits on K24 #217). Start its lead when #272 is on `main` |
+| 🎯 Goal 7: Safe, Hats and a budgets module (stage 3, the base for Capxul) | `goal/safe-hats`, from `main` | `design/goals/07-safe-hats.md` (being written) | a 🔍 reviewer runs `spikes/safe-hats-module`'s README from a clean checkout, all green | Started 21 November at Aaron's ask, run on **Codex headless** with the Foreman thread as the Claude lead that monitors and steers it. The spike folder is not created yet |
 | 🎯 Goal 6: the new portal (our components, the app map) | `goal/portal`, from `goal/stage-1` | `design/goals/06-portal.md` (in #285) | `nx run e2e:portal-next` | Not started. K31 drafted (#285). Start its lead when #285 is on `main` |
 
 How Goals 5 and 6 meet the others (agreed 21 November):
@@ -54,21 +55,27 @@ How Goals 5 and 6 meet the others (agreed 21 November):
 
 ## Other threads
 
+- 🧪 Durable workflows on Cloudflare (M3.03, widened to feed M3.01): started 21 November on `spike/effect-workflow-workerd`
+  by the former demo thread. `spikes/effect-workflow-workerd/` is not created yet. It answers stage 3's signature
+  collection and the keeper.
+
 - 🗺 The walkthrough board (Aaron's "1 board, 6 zones"): the pitch, the concept map, the tour, swap the example, UI,
   hard questions; each card tinted by `design/scope.md`. Built; zone 5 (UI) is being filled by the UI thread. Snapshot in
-  `design/artifacts/walkthrough-board.html`.
+  `design/artifacts/walkthrough-board.data.json` (open with `design/artifacts/_whiteboard-shell.html`).
 - 📐 The UI thread: K29 (#272), K31 and Goal 6's brief (#285). Hands both goals to the conductor to start.
 - 🧭 "What Orthograph is" (#185, K30, and the goal in `README.md`): passed review; merges after K24 (#217).
-- ✍ Time checks: done (#213 merged, a follow-up merged or in #274).
+- ✍ Time checks: done (#213 and its follow-up #274 merged).
 - Done and merged on 21 November: the scope map and K28 (#262), Foreman v0 (#187), the first spike (#215), time checks
   (#213).
 
 ## Waiting on Aaron
 
-- **Two spikes, to start now in parallel** (the conductor's recommendation): a Safe with Hats Protocol and a module on
-  Anvil (ST3.01, `spikes/safe-hats-module`), and durable workflows under workerd (M3.03, `spikes/effect-workflow-workerd`).
-  Both are foundations of stage 3, the base for Capxul, and neither has been tried yet.
-- **CI capacity** (see below): turn off "require branches to be up to date" on `main`.
+- **CI capacity** (see below): turn off "require branches to be up to date" on `main` (free), and GitHub Pro on his
+  account (about $4 a month). Asked 21 November; no answer yet.
+- **Money in the blueprint** (Goal 4's grill, ledger THI-07): answered by the conductor under his authority, all A
+  (every amount names its asset, assets are tokens or ISO currencies, base units everywhere and formatted only at the
+  faces, unsigned unless a field opts in, built now in Goal 4's slice 3). If Aaron answers the grill himself before slice
+  3's builder starts, his answer wins.
 
 ## CI capacity (21 November)
 
@@ -88,8 +95,9 @@ account, and each pull request runs about ten. Measured: about 800 job-minutes a
 ## Decision IDs
 
 Next free in `design/handoff.md`; reserved and in flight: K28 (releases, merged), K29 (UI layer, #272), K30 (the model and
-the map, #185), K31 (the app map, #285). Slice IDs given out on 21 November: ST1.25 (the web projection), ST1.26 (its
-checks), ST1.27 (retire the old portal client at cutover), ST1.28 (check 15 rewritten), M1.51 (the npm preview).
+the map, #185), K31 (the app map, #285). After #285, the next free K is K32. Slice IDs given out on 21 November: M1.51 (the npm preview, in `milestones.md`);
+ST1.25 (the web projection), ST1.26 (its checks), ST1.27 (retire the old portal client at cutover) and ST1.28 (check 15
+rewritten), held only in this file until #272 writes them into `milestones.md`.
 
 ## Standing rules that bite
 
