@@ -57,11 +57,14 @@ export const splitFrontMatter = (text) => {
   return { data, body: text.slice(end + 5) };
 };
 
-/** A slice line: `"5 · The shell (after 4)"` → { number: 5, title: "The shell", after: [4] }. */
+/**
+ * A slice line: `"5 · The shell (after 4)"` → { number: "5", title: "The shell", after: ["4"] }. A slice's number is a
+ * string, a number and an optional letter (`"1b"`, a slice added between two), and its marker and order use it as is.
+ */
 const readSlice = (s) => {
-  const m = /^(\d+)\s*[·:-]\s*(.+?)(?:\s*\(after ([\d,\s]+)\))?$/.exec(String(s));
+  const m = /^(\d+[a-z]?)\s*[·:-]\s*(.+?)(?:\s*\(after ([\da-z,\s]+)\))?$/.exec(String(s));
   if (!m) return { number: null, title: String(s), after: [] };
-  return { number: Number(m[1]), title: m[2].trim(), after: m[3] ? m[3].split(",").map((x) => Number(x.trim())) : [] };
+  return { number: m[1], title: m[2].trim(), after: m[3] ? m[3].split(",").map((x) => x.trim()).filter(Boolean) : [] };
 };
 
 /** The text under a `## <name>` heading, up to the next `## ` heading; null when the heading is missing or empty. */
@@ -83,6 +86,9 @@ export const readGoal = (path, text) => {
   const heading = /^# (.+)$/m.exec(body);
   const number = data?.goal ?? (fromName ? Number(fromName[1]) : null);
   if (number === null) return { error: `${path}: no goal number (front matter "goal:" or a file named NN-name.md)` };
+  const slices = (data?.slices ?? []).map(readSlice);
+  const bad = slices.find((s) => s.number === null);
+  if (bad) return { error: `${path}: slice not understood: "${bad.title}" (write "<n> · <title>", n a number and an optional letter)` };
   const title = data?.title ?? (heading ? heading[1].replace(/^Goal \d+:\s*/, "") : path);
   return {
     goal: {
@@ -97,7 +103,7 @@ export const readGoal = (path, text) => {
       lead: data?.lead ?? null,
       done_check: data?.done_check ?? null,
       owns: data?.owns ?? [],
-      slices: (data?.slices ?? []).map(readSlice),
+      slices,
       card: section(body, "The goal, in plain words"),
       stands: section(body, "Where it stands"),
       declared: data !== null,

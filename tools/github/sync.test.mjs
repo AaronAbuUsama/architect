@@ -122,7 +122,7 @@ test("a pull request or a stray issue that quotes a marker is never taken for th
 
 test("a slice's order becomes a blocked-by link, made once", () => {
   const { goal } = readGoal("design/goals/06-portal.md", brief);
-  assert.deepEqual(goal.slices[1], { number: 2, title: "The checks", after: [1] });
+  assert.deepEqual(goal.slices[1], { number: "2", title: "The checks", after: ["1"] });
   const fresh = plan({ goals: [goal], state: empty, briefUrl: url }).filter((s) => s.do === "addBlockedBy");
   assert.deepEqual(fresh.map((s) => [s.issue, s.blocker]), [["slice 6.2", "slice 6.1"]]);
 });
@@ -182,4 +182,18 @@ test("wrapped prose is joined into whole lines, and lists, headings, tables and 
   const src = "- **Why:** one\n  two\n- **It is:** three\n\nA para\nwraps here.\n\n| a |\n| b |\n```\nx\ny\n```";
   assert.equal(unwrap("## H\ntext\n```\ncode\n```\nafter"), "## H\ntext\n```\ncode\n```\nafter");
   assert.equal(unwrap(src), "- **Why:** one two\n- **It is:** three\n\nA para wraps here.\n\n| a |\n| b |\n```\nx y\n```".replace("x y", "x\ny"));
+});
+
+test("a lettered slice (1b) is a slice like any other: its own issue, marker and order", () => {
+  const text = brief.replace('  - "2 · The checks (after 1)"', '  - "1b · The chain decision (after 1)"\n  - "2 · The checks (after 1b)"');
+  const { goal } = readGoal("design/goals/06-portal.md", text);
+  assert.deepEqual(goal.slices.map((s) => [s.number, s.after]), [["1", []], ["1b", ["1"]], ["2", ["1b"]]]);
+  const steps = plan({ goals: [goal], state: empty, briefUrl: url });
+  assert.ok(steps.some((s) => s.do === "createIssue" && s.key === "slice 6.1b" && s.title === "Goal 6 · 1b · The chain decision"));
+  assert.deepEqual(steps.filter((s) => s.do === "addBlockedBy").map((s) => [s.issue, s.blocker]), [["slice 6.1b", "slice 6.1"], ["slice 6.2", "slice 6.1b"]]);
+  assert.ok(sliceMarker(6, "1b").includes("slice=6.1b "));
+});
+
+test("a slice line it can't read is an error, never a silent drop", () => {
+  assert.match(readGoal("design/goals/06-portal.md", brief.replace('"1 · The theme"', '"The theme"')).error, /slice not understood: "The theme"/);
 });

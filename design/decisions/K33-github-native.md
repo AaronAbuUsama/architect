@@ -208,6 +208,9 @@ milestones can be renamed or closed by hand; the briefs keep the truth either wa
 From K32 (#298), which merged as written; its words gain a "Superseded by K33" note:
 
 - design/decisions/K32-goals-coordinate-themselves.md: "**A milestone per release** (K28)" → "**A milestone per goal** (K33), and a `release:<name>` label per release"
+- design/decisions/K32-goals-coordinate-themselves.md: "Its own snags go in" → "Its new snags are Snag issues in its milestone"
+- design/decisions/K32-goals-coordinate-themselves.md: "labelled with the goal that must act" → "an Ask issue in the milestone of the goal that must act"
+- design/decisions/K32-goals-coordinate-themselves.md: "GitHub Projects adds a second board" → "One Project, \"Orthograph\", over every goal"
 
 From the live docs that still said release milestones and snag files:
 

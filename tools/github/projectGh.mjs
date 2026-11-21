@@ -6,7 +6,11 @@ import { PROJECT_TITLE, projectPlan } from "./project.mjs";
 const graphql = (query, variables = {}) => {
   const out = execFileSync("gh", ["api", "graphql", "--input", "-"], { input: JSON.stringify({ query, variables }), encoding: "utf8", maxBuffer: 64 << 20 });
   const json = JSON.parse(out);
-  if (json.errors) throw new Error(json.errors.map((e) => e.message).join("; "));
+  // A GraphQL error ends the run with its message and exit code 4; the next run picks up from what was written.
+  if (json.errors) {
+    process.stderr.write(`GitHub refused a Project call: ${json.errors.map((e) => e.message).join("; ")}\n`);
+    process.exit(4);
+  }
   return json.data;
 };
 
