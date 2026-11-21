@@ -36,9 +36,10 @@ export const ruleNamed = (b: BlueprintWire, full: string): RuleRef | undefined =
 export const refusalOwners = (b: BlueprintWire): ReadonlyMap<string, RuleRef> =>
   new Map(Object.values(b.model.things).flatMap((t) => rulesOf(t).flatMap((r): ReadonlyArray<readonly [string, RuleRef]> => (r.rule.refuse === undefined ? [] : [[r.rule.refuse, r]]))));
 
-/** The rules an operation can break (`op.breaks`), each once, whether or not a rule owns a refusal. */
+/** The rules an operation can break (`op.breaks`), each once, whether or not a rule owns a refusal. An older wire has no `breaks` (an absent key is "unknown", an empty list is "none"): there the rules behind its refusals (`op.invariants`) are what it can break. */
 export const rulesBroken = (b: BlueprintWire, op: OperationWire): ReadonlyArray<RuleRef> => {
-  const found = (op.breaks ?? []).flatMap((full) => ruleNamed(b, full) ?? []);
+  const fulls = op.breaks ?? Object.values(op.invariants ?? {});
+  const found = fulls.flatMap((full) => ruleNamed(b, full) ?? []);
   return found.filter((r, i) => found.findIndex((o) => o.full === r.full) === i);
 };
 

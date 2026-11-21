@@ -248,9 +248,10 @@ break a rule gets a "rules" stop on its spine, between the move and the commit. 
 model it is given, so a renamed or re-worded rule shows as it is declared; the rules an operation's spine names are
 the ones in the operation's `breaks`, with a refusal or without:
 
-```ts file=packages/portal/src/modules/pages/internal/rules.ts name=rulesBroken lines=40-43
+```ts file=packages/portal/src/modules/pages/internal/rules.ts name=rulesBroken lines=40-44
 export const rulesBroken = (b: BlueprintWire, op: OperationWire): ReadonlyArray<RuleRef> => {
-  const found = (op.breaks ?? []).flatMap((full) => ruleNamed(b, full) ?? []);
+  const fulls = op.breaks ?? Object.values(op.invariants ?? {});
+  const found = fulls.flatMap((full) => ruleNamed(b, full) ?? []);
   return found.filter((r, i) => found.findIndex((o) => o.full === r.full) === i);
 };
 ```
