@@ -1940,7 +1940,7 @@
   "title": "@orthograph/auth, identity",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "@orthograph/auth, identity: person and session, with the key, device and agent credentials; Better Auth behind its worker entry (packages/auth, provides identity); AUTH_SECRET declared; auth leaves acme's ortho.config.ts, and check refuses issues with no identity mounted (until M2.11 work's config.auth counts as one); host-cloudflare keeps its Better Auth as the fallback for an app that mounts none, until ST1.07, M2.09 and ST1.08 have all landed. It fills the handlers and the runtime of the skeleton M2.24 made, writes no journey, and is a pair with M2.25 (decisions/G12-paired-landing.md)"
+  "what": "@orthograph/auth, identity: person and session, with the key, device and agent credentials; Better Auth behind its worker entry (packages/auth, provides identity); AUTH_SECRET declared; auth leaves acme's ortho.config.ts, and check refuses issues with no identity mounted (until M2.11 work's config.auth counts as one); host-cloudflare keeps its Better Auth as the fallback for an app that mounts none, until M2.05b. It fills the handlers and the runtime of the skeleton M2.24 made, writes no journey, and is a pair with M2.25 (decisions/G12-paired-landing.md)"
  },
  "M2-06": {
   "doneWhen": "acme login and MCP sign-in journeys pass, through the real pages, with checks 12, 14 and 21 green and no baseline recaptured",
@@ -2035,7 +2035,7 @@
   "title": "ortho new",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "ortho new replaces the Nx preset: the app it scaffolds is Plugged In at stage 1 (K9), with auth and handles mounted; examples/starter becomes that template; a pair with M2.27 (decisions/G12-paired-landing.md)"
+  "what": "ortho new replaces the Nx preset: the app it scaffolds is Plugged In at stage 1 (K9), with auth and handles mounted; examples/starter becomes that template (M2.05b then removes the host's Better Auth); a pair with M2.27 (decisions/G12-paired-landing.md)"
  },
  "M2-10": {
   "doneWhen": "the notes feature goes from new to proved to published to mounted",
@@ -2095,9 +2095,10 @@
    "ST1.01",
    "ST1.04",
    "ST1.06",
-   "ST1.22"
+   "ST1.22",
+   "M2.05b"
   ],
-  "needsText": "M2.02 to M2.11, M2.13 to M2.27, ST1.01 to ST1.04, ST1.06 to ST1.22",
+  "needsText": "M2.02 to M2.11, M2.05b, M2.13 to M2.27, ST1.01 to ST1.04, ST1.06 to ST1.22",
   "order": 64,
   "plain": "One command makes a new app with sign-in and handles (Plugged In at stage 1); Plugged In is tagged at stage 1.",
   "pr": null,
@@ -4639,7 +4640,7 @@
   "title": "links mounts auth",
   "updatedAt": "2026-11-19T09:38:00Z",
   "waiting": null,
-  "what": "links mounts auth: the copied identity deleted"
+  "what": "Plugged In mounts auth: the copied identity deleted (one of the three M2.05b waits on)"
  },
  "ST1-08": {
   "doneWhen": "no file outside the records names examples/signup; e2e/layer1/08-* proves links",
@@ -4662,7 +4663,7 @@
   "title": "examples/signup deleted once the canon quotes links",
   "updatedAt": "2026-11-19T09:38:00Z",
   "waiting": null,
-  "what": "examples/signup deleted once the canon quotes links (the canon thread's change, K9); e2e/layer1/08-* moved onto links. A checks slice: it edits a gate's suite, so an author writes it, never the builder"
+  "what": "examples/signup deleted once the canon quotes Plugged In (the canon thread's change, K9); e2e/layer1/08-* moved onto Plugged In. A checks slice: it edits a gate's suite, so an author writes it, never the builder; M2.05b, a builder's, removes the host's Better Auth after it"
  },
  "ST2-01": {
   "doneWhen": "they fail on empty handlers",
@@ -5698,5 +5699,29 @@
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
   "what": "Checks for the scaffold becoming Plugged In at stage 1, the check half of M2.09's pair (decisions/G12-paired-landing.md), written by a different agent from M2.09's builder: e2e/layer1/01-a-project-from-the-preset.test.ts, 06-check-and-the-authoring-loop.test.ts, e2e/layer2/05-publishing.test.ts and services.ts, e2e/m1/25-unique-fields.test.ts and packages/prove/src/modules/prove/starter.test.ts re-authored for the new template; the starter's five journeys and three planted fixtures deleted or replaced by Plugged In's; the check that the template's blueprint/ and src/ equal examples/plugged-in's"
+ },
+ "M2-05b": {
+  "doneWhen": "git grep AuthD1 -- packages/host-cloudflare finds nothing, and every example proves",
+  "history": [],
+  "id": "M2-05b",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "ST1.07",
+   "M2.09",
+   "ST1.08"
+  ],
+  "needsText": "ST1.07, M2.09, ST1.08",
+  "order": 59,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.05b",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The host's Better Auth removed",
+  "updatedAt": "2026-11-21T07:53:57Z",
+  "waiting": null,
+  "what": "host-cloudflare loses AuthD1, its Better Auth dependencies and the world's fallback for an app with no identity mounted (decisions/M2-auth.md, Smaller calls 4)"
  }
 }

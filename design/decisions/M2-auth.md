@@ -22,7 +22,7 @@ Aaron's dated calls in them.
 4. `system` has no credential at all: it is what the runtime calls itself when it runs its own work. `service(<mount>)`
    is made only by an adapter's door, after the outside system proves who it is. Only a world can mint either for a
    journey, and only where `/_world/*` exists.
-5. Better Auth leaves `host-cloudflare` and becomes the auth plugin's worker entry. The generated server stops
+5. Better Auth becomes the auth plugin's worker entry (M2.05) and leaves `host-cloudflare` at M2.05b, once no app relies on the host's copy (Smaller calls 4). The generated server stops
    hard-coding it and imports whichever mounted plugin provides identity.
 6. `@orthograph/auth` owns people, sessions, the key, device and agent credentials, `AUTH_SECRET` and the sign-in pages.
    `@orthograph/organizations` owns organisations, memberships, invitations and the API key an owner makes in one.
@@ -153,7 +153,7 @@ home of its own (small calls, 8).
 |---|---|
 | `orthograph` `roles/types.ts`, `roles/service.ts`, `plugins/types.ts` | the new principals, `Narrowed`, `Blueprint.system`, the `service` role, the descriptor's `provides` |
 | `language-effect` `access/service.ts`, `handler/service.ts:161`, `handler/internal/attributes.ts:17`, `principals/types.ts`, `auth/types.ts`, `mcp`, `visibility` | the check, the request key's owner, the span's attributes, the contract the identity entry fills |
-| `host-cloudflare` `auth/` (461 lines in 7 files), `world/`, `store/service.ts:46`, `package.json:11-20` | Better Auth leaves; the world's cast and the identity's tables go through the entry |
+| `host-cloudflare` `auth/` (461 lines in 7 files), `world/`, `store/service.ts:46`, `package.json:11-20` | Better Auth leaves at M2.05b (M2.05 copies it into the plugin; the host's copy is the fallback until then, Smaller calls 4); the world's cast and the identity's tables go through the entry |
 | `projections` `server`, `mcp` | the server imports the identity entry by mount; the MCP filter reads reach, not `via` alone |
 | `compiler` model, `mounts/service.ts:65`, `model/internal/layout.ts:98` | `via` per `allowed` entry, `issues`, `agentTool`, plugin starting worlds, `provides` |
 | `prove` `journeys/internal/world.ts:46-66`, `journeys/internal/load.ts:61` | the staging cast names Better Auth's routes; worlds load from the project only |
@@ -405,7 +405,7 @@ The generated server imports the entry of the one mount whose descriptor `provid
 (`import identity from "@orthograph/auth/src/worker.js"`: allowed by the import rule, M1-plugins section 8), hands it its
 binding, its secrets and its settings (the server is the one place that reads the environment,
 `design/frame/secrets.md:107-108`), and uses it where it says `AuthD1` today. Two mounts providing identity is a `check`
-error naming both files. **No mount providing it** gives `Identity.none`: everyone is anonymous, there are no
+error naming both files. **No mount providing it** gives `Identity.none` once M2.05b has deleted the host's copy (until then the host's Better Auth, Smaller calls 4): everyone is anonymous, there are no
 `/api/auth/*` routes, `/mcp` answers 401 with no way to sign in, and `signedIn` operations are refused: a project that
 wants no sign-in gets none.
 
@@ -425,7 +425,7 @@ export default Blueprint.feature({ description: "...", choices });
 | Plugged In "mounts auth" (ST1.07) | the mount brings Better Auth; no mount, no sign-in | the mount only brings two things; sign-in is there either way | the mount brings a dependency on the package |
 | `AUTH_SECRET` declared by the plugin (M2.04, `frame/secrets.md:81`) | the plugin's entry receives it as `Redacted` | declared by a plugin that never reads it | received by the entry |
 | A second identity provider (a different plugin) | mounts instead; the contract is the same | impossible: the host is hard-wired | possible, with two packages to keep |
-| `host-cloudflare` depends on Better Auth, jose, oauth-provider (`package.json:11-20`) | no longer | still | still, in its sibling |
+| `host-cloudflare` depends on Better Auth, jose, oauth-provider (`package.json:11-20`) | no longer, after M2.05b | still | still, in its sibling |
 | Size of M2.05 | L (as the row says) | M | L, plus a package |
 
 ### Rubric
@@ -572,7 +572,7 @@ fixture or a baseline.
 
 | Move | From | To | Slice | Blast radius |
 |---|---|---|---|---|
-| Better Auth and its contract | `packages/host-cloudflare/src/modules/auth/**` (7 files), `README.md`, `scripts/auth-schema.ts` | `packages/auth/src/modules/better-auth/**`; the contract stays in `language-effect` and gains `IdentityEntry` | M2.05 | `host-cloudflare` keeps `AuthD1` and its Better Auth dependencies (`package.json:11-20`) only as the fallback for an app that mounts no identity (Smaller calls 4); `world/service.ts:25`, `world/internal/front-door.ts:23`, `world/types.ts:5-8` and `reset.ts:14` take the entry instead; `server.ts` (7 sites above); `auth.test.ts` moves |
+| Better Auth and its contract | `packages/host-cloudflare/src/modules/auth/**` (7 files), `README.md`, `scripts/auth-schema.ts` | `packages/auth/src/modules/better-auth/**`; the contract stays in `language-effect` and gains `IdentityEntry` | M2.05 copies it; M2.05b deletes the host's copy | `host-cloudflare` keeps `AuthD1` and its Better Auth dependencies (`package.json:11-20`) only as the fallback for an app that mounts no identity (Smaller calls 4); `world/service.ts:25`, `world/internal/front-door.ts:23`, `world/types.ts:5-8` and `reset.ts:14` take the entry instead; `server.ts` (7 sites above); `auth.test.ts` is copied |
 | `person`, `session`, `values/identity.ts` (`Password`, `Secret`) | `examples/acme/blueprint/things/{person,session}/**`, `blueprint/values/identity.ts` | `packages/auth/blueprint/**`; acme keeps `Ok` in `values/health.ts` (`things/system/verbs/health.ts:3`) | M2.05 | acme's `allowance` (`thing.ts`) imports `Person` and now reads it from `@orthograph/auth/blueprint/things/person/thing.js`; protected files that import acme's copies are repointed by M2.25: `journeys/sign-up-and-sign-in.ts`, `journeys/invite-and-accept.ts:8`, `journeys/grant-an-allowance.ts:7`, `test/fixtures/evals/who-may-call/main.ts:47-48` |
 | the handlers | `examples/acme/src/{person,session}/**` | `packages/auth/src/{person,session}/**` | M2.05 | the guards (fork 1) change here once |
 | `organization`, `membership`, `invitation`, `api-key`, `values/identity.ts` `Role` | `examples/acme/blueprint/things/{organization,membership,invitation,api-key}/**` | `packages/organizations/blueprint/**` | M2.07 (after M2.05, M2.18, M2.22, M2.23, M2.24) | acme's `allowance` (`thing.ts` and its three verbs) imports `owner` and `Organization`; every acme journey, starting world and eval fixture that imports an organizations file is repointed or deleted by M2.23 (list in "The pair map") |
@@ -633,8 +633,8 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   (`e2e/m1/00-controls.test.ts:112-113`, `e2e/layer1/02-acme-proves.test.ts:20`, `e2e/m1/29-st1-23-prove-changed.test.ts:138,268,618`). Red for one reason:
   with its copy gone and auth not mounted, the coverage eval names `PersonEmailTaken` and `SessionCredentialsWrong` as
   reached by no journey.
-- *Builder.* acme's mount file `blueprint/features/auth.ts`, `auth` out of acme's `ortho.config.ts`, the `check` error for `issues` with no identity mounted (Smaller calls 4), the identity entry, the server generator, the world, the move
-  of Better Auth, deleting acme's `person` and `session` and their handlers, `generated/`, and the package tests that move
+- *Builder.* acme's mount file `blueprint/features/auth.ts`, `auth` out of acme's `ortho.config.ts`, the `check` error for `issues` with no identity mounted (Smaller calls 4), the identity entry, the server generator, the world, the copy
+  of Better Auth into `packages/auth` (the host's stays as the fallback until M2.05b), deleting acme's `person` and `session` and their handlers, `generated/`, and the package tests copied
   with Better Auth (`host-cloudflare/.../auth/auth.test.ts`, `world/world.test.ts`). Starter, plugged-in and signup still prove, through the host's fallback.
 - *Author, final commits.* the three baselines, the snapshot and `who-may-call/main.ts`. The diff must show: the server's
   imports and the identity entry in place of `AuthD1`, `0001_things.sql`, the model's `mounts.auth` and a `from` on each of
@@ -707,7 +707,7 @@ too, from the real output.
 | 1 | **A request key is kept per caller's own id**, for every kind: `person:<id>`, `agent:<id>`, `service:<mount>`, `system`, `anonymous`. An agent's retries never answer its person's call. Closes ledger OPS-07 and the canon question at `docs/canon/operations.mdx:514-518` | `handler/service.ts:161-162` keys by person, and "anonymous" for the rest |
 | 2 | **Spans carry `principal.kind` and `principal.via` on every call**, and `principal.person` on accepted calls of a person or an agent. A refused call names its kind and way in, never the person (G8) | `handler/internal/attributes.ts:17-18`; `G8-refused-span.md` |
 | 3 | `Principals.of` takes the door: `{ authorization, door: "api" \| "mcp" }`; at `/mcp` every credential makes an agent | `principals/types.ts:7`; `server.ts:125`, `:208` |
-| 4 | **`identity:` leaves the environment; `issues: [Via…]` replaces it.** Absent means all four. An environment that deploys `mcp` must issue `Via.agent`; one that publishes a CLI must issue `Via.device` or `Via.key`; `issues` with no identity mounted is a `check` error naming both files. That check lands with M2.05, the first slice that can mount an identity; until an app mounts auth, its `ortho.config.ts` `auth` counts as its identity (acme until M2.05, work until M2.11), and an app with neither (starter, plugged-in, signup) writes no `issues:`. Until every app mounts an identity, `host-cloudflare` keeps its Better Auth (`AuthD1`) as the world's and the server's identity for an app that mounts none (starter, plugged-in and signup, whose journeys sign people up through `/_world/cast`); the copy goes in whichever of ST1.07 (Plugged In mounts auth), M2.09 (the starter replaced) and ST1.08 (signup deleted) lands last, and that slice's done-when adds `git grep AuthD1 -- packages/host-cloudflare` finding nothing. The identity entry refuses a credential of a kind the environment does not issue (it reads as anonymous) | `orthograph/src/modules/environments/types.ts:14`; ledger ENV-20; `design/docs/index.html:636` |
+| 4 | **`identity:` leaves the environment; `issues: [Via…]` replaces it.** Absent means all four. An environment that deploys `mcp` must issue `Via.agent`; one that publishes a CLI must issue `Via.device` or `Via.key`; `issues` with no identity mounted is a `check` error naming both files. That check lands with M2.05, the first slice that can mount an identity; until an app mounts auth, its `ortho.config.ts` `auth` counts as its identity (acme until M2.05, work until M2.11), and an app with neither (starter, plugged-in, signup) writes no `issues:`. Until every app mounts an identity, `host-cloudflare` keeps its Better Auth (`AuthD1`) as the world's and the server's identity for an app that mounts none (starter, plugged-in and signup, whose journeys sign people up through `/_world/cast`). M2.05 copies Better Auth into `packages/auth`; **M2.05b**, a builder slice of its own after ST1.07 (Plugged In mounts auth), M2.09 (the starter replaced) and ST1.08 (signup deleted), deletes the host's copy, and is done when `git grep AuthD1 -- packages/host-cloudflare` finds nothing and every example proves. The host's copy has no package test of its own from M2.05 to M2.05b: the three apps' `prove` runs are its cover, accepted for a copy that only waits to be deleted. The identity entry refuses a credential of a kind the environment does not issue (it reads as anonymous) | `orthograph/src/modules/environments/types.ts:14`; ledger ENV-20; `design/docs/index.html:636` |
 | 5 | **`ortho.config.ts` loses `auth`**: acme's at M2.05, work's at M2.11, and the key itself at M2.11. The project's name stays (`ENV-14`/`FOR-02`'s concern is M1.11's, not this) | `orthograph/src/modules/config/types.ts:1-12` |
 | 6 | **The staging cast calls `person.sign-up` and `session.sign-in`**, the plugin's own operations, not Better Auth's routes, so `prove` knows nothing of Better Auth | `prove/src/modules/journeys/internal/world.ts:46-66` |
 | 7 | **A secret is named from the mount and the export**: `secret` in the plugin mounted as `blueprint/features/auth.ts` is `AUTH_SECRET`, so the binding does not change. Mounted as `identity.ts` it would be `IDENTITY_SECRET` | `frame/secrets.md:78-81` |
@@ -995,12 +995,13 @@ that slice is a pair under G12, and its author says so in its first commit.
 | M2.03 | the five kinds and `acting`; `Narrowed`, `.via`, `.notVia`; `Blueprint.system`; the `service` role; `agentTool`; `issues:` for `identity:`; `Principals.of` with a door; the request key and span attributes; the world's `/_world/credential`; the journey API's `.via` and `.tools()`; the 15 unprotected guards; canon quotes re-quoted. A pair with M2.02's principal part | the four principal journeys of M2.02 pass in acme, `a service is nobody signed in` passes in the adapter fixture, and the pair merges green |
 | M2.04 | `Blueprint.secret`, names from mount and export, `Redacted`, `Blueprint.layer(plugin, { secrets, settings, db })` | as written, and acme's `generated/` is byte for byte what it was: checks 12, 14 and 21 stay green with no baseline recaptured |
 | M2.24 | the two skeletons, the plugins' journeys placed, the `e2e/m2` checks pointed at the packages | the checks fail on blank handlers only |
-| M2.05 | the identity entry, `auth` out of acme's `ortho.config.ts` and the no-identity `check` error, the worker's move of Better Auth, the `auth` store, `provides`, the server generator, the world, acme's mount, the handlers of `packages/auth`. A pair with M2.25 | the identity journeys pass with acme mounting it |
+| M2.05 | the identity entry, `auth` out of acme's `ortho.config.ts` and the no-identity `check` error, the worker's copy of Better Auth, the `auth` store, `provides`, the server generator, the world, acme's mount, the handlers of `packages/auth`. A pair with M2.25 | the identity journeys pass with acme mounting it |
 | M2.06 | device flow and its mark, OAuth for MCP, the pages, `signIn`/`keys`, settings | `acme login` and MCP sign-in journeys pass, through the real pages |
 | M2.07 | the handlers of `packages/organizations`; `holds` roles; acme's `allowance-policy` handlers, so M2.23's worlds and journeys pass; `api-key`. A pair with M2.23 | the tenancy journeys pass from the plugin; acme has no `organization/` folder |
 | M2.09, ST1.07 | `ortho new` writes Plugged In at stage 1 with auth and handles mounted; M2.09 is a pair with M2.27 | as written |
 | M2.10 | `ortho new feature`, `example/`, the three targets, the `plugins` job, `ortho publish --local` for plugins; the example mounts the plugin and has no journeys of its own (a plugin's journeys run in the app that mounts it, M1-plugins section 10) | as written |
 | M2.11 | the work app mounts auth; `auth` leaves work's `ortho.config.ts`, and `Identity` and `AuthKit` go | `ortho prove --root examples/work` passes with no copied identity |
+| M2.05b | `host-cloudflare` loses `AuthD1`, its Better Auth dependencies and the world's fallback, after ST1.07, M2.09 and ST1.08 | `git grep AuthD1 -- packages/host-cloudflare` finds nothing, and every example proves |
 | M2.13 | SIWE linking: `challenge`, `complete`, `link` are `.notVia(Via.agent)`; `list` is open to agents | an agent's link is refused |
 
 ## Evidence
