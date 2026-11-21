@@ -94,7 +94,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 - **Goal 3's hotspots** (from its open pull requests on 21 November 2026). Merge often, and keep each slice small where
   it touches them:
   - the compiler's model (#269, and ST1.14 to ST1.16 before it): the actions and web projections read the model and
-    never change it. A field they need that the model lacks is a snag for Goal 3, not an edit here;
+    never change it. A field they need that the model lacks is an issue labelled `goal-3`, not an edit here;
   - `orthograph`'s front door (ST1.14): M1.23's actions module sits beside it, so merge before touching the module
     index;
   - `examples/plugged-in` and `e2e/` (#267, the journeys): this goal writes only `examples/plugged-in/src/web/` and its
@@ -143,7 +143,12 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
     `packages/projections/src/main.ts`, and the generators' templates for them;
   - `examples/plugged-in/src/web/`;
   - this goal's checks (ST1.26, M1.22's and M1.23's) and the `e2e:ui-layer` target;
-  - `design/goals/05-ui-layer.md` and `05-snags.md`.
+  - `design/goals/05-ui-layer.md` and `05-snags.md`;
+  - and only these lines of shared files: in `.oxlintrc.json`, `scope:web`'s module-boundary tags for `packages/web/`
+    and the carve-out of `ortho/no-ui-in-worker` for `generated/web/` (K29 section 6); in
+    `examples/plugged-in/generated/`, the new `actions/` and `web/` folders generate writes; in `e2e/project.json` and
+    `.github/workflows/ci.yml`, the `e2e:ui-layer` target and its job; and what `pnpm install` writes to
+    `pnpm-lock.yaml`.
   Nothing else is this goal's. Touching another goal's path is a cross-goal ask, never a quiet edit.
 - **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges
   into `goal/ui-layer`: what landed, what is open, what it waits on, in two or three lines written for Aaron's ear. That is the

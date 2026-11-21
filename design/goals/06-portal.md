@@ -165,7 +165,8 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
     `packages/projections/src/modules/app/`, with the registering lines the bound's table names;
   - `e2e/portal-next/` and this goal's checks, and the `e2e:portal-next` target;
   - `design/goals/06-portal.md` and `06-snags.md`;
-  - at cutover only, through its own pull request: `packages/portal` and `packages/portal-ui`.
+  - at cutover only, through its own pull request: `packages/portal`, `packages/portal-ui` and every other file slice
+    12 names.
   Nothing else is this goal's. Touching another goal's path is a cross-goal ask, never a quiet edit.
 - **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges
   into `goal/portal`: what landed, what is open, what it waits on, in two or three lines written for Aaron's ear. That is the
