@@ -484,6 +484,7 @@
           "path": "organization"
         }
       ],
+      "agentTool": true,
       "refs": {
         "organization": "organization"
       },
@@ -503,7 +504,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "14deeff32922c212"
+      "hash": "12a4457690ea752f"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -563,6 +564,7 @@
           "role": "invitation.invitee"
         }
       ],
+      "agentTool": true,
       "refs": {
         "invitation": "invitation"
       },
@@ -578,7 +580,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "40cceacba00c0163"
+      "hash": "92e1725c49048e8d"
     },
     "invitation.revoke": {
       "kind": "operation",
@@ -624,6 +626,7 @@
           "path": "invitation.organization"
         }
       ],
+      "agentTool": true,
       "refs": {
         "invitation": "invitation"
       },
@@ -639,7 +642,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "95edc097961ff88f"
+      "hash": "2e88e5bd83d2eed9"
     },
     "invitation.send": {
       "kind": "operation",
@@ -697,6 +700,7 @@
           "path": "organization"
         }
       ],
+      "agentTool": true,
       "refs": {
         "organization": "organization"
       },
@@ -713,7 +717,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "77c8ef0b1791ffb1"
+      "hash": "fb40c7cb89f22921"
     },
     "membership.get": {
       "kind": "read",
@@ -775,6 +779,7 @@
           "path": "membership.organization"
         }
       ],
+      "agentTool": true,
       "steps": {},
       "idempotent": null,
       "runs": "server",
@@ -782,7 +787,7 @@
       "budget": {
         "p95Ms": 50
       },
-      "hash": "d8557c04ed7f857c"
+      "hash": "e734960d35d8a981"
     },
     "organization.create": {
       "kind": "operation",
@@ -832,6 +837,7 @@
           "kind": "signed-in"
         }
       ],
+      "agentTool": true,
       "mints": "organization",
       "steps": {
         "insert": {
@@ -849,7 +855,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "59e22d615e7c5782"
+      "hash": "44abc64a3e7dc160"
     },
     "organization.get": {
       "kind": "read",
@@ -905,6 +911,7 @@
           "role": "organization.owner"
         }
       ],
+      "agentTool": true,
       "steps": {},
       "idempotent": null,
       "runs": "server",
@@ -912,7 +919,7 @@
       "budget": {
         "p95Ms": 50
       },
-      "hash": "8481a45e201eda3e"
+      "hash": "684ffa1f086e7c63"
     },
     "person.sign-up": {
       "kind": "operation",
@@ -971,6 +978,7 @@
           "kind": "anyone"
         }
       ],
+      "agentTool": true,
       "steps": {
         "create": {
           "name": "person.sign-up.create",
@@ -983,7 +991,7 @@
       "budget": {
         "p95Ms": 400
       },
-      "hash": "79f794725e7f08d3"
+      "hash": "e7172748550f49b1"
     },
     "session.show": {
       "kind": "operation",
@@ -1024,6 +1032,7 @@
           "kind": "signed-in"
         }
       ],
+      "agentTool": true,
       "steps": {},
       "idempotent": null,
       "runs": "server",
@@ -1031,7 +1040,7 @@
       "budget": {
         "p95Ms": 100
       },
-      "hash": "fd19967b0d38e8da"
+      "hash": "79e085de8acc5c10"
     },
     "session.sign-in": {
       "kind": "operation",
@@ -1094,6 +1103,7 @@
           "kind": "anyone"
         }
       ],
+      "agentTool": true,
       "steps": {
         "verify": {
           "name": "session.sign-in.verify",
@@ -1106,7 +1116,7 @@
       "budget": {
         "p95Ms": 400
       },
-      "hash": "e0820fd8a10524cf"
+      "hash": "13e27d0e3a08e66b"
     },
     "system.health": {
       "kind": "operation",
@@ -1137,6 +1147,7 @@
           "kind": "anyone"
         }
       ],
+      "agentTool": true,
       "steps": {},
       "idempotent": null,
       "runs": "server",
@@ -1144,7 +1155,7 @@
       "budget": {
         "p95Ms": 50
       },
-      "hash": "ac3f84873bd5c233"
+      "hash": "d97534a72031965e"
     }
   },
   "journeys": {

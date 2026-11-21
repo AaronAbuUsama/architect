@@ -4,8 +4,6 @@ import { declaration as allowanceGet } from "../../api/src/allowance/get.ts";
 import { declaration as allowanceGrant } from "../../api/src/allowance/grant.ts";
 import { declaration as allowanceRevoke } from "../../api/src/allowance/revoke.ts";
 import { declaration as allowanceSpend } from "../../api/src/allowance/spend.ts";
-import { declaration as apiKeyCreate } from "../../api/src/api-key/create.ts";
-import { declaration as invitationAccept } from "../../api/src/invitation/accept.ts";
 import { declaration as invitationRevoke } from "../../api/src/invitation/revoke.ts";
 import { declaration as invitationSend } from "../../api/src/invitation/send.ts";
 import { declaration as membershipGet } from "../../api/src/membership/get.ts";
@@ -22,8 +20,6 @@ export const catalog = {
   "allowance.grant": { description: "Let a member spend from the organisation, up to a limit each month.", operation: allowanceGrant, states: ["active","exhausted","revoked"], move: {"key":"grant","from":[],"to":["active"],"emits":"AllowanceGranted"} },
   "allowance.revoke": { description: "Stop an allowance. Nothing more can be spent from it.", operation: allowanceRevoke, states: ["active","exhausted","revoked"], move: {"key":"revoke","from":["active","exhausted"],"to":["revoked"],"emits":"AllowanceRevoked"} },
   "allowance.spend": { description: "Spend from what is left of this month's allowance.", operation: allowanceSpend, states: ["active","exhausted","revoked"], move: {"key":"spend","from":["active"],"to":["active","exhausted"],"emits":"AllowanceSpent"} },
-  "api-key.create": { description: "Create an API key in an organisation. The key itself is shown once.", operation: apiKeyCreate },
-  "invitation.accept": { description: "Accept an invitation and become a member of its organisation.", operation: invitationAccept, states: ["pending","accepted","revoked"], move: {"key":"accept","from":["pending"],"to":["accepted"],"emits":"InvitationAccepted"} },
   "invitation.revoke": { description: "Withdraw an invitation that hasn't been accepted.", operation: invitationRevoke, states: ["pending","accepted","revoked"], move: {"key":"revoke","from":["pending"],"to":["revoked"],"emits":"InvitationRevoked"} },
   "invitation.send": { description: "Invite someone to an organisation by email.", operation: invitationSend, states: ["pending","accepted","revoked"], move: {"key":"send","from":[],"to":["pending"],"emits":"InvitationSent"} },
   "membership.get": { description: "Read one membership by its id: organization, person, role.", operation: membershipGet },

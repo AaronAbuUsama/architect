@@ -1065,6 +1065,25 @@ build slice adds one, checks first. Check 21 (`e2e/m1/21-portal-viewer.test.ts`)
 (`e2e/m1/28-st1-22-rules-in-the-portal.test.ts`) already drive headless Chromium through `e2e/served-portal`, and the
 step reuses that.
 
+## As built in M2.03 (21 November 2026)
+
+What the build did that this record left open, or did differently. Nothing here changes a call above.
+
+- **`identity:` stays beside `issues:`, optional.** `Blueprint.environment` takes `issues` and no longer requires `identity`; the model records
+  each when the file says it. No example file was moved from `identity:` to `issues:` in this slice: that move waits for the slice that mounts an
+  identity (M2.05), as "Smaller calls" 4 says, so no baseline moves for it.
+- **A world mints with one door.** `POST /_world/credential` takes `{ name, via }` (`session`, `key` or `agent`), `{ system: true }` or
+  `{ service: "<mount>" }`. A key or an agent's key is Better Auth's own `ak_` key, the agent's marked `metadata.acts = "agent"`; the system's and
+  a service's is `wld_<hex payload>.<HMAC-SHA-256 under AUTH_SECRET>`, accepted only where the server hosts worlds (`hostsWorlds`). `Via.device` has no
+  world credential until M2.06 marks a device session.
+- **A service role is a `role` with a `service`.** The runtime reads it against the adapter's mount by name, so the generated server hands
+  `Handlers.serve` and `Reads.serve` a `mounts` map (mount object to its file's name) when some operation names a service role. The model says
+  `{ kind: "role", role, service: "<mount>" }`.
+- **The MCP door.** `/mcp` resolves any credential the identity knows and an OAuth access token to an agent for its person; the catalog lists an
+  operation when the model says `agentTool`.
+- **Not in this slice.** An agent's audience on HTTP (it never gets an issued secret) has no operation to show it yet: `api-key.create`
+  refuses agents. The `acts` field of `api-key.create`'s payload is M2.07's.
+
 ## For Aaron
 
 Nothing is open.
