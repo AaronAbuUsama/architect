@@ -141,8 +141,8 @@ export const monitor = async (context: PortalContext, digest: string = context.b
 export const rulesOf = (model: unknown): ReadonlyArray<AlertRule> => ((model as { alertRules?: ReadonlyArray<AlertRule> }).alertRules ?? []);
 const within = (spec: CallSpec, since: number, now: number) => startOf(spec, now) >= now - since && startOf(spec, now) <= now;
 
-/** A wrong evaluator, as a plant: `strict` fires only when the burn is MORE than the rate; `dropRefused` leaves refused calls out of the call count. The check refuses each (see "39 control: the scenes refuse"). */
-export type Fault = "strict" | "dropRefused";
+/** A wrong evaluator, as a plant: `strict` fires only when the burn is MORE than the rate; `dropRefused` leaves refused calls out of the call count; `refusalNotBadLatency` counts a slow refusal as a good call for latency. The check refuses each (see "39 control: the scenes refuse"). */
+export type Fault = "strict" | "dropRefused" | "refusalNotBadLatency";
 
 /** Decimals as integers, millionths: a rate of 14.4 or a target of 0.999 is never divided in floats (0.05 / (1 - 0.95) is 0.99999..., not 1). */
 const MILLIONTHS = 1_000_000n;
@@ -161,7 +161,7 @@ export const expected = (rules: ReadonlyArray<AlertRule>, specs: ReadonlyArray<C
     return rule.alerts.map((a) => {
       const windows = a.windowsMs.map((ms) => {
         const mine = specs.filter((s) => s.op === rule.labels["operation"] && within(s, ms, now) && !(fault === "dropRefused" && s.outcome === "refused"));
-        return { ms, calls: mine.length, bad: mine.filter((s) => (rule.kind === "latency" ? s.ms > rule.thresholdMs! : s.outcome === "defect")).length };
+        return { ms, calls: mine.length, bad: mine.filter((s) => (rule.kind === "latency" ? s.ms > rule.thresholdMs! && !(fault === "refusalNotBadLatency" && s.outcome === "refused") : s.outcome === "defect")).length };
       });
       const burns = windows.every((w) => burnsAtLeast(w.bad, w.calls, rule.target!, a.burn, fault === "strict"));
       return { rule: rule.id, alert: a.name, state: burns && windows[a.windowsMs.length - 1]!.calls >= rule.minCalls! ? "firing" : "ok", severity: a.severity, windows };

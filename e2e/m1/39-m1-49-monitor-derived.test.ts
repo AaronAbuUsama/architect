@@ -47,7 +47,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { ServedPortals } from "../served-portal/service.ts";
 import type { PortalServerModule } from "../served-portal/types.ts";
 import * as L from "./loop.ts";
-import { DAY, ENV, HOUR, MIN, NOW, WINDOW, contextOf, decode, deriveRules, expected, ledgerOf, many, metricsOf, monitor, sourceOf, tracesOf, withRules, type AlertRow, type AlertRule, type CallSpec, type IssueRow, type ModelIn } from "./monitor-fixture.ts";
+import { DAY, ENV, HOUR, MIN, NOW, WINDOW, contextOf, decode, deriveRules, expected, ledgerOf, many, metricsOf, monitor, sourceOf, tracesOf, withRules, type AlertRow, type AlertRule, type CallSpec, type Fault, type IssueRow, type ModelIn } from "./monitor-fixture.ts";
 import { judge, type Truth, type TruthIssue } from "./monitor-judge.ts";
 import { standIn } from "./monitor-standin.ts";
 import { PLANTED_CAUSE, PLANTED_TAG, openPlanted } from "./monitor-world.ts";
@@ -225,7 +225,8 @@ const SCENES: ReadonlyArray<readonly [string, ReadonlyArray<CallSpec>, Readonly<
   ["15 slow calls in 20 is over the fast burn's 14.4: all three fire; 14 is not", [...slow("profile.get", 15, 1), ...slow("profile.get", 5, 1, 20)], { "latency:profile.get": ["firing", "firing", "firing"] }],
   ["14 slow calls in 20 are under the fast burn's 14.4", [...slow("profile.get", 14, 1), ...slow("profile.get", 6, 1, 20)], { "latency:profile.get": ["ok", "firing", "firing"] }],
   ["2 defects among 23 refused calls: the refusals are calls, so the defect burns fire", [...many(23, { op: "profile.get", minutesAgo: 1, ms: 10, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), ...[0, 1].map((i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 5, minutesAgo: 1, at: NOW - 50_000 - i * 1000 }))], { "defect:profile.get": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
-  ["19 slow answered calls and one slow refusal: the refusal is the twentieth call and the twentieth slow one", [...slow("profile.get", 19, 1), ...many(1, { op: "profile.get", minutesAgo: 1, ms: 400, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" })], { "latency:profile.get": ["firing", "firing", "firing"], "defect:profile.get": ["ok", "ok", "ok"] }],
+  ["14 slow answered calls, one slow refusal and 5 fast: the refusal is a slow call too, so 15 of 20 are slow and the fast burn fires (14 of 20 would not)", [...slow("profile.get", 14, 1), ...many(1, { op: "profile.get", minutesAgo: 1, ms: 400, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), ...slow("profile.get", 5, 1, 20)], { "latency:profile.get": ["firing", "firing", "firing"], "defect:profile.get": ["ok", "ok", "ok"] }],
+  ["18 slow calls in 25 is exactly the fast burn (0.72 / 0.05 = 14.4): all three fire; 17 would not", [...slow("profile.get", 18, 1), ...slow("profile.get", 7, 1, 20)], { "latency:profile.get": ["firing", "firing", "firing"] }],
   ["25 refused calls are good calls: no defect burn", many(25, { op: "profile.get", minutesAgo: 1, ms: 10, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), { "defect:profile.get": ["ok", "ok", "ok"], "latency:profile.get": ["ok", "ok", "ok"] }],
 ];
 
@@ -327,7 +328,7 @@ describe("39 B: the portal evaluates the rules over the window at a fixed now", 
 
 describe("39 control: the scenes refuse a monitor with a wrong rule", () => {
   // The portal is judged against the oracle, so a portal with a fault is an oracle with it: the scenes must tell them apart.
-  const caught = async (fault: "strict" | "dropRefused") => {
+  const caught = async (fault: Fault) => {
     const rules = deriveRules((await asIs()).model);
     return SCENES.filter(([, specs]) => JSON.stringify(expected(rules, specs, NOW, ENV, fault)) !== JSON.stringify(expected(rules, specs, NOW))).map(([name]) => name);
   };
@@ -335,11 +336,16 @@ describe("39 control: the scenes refuse a monitor with a wrong rule", () => {
     const names = await caught("strict");
     expect(names.filter((n) => /exactly the ticket burn/.test(n)), "1 in 20 against the ticket rate").toHaveLength(1);
     expect(names.filter((n) => /exactly the slow burn/.test(n)), "6 in 20 against the slow rate").toHaveLength(1);
+    expect(names.filter((n) => /exactly the fast burn/.test(n)), "18 in 25 against the fast rate").toHaveLength(1);
   });
   it("a monitor that leaves refused calls out of the call count is refused by a mixed scene and by a slow refusal", async () => {
     const names = await caught("dropRefused");
     expect(names.filter((n) => /2 defects among 23 refused/.test(n)), "the defect burn needs all 25 calls").toHaveLength(1);
-    expect(names.filter((n) => /one slow refusal/.test(n)), "the latency burn needs the refusal as its twentieth call").toHaveLength(1);
+    expect(names.filter((n) => /one slow refusal/.test(n)), "the latency burn needs the refusal as one of its twenty calls").toHaveLength(1);
+  });
+  it("a monitor that counts a slow refusal as a good call for latency is refused by the scene that needs it as a slow one", async () => {
+    const names = await caught("refusalNotBadLatency");
+    expect(names.filter((n) => /one slow refusal/.test(n)), "15 of 20 slow only if the refusal is slow").toHaveLength(1);
   });
 });
 
