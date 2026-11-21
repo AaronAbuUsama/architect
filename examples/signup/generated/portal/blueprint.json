@@ -202,6 +202,7 @@
           "emits": "SheetClosed"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "SheetNotOpen",
           "SheetNotFound"
@@ -229,7 +230,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "f9b5ec5bc01ce4b1"
+        "hash": "5ff2de75e7294f8e"
       },
       "sheet.get": {
         "kind": "read",
@@ -285,6 +286,7 @@
         },
         "move": null,
         "errors": [],
+        "breaks": [],
         "refusals": [],
         "allowed": [
           {
@@ -298,7 +300,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "b6bc2b60a642024d"
+        "hash": "647f208a50cda6f5"
       },
       "sheet.join": {
         "kind": "operation",
@@ -350,6 +352,7 @@
         "errors": [
           "SheetFull"
         ],
+        "breaks": [],
         "refusals": [
           "SheetFull",
           "SheetNotOpen",
@@ -383,7 +386,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "092fb1304d8eb535"
+        "hash": "0654da6d079c113d"
       },
       "sheet.open": {
         "kind": "operation",
@@ -432,6 +435,7 @@
           "emits": "SheetOpened"
         },
         "errors": [],
+        "breaks": [],
         "refusals": [
           "IdempotencyConflict"
         ],
@@ -453,7 +457,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "f9c720a62bc5a5a0"
+        "hash": "8c2cdb4e47331efb"
       }
     },
     "journeys": {
@@ -1095,19 +1099,19 @@
   },
   "dependsOnByOperation": {
     "sheet.close": {
-      "operation:sheet.close": "f9b5ec5bc01ce4b1",
+      "operation:sheet.close": "5ff2de75e7294f8e",
       "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.get": {
-      "operation:sheet.get": "b6bc2b60a642024d",
+      "operation:sheet.get": "647f208a50cda6f5",
       "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.join": {
-      "operation:sheet.join": "092fb1304d8eb535",
+      "operation:sheet.join": "0654da6d079c113d",
       "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.open": {
-      "operation:sheet.open": "f9c720a62bc5a5a0",
+      "operation:sheet.open": "8c2cdb4e47331efb",
       "thing:sheet": "320a7ee2e246a009"
     }
   },
@@ -1132,5 +1136,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "5ea4c89dfea61b970f40d41cd62b4e742a1c24861613964bb663e60ac098e08d"
+  "digest": "deb56fc49d9267c5cd73df66e782cc88866cd04375553c866d8afc6a3cd603dc"
 }

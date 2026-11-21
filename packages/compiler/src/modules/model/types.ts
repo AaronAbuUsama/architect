@@ -111,6 +111,8 @@ export interface OperationModel {
   readonly errors: ReadonlyArray<string>;
   /** The refusals the runtime makes for this operation, never in `errors`: each to the full name of the rule it refuses for (`handle.oneHolderPerName`), G5. Absent when none. */
   readonly invariants?: Readonly<Record<string, string>>;
+  /** Every rule this operation can break, as `<thing>.<rule>`, each once, whether or not the rule owns a refusal (G5 section 3, S31). `[]` when none. */
+  readonly breaks: ReadonlyArray<string>;
   readonly refusals: ReadonlyArray<string>;
   /** Each payload field holding some thing's id, and that thing: read before the handler and handed in as `refs.<field>`. */
   readonly refs?: Readonly<Record<string, string>>;

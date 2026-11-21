@@ -1,4 +1,0 @@
-# S-31: the wire's schema does not name an operation's `breaks`, so decoding drops it (design/decisions/S31-breaks.md). The control and the digest test pass today.
-src/modules/wire/breaks.test.ts > S-31: the wire keeps `breaks` > an empty list stays an empty list (not absent), and an operation that never had one stays without
-src/modules/wire/breaks.test.ts > S-31: the wire keeps `breaks` > decoding keeps an operation's list, whole and in order, including a rule that owns no refusal
-src/modules/wire/breaks.test.ts > S-31: the wire keeps `breaks` > decoding refuses a `breaks` that is not a list of names (the wire is re-signed, so only the schema can refuse it)
