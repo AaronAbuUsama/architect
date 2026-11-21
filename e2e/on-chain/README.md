@@ -36,6 +36,9 @@ while a check named in `slices.json` is not in this folder with a test in it, or
 check is green" cannot pass by there being no check. `00-done-check-gate.test.ts` plants each hole against it. Today the done check is red for
 both reasons.
 
+Slice 4's check: `05-m6-11-lock-chain-wire.test.ts` is the slice-3 author's, written for the lock's Solidity wire (M6-chain item 11). It is not slice 4's check:
+`presence.mjs` counts any `05-*` file, so slice 4's author adds a second `05-*` file for what the slice is for (surface.json, `forge build`, the writer warning).
+
 ## What the done check still needs
 
 JSON has no comments, so this list sits here and in the `on-chain` target's description in `e2e/project.json`.

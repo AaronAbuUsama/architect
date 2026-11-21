@@ -130,6 +130,8 @@ K25 item 5 gave each value its Solidity type. Across the three places a value tr
   round. Goal 4 does not need it to prove the chain: an allowance names its token as an account, and its amounts are
   `uint(128)` in the token's base units, with no decimals in the value. The Safe pays with the token's
   `transfer(to, amount)` through the account adapter. When THI-07 is designed, its amount wraps this.
+  Superseded by M6-money, 21 November 2026: Aaron decided THI-07 (every amount names its asset, `Blueprint.money.of`
+  the allowance's token for budgets, still `uint128` in base units), built in slice 3.
 
 ### 3. `generated/solidity/surface.json`
 
@@ -191,6 +193,8 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
 }
 ```
 
+Superseded by M6-money, 21 November 2026: an amount's input is written `"value": "money"` with its `asset` (M6-money item 5); its Solidity type is unchanged.
+
 - **Entries are sorted** by operation name, then path, then reads and generated entries by name, so the file is stable.
 - **Every event on chain carries `by` and `nonce`** before its declared fields: the acting account and the nonce its
   call took. K7 Q3 says `confirmed` means the follower saw the declared event for the call's intent, and gave a vote's
@@ -236,6 +240,8 @@ generate. It holds every refusal of the project, whatever language raises it, Ef
   "retired": { }                         // code → the entry as it was when its name left the blueprint
 }
 ```
+
+Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "money", "bits": 128, "signed": false, "asset": { "field": "token" } }` (M6-money item 5).
 
 - **The first lock keeps today's codes.** The first generate after this lands numbers every existing refusal exactly as
   `describe.ts` does now, so acme's and Plugged In's codes and generated files do not change.
@@ -337,6 +343,30 @@ accepted as written. The slices that build each (S-01 to S-10 in `04-snags.md`) 
 - **`BadSignature` and `SignatureExpired`** are reached by the generated Foundry tests (slice 5), not by journeys: no
   cast member forges a signature, and a journey doesn't move block time (M6.21).
 
+### 11. The model's chain shapes (slice 3's checks author's questions, #283)
+
+- **The model** records a chain store as `stores.<file>.kind: "chain.evm"`; each field of a chain-stored thing gains a
+  `solidity` key (`"uint128"`, `"bytes32"`, `"string"`, `"address"`); the thing gains `stateNumbers`
+  (`{ "absent": 0, "active": 1, … }`, item 2); `Blueprint.account()`'s `ValueMeta` is `{ type: "account" }`; and a
+  `who` role is `{ kind: "who", who: "<field>" }` in `roles`, beside K20's `holds` shape. Blueprints with no chain store
+  are byte-identical.
+- **`ortho check` classifies against the checked-in `generated/model/model.json`.** Moving a thing to a chain store and
+  reordering or removing a chain-stored thing's states are major; appending a state is minor. Slice 3 builds the
+  classification where `ortho check` calls such a change a patch today.
+- **AR-003 to AR-006 appear in the model's `refusals` only when the project has a chain store**, so acme's and Plugged
+  In's models stay byte-identical; their names are reserved in every project.
+- **The lock's Solidity wire identities come with the Solidity language.** Slice 3 writes the lock with each code's
+  Effect wire and fields, and `ortho model` compiles a chain project; slice 4 adds the `solidity` wire entries, and the
+  check that `ortho generate` succeeds on a chain project moves to slice 4.
+- **A `schema(...)` value** on a chain store is refused (K25 item 5); how one declares its Solidity type waits for a
+  blueprint that needs it. `holds` roles and `who` on a database thing are M2.18's, not slice 3's.
+- **Confirmed readings:** a creating move whose payload lacks the role's field is refused; secret or private fields on
+  a chain-stored thing's events are refused, as on the thing; `.of(path)` to a chain `who` role compiles; an `earlier`
+  item has the shape of a `wire` entry; lock field values are `{ value: "uint", bits }`, `{ value: "text", max }`,
+  `{ value: "id", prefix }` and `{ value: "account" }` (Superseded by M6-money, 21 November 2026: and money's `{ value: "money", bits, signed, asset }`, M6-money item 5); an id prefix of 16 characters or more is refused on a chain
+  store, since a minted id is the prefix, `_` and 16 characters (`language-effect/src/modules/ids/service.ts:8`) and must
+  fit 32 bytes.
+
 ## The budgets example, as the journey author will write it
 
 A sketch for slice 2, not its words: the journey author owns `examples/budgets/blueprint/`.
@@ -364,6 +394,8 @@ export const grantee = Blueprint.role(Allowance, { who: Allowance.fields.member 
 // { allowance, amount, to }), revoke (allowed: [treasury]), get (allowed: [Blueprint.anyone], item 9)
 ```
 
+Superseded by M6-money, 21 November 2026: `values/money.ts` is gone; every amount is `Blueprint.money.of` the allowance's token (M6-money, "The budgets example").
+
 The Safe and its test token come from the `safe` adapter's starting world (slice 7): a Safe owned by the cast's `ada`,
 with the budgets module enabled and a test token minted to it. The budgets example's `funded` world starts from it.
 Before slice 7, the generated Foundry tests and the fuzz treat the Safe as any account. A `Safe` thing behind the
@@ -375,7 +407,7 @@ account until then.
 - **The fuzz's oracle for the developer's body.** The reference machine is generated from the blueprint, but the
   body (`_spend`'s limit check) is written only in Solidity. How the fuzz judges what the body decides (the blueprint's
   declared outcomes only, or a TypeScript body beside it) is slice 6's decision step, with its checks author.
-- **Money** (THI-07): Aaron's round, unchanged.
+- **Money** (THI-07): Aaron's round, unchanged. Superseded by M6-money, 21 November 2026: decided.
 - **Unordered nonces, ERC-7579 accounts, Solana and Aztec signing:** later, as above and in K7.
 
 ## Not chosen, and why

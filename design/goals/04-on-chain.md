@@ -244,7 +244,7 @@ checks author rewrites each for the budgets module before its slice starts, keep
 | 1 | **The seam, on Effect alone.** `Blueprint.language` and `Blueprint.host` in `orthograph`. Effect becomes a language served by `host-cloudflare` and `Host.node`. The server projection keeps only its face. Hosts supply store kinds and languages write for them, not a fixed list (`compiler/.../stores.ts:10`, K27 item 5). Rewrite `packages/language-solidity`'s "Solidity target" wording and the walkthrough's quote of it | acme's generated files are byte-identical; the compiler refuses an operation that no language takes, or that two take |
 | 1b | **M6.01, the chain decision**, by the lead, beside slice 1 and before slices 2 to 8. K7 and K25 settle most of it; what is left is `signedBy` as EIP-712 typed data, values across languages (the rest of D5), and the exact schemas of `surface.json` and `blueprint/refusals.lock`, which separate authors and builders produce and consume | `design/decisions/M6-chain.md` written, with the evidence, and a 🔍 has passed it |
 | 2 | **M6.02, the journeys** for `examples/budgets` (the journey author, beside slice 1, once 1b has passed). The checks author adds the `e2e:on-chain` target: every slice's check and the budgets journeys, red until each turns green | they fail on empty handlers; `nx run e2e:on-chain` runs and fails |
-| 3 | **M6.10, the chain store and values.** `Blueprint.store.chain.evm()`, `Blueprint.account()`, Solidity types worked out from values, and `blueprint/refusals.lock` | M6.10's check |
+| 3 | **M6.10, the chain store and values.** `Blueprint.store.chain.evm()`, `Blueprint.account()`, Solidity types worked out from values, money (`Blueprint.money`, `Blueprint.asset`, M6-money) and `blueprint/refusals.lock` | M6.10's check |
 | 4 | **M6.11, the Solidity language renders** the base contract (role, machine, hook, account, event), roles behind `IAccessControl`, and `surface.json` | M6.11's check; a fixture with a chain-stored thing that has an invariant fails to compile, naming the thing |
 | 5 | **M6.12, the scaffold and the Foundry tests** | M6.12's check: the scaffold's tests fail as not written |
 | 6 | **M6.13, the user fills the hook; the fuzz** | M6.13's check: every test passes, the fuzz finds no difference, the planted mutant diverges |
@@ -277,6 +277,7 @@ Lettered IDs (`K32`) come only from the conductor's list in `design/handoff.md`,
 | ID | File | Taken by |
 |---|---|---|
 | M6-chain | `design/decisions/M6-chain.md` | slice 1b, the chain decision (named by M6.01) |
+| M6-money | `design/decisions/M6-money.md` | the lead, money (ledger THI-07), Aaron's answers of 21 November 2026; built in slice 3 |
 
 ## The done check
 
