@@ -23,7 +23,7 @@ before it:
 
 | Release | A person outside can… | Done when | Left to build |
 |---|---|---|---|
-| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | milestone 1's last pieces: the chains-and-wallets docs page, derived alerts, machine graphs, the request key in traces, and MCP's output schema; the npm preview itself (added by K28; publish refuses npmjs today); Goal 3's branch landing on `main` |
+| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | milestone 1's last pieces: the chains-and-wallets docs page, derived alerts, machine graphs, the request key in traces; the npm preview itself (added by K28; publish refuses npmjs today); Goal 3's branch landing on `main` |
 | **Beta** (stage 1, "workable") | start an app with `npm create orthograph`, sign people in, claim `@name` on a real page, and deploy it to Cloudflare and tear it down | Gate M2 (M2.12) and Goal 3's done check (`e2e:stage1`, staging included) | all of milestone 2 (kinds of caller, auth and organizations as plugins, secrets, `ortho new`), the handles plugin, React hooks, the three screens, staging deploy and destroy |
 | **1.0** (stages 2 to 4) | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | the stage 2, 3 and 4 gates on `main`, plus M7.01 to M7.04, M7.06 and M7.13 | most of the on-chain milestone, webhooks, workflows, agents, time, all of stage 4, the real release |
 

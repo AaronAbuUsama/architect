@@ -31,6 +31,12 @@ sign-in works, and drops Aaron's 19 November yes to a preview.
 - **Goal 4 serves 1.0.** Its slices are stage 2 and stage 3 work. It runs beside Goal 3, and its slice 1 (the
   language and host seam) waits until Goal 3's sign-in extraction (M2.05) has settled the host, because both reshape
   `host-cloudflare`.
+- **The preview lands mid-goal.** Gate M1 must pass on `main`, but M1's slices land on `goal/stage-1`. So once Gate M1's
+  slices are green there, `goal/stage-1` merges into `main` by one pull request (CI green, Gate M1 passing on it, and a
+  🔍 reviewer that wrote none of it passing the whole branch), and Goal 3 carries on from its branch. This amends Goal
+  3's "Landing" section, which had one merge at the end; the final merge at the done check stays.
+- **The staging environment** that Goal 3's staging workflow runs under exists on GitHub as `staging`, limited to
+  `main` and `goal/*` (set by the conductor, 21 November 2026). Its credentials stay the repository's, as Aaron set them.
 - **`e2e-stage1` is a required check** on `goal/stage-1` (Aaron's yes in the same words; set 21 November 2026).
 
 ## Supersedes
