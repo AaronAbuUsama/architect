@@ -429,8 +429,9 @@ the old client in place would carry that over. So the portal leaves HeroUI by be
 3. **Cutover retires the old client** (ST1.27), once that list is empty: one change serves the new client at `/portal`
    and deletes the old client, `@orthograph/portal-ui`, the HeroUI peers, `pro.mjs`, `sheets.mjs`, the gated
    typecheck, the `HEROUI_AUTH_TOKEN` step and cache in CI, and `ortho/no-pro-outside-portal-ui`. F7's names (`Grid`,
-   `Chart`, `Chat` and the rest) come back on UI SDK, in the shell or the new client, with the first page that needs
-   them: the grid and charts with the monitor (M1.49), the graph with M1.50, the chat with M1.24.
+   `Chart`, `Chat`, `Board`, `Graph` and the rest) come back on UI SDK in `@orthograph/shell`, the one package the new
+   client, faces and later slices import them from, each with the first page that needs it: the grid and charts with
+   the monitor (M1.49), the graph with M1.50, the chat with M1.24, the board with M3.17.
 4. **Check 15 gates cutover** (ST1.28). It is a check, so a checks author rewrites it (to: "only `@orthograph/web`,
    `@orthograph/shell`, `packages/portal-next`, `generated/web/` and an app's `src/web/` import `@ui-sdk/*`, nothing a
    Worker reaches imports them (check 26); nothing imports HeroUI"), and the builder never touches it. Checks 26 and
@@ -510,6 +511,13 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 
 ## Supersedes
 
+- design/milestones.md: "One `Graph` in `@orthograph/portal-ui`" → "One `Graph` in `@orthograph/shell`, on UI SDK"
+- design/milestones.md: "HeroUI Pro's Kanban parts through `@orthograph/portal-ui`'s `Board` (F7, M1.34)" → "a `Board` in `@orthograph/shell`, on UI SDK (HeroUI leaves in ST1.27)"
+- design/milestones.md: "loads `portal-ui` from the portal's built assets" → "loads `@orthograph/shell` from the portal's built assets"
+- design/milestones.md: "the shell and the chat parts come from `@orthograph/portal-ui` (M1.34)" → "the shell and the chat parts come from `@orthograph/shell` (K31)"
+- design/milestones.md: "(`portal-ui`'s chat parts, built on UI SDK by K29" → "(`@orthograph/shell`'s chat parts, on UI SDK by K29"
+- design/milestones.md: "rendered with `@orthograph/portal-ui`'s `Chat` parts, built on UI SDK (K29)" → "rendered with `@orthograph/shell`'s `Chat` parts, on UI SDK (K29, K31)"
+- design/milestones.md: "composed from `@orthograph/portal-ui`'s exports (F7, M1.34)" → "composed from `@orthograph/shell`'s exports (K31)"
 - design/frame/projections.md: "React gives a web app hooks over the SDK" → "The web projection gives a web app one generated piece per operation, on UI SDK"
 - design/frame/projections.md: "it renders hooks, not screens" → "it renders pieces, not screens"
 - design/frame/projections.md: "React's hook must reach the error state with the typed class" → "The web piece must reach its refusal state with the declared code"
