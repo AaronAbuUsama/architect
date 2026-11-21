@@ -401,7 +401,11 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework. Index the call's held rows by rule and key once per check, so each lookup is constant time. Checks:
   `packages/language-effect/src/modules/records/unique-bulk-scale.test.ts`, held on
   `packages/language-effect/expected-failing/unique-bulk-scale.txt` (G11). They count the looks at keys through the rule
-  module's seam (at most 6 a row), not the clock; a 4,000 ms bound on the 3,000-row call is the secondary check. A scan that
-  compares keys worked out once is not caught (cheap string compares), and is not what this snag is about.
+  module's seam (at most 6 a row), not the clock; a 4,000 ms bound on the 3,000-row call is the secondary check. The seam is a
+  contract: keys are computed through `ruleKey`/`holds` imported from `internal/unique.ts`, at least once per row; the count check
+  depends on it (the ratio test fails with "0 looks: keys are not computed through internal/unique.ts" when it sees none). A scan
+  that compares every pair on keys worked out once calls neither, and takes about 137 ms at 3,000 rows, so a 40,000-row call with
+  a 2,000 ms bound (pairwise 8 to 11 s, linear about 300 ms) is the backstop for it and for a build that ignores the contract; it runs only
+  once the 3,000-row time test has passed, so a quadratic build cannot hang CI.
 - Owner: Goal 3 lead, for a framework builder in `language-effect`.
 - Status: open; checks written (this pull request)
