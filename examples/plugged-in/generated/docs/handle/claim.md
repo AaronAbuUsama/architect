@@ -27,15 +27,14 @@ Claim a free name and make it the address of your public page, with its profile.
 
 ## Steps
 
-- `handle.claim.load` (database)
 - `handle.claim.record` (database)
 
 ## Refusals
 
 | refusal | exit | code | when |
 |---|---|---|---|
-| HandleTaken | 10 | HN-001 | declared in errors.ts |
-| HandleAlreadyOwned | 12 | HN-002 | declared in errors.ts |
+| HandleTaken | 10 | HN-001 | another claimed handle holds this name; by the rule handle.oneHolderPerName |
+| HandleAlreadyOwned | 12 | HN-002 | you already hold a name; by the rule handle.oneNamePerPerson |
 | NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |
 | IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 

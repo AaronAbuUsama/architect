@@ -4,7 +4,7 @@ import type { Layer } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
 import type { Store as Declared, Thing } from "orthograph";
-import type { Store } from "@orthograph/language-effect";
+import type { NamedRule, Store } from "@orthograph/language-effect";
 
 export interface StoreD1Options {
   /** Each thing and its table name; the generated server writes the list from the things' paths. */
@@ -24,6 +24,12 @@ export interface StoreD1Options {
    * owns the rest.
    */
   readonly people?: { readonly thing: Thing; readonly table: string };
+  /**
+   * The model's rules (G5): each invariant of the project's things, with its full name (`handle.oneHolderPerName`). The database's partial unique index per rule
+   * (made by the generated migration, named `<table>_<rule>`) refuses a second holder at commit; the store answers that as a `conflict`, and hands the rules to the
+   * runtime, whose `findBy` and before-commit check look through the same ones.
+   */
+  readonly rules?: ReadonlyArray<NamedRule>;
 }
 
 export interface StoreD1Api {

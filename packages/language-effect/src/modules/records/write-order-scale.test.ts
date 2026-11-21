@@ -1,5 +1,6 @@
 // S-19 follow-up: ordering and committing one call's writes costs time in proportion to the writes, not to the writes times the rows of the thing.
 // Judged as a ratio on the same machine, not against a wall-clock bound: a shared CI runner took 1.7 s for a chain that takes 0.2 s on a laptop.
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "orthograph";
@@ -10,15 +11,20 @@ const Tag = Blueprint.thing({
   description: "A name someone holds.",
   code: "TG",
   fields: { id: Blueprint.id("tag"), name: Blueprint.text({ max: 40 }) },
-  unique: { name: { while: ["claimed"] } },
 });
+const machine = Blueprint.machine(Tag, {
+  states: ["claimed", "released"],
+  moves: { claim: { from: [], to: "claimed", emits: Blueprint.event({}) }, release: { from: ["claimed"], to: "released", emits: Blueprint.event({}) } },
+  notFrom: { exit: 60 },
+});
+const rules = [{ name: "tag.oneHolderPerName", rule: (Blueprint as any).invariant.unique(Tag.fields.name, { while: [machine.states.claimed] }) }];
 
 /** Orders and commits a chain of `n` moves in memory: row i takes the name row i + 1 holds, so the chain is written from its far end back. */
 const chain = (n: number) => {
-  const memory = storeMemory(Array.from({ length: n }, (_, i) => [Tag, { id: `tag_${i}`, name: `n${i}`, state: "claimed" }] as const) as never);
+  const memory = storeMemory(Array.from({ length: n }, (_, i) => [Tag, { id: `tag_${i}`, name: `n${i}`, state: "claimed" }] as const) as never, rules);
   const program = Effect.gen(function* () {
     const store = yield* Store;
-    const unit = yield* Unit.make(store);
+    const unit = yield* Unit.make(store, rules);
     for (let i = 0; i < n; i++) yield* unit.records.update(Tag, `tag_${i}`, { name: `n${i + 1}` });
     const started = performance.now();
     const writes = yield* unit.writes;

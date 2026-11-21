@@ -4,8 +4,8 @@ import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/profile/get.handler.ts";
 import { Link } from "../../blueprint/things/link/thing.ts";
-import { Profile } from "../../blueprint/things/profile/thing.ts";
-import { Handle } from "../../blueprint/things/handle/thing.ts";
+import { oneHolderPerName } from "../../blueprint/things/handle/invariants.ts";
+import { onePagePerHandle } from "../../blueprint/things/profile/invariants.ts";
 
 const { ProfileNotFound } = Errors.declared;
 
@@ -34,7 +34,7 @@ const { ProfileNotFound } = Errors.declared;
 const get: Handler = ({ handle }, { steps }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    const held = yield* steps.load(records.findBy(Handle, "name", handle));
+    const held = yield* steps.load(records.findBy(oneHolderPerName, handle));
 
     // ProfileNotFound: exit 20, PR-001. An unclaimed or released name has no public page.
     if (!held) {
@@ -42,7 +42,7 @@ const get: Handler = ({ handle }, { steps }) =>
       return yield* new ProfileNotFound({});
     }
 
-    const page = yield* steps.load(records.findBy(Profile, "handle", held["id"] as never));
+    const page = yield* steps.load(records.findBy(onePagePerHandle, held["id"] as never));
     const ids = ((page?.["links"] ?? []) as ReadonlyArray<string>);
     const found = yield* steps.load(Effect.forEach(ids, (link) => records.find(Link, link as never)));
     const links = found.flatMap((link) => (link ? [{ id: link["id"] as never, title: link["title"] as never, url: link["url"] as never }] : []));

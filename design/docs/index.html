@@ -1071,6 +1071,7 @@ Stand.process(…)  Stand.vendor(…)  Stand.none</code></pre>
 <tr><td>blueprint</td><td>what you write: the description, in the <code>blueprint/</code> folder, through the <code>Blueprint.*</code> API</td></tr>
 <tr><td>model</td><td>the compiled blueprint: one JSON, every declaration with its hash, every name written once, every blank counted</td></tr>
 <tr><td>thing · value · machine · event · error</td><td>a noun with a home · a named field type · states and moves · what a move emits · a declared refusal</td></tr>
+<tr><td>invariant · rule · unique</td><td>what stays true among many records of one thing · one named invariant, an export of the thing's <code>invariants.ts</code>, refused by the runtime, with its own error when it names one · the one form built: at most one record holds a key, within the states the rule names</td></tr>
 <tr><td>operation · read · step</td><td>a verb on a thing · an operation that changes nothing · a named span inside one</td></tr>
 <tr><td>role · principal · way in</td><td>who may call · who is calling · how they got in (<code>Via.*</code>)</td></tr>
 <tr><td>store · source · view · data map</td><td>a place Orthograph owns and commits to, of an open kind · a system someone else owns, reached through an adapter · a list kept from events · the generated map of all data</td></tr>

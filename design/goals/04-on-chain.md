@@ -67,9 +67,9 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 >   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
 > - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
 >   three lines: the slice, its check, its snags. Write for Aaron's ear.
-> - **Branch protection:** `goal/on-chain` is not protected yet (`design/decisions/CI-branch-protection.md` covers
->   `main`, `m1` and `goal/stage-1`); protecting it is a repository setting, so the conductor asks Aaron. Until then
->   the rule holds by discipline: never merge a red pull request, and never push to `goal/on-chain` directly.
+> - **Branch protection:** `goal/on-chain` is protected like `goal/stage-1` since 21 November 2026, admins included
+>   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. Never push to
+>   `goal/on-chain` directly.
 
 ## The bound
 
@@ -175,6 +175,15 @@ Slice 1 also carries what K27 left for it:
 | 10 | **M6.09, the follower actor.** A Durable Object around `chain-evm`'s reliable event stream (backfill, cursor, decoder), storing its checkpoint | M6.09's check |
 | 11 | **M6.15, the signing flow**, the in-between state and the submission lifecycle, through the relayer | M6.15's check, and an SDK spend is confirmed by the follower |
 | 12 | **M6.16, M6.17 and M6.18: worlds with a chain, redeploy on new bytecode only, and key hygiene.** `ortho prove --env local` runs every budgets journey on Anvil | M6.16's, M6.17's and M6.18's checks |
+
+## Decision IDs
+
+The lead keeps this list (the `threads` skill: decision IDs come from one allocator; on a goal, the goal file). Ask the
+lead for the next one before writing a decision file on this branch.
+
+| ID | File | Taken by |
+|---|---|---|
+| M6-chain | `design/decisions/M6-chain.md` | slice 1b, the chain decision (named by M6.01) |
 
 ## The done check
 

@@ -30,6 +30,12 @@ const ancestry = (model: TouchModel, start: string | null | undefined): Readonly
   return chain;
 };
 
+/** The rules a call touches (G5): every rule of the operation's own thing, and each rule the model says the operation can break, which may be another thing's. */
+const ruleRows = (model: TouchModel, op: TouchModel["operations"][string]): ReadonlyArray<Row> => [
+  ...Object.keys(model.things[op.thing]?.invariants ?? {}).map((rule) => `${op.thing}.${rule}`),
+  ...Object.values(op.invariants ?? {}),
+].map((subject): Row => ({ block: "invariant", subject }));
+
 /** What one call touches: its operation, the operation's thing, steps, machine, event and the fields it keeps from some callers. */
 const callRows = (model: TouchModel, operation: string): ReadonlyArray<Row> => {
   const op = model.operations[operation];
@@ -40,6 +46,7 @@ const callRows = (model: TouchModel, operation: string): ReadonlyArray<Row> => {
     ...Object.values(op.steps ?? {}).map((s): Row => ({ block: "step", subject: s.name })),
     ...(op.move == null ? [] : [{ block: "machine", subject: op.thing } as Row, { block: "event", subject: op.move.emits } as Row]),
     ...[...visible(op.payload), ...visible(op.answer), ...visible(model.things[op.thing]?.fields)].map((field): Row => ({ block: "visibility", subject: `${op.thing}.${field}` })),
+    ...ruleRows(model, op),
   ];
 };
 

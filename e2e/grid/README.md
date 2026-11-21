@@ -4,7 +4,8 @@ Goal 3's guardrail (K14). Rows are building blocks, columns the nine outputs, a 
 first journey that touches it**; CI runs every switched-on cell on every push; a red cell fails.
 
 - `switched-on.json`: the checked-in list, `{ cell: "error.docs", subjects: ["HandleTaken"], switchedBy: "<journey>" }`. Written by
-  `touched --write`; Plugged In's seven stage 1 journeys switched on 53 cells (7 rows, 316 cell-and-subject pairs).
+  `touched --write`; Plugged In's seven stage 1 journeys switched on 61 cells (8 rows, 331 cell-and-subject pairs: the 53 cells of the first seven rows, less `handle.claim.load`,
+  which ST1.19 takes out of the blueprint with the handler's lookup, and the invariant row's eight judged cells, three rules each).
 - `held-off.json`: the cells `touched` never switches on, each with what it waits for (below). A test keeps it and the list apart.
 - `expected-red.json`: the pairs allowed to be red today, each with its reason and what it waits on. **The ratchet** (G7,
   `design/decisions/G7-grid-ratchet.md`): the run fails on a red pair not on the list, a listed pair that is not switched on, and a listed
@@ -42,7 +43,8 @@ modules, spawns a command or prints; the modules take what they need through inj
   page under `<h2>Docs</h2>`, which would make any docs check pass on the portal, so it is cut off.
 - One module per row: `operation-evals`, `thing-evals`, `step-evals`, `machine-evals`, `event-evals`, `journey-evals`;
   `refusal-source-evals` (the error row's model, api, server, sdk) and `refusal-evals` (its cli, mcp, docs, portal, telemetry,
-  which judge one refusal's own evidence). `project-evals` lists them all.
+  which judge one refusal's own evidence). `project-evals` lists them all. The invariant row has its own module, `invariant-evals`: a rule, named
+  `<thing>.<rule>` (`handle.oneHolderPerName`); see "The invariant row" below.
 - Every eval is pure and parameterised from the model: the subject is a name the list holds (`link.add`, `link`,
   `link.add.record`, `LinkAdded`, `HandleTaken`, a journey), and what to expect is read from that name's entry in the model, never
   typed. Each is tested on Plugged In's real model and outputs (green and red as they stand), on acme's where it has the output, and with
@@ -76,6 +78,20 @@ Green in every subject: `error.{model,api,server,sdk,docs}`, `operation.{model,a
 | `journey.docs` | no operation page has a `## Worked examples` section: each journey that calls it as an entry, with the starting world and, for every step that calls the operation, who calls (cast name and kind), the payload with the journey's values (a value from the world in words from its reference), and the refusal by name and code or the answer checked (W2, `design/decisions/W2-docs-worked-examples.md`; the eval holds the content, not the markup, and looks in the journey's own entry) | `packages/generators/src/modules/render/internal/docs.ts` |
 | `journey.portal` | no operation page lists the journeys that cover it | the portal's operation page (M1.13) |
 
+## The invariant row (K14 lane 14, 21 November 2026)
+
+The grid learned `invariant` ahead of ST1.19 (`design/decisions/ST1-19-checks.md`). **A journey touches a rule** when a step (or the world it starts in) calls an operation of the
+rule's thing, for every rule of that thing, or an operation the model says can break it (`operations.<op>.invariants`), so a rule that refuses nothing (`profile.onePagePerHandle`) is
+touched by any call of `profile.get`. The subject is `<thing>.<rule>`. Eight of the lane's nine cells are judged by `modules/invariant-evals` (its README has the table); `invariant.cli` is
+held off with `error.cli`, for the same reason (no refused call seen through the CLI as data: `prove --through`, M2.08).
+
+Plugged In declares no rule until ST1.19, so today's list holds the three rules from `claim a handle` (the first journey that touches them) and **all 24 pairs are red and on
+`expected-red.json`**, each with ST1.19 (and, for the portal, ST1.22) as what it waits on. A right ST1.19 turns the 21 pairs of the other seven cells green (the builder takes them off the
+list in the same change) and leaves the three `invariant.portal` pairs for ST1.22. The tests judge `fixtures/plugged-in-rules`, a throwaway stand-in of the slice, until Plugged In has its own rules.
+
+`operation.mcp` now reads a tool's description as the model's words, then one `Refuses <Error> when <reason>.` sentence for each refusal a rule owns for the operation (ST1.17), and nothing else
+(`operation-evals/mcp-rules.test.ts`).
+
 ## The portal's pages (K19, 19 November 2026)
 
 The portal ships prebuilt (`design/decisions/K19-portal-prebuilt.md`): its pages draw in the browser from `/_portal/v1/*`. So every
@@ -91,6 +107,7 @@ the client exists, and the evals' words change with the page.
 
 Held off (`held-off.json`), so `touched --write` leaves them off and the list stays honest:
 
+- **`invariant.cli`** is held off for the same reason as `error.cli` (a rule's refusal is `[code] Tag` and an exit, which only a call through the CLI shows), and has no eval yet.
 - **`error.cli`, `error.mcp`** need the refused call seen through each client as data. Prove has no `--through` yet (S-11, M2.08), and
   the CLI prints string fields unquoted, so the text can't be split back into fields (S-20). The evals exist and are unit-tested on the line
   format the generators write; run with no observed file they are red with "no refused X call was seen through the CLI". Switching them on

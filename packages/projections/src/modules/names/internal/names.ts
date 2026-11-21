@@ -26,8 +26,8 @@ export const toRoot = (from: string) => "../".repeat(from.split("/").length - 1)
 /** Import a declaration: the project's own by path from `from`, a plugin's by its package specifier, as written. */
 export const declarationAt = (from: string, file: string) => (file.startsWith("blueprint/") ? `${toRoot(from)}${file}` : file);
 
-/** A thing's own file (`thing`, `errors`, `events`): in the project, or in the plugin it came from. */
-export const thingFileAt = (from: string, thing: ThingModel, file: "thing" | "errors" | "events") =>
+/** A thing's own file (`thing`, `errors`, `events`, `invariants`): in the project, or in the plugin it came from. */
+export const thingFileAt = (from: string, thing: ThingModel, file: "thing" | "errors" | "events" | "invariants") =>
   thing.from.kind !== "app" ? `${thing.from.package}/blueprint/things/${thing.from.thing}/${file}.js` : `${toRoot(from)}blueprint/things/${thing.name}/${file}.ts`;
 
 /** A store's own file: the project's `blueprint/stores/<name>.ts`, or the plugin's `stores/<store>.js`. */
