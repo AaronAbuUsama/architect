@@ -50,15 +50,15 @@ describe("load", () => {
     const asked: Array<string> = [];
     vi.stubGlobal("fetch", (path: string) => {
       asked.push(path);
-      return Promise.resolve(Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked" }));
+      return Promise.resolve(Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked", telemetry: null }));
     });
-    expect(await Effect.runPromise(load())).toEqual({ blueprint: { digest: "abc" }, snapshot: { consistency: "checked" }, monitor: null });
-    expect(asked).toEqual(["/_portal/v1/blueprint", "/_portal/v1/snapshot?digest=abc", "/_portal/v1/monitor?digest=abc"]);
+    expect(await Effect.runPromise(load())).toEqual({ blueprint: { digest: "abc" }, snapshot: { consistency: "checked", telemetry: null }, monitor: null });
+    expect(asked, "no live source, no monitor request").toEqual(["/_portal/v1/blueprint", "/_portal/v1/snapshot?digest=abc"]);
   });
 
   it("reads the monitor for the digest too, and a portal with none (404, or an answer that is not a monitor) draws no alert it did not evaluate", async () => {
     const view = { environment: "local", now: 1, alerts: [], issues: [] };
-    const answering = (monitor: Response) => (path: string) => Promise.resolve(path.includes("monitor") ? monitor : Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked" }));
+    const answering = (monitor: Response) => (path: string) => Promise.resolve(path.includes("monitor") ? monitor : Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked", telemetry: {} }));
     vi.stubGlobal("fetch", answering(Response.json(view)));
     expect((await Effect.runPromise(load())).monitor).toEqual(view);
     vi.stubGlobal("fetch", answering(Response.json({ _tag: "NotFound" }, { status: 404 })));

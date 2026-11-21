@@ -14,7 +14,8 @@ const read = <T>(request: string): Effect.Effect<T, DataFailed> =>
     Effect.flatMap((response) =>
       response.status === 200
         ? Effect.tryPromise({ try: () => response.json() as Promise<T>, catch: () => failed(request, "its answer was not JSON") })
-        : Effect.fail(failed(request, `it answered ${response.status}`)),
+        // The body is read before the failure is raised: a response a page leaves unread can leave a browser driver waiting for it for good.
+        : Effect.promise(() => response.text().catch(() => "")).pipe(Effect.flatMap(() => Effect.fail(failed(request, `it answered ${response.status}`)))),
     ),
   );
 
@@ -52,6 +53,7 @@ export const load = (): Effect.Effect<PortalData, DataFailed> =>
   Effect.gen(function* () {
     const blueprint = yield* read<BlueprintWire>("/_portal/v1/blueprint");
     const snapshot = yield* read<PortalData["snapshot"]>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
-    const monitor = yield* loadMonitor(blueprint.digest);
+    // Without a live source there is nothing to evaluate: the portal does not ask (a 404 here is a response a browser can be left waiting on).
+    const monitor = snapshot.telemetry === null ? null : yield* loadMonitor(blueprint.digest);
     return { blueprint, snapshot, monitor };
   });
