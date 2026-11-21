@@ -83,13 +83,13 @@ core everything else uses.
 
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
-| UI SDK as the interface base | Decided | the UI SDK decision, K24, in review | K24 |
+| UI SDK as the interface base | Decided | the UI SDK decision, K24 | K24 |
 | A generated form per operation on UI SDK | Spiked | `spikes/ui-sdk-real-world`; no generator, no slice | none |
 | Agent marks from blueprint meaning | Spiked | three of four map; approval and a hidden payload field can't be declared | none |
 | Actions: one per operation, for the page, MCP and the CLI | Spiked | `spikes/agent-native-compat`, `ui-sdk-real-world/src/action.ts` | M1.22, M1.23 (moved to M3) |
 | Approvals asked once | Spiked | agent-native checks 04 to 06 | M1.23, M1.37 |
 | Portal chat and "Needs you" | Partial | `portal-ui` has the chat parts; nothing uses them | M1.24 |
-| HeroUI Pro behind one package | Built | `packages/portal-ui`, check 15 | M1.34 |
+| One package behind the portal's components (HeroUI Pro today, phased out by K24) | Built | `packages/portal-ui`, check 15 | M1.34 |
 
 ### On chain and wallets (1.0, stages 2 and 3)
 
