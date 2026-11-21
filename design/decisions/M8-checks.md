@@ -101,4 +101,6 @@ why. The throwaway was deleted.
 - design/milestones.md: "Better Auth refuses a session and an invitation after their life" → "Better Auth refuses a session after its life"
 - design/milestones.md: "in a dev world at the default speed a transaction sent a minute after the start is mined with a block time within one tick of the world's" → "(moved to M8.18)"
 - design/milestones.md: "a journey through an adapter with `clock: " → "(moved to M8.18)"
+- design/milestones.md: "| M8.07, M1.30 | build" → "| M8.07, M1.30, M8.18 | build"
+- design/milestones.md: "| M8.08, M8.10, M1.13 | build" → "| M8.08, M8.10, M1.13, M8.18 | build"
 - design/milestones.md: "M8.02 to M8.15, M8.17 (and so M6.09, from stage 2)" → "M8.02 to M8.15, M8.17, M8.18 (and so M6.09, from stage 2)"
