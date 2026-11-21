@@ -36,22 +36,32 @@ describe("controls: refusalLines counts only a line that says the file, the fiel
   });
 });
 
-describe("controls, true today: the same kinds of field on a database-only thing compile", () => {
-  it("a database thing may hold an email, a secret, a private field and a schema value", () => {
-    const files: Files = put(DB_BASE, "things/ticket/thing.ts", `import { Blueprint } from "orthograph";
+const TICKET_WITH_ALL = (role: string) => `import { Blueprint } from "orthograph";
 import { Schema } from "effect";
-import { Cap } from "../../values/amounts.ts";
+${role}import { Cap } from "../../values/amounts.ts";
 export const Ticket = Blueprint.thing({
   description: "A piece of work someone asked for.",
   code: "TK",
   fields: {
     id: Blueprint.id("tkt"), title: Blueprint.text({ max: 80 }), cap: Cap,
     contact: Blueprint.email(), pin: Blueprint.visibility.secret(Blueprint.text({ max: 40 })),
-    extra: Blueprint.value(Schema.Struct({ a: Schema.String })), long: Blueprint.id("a-prefix-that-is-far-too-long-for-chain"), odd: Blueprint.uint(12),
+    extra: Blueprint.value(Schema.Struct({ a: Schema.String })), ref: Blueprint.refAny(), long: Blueprint.id("a-prefix-that-is-far-too-long-for-chain"), odd: Blueprint.uint(12),
+    ${role === "" ? "" : "balance: Blueprint.visibility.private(Blueprint.uint(64), grantee),"}
   },
 });
-`);
-    expect(compiles(files).things["ticket"]).toBeDefined();
+`;
+
+describe("controls, true today: the same kinds of field on a database thing compile", () => {
+  it("a database-only project may hold an email, a secret, a schema value, a long id prefix and a uint(12)", () => {
+    expect(compiles(put(DB_BASE, "things/ticket/thing.ts", TICKET_WITH_ALL(""))).things["ticket"]).toBeDefined();
+  });
+});
+
+describe("the same kinds of field on a database thing compile beside a chain store: the refusal is the chain store's, not the project's", () => {
+  it("ticket (database) keeps its email, secret, private field, schema values, long id prefix and uint(12), in a project that has an allowance on chain", () => {
+    const m = compiles({ ...CHAIN_BASE, ...put(DB_BASE, "things/ticket/thing.ts", TICKET_WITH_ALL('import { grantee } from "../allowance/roles.ts";\n')) });
+    expect(m.things["ticket"]).toBeDefined();
+    expect(m.things["allowance"]?.store).toBe("budgets");
   });
 });
 
@@ -86,6 +96,9 @@ describe("a schema value with no Solidity type is refused", () => {
 describe("an id whose prefix leaves no room to mint a suffix in 32 bytes is refused", () => {
   const prefixed = (prefix: string) => swap(CHAIN_BASE, THING, 'id: Blueprint.id("alw"),', `id: Blueprint.id("${prefix}"),`);
   const said = (prefix: string): ReadonlyArray<RegExp> => [FILE, word("id"), /32|bytes32|room|long|prefix/i, new RegExp(prefix)];
+  it("a prefix of 13 and of 15 fit too (15, an underscore and 16 minted characters are 32 bytes)", () => {
+    for (const n of [13, 15]) expect(compiles(prefixed("a".repeat(n))).things["allowance"]?.fields["id"]?.value, String(n)).toMatchObject({ type: "id", prefix: "a".repeat(n) });
+  });
   it("a prefix of 3 and of 12 fit", () => {
     expect(compiles(prefixed("alw")).things["allowance"]).toBeDefined();
     expect(compiles(prefixed("allowancesxx")).things["allowance"]?.fields["id"]?.value).toMatchObject({ type: "id", prefix: "allowancesxx" });

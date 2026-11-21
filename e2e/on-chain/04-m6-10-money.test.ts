@@ -320,7 +320,7 @@ export class TicketBusy extends Blueprint.error({}, { exit: 11 }) {}
         cap: { value: "money", bits: 64, signed: false, asset: { token: "usdc" } },
         fee: { value: "money", bits: 128, signed: true, asset: { currency: "eur" } },
       });
-      expect(lockProblems(readFileSync(join(p.root, "blueprint/refusals.lock"), "utf8"))).toEqual([]);
+      expect(lockProblems(readFileSync(join(p.root, "blueprint/refusals.lock"), "utf8"), { prefixes: { ticket: "TK" }, solidity: false })).toEqual([]);
     } finally { p.remove(); }
   });
 });

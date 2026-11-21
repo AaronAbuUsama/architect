@@ -42,7 +42,8 @@ const generate = (files: Files, then: ReadonlyArray<(f: Files) => Files> = []) =
       const path = join(p.root, "blueprint/refusals.lock");
       expect(existsSync(path), "ortho generate wrote no blueprint/refusals.lock").toBe(true);
       const text = readFileSync(path, "utf8");
-      expect(lockProblems(text), lockProblems(text).join("\n")).toEqual([]);
+      const opts = { prefixes: { allowance: "AL" }, solidity: true };
+      expect(lockProblems(text, opts), lockProblems(text, opts).join("\n")).toEqual([]);
       locks.push(JSON.parse(text) as Lock);
     }
     return locks;

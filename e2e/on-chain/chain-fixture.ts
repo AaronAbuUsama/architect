@@ -336,7 +336,7 @@ export const refusalLines = (text: string, ...alternatives: ReadonlyArray<Needs>
   text.split("\n").filter((l) => alternatives.some((needs) => needs.every((n) => n.test(l))));
 
 /** The pattern for a file path as the compiler prints it, whole: `blueprint/things/allowance/thing.ts`. */
-export const inFile = (path: string): RegExp => new RegExp(path.replace(/[.]/g, "\\.").replace(/\//g, "\\/"));
+export const inFile = (path: string): RegExp => new RegExp(`(?<![A-Za-z0-9_./-])${path.replace(/[.]/g, "\\.").replace(/\//g, "\\/")}(?![A-Za-z0-9_.-])`);
 /** The pattern for a name as a word, so `spend` is not found in `spendBySig`. */
 export const word = (name: string): RegExp => new RegExp(`(?<![A-Za-z0-9_-])${name.replace(/[.]/g, "\\.")}(?![A-Za-z0-9_-])`);
 
@@ -344,17 +344,24 @@ export const word = (name: string): RegExp => new RegExp(`(?<![A-Za-z0-9_-])${na
  * A blueprint the compiler must refuse, in both of the user's ways in: `ortho model` exits 2 with the problems on stderr and nothing on
  * stdout, and `ortho check` exits 1 and prints them under `model ✘`. In each, a line must say the case (`refusalLines`).
  */
-export const refuses = (files: Files, ...alternatives: ReadonlyArray<Needs>): void => {
+export const refuses = (files: Files, ...alternatives: ReadonlyArray<Needs>): void => refusesWith(files, [], ...alternatives);
+
+/**
+ * `refuses`, and the line that says the case must not also say any of `foreign` (the words of the other cases): one line that names every forbidden thing
+ * at once would pass every case, so a refusal has to be of this case, in at least one line of each output.
+ */
+export const refusesWith = (files: Files, foreign: ReadonlyArray<RegExp>, ...alternatives: ReadonlyArray<Needs>): void => {
   const p = projectOf(files);
+  const own = (lines: ReadonlyArray<string>) => lines.filter((l) => !foreign.some((f) => f.test(l)));
   try {
     const m = run(p.root, "model", "--json");
     expect(m.status, `ortho model should refuse; it said:\n${m.out.slice(0, 400)}${m.err.slice(0, 1500)}`).toBe(2);
     expect(m.out).toBe("");
-    expect(refusalLines(m.err, ...alternatives), `no line of ortho model's problems says it:\n${m.err.slice(0, 2500)}`).not.toEqual([]);
+    expect(own(refusalLines(m.err, ...alternatives)), `no line of ortho model's problems says it (and only it):\n${m.err.slice(0, 2500)}`).not.toEqual([]);
     const c = run(p.root, "check");
     expect(c.status, `ortho check should fail; it said:\n${c.out.slice(0, 1500)}`).toBe(1);
     expect(c.out).toContain("model ✘");
-    expect(refusalLines(c.out, ...alternatives), `no line of ortho check's output says it:\n${c.out.slice(0, 2500)}`).not.toEqual([]);
+    expect(own(refusalLines(c.out, ...alternatives)), `no line of ortho check's output says it (and only it):\n${c.out.slice(0, 2500)}`).not.toEqual([]);
   } finally { p.remove(); }
 };
 

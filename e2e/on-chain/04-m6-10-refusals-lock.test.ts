@@ -43,8 +43,9 @@ const GOOD = () => ({
 });
 
 describe("controls: lockProblems refuses each wrong lock", () => {
-  const plant = (edit: (l: any) => void, text?: (l: any) => string) => { const l = GOOD() as any; edit(l); return lockProblems(text ? text(l) : lines(l)); };
-  it("accepts the right lock", () => expect(lockProblems(lines(GOOD()))).toEqual([]));
+  const OPTS = { prefixes: { ticket: "TK" }, solidity: true };
+  const plant = (edit: (l: any) => void, text?: (l: any) => string) => { const l = GOOD() as any; edit(l); return lockProblems(text ? text(l) : lines(l), OPTS); };
+  it("accepts the right lock", () => expect(lockProblems(lines(GOOD()), OPTS)).toEqual([]));
   it("knows the keccak selectors it judges with", () => {
     expect(selectorOf("transfer(address,uint256)")).toBe("0xa9059cbb");
     expect(selectorOf("Error(string)")).toBe("0x08c379a0");
@@ -93,6 +94,38 @@ describe("controls: lockProblems refuses each wrong lock", () => {
     expect(plant((l) => { l.refusals["TK-900"].name = "TicketTooBig"; l.refusals["TK-900"].wire.effect.tag = "TicketTooBig"; })).toHaveLength(1);
     expect(plant((l) => { l.retired["TK-001"] = l.retired["TK-002"]; })).toHaveLength(1);
   });
+  it("refuses an owner unrelated to its code's prefix, a runtime code under a made-up name, and an owner that does not fit the code's kind", () => {
+    expect(plant((l) => { l.refusals["TK-001"].owner = "other"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].owner = "runtime"; })).not.toEqual([]);
+    expect(plant((l) => { l.refusals["AR-001"].owner = "ticket"; })).not.toEqual([]);
+    expect(plant((l) => { l.refusals["AR-001"].name = "Banana"; l.refusals["AR-001"].wire.effect.tag = "Banana"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["AR-002"] = runtime("NotAllowed"); })).not.toEqual([]);
+  });
+  it("refuses `from` where it does not belong, and its absence where it does", () => {
+    expect(plant((l) => { delete l.refusals["TK-001"].from; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["AR-001"].from = "blueprint/things/ticket/errors.ts"; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-900"].from = "blueprint/things/ticket/errors.ts"; })).toHaveLength(1);
+    expect(plant((l) => { delete l.retired["TK-002"].from; })).toHaveLength(1);
+  });
+  it("refuses a value out of its range: an empty id prefix, uint or money bits that are no width, text with a max below 1", () => {
+    expect(plant((l) => { l.retired["TK-002"].fields.which.prefix = ""; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap.bits = 7; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap.bits = 264; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 12, signed: false, asset: { token: "usdc" } }; })).toHaveLength(1);
+    expect(plant((l) => { l.retired["TK-002"].fields.why.max = -1; })).toHaveLength(1);
+    expect(plant((l) => { l.retired["TK-002"].fields.why.max = 0; })).toHaveLength(1);
+  });
+  it("refuses a retired name that is also a live one, and a Solidity wire in a lock no chain store raises into", () => {
+    expect(plant((l) => { l.retired["TK-002"].name = "TicketTooBig"; l.retired["TK-002"].wire.effect.tag = "TicketTooBig"; })).not.toEqual([]);
+    const l = GOOD() as any;
+    expect(lockProblems(lines(l), { prefixes: { ticket: "TK" }, solidity: false })).toHaveLength(1);
+  });
+  it("refuses an earlier identity whose tag and signature are of two names, whose tag is no name, or whose signature is none", () => {
+    expect(plant((l) => { l.refusals["TK-001"].earlier = [{ effect: { tag: "A" }, solidity: { signature: "B()", selector: selectorOf("B()") } }]; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].earlier = [{ effect: { tag: "not a name" } }]; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].earlier = [{ solidity: { signature: "nope", selector: "0x00000000" } }]; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].earlier = [{ effect: { tag: "TicketTooBig" }, solidity: { signature: "TicketTooBig()", selector: selectorOf("TicketTooBig()") } }]; })).toEqual([]);
+  });
   it("refuses text that is not two-space JSON with a closing newline, and text that is not JSON", () => {
     expect(plant(() => {}, (l) => JSON.stringify(l, null, 2))).toHaveLength(1);
     expect(plant(() => {}, (l) => `${JSON.stringify(l, null, "\t")}\n`)).toHaveLength(1);
@@ -118,7 +151,7 @@ describe("ortho generate writes blueprint/refusals.lock", () => {
       expect(g.status, g.err + g.out.slice(-800)).toBe(0);
       expect(existsSync(join(p.root, LOCK)), "ortho generate wrote no blueprint/refusals.lock").toBe(true);
       const text = readFileSync(join(p.root, LOCK), "utf8");
-      expect(lockProblems(text), lockProblems(text).join("\n")).toEqual([]);
+      expect(lockProblems(text, { prefixes: { ticket: "TK" }, solidity: false }), lockProblems(text, { prefixes: { ticket: "TK" }, solidity: false }).join("\n")).toEqual([]);
       const lock = read(p.root);
       expect(lock.retired).toEqual({});
       expect(Object.keys(lock.refusals)).toEqual(["AR-001", "AR-002", "TK-001", "TK-002", "TK-900", "TK-901"]);

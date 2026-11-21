@@ -62,6 +62,13 @@ describe("controls: solidityProblems refuses each wrong model", () => {
     expect(plant((m) => { m.things.allowance.fields.limit.solidity = ["uint128"]; })).toHaveLength(1);
     expect(plant((m) => { m.things.allowance.fields.limit.solidity = null; })).toHaveLength(1);
   });
+  it("refuses a chain thing or operation whose events, errors, payload or answer map is missing", () => {
+    expect(plant((m) => { delete m.things.allowance.events; })).toHaveLength(1);
+    expect(plant((m) => { delete m.things.allowance.errors; })).toHaveLength(1);
+    expect(plant((m) => { delete m.operations["allowance.spend"].payload; })).toHaveLength(1);
+    expect(plant((m) => { delete m.operations["allowance.spend"].answer; })).toHaveLength(1);
+    expect(plant((m) => { delete m.things.allowance.fields; })).toHaveLength(1);
+  });
   it("refuses a Solidity type on a thing that is not in a chain store, and on its operations", () => {
     expect(plant((m) => { m.things.ticket.fields.id.solidity = "bytes32"; })).toHaveLength(1);
     expect(plant((m) => { m.operations["ticket.open"].payload.title.solidity = "string"; })).toHaveLength(1);
@@ -128,6 +135,16 @@ describe("the Solidity type of each field", () => {
     expect(events["AllowanceSpent"]?.["to"]?.solidity).toBe("address");
     expect(events["AllowanceSpent"]?.["amount"]?.solidity).toBe("uint128");
     expect((t["errors"] as Record<string, { fields: Record<string, { solidity?: string }> }>)["AllowanceExceeded"]?.fields["remaining"]?.solidity).toBe("uint128");
+  });
+  it("note: its events, its operation's payload and answer are in the model with every field typed (a model that leaves a map out is not judged by what it left)", () => {
+    const m = compiles(WITH_NOTE);
+    const note = m.things["note"] as unknown as { events: Record<string, Record<string, { solidity?: string }>>; errors: Record<string, unknown> };
+    expect(Object.keys(note.events).sort()).toEqual(["NotePassed", "NoteSettled", "NoteWritten"]);
+    expect(Object.fromEntries(Object.entries(note.events["NoteWritten"]!).map(([k, f]) => [k, f.solidity]))).toEqual({ note: "bytes32", body: "string" });
+    expect(Object.keys(note.errors)).toEqual([]);
+    const write = m.operations["note.write"] as unknown as { payload: Record<string, { solidity?: string }>; answer: Record<string, { solidity?: string }> };
+    expect(Object.fromEntries(Object.entries(write.payload).map(([k, f]) => [k, f.solidity]))).toEqual({ allowance: "bytes32", body: "string" });
+    expect(Object.fromEntries(Object.entries(write.answer).map(([k, f]) => [k, f.solidity]))).toEqual({ note: "bytes32" });
   });
   it("every size of uint, text and an id: uint8 to uint256, string, bytes32, address", () => {
     const m = compiles(WITH_NOTE);

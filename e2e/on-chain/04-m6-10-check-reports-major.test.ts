@@ -8,7 +8,7 @@
 //   - reordering a chain-stored thing's states, or putting a new one before the last, is major: a line holds the thing and `major` (the states' numbers are what rows
 //     mean on chain, item 2); adding one at the end is minor: a line holds the thing and `minor`, and no line says `major`;
 //   - renaming a declared error, and renaming the thing's first state (its machine refusal), are major: a line holds the error's name or code and `major`;
-//   - no change is no line of `major` or `minor`, and `ortho check` passes; a new declared error, and reordering the states of a database thing, say no `major`.
+//   - no change is no line of `major` or `minor`, and `ortho check` passes; a new declared error, and reordering the tail of a database thing's states, say no `major`; removing a chain state is major.
 // Where the baseline is read from is the checks author's reading ("Questions for the lead"): the model checked in under `generated/`, as `ortho check`'s drift part
 // already reads that folder. The report may be one line or several, in `ortho check`'s output; its place in the output and its other words are the builder's.
 //
@@ -69,8 +69,9 @@ describe("controls, true today: no change reports no bump", () => {
     const c = after(DB_BASE, (f) => put(f, "things/ticket/errors.ts", `${f["things/ticket/errors.ts"]}export class TicketLate extends Blueprint.error({}, { exit: 12 }) {}\n`));
     expect(anyBump(c.out, "major")).toEqual([]);
   });
-  it("reordering the states of a database thing: no major (the order means nothing off chain)", () => {
-    const c = after(DB_BASE, (f) => swap(f, "things/ticket/machine.ts", 'states: ["open", "closed"]', 'states: ["closed", "open"]'));
+  it("reordering the tail of a database thing's states: no major (the order means nothing off chain; the first state, whose name is in a refusal, stays)", () => {
+    const three = put(DB_BASE, "things/ticket/machine.ts", DB_BASE["things/ticket/machine.ts"]!.replace('states: ["open", "closed"]', 'states: ["open", "closed", "archived"]'));
+    const c = after(three, (f) => swap(f, "things/ticket/machine.ts", 'states: ["open", "closed", "archived"]', 'states: ["open", "archived", "closed"]'));
     expect(anyBump(c.out, "major")).toEqual([]);
   });
 });
@@ -89,6 +90,10 @@ describe("ortho check reports the states' numbers on chain: reordered or inserte
   });
   it("a new state before the last", () => {
     const c = after(CHAIN_BASE, states('"active", "paused", "exhausted", "revoked"'), "model");
+    expect(says(c.out, word("allowance"), "major"), `no line holds allowance and major:\n${c.out}`).toBe(true);
+  });
+  it("a state removed (exhausted, with the moves that named it)", () => {
+    const c = after(CHAIN_BASE, (f) => swap(swap(swap(f, "things/allowance/machine.ts", 'states: ["active", "exhausted", "revoked"],', 'states: ["active", "revoked"],'), "things/allowance/machine.ts", 'to: ["active", "exhausted"]', 'to: ["active"]'), "things/allowance/machine.ts", 'from: ["active", "exhausted"]', 'from: ["active"]'), "model");
     expect(says(c.out, word("allowance"), "major"), `no line holds allowance and major:\n${c.out}`).toBe(true);
   });
   it("a new state at the end", () => {

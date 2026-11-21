@@ -57,7 +57,9 @@ for (const [name, example] of [["examples/acme", acme], ["examples/plugged-in", 
         expect(first.status, (first.stdout + first.stderr).slice(-1500)).toBe(0);
         expect(existsSync(join(copy.root, "blueprint/refusals.lock")), "ortho generate wrote no blueprint/refusals.lock").toBe(true);
         const text = readFileSync(join(copy.root, "blueprint/refusals.lock"), "utf8");
-        expect(lockProblems(text), lockProblems(text).join("\n")).toEqual([]);
+        const model = JSON.parse(readFileSync(join(example, "generated/model/model.json"), "utf8")) as { things: Record<string, { code: string }> };
+        const opts = { prefixes: Object.fromEntries(Object.entries(model.things).map(([n, t]) => [n, t.code])), solidity: false };
+        expect(lockProblems(text, opts), lockProblems(text, opts).join("\n")).toEqual([]);
         const lock = read(copy.root);
         expect(codesOf(lock, today), codesOf(lock, today).join("\n")).toEqual([]);
         expect(lock.retired).toEqual({});

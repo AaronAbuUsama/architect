@@ -20,6 +20,15 @@ on-chain/04-m6-10-operations-refused.test.ts > a role a contract cannot run is r
 on-chain/04-m6-10-operations-refused.test.ts > an answer must be read from the move's event or be the new id > a grant answering a field its event does not carry beside the new id
 on-chain/04-m6-10-operations-refused.test.ts > an answer must be read from the move's event or be the new id > a revoke answering a field of the thing its event does not carry
 on-chain/04-m6-10-operations-refused.test.ts > an answer must be read from the move's event or be the new id > a spend answering a field its event does not carry
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a database operation with a payload field named nonce compiles, beside a chain store
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a database operation with idempotent compiles, beside a chain store
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a database operation with signedIn compiles, beside a chain store
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a lone spend-by-sig, with no spend, compiles
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a payload field named deadlines compiles
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a payload field named nonces compiles
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a payload field named signatures compiles
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > a payload field named signers compiles
+on-chain/04-m6-10-operations-refused.test.ts > controls: what a database operation, and a name that only looks like a collision, may still do > an operation named has-roles compiles
 on-chain/04-m6-10-operations-refused.test.ts > what an operation of a chain-stored thing does not declare is refused, naming each > a database step
 on-chain/04-m6-10-operations-refused.test.ts > what an operation of a chain-stored thing does not declare is refused, naming each > a database step that names what it writes
 on-chain/04-m6-10-operations-refused.test.ts > what an operation of a chain-stored thing does not declare is refused, naming each > an actor step

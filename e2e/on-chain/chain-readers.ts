@@ -24,6 +24,7 @@ export const solidityProblems = (model: AnyModel): ReadonlyArray<string> => {
   const problems: string[] = [];
   const chain = (store: string | undefined) => store !== undefined && model.stores?.[store]?.kind === "chain.evm";
   const fields = (at: string, fs: unknown, onChain: boolean, readAnswer = false) => {
+    if (onChain && (typeof fs !== "object" || fs === null || Array.isArray(fs))) { problems.push(`${at}: is missing from the model, so its fields' Solidity types cannot be judged`); return; }
     for (const [key, f] of Object.entries(record(fs) as Fields)) {
       const here = `${at}.${key}`;
       if (!onChain) { if (f.solidity !== undefined) problems.push(`${here}: carries solidity ${JSON.stringify(f.solidity)} but does not live in a chain store`); continue; }
@@ -35,6 +36,7 @@ export const solidityProblems = (model: AnyModel): ReadonlyArray<string> => {
   for (const [name, t] of Object.entries(model.things)) {
     const onChain = chain(t.store);
     fields(`things.${name}.fields`, t.fields, onChain);
+    if (onChain) for (const k of ["events", "errors"]) if (typeof t[k] !== "object" || t[k] === null) problems.push(`things.${name}.${k}: is missing from the model, so its fields' Solidity types cannot be judged`);
     for (const [e, ev] of Object.entries(record(t["events"]))) fields(`things.${name}.events.${e}`, ev, onChain);
     for (const [e, er] of Object.entries(record(t["errors"]))) fields(`things.${name}.errors.${e}.fields`, record(er)["fields"], onChain);
     const numbers = t.stateNumbers;
@@ -57,68 +59,100 @@ const KEY = /^[A-Z]{2,4}-\d{3}$/;
 const keys = (x: Record<string, unknown>) => Object.keys(x).sort();
 const sameKeys = (x: Record<string, unknown>, ...allowed: ReadonlyArray<string>) => keys(x).filter((k) => !allowed.includes(k));
 
+
+/** The runtime's refusals and their codes (M6-chain item 4): a lock entry under one of these codes has this name. */
+const RUNTIME_NAMES: Readonly<Record<string, string>> = { "AR-001": "NotAllowed", "AR-002": "IdempotencyConflict", "AR-003": "SignatureExpired", "AR-004": "InvalidNonce", "AR-005": "BadSignature", "AR-006": "AlreadyExists" };
+const IDENT = /^[A-Z][A-Za-z0-9]*$/;
+const bitsOk = (b: unknown) => typeof b === "number" && Number.isInteger(b) && b >= 8 && b <= 256 && b % 8 === 0;
+
 const valueProblems = (at: string, v: unknown): ReadonlyArray<string> => {
   const o = record(v);
   const extra = (allowed: string[]) => sameKeys(o, ...allowed).map((k) => `${at}: has the extra key ${k}`);
   switch (o["value"]) {
-    case "uint": return [...extra(["value", "bits"]), ...(Number.isInteger(o["bits"]) ? [] : [`${at}: a uint without its bits`])];
-    case "id": return [...extra(["value", "prefix"]), ...(typeof o["prefix"] === "string" ? [] : [`${at}: an id without its prefix`])];
-    case "text": return [...extra(["value", "max"]), ...(Number.isInteger(o["max"]) ? [] : [`${at}: text without its max`])];
+    case "uint": return [...extra(["value", "bits"]), ...(bitsOk(o["bits"]) ? [] : [`${at}: a uint of ${JSON.stringify(o["bits"])} bits is not 8 to 256 in steps of 8`])];
+    case "id": return [...extra(["value", "prefix"]), ...(typeof o["prefix"] === "string" && o["prefix"] !== "" ? [] : [`${at}: an id without a prefix`])];
+    case "text": return [...extra(["value", "max"]), ...(typeof o["max"] === "number" && Number.isInteger(o["max"]) && o["max"] >= 1 ? [] : [`${at}: text with a max of ${JSON.stringify(o["max"])}`])];
     case "money": {
       const asset = record(o["asset"]);
-      const one = Object.keys(asset).length === 1 && ["token", "currency", "field"].includes(Object.keys(asset)[0]!) && typeof Object.values(asset)[0] === "string";
-      return [...extra(["value", "bits", "signed", "asset"]), ...(Number.isInteger(o["bits"]) ? [] : [`${at}: money without its bits`]), ...(typeof o["signed"] === "boolean" ? [] : [`${at}: money without signed`]), ...(one ? [] : [`${at}: money's asset is not one of token, currency or field, a name`])];
+      const one = Object.keys(asset).length === 1 && ["token", "currency", "field"].includes(Object.keys(asset)[0]!) && typeof Object.values(asset)[0] === "string" && Object.values(asset)[0] !== "";
+      return [...extra(["value", "bits", "signed", "asset"]), ...(bitsOk(o["bits"]) ? [] : [`${at}: money of ${JSON.stringify(o["bits"])} bits is not 8 to 256 in steps of 8`]), ...(typeof o["signed"] === "boolean" ? [] : [`${at}: money without signed`]), ...(one ? [] : [`${at}: money's asset is not one of token, currency or field, a name`])];
     }
     case "account": case "schema": return extra(["value"]);
-    default: return [`${at}: value is ${JSON.stringify(o["value"])}, not uint, id, text, account or schema`];
+    default: return [`${at}: value is ${JSON.stringify(o["value"])}, not uint, id, text, money, account or schema`];
   }
 };
 
-const wireProblems = (at: string, w: unknown, name: string | undefined, effectRequired: boolean): ReadonlyArray<string> => {
+const wireProblems = (at: string, w: unknown, name: string | undefined, current: boolean, solidity: boolean): ReadonlyArray<string> => {
   const o = record(w);
   const out: string[] = sameKeys(o, "effect", "solidity").map((k) => `${at}: has the extra key ${k}`);
   const effect = o["effect"];
-  if (effect === undefined) { if (effectRequired) out.push(`${at}: no effect identity`); }
+  let tag: string | undefined;
+  if (effect === undefined) { if (current) out.push(`${at}: no effect identity`); }
   else {
     const e = record(effect);
     out.push(...sameKeys(e, "tag").map((k) => `${at}.effect: has the extra key ${k}`));
-    if (typeof e["tag"] !== "string") out.push(`${at}.effect: no tag`);
-    else if (name !== undefined && e["tag"] !== name) out.push(`${at}.effect: tag ${e["tag"]} is not the name ${name}`);
+    if (typeof e["tag"] !== "string" || !IDENT.test(e["tag"])) out.push(`${at}.effect: tag ${JSON.stringify(e["tag"])} is not a name`);
+    else { tag = e["tag"]; if (current && name !== undefined && tag !== name) out.push(`${at}.effect: tag ${tag} is not the name ${name}`); }
   }
   if (o["solidity"] !== undefined) {
+    if (!solidity) out.push(`${at}.solidity: a Solidity wire, but no chain store raises a refusal in this lock`);
     const s = record(o["solidity"]);
     out.push(...sameKeys(s, "signature", "selector").map((k) => `${at}.solidity: has the extra key ${k}`));
     const sig = s["signature"];
-    if (typeof sig !== "string" || !/^[A-Z][A-Za-z0-9]*\(.*\)$/.test(sig)) out.push(`${at}.solidity: signature ${JSON.stringify(sig)} is not Name(types)`);
-    else if (s["selector"] !== selectorOf(sig)) out.push(`${at}.solidity: selector ${JSON.stringify(s["selector"])} is not the first four bytes of keccak256(${sig}), ${selectorOf(sig)}`);
-    else if (name !== undefined && !sig.startsWith(`${name}(`)) out.push(`${at}.solidity: signature ${sig} is not of ${name}`);
+    const ident = typeof sig === "string" ? /^([A-Z][A-Za-z0-9]*)\(.*\)$/.exec(sig)?.[1] : undefined;
+    if (ident === undefined) out.push(`${at}.solidity: signature ${JSON.stringify(sig)} is not Name(types)`);
+    else if (s["selector"] !== selectorOf(sig as string)) out.push(`${at}.solidity: selector ${JSON.stringify(s["selector"])} is not the first four bytes of keccak256(${String(sig)}), ${selectorOf(sig as string)}`);
+    else if (current && name !== undefined && ident !== name) out.push(`${at}.solidity: signature ${String(sig)} is not of ${name}`);
+    else if (tag !== undefined && ident !== tag) out.push(`${at}: the effect tag ${tag} and the signature ${String(sig)} are of different names`);
   }
   return out;
 };
 
-const entryProblems = (at: string, e: unknown): ReadonlyArray<string> => {
+export interface LockOptions {
+  /** Each thing's refusal-code prefix (its `code` in the model), so an owner can be checked against its codes. */
+  readonly prefixes?: Readonly<Record<string, string>>;
+  /** Whether a chain store raises a refusal in this lock, so a Solidity wire may be there. */
+  readonly solidity?: boolean;
+}
+
+const entryProblems = (at: string, code: string, e: unknown, opts: LockOptions): ReadonlyArray<string> => {
   const o = record(e);
   const out: string[] = sameKeys(o, "name", "owner", "from", "fields", "wire", "earlier").map((k) => `${at}: has the extra key ${k}`);
   const name = typeof o["name"] === "string" ? o["name"] : undefined;
-  if (name === undefined || !/^[A-Z][A-Za-z0-9]*$/.test(name)) out.push(`${at}: name ${JSON.stringify(o["name"])} is not a refusal's name`);
-  if (typeof o["owner"] !== "string" || o["owner"] === "") out.push(`${at}: no owner`);
+  if (name === undefined || !IDENT.test(name)) out.push(`${at}: name ${JSON.stringify(o["name"])} is not a refusal's name`);
+  const owner = o["owner"];
+  const runtime = code.startsWith("AR-");
+  const number = Number(code.slice(code.indexOf("-") + 1));
+  if (typeof owner !== "string" || owner === "") out.push(`${at}: no owner`);
+  else if (runtime !== (owner === "runtime")) out.push(`${at}: owner ${owner} does not fit the code ${code}: the runtime owns exactly the AR- codes`);
+  else if (!runtime && opts.prefixes !== undefined && opts.prefixes[owner] !== code.slice(0, code.indexOf("-"))) out.push(`${at}: owner ${owner} has the prefix ${String(opts.prefixes[owner])}, not that of ${code}`);
+  if (runtime) {
+    if (!(code in RUNTIME_NAMES)) out.push(`${at}: ${code} is not a runtime code`);
+    else if (name !== RUNTIME_NAMES[code]) out.push(`${at}: ${code} is ${RUNTIME_NAMES[code]}, not ${String(name)}`);
+  }
+  const declared = !runtime && number !== 900 && number !== 901;
+  if (declared && o["from"] === undefined) out.push(`${at}: a declared error has no \`from\`, the file it is declared in`);
+  if (!declared && o["from"] !== undefined) out.push(`${at}: ${runtime ? "a runtime refusal" : "a generated refusal"} has a \`from\`, but is declared in no file`);
   if (o["from"] !== undefined && (typeof o["from"] !== "string" || !/^blueprint\/.+\.ts$/.test(o["from"]))) out.push(`${at}: from ${JSON.stringify(o["from"])} is not a file under blueprint/`);
   if (o["fields"] === undefined || typeof o["fields"] !== "object") out.push(`${at}: no fields`);
   else for (const [k, v] of Object.entries(record(o["fields"]))) out.push(...valueProblems(`${at}.fields.${k}`, v));
-  out.push(...wireProblems(`${at}.wire`, o["wire"], name, true));
+  out.push(...wireProblems(`${at}.wire`, o["wire"], name, true, opts.solidity !== false));
   if (!Array.isArray(o["earlier"])) out.push(`${at}: earlier is not a list`);
-  else (o["earlier"] as unknown[]).forEach((w, i) => out.push(...wireProblems(`${at}.earlier[${i}]`, w, undefined, false), ...(Object.keys(record(w)).length === 0 ? [`${at}.earlier[${i}]: an empty identity`] : [])));
+  else (o["earlier"] as unknown[]).forEach((w, i) => out.push(...wireProblems(`${at}.earlier[${i}]`, w, undefined, false, opts.solidity !== false), ...(Object.keys(record(w)).length === 0 ? [`${at}.earlier[${i}]: an empty identity`] : [])));
   return out;
 };
 
 /**
  * What is wrong with a `blueprint/refusals.lock`, as text: the exact schema of M6-chain item 4. JSON written as `JSON.stringify(x, null, 2)` and a newline;
  * the keys `generated` (a `Generated from ... Do not edit.` line), `lockVersion` (1), `refusals` (code to entry, in code order, each code `AB-123`) and
- * `retired` (code to the entry as it was); an entry holds `name`, `owner`, `from` (only for a declared error), `fields` (each a value: uint with
- * its bits, id with its prefix, text with its max, account, schema, money with bits, signed and its asset as `{ token | currency | field: name }`), `wire` (`effect: { tag }`, the name; `solidity: { signature, selector }` when a chain
- * store raises it, the selector being the real keccak of the signature) and `earlier` (a list of wire identities); no other key anywhere; no name twice.
+ * `retired` (code to the entry as it was); an entry holds `name`, `owner`, `from`, `fields` (each a value: uint with its bits, id with its prefix, text with its
+ * max, account, schema, money with bits, signed and its asset as `{ token | currency | field: name }`), `wire` (`effect: { tag }`, the name; `solidity: { signature,
+ * selector }`, the selector the real keccak of the signature, only when `opts.solidity` allows) and `earlier` (wire identities, each naming one thing); no other key.
+ * The runtime owns the AR- codes, each with its own name (AR-001 NotAllowed ... AR-006 AlreadyExists); `from` is there for a declared error (not number 900 or
+ * 901, not the runtime's) and nowhere else; with `opts.prefixes` an owner's thing has the prefix of its codes; ranges hold (uint and money bits 8 to 256 in 8s,
+ * text max at least 1, an id's prefix not empty); no name is in the lock twice, live or retired.
  */
-export const lockProblems = (text: string): ReadonlyArray<string> => {
+export const lockProblems = (text: string, opts: LockOptions = {}): ReadonlyArray<string> => {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { return ["the lock is not JSON"]; }
   const o = record(parsed);
@@ -133,17 +167,16 @@ export const lockProblems = (text: string): ReadonlyArray<string> => {
   if (JSON.stringify(codes) !== JSON.stringify([...codes].sort())) out.push("refusals are not in code order");
   const names: string[] = [];
   for (const [code, e] of Object.entries(refusals)) {
-    if (!KEY.test(code)) out.push(`refusals: ${code} is not a code`);
-    out.push(...entryProblems(`refusals.${code}`, e));
-    const owner = record(e)["owner"];
-    if (typeof owner === "string" && owner === "runtime" && !code.startsWith("AR-")) out.push(`refusals.${code}: owned by the runtime but not an AR- code`);
+    if (!KEY.test(code)) { out.push(`refusals: ${code} is not a code`); continue; }
+    out.push(...entryProblems(`refusals.${code}`, code, e, opts));
     names.push(String(record(e)["name"]));
   }
   for (const n of names.filter((n, i) => names.indexOf(n) !== i)) out.push(`the name ${n} is in the lock twice`);
   for (const [code, e] of Object.entries(record(o["retired"]))) {
-    if (!KEY.test(code)) out.push(`retired: ${code} is not a code`);
+    if (!KEY.test(code)) { out.push(`retired: ${code} is not a code`); continue; }
     if (code in refusals) out.push(`retired.${code} is also a live refusal: a retired code is never given again`);
-    out.push(...entryProblems(`retired.${code}`, e));
+    if (names.includes(String(record(e)["name"]))) out.push(`retired.${code}: the name ${String(record(e)["name"])} is also a live refusal's`);
+    out.push(...entryProblems(`retired.${code}`, code, e, opts));
   }
   return out;
 };

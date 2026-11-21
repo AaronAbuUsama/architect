@@ -21,7 +21,7 @@
 // THE CONTROLS: `refusalLines` is planted in `04-m6-10-values-refused.test.ts` (a loader failure, a line without the file, the word or the name does not count);
 // here, `swap` throws when what it replaces is not in the file, so a stale fixture fails rather than refusing nothing.
 import { describe, expect, it } from "vitest";
-import { CHAIN_BASE, compiles, inFile, put, refuses, swap, word, type Files } from "./chain-fixture.ts";
+import { CHAIN_BASE, DB_BASE, compiles, inFile, put, refuses, refusesWith, swap, word, type Files } from "./chain-fixture.ts";
 
 const V = "things/allowance/verbs";
 const SPEND = inFile(`blueprint/${V}/spend.ts`);
@@ -32,6 +32,10 @@ const GET = inFile(`blueprint/${V}/get.ts`);
 /** The spend operation with one more property, written just before `allowed`. */
 const spendWith = (line: string, base: Files = CHAIN_BASE): Files => swap(base, `${V}/spend.ts`, "  allowed: [grantee],\n", `  ${line}\n  allowed: [grantee],\n`);
 const withRule = (files: Files): Files => put(files, "things/allowance/roles.ts", `${files["things/allowance/roles.ts"]}export const auditor = Blueprint.role(Allowance, { rule: () => true });\n`);
+/** The words of the options an operation may not declare: a line that is one case's refusal must not carry another's. */
+const OPTIONS = { rule: /\brule\b/i, signedIn: /signedIn|signed.in/i, database: /database/i, actor: /actor/i, idempotent: /idempotent/i, runs: /\bruns\b/i, signedBy: /signedBy/ } as const;
+const only = (own: keyof typeof OPTIONS, files: Files, ...alternatives: ReadonlyArray<ReadonlyArray<RegExp>>) =>
+  refusesWith(files, Object.entries(OPTIONS).filter(([k]) => k !== own).map(([, r]) => r), ...alternatives);
 const allowedSpend = (allowed: string, files: Files = CHAIN_BASE): Files => swap(files, `${V}/spend.ts`, "  allowed: [grantee],\n", `  allowed: [${allowed}],\n`);
 
 describe("what is still allowed on a chain operation", () => {
@@ -46,22 +50,43 @@ describe("what is still allowed on a chain operation", () => {
   });
 });
 
+describe("controls: what a database operation, and a name that only looks like a collision, may still do", () => {
+  const OPEN = "things/ticket/verbs/open.ts";
+  const MIXED: Files = { ...CHAIN_BASE, ...DB_BASE };
+  const dbOp = (line: string, base: Files) => swap(base, OPEN, "  allowed: [Blueprint.anyone],\n", `  allowed: [Blueprint.anyone],\n  ${line}\n`);
+  for (const [name, edit] of [
+    ["idempotent", (b: Files) => dbOp('idempotent: "request",', b)],
+    ["signedIn", (b: Files) => swap(b, OPEN, "allowed: [Blueprint.anyone],", "allowed: [Blueprint.signedIn],")],
+    ["a payload field named nonce", (b: Files) => swap(b, OPEN, "payload: { title: Ticket.fields.title,", "payload: { nonce: Ticket.fields.cap, title: Ticket.fields.title,")],
+  ] as const) {
+    it(`a database operation with ${name} compiles, alone`, () => { expect(compiles(edit(DB_BASE)).operations["ticket.open"]).toBeDefined(); });
+    it(`a database operation with ${name} compiles, beside a chain store`, () => { expect(compiles(edit(MIXED)).operations["ticket.open"]).toBeDefined(); });
+  }
+  const spendWithPayload = (extra: string) => swap(CHAIN_BASE, `${V}/spend.ts`, "payload: { allowance: Allowance.fields.id,", `payload: { ${extra}: Blueprint.money.of(Allowance.fields.token), allowance: Allowance.fields.id,`);
+  for (const f of ["signers", "deadlines", "nonces", "signatures"]) it(`a payload field named ${f} compiles`, () => { expect(compiles(spendWithPayload(f)).operations["allowance.spend"]).toBeDefined(); });
+  it("an operation named has-roles compiles", () => { expect(compiles(put(CHAIN_BASE, `${V}/has-roles.ts`, CHAIN_BASE[`${V}/revoke.ts`]!)).operations["allowance.has-roles"]).toBeDefined(); });
+  it("a lone spend-by-sig, with no spend, compiles", () => {
+    const files = put(put(CHAIN_BASE, `${V}/spend.ts`, null), `${V}/spend-by-sig.ts`, CHAIN_BASE[`${V}/spend.ts`]!);
+    expect(compiles(files).operations["allowance.spend-by-sig"]).toBeDefined();
+  });
+});
+
 describe("a role a contract cannot run is refused", () => {
   it("a rule role on an operation, naming the operation and the role", () => {
     const files = swap(allowedSpend("auditor", withRule(CHAIN_BASE)), `${V}/spend.ts`, 'import { grantee } from "../roles.ts";', 'import { auditor } from "../roles.ts";');
-    refuses(files, [SPEND, word("auditor"), /rule/i]);
+    only("rule", files, [SPEND, word("auditor"), /rule/i]);
   });
-  it("Blueprint.signedIn on an operation: every caller on chain has signed", () => refuses(allowedSpend("Blueprint.signedIn"), [SPEND, /signedIn|signed.in/i]));
+  it("Blueprint.signedIn on an operation: every caller on chain has signed", () => only("signedIn", allowedSpend("Blueprint.signedIn"), [SPEND, /signedIn|signed.in/i]));
 });
 
 describe("what an operation of a chain-stored thing does not declare is refused, naming each", () => {
-  it("a database step", () => refuses(spendWith("steps: { save: Blueprint.step.database() },"), [SPEND, /database/i]));
-  it("a database step that names what it writes", () => refuses(spendWith("steps: { save: Blueprint.step.database({ writes: [Allowance] }) },"), [SPEND, /database/i]));
-  it("an actor step", () => refuses(spendWith('steps: { save: { kind: "step", type: "actor" } as never },'), [SPEND, /actor/i]));
-  it("idempotent: the nonce makes every call land at most once", () => refuses(spendWith('idempotent: "request",'), [SPEND, /idempotent/i]));
-  it("runs: \"server\"", () => refuses(spendWith('runs: "server",'), [SPEND, /runs/i]));
-  it("runs: \"chain\": an author never writes it", () => refuses(spendWith('runs: "chain",'), [SPEND, /runs/i]));
-  it("signedBy: both the caller and the signer are the role's, so no one writes it", () => refuses(spendWith("// @ts-ignore: not a property any more\n  signedBy: grantee,"), [SPEND, /signedBy/]));
+  it("a database step", () => only("database", spendWith("steps: { save: Blueprint.step.database() },"), [SPEND, /database/i]));
+  it("a database step that names what it writes", () => only("database", spendWith("steps: { save: Blueprint.step.database({ writes: [Allowance] }) },"), [SPEND, /database/i]));
+  it("an actor step", () => only("actor", spendWith('steps: { save: { kind: "step", type: "actor" } as never },'), [SPEND, /actor/i]));
+  it("idempotent: the nonce makes every call land at most once", () => only("idempotent", spendWith('idempotent: "request",'), [SPEND, /idempotent/i]));
+  it("runs: \"server\"", () => only("runs", spendWith('runs: "server",'), [SPEND, /runs/i]));
+  it("runs: \"chain\": an author never writes it", () => only("runs", spendWith('runs: "chain",'), [SPEND, /runs/i]));
+  it("signedBy: both the caller and the signer are the role's, so no one writes it", () => only("signedBy", spendWith("// @ts-ignore: not a property any more\n  signedBy: grantee,"), [SPEND, /signedBy/]));
 });
 
 describe("an answer must be read from the move's event or be the new id", () => {
@@ -79,7 +104,7 @@ describe("a read of a chain-stored thing is public: only [Blueprint.anyone]", ()
 
 describe("a name that would collide in the generated contract is refused", () => {
   for (const field of ["signer", "nonce", "deadline", "signature"]) {
-    it(`a payload field named ${field}`, () => refuses(swap(CHAIN_BASE, `${V}/spend.ts`, "payload: { allowance: Allowance.fields.id,", `payload: { ${field}: Blueprint.money.of(Allowance.fields.token), allowance: Allowance.fields.id,`), [SPEND, word(field), /payload|reserved|generated|collid|clash/i]));
+    it(`a payload field named ${field}`, () => refusesWith(swap(CHAIN_BASE, `${V}/spend.ts`, "payload: { allowance: Allowance.fields.id,", `payload: { ${field}: Blueprint.money.of(Allowance.fields.token), allowance: Allowance.fields.id,`), ["signer", "nonce", "deadline", "signature"].filter((n) => n !== field).map(word), [SPEND, word(field), /payload|reserved|generated|collid|clash/i]));
   }
   const copyOfRevoke = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/revoke.ts`]!);
   const copyOfGet = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/get.ts`]!);
