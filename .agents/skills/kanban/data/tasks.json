@@ -1870,7 +1870,7 @@
   "title": "Journeys for both plugins: the moved part and the principal part",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "Journeys for both plugins, in two parts. The moved part (#267): the journeys moved out of acme (sign up and in, an owner makes a key, invite and accept, an invitation used once, an outsider can't revoke) plus new ones, as stand-ins under e2e/fixtures/m2/ with the e2e/m2 checks, ratcheted; M2.24 moves them into the packages. The principal part: the principal journeys in acme, person, agent and system, via assertions included (a key and a session are the same person, an agent passes the owner rule, an agent cannot consent for a person, the system is nobody signed in), with the declarations they import (session.show answers via), and the service one in the adapter fixture (a service is nobody signed in); it is authored on goal-3/m2-03-check and lands with M2.03 as a pair (decisions/G12-paired-landing.md)"
+  "what": "Journeys for both plugins, in two parts. The moved part (#267): the journeys moved out of acme (sign up and in, an owner makes a key, invite and accept, an invitation used once, an outsider can't revoke) plus new ones, as stand-ins under e2e/fixtures/m2/ with the e2e/m2 checks, ratcheted; M2.24 moves them into the packages. The principal part: the principal journeys in acme, person, agent and system, via assertions included (a key and a session are the same person, an agent passes the owner rule, an agent cannot consent for a person, the system is nobody signed in), with the declarations they import (session.show answers via, and the two narrowings on api-key.create and invitation.accept), and the service one in the adapter fixture (a service is nobody signed in); it is authored on goal-3/m2-03-check and lands with M2.03 as a pair (decisions/G12-paired-landing.md)"
  },
  "M2-03": {
   "doneWhen": "the four principal journeys of M2.02 (a key and a session are the same person, an agent passes the owner rule, an agent cannot consent for a person, the system is nobody signed in) pass in acme, a service is nobody signed in passes in the adapter fixture, and the pair merges into goal/stage-1 green after the author recaptures the baselines",
@@ -1893,7 +1893,7 @@
   "title": "The five principals, and the principal journeys in acme",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "The five principals in roles/types.ts (today anonymous | person, lines 6 to 8) and the runtime; .via and .notVia; Blueprint.system and the service role; the world's credentials and the journeys' .via; issues: per environment, replacing identity: (decisions/M2-auth.md); a pair with M2.02's principal part (decisions/G12-paired-landing.md)"
+  "what": "The five principals in roles/types.ts (today anonymous | person, lines 6 to 8) and the runtime; .via and .notVia; Blueprint.system and the service role; the world's credentials and the journeys' .via; issues: per environment, replacing identity: (decisions/M2-auth.md; ortho.config.ts keeps auth until the app mounts auth); the two narrowings' via in the model; a pair with M2.02's principal part (decisions/G12-paired-landing.md)"
  },
  "M2-04": {
   "doneWhen": "acme's environments name no secret; prove passes; acme's generated/ is unchanged, so checks 12, 14 and 21 stay green with no baseline recaptured",
@@ -1940,7 +1940,7 @@
   "title": "@orthograph/auth, identity",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "@orthograph/auth, identity: person and session, with the key, device and agent credentials; Better Auth behind its worker entry (packages/auth, provides identity); AUTH_SECRET declared. It fills the handlers and the runtime of the skeleton M2.24 made, writes no journey, and is a pair with M2.25 (decisions/G12-paired-landing.md)"
+  "what": "@orthograph/auth, identity: person and session, with the key, device and agent credentials; Better Auth behind its worker entry (packages/auth, provides identity); AUTH_SECRET declared; auth leaves acme's ortho.config.ts, and check refuses issues with no identity mounted (until M2.11 work's config.auth counts as one); host-cloudflare keeps its Better Auth as the fallback for an app that mounts none, until ST1.07, M2.09 and ST1.08 have all landed. It fills the handlers and the runtime of the skeleton M2.24 made, writes no journey, and is a pair with M2.25 (decisions/G12-paired-landing.md)"
  },
  "M2-06": {
   "doneWhen": "acme login and MCP sign-in journeys pass, through the real pages, with checks 12, 14 and 21 green and no baseline recaptured",
@@ -2079,7 +2079,7 @@
   "title": "The work app mounts auth",
   "updatedAt": "2026-11-21T07:53:57Z",
   "waiting": null,
-  "what": "The work app mounts auth"
+  "what": "The work app mounts auth; auth leaves its ortho.config.ts, and Identity and AuthKit go"
  },
  "M2-12": {
   "doneWhen": "nx run e2e:m2 passes on main; examples/plugged-in is tagged plugged-in/stage-1",
