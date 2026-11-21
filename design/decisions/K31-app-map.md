@@ -151,7 +151,7 @@ K29 had not merged, so it was written to these words in its own pull request (#2
 - Goal 5 keeps the actions, `@orthograph/web`, the web projection and Plugged In's screens, and its done check never
   waits on the map. Plugged In's three pages are declared in this language as a follow-on, once Goal 6's map landing
   reaches `goal/stage-1`.
-- Neither goal edits the other's packages. Cutover lands on GitHub, after Goal 3's lead merges a freeze into Goal 3's brief and with that lead's yes
+- Neither goal edits the other's packages. Cutover lands on GitHub, after Goal 3's lead agrees a freeze on a `goal-3` issue, and with that lead's yes
   ([`../goals/06-portal.md`](../goals/06-portal.md), the protocol).
 
 ## Not chosen, and why
@@ -172,4 +172,4 @@ K29 and the live docs it touched (`portal.md`, `packages.md`, `scope.md`, `miles
 `ui-sdk` skill's README) took K31's words in #272, before either merged. One phrase #272 wrote is replaced here, since
 goals now coordinate through the repository and GitHub (K32):
 
-- design/milestones.md: "the conductor has agreed the freeze with Goal 3's lead" → "Goal 3's lead has merged the freeze into Goal 3's brief"
+- design/milestones.md: "the conductor has agreed the freeze with Goal 3's lead" → "Goal 3's lead has agreed the freeze on a `goal-3` issue"

@@ -2,8 +2,8 @@
 
 Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31, on terms agreed with the conductor the same day.
 
-**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 6. Read `design/goals/06-portal.md` and run
-it." Nothing else is needed.
+**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 6. Read `AGENTS.md` and
+`design/goals/06-portal.md`, and run it." Nothing else is needed. Label `goal-6`, milestone `Beta`.
 
 ## Aaron's words, 21 November 2026
 
@@ -94,8 +94,7 @@ want this to be able to run in parallel to the other work that's actually runnin
   | `pnpm-lock.yaml` | what `pnpm install` writes for the above |
   | `design/handoff.md`, `STATE.md`, the board, `design/milestones.md` | this goal's own lines |
 
-  A change that needs any other existing file is a snag for its owner (a line in its snag log, or an issue with its
-  label), never an edit here.
+  A change that needs any other existing file is an issue labelled for its owner, never an edit here.
   The new modules are `packages/orthograph/src/modules/app/` (`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`,
   `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results),
   `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals) and
@@ -125,21 +124,19 @@ key in the calls table, #270). So:
    lands red on the new client, and the merge adds its line. So anything Goal 3 adds to the old portal is owed by the
    new one automatically, and nothing is forgotten.
 4. **Data goes through Goal 3.** The new client reads the data API and the wire types as they are. A field it needs and
-   the API lacks is an additive request to Goal 3, a line in `03-snags.md` or an issue labelled `goal-3`, never an edit
-   here.
+   the API lacks is an additive request to Goal 3, an issue labelled `goal-3`, never an edit here.
 5. **The cut-off, on GitHub.** When the parity list is empty and the done check passes:
-   - **The freeze.** The lead opens a pull request into `goal/stage-1` that adds one line to Goal 3's brief
-     (`design/goals/03-stage-1-hill-climbed.md`, under its "Where it stands", or at its end if it has none): "The old
-     portal client is frozen for Goal 6's cutover: add nothing to it; portal work goes to `packages/portal-next`."
-     It is labelled `goal-3`. Goal 3's lead merging it is the freeze.
-   - **The cutover.** Only then, the cutover pull request into `goal/stage-1`, labelled `goal-3` and asking Goal 3's
-     lead in its description. It merges once Goal 3's lead has written its yes on it and a 🔍 reviewer has passed it.
-     (Every agent here works under one GitHub account, so the yes is a comment, not a formal review.)
+   - **The freeze.** The lead opens an issue labelled `goal-3`: "Freeze the old portal client for Goal 6's cutover:
+     add nothing to it; portal work goes to `packages/portal-next`", linking the green done check. Goal 3's lead
+     agreeing on that issue is the freeze, and Goal 3 records it in its own brief.
+   - **The cutover.** Only then, the cutover pull request into `goal/stage-1`, labelled `goal-6`, linking the freeze
+     issue, with a review request to Goal 3's lead. It merges once Goal 3's lead has said yes on it and a 🔍 reviewer
+     has passed it. (Where every agent works under one GitHub account and GitHub refuses the request, the yes is a
+     comment on the pull request.)
    - From then on all portal work goes to the new client.
 6. **One owner for each shared piece.** The theme is this goal's, built first and landed early, so Goal 5's screens
    take it up; until it lands, Goal 5's pieces use UI SDK's default tokens. The actions and `@orthograph/web` are Goal
-   5's. Neither goal edits the other's packages; a need on the other side is a line in its snag log or an issue
-   with its label.
+   5's. Neither goal edits the other's packages; a need on the other side is an issue labelled for that goal.
 
 ## The five roles
 
@@ -152,32 +149,44 @@ key in the calls table, #270). So:
 | **🔍 Reviewer** | a verdict on each pull request | anything it reviews |
 
 When the portal builder is stuck on something it can't fix inside `packages/portal-next`, it writes a snag in
-`design/goals/06-snags.md` (created in slice 1, the shape of Goal 3's snag log) and moves on. It never works around the map
+`design/goals/06-snags.md` (created in slice 1, the shape of Goal 3's snag log; this goal's own snags only) and moves on. It never works around the map
 or the shell from inside the client.
 
 ## How this goal coordinates (K32)
 
-This goal coordinates itself. It talks to Goal 3, Goal 5 and any other goal only through the repository and GitHub,
-never through a chat or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
+This goal coordinates itself, in whatever harness runs it, through the repository and GitHub only, never through a chat
+or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
 
-- **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges a
-  slice: the slice, its check, the parity list's length, what is next, open snags, in two or three lines written for
-  Aaron's ear. That is the report; nobody is messaged.
-- **Asking another goal for something.** Add a line to that goal's snag log (`design/goals/03-snags.md` for Goal 3,
-  `05-snags.md` for Goal 5) by a pull request into its branch, or open a GitHub issue with its label (`goal-3`,
-  `goal-5`). Never edit its files to get around it.
-- **Asks to this goal** arrive the same way: at the start of every slice, read `06-snags.md` and the open issues
-  labelled `goal-6` after merging `goal/stage-1` in, and answer each one in the slice that handles it.
-- **Decisions** this goal makes are named `GOAL6-<slug>` (`GOAL6-theme.md`), so they never collide with another goal's;
-  each is listed under "Decision IDs" below and in `design/handoff.md`'s list.
-- **Changing an agreement** below is one pull request that edits this brief and the other goal's together, and merges
-  only with that goal's lead's yes written on it.
+- **Label and milestone.** Every pull request and issue of this goal carries the label `goal-6` and the milestone
+  `Beta` (K28's releases).
+- **The paths it owns:**
+  - `packages/theme/`, `packages/shell/` and `packages/portal-next/`;
+  - `packages/orthograph/src/modules/app/`, `packages/compiler/src/modules/app/` and
+    `packages/projections/src/modules/app/`, with the registering lines the bound's table names;
+  - `e2e/portal-next/` and this goal's checks, and the `e2e:portal-next` target;
+  - `design/goals/06-portal.md` and `06-snags.md`;
+  - at cutover only, through its own pull request: `packages/portal` and `packages/portal-ui`.
+  Nothing else is this goal's. Touching another goal's path is a cross-goal ask, never a quiet edit.
+- **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges
+  into `goal/portal`: what landed, what is open, what it waits on, in two or three lines written for Aaron's ear. That is the
+  report; nobody is messaged. This goal's own snags go in `design/goals/06-snags.md`, and only its own.
+- **Asking another goal for something** is a GitHub issue labelled for the goal that must act (`goal-3` for Goal 3, `goal-5` for Goal 5), naming
+  this goal and what done looks like. Never push to another goal's branch or edit its files by pull request; the
+  owner acts on the issue.
+- **Asks to this goal** are open issues labelled `goal-6`. Read them at the start of every slice, after merging
+  `goal/stage-1` in, and close each with the pull request that answers it.
+- **Decisions** this goal makes are named by area and a slug (`MAP-<slug>` for the map, the shell and the theme, `PORTAL-<slug>` for the client, as in `MAP-route-params`), never numbered. Before using a name, check
+  that no file starts with it on `main` or any open branch (`git ls-tree -r --name-only origin/<branch>
+  design/decisions/`), and list it under "Decision IDs" below.
+- **Changing an agreement** below is an issue labelled for the other goal; each lead then edits only its own brief.
+- **Branch protection** on `goal/portal` is set by the conductor before this goal starts (K32). If
+  `gh api repos/AaronAbuUsama/architect/branches/goal/portal/protection` finds none, write that in "Where it stands" and stop
+  before the first pull request.
 
 ## The agreements (21 November 2026)
 
 Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when this goal was split from
-Goal 5. They hold whoever leads either goal; changing one is a pull request that edits this brief and Goal 5's
-together.
+Goal 5. They hold whoever leads either goal; changing one starts with an issue labelled for the other goal.
 
 1. **The theme is this goal's,** built as slice 1 and landed in `goal/stage-1` on its own. Until it lands, Goal 5's
    pieces use UI SDK's default tokens; Goal 5's screens slice takes it up.
@@ -185,13 +194,13 @@ together.
    named files, and byte-identical output for a blueprint with no app and no pages, proved by slice 2's check.
 3. **Neither goal edits the other's packages.** Goal 5 owns the actions module, `packages/web`, the actions and web
    projections and Plugged In's `src/web/`; this goal owns `packages/theme`, `packages/shell`, `packages/portal-next`,
-   the app projection and the `app` modules. A need on the other side is a line in its snag log or an issue with
-   its label, never an edit.
+   the app projection and the `app` modules. A need on the other side is an issue labelled for that goal, never an
+   edit.
 4. **Goal 5 never waits on the map.** Plugged In's pages are declared in the map language as a follow-on, after the
    map landing.
 5. **The parity list only shrinks,** except for a portal check that arrives by a merge from `goal/stage-1`, which lands
    red with its line (the protocol, point 3).
-6. **Cutover, on GitHub:** when the list is empty, Goal 3's lead merges the freeze into Goal 3's brief; then the
+6. **Cutover, on GitHub:** when the list is empty, Goal 3's lead agrees the freeze on a `goal-3` issue; then the
    cutover pull request into `goal/stage-1` merges with Goal 3's lead's yes and a 🔍 pass (the protocol, point 5).
 7. **Goal 5's waits are not this goal's:** its screens wait on ST1.03 and its sign-in on M2.05 and M2.06, both Goal
    3's. Nothing here waits on Goal 5.
@@ -218,7 +227,7 @@ green and a 🔍 reviewer passed it.
 **The map landing, after slice 5:** the same, for the map language, the app projection and the shell, so Plugged In's
 pages can declare themselves (Goal 5's follow-on). The byte-identical check must pass on it. It registers the new
 modules in `orthograph`'s index and the compiler's model service, which are Goal 3's busiest files, so tell Goal 3's
-lead before it opens (a line in `03-snags.md`, or an issue labelled `goal-3`), and merge `goal/stage-1` in last
+lead before it opens (an issue labelled `goal-3`), and merge `goal/stage-1` in last
 thing.
 
 ### Part 2: the new client
@@ -240,8 +249,9 @@ thing.
 
 ## Decision IDs
 
-A decision this goal makes is named `GOAL6-<slug>` (K32), never a number, so no allocator is needed: the lead lists
-each one here and in `design/handoff.md`'s list, in the pull request that adds it.
+A decision this goal makes is named `MAP-<slug>` or `PORTAL-<slug>` (K32), never a number, so no allocator is
+needed: check the name is free, then list it here in the pull request that adds it. K31 was lettered before this goal
+started, since it crosses goals.
 
 | ID | File | Taken by |
 |---|---|---|
