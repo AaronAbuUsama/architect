@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import type { ProjectEvidence } from "../project-evidence/types.ts";
 import { editSpans, judge } from "../project-evidence/testing.ts";
 import { InvariantEvals } from "./service.ts";
+import { sentenceProblems, spaced, type Found } from "./internal/over.ts";
+import { OperationEvals } from "../operation-evals/service.ts";
 import { standIn, withModel, withOperation, withPage, withRule, withText } from "./testing.ts";
 
 const pluggedIn = await standIn();
@@ -124,5 +126,43 @@ describe("hostile pass: telemetry", () => {
   it("is still green for the right run, and the second rule", () => {
     expect(check("telemetry", T, pluggedIn).ok).toBe(true);
     expect(check("telemetry", O, pluggedIn).ok).toBe(true);
+  });
+});
+
+describe("review findings: a description with a full stop inside, and names that a sentence spells apart", () => {
+  const D = "you hold one name. Ask support to change it";
+  const described = () => {
+    let e = withRule(pluggedIn, "handle", "oneNamePerPerson", (r) => ({ ...r, description: D }));
+    e = withText(e, "generated/docs/handle/index.md", "you already hold a name.", `${D}.`);
+    e = withText(e, "generated/docs/handle/claim.md", "you already hold a name; by the rule", `${D}; by the rule`);
+    const mcp = e.mcp!.map((t) => (t.name === "handle.claim" ? { ...t, description: t.description!.replace("Refuses HandleAlreadyOwned when you already hold a name.", `Refuses HandleAlreadyOwned when ${D}.`) } : t));
+    return withPage({ ...e, mcp }, "/portal/things/handle", "you already hold a name", D);
+  };
+  const tool = (e: ProjectEvidence) => judge(OperationEvals.evals, "operation.mcp", "handle.claim", e);
+  it("is green for a written description with a full stop and a space inside, on docs, mcp and operation.mcp", () => {
+    const e = described();
+    expect(check("docs", O, e)).toEqual({ ok: true, why: [] });
+    expect(check("mcp", O, e)).toEqual({ ok: true, why: [] });
+    expect(tool(e)).toEqual({ ok: true, why: [] });
+  });
+  it("is red when the bullet or the tool cuts the description short, or a stray sentence follows it", () => {
+    red("docs", O, withText(described(), "generated/docs/handle/index.md", `${D}.`, "you hold one name."), "the rule's description is");
+    const extra = { ...described(), mcp: described().mcp!.map((t) => (t.name === "handle.claim" ? { ...t, description: `${t.description} It is fast.` } : t)) };
+    const found = tool(extra);
+    expect(found.ok).toBe(false);
+    expect(found.ok ? "" : found.why.join()).toContain('"It is fast." is not a "Refuses <Error> when <reason>." sentence');
+    const short = { ...described(), mcp: described().mcp!.map((t) => (t.name === "handle.claim" ? { ...t, description: t.description!.replace(`${D}.`, "you hold one name.") } : t)) };
+    expect(tool(short).ok).toBe(false);
+  });
+  it("reads kebab and camel case names as the spaced words a sentence uses, on both sides", () => {
+    expect(spaced("sign-in")).toBe("sign in");
+    expect(spaced("personId")).toBe("person id");
+    expect(spaced("signed_in")).toBe("signed in");
+    const found = { full: "sign-in.onePerPerson", local: "onePerPerson", thing: { name: "sign-in" }, rule: { kind: "unique", fields: ["personId"], while: ["signed-in"] }, breakers: [] } as unknown as Found;
+    expect(sentenceProblems(pluggedIn, found, "another signed in sign in holds this person id", "x")).toEqual([]);
+    expect(sentenceProblems(pluggedIn, found, "Another Signed In Sign In holds this Person Id.", "x")).toEqual([]);
+    expect(sentenceProblems(pluggedIn, found, "another sign in holds this person id", "x")[0]).toContain("does not name signed-in");
+    expect(sentenceProblems(pluggedIn, found, "another signed in sign in holds this person", "x")[0]).toContain("does not name personId");
+    expect(sentenceProblems(pluggedIn, found, "another signed in signin holds this person id", "x")[0]).toContain("does not name sign-in");
   });
 });

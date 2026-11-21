@@ -31,7 +31,8 @@ export const docs = over("invariant.docs", (f, e) => {
   const bullet = bullets[0];
   const colon = bullet === undefined ? -1 : bullet.indexOf(":");
   const rest = bullet === undefined ? "" : bullet.slice(colon + 1);
-  const sentenceEnd = rest.search(/\.(?:\s|$)/);
+  // The sentence runs to the bullet's own next part, `. Unique on <key>…`, however many full stops it holds itself (a written description may); with no such part it runs to the end of the line.
+  const sentenceEnd = (() => { const parts = [...rest.matchAll(/\.\s+Unique on\b/g)]; return parts.length === 0 ? -1 : parts[parts.length - 1]!.index; })();
   const own = rest.slice(0, sentenceEnd < 0 ? undefined : sentenceEnd).trim();
   const after = sentenceEnd < 0 ? "" : rest.slice(sentenceEnd);
   const states = f.rule.while ?? [];
