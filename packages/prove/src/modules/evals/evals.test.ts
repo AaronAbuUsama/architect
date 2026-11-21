@@ -6,7 +6,7 @@ import type { Model, OperationModel } from "@orthograph/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
 import { coverage, coverageSummary, performance } from "./internal/run.ts";
-import { answerShape, declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
+import { answerShape, declaredErrors, explainability, steps, whoMayCall } from "./internal/calls.ts";
 import { Evals } from "./service.ts";
 
 const op = {
@@ -98,6 +98,33 @@ describe("evals on evidence", () => {
     expect(coverage(op, all, run).failures).toEqual([]);
     expect(coverage(rename, [], run).failures).toEqual(["organization.rename reached by no journey"]);
     expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
+  });
+
+  it("coverage: a rule's refusal is counted once for the rule, whichever operations break it, and an unreached rule is named by its full name", () => {
+    const breaker = (name: string) => ({ ...op, name, errors: [], refusals: ["Taken", "NotAllowed"], invariants: { Taken: "handle.oneName" } }) as unknown as OperationModel;
+    const claim = breaker("handle.claim");
+    const rename = breaker("handle.rename");
+    const model = { refusals: {}, operations: { "handle.claim": claim, "handle.rename": rename } } as unknown as Model;
+    const reached = [evidence(1, { call: call({ operation: "handle.claim" }), refusal: "Taken", opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "handle.claim", attrs: { "refusal.invariant": "handle.oneName" }, status: 1, ms: 1, start: 0 } })];
+    const both = { project: { model } as never, all: [...reached, evidence(1, { call: call({ operation: "handle.rename" }) })] };
+    expect(coverageSummary(model, reached).notes[0], "one rule, two breakers: one in the denominator, and not in the runtime's").toBe("moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2");
+    expect(coverage(claim, [], both).failures).toEqual([]);
+    expect(coverage(rename, [], both).failures, "a breaker is covered by the rule's refusal from any journey").toEqual([]);
+    const none = { project: { model } as never, all: [evidence(1, { call: call({ operation: "handle.claim" }) }), evidence(1, { call: call({ operation: "handle.rename" }) })] };
+    expect(coverage(claim, [], none).failures).toEqual(["rule handle.oneName refused by no journey"]);
+    expect(coverageSummary(model, none.all).notes[0]).toContain("refusals 0/1");
+  });
+
+  it("explainability: a rule's refusal needs a deciding log inside the operation's span and the rule's full name on the span, never in the log's text", () => {
+    const claim = { ...op, name: "handle.claim", errors: [], refusals: ["Taken"], invariants: { Taken: "handle.oneName" } } as unknown as OperationModel;
+    const refused = (logs: Evidence["trace"]["logs"], rule: string | null = "handle.oneName") => evidence(1, { refusal: "Taken", trace: { spans: [], logs }, opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "handle.claim", attrs: rule === null ? {} : { "refusal.invariant": rule }, status: 1, ms: 1, start: 0 } });
+    const log = (spanId: string, body: string) => ({ traceId: "t", spanId, body, attrs: {} });
+    const judge = (e: Evidence) => explainability(claim, [e], run()).failures;
+    expect(judge(refused([log("s", "[redacted].oneName: another instance already holds this key")])), "a redacted log body passes").toEqual([]);
+    expect(judge(refused([])), "no log").toEqual(["grant-an-allowance \"s\": Taken has no deciding log"]);
+    expect(judge(refused([log("other", "x")])), "a log outside the span").toHaveLength(1);
+    expect(judge(refused([log("s", "x")], "handle.otherRule"))[0], "the span names a different rule").toContain("names handle.otherRule on its span, not handle.oneName");
+    expect(judge(refused([log("s", "x")], null))[0]).toContain("names no rule");
   });
 
   it("coverage: a runtime refusal no journey can cause (IdempotencyConflict) is not in the denominator, NotAllowed is, and the line says so", () => {
