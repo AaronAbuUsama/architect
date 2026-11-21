@@ -314,5 +314,5 @@ takes each, check first, and the climber comes back to that step once it is fixe
   unknown and breaks the rules of a machine-less thing; `writes: []` is reads only. `profile.get` declares it and has no
   rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: built
+- Status: built (#255)
 
