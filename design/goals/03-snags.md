@@ -38,7 +38,7 @@ device half of S-17), cells held off until M2.08 (S-20, S-16), and small hygiene
 an owner and a trigger in its line, and the ones without a milestone slice have a line in `design/later.md`.
 
 Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target now (#261) and a required check on
-`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks (#266) are open, with their e2e jobs pending.
+`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks merged (#266); the build is M7.03 and M7.04 (#282).
 
 ## S-01 · prove · every run's numbers come from its text
 - Hit: the checks author, writing the climb recorder (#110): `ortho prove` prints only text, so `tools/climb/record.mjs`

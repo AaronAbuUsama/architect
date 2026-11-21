@@ -220,11 +220,12 @@ K28 decides the preview merge and the three releases: [`K28-releases.md`](../dec
 
 ## Where it stands
 
-Rewritten at every slice merge. Last rewritten on 21 November 2026, at `goal/stage-1` `7c8e43bf`. A fresh lead given "lead Goal 3, read this file" starts here, then reads `design/handoff.md` (the ids and the lines of work) and `design/goals/03-snags.md`. Sessions don't carry over; everything below is in the repository or on GitHub.
+Rewritten at every slice merge. Last rewritten on 21 November 2026, at `goal/stage-1` `5419f9af`. A fresh lead given "lead Goal 3, read this file" starts here, then reads `design/handoff.md` (the ids and the lines of work) and `design/goals/03-snags.md`. Sessions don't carry over; everything below is in the repository or on GitHub.
 
 **Where the goal is.** M1's slices are on `goal/stage-1` except the five open ones below. Gate M1 (M1.15) is not run yet. Plugged In's seven journeys are green in local and test (`e2e-stage1`, a required check). The climb is green: 331 of 331 cell-and-subject pairs. M2 has started with its decision (M2.01). Staging is planned and checked, but has never deployed.
 
 **Merged on 20 and 21 November** (newest first):
+- [#278](https://github.com/AaronAbuUsama/architect/pull/278): S-33 and S-34 checks (the compiler refuses a refusal field of the wrong kind, and rule names that clash ignoring case).
 - [#266](https://github.com/AaronAbuUsama/architect/pull/266): staging checks (check 37, `staging.yml`, the leftover judge).
 - [#269](https://github.com/AaronAbuUsama/architect/pull/269): S-31, every operation carries `breaks`.
 - [#268](https://github.com/AaronAbuUsama/architect/pull/268): S-17 and HAN-15.
@@ -246,15 +247,14 @@ Rewritten at every slice merge. Last rewritten on 21 November 2026, at `goal/sta
 | [#264](https://github.com/AaronAbuUsama/architect/pull/264) | S-27: a check that throws fails its step, not the run | Passed. Merges itself once CI is green. A warm-world timing miss (71% against a 70% bar) was one noisy measurement; re-run it if it repeats |
 | [#271](https://github.com/AaronAbuUsama/architect/pull/271) | M1.39, the canon's chains-and-wallets page | Supersede trail fixed (K7 over K5). The 🔍 gives its verdict when CI is green |
 | [#277](https://github.com/AaronAbuUsama/architect/pull/277) | main merged in (K28 releases), state docs refreshed, the m8 import fixed, this section | Under 🔍, waiting on CI |
-| [#278](https://github.com/AaronAbuUsama/architect/pull/278) | S-33 and S-34 checks: refusal fields of the wrong kind, and rule names that clash ignoring case | Under 🔍. Then a builder |
 | [#280](https://github.com/AaronAbuUsama/architect/pull/280) | M1.50 checks (check 40, one Graph for machines, the map and the worlds) | Blocked by 🔍 on four holes. An author is fixing them, then a fresh 🔍, then a builder |
 | [#281](https://github.com/AaronAbuUsama/architect/pull/281) | M1.12a, the request key on every attempt's span and in the portal, build plus check 38 in one PR (G12) | The retry hole is fixed. Delta 🔍 running. Close [#270](https://github.com/AaronAbuUsama/architect/pull/270) when it merges |
-| [#282](https://github.com/AaronAbuUsama/architect/pull/282) | M7.03 and M7.04: `ortho env up/destroy staging`, planned from the model, deploy and destroy by prefix | Check 37 green locally. Under 🔍, which is looking hardest at destroy's safety in the shared account |
-| (no PR yet) | Check 39 (M1.49, the derived monitor) and check 41 (`ortho prove --env staging`, owned by M7.04) | Authors writing them |
+| [#282](https://github.com/AaronAbuUsama/architect/pull/282) | M7.03 and M7.04: `ortho env up/destroy staging`, planned from the model, deploy and destroy by prefix | Check 37 green locally; destroy and credentials passed 🔍. Blocked on two fixes, now with its builder: a stale "Alchemy" phrase on the board (`supersedes.sh`) and a relative `--root` that breaks the real deploy |
+| (no PR yet) | S-33 and S-34's build (against #278's checks); check 39 (M1.49, the derived monitor); check 41 (`ortho prove --env staging`, owned by M7.04) | A builder; two authors |
 
 **Next, in order.**
 1. Land the open pull requests above.
-2. Run the builders for #278 (S-33/S-34), #280 (M1.50), check 39 (M1.49) and check 41.
+2. Run the builders for #280 (M1.50), check 39 (M1.49) and check 41.
 3. The preview merge. Once Gate M1's slices are green here, open one pull request from `goal/stage-1` to `main`, with CI green, Gate M1 passing and a 🔍 of the whole branch (K28). Then M1.51 and Aaron's npm publish under `next`.
 4. M2.03 to M2.08, in the pairs `design/decisions/M2-auth.md` maps, with M2.24 and M2.25 as their checks.
 5. M2.09 (`npm create orthograph`), M2.11, M2.05b, and Gate M2 (M2.12).
@@ -262,7 +262,7 @@ Rewritten at every slice merge. Last rewritten on 21 November 2026, at `goal/sta
 
 **Open snags that matter.** In `03-snags.md`:
 - S-27 is in #264.
-- S-33 and S-34 come from Goal 4 and are in #278.
+- S-33 and S-34 come from Goal 4; their checks merged (#278) and their build is running.
 - JOU-13 (no journey can force a race) has no slice. Check 38 now forces one in e2e, which is a pattern a journey API could borrow.
 
 **Agreements with other lanes**
