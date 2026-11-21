@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readGoal, splitFrontMatter } from "./frontmatter.mjs";
-import { LABELS, goalBody, goalMarker, goalView, plan, sliceMarker } from "./plan.mjs";
+import { ISSUE_TYPES, LABELS, goalBody, goalMarker, goalView, plan, sliceMarker } from "./plan.mjs";
 
 const brief = `---
 goal: 6
@@ -65,7 +65,7 @@ test("from nothing: every label, the milestone, the goal issue, and each slice u
   assert.equal(steps.filter((s) => s.do === "createLabel").length, LABELS.length);
   assert.ok(steps.some((s) => s.do === "createMilestone" && s.title === "Goal 6: the new portal"));
   const g = steps.find((s) => s.do === "createIssue" && s.key === "goal 6");
-  assert.equal(g.type, "Feature");
+  assert.equal(g.type, "Feature", "a person's repository: the nearest native type");
   assert.deepEqual(g.labels, ["kind:goal", "goal-6", "release:beta"]);
   assert.ok(g.body.includes(goalMarker(6)) && g.body.includes("amp"));
   assert.deepEqual(
@@ -80,9 +80,9 @@ test("run twice: once GitHub holds it all, there is nothing to do", () => {
     labels: LABELS,
     milestones: [{ number: 9, title: goal.milestone, description: `Goal 6. Brief: ${goal.brief}. Done check: ${goal.done_check}.` }],
     issues: [
-      { number: 10, title: "Goal 6: The new portal", body: "", labels: ["kind:goal"], milestone: goal.milestone, subIssues: [11, 12] },
-      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: ["kind:slice"], milestone: goal.milestone },
-      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: ["kind:slice"], milestone: goal.milestone, blockedBy: [11] },
+      { number: 10, title: "Goal 6: The new portal", body: "", labels: ["kind:goal"], type: "Feature", milestone: goal.milestone, subIssues: [11, 12] },
+      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: ["kind:slice"], type: "Task", milestone: goal.milestone },
+      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: ["kind:slice"], type: "Task", milestone: goal.milestone, blockedBy: [11] },
     ],
   };
   state.issues[0].body = goalBody(goal, url(), goalView(goal, state));
@@ -162,5 +162,18 @@ test("an outsider's issue with the right label and marker is never taken, and a 
   const steps = plan({ goals: [goal], state, briefUrl: url });
   assert.ok(!steps.some((s) => s.do === "createIssue" && s.key === "goal 6"));
   assert.ok(steps.some((s) => s.do === "updateIssue" && s.number === 30));
-  assert.ok(!steps.some((s) => s.number === 500 || s.number === 31));
+  assert.ok(!steps.some((s) => s.number === 500 || (s.number === 31 && s.do !== "setType")));
+});
+
+test("in an organization each kind is its own type: made once, set on new and existing issues", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = { ownerType: "Organization", types: ["Task", "Bug", "Feature"], labels: LABELS, milestones: [], issues: [
+    { number: 40, title: "a snag", body: "", labels: ["kind:snag"], type: "Bug", state: "open" },
+  ] };
+  const steps = plan({ goals: [goal], state, briefUrl: url });
+  assert.deepEqual(steps.filter((s) => s.do === "createIssueType").map((s) => s.name), ISSUE_TYPES.map((x) => x.name));
+  assert.equal(steps.find((s) => s.do === "createIssue" && s.key === "goal 6").type, "Goal");
+  assert.deepEqual(steps.find((s) => s.do === "setType"), { do: "setType", number: 40, type: "Snag" });
+  const after = { ...state, types: [...state.types, ...ISSUE_TYPES.map((x) => x.name)], issues: [{ ...state.issues[0], type: "Snag" }] };
+  assert.ok(!plan({ goals: [goal], state: after, briefUrl: url }).some((s) => s.do === "createIssueType" || s.do === "setType"));
 });

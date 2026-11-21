@@ -24,6 +24,20 @@ export const LABELS = [
   ["needs-aaron", "e99695", "Only Aaron can unblock it: money, a credential, production, or the goal itself"],
 ].map(([name, color, description]) => ({ name, color, description }));
 
+// A kind is its own issue type in an organization (Aaron, 2A); a person's repository has only the native three, so
+// there the nearest native type stands in and the kind label says the rest.
+export const ISSUE_TYPES = [
+  ["Goal", "PURPLE", "A goal: one lead, one branch, one done check, one milestone"],
+  ["Slice", "BLUE", "One step of a goal, a sub-issue of its goal issue"],
+  ["Snag", "RED", "Something a goal hit and could not fix in its own paths"],
+  ["Ask", "YELLOW", "One goal asking another to act"],
+  ["Decision", "GREEN", "A call waiting to be made"],
+  ["Gap", "GRAY", "A ledger row picked up as work"],
+].map(([name, color, description]) => ({ name, color, description }));
+const NATIVE = { goal: "Feature", slice: "Task", snag: "Bug", ask: "Task", decision: "Task", gap: "Task" };
+const own = (state) => state.ownerType === "Organization";
+export const typeOf = (kind, state) => (own(state) ? ISSUE_TYPES.find((x) => x.name.toLowerCase() === kind).name : NATIVE[kind]);
+
 const RELEASE = { preview: "release:preview", beta: "release:beta", "1.0": "release:1.0" };
 const RELEASE_OF_MILESTONE = { Preview: "release:preview", Beta: "release:beta", "1.0": "release:1.0" };
 
@@ -132,6 +146,14 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
     else if (have.color !== want.color || have.description !== want.description) steps.push({ do: "updateLabel", ...want });
   }
 
+  if (own(state)) for (const want of ISSUE_TYPES) if (!(state.types ?? []).includes(want.name)) steps.push({ do: "createIssueType", ...want });
+  // Every trusted issue of a kind carries that kind's type, so a filter by type finds them all.
+  for (const i of state.issues) {
+    const kind = i.labels.find((l) => l.startsWith("kind:"))?.slice(5);
+    if (i.pullRequest || i.trusted === false || !kind || !NATIVE[kind] || (i.state && i.state !== "open")) continue;
+    if (i.type !== typeOf(kind, state)) steps.push({ do: "setType", number: i.number, type: typeOf(kind, state) });
+  }
+
   const milestoneByTitle = new Map(state.milestones.map((m) => [m.title, m]));
   // Only a trusted issue carrying the kind's label is the sync's own: a pull request, an outsider's issue or any other
   // that quotes a marker (a template, a review) is never taken for it. The oldest wins, so a later copy can't displace it.
@@ -149,7 +171,7 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
     const goalIssue = byMarker(goalMarker(g.number), "kind:goal");
     const body = goalBody(g, url, goalView(g, state));
     const title = `Goal ${g.number}: ${g.title}`;
-    if (!goalIssue) steps.push({ do: "createIssue", key: `goal ${g.number}`, title, body, type: "Feature", labels: labelsFor(g, "kind:goal"), milestone: g.milestone });
+    if (!goalIssue) steps.push({ do: "createIssue", key: `goal ${g.number}`, title, body, type: typeOf("goal", state), labels: labelsFor(g, "kind:goal"), milestone: g.milestone });
     else if (goalIssue.body !== body || goalIssue.title !== title) steps.push({ do: "updateIssue", number: goalIssue.number, title, body });
 
     for (const s of g.slices) {
@@ -158,7 +180,7 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
       const sliceIssue = byMarker(marker, "kind:slice");
       const sTitle = `Goal ${g.number} · ${s.number} · ${s.title}`;
       if (!sliceIssue) {
-        steps.push({ do: "createIssue", key: `slice ${g.number}.${s.number}`, title: sTitle, body: sliceBody(g, s, url), type: "Task", labels: labelsFor(g, "kind:slice"), milestone: g.milestone });
+        steps.push({ do: "createIssue", key: `slice ${g.number}.${s.number}`, title: sTitle, body: sliceBody(g, s, url), type: typeOf("slice", state), labels: labelsFor(g, "kind:slice"), milestone: g.milestone });
         steps.push({ do: "addSubIssue", parent: goalIssue ? goalIssue.number : `goal ${g.number}`, child: `slice ${g.number}.${s.number}` });
       } else {
         if (sliceIssue.title !== sTitle) steps.push({ do: "updateIssue", number: sliceIssue.number, title: sTitle });

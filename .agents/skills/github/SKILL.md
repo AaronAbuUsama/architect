@@ -13,12 +13,12 @@ works under one GitHub account, so who did what is said by labels and the templa
 
 | Thing | On GitHub | Made by |
 |---|---|---|
-| A goal | a **milestone** `Goal <n>: <title>` and the label `goal-<n>` on everything of it, and a **goal issue** (type Feature, `kind:goal`) | `tools/github/sync.mjs`, from the brief's front matter |
-| A slice | a **sub-issue** of the goal issue (type Task, `kind:slice`), **blocked by** the slices it comes after | the sync, from the brief's `slices:` |
-| A snag (your goal's own) | an issue, type Bug, `kind:snag`, your milestone | you, with the Snag form |
-| An ask to another goal | an issue, type Task, `kind:ask`, **the acting goal's** milestone | you, with the Ask form |
-| A decision to make | an issue, type Task, `kind:decision` | you, with the Decision form |
-| A ledger row being worked | an issue, type Task, `kind:gap`, titled with its ledger id | you, with the Gap form |
+| A goal | a **milestone** `Goal <n>: <title>` and the label `goal-<n>` on everything of it, and a **goal issue** (type Goal, `kind:goal`) | `tools/github/sync.mjs`, from the brief's front matter |
+| A slice | a **sub-issue** of the goal issue (type Slice, `kind:slice`), **blocked by** the slices it comes after | the sync, from the brief's `slices:` |
+| A snag (your goal's own) | an issue, type Snag, `kind:snag`, your milestone | you, with the Snag form |
+| An ask to another goal | an issue, type Ask, `kind:ask`, **the acting goal's** milestone | you, with the Ask form |
+| A decision to make | an issue, type Decision, `kind:decision` | you, with the Decision form |
+| A ledger row being worked | an issue, type Gap, `kind:gap`, titled with its ledger id | you, with the Gap form |
 | A release (K28) | a label: `release:preview`, `release:beta`, `release:1.0` | the sync |
 | Who did it | labels `role:<role>` and `harness:<harness>`, and the template's lines | you, on every pull request |
 | What waits on what | a **blocked-by** link from the slice to the snag or ask that stops it | you (below) |
@@ -26,7 +26,9 @@ works under one GitHub account, so who did what is said by labels and the templa
 | Where a goal is | the **goal issue's body**: card, progress, snags, waits, lead, "Where it stands" | the sync, rerun by the `goals` workflow |
 | Every goal at once | the **"Orthograph" Project**: a view per goal, "All goals", and a board "By status" | the sync, `--project` |
 
-GitHub allows one milestone per issue, so the milestone says which goal and the release is a label. The `goal-<n>` label
+Each kind is its own issue type once the repository is in an organization (K33, 2A); until then the nearest native type
+stands in (Feature for a goal, Bug for a snag, Task for the rest). Filter by the `kind:` label either way: it is on
+every issue of a kind, before and after the move. GitHub allows one milestone per issue, so the milestone says which goal and the release is a label. The `goal-<n>` label
 mirrors the milestone, so a list of pull requests filters by goal too. A model is never a label (models change weekly):
 it goes in the pull request's "Harness and model" line and the brief's `lead:`.
 
@@ -101,8 +103,9 @@ and goal issue, from its file name and heading; the page then says it has no car
 ## The Project
 
 One user-level Project, "Orthograph", holds every goal, slice, snag, ask, decision and gap issue, with the fields Goal,
-Kind, Status, Release, Harness, Model and Lead role. Open your goal's view (named `Goal <n>`) to see your work, or
-"By status" to see every goal's. You don't edit Goal, Kind, Status, Release or Harness there: the sync writes them from
+Kind, Status, Release, Harness, Model, Lead role, Start and End. It is where progress is seen (K33, 4B): open your
+goal's view (named `Goal <n>`) to see your work, "By status" for every goal's board, or "Roadmap" for when each piece
+opened and closed. You don't edit Goal, Kind, Status, Release or Harness there: the sync writes them from
 the briefs and the issues, so change the brief or the issue (put your `harness:` label on a slice you take, link what
 blocks it, close it when it lands). Model and Lead role you may set by hand on an item; the sync never clears them.
 

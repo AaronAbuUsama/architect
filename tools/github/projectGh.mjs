@@ -22,44 +22,58 @@ const FIELDS = `fields(first: 50) { nodes {
   ... on ProjectV2SingleSelectField { options { id name color description } } } }`;
 const VALUES = `fieldValues(first: 20) { nodes {
   ... on ProjectV2ItemFieldSingleSelectValue { name field { ... on ProjectV2FieldCommon { name } } }
-  ... on ProjectV2ItemFieldTextValue { text field { ... on ProjectV2FieldCommon { name } } } } }`;
+  ... on ProjectV2ItemFieldTextValue { text field { ... on ProjectV2FieldCommon { name } } }
+  ... on ProjectV2ItemFieldDateValue { date field { ... on ProjectV2FieldCommon { name } } } } }`;
 
-/** The owner's id and the Project as `projectPlan` wants it, or null when the owner has no Project of that title. */
-export const readProject = (owner, repo) => {
-  const { user } = graphql(`query($login: String!) { user(login: $login) { id projectsV2(first: 50) { nodes { id title url } } } }`, { login: owner });
-  const found = user.projectsV2.nodes.find((p) => p.title === PROJECT_TITLE);
-  if (!found) return { ownerId: user.id, project: null };
-  const { node } = graphql(`query($id: ID!) { node(id: $id) { ... on ProjectV2 { ${FIELDS} views(first: 50) { nodes { id name layout filter } } } } }`, { id: found.id });
+/** The Project as `projectPlan` wants it, read by its id (a fresh id needs no listing to catch up). */
+const readById = (id, url, repo) => {
+  const { node } = graphql(`query($id: ID!) { node(id: $id) { ... on ProjectV2 { ${FIELDS} views(first: 50) { nodes { id name layout filter } }
+    repositories(first: 50) { nodes { nameWithOwner } } } } }`, { id });
   const items = [];
   for (let after = null; ; ) {
     const page = graphql(
       `query($id: ID!, $after: String) { node(id: $id) { ... on ProjectV2 { items(first: 100, after: $after) {
         pageInfo { hasNextPage endCursor } nodes { id content { ... on Issue { number repository { nameWithOwner } } } ${VALUES} } } } } }`,
-      { id: found.id, after },
+      { id, after },
     ).node.items;
     for (const n of page.nodes) {
       if (n.content?.repository?.nameWithOwner !== repo) continue;
-      items.push({ id: n.id, number: n.content.number, values: Object.fromEntries(n.fieldValues.nodes.filter((v) => v.field).map((v) => [v.field.name, v.name ?? v.text])) });
+      items.push({ id: n.id, number: n.content.number, values: Object.fromEntries(n.fieldValues.nodes.filter((v) => v.field).map((v) => [v.field.name, v.name ?? v.text ?? v.date])) });
     }
     if (!page.pageInfo.hasNextPage) break;
     after = page.pageInfo.endCursor;
   }
   return {
-    ownerId: user.id,
-    url: found.url,
-    project: { id: found.id, fields: node.fields.nodes.filter((f) => f.id).map((f) => ({ ...f, options: f.options ?? [] })), items, views: node.views.nodes },
+    url,
+    linked: node.repositories.nodes.some((r) => r.nameWithOwner === repo),
+    project: { id, fields: node.fields.nodes.filter((f) => f.id).map((f) => ({ ...f, options: f.options ?? [] })), items, views: node.views.nodes },
   };
 };
 
-/** Applies the plan: creates the Project first when it is missing, then reads it again and plans the rest from it. */
+/** The owner (a person or an organization), and its Project of that title, or null when it has none. */
+export const readProject = (owner, repo) => {
+  const { repositoryOwner } = graphql(`query($login: String!) { repositoryOwner(login: $login) { id __typename
+    ... on ProjectV2Owner { projectsV2(first: 50) { nodes { id title url } } } } }`, { login: owner });
+  const found = repositoryOwner.projectsV2.nodes.find((p) => p.title === PROJECT_TITLE);
+  const base = { ownerId: repositoryOwner.id, ownerType: repositoryOwner.__typename };
+  return found ? { ...base, ...readById(found.id, found.url, repo) } : { ...base, project: null };
+};
+
+/**
+ * Applies the plan. It creates the Project when it is missing, links it to the repository on every run until it is
+ * linked (so a failed link is mended next time), and reads it by id between phases.
+ */
 export const applyProject = ({ owner, repo, goals, issues, log }) => {
   let read = readProject(owner, repo);
   if (!read.project) {
-    const { createProjectV2 } = graphql(`mutation($o: ID!, $t: String!) { createProjectV2(input: { ownerId: $o, title: $t }) { projectV2 { id } } }`, { o: read.ownerId, t: PROJECT_TITLE });
+    const { createProjectV2 } = graphql(`mutation($o: ID!, $t: String!) { createProjectV2(input: { ownerId: $o, title: $t }) { projectV2 { id url } } }`, { o: read.ownerId, t: PROJECT_TITLE });
+    log("did createProject Orthograph");
+    read = { ...read, ...readById(createProjectV2.projectV2.id, createProjectV2.projectV2.url, repo) };
+  }
+  if (!read.linked) {
     const { repository } = graphql(`query($o: String!, $n: String!) { repository(owner: $o, name: $n) { id } }`, { o: owner, n: repo.split("/")[1] });
-    graphql(`mutation($p: ID!, $r: ID!) { linkProjectV2ToRepository(input: { projectId: $p, repositoryId: $r }) { repository { id } } }`, { p: createProjectV2.projectV2.id, r: repository.id });
-    log("did createProject Orthograph, linked to the repository");
-    read = readProject(owner, repo);
+    graphql(`mutation($p: ID!, $r: ID!) { linkProjectV2ToRepository(input: { projectId: $p, repositoryId: $r }) { repository { id } } }`, { p: read.project.id, r: repository.id });
+    log("did linkRepository");
   }
   const pid = read.project.id;
   const fieldId = (name) => read.project.fields.find((f) => f.name === name)?.id;
@@ -81,14 +95,15 @@ export const applyProject = ({ owner, repo, goals, issues, log }) => {
     }
     log(`did ${s.do} ${s.name}`);
   }
-  read = readProject(owner, repo);
+  read = { ...read, ...readById(pid, read.url, repo) };
   for (const s of projectPlan({ goals, issues, project: read.project }).filter((x) => x.do !== "createField" && x.do !== "updateField")) {
     if (s.do === "addItem") {
       const { addProjectV2ItemById } = graphql(`mutation($p: ID!, $c: ID!) { addProjectV2ItemById(input: { projectId: $p, contentId: $c }) { item { id } } }`, { p: pid, c: nodeId.get(s.number) });
       itemId.set(s.number, addProjectV2ItemById.item.id);
     }
     if (s.do === "setValue") {
-      const value = s.field === "Model" ? { text: s.value } : { singleSelectOptionId: optionId(s.field, s.value) };
+      const kind = read.project.fields.find((f) => f.name === s.field)?.dataType;
+      const value = kind === "TEXT" ? { text: s.value } : kind === "DATE" ? { date: s.value } : { singleSelectOptionId: optionId(s.field, s.value) };
       graphql(`mutation($p: ID!, $i: ID!, $f: ID!, $v: ProjectV2FieldValue!) { updateProjectV2ItemFieldValue(input: { projectId: $p, itemId: $i, fieldId: $f, value: $v }) { clientMutationId } }`,
         { p: pid, i: itemId.get(s.number), f: fieldId(s.field), v: value });
     }
@@ -106,5 +121,5 @@ export const applyProject = ({ owner, repo, goals, issues, log }) => {
     }
     log(`did ${s.do} ${s.title ?? s.name ?? ""}`);
   }
-  return readProject(owner, repo).url;
+  return read.url;
 };

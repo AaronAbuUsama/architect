@@ -10,10 +10,10 @@ per release.
 Before seeding, Aaron asked to slow down: how is a goal said "in a clear, human-readable, non-jargon" way, "not assuming
 that you've read everything else", with "what it is, what it isn't"; should a snag be its own type; how is every issue
 linked to its goal; and how do we "see where we are in the progress of that goal in one way". The grill put four
-questions, and on 21 November 2026 Aaron took every recommendation: **1A** a plain goal card at the top of every brief,
-copied to the goal issue; **2B** a snag is a native type plus a kind label until the repository moves to an
-organization; **3A** milestone, sub-issue and blocked-by links, each with one job; **4A** the goal issue is the
-progress page, written by the sync.
+questions, and on 21 November 2026 Aaron answered: **1A** a plain goal card at the top of every brief, copied to the
+goal issue; **2A** ("let's go A") the repository moves into an organization, so each kind is a real issue type;
+**3A** milestone, sub-issue and blocked-by links, each with one job; **4B** ("we are already all in") a GitHub Project
+is where progress is seen, with the goal issue as each goal's page beside it.
 
 ## The problem
 
@@ -54,9 +54,10 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
    | `kind:decision` | Task | a call waiting to be made, closed by the pull request that records it | the goal that decides |
    | `kind:gap` | Task | a ledger row picked up as work, titled with its ledger id | the goal that closes it |
 
-   Custom issue types need a GitHub organization, and this repository belongs to a person, so the kind is a label on
-   top of the nearest native type. If the repository moves to an organization, each kind becomes its own type and the
-   labels go.
+   Custom issue types need a GitHub organization, and Aaron chose them (2A): the repository moves into one, and the
+   sync then makes six types, Goal, Slice, Snag, Ask, Decision and Gap, and sets each issue's type from its kind. Until
+   the move, the native type in the table stands in. The `kind:` labels stay after the move: the forms add them, and
+   the Project's Kind field and every filter read them, so nothing depends on which types the owner has.
 3. **Three links, each with one job** (Aaron, 3A). The **milestone** says which goal. **Sub-issues** are the goal's
    steps: the goal issue's sub-issue list is the brief's slice list, so GitHub's bar counts only slices. A slice
    closes when the pull request that lands it merges: by `Closes #<n>` into main, or by its author with `gh issue
@@ -96,7 +97,8 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
     eight bullets: in one sentence, why, when it's done you can, it is, it isn't, done when, waits on, words used. No
     ids, file paths or unexplained terms, about twenty lines at most; the details stay below it, for the lead. A 🔍
     reviewer checks it by reading the card alone. The sync copies it, word for word, to the top of the goal issue.
-13. **The goal issue is the progress page** (Aaron, 4A). The sync writes its body: the card; the progress (slices done
+13. **The goal issue is each goal's page** (1A, with 4B's Project beside it for progress across goals). The sync
+    writes its body: the card; the progress (slices done
     of all, and which are ready now, every slice they come after done and nothing open blocking them); the open Snag
     issues in the milestone and the slice each blocks; what waits on other goals (an open issue in another milestone
     that blocks one of its slices); who leads it (status, harness, model, since); the brief's "Where it stands"; and the
@@ -114,35 +116,42 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
     conductor writing `conductor` in the goal's place. It is data on the work, like the labels, not an attribution line.
 16. **One GitHub Project, "Orthograph", over every goal** (Aaron, to the conductor, 21 November 2026: "we will be
     moving to GitHub projects with each of these goals being native to that GitHub projects … Goals are independent and
-    asynchronous … they own their own goal"). One user-level Project, not one per goal, so every goal shows on one board
+    asynchronous … they own their own goal"). One Project, owned by whoever owns the repository (the organization, after the move), not one per goal, so every goal shows on one board
     and an ask between two goals is seen by both. It is laid over the milestones, sub-issues and labels, which stay as
     above, and holds:
     - **items:** every goal, slice, snag, ask, decision and gap issue in a goal's milestone;
     - **fields:** Goal, Kind, Status (Ready, Running, Blocked, Landing, Done, Parked), Release, Harness, Model (text,
-      since models change weekly) and Lead role;
-    - **views:** "All goals" (a table), "By status" (a board), and one table per goal, filtered by Goal.
+      since models change weekly), Lead role, and Start and End (the dates an issue opened and closed; a goal's Start is
+      its lead's `since`);
+    - **views:** "All goals" (a table), "By status" (a board), "Roadmap" (Start to End), and one table per goal,
+      filtered by Goal. GitHub's API can't set a view's grouping, so "Roadmap" and "All goals" are grouped by Goal by
+      hand, once, in the Project's settings.
     The sync keeps it (`--project`): it adds the items and keeps their fields equal to the briefs and the issues. A goal
     item's Status, Harness and Model come from its brief's `status:` and `lead:`; a slice's or snag's Status is Done
     when closed, Blocked while an open issue blocks it, Running once an agent has put its `harness:` label on it, and
-    Ready otherwise. Model and Lead role are set when known and never cleared, so an agent may set them by hand. A
-    user's Project needs the token's `project` scope: without it a dry run shows the Project's plan and `--apply` writes
-    nothing. The `goals` workflow's own token can't reach a user's Project, so it keeps the Project only once a token
+    Ready otherwise; one parked by hand stays Parked while it is open. Model and Lead role are set when known and never
+    cleared, so an agent may set them by hand. A Project needs the token's `project` scope: without it a dry run shows the Project's plan and `--apply` writes
+    nothing. The `goals` workflow's own token can't reach a Project, so it keeps the Project only once a token
     with that scope is saved as the `ORTHOGRAPH_PROJECT_TOKEN` secret, which is a credential and waits on Aaron's yes;
     until then a local run keeps it.
 
-## Seeded, 21 November 2026
+## Seeding, after the move
 
-The first run of the sync (`--migrate --apply`) made, from the briefs on `main` and on the goal branches:
+Nothing is seeded yet. The Project and the issue types belong to the repository's owner, so seeding waits for the
+move into an organization (2A); a Project made under Aaron's own account now would be made twice. The order:
 
-- milestones `Goal 3` to `Goal 7`, from `03-stage-1-hill-climbed.md` on `main`, `04-on-chain.md` on `goal/on-chain`,
-  `05` and `06` in this change, and `07-safe-hats.md` on `goal/safe-hats`;
-- a goal issue each, and for Goals 5 and 6 (the briefs with front matter) a sub-issue per slice;
-- the labels in `tools/github/plan.mjs`;
-- every open issue and pull request moved from its `goal-<n>` label and release milestone to its goal's milestone and
-  release label.
+1. Aaron creates the organization (GitHub has no API for it) and the repository is transferred into it, on his yes.
+   Links to the old address redirect.
+2. Aaron reinstalls the GitHub apps on the organization (Codex's connector, Claude's), and its branch protection and
+   secrets are checked.
+3. The live docs that name the old address (`AaronAbuUsama/architect`) are rewritten, and the forms move from the
+   native types to the new ones (`type: Snag` and the rest).
+4. `node tools/github/sync.mjs --goal-branches --migrate --project --apply` makes the types, the labels, a milestone
+   and a goal issue per goal, the slices and their order, the Project with its fields and views, and moves every open
+   issue and pull request to its goal's milestone and release label. The empty Preview, Beta and 1.0 milestones are
+   then closed, never deleted.
 
-Goals 3, 4 and 7 get their slices on GitHub when their leads add front matter to their briefs, as their next brief
-edit (K32 already asks each to adopt it, #299 and #300).
+This section is rewritten with what the run made, in the pull request that records it.
 
 ## Not chosen
 
@@ -152,6 +161,9 @@ edit (K32 already asks each to adopt it, #299 and #300).
   other goal's.
 - **Assignees per agent:** every agent is one GitHub account.
 - **The ledger as 731 issues.**
+- **Native types and labels only** (2B, the first recommendation): Aaron chose real types.
+- **The goal issue as the only progress page** (4A, the first recommendation): Aaron chose the Project, which shows
+  every goal at once; the goal issue stays as each goal's page.
 - **The goal issue as the source** (1B): a definition edited on GitHub skips review and leaves the repository.
 - **Every issue a sub-issue of its goal** (3C): snags and asks would count as progress, and an ask can't sit under
   both goals.

@@ -25,12 +25,15 @@ export const projectFields = (goals) => [
   select("Harness", ["claude", "amp", "codex"].map((h) => [h, "GRAY", ""])),
   { name: "Model", dataType: "TEXT", options: [] },
   select("Lead role", ["lead", "author", "builder", "reviewer", "designer", "spike"].map((r) => [r, "GRAY", ""])),
+  { name: "Start", dataType: "DATE", options: [] },
+  { name: "End", dataType: "DATE", options: [] },
 ];
 
-/** The saved views: every goal in one table, a board by Status, and one table per goal. */
+/** The saved views: every goal in one table, a board by Status, a roadmap (Start to End), and one table per goal. */
 export const projectViews = (goals) => [
   { name: "All goals", layout: "TABLE_LAYOUT", filter: "" },
   { name: "By status", layout: "BOARD_LAYOUT", filter: "" },
+  { name: "Roadmap", layout: "ROADMAP_LAYOUT", filter: "" },
   ...goals.map((g) => ({ name: `Goal ${g.number}`, layout: "TABLE_LAYOUT", filter: `goal:"Goal ${g.number}"` })),
 ];
 
@@ -41,12 +44,15 @@ const isOpen = (i) => (i.state ?? "open") === "open";
  * What each tracked issue's fields should hold. Model and Lead role are set when known and never cleared, since an
  * agent may set them by hand; the others are kept equal to the briefs and the issue.
  */
+const day = (iso) => (iso ? String(iso).slice(0, 10) : null);
+
 export const itemValues = (i, goal, issues) => {
   const kind = label(i, "kind:");
+  const dates = { Start: day(kind === "goal" ? goal.lead?.since ?? i.createdAt : i.createdAt), End: day(i.closedAt) };
   if (kind === "goal") {
     return {
       Goal: `Goal ${goal.number}`, Kind: "goal", Status: STATUS_OF_BRIEF[goal.status] ?? "Ready", Release: goal.release,
-      Harness: goal.lead?.harness ?? null, Model: goal.lead?.model ?? undefined, "Lead role": "lead",
+      Harness: goal.lead?.harness ?? null, Model: goal.lead?.model ?? undefined, "Lead role": "lead", ...dates,
     };
   }
   const blocked = (i.blockedBy ?? []).some((n) => issues.some((x) => x.number === n && isOpen(x)));
@@ -54,7 +60,7 @@ export const itemValues = (i, goal, issues) => {
   return {
     Goal: `Goal ${goal.number}`, Kind: kind, Release: label(i, "release:") ?? goal.release, Harness: harness,
     Status: !isOpen(i) ? "Done" : blocked ? "Blocked" : harness ? "Running" : "Ready",
-    Model: undefined, "Lead role": label(i, "role:") ?? undefined,
+    Model: undefined, "Lead role": label(i, "role:") ?? undefined, ...dates,
   };
 };
 
@@ -91,6 +97,8 @@ export const projectPlan = ({ goals, issues, project }) => {
     for (const [field, value] of Object.entries(values)) {
       if (value === undefined) continue;
       const now = item?.values?.[field] ?? null;
+      // A slice, snag or ask someone parked by hand stays parked while it is open; only a goal's brief parks a goal.
+      if (field === "Status" && now === "Parked" && values.Kind !== "goal" && value !== "Done") continue;
       if (value === null && now !== null) steps.push({ do: "clearValue", number: i.number, field, title: `#${i.number} ${field}` });
       if (value !== null && now !== value) steps.push({ do: "setValue", number: i.number, field, value, title: `#${i.number} ${field} = ${value}` });
     }

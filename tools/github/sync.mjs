@@ -115,7 +115,11 @@ const subIssues = new Map(goalNumbers.map((n) => [n, ghAll(`repos/${repo}/issues
 // Only blockers in this repository: GitHub allows a blocker from another, whose number would name a different issue here.
 const blockedBy = new Map(sliceNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/dependencies/blocked_by?per_page=100`)
   .filter((x) => x.repository_url?.endsWith(`/repos/${repo}`)).map((x) => x.number)]));
+const owner_ = JSON.parse(execFileSync("gh", ["api", "graphql", "-f", `query={repositoryOwner(login:"${owner}"){id __typename} repository(owner:"${owner}",name:"${repo.split("/")[1]}"){issueTypes(first:20){nodes{name}}}}`], { encoding: "utf8" })).data;
 return {
+  ownerType: owner_.repositoryOwner.__typename,
+  ownerId: owner_.repositoryOwner.id,
+  types: (owner_.repository.issueTypes?.nodes ?? []).map((x) => x.name),
   labels: ghAll(`repos/${repo}/labels?per_page=100`).map((l) => ({ name: l.name, color: l.color, description: l.description ?? "" })),
   milestones: ghAll(`repos/${repo}/milestones?state=all&per_page=100`).map((m) => ({ number: m.number, title: m.title, description: m.description ?? "" })),
   issues: issues.map((i) => ({
@@ -134,6 +138,8 @@ return {
     subIssues: subIssues.get(i.number) ?? [],
     blockedBy: blockedBy.get(i.number) ?? [],
     nodeId: i.node_id,
+    createdAt: i.created_at,
+    closedAt: i.closed_at,
   })),
 };
 };
@@ -167,6 +173,11 @@ for (const s of steps) {
     created.set(s.key, { number: i.number, id: i.id });
   }
   if (s.do === "updateIssue") gh(`repos/${repo}/issues/${s.number}`, { method: "PATCH", body: { title: s.title, ...(s.body ? { body: s.body } : {}) } });
+  if (s.do === "createIssueType") {
+    const q = "mutation($o:ID!,$n:String!,$c:IssueTypeColor!,$d:String!){createIssueType(input:{ownerId:$o,name:$n,color:$c,description:$d,isEnabled:true}){issueType{id}}}";
+    execFileSync("gh", ["api", "graphql", "-f", `query=${q}`, "-f", `o=${state.ownerId}`, "-f", `n=${s.name}`, "-f", `c=${s.color}`, "-f", `d=${s.description}`], { encoding: "utf8" });
+  }
+  if (s.do === "setType") gh(`repos/${repo}/issues/${s.number}`, { method: "PATCH", body: { type: s.type } });
   if (s.do === "addBlockedBy") gh(`repos/${repo}/issues/${issueRef(s.issue).number}/dependencies/blocked_by`, { method: "POST", body: { issue_id: issueRef(s.blocker).id } });
   if (s.do === "addSubIssue") gh(`repos/${repo}/issues/${issueRef(s.parent).number}/sub_issues`, { method: "POST", body: { sub_issue_id: issueRef(s.child).id } });
   if (s.do === "moveIssue") {

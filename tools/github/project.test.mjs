@@ -3,10 +3,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { itemValues, projectFields, projectPlan, projectViews } from "./project.mjs";
 
-const goal = { number: 6, milestone: "Goal 6: the new portal", release: "beta", status: "running", lead: { harness: "amp", model: "claude-opus-5-5" } };
+const goal = { number: 6, milestone: "Goal 6: the new portal", release: "beta", status: "running", lead: { harness: "amp", model: "claude-opus-5-5", since: "2026-11-22" } };
 const issues = [
   { number: 10, nodeId: "I10", labels: ["kind:goal", "goal-6"], milestone: goal.milestone, state: "open" },
-  { number: 11, nodeId: "I11", labels: ["kind:slice"], milestone: goal.milestone, state: "closed" },
+  { number: 11, nodeId: "I11", labels: ["kind:slice"], milestone: goal.milestone, state: "closed", createdAt: "2026-11-21T10:00:00Z", closedAt: "2026-11-23T09:00:00Z" },
   { number: 12, nodeId: "I12", labels: ["kind:slice", "harness:codex"], milestone: goal.milestone, state: "open" },
   { number: 13, nodeId: "I13", labels: ["kind:slice"], milestone: goal.milestone, state: "open", blockedBy: [12] },
   { number: 14, nodeId: "I14", labels: ["kind:snag"], milestone: goal.milestone, state: "open", trusted: false },
@@ -15,7 +15,8 @@ const issues = [
 ];
 
 test("each item's fields: the goal from its front matter, a slice from its state, labels and links", () => {
-  assert.deepEqual(itemValues(issues[0], goal, issues), { Goal: "Goal 6", Kind: "goal", Status: "Running", Release: "beta", Harness: "amp", Model: "claude-opus-5-5", "Lead role": "lead" });
+  assert.deepEqual(itemValues(issues[0], goal, issues), { Goal: "Goal 6", Kind: "goal", Status: "Running", Release: "beta", Harness: "amp", Model: "claude-opus-5-5", "Lead role": "lead", Start: "2026-11-22", End: null });
+  assert.deepEqual([itemValues(issues[1], goal, issues).Start, itemValues(issues[1], goal, issues).End], ["2026-11-21", "2026-11-23"]);
   assert.equal(itemValues(issues[1], goal, issues).Status, "Done");
   assert.equal(itemValues(issues[2], goal, issues).Status, "Running");
   assert.equal(itemValues(issues[3], goal, issues).Status, "Blocked");
@@ -25,10 +26,10 @@ test("each item's fields: the goal from its front matter, a slice from its state
 test("from nothing: the Project, linked, its fields and views; only trusted, kind-labelled issues become items", () => {
   const steps = projectPlan({ goals: [goal], issues, project: null });
   assert.deepEqual(steps.slice(0, 2).map((s) => s.do), ["createProject", "linkRepository"]);
-  assert.deepEqual(steps.filter((s) => s.do === "createField").map((s) => s.name), ["Goal", "Kind", "Status", "Release", "Harness", "Model", "Lead role"]);
+  assert.deepEqual(steps.filter((s) => s.do === "createField").map((s) => s.name), ["Goal", "Kind", "Status", "Release", "Harness", "Model", "Lead role", "Start", "End"]);
   assert.deepEqual(steps.filter((s) => s.do === "addItem").map((s) => s.number), [10, 11, 12, 13]);
   assert.deepEqual(steps.filter((s) => s.do === "createView").map((s) => [s.name, s.layout, s.filter]), [
-    ["All goals", "TABLE_LAYOUT", ""], ["By status", "BOARD_LAYOUT", ""], ["Goal 6", "TABLE_LAYOUT", 'goal:"Goal 6"'],
+    ["All goals", "TABLE_LAYOUT", ""], ["By status", "BOARD_LAYOUT", ""], ["Roadmap", "ROADMAP_LAYOUT", ""], ["Goal 6", "TABLE_LAYOUT", 'goal:"Goal 6"'],
   ]);
 });
 
@@ -60,4 +61,10 @@ test("a new Project's built-in Status and View 1 become ours, and a value that c
   assert.ok(steps.some((s) => s.do === "updateView" && s.id === "V1" && s.name === "All goals"));
   assert.ok(!steps.some((s) => s.do === "createView"));
   assert.ok(steps.some((s) => s.do === "setValue" && s.number === 12 && s.field === "Harness" && s.value === "codex"));
+});
+
+test("a slice parked by hand stays parked while open, and is Done once closed", () => {
+  const project = full();
+  project.items[3].values.Status = "Parked";
+  assert.ok(!projectPlan({ goals: [goal], issues, project }).some((s) => s.number === 13 && s.field === "Status"));
 });
