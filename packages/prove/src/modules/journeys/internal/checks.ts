@@ -5,12 +5,14 @@ import { ErrorNames, EventNames, Scripting } from "orthograph/server";
 import type { CallRecord, Facts } from "../types.ts";
 import { stateOf } from "./world.ts";
 
-/** Values as they travel: bigints as text, so `500n` and `"500"` compare equal. */
-export const wireOf = (v: unknown): unknown =>
-  typeof v === "bigint" ? v.toString()
-  : Array.isArray(v) ? v.map(wireOf)
-  : typeof v === "object" && v !== null ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, wireOf(x)]))
-  : v;
+/** Values as they travel: bigints as text, so `500n` and `"500"` compare equal. A value that holds itself reads `"[Circular]"` where it loops back. */
+export const wireOf = (v: unknown, above: ReadonlyArray<object> = []): unknown => {
+  if (typeof v === "bigint") return v.toString();
+  if (typeof v !== "object" || v === null) return v;
+  if (above.includes(v)) return "[Circular]";
+  const path = [...above, v];
+  return Array.isArray(v) ? v.map((x) => wireOf(x, path)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, wireOf(x, path)]));
+};
 export const show = (v: unknown) => JSON.stringify(wireOf(v));
 
 export const tagOfClass = (cls: unknown): string =>
@@ -51,9 +53,13 @@ const attempt = <A>(f: () => A) =>
     Effect.match({ onFailure: (threw) => ({ threw }) as const, onSuccess: (value) => ({ value }) as const }),
   );
 
-/** What prove says of a check that threw: where, what the answer was and what the error said. No stack. */
+/** The answer's top-level keys and never its values: an answer may hold a token, and the report is kept and shared. */
+const keysOf = (answer: unknown) =>
+  typeof answer === "object" && answer !== null && !Array.isArray(answer) ? `keys [${Object.keys(answer).join(", ")}]` : `no keys (${Array.isArray(answer) ? "a list" : typeof answer})`;
+
+/** What prove says of a check that threw: where, which keys the answer had and what the error said. No stack, no answer values. */
 const threwMessage = (call: CallRecord, env: Readonly<Record<string, unknown>>, threw: string) =>
-  `journey "${call.journey}" step "${call.step}": a check threw on the answer ${show(env["last"])}: ${threw}`;
+  `journey "${call.journey}" step "${call.step}": a check threw on an answer with ${keysOf(env["last"])}: ${threw}`;
 
 /** One failed check: the sentence prove prints, and the two halves of it when it has them. */
 export interface Finding { readonly message: string; readonly expected?: string; readonly got?: string }
