@@ -77,7 +77,7 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
 3. **The operation's span opens**, named after the operation, with the caller on it and the call's name, `call.id`, which every attempt of one call shares (O3):
 
    ```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=155
-   spanned(name, { operation: name, attempt: number, [CALL_ID]: callId, ...principalAttributes(principal) }),
+   spanned(name, { operation: name, attempt: number, [CALL_ID]: callId, ...principalAttributes(principal), ...requestAttributes(request) }),
    ```
 
 4. **Traceable payload fields are written on it** (`service.ts:56`).
@@ -163,6 +163,8 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
   the read.
 - **`attempt` above 1**, after a commit with `commit.outcome=conflict`, is a version race. Many of them mean
   contention on one thing (see `stores`).
+- **`request.key`** is the idempotency key the call was made with, as the caller sent it, on the operation's span (and on `<operation>.refused`)
+  of an operation that honours one. It is an id, so it is traced. The portal's calls table shows it and filters by it.
 - **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:60`).
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
