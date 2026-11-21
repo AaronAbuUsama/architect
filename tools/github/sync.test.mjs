@@ -1,0 +1,99 @@
+// node --test tools/github/sync.test.mjs
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { readGoal, splitFrontMatter } from "./frontmatter.mjs";
+import { LABELS, goalBody, goalMarker, plan, sliceMarker } from "./plan.mjs";
+
+const brief = `---
+goal: 6
+title: The new portal
+milestone: "Goal 6: the new portal"
+release: beta   # K28
+branch: goal/portal
+base: goal/stage-1
+status: ready
+lead:
+  harness: amp
+  model: null
+  since: null
+done_check: nx run e2e:portal-next
+owns:
+  - packages/theme/
+  - packages/shell/
+slices:
+  - "1 · The theme"
+  - "2 · The checks"
+---
+# Goal 6: the new portal
+
+Body.
+`;
+
+test("front matter: scalars, comments, a nested map and block lists", () => {
+  const { data, body } = splitFrontMatter(brief);
+  assert.equal(data.goal, 6);
+  assert.equal(data.release, "beta");
+  assert.deepEqual(data.lead, { harness: "amp", model: null, since: null });
+  assert.deepEqual(data.owns, ["packages/theme/", "packages/shell/"]);
+  assert.match(body, /^# Goal 6/);
+});
+
+test("a line it does not understand is an error, never a silent skip", () => {
+  assert.match(splitFrontMatter("---\ngoal: 6\n    deep: x\n---\n").error, /not understood/);
+});
+
+test("a brief with no front matter still names its goal, from its file name and heading", () => {
+  const { goal } = readGoal("design/goals/03-stage-1-hill-climbed.md", "# Goal 3: stage 1, hill-climbed\n\nText.\n");
+  assert.equal(goal.number, 3);
+  assert.equal(goal.milestone, "Goal 3: stage 1, hill-climbed");
+  assert.equal(goal.declared, false);
+});
+
+const empty = { labels: [], milestones: [], issues: [] };
+const url = () => "https://example.test/brief";
+
+test("from nothing: every label, the milestone, the goal issue, and each slice under it", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const steps = plan({ goals: [goal], state: empty, briefUrl: url });
+  assert.equal(steps.filter((s) => s.do === "createLabel").length, LABELS.length);
+  assert.ok(steps.some((s) => s.do === "createMilestone" && s.title === "Goal 6: the new portal"));
+  const g = steps.find((s) => s.do === "createIssue" && s.key === "goal 6");
+  assert.equal(g.type, "Feature");
+  assert.deepEqual(g.labels, ["kind:goal", "release:beta"]);
+  assert.ok(g.body.includes(goalMarker(6)) && g.body.includes("amp"));
+  assert.deepEqual(
+    steps.filter((s) => s.do === "addSubIssue").map((s) => s.child),
+    ["slice 6.1", "slice 6.2"],
+  );
+});
+
+test("run twice: once GitHub holds it all, there is nothing to do", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = {
+    labels: LABELS,
+    milestones: [{ number: 9, title: goal.milestone, description: `Goal 6. Brief: ${goal.brief}. Done check: ${goal.done_check}.` }],
+    issues: [
+      { number: 10, title: "Goal 6: The new portal", body: goalBody(goal, url()), labels: [], milestone: goal.milestone, subIssues: [11, 12] },
+      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: [], milestone: goal.milestone },
+      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: [], milestone: goal.milestone },
+    ],
+  };
+  assert.deepEqual(plan({ goals: [goal], state, briefUrl: url }), []);
+});
+
+test("migrate: a goal label becomes the goal's milestone, a release milestone becomes a release label", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = { labels: LABELS, milestones: [], issues: [{ number: 285, title: "K31", body: "", state: "open", labels: ["goal-6"], milestone: "Beta" }] };
+  const move = plan({ goals: [goal], state, briefUrl: url, migrate: true }).find((s) => s.do === "moveIssue");
+  assert.deepEqual(move, { do: "moveIssue", number: 285, addLabels: ["release:beta"], milestone: "Goal 6: the new portal" });
+});
+
+test("the real briefs in this checkout parse", () => {
+  for (const f of ["design/goals/05-ui-layer.md", "design/goals/06-portal.md"]) {
+    const r = readGoal(f, readFileSync(f, "utf8"));
+    assert.equal(r.error, undefined, r.error);
+    assert.ok(r.goal.declared, `${f} has front matter`);
+    assert.ok(r.goal.slices.length > 0, `${f} lists its slices`);
+  }
+});

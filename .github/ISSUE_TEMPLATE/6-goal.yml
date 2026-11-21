@@ -1,0 +1,13 @@
+name: Goal
+description: A new goal. Write its brief first (design/goals/<nn>-<name>.md, with front matter); tools/github/sync.mjs then makes this issue and its milestone for you.
+title: "Goal <n>: <what it proves>"
+type: Feature
+labels: ["kind:goal"]
+body:
+  - type: markdown
+    attributes:
+      value: Prefer the sync. Use this form only to propose a goal before its brief exists; once the brief lands with `goal:` in its front matter, the sync makes the real goal issue, and this one is closed in its favour.
+  - type: textarea
+    id: why
+    attributes: { label: What it proves, description: "In plain words, and the done check if you know it" }
+    validations: { required: true }

@@ -1,9 +1,38 @@
+---
+goal: 5
+title: the UI layer, on UI SDK
+milestone: "Goal 5: the UI layer"
+release: beta
+branch: goal/ui-layer
+base: goal/stage-1
+status: ready          # ready | running | landing | done | parked
+lead:
+  harness: null        # claude-code | amp | codex, set by the lead when it starts
+  model: null          # the model id it runs on
+  since: null          # the date it started
+done_check: nx run e2e:ui-layer
+owns:
+  - packages/orthograph/src/modules/actions/
+  - packages/web/
+  - packages/projections/src/modules/actions/
+  - packages/projections/src/modules/web/
+  - examples/plugged-in/src/web/
+  - examples/plugged-in/generated/actions/
+  - examples/plugged-in/generated/web/
+  - design/goals/05-ui-layer.md
+slices:
+  - "1 · M1.23, the actions module, and the e2e:ui-layer target"
+  - "2 · ST1.26, the web projection's checks"
+  - "3 · M1.22, the actions projection"
+  - "4 · ST1.25, the web projection"
+  - "5 · ST1.04's three screens"
+---
 # Goal 5: the UI layer, on UI SDK
 
 Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K29.
 
 **To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 5. Read `AGENTS.md` and
-`design/goals/05-ui-layer.md`, and run it." Nothing else is needed. Label `goal-5`, milestone `Beta`.
+`design/goals/05-ui-layer.md`, and run it." Nothing else is needed. Milestone `Goal 5: the UI layer`, label `release:beta` (K33).
 
 ## Aaron's words
 
@@ -50,8 +79,8 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K32 (how goals
->   coordinate), K24, K13 and K28;
+> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K32 and K33 (how goals
+>   coordinate, and how the work lives on GitHub: the `github` skill), K24, K13 and K28;
 > - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25, ST1.26 and ST1.04 rows of
 >   `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
@@ -94,7 +123,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 - **Goal 3's hotspots** (from its open pull requests on 21 November 2026). Merge often, and keep each slice small where
   it touches them:
   - the compiler's model (#269, and ST1.14 to ST1.16 before it): the actions and web projections read the model and
-    never change it. A field they need that the model lacks is an issue labelled `goal-3`, not an edit here;
+    never change it. A field they need that the model lacks is an Ask issue in Goal 3's milestone, not an edit here;
   - `orthograph`'s front door (ST1.14): M1.23's actions module sits beside it, so merge before touching the module
     index;
   - `examples/plugged-in` and `e2e/` (#267, the journeys): this goal writes only `examples/plugged-in/src/web/` and its
@@ -116,26 +145,20 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 | **Goal 3** | Plugged In's blueprint, journeys and handlers, on `goal/stage-1` | this goal's branch |
 | **🔍 Reviewer** | a verdict on each pull request | anything it reviews |
 
-When the user is stuck on something it can't fix inside `src/web/`, it writes a snag in `design/goals/05-snags.md` and
-moves on. It never writes a fetch or a hand-made form to get round a piece. The lead creates
-`05-snags.md` in slice 1, in the shape of `03-snags.md`:
+When the user is stuck on something it can't fix inside `src/web/`, it opens a Snag issue in this goal's milestone and
+moves on. It never writes a fetch or a hand-made form to get round a piece. The Snag form (`kind:snag`, K33) asks for
+the same four things a snag log entry had: Hit (who, doing what, where), Lost (what it cost), Cause, and Fix (who owns
+the paths it needs). The fix's pull request closes the issue.
 
-```md
-## S-02 · ui · "the claim form can't show who holds the name"
-- Hit: the user, writing `src/web/claim.tsx`: `HandleTaken` reaches the piece with its code but not its holder.
-- Lost: 2 tries, 8 minutes.
-- Cause: the piece's refusal part renders the code and message only.
-- Fix: framework, the refusal part renders the declared fields an agent may see (PR #…). Docs: the piece's page.
-- Status: fixed
-```
-
-## How this goal coordinates (K32)
+## How this goal coordinates (K32, K33)
 
 This goal coordinates itself, in whatever harness runs it, through the repository and GitHub only, never through a chat
 or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
 
-- **Label and milestone.** Every pull request and issue of this goal carries the label `goal-5` and the milestone
-  `Beta` (K28's releases).
+- **Milestone and labels** (K33, the `github` skill). Every pull request and issue of this goal carries the milestone
+  `Goal 5: the UI layer` and the label `release:beta`; each pull request also carries its `role:` and `harness:` labels, and the
+  template's "Harness and model" line. The lead keeps the front matter's `lead:` and `status:` current, and
+  `node tools/github/sync.mjs --apply` mirrors them, and the slices, onto the goal issue.
 - **The paths it owns:**
   - `packages/orthograph/src/modules/actions/` (M1.23) and its line in `packages/orthograph/src/index.ts`;
   - `packages/web/` (`@orthograph/web`);
@@ -143,7 +166,7 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
     `packages/projections/src/main.ts`, and the generators' templates for them;
   - `examples/plugged-in/src/web/`;
   - this goal's checks (ST1.26, M1.22's and M1.23's) and the `e2e:ui-layer` target;
-  - `design/goals/05-ui-layer.md` and `05-snags.md`;
+  - `design/goals/05-ui-layer.md`;
   - and only these lines of shared files: in `.oxlintrc.json`, `scope:web`'s module-boundary tags for `packages/web/`
     and the carve-out of `ortho/no-ui-in-worker` for `generated/web/` (K29 section 6); in
     `examples/plugged-in/generated/`, the new `actions/` and `web/` folders generate writes; in `e2e/project.json` and
@@ -152,16 +175,16 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
   Nothing else is this goal's. Touching another goal's path is a cross-goal ask, never a quiet edit.
 - **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges
   into `goal/ui-layer`: what landed, what is open, what it waits on, in two or three lines written for Aaron's ear. That is the
-  report; nobody is messaged. This goal's own snags go in `design/goals/05-snags.md`, and only its own.
-- **Asking another goal for something** is a GitHub issue labelled for the goal that must act (`goal-3` for Goal 3, `goal-6` for Goal 6), naming
-  this goal and what done looks like. Never push to another goal's branch or edit its files by pull request; the
+  report; nobody is messaged. This goal's own snags are Snag issues in its milestone (K33), and only its own.
+- **Asking another goal for something** is an Ask issue (the Ask form, `kind:ask`) in the milestone of the goal
+  that must act (`Goal 3: stage 1, hill-climbed`, `Goal 6: the new portal`), naming this goal and what done looks like. Never push to another goal's branch or edit its files by pull request; the
   owner acts on the issue.
-- **Asks to this goal** are open issues labelled `goal-5`. Read them at the start of every slice, after merging
+- **Asks to this goal** are open Ask issues in its milestone (`kind:ask`). Read them at the start of every slice, after merging
   `goal/stage-1` in, and close each with the pull request that answers it.
 - **Decisions** this goal makes are named by area and a slug (`WEB-<slug>`, as in `WEB-piece-state`), never numbered. Before using a name, check
   that no file starts with it on `main` or any open branch (`git ls-tree -r --name-only origin/<branch>
   design/decisions/`), and list it under "Decision IDs" below.
-- **Changing an agreement** below is an issue labelled for the other goal; each lead then edits only its own brief.
+- **Changing an agreement** below is an Ask issue in the other goal's milestone; each lead then edits only its own brief.
 - **Branch protection** on `goal/ui-layer` is set by the conductor before this goal starts (K32). If
   `gh api repos/AaronAbuUsama/architect/branches/goal/ui-layer/protection` finds none, write that in "Where it stands" and stop
   before the first pull request.
@@ -169,7 +192,7 @@ or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](.
 ## The agreements (21 November 2026)
 
 Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when Goal 6 was split off. They
-hold whoever leads either goal; changing one starts with an issue labelled for the other goal.
+hold whoever leads either goal; changing one starts with an Ask issue in the other goal's milestone.
 
 1. **The theme is Goal 6's.** `@orthograph/theme` is Goal 6's first slice, landed in `goal/stage-1` on its own. Until
    it lands, the pieces use UI SDK's default tokens; this goal's screens slice (slice 5) takes it up.
@@ -178,7 +201,7 @@ hold whoever leads either goal; changing one starts with an issue labelled for t
    goal's "existing generated files unchanged" keeps holding while Goal 6 lands.
 3. **Neither goal edits the other's packages.** This goal owns the actions module in `orthograph`, `packages/web`, the
    actions and web projections and `examples/plugged-in/src/web/`. Goal 6 owns `packages/theme`, `packages/shell`,
-   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is an issue labelled for that goal
+   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is an Ask issue in that goal's milestone
    (above), never an edit.
 4. **This done check never waits on the map.** Plugged In's pages are declared in the map language as a follow-on,
    once Goal 6's map landing reaches `goal/stage-1` (see "Where it meets Goal 6").
@@ -186,7 +209,7 @@ hold whoever leads either goal; changing one starts with an issue labelled for t
    M2.06, Goal 3's auth plugin; until then the screens use the test people Plugged In's journeys use, and ST1.06 is not
    in this done check.
 6. **The portal is Goal 6's.** It is rebuilt beside the old one; a list of the portal checks the new client fails only
-   shrinks; cutover lands in `goal/stage-1` only after Goal 3's lead agrees the freeze on a `goal-3` issue, with Goal 3's
+   shrinks; cutover lands in `goal/stage-1` only after Goal 3's lead agrees the freeze on an Ask issue in Goal 3's milestone, with Goal 3's
    lead's yes on the cutover pull request and a 🔍 pass.
    This goal never edits either client.
 
@@ -248,13 +271,13 @@ It passes only when all of these hold, in CI on `goal/ui-layer`:
 - in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/`;
 - check 26 still passes, and acme's and Plugged In's existing generated files are unchanged (only
   `generated/actions/` and `generated/web/` are new);
-- every snag in `05-snags.md` is fixed, or parked with an owner and a reason.
+- every Snag issue in this goal's milestone is closed, fixed or parked with an owner and a reason.
 
 ## Landing
 
 When `nx run e2e:ui-layer` passes, open one pull request from `goal/ui-layer` into `goal/stage-1`, since Goal 3 is open
 and its done check needs the screens. Merge `goal/stage-1` in first, by a merge. It merges when CI is green, Goal 3's
-checks still pass on it, and a 🔍 reviewer has passed the whole branch, reading this file, the snag log, each slice's
+checks still pass on it, and a 🔍 reviewer has passed the whole branch, reading this file, the goal's Snag issues, each slice's
 check and the evidence below. It reaches `main` with stage 1.
 
 ## Evidence for Aaron
@@ -262,7 +285,7 @@ check and the evidence below. It reaches `main` with stage 1.
 - **The DX trial:** what a person writes, in full (Plugged In's `src/web/`), beside what was generated for it.
 - **A browser video,** recorded by Playwright, of a claim, a taken name refused under the field, three links added and
   ordered, and the public page; then the same flow driven by an agent in the browser, waiting for a yes on release.
-- **The snag log,** each snag linked to its fix, and each slice's check with its run.
+- **The Snag issues,** each closed by its fix, and each slice's check with its run.
 
 ## Estimate
 
