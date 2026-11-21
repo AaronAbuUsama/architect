@@ -118,9 +118,11 @@ belongs to, and why it waits.
 - **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
 - **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
 - **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
-- **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
-  Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
-  or its terms stop a framework importing it.
+- **`@orthograph/portal-ui` moves from HeroUI Pro to UI SDK** (K24, replacing F7's open-libraries fallback): the same
+  exports, one at a time, on UI SDK's primitives, with the data grid and the board built on its behaviours
+  (`createReorder`, `createTransfer`) and the rest on Recharts, TanStack Table, cmdk, Shiki, react-markdown and Tiptap.
+  Today the portal uses HeroUI Pro behind `portal-ui`; HeroUI is phased out (K24). The move waits for the second
+  UI SDK spike, not for the licence.
 
 ## From the grid (#154)
 
@@ -190,3 +192,11 @@ Check 39 (`e2e/m1/39-m1-49-monitor-derived.test.ts`) does not judge these three;
 - **Nested step spans, the deepest wins**: an issue's step is the deepest failing step span; check 39 plants one level (`link.add.record`). A defect two steps down, and a call with no step span at all, are not judged.
 - **The constructor-name fallback for `error.tag`**: a thrown error with no `_tag` takes its constructor's name; check 39 plants only a tagged error whose class name differs from its tag.
 
+## From M2-auth (Goal 3 lead, 21 November 2026)
+
+- **SDK and CLI reach filtering** (`decisions/M2-auth.md`, small calls 16; replaces `decisions/K1-kits.md`'s table at
+  `:240-241`). In M2 only MCP tools are hidden by reach. The SDK and the CLI carry every operation, and the role check
+  refuses what a credential may not do. K1 meant the SDK to carry only operations a session or a key can reach,
+  and the CLI only those a device session or a key can reach. **Trigger:** a generated client's refusal on a call its credential
+  could never make is reported as confusing in a journey or by a user, or the second app ships a CLI with an operation
+  only `Via.agent` reaches.
