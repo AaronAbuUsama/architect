@@ -102,6 +102,8 @@ export const CompanyName = Blueprint.value(Blueprint.text({ max: 140 }));
 export const Country = Blueprint.value(Schema.String.check(Schema.isPattern(/^[A-Z]{2}$/)));
 /** How a person belongs to a company: a Director signs for it; a member has a seat. */
 export const Seat = Blueprint.value(Schema.Literals(["director", "member"]));
+/** The other people named as Directors when a company is founded. Possibly none. */
+export const FoundingDirectors = Blueprint.value(Schema.Array(Blueprint.id("per").schema));
 ```
 
 ```ts
@@ -177,6 +179,7 @@ import { Company } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { CompanyHandleTaken } from "../errors.ts";
 import { Membership } from "../../membership/thing.ts";
+import { FoundingDirectors } from "../../../values/company.ts";
 
 export default Blueprint.operation(Company, {
   description: "Found a company. The founder is its first Director.",
@@ -184,14 +187,15 @@ export default Blueprint.operation(Company, {
     handle: Company.fields.handle,
     name: Company.fields.name,
     country: Company.fields.country,
-    // The other founding Directors join the payload once question 6 is answered: Orthograph has no value for a list of
-    // people yet (finding 11), and a `Blueprint.todo` here would leave the starting world below unable to compile.
+    // Founded in one step with its Directors named (question 6). A raw schema of person ids, so the model reads it as
+    // a schema, not as people (finding 11).
+    directors: FoundingDirectors,
   },
   answer: { company: Company.fields.id },
   move: machine.moves.found,
   errors: [CompanyHandleTaken],
   allowed: [Blueprint.signedIn],
-  steps: { found: Blueprint.step.database({ writes: [Company, Membership] }) }, // the company and the founder's seat, together
+  steps: { found: Blueprint.step.database({ writes: [Company, Membership] }) }, // the company and its Directors' seats (the founder's first), together
   idempotent: "request",
   budget: { p95: "250 millis" },
 });
@@ -384,7 +388,7 @@ import found from "../things/company/verbs/found.ts";
 /** Dana has founded Northwind and is its only Director. */
 export default Blueprint.startingWorld("founded", {
   cast: { dana: Blueprint.signedIn },
-  makes: (s) => [s.dana.run(found, { handle: "northwind", name: "Northwind Trading", country: "NL" })],
+  makes: (s) => [s.dana.run(found, { handle: "northwind", name: "Northwind Trading", country: "NL", directors: [] })],
   gives: (s) => ({ company: s.last.company }),
 });
 ```
@@ -484,9 +488,11 @@ saying yes to that session's recommendations as a batch, his answer stands inste
    (`design/decisions/K22-a-mount-names-its-things.md`, 20 November 2026).
 10. **A mount is app-wide.** It can't be limited to the development environment (`use` takes the plugin and its verbs, and no environment: `packages/orthograph/src/modules/plugins/service.ts:31` on
     `goal/stage-1`).
-11. **No list of references in a payload.** Field values are an id, a number, text or a raw schema
-    (`packages/orthograph/src/modules/values/types.ts:22-25` on goal/stage-1), so "the founding Directors, by person" is
-    a blank.
+11. **A list of people is only a raw schema.** "The founding Directors, by person" can be written today as
+    `Blueprint.value(Schema.Array(Blueprint.id("per").schema))` (the sketch does this). A raw schema's meta is just
+    `{ type: "schema" }` (`packages/orthograph/src/modules/values/types.ts:22-25`, `service.ts:8` on goal/stage-1),
+    so the model, the docs and the portal see a schema rather than a list of people. *Corrected 21 November 2026:* an
+    earlier draft called this a blank. Codex pointed out that the raw schema already carries it.
 12. **An app gets no builder guard.** Orthograph's own CI refuses a builder branch that edits checks (`builder-paths`);
     an app made by the preset has no such job, so lesson 5 rests on briefs alone (`F9-foreman.md`, section 9).
 13. **What Capxul has that Orthograph might borrow.** Each Capxul operation carries its promises, in prose, each with
