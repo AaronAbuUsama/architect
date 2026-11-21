@@ -233,13 +233,17 @@ backs it as it backs every read ([operations](operations.mdx), on steps).
 
 ### The portal shows it
 
-The portal's page for a thing will show its rules under the lifecycle, and a refusal's sentence will link to the rule that
-makes it (ST1.22, as decided on 20 November 2026). Drawn from the handle's docs page, it reads:
+The portal's page for a thing shows its rules under the lifecycle, one row per rule, and every refusal a rule owns
+reads as the rule's sentence and links to its row (ST1.22, as decided on 20 November 2026). An operation that can
+break a rule gets a "rules" stop on its spine, between the move and the commit. The portal reads all of it off the
+model it is given, so a renamed or re-worded rule shows as it is declared; the rules an operation's spine names are
+the ones the model attaches to it:
 
-```text planned=ST1.22
-Rules
-  handle.oneHolderPerName   another claimed handle holds this name         refuses HandleTaken         HN-001  exit 10
-  handle.oneNamePerPerson   you already hold a name                        refuses HandleAlreadyOwned  HN-002  exit 12
+```ts file=packages/portal/src/modules/pages/internal/rules.ts name=rulesBroken lines=40-43
+export const rulesBroken = (b: BlueprintWire, op: OperationWire): ReadonlyArray<RuleRef> => {
+  const found = Object.values(op.invariants ?? {}).flatMap((full) => ruleNamed(b, full) ?? []);
+  return found.filter((r, i) => found.findIndex((o) => o.full === r.full) === i);
+};
 ```
 
 ## Choices
@@ -300,7 +304,7 @@ Write one when the generated sentence reads poorly, as `oneNamePerPerson` does. 
 | The index at commit, and a lost race as a conflict | `packages/host-cloudflare/src/modules/store/internal/unique.ts:11` | built |
 | Plugged In's rules | `examples/plugged-in/blueprint/things/handle/invariants.ts` | built |
 | The rule's sentence on the docs page | `examples/plugged-in/generated/docs/handle/index.md:25` | built |
-| The portal's Rules section | the thing's page | planned, ST1.22 |
+| The portal's Rules section | `packages/portal/src/modules/pages/internal/rules.tsx:53` | built |
 
 ## Status
 
@@ -316,22 +320,16 @@ Write one when the generated sentence reads poorly, as `oneNamePerPerson` does. 
 | The docs, MCP's tool description and the scaffold's header say each rule | proved | ST1.17 | `e2e/m1/25-unique-fields.test.ts:223` |
 | `prove` asks for each rule's refusal once, from any journey | proved | ST1.18 | `e2e/m1/32-st1-18-prove-invariants.test.ts` |
 | Plugged In declares its rules | proved | ST1.19 | `e2e/m1/34-st1-19-plugged-in-declares-its-rules.test.ts` |
-| The portal's Rules section, each refusal linked to its rule | specified | ST1.22 | `e2e/m1/28-st1-22-rules-in-the-portal.test.ts`, in Chromium on Plugged In |
+| The portal's Rules section, each refusal linked to its rule | proved | ST1.22 | `e2e/m1/28-st1-22-rules-in-the-portal.test.ts`, in Chromium on Plugged In |
 | A rule across things (`requires`), a bound, and a rule on actors | specified | `design/later.md` | each has a decision step before the slice that first needs it |
 
-The page is specified, not proved, because the portal's section is not built.
+The page is specified, not proved, because a rule across things, a bound and a rule on actors are not built.
 
 ## Notes
 
 <Note kind="decision" decision="G5">
   Invariants are their own kind of declaration, one file per thing, with one refusal per rule, owned by the rule and
   made by the runtime. It keeps G4's runtime (the rule holds at commit, a conflict retries) and replaces its spelling.
-</Note>
-
-<Note kind="status" slice="ST1.22">
-  The portal does not show rules yet. The thing's page gets a Rules section under the lifecycle, each refusal's
-  sentence links to its rule, and the operation's spine gains a "rules" stop. The model already carries everything it
-  needs (ST1.17).
 </Note>
 
 <Note kind="status">

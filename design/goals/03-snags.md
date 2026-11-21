@@ -296,3 +296,17 @@ takes each, check first, and the climber comes back to that step once it is fixe
   `Blueprint.invariant.unique` in `invariants.ts` (G5). A checks author first adds the case.
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open
+
+## S-31 · model · an operation's spine can't name a rule that owns no refusal
+- Hit: Codex on #249 (ST1.22). `profile.onePagePerHandle` refuses nothing, yet `handle.claim` writes a profile and the
+  runtime checks the rule before the commit; the portal's rules stop on `handle.claim` names only handle's two rules.
+- Lost: an operation that can break only a rule with no refusal shows no rules stop, and one that can break both kinds
+  lists only some of what the runtime checks.
+- Cause: the compiler's `breakersOf` (`packages/compiler/src/modules/model/internal/invariants.ts:102`) works out every
+  rule an operation can break (`breaks`), but the model keeps only `refusals` (`operations.<op>.invariants`, refusal to
+  rule), so the wire never carries a rule with no refusal on an operation.
+- Fix: framework. The model carries each operation's `breaks`, and the portal's spine reads it. Check 28 pins the stop to
+  the rules the model attaches today (`e2e/m1/rules-fixture.ts:215`), so a checks author first moves it to `breaks`.
+- Owner: Goal 3 lead, for a checks author and then a framework builder.
+- Status: open
+
