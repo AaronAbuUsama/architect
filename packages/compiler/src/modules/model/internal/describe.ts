@@ -74,6 +74,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const writesOf = (writes: ReadonlyArray<Thing> | undefined, where: string) =>
     writes ? { writes: writes.map((w) => thingNames.get(w) ?? problem(problems, `${where}: a step writes a thing that isn't in the blueprint`)) } : {};
 
+  // G4's `unique:` key is retired (S-30): a thing still carrying it is refused, by thing name only (never a field name).
+  for (const [n, t] of layout.things) if (t.thing && "unique" in t.thing) problems.push(`thing ${n} declares unique, which is retired: declare it with Blueprint.invariant.unique in blueprint/things/${n}/invariants.ts`);
   const prefix = prefixes(layout.things, problems);
   // A thing some operation's payload names where no role check reads it gets a `<Thing>NotFound` (K16, M1.46).
   const missable = new Set([...layout.things.values()].flatMap((t) => [...t.verbs.values()].flatMap(({ declaration: d }) => missedBy(d, Blanks.isBlank))));
