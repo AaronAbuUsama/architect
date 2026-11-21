@@ -1636,8 +1636,8 @@ in one call, as Codex's does today.
 
 ### The screens
 
-🔵 **Designed only** (ST1.01, ST1.04, ST1.06). The three pages (`/@aaron`, `/claim`, `/edit`) built on generated React
-hooks (`@orthograph/react`, one hook per operation), served by the Worker. There is no React projection on `m1`.
+🔵 **Designed only** (ST1.01, ST1.04, ST1.06). The three pages (`/@aaron`, `/claim`, `/edit`) built on generated UI SDK
+pieces (the web projection, one piece per operation, K29), served by the Worker. There is no web projection on `m1`.
 
 ### Your own feature
 

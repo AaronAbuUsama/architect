@@ -28,8 +28,10 @@ packages/
                                                    publish, watch
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
-  portal-ui/         @orthograph/portal-ui         the only importer of HeroUI Pro, a peer dependency never bundled; the
-                                                   portal and every face build on its exports (F7, M1.34)
+  portal-ui/         @orthograph/portal-ui         the portal's components under our names; the portal and every face
+                                                   build on its exports (F7, M1.34), on UI SDK once HeroUI leaves (K29)
+  web/               @orthograph/web               the browser host and the runtime every generated piece shares, and
+                                                   the Orthograph theme on UI SDK's tokens (K29, ST1.01)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
 examples/
   acme/              the worked example: the allowance
