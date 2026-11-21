@@ -35,18 +35,22 @@ conductor integrates; it is not the switchboard.
    - **A milestone per release** (K28): `Preview`, `Beta` and `1.0`. Every goal pull request carries its release's
      milestone, so the milestone page shows what each release still waits on.
    - **A cross-goal ask is an issue** labelled with the goal that must act, naming the asker's goal and what done looks
-     like. A goal never pushes to another goal's branch, and never edits another goal's files by pull request; the
-     owner acts on the issue. Each lead reads its label's open issues at every slice start and closes them with the
+     like, or a pull request into the owner's branch that only the owner's lead merges (a line in its snag log, a
+     freeze line in its brief). A goal never pushes to another goal's branch; the owner acts, and its merge or comment
+     is the answer. Each lead reads its label's open issues at every slice start and closes them with the
      pull request that answers.
 4. **Decisions are named, not numbered, inside a goal.** A goal names its calls by milestone or area and a slug, as
-   `M6-money`, `ST3-budgets` and `CI-drafts` already are, and records the name in its brief's decision list. Before
+   `M6-money`, `ST3-budgets` and `CI-drafts` already are, or `GOAL<n>-<slug>` for a call that belongs to one goal and
+   no milestone (`GOAL6-theme`; not `G6-…`, since `G` is a lettered series), and records the name in its brief's
+   decision list. Before
    using a name, it checks no file starts with it on `main` or any open branch
    (`git ls-tree -r --name-only origin/<branch> design/decisions/`). Lettered IDs (`K32`) stay with the conductor's
    list in `design/handoff.md`, for calls that cross goals.
 5. **The conductor integrates.** It reads the labels, milestones, open issues and each goal's "Where it stands"; keeps
    `.agents/skills/kanban/STATE.md` as the index of goals and where each lives; orders merges into `main` and between
-   goal branches; decides conflicts between goals, as a decision; and does the admin steps a goal can't (branch
-   protection before a goal starts). Messages between threads stay welcome where both can reach each other, but
+   goal branches; decides conflicts between goals, as a decision; and does the admin steps a goal can't: it cuts a new
+   goal's branch and protects it like `goal/stage-1` before the lead starts, so a lead's first check (`gh api` on its
+   branch's protection) passes. Messages between threads stay welcome where both can reach each other, but
    nothing may depend on them: whatever a message settles is written into a file or an issue.
 6. **A goal's paths are its own.** The brief lists the packages and folders the goal owns. Touching another goal's
    path is a cross-goal ask (3), never a quiet edit.
@@ -62,8 +66,12 @@ issues carry asks and files carry state.
 - The `goal-3` to `goal-7` labels and the `Preview`, `Beta` and `1.0` milestones exist (created 21 November 2026), and
   every open goal pull request carries its label and milestone. Milestone slices M1.* go to `Preview`; M2, stage 1's
   slices and staging to `Beta`; stages 2 to 4 to `1.0`.
-- Running goals (3 and 4) adopt it at their next brief edit: a `goal-<n>` label on new pull requests and issues for
-  cross-goal asks. Their current chat habits may continue, provided whatever a message settles is written down.
+- `goal/ui-layer` and `goal/portal` were cut from `goal/stage-1` and protected like it on 21 November 2026.
+- Running goals adopt it in their own briefs, on their own branches, since only a goal edits its brief: Goal 3's lead
+  rewrites `03-stage-1-hill-climbed.md` (its "report to the conductor session" lines become a "Where it stands" section
+  and a paragraph on reading `goal-3` issues and pull requests at every slice, which Goal 6's cutover depends on), and
+  Goal 4's lead does the same in `04-on-chain.md`. Each is asked by an issue labelled for it (#299, #300). Until then their chat
+  habits may continue, provided whatever a message settles is written down.
 
 ## Supersedes
 

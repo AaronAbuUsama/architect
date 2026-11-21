@@ -27,8 +27,9 @@ thread types, their emojis, their finish lines and your agent's word for each ac
    - **its scope,** and the threads it must not collide with;
    - **its branch;**
    - **its finish line:** the step's "done when" check, word for word;
-   - **how it reports:** a message to you where its agent can send one, and always a `TO THE CONDUCTOR` block or a
-     one-line status at the end of each turn.
+   - **how it reports:** for a goal, its brief's "Where it stands", its snag file, its `goal-<n>` label and issues
+     (K32); for a thread you started, also a message where its agent can send one and a one-line status at the end of
+     each turn.
 4. **Update Aaron's view** (below).
 
 ## Where you run
