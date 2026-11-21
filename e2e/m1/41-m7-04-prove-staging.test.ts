@@ -10,7 +10,7 @@
 //   THE ADDRESS is `https://<prefix>-worker.<subdomain>.workers.dev`, `<prefix>-worker` being check 37's Worker (`ortho-<app>-stg-<run>-worker`) and `<subdomain>` the variable
 //   `ORTHO_STAGING_SUBDOMAIN` (one DNS label: lower-case letters, digits and dashes, 1 to 63, not starting or ending with a dash). WHY A VARIABLE AND NOT THE ACCOUNT: reading the account's
 //   subdomain is a Cloudflare API call that needs the token, and the story step holds no credential (`e2e/staging/workflow.mjs` fails a token on it), so the workflow hands the subdomain over
-//   as a repository variable, `vars.CLOUDFLARE_WORKERS_SUBDOMAIN` (not a secret: the subdomain is in every deployed address). It is never typed in a project: `ortho.config.ts` and the blueprint
+//   as the output of an earlier step that holds the token and reads the account's subdomain (`e2e/staging/subdomain.mjs`; a subdomain is not a secret and only it is written). It is never typed in a project: `ortho.config.ts` and the blueprint
 //   name no host, and the check builds the address from the model and the variable alone, for four apps/runs/subdomains, so a typed one fails.
 //   A LOCAL OVERRIDE, so the same code is judged without the cloud: `ORTHO_STAGING_ORIGIN=http://127.0.0.1:<port>` is the address, used as it is, and the subdomain is then not needed. Loopback
 //   only (as `ORTHO_STAGING_API` is for the lister): any other host is refused, so a stray variable cannot send a proof somewhere that is not this machine.
@@ -33,7 +33,7 @@
 //
 // Red today on one reason: `--env` is `local` or `test` and there is no `--run` ("--env staging" is not a value). Controls, true today: the address is check 37's Worker on a workers.dev
 // subdomain; the story and the routes it must and must not reach come from the model; the guard denies a workers.dev host and lets loopback through; the proxy passes and records; the judge
-// passes the right run and fails each planted wrong one; the workflow's story step runs a journey that exists, with the subdomain from a variable and no credential. No Docker.
+// passes the right run and fails each planted wrong one; the workflow's story step runs a journey that exists, with the subdomain from the earlier step's output and no credential. No Docker.
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -192,12 +192,13 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
       expect(found.join(" | ")).toMatch(say);
     });
 
-    it("the workflow's story step judges a journey that exists, gets the subdomain from a variable, and holds no credential", () => {
+    it("the workflow's story step judges a journey that exists, gets the subdomain from an earlier step's output, and holds no credential", () => {
       const text = readFileSync(join(repo, ".github/workflows/staging.yml"), "utf8");
       const step = /- name: the story\n([\s\S]*?)\n\n/.exec(text)?.[1] ?? "";
       expect(/--only "([^"]+)"/.exec(step)?.[1], step).toBe(STORY);
       expect(storyOf(judged.root).names).toContain(STORY);
-      expect(step).toContain("ORTHO_STAGING_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}");
+      expect(step).toContain("ORTHO_STAGING_SUBDOMAIN: ${{ steps.subdomain.outputs.subdomain }}");
+      expect(text, "a step that runs before the story reads the account's subdomain").toMatch(/- name: subdomain\n[\s\S]*?subdomain\.mjs[\s\S]*?- name: the story/);
       expect(step).not.toMatch(/CLOUDFLARE_API_TOKEN|secrets\./);
     });
   });

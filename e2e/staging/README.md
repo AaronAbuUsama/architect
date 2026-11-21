@@ -42,7 +42,8 @@ Red today on one reason: `ortho env` has `up`, `down` and `status` for a long-li
 | snapshot before | token, account | the account's whole listing before anything is made, kept in `tmp/staging/private/` and never uploaded |
 | up | token, account | `ortho env up staging --run <id>`; allowed to fail so that destroy runs, and still fails the job |
 | snapshot while up | token, account | what the account holds with the run up |
-| the story | none | `ortho prove --env staging --run <id> --only "the story"`; allowed to fail, still fails the job |
+| subdomain | token, account | `subdomain.mjs`: the account's workers.dev subdomain, written as `subdomain=<name>` to the step output and nothing else |
+| the story | none | `ortho prove --env staging --run <id> --only "a person claims a page and shares it"`, with `ORTHO_STAGING_SUBDOMAIN` from the step above; allowed to fail, still fails the job |
 | destroy | token, account | `ortho env destroy staging --run <id>`, **`if: always()`** |
 | snapshot after | token, account | the listing after destroy, **`if: always()`** |
 | judge | none | from the files alone, **`if: always()`**; see below |
@@ -67,8 +68,7 @@ first attempt's leftovers; the job names `environment: staging`, which GitHub ca
 
 **What is not checked here, and why.** The story step calls `ortho prove --env staging --run <id> --only "a person claims a page and shares it"` (the journey's own name; `"the story"` matched no journey). M7.04 owns that command
 (`design/decisions/M7-cloud.md`, addendum of 21 November 2026) and check 41 ([`e2e/m1/41-m7-04-prove-staging.test.ts`](../m1/41-m7-04-prove-staging.test.ts), 97 tests: 64 controls pass today, 33 are red in `e2e/m1/expected-failing/41-m7-04-prove-staging.txt`)
-pins it with no cloud: the address is the run's Worker (`<prefix>-worker`, check 37's name) on `ORTHO_STAGING_SUBDOMAIN`, a repository variable `CLOUDFLARE_WORKERS_SUBDOMAIN` that Aaron sets once (the story step holds no credential, and the account's own subdomain
-needs the token); `ORTHO_STAGING_ORIGIN` points the same code at a world served on this machine. What it cannot judge is the cloud itself: https, and a Worker whose `/_world` is closed so D1's own API must be read for facts (spike snags 15 and 16). The first real run is that proof.
+pins it with no cloud: the address is the run's Worker (`<prefix>-worker`, check 37's name) on `ORTHO_STAGING_SUBDOMAIN`, the output of the `subdomain` step before the story (it holds the token and reads the account's subdomain with [`subdomain.mjs`](subdomain.mjs), writing only `subdomain=<name>`, never the response; the story step holds none); `ORTHO_STAGING_ORIGIN` points the same code at a world served on this machine. What it cannot judge is the cloud itself: https, and a Worker whose `/_world` is closed so D1's own API must be read for facts (spike snags 15 and 16). The first real run is that proof.
 
 ## The lister's own tests
 

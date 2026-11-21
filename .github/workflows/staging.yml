@@ -75,16 +75,25 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
 
+      # The account's workers.dev subdomain, read with the token and handed to the story as an output (a subdomain is not a secret). Only `subdomain=<name>` is written; the response is never printed.
+      - name: subdomain
+        id: subdomain
+        if: steps.up.outcome == 'success'
+        run: node e2e/staging/subdomain.mjs "$GITHUB_OUTPUT"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
       # The story, through the same `prove` the other environments use, against the deployed address. It holds no Cloudflare credential. Whether it passes never decides
       # whether destroy runs.
       - name: the story
         id: story
         continue-on-error: true
         if: steps.up.outcome == 'success'
-        # The account's workers.dev subdomain, a repository variable (Aaron sets it once: not a credential, it is in every deployed address). The address is
+        # The account's workers.dev subdomain, from the step above (not a secret; the story itself holds no credential). The address is
         # <prefix>-worker.<subdomain>.workers.dev, formed by prove from the same prefix `up` used (check 41).
         env:
-          ORTHO_STAGING_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}
+          ORTHO_STAGING_SUBDOMAIN: ${{ steps.subdomain.outputs.subdomain }}
         run: $ORTHO prove --env staging --run "$RUN" --root examples/plugged-in --only "a person claims a page and shares it" 2>&1 | tee "$EVIDENCE/story.txt"; exit "${PIPESTATUS[0]}"
 
       # Destroy always runs: after a failed up, a failed story, a failed before-snapshot, or a plan that never printed. It deletes by the run's prefix, so it needs nothing from `up`.
