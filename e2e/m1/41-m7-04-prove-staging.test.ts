@@ -68,8 +68,12 @@ beforeAll(async () => {
   const served = { good: copy(), text: copy(), bad: copy() };
   const broken = join(served.bad.root, SORT);
   writeFileSync(broken, readFileSync(broken, "utf8").replace("return { handle, links };", WRONG));
-  const devs = await Promise.all([startDev(served.good.root, PORTS.good), startDev(served.text.root, PORTS.text), startDev(served.bad.root, PORTS.bad)]);
-  for (const d of devs) cleanups.push(() => stopDev(d.child));
+  // Each world that started is registered for stopping before anything else can fail, so one world failing to start leaves no other running.
+  const started = await Promise.allSettled([startDev(served.good.root, PORTS.good), startDev(served.text.root, PORTS.text), startDev(served.bad.root, PORTS.bad)]);
+  for (const r of started) if (r.status === "fulfilled") cleanups.push(() => stopDev(r.value.child));
+  const failed = started.find((r) => r.status === "rejected");
+  if (failed !== undefined) throw (failed as PromiseRejectedResult).reason;
+  const devs = started.map((r) => (r as PromiseFulfilledResult<Awaited<ReturnType<typeof startDev>>>).value);
   [good, text, bad] = await Promise.all([recorder(PORTS.goodProxy, devs[0].url), recorder(PORTS.textProxy, devs[1].url), recorder(PORTS.badProxy, devs[2].url)]);
   dead = await recorder(PORTS.dead);
   for (const r of [good, text, bad, dead]) cleanups.push(() => r.close());
