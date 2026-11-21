@@ -7,7 +7,7 @@ branch: goal/portal
 base: goal/stage-1
 status: ready          # ready | running | landing | done | parked
 lead:
-  harness: null        # claude-code | amp | codex, set by the lead when it starts
+  harness: null        # claude | amp | codex, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
 done_check: nx run e2e:portal-next
@@ -23,16 +23,16 @@ owns:
 slices:
   - "1 · The theme"
   - "2 · The checks"
-  - "3 · The map language"
-  - "4 · The app projection"
-  - "5 · The shell"
-  - "6 · The frame"
-  - "7 · Home, things and operations"
-  - "8 · Environments, compare, journeys, starting worlds"
-  - "9 · Reference, plugins and the rules"
-  - "10 · Monitor and traces"
-  - "11 · The agent's portal"
-  - "12 · Cutover (ST1.27)"
+  - "3 · The map language (after 2)"
+  - "4 · The app projection (after 3)"
+  - "5 · The shell (after 4)"
+  - "6 · The frame (after 1, 5)"
+  - "7 · Home, things and operations (after 6)"
+  - "8 · Environments, compare, journeys, starting worlds (after 6)"
+  - "9 · Reference, plugins and the rules (after 6)"
+  - "10 · Monitor and traces (after 6)"
+  - "11 · The agent's portal (after 6)"
+  - "12 · Cutover (after 7, 8, 9, 10, 11)"
 ---
 # Goal 6: the new portal, on our own components and the app's map
 
@@ -40,6 +40,23 @@ Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31
 
 **To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 6. Read `AGENTS.md` and
 `design/goals/06-portal.md`, and run it." Nothing else is needed. Milestone `Goal 6: the new portal`, label `release:beta` (K33).
+
+## The goal, in plain words
+
+- **In one sentence:** Build a new portal from our own parts and swap it in for the old one, without losing anything
+  the old one does.
+- **Why:** The old portal rests on a paid component library, and its pages and menus are wired by hand, so nothing about
+  its layout comes from the app itself.
+- **When it's done, you can:** open the portal and find everything you could before; see its pages and menus come from
+  what the app declares; and let an agent find and open any part of it by name.
+- **It is:** a new portal beside the old one, a way for any app to declare its pages and menus, the frame that draws
+  them, and one shared look for everything we draw.
+- **It isn't:** a redesign (the pages stay as they are), new data (it reads what the old one reads), or the generated
+  forms and views (that's the UI-layer goal).
+- **Done when:** every test that guards today's portal passes on the new one, and then the old one is deleted.
+- **Waits on:** nothing to start. The switch-over needs the stage-one goal's yes.
+- **Words used:** the portal: the web page every project gets for looking inside it. Its map: an app's pages, their
+  addresses and its menus.
 
 ## Aaron's words, 21 November 2026
 

@@ -1,0 +1,36 @@
+name: goals
+
+# Keeps each goal's page on GitHub current (K33): the goal issue, its slices, their order and its progress, written by
+# tools/github/sync.mjs from the briefs on main and on the goal branches. It runs when a brief changes on main and when
+# an issue opens, closes or changes milestone, so the progress, the open snags and what waits on other goals stay true.
+on:
+  push:
+    branches: [main]
+    paths: ["design/goals/**", "tools/github/**"]
+  issues:
+    types: [opened, closed, reopened, milestoned, demilestoned]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+# One run at a time: two at once could both create the same issue. A newer run waits; it never cancels one mid-write.
+concurrency:
+  group: goals-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - run: git fetch --no-tags origin '+refs/heads/goal/*:refs/remotes/origin/goal/*'
+      - run: node --test tools/github/sync.test.mjs
+      - run: node tools/github/sync.mjs --goal-branches --apply
+        env:
+          GH_TOKEN: ${{ github.token }}

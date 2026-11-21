@@ -31,22 +31,75 @@ export const goalMarker = (n) => `<!-- orthograph:goal=${n} -->`;
 export const sliceMarker = (n, s) => `<!-- orthograph:slice=${n}.${s} -->`;
 
 const line = (label, value) => (value ? `**${label}:** ${value}` : null);
+const isOpen = (i) => (i.state ?? "open") === "open";
 
-export const goalBody = (g, briefUrl) =>
+/** The goal's slice issues, snags and what waits on other goals, as GitHub holds them now: the goal page's live part. */
+export const goalView = (g, state) => {
+  const real = state.issues.filter((i) => !i.pullRequest && i.trusted !== false);
+  const sliceIssue = (n) =>
+    real.filter((i) => i.labels.includes("kind:slice") && (i.body ?? "").includes(sliceMarker(g.number, n))).sort((x, y) => x.number - y.number)[0];
+  const slices = g.slices.filter((s) => s.number !== null).map((s) => ({ ...s, issue: sliceIssue(s.number) ?? null }));
+  const blocks = (n) => slices.filter((s) => (s.issue?.blockedBy ?? []).includes(n)).map((s) => s.number);
+  const snags = real.filter((i) => isOpen(i) && i.labels.includes("kind:snag") && i.milestone === g.milestone);
+  const waiting = real.filter((i) => isOpen(i) && i.milestone !== g.milestone && blocks(i.number).length > 0);
+  const done = (s) => s.issue !== null && !isOpen(s.issue);
+  const blockedOpen = (s) => (s.issue?.blockedBy ?? []).some((n) => real.some((i) => i.number === n && isOpen(i)));
+  const ready = slices.filter((s) => !done(s) && !blockedOpen(s) && s.after.every((a) => slices.some((x) => x.number === a && done(x))));
+  return {
+    done: slices.filter(done).length,
+    total: slices.length,
+    ready,
+    snags: snags.map((i) => ({ number: i.number, title: i.title, blocks: blocks(i.number) })),
+    waiting: waiting.map((i) => ({ number: i.number, title: i.title, milestone: i.milestone, blocks: blocks(i.number) })),
+  };
+};
+
+const blocksText = (b) => (b.length ? ` (blocks slice${b.length > 1 ? "s" : ""} ${b.join(", ")})` : "");
+
+/** The goal issue's body: the plain card, the progress, what is stuck, who leads it and where it stands (K33). */
+export const goalBody = (g, briefUrl, view) =>
   [
     goalMarker(g.number),
-    `The goal issue for Goal ${g.number}. Its slices are this issue's sub-issues, and its milestone holds every issue`,
-    `and pull request of the goal. It mirrors the brief's front matter (\`tools/github/sync.mjs\`): edit the brief, not this.`,
+    `> Written by \`tools/github/sync.mjs\` from [the brief](${briefUrl}) and this milestone's issues. Edit the brief, not this page.`,
     "",
-    line("Brief", `[${g.brief}](${briefUrl})`),
-    line("Branch", g.branch && `\`${g.branch}\`${g.base ? `, from \`${g.base}\`` : ""}`),
-    line("Release", g.release),
-    line("Status", g.status),
-    line("Lead", g.lead && [g.lead.harness, g.lead.model, g.lead.since && `since ${g.lead.since}`].filter(Boolean).join(", ")),
-    line("Done check", g.done_check && `\`${g.done_check}\``),
-    g.owns.length ? `**Owns:**\n${g.owns.map((p) => `- \`${p}\``).join("\n")}` : null,
+    "## The goal, in plain words",
     "",
-    "Where it stands: the last section of the brief.",
+    g.card ?? "_The brief has no plain goal card yet: its lead adds one (the `github` skill, \"A goal's brief\")._",
+    "",
+    "## Progress",
+    "",
+    view.total
+      ? `**${view.done} of ${view.total} slices done.** ${view.ready.length ? `Ready now: ${view.ready.map((s) => `slice ${s.number}, ${s.title}`).join("; ")}.` : view.done === view.total ? "Every slice is done." : "Nothing is ready: every open slice waits on something."} The slices are this issue's sub-issues.`
+      : "The brief lists no slices yet.",
+    "",
+    "## Open snags",
+    "",
+    view.snags.length ? view.snags.map((s) => `- #${s.number} ${s.title}${blocksText(s.blocks)}`).join("\n") : "None.",
+    "",
+    "## Waiting on other goals",
+    "",
+    view.waiting.length ? view.waiting.map((w) => `- #${w.number} ${w.title}, in ${w.milestone ?? "no milestone"}${blocksText(w.blocks)}`).join("\n") : "Nothing.",
+    "",
+    "## Who leads it",
+    "",
+    [
+      line("Status", g.status ?? "not set"),
+      line("Lead", g.lead && g.lead.harness ? [g.lead.harness, g.lead.model, g.lead.since && `since ${g.lead.since}`].filter(Boolean).join(", ") : "nobody yet"),
+    ].join("  \n"),
+    "",
+    "## Where it stands",
+    "",
+    g.stands ?? "Nothing yet: the lead rewrites the brief's last section at every merge.",
+    "",
+    "## The details",
+    "",
+    [
+      line("Brief", `[${g.brief}](${briefUrl})`),
+      line("Branch", g.branch && `\`${g.branch}\`${g.base ? `, from \`${g.base}\`` : ""}`),
+      line("Release", g.release),
+      line("Done check", g.done_check && `\`${g.done_check}\``),
+    ].filter(Boolean).join("  \n"),
+    g.owns.length ? `\n**Owns:**\n${g.owns.map((p) => `- \`${p}\``).join("\n")}` : null,
   ]
     .filter((x) => x !== null)
     .join("\n");
@@ -55,14 +108,18 @@ export const sliceBody = (g, s, briefUrl) =>
   [
     sliceMarker(g.number, s.number),
     `Slice ${s.number} of Goal ${g.number}. What it is and its "done when" are in [the brief](${briefUrl}), slice ${s.number}.`,
+    s.after.length ? `It starts after slice${s.after.length > 1 ? "s" : ""} ${s.after.join(", ")} (the "blocked by" links).` : null,
     "Close it with the pull request that lands it (`Closes #<this>`).",
-  ].join("\n");
+  ]
+    .filter((x) => x !== null)
+    .join("\n");
 
 const labelsFor = (g, kind) => [kind, `goal-${g.number}`, ...(g.release && RELEASE[g.release] ? [RELEASE[g.release]] : [])];
 
 /**
  * goals: what `readGoal` returned for each brief. state: { labels, milestones, issues } as GitHub holds them
- * (issues: { number, title, body, labels: [names], milestone: title|null, type: name|null, subIssues: [numbers] }).
+ * (issues: { number, title, body, state, pullRequest, labels: [names], milestone: title|null, type: name|null,
+ * subIssues: [numbers], blockedBy: [numbers] }).
  * briefUrl: (goal) => a link to its brief. migrate: also move open issues and pull requests from `goal-<n>` labels and
  * release milestones to goal milestones and release labels (K33's one-off seed).
  */
@@ -76,10 +133,12 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
   }
 
   const milestoneByTitle = new Map(state.milestones.map((m) => [m.title, m]));
-  // Only a real issue carrying the kind's label is the sync's own: a pull request or any other issue that quotes a
-  // marker (a template, a review) is never taken for it.
+  // Only a trusted issue carrying the kind's label is the sync's own: a pull request, an outsider's issue or any other
+  // that quotes a marker (a template, a review) is never taken for it. The oldest wins, so a later copy can't displace it.
   const byMarker = (marker, kind) =>
-    state.issues.find((i) => !i.pullRequest && i.labels.includes(kind) && (i.body ?? "").includes(marker));
+    state.issues
+      .filter((i) => !i.pullRequest && i.trusted !== false && i.labels.includes(kind) && (i.body ?? "").includes(marker))
+      .sort((x, y) => x.number - y.number)[0];
   for (const g of goals) {
     const url = briefUrl(g);
     const description = `Goal ${g.number}. Brief: ${g.brief}.${g.done_check ? ` Done check: ${g.done_check}.` : ""}`;
@@ -88,7 +147,7 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
     else if (ms.description !== description) steps.push({ do: "updateMilestone", number: ms.number, title: g.milestone, description });
 
     const goalIssue = byMarker(goalMarker(g.number), "kind:goal");
-    const body = goalBody(g, url);
+    const body = goalBody(g, url, goalView(g, state));
     const title = `Goal ${g.number}: ${g.title}`;
     if (!goalIssue) steps.push({ do: "createIssue", key: `goal ${g.number}`, title, body, type: "Feature", labels: labelsFor(g, "kind:goal"), milestone: g.milestone });
     else if (goalIssue.body !== body || goalIssue.title !== title) steps.push({ do: "updateIssue", number: goalIssue.number, title, body });
@@ -104,6 +163,17 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
       } else {
         if (sliceIssue.title !== sTitle) steps.push({ do: "updateIssue", number: sliceIssue.number, title: sTitle });
         if (goalIssue && !(goalIssue.subIssues ?? []).includes(sliceIssue.number)) steps.push({ do: "addSubIssue", parent: goalIssue.number, child: sliceIssue.number });
+      }
+    }
+
+    // "Blocked by" links for the order the brief gives (`(after 4)`); asks and snags are linked by hand (the skill).
+    const ref = (n) => byMarker(sliceMarker(g.number, n), "kind:slice") ?? null;
+    for (const s of g.slices) {
+      for (const a of s.after ?? []) {
+        if (!g.slices.some((x) => x.number === a)) continue;
+        const [issue, blocker] = [ref(s.number), ref(a)];
+        if (issue && blocker && (issue.blockedBy ?? []).includes(blocker.number)) continue;
+        steps.push({ do: "addBlockedBy", issue: issue ? issue.number : `slice ${g.number}.${s.number}`, blocker: blocker ? blocker.number : `slice ${g.number}.${a}`, title: `slice ${g.number}.${s.number} after ${a}` });
       }
     }
   }

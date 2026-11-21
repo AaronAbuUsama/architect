@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readGoal, splitFrontMatter } from "./frontmatter.mjs";
-import { LABELS, goalBody, goalMarker, plan, sliceMarker } from "./plan.mjs";
+import { LABELS, goalBody, goalMarker, goalView, plan, sliceMarker } from "./plan.mjs";
 
 const brief = `---
 goal: 6
@@ -23,11 +23,17 @@ owns:
   - packages/shell/
 slices:
   - "1 · The theme"
-  - "2 · The checks"
+  - "2 · The checks (after 1)"
 ---
 # Goal 6: the new portal
 
-Body.
+## The goal, in plain words
+
+- **In one sentence:** Build a new portal.
+
+## Where it stands
+
+Slice 1 is open.
 `;
 
 test("front matter: scalars, comments, a nested map and block lists", () => {
@@ -74,11 +80,12 @@ test("run twice: once GitHub holds it all, there is nothing to do", () => {
     labels: LABELS,
     milestones: [{ number: 9, title: goal.milestone, description: `Goal 6. Brief: ${goal.brief}. Done check: ${goal.done_check}.` }],
     issues: [
-      { number: 10, title: "Goal 6: The new portal", body: goalBody(goal, url()), labels: ["kind:goal"], milestone: goal.milestone, subIssues: [11, 12] },
+      { number: 10, title: "Goal 6: The new portal", body: "", labels: ["kind:goal"], milestone: goal.milestone, subIssues: [11, 12] },
       { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: ["kind:slice"], milestone: goal.milestone },
-      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: ["kind:slice"], milestone: goal.milestone },
+      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: ["kind:slice"], milestone: goal.milestone, blockedBy: [11] },
     ],
   };
+  state.issues[0].body = goalBody(goal, url(), goalView(goal, state));
   assert.deepEqual(plan({ goals: [goal], state, briefUrl: url }), []);
 });
 
@@ -111,4 +118,49 @@ test("a pull request or a stray issue that quotes a marker is never taken for th
   const steps = plan({ goals: [goal], state, briefUrl: url });
   assert.ok(!steps.some((s) => s.number === 400 || s.number === 401 || s.parent === 400 || s.parent === 401));
   assert.ok(steps.some((s) => s.do === "createIssue" && s.key === "goal 6"));
+});
+
+test("a slice's order becomes a blocked-by link, made once", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  assert.deepEqual(goal.slices[1], { number: 2, title: "The checks", after: [1] });
+  const fresh = plan({ goals: [goal], state: empty, briefUrl: url }).filter((s) => s.do === "addBlockedBy");
+  assert.deepEqual(fresh.map((s) => [s.issue, s.blocker]), [["slice 6.2", "slice 6.1"]]);
+});
+
+test("the goal page: the plain card, the progress, what is stuck and on whom, and where it stands", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = {
+    issues: [
+      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), state: "closed", labels: ["kind:slice"], milestone: goal.milestone },
+      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), state: "open", labels: ["kind:slice"], milestone: goal.milestone, blockedBy: [11, 20, 21] },
+      { number: 20, title: "the data API has no field X", state: "open", labels: ["kind:snag"], milestone: goal.milestone },
+      { number: 21, title: "add field X", state: "open", labels: ["kind:ask"], milestone: "Goal 3: stage 1" },
+      { number: 22, title: "an old snag", state: "closed", labels: ["kind:snag"], milestone: goal.milestone },
+    ],
+  };
+  const page = goalBody(goal, url(), goalView(goal, state));
+  assert.match(page, /## The goal, in plain words\n\n- \*\*In one sentence:\*\* Build a new portal\./);
+  assert.match(page, /\*\*1 of 2 slices done\.\*\* Nothing is ready: every open slice waits on something\./);
+  assert.match(page, /## Open snags\n\n- #20 the data API has no field X \(blocks slice 2\)\n/);
+  assert.ok(!page.includes("#22"), "a closed snag is not listed");
+  assert.match(page, /- #21 add field X, in Goal 3: stage 1 \(blocks slice 2\)/);
+  assert.match(page, /## Where it stands\n\nSlice 1 is open\./);
+  assert.match(page, /\*\*Lead:\*\* amp/);
+});
+
+test("an outsider's issue with the right label and marker is never taken, and a later copy never displaces the first", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = {
+    labels: LABELS,
+    milestones: [],
+    issues: [
+      { number: 500, title: "spoof", body: goalMarker(6), labels: ["kind:goal"], trusted: false },
+      { number: 30, title: "Goal 6: The new portal", body: goalMarker(6), labels: ["kind:goal"] },
+      { number: 31, title: "a later copy", body: goalMarker(6), labels: ["kind:goal"] },
+    ],
+  };
+  const steps = plan({ goals: [goal], state, briefUrl: url });
+  assert.ok(!steps.some((s) => s.do === "createIssue" && s.key === "goal 6"));
+  assert.ok(steps.some((s) => s.do === "updateIssue" && s.number === 30));
+  assert.ok(!steps.some((s) => s.number === 500 || s.number === 31));
 });

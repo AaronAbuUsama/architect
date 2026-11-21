@@ -5,12 +5,14 @@
 //   node tools/github/sync.mjs                         plan, from design/goals/*.md in this checkout
 //   node tools/github/sync.mjs --brief origin/goal/on-chain:design/goals/04-on-chain.md
 //                                                      also a brief that lives on another branch
+//   node tools/github/sync.mjs --goal-branches         also the briefs on origin/goal/* that this checkout lacks
+//                                                      (a goal found on one branch only; on two, it is skipped)
 //   node tools/github/sync.mjs --migrate               also move open issues and pull requests from goal-<n>
 //                                                      labels and release milestones to goal milestones and labels
 //   node tools/github/sync.mjs --apply                 do it
 //
-// It needs `gh`, signed in with the `repo` scope. It never deletes anything. Run one at a time: two runs at once can
-// both create the same issue.
+// It needs `gh`, signed in with the `repo` scope (in CI, GH_TOKEN). It never deletes anything. Run one at a time: two
+// runs at once can both create the same issue, so the workflow (.github/workflows/goals.yml) runs it in one queue.
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { readGoal } from "./frontmatter.mjs";
@@ -19,7 +21,11 @@ import { plan } from "./plan.mjs";
 const args = process.argv.slice(2);
 const apply = args.includes("--apply");
 const migrate = args.includes("--migrate");
+const goalBranches = args.includes("--goal-branches");
 const extra = args.flatMap((a, i) => (a === "--brief" ? [args[i + 1]] : []));
+const git = (...argv) => execFileSync("git", argv, { encoding: "utf8" });
+const briefName = /^\d{2}-[a-z0-9-]+\.md$/;
+const isBrief = (f) => briefName.test(f) && !f.endsWith("-snags.md");
 
 const gh = (path, { method = "GET", body } = {}) => {
   const argv = ["api", "-H", "Accept: application/vnd.github+json", "-X", method, path];
@@ -36,13 +42,30 @@ const repo = execFileSync("gh", ["repo", "view", "--json", "nameWithOwner", "-q"
 
 const sources = [
   ...readdirSync("design/goals")
-    .filter((f) => /^\d{2}-[a-z0-9-]+\.md$/.test(f) && !f.endsWith("-snags.md"))
+    .filter(isBrief)
     .map((f) => ({ path: `design/goals/${f}`, ref: null, text: readFileSync(`design/goals/${f}`, "utf8") })),
   ...extra.map((spec) => {
     const [ref, path] = [spec.slice(0, spec.indexOf(":")), spec.slice(spec.indexOf(":") + 1)];
-    return { path, ref, text: execFileSync("git", ["show", `${ref}:${path}`], { encoding: "utf8" }) };
+    return { path, ref, text: git("show", `${ref}:${path}`) };
   }),
 ];
+
+// A brief that lives only on its goal branch (it reaches main when the goal lands): take it when exactly one goal
+// branch has a brief of that number and the checkout has none.
+if (goalBranches) {
+  const here = new Set(sources.map((s) => s.path.match(/(\d{2})-/)[1]));
+  const found = new Map();
+  for (const ref of git("for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/goal/").split("\n").filter(Boolean)) {
+    for (const path of git("ls-tree", "--name-only", ref, "design/goals/").split("\n").filter((f) => isBrief(f.split("/").pop()))) {
+      const n = path.split("/").pop().slice(0, 2);
+      if (!here.has(n)) found.set(n, [...(found.get(n) ?? []), { path, ref }]);
+    }
+  }
+  for (const [n, hits] of found) {
+    if (hits.length > 1) process.stderr.write(`goal ${n}: a brief on ${hits.map((h) => h.ref).join(" and ")}; skipped, pass --brief\n`);
+    else sources.push({ ...hits[0], text: git("show", `${hits[0].ref}:${hits[0].path}`) });
+  }
+}
 
 const goals = [];
 for (const s of sources) {
@@ -63,7 +86,9 @@ const briefUrl = (g) => `https://github.com/${repo}/blob/${g.ref ? g.ref.replace
 
 const issues = ghAll(`repos/${repo}/issues?state=all&per_page=100`);
 const goalNumbers = issues.filter((i) => !i.pull_request && i.labels.some((l) => l.name === "kind:goal")).map((i) => i.number);
+const sliceNumbers = issues.filter((i) => !i.pull_request && i.labels.some((l) => l.name === "kind:slice")).map((i) => i.number);
 const subIssues = new Map(goalNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/sub_issues?per_page=100`).map((x) => x.number)]));
+const blockedBy = new Map(sliceNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/dependencies/blocked_by?per_page=100`).map((x) => x.number)]));
 const state = {
   labels: ghAll(`repos/${repo}/labels?per_page=100`).map((l) => ({ name: l.name, color: l.color, description: l.description ?? "" })),
   milestones: ghAll(`repos/${repo}/milestones?state=all&per_page=100`).map((m) => ({ number: m.number, title: m.title, description: m.description ?? "" })),
@@ -74,10 +99,14 @@ const state = {
     body: i.body ?? "",
     state: i.state,
     pullRequest: Boolean(i.pull_request),
+    // Anyone may open an issue on a public repository, and a form adds its kind label, so only the owner's,
+    // collaborators' and this workflow's own issues can be taken for the sync's.
+    trusted: ["OWNER", "MEMBER", "COLLABORATOR"].includes(i.author_association) || i.user?.login === "github-actions[bot]",
     labels: i.labels.map((l) => l.name),
     milestone: i.milestone?.title ?? null,
     type: i.type?.name ?? null,
     subIssues: subIssues.get(i.number) ?? [],
+    blockedBy: blockedBy.get(i.number) ?? [],
   })),
 };
 
@@ -101,6 +130,7 @@ for (const s of steps) {
     created.set(s.key, { number: i.number, id: i.id });
   }
   if (s.do === "updateIssue") gh(`repos/${repo}/issues/${s.number}`, { method: "PATCH", body: { title: s.title, ...(s.body ? { body: s.body } : {}) } });
+  if (s.do === "addBlockedBy") gh(`repos/${repo}/issues/${issueRef(s.issue).number}/dependencies/blocked_by`, { method: "POST", body: { issue_id: issueRef(s.blocker).id } });
   if (s.do === "addSubIssue") gh(`repos/${repo}/issues/${issueRef(s.parent).number}/sub_issues`, { method: "POST", body: { sub_issue_id: issueRef(s.child).id } });
   if (s.do === "moveIssue") {
     if (s.milestone) gh(`repos/${repo}/issues/${s.number}`, { method: "PATCH", body: { milestone: milestones.get(s.milestone) } });

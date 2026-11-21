@@ -57,6 +57,24 @@ export const splitFrontMatter = (text) => {
   return { data, body: text.slice(end + 5) };
 };
 
+/** A slice line: `"5 · The shell (after 4)"` → { number: 5, title: "The shell", after: [4] }. */
+const readSlice = (s) => {
+  const m = /^(\d+)\s*[·:-]\s*(.+?)(?:\s*\(after ([\d,\s]+)\))?$/.exec(String(s));
+  if (!m) return { number: null, title: String(s), after: [] };
+  return { number: Number(m[1]), title: m[2].trim(), after: m[3] ? m[3].split(",").map((x) => Number(x.trim())) : [] };
+};
+
+/** The text under a `## <name>` heading, up to the next `## ` heading; null when the heading is missing or empty. */
+export const section = (body, name) => {
+  const lines = body.split("\n");
+  const start = lines.indexOf(`## ${name}`);
+  if (start === -1) return null;
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((l) => l.startsWith("## "));
+  const text = (end === -1 ? rest : rest.slice(0, end)).join("\n").trim();
+  return text === "" ? null : text;
+};
+
 /** The goal a brief declares: its front matter, or what its file name and first heading say when it has none. */
 export const readGoal = (path, text) => {
   const { data, body, error } = splitFrontMatter(text);
@@ -79,10 +97,9 @@ export const readGoal = (path, text) => {
       lead: data?.lead ?? null,
       done_check: data?.done_check ?? null,
       owns: data?.owns ?? [],
-      slices: (data?.slices ?? []).map((s) => {
-        const m = /^(\d+)\s*[·:-]\s*(.+)$/.exec(String(s));
-        return m ? { number: Number(m[1]), title: m[2].trim() } : { number: null, title: String(s) };
-      }),
+      slices: (data?.slices ?? []).map(readSlice),
+      card: section(body, "The goal, in plain words"),
+      stands: section(body, "Where it stands"),
       declared: data !== null,
     },
   };

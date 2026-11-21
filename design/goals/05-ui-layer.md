@@ -7,7 +7,7 @@ branch: goal/ui-layer
 base: goal/stage-1
 status: ready          # ready | running | landing | done | parked
 lead:
-  harness: null        # claude-code | amp | codex, set by the lead when it starts
+  harness: null        # claude | amp | codex, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
 done_check: nx run e2e:ui-layer
@@ -21,11 +21,11 @@ owns:
   - examples/plugged-in/generated/web/
   - design/goals/05-ui-layer.md
 slices:
-  - "1 · M1.23, the actions module, and the e2e:ui-layer target"
-  - "2 · ST1.26, the web projection's checks"
-  - "3 · M1.22, the actions projection"
-  - "4 · ST1.25, the web projection"
-  - "5 · ST1.04's three screens"
+  - "1 · The actions module, and the goal's test target"
+  - "2 · The web projection's checks"
+  - "3 · The actions projection (after 1, 2)"
+  - "4 · The web projection (after 2, 3)"
+  - "5 · The example app's three screens (after 4)"
 ---
 # Goal 5: the UI layer, on UI SDK
 
@@ -33,6 +33,25 @@ Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K
 
 **To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 5. Read `AGENTS.md` and
 `design/goals/05-ui-layer.md`, and run it." Nothing else is needed. Milestone `Goal 5: the UI layer`, label `release:beta` (K33).
+
+## The goal, in plain words
+
+- **In one sentence:** Give every app ready-made web building blocks, one for each thing a person can do in it, made
+  from what the app already declares, and build our example app's screens from them.
+- **Why:** An app gets its command line and its agent tools for free from its description, but its web pages are
+  written by hand, so every form repeats the same checks, errors and waiting, and an agent in a browser can't rely on them.
+- **When it's done, you can:** open the example app in a browser, claim a name, add links and see your page; get a clear
+  message when the name is taken; and watch an agent do the same on the same page, stopping where a person must say yes.
+- **It is:** a generated building block for every action and every view of data, the small shared browser runtime
+  they run on, and the example app's three screens, built from those blocks.
+- **It isn't:** the portal, or an app's list of pages and its menus (both belong to the new-portal goal), the example
+  app's server side, or any framework but React.
+- **Done when:** the example app's claim, links and page tests pass in a real browser, the same way they pass without one,
+  and nothing the app already generates has changed.
+- **Waits on:** nothing to start. The last step, the three screens, needs claiming a name to work, which the stage-one
+  goal is building.
+- **Words used:** a building block (a "piece"): a ready-made form or view for one action, with its errors and its waiting
+  built in. The example app (Plugged In): a page of links under a name you claim.
 
 ## Aaron's words
 

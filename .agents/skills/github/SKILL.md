@@ -14,14 +14,16 @@ works under one GitHub account, so who did what is said by labels and the templa
 | Thing | On GitHub | Made by |
 |---|---|---|
 | A goal | a **milestone** `Goal <n>: <title>` and the label `goal-<n>` on everything of it, and a **goal issue** (type Feature, `kind:goal`) | `tools/github/sync.mjs`, from the brief's front matter |
-| A slice | a **sub-issue** of the goal issue (type Task, `kind:slice`) | the sync, from the brief's `slices:` |
+| A slice | a **sub-issue** of the goal issue (type Task, `kind:slice`), **blocked by** the slices it comes after | the sync, from the brief's `slices:` |
 | A snag (your goal's own) | an issue, type Bug, `kind:snag`, your milestone | you, with the Snag form |
 | An ask to another goal | an issue, type Task, `kind:ask`, **the acting goal's** milestone | you, with the Ask form |
 | A decision to make | an issue, type Task, `kind:decision` | you, with the Decision form |
 | A ledger row being worked | an issue, type Task, `kind:gap`, titled with its ledger id | you, with the Gap form |
 | A release (K28) | a label: `release:preview`, `release:beta`, `release:1.0` | the sync |
 | Who did it | labels `role:<role>` and `harness:<harness>`, and the template's lines | you, on every pull request |
+| What waits on what | a **blocked-by** link from the slice to the snag or ask that stops it | you (below) |
 | Blocked | the label `blocked`, and `needs-aaron` when only Aaron can unblock it | you |
+| Where a goal is | the **goal issue's body**: card, progress, snags, waits, lead, "Where it stands" | the sync, rerun by the `goals` workflow |
 
 GitHub allows one milestone per issue, so the milestone says which goal and the release is a label. The `goal-<n>` label
 mirrors the milestone, so a list of pull requests filters by goal too. A model is never a label (models change weekly):
@@ -49,8 +51,30 @@ owns:
   - packages/theme/
 slices:
   - "1 · The theme"
+  - "2 · The checks"
+  - "3 · The map language (after 2)"   # the sync links 3 as blocked by 2
 ---
 ```
+
+Right after its start line comes the **plain goal card**, the first thing a person or a cold agent reads, copied word
+for word to the top of the goal issue:
+
+```md
+## The goal, in plain words
+
+- **In one sentence:** Build a new portal from our own parts and swap it in for the old one, without losing anything
+  the old one does.
+- **Why:** …
+- **When it's done, you can:** …
+- **It is:** …
+- **It isn't:** …
+- **Done when:** …
+- **Waits on:** …
+- **Words used:** the portal: the web page every project gets for looking inside it. …
+```
+
+Write it for someone who has read nothing else: no ids, no file paths, no term it doesn't explain, about twenty lines
+at most. The details stay below it, for the lead. A 🔍 reviewer reads the card alone and says whether it makes sense.
 
 The lead sets `lead:` and `status:` when it starts and whenever they change, in the pull request that changes them;
 that is how anyone can see which harness and model runs which goal. Only the parser's subset is allowed: `key: value`,
@@ -61,14 +85,17 @@ that is how anyone can see which harness and model runs which goal. Only the par
 ```bash
 node tools/github/sync.mjs                 # what it would do (a dry run, the default)
 node tools/github/sync.mjs --apply         # do it
-node tools/github/sync.mjs --brief origin/goal/on-chain:design/goals/04-on-chain.md   # a brief on another branch
+node tools/github/sync.mjs --goal-branches # also briefs that live only on their goal branch
+node tools/github/sync.mjs --brief origin/goal/on-chain:design/goals/04-on-chain.md   # one named brief
 node --test tools/github/sync.test.mjs     # its tests
 ```
 
-It makes the labels, a milestone per goal, the goal issue and a sub-issue per slice, and keeps the goal issue's body
-the same as the brief's front matter. It finds its issues by a marker in their body (`<!-- orthograph:goal=6 -->`),
-never by title, and never deletes anything. Run it after a pull request that adds a goal or changes a brief's front
-matter merges. A brief with no front matter still gets its milestone and goal issue, from its file name and heading.
+It makes the labels, a milestone per goal, the goal issue, a sub-issue per slice and the blocked-by links for the
+slices' order, and writes the goal issue's body as the goal's page. It finds its issues by a marker in their body
+(`<!-- orthograph:goal=6 -->`), never by title, takes only issues the owner, a collaborator or the workflow opened,
+and never deletes anything. You rarely run it: the `goals` workflow runs it, one run at a time, when a brief changes
+on `main` and when an issue opens, closes or changes milestone. A brief with no front matter still gets its milestone
+and goal issue, from its file name and heading; the page then says it has no card yet.
 
 ## Working a slice
 
@@ -91,6 +118,13 @@ gh issue list --milestone "Goal 6: the new portal" --label kind:ask --state open
   before; new snags are issues, so they can be filtered, linked and closed by the pull request that fixes them.
 - **An ask** goes in the milestone of the goal that must act, with the Ask form: what you need, what done looks like,
   what waits on it. You never edit its paths to get around it; its lead closes the ask with a pull request.
+- **Link what stops a slice.** When a snag or an ask stops one of your slices, mark the slice blocked by it, so your
+  goal page lists it under "Open snags" or "Waiting on other goals":
+
+  ```bash
+  id=$(gh api repos/AaronAbuUsama/architect/issues/<snag-or-ask> --jq .id)
+  gh api -X POST repos/AaronAbuUsama/architect/issues/<slice>/dependencies/blocked_by -F issue_id="$id"
+  ```
 - **The ledger** (`design/ledger.md`) stays one file: hundreds of rows, cited by id. A row becomes a Gap issue only
   when someone picks it up or a release needs it; the issue's title starts with its id, and the row gets the issue's
   link in the pull request that closes it.

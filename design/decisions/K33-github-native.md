@@ -7,6 +7,14 @@ and with front matter, so anyone can tell "what agent is working on what, and wh
 on K32 (goals coordinate themselves, through git and GitHub) and changes one thing in it: milestones are per goal, not
 per release.
 
+Before seeding, Aaron asked to slow down: how is a goal said "in a clear, human-readable, non-jargon" way, "not assuming
+that you've read everything else", with "what it is, what it isn't"; should a snag be its own type; how is every issue
+linked to its goal; and how do we "see where we are in the progress of that goal in one way". The grill put four
+questions, and on 21 November 2026 Aaron took every recommendation: **1A** a plain goal card at the top of every brief,
+copied to the goal issue; **2B** a snag is a native type plus a kind label until the repository moves to an
+organization; **3A** milestone, sub-issue and blocked-by links, each with one job; **4A** the goal issue is the
+progress page, written by the sync.
+
 ## The problem
 
 K32 moved coordination off chat and onto git and GitHub, but by convention in prose. GitHub itself held almost
@@ -49,8 +57,11 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
    Custom issue types need a GitHub organization, and this repository belongs to a person, so the kind is a label on
    top of the nearest native type. If the repository moves to an organization, each kind becomes its own type and the
    labels go.
-3. **Slices are sub-issues.** The goal issue's sub-issue list is the brief's slice list, so GitHub shows a goal's
-   progress as a bar, and a pull request closes its slice with `Closes #<n>`.
+3. **Three links, each with one job** (Aaron, 3A). The **milestone** says which goal. **Sub-issues** are the goal's
+   steps: the goal issue's sub-issue list is the brief's slice list, so GitHub's bar counts only slices, and a pull
+   request closes its slice with `Closes #<n>`. **Blocked by** says what waits on what: the sync links each slice to the
+   slices the brief says it comes after (`"5 · The shell (after 4)"`), and an agent links a slice to the snag or the
+   ask that stops it, by hand (the `github` skill).
 4. **Who works on what is written in three places,** since one account does everything:
    - the brief's front matter, `lead: { harness, model, since }` and `status:`, set by the lead when it starts and
      mirrored into the goal issue;
@@ -79,6 +90,21 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
     harness and model, the check and what it printed; what it changes, what it touches, what is not done or not
     verified.
 11. **A `github` skill** (`.agents/skills/github/`) says all of this for every agent, in any harness.
+12. **A plain goal card opens every brief** (Aaron, 1A): `## The goal, in plain words`, after the start line, with
+    eight bullets: in one sentence, why, when it's done you can, it is, it isn't, done when, waits on, words used. No
+    ids, file paths or unexplained terms, about twenty lines at most; the details stay below it, for the lead. A 🔍
+    reviewer checks it by reading the card alone. The sync copies it, word for word, to the top of the goal issue.
+13. **The goal issue is the progress page** (Aaron, 4A). The sync writes its body: the card; the progress (slices done
+    of all, and which are ready now, every slice they come after done and nothing open blocking them); the open Snag
+    issues in the milestone and the slice each blocks; what waits on other goals (an open issue in another milestone
+    that blocks one of its slices); who leads it (status, harness, model, since); the brief's "Where it stands"; and the
+    details (branch, release, done check, what it owns). The `goals` workflow (`.github/workflows/goals.yml`) reruns the
+    sync, one run at a time, when a brief changes on `main` and when an issue opens, closes or changes milestone, so the
+    page stays true without anyone running it. It reads the briefs on `main` and, for a goal whose brief is only on its
+    goal branch, that branch (`--goal-branches`).
+14. **Only trusted issues count.** The repository is public and a form adds its kind label, so the sync takes an issue
+    for its own, or lists it on a goal page, only when the owner, a collaborator or the workflow opened it; and the
+    oldest wins, so a later copy of a marker displaces nothing.
 
 ## Seeded, 21 November 2026
 
@@ -104,6 +130,12 @@ edit (K32 already asks each to adopt it, #299 and #300).
   other goal's.
 - **Assignees per agent:** every agent is one GitHub account.
 - **The ledger as 731 issues.**
+- **The goal issue as the source** (1B): a definition edited on GitHub skips review and leaves the repository.
+- **Every issue a sub-issue of its goal** (3C): snags and asks would count as progress, and an ask can't sit under
+  both goals.
+- **A GitHub wiki** (Aaron asked, 21 November 2026): a wiki is a second git repository beside this one, edited without
+  pull requests or review, not in any agent's checkout, and it would copy what `design/` already holds. The goal pages
+  are the plain front door instead; the generated docs site is the reader's one later.
 
 ## Reversible
 
