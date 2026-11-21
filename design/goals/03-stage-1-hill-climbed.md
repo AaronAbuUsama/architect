@@ -217,3 +217,57 @@ request from `goal/stage-1` to `main`. It merges when Gates M1 and M2 pass on it
 a 🔍 reviewer passed the whole branch. Then tag `plugged-in/stage-1`.
 
 K28 decides the preview merge and the three releases: [`K28-releases.md`](../decisions/K28-releases.md).
+
+## Where it stands
+
+Rewritten at every slice merge. Last rewritten on 21 November 2026, at `goal/stage-1` `7c8e43bf`. A fresh lead given "lead Goal 3, read this file" starts here, then reads `design/handoff.md` (the ids and the lines of work) and `design/goals/03-snags.md`. Sessions don't carry over; everything below is in the repository or on GitHub.
+
+**Where the goal is.** M1's slices are on `goal/stage-1` except the five open ones below. Gate M1 (M1.15) is not run yet. Plugged In's seven journeys are green in local and test (`e2e-stage1`, a required check). The climb is green: 331 of 331 cell-and-subject pairs. M2 has started with its decision (M2.01). Staging is planned and checked, but has never deployed.
+
+**Merged on 20 and 21 November** (newest first):
+- [#266](https://github.com/AaronAbuUsama/architect/pull/266): staging checks (check 37, `staging.yml`, the leftover judge).
+- [#269](https://github.com/AaronAbuUsama/architect/pull/269): S-31, every operation carries `breaks`.
+- [#268](https://github.com/AaronAbuUsama/architect/pull/268): S-17 and HAN-15.
+- [#265](https://github.com/AaronAbuUsama/architect/pull/265): S-29, a taken socket is told apart from a build error.
+- [#261](https://github.com/AaronAbuUsama/architect/pull/261): stage 1's journeys.
+- [#260](https://github.com/AaronAbuUsama/architect/pull/260): snag triage.
+- [#258](https://github.com/AaronAbuUsama/architect/pull/258): milestone ticks.
+- [#257](https://github.com/AaronAbuUsama/architect/pull/257): the climb rerun.
+- [#256](https://github.com/AaronAbuUsama/architect/pull/256): S-31's control.
+- [#254](https://github.com/AaronAbuUsama/architect/pull/254): S-30.
+- [#253](https://github.com/AaronAbuUsama/architect/pull/253): S-29's check.
+
+**In flight.** Each pull request goes into `goal/stage-1`. It merges when CI is green, every thread is resolved, and a 🔍 reviewer that wrote none of it has passed it.
+
+| PR | What it does | State, and the next step |
+|---|---|---|
+| [#263](https://github.com/AaronAbuUsama/architect/pull/263) | M2.01, the M2-auth decision, and G12 (paired landing) | One small delta under 🔍. It adds M2.05b, the slice that deletes the host's Better Auth once starter, plugged-in, signup and work no longer use it. Merge on pass, then #267 |
+| [#267](https://github.com/AaronAbuUsama/architect/pull/267) | M2.02's moved journeys, the auth and organizations stand-ins, the m2 ratchet | Passed. Merge #263's head in, then merge |
+| [#264](https://github.com/AaronAbuUsama/architect/pull/264) | S-27: a check that throws fails its step, not the run | Passed. Merges itself once CI is green. A warm-world timing miss (71% against a 70% bar) was one noisy measurement; re-run it if it repeats |
+| [#271](https://github.com/AaronAbuUsama/architect/pull/271) | M1.39, the canon's chains-and-wallets page | Supersede trail fixed (K7 over K5). The 🔍 gives its verdict when CI is green |
+| [#277](https://github.com/AaronAbuUsama/architect/pull/277) | main merged in (K28 releases), state docs refreshed, the m8 import fixed, this section | Under 🔍, waiting on CI |
+| [#278](https://github.com/AaronAbuUsama/architect/pull/278) | S-33 and S-34 checks: refusal fields of the wrong kind, and rule names that clash ignoring case | Under 🔍. Then a builder |
+| [#280](https://github.com/AaronAbuUsama/architect/pull/280) | M1.50 checks (check 40, one Graph for machines, the map and the worlds) | Blocked by 🔍 on four holes. An author is fixing them, then a fresh 🔍, then a builder |
+| [#281](https://github.com/AaronAbuUsama/architect/pull/281) | M1.12a, the request key on every attempt's span and in the portal, build plus check 38 in one PR (G12) | The retry hole is fixed. Delta 🔍 running. Close [#270](https://github.com/AaronAbuUsama/architect/pull/270) when it merges |
+| [#282](https://github.com/AaronAbuUsama/architect/pull/282) | M7.03 and M7.04: `ortho env up/destroy staging`, planned from the model, deploy and destroy by prefix | Check 37 green locally. Under 🔍, which is looking hardest at destroy's safety in the shared account |
+| (no PR yet) | Check 39 (M1.49, the derived monitor) and check 41 (`ortho prove --env staging`, owned by M7.04) | Authors writing them |
+
+**Next, in order.**
+1. Land the open pull requests above.
+2. Run the builders for #278 (S-33/S-34), #280 (M1.50), check 39 (M1.49) and check 41.
+3. The preview merge. Once Gate M1's slices are green here, open one pull request from `goal/stage-1` to `main`, with CI green, Gate M1 passing and a 🔍 of the whole branch (K28). Then M1.51 and Aaron's npm publish under `next`.
+4. M2.03 to M2.08, in the pairs `design/decisions/M2-auth.md` maps, with M2.24 and M2.25 as their checks.
+5. M2.09 (`npm create orthograph`), M2.11, M2.05b, and Gate M2 (M2.12).
+6. The first real staging run (`staging.yml`, run by hand). It needs the lead's go, stays under $10 a day across everything, and destroy always runs.
+
+**Open snags that matter.** In `03-snags.md`:
+- S-27 is in #264.
+- S-33 and S-34 come from Goal 4 and are in #278.
+- JOU-13 (no journey can force a race) has no slice. Check 38 now forces one in e2e, which is a pattern a journey API could borrow.
+
+**Agreements with other lanes**
+- **The conductor** (the Orthography Master session) owns `.agents/skills/kanban/STATE.md` on `main`. Never edit it here; take main's version at each merge of `main`.
+- **Goal 4** (on-chain, `goal/on-chain`). When M2.05 merges, send it one line with the commit.
+- **Goal 5** (the UI layer, `goal/ui-layer`, K29, [#272](https://github.com/AaronAbuUsama/architect/pull/272)). ST1.25 to ST1.28 and M1.22 and M1.23 are its work. The portal moves off HeroUI there (ST1.27). Don't build portal screens here that it replaces.
+- **Aaron's standing authority** (21 November): anything waiting on him goes ahead on the recommendation, and the call is recorded.
+- **M1.37** (the MCP output schema) is left as it is, by the conductor's call.
