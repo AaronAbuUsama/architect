@@ -137,11 +137,17 @@ operation declares, so the call shows in the trace with its declared errors (K3 
 A store holds one row per instance, and some things must be true among all the rows of a thing: one holder per name.
 That is declared on the thing, as a rule ([invariants](invariants.mdx)), not on the place it lives, so it moves with the
 thing. The store holds it as an index of its own, per rule, generated from the model. Plugged In's two handle rules and
-its profile rule become three:
+its profile rule become three indexes, the first two on `handle`:
 
 ```sql file=examples/plugged-in/generated/server/migrations/0001_things.sql lines=10-11
 CREATE UNIQUE INDEX "handle_oneHolderPerName" ON "handle" ("name") WHERE "state" IN ('claimed');
 CREATE UNIQUE INDEX "handle_oneNamePerPerson" ON "handle" ("owner") WHERE "state" IN ('claimed');
+```
+
+and the third, on `profile`, with no states to name:
+
+```sql file=examples/plugged-in/generated/server/migrations/0001_things.sql lines=27
+CREATE UNIQUE INDEX "profile_onePagePerHandle" ON "profile" ("handle");
 ```
 
 A rule is about the records of one thing, which live in one store. A thing that lives as actors has no table to hold

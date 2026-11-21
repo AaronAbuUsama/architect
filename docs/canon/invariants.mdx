@@ -22,8 +22,9 @@ one name, a handle has one page. A machine can't say it, because a machine knows
 about all of them. Written as a check in every handler that could break it, it is forgotten by the next handler.
 Orthograph calls one such declaration a **rule**, and the one form today is **unique**: at most one record holds a key,
 within the states the rule names. One rule decides it: **a rule is declared once, on its thing, and the runtime
-refuses its break, with the rule's own refusal, before the commit. A handler never checks a rule it can't help
-breaking.** The store backs it at commit, so two calls racing for one name can't both win.
+refuses its break before the commit, with the rule's own error when the rule names one. A handler never writes a check
+for a rule: the runtime makes it for every operation that can break the rule.** The store backs it at commit, so two
+calls racing for one name can't both win.
 
 ## The smallest example
 
@@ -85,7 +86,7 @@ A journey sees the refusal as it sees any other. Bob claims a name Aaron holds:
 A thing may have `blueprint/things/<thing>/invariants.ts`, one export per rule. The export's name is the rule's name,
 and its full name is `<thing>.<export>`, as roles and errors are named: `handle.oneHolderPerName`. The compiler reads
 the file as it reads `errors.ts` and `roles.ts`; any file name it doesn't know is refused
-(`packages/compiler/src/modules/model/internal/layout.ts:157`). `ortho add thing` writes an empty one, so the place is
+(`packages/compiler/src/modules/model/internal/layout.ts:167`). `ortho add thing` writes an empty one, so the place is
 there when the first rule is.
 
 A rule's key is one field, or a tuple of fields for a composite key. It takes three options, all optional:
@@ -225,9 +226,10 @@ And a profile page by its handle, through `onePagePerHandle`, which has no refus
 const page = yield* steps.load(records.findBy(onePagePerHandle, held["id"] as never));
 ```
 
-The rule is the argument, so no field or state is written as a string, and the key's type is the field's own. A
-composite key takes an object of its fields. A rule's `findBy` is a read inside a step, and the store backs it as
-it backs every read ([operations](operations.mdx), on steps).
+The rule is the argument, so no field or state is written as a string. `findBy` takes the field's own type for the key.
+The `as never` is only there because `held["id"]` comes off a loaded record untyped, so the cast stands in for the
+field's type. A composite key takes an object of its fields. A rule's `findBy` is a read inside a step, and the store
+backs it as it backs every read ([operations](operations.mdx), on steps).
 
 ### The portal shows it
 
@@ -291,7 +293,7 @@ Write one when the generated sentence reads poorly, as `oneNamePerPerson` does. 
 | The rule's API, `Blueprint.invariant.unique` | `packages/orthograph/src/modules/invariants/types.ts:45` | built |
 | `machine.states.<state>`, a state as a reference | `packages/orthograph/src/modules/machines/types.ts` | built |
 | The layout reading `invariants.ts` | `packages/compiler/src/modules/model/internal/layout.ts:157` | built |
-| Rules in the model, and the operations that break them | `packages/compiler/src/modules/model/internal/invariants.ts:93` | built |
+| Rules in the model, and the operations that break them | `packages/compiler/src/modules/model/internal/invariants.ts:48` | built |
 | The runtime's check, before the commit | `packages/language-effect/src/modules/handler/service.ts:130` | built |
 | The refusal, or the defect | `packages/language-effect/src/modules/handler/internal/invariants.ts:14` | built |
 | `findBy(rule, value)` | `packages/language-effect/src/modules/records/internal/unit.ts:38` | built |
@@ -339,7 +341,7 @@ The page is specified, not proved, because the portal's section is not built.
   index to look in.
 </Note>
 
-<Note kind="question" id="requires-when" slice="ST1.22">
+<Note kind="question" id="requires-when">
   When a rule across things arrives, does it hold only when a record is made, or always? If always, releasing a handle
   breaks `LinkNeedsHandle` for every link on its page, so `handle.release` would have to refuse or cascade. It is
   decided before the slice that first needs it, and it changes what `release` may do.

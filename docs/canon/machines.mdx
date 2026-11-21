@@ -195,7 +195,8 @@ The machine's refusal is one of four places a call can be refused, in the order 
 3. **The handler**, a declared error only it can know, like `SheetFull`.
 4. **A rule**, after the handler answers and the move is made, before the commit.
 
-The last two are the ones a machine's state can't decide. A machine's `states` are references, so a rule can name one:
+The last two are the ones a machine's state can't decide. The declared `states` array also becomes a record of
+references, so a rule can name one:
 Plugged In's `oneHolderPerName` holds `while: [machine.states.claimed]`, and a rule sees the state the move just set. All
 four are on [operations](operations.mdx), and the rule is on [invariants](invariants.mdx).
 
