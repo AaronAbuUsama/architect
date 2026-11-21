@@ -117,14 +117,14 @@ describe("evals on evidence", () => {
 
   it("explainability: a rule's refusal needs a deciding log inside the operation's span and the rule's full name on the span, never in the log's text", () => {
     const claim = { ...op, name: "handle.claim", errors: [], refusals: ["Taken"], invariants: { Taken: "handle.oneName" } } as unknown as OperationModel;
-    const refused = (logs: Evidence["trace"]["logs"], rule: string | undefined = "handle.oneName") => evidence(1, { refusal: "Taken", trace: { spans: [], logs }, opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "handle.claim", attrs: rule === undefined ? {} : { "refusal.invariant": rule }, status: 1, ms: 1, start: 0 } });
+    const refused = (logs: Evidence["trace"]["logs"], rule: string | null = "handle.oneName") => evidence(1, { refusal: "Taken", trace: { spans: [], logs }, opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "handle.claim", attrs: rule === null ? {} : { "refusal.invariant": rule }, status: 1, ms: 1, start: 0 } });
     const log = (spanId: string, body: string) => ({ traceId: "t", spanId, body, attrs: {} });
     const judge = (e: Evidence) => explainability(claim, [e], run()).failures;
     expect(judge(refused([log("s", "[redacted].oneName: another instance already holds this key")])), "a redacted log body passes").toEqual([]);
     expect(judge(refused([])), "no log").toEqual(["grant-an-allowance \"s\": Taken has no deciding log"]);
     expect(judge(refused([log("other", "x")])), "a log outside the span").toHaveLength(1);
     expect(judge(refused([log("s", "x")], "handle.otherRule"))[0], "the span names a different rule").toContain("names handle.otherRule on its span, not handle.oneName");
-    expect(judge(refused([log("s", "x")], undefined))[0]).toContain("names no rule");
+    expect(judge(refused([log("s", "x")], null))[0]).toContain("names no rule");
   });
 
   it("coverage: a runtime refusal no journey can cause (IdempotencyConflict) is not in the denominator, NotAllowed is, and the line says so", () => {
