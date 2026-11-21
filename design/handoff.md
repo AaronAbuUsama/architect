@@ -178,6 +178,7 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 ·
 | G8 | a refused call is traced in `<operation>.refused` | `goal/stage-1` |
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
+| K30 | the model and the map: where the core ends, the repositories, declaring what you know, extraction, staleness in CI | `claude/orthograph-model-cf3dca` (#185), reserved |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
 | M7 | the cloud pass for staging (`M7-cloud`, M7.01) | `goal/stage-1`, `goal/on-chain` |
 | M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
