@@ -3,8 +3,7 @@
 // wrong with them. The rules are Plugged In's three one-line `unique` entries as they stand (until ST1.19): their fields and states are READ from
 // the wire's `unique`; only their names, their refusals and the one description are the check's, and they reach the portal through the wire alone. From ST1.19 the wire carries
 // the rules itself and no `unique`: they are then read back out of `invariants`, and built the same way (see `withRules`).
-// S-31 (design/decisions/S31-breaks.md): each operation also carries `breaks`, every rule it can break. The fixture states that list itself (`BREAKS_WITH_NO_REFUSAL` and
-// the refusals), and a wire that carries the compiler's own `breaks` is held to it (`Built.compiled`): drift between the compiler and the fixture fails. A planted variant
+// S-31 (design/decisions/S31-breaks.md): each operation also carries `breaks`, every rule it can break. The fixture states that list itself (`BREAKS`, written out by hand), and a wire that carries the compiler's own `breaks` is held to it (`Built.compiled`): drift between the compiler and the fixture fails. A planted variant
 // then replaces the list (`PLANTED_BREAKS`), so only a portal that READS `breaks` passes both variants.
 import { Wire } from "@orthograph/portal";
 
@@ -27,14 +26,14 @@ export const PLANTED: Naming = {
 };
 
 /**
- * The operations of Plugged In that can break a rule which owns no refusal, by the rule's `thing.field`: what the model's `breaks` holds beyond the rules `invariants` maps.
- * Only `handle.claim` (it makes a profile: `writes: [Profile]`). `profile.get` is a read and declares `writes: []`, so it breaks nothing (S31-breaks.md, amendment to G5 section 3).
+ * What each operation of Plugged In can break, by the rule's `thing.field`, written out by hand (an operation not named breaks nothing): `handle.claim` its two rules and, with `writes: [Profile]`,
+ * the page rule, which owns no refusal. `profile.get` is a read and declares `writes: []`, so it breaks nothing (S31-breaks.md, amendment to G5 section 3). Not derived from the wire's `invariants`.
  */
-const BREAKS_WITH_NO_REFUSAL: Readonly<Record<string, ReadonlyArray<string>>> = { "handle.claim": ["profile.handle"] };
+const BREAKS: Readonly<Record<string, ReadonlyArray<string>>> = { "handle.claim": ["handle.name", "handle.owner", "profile.handle"] };
 
 /**
  * A `breaks` that is NOT what the compiler says, for the planted variant, by operation and the rule's `thing.field`; an operation it does not name breaks nothing. It moves the page rule
- * off `handle.claim` and onto two operations that attach no refusal at all (`handle.resolve` breaks only the rule that owns none, `link.add` breaks it too). A portal that writes in "claim:
+ * off `handle.claim` and onto three operations that attach no refusal at all (`handle.resolve` and `link.add`, whose things have machines, and `profile.get`, whose thing has none). A portal that writes in "claim:
  * every rule of handle and profile, everything else: none", or shows the stop only when an operation has refusals, passes the real list and fails this one; only a portal that reads
  * `breaks` passes both. Every refusal an operation attaches stays among its `breaks`, as the compiler guarantees.
  */
@@ -42,6 +41,7 @@ export const PLANTED_BREAKS: Readonly<Record<string, ReadonlyArray<string>>> = {
   "handle.claim": ["handle.name", "handle.owner"],
   "handle.resolve": ["profile.handle"],
   "link.add": ["profile.handle"],
+  "profile.get": ["profile.handle"], // a thing with no machine: a portal that shows no stop there passes the real list and fails this one
 };
 
 /** The wire with the rules, and the rules read back out of it. It is the signed JSON as a Worker would hold it, not a decoded one: `Wire.decode` drops what its schema does not name, and ST1.17 adds `invariants` to it. `keepUnique`: the one-liners stay (as they stand) or go (a wire from after ST1.20). */
@@ -60,8 +60,9 @@ export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: 
   const rules: Array<Rule> = [];
   // The wire's own `breaks` names rules as the compiler does, `<thing>.<rule>`; the rule's `thing.field` is how this variant renames it. Read before the loop clears `invariants`.
   const keyOf = (full: string): string => { const [thing, rule] = full.split("."); const r = (unsigned.model.things[thing!]?.invariants ?? {})[rule!] as { readonly fields: ReadonlyArray<string> } | undefined; if (r === undefined) throw new Error(`the wire's breaks names ${full}, which is no rule of its things`); return `${thing}.${r.fields[0]}`; };
-  const compiledKeys = Object.values(unsigned.model.operations).every((op) => op.breaks !== undefined)
-    ? Object.fromEntries(Object.entries(unsigned.model.operations).map(([name, op]) => [name, (op.breaks ?? []).map(keyOf)]))
+  // As the wire has it: an operation without a list (or with something else) makes the whole answer `null`; a name twice stays twice, so the check sees it.
+  const compiledKeys = Object.values(unsigned.model.operations).every((op) => Array.isArray(op.breaks))
+    ? Object.fromEntries(Object.entries(unsigned.model.operations).map(([name, op]) => [name, op.breaks!.map(keyOf)]))
     : null;
   for (const [thing, t] of Object.entries(unsigned.model.things)) {
     // From ST1.19 the wire carries Plugged In's rules itself (`invariants`) and no `unique`: each is read back as the one-liner it replaced (its first key field and its scope) and cleared, with the
@@ -93,11 +94,13 @@ export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: 
   // variant replaces it on the wire the portal gets.
   const fullName = (key: string) => { const [thing, field] = key.split("."); const rule = rules.find((r) => r.thing === thing && r.fields[0] === field); if (rule === undefined) throw new Error(`no rule on ${key}`); return `${rule.thing}.${rule.name}`; };
   const sorted = (names: Iterable<string>) => [...new Set(names)].sort();
+  const order = (names: Iterable<string>) => [...names].sort(); // the wire's list sorted, not de-duplicated: the compiler names each rule once
   const truth: Record<string, ReadonlyArray<string>> = {};
   for (const [name, op] of Object.entries(unsigned.model.operations)) {
-    truth[name] = sorted([...Object.values(op.invariants ?? {}), ...(BREAKS_WITH_NO_REFUSAL[name] ?? []).map(fullName)]);
+    truth[name] = sorted((BREAKS[name] ?? []).map(fullName));
+    for (const owner of Object.values(op.invariants ?? {})) if (!truth[name]!.includes(owner)) throw new Error(`the fixture says ${name} does not break ${owner}, which it attaches a refusal for`);
     op.breaks = planted === undefined ? [...truth[name]!] : sorted((planted[name] ?? []).map(fullName));
   }
-  const compiled = compiledKeys === null ? null : Object.fromEntries(Object.entries(compiledKeys).map(([name, keys]) => [name, sorted(keys.map(fullName))]));
+  const compiled = compiledKeys === null ? null : Object.fromEntries(Object.entries(compiledKeys).map(([name, keys]) => [name, order(keys.map(fullName))]));
   return { wire: { ...unsigned, digest: Wire.digestOf(unsigned) }, rules, truth, compiled };
 };

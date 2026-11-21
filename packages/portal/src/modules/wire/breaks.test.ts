@@ -22,7 +22,7 @@ describe("S-31 control: an operation with no rules to break", () => {
 
 describe("S-31: the wire keeps `breaks`", () => {
   it("decoding keeps an operation's list, whole and in order, including a rule that owns no refusal", async () => {
-    const breaks = ["allowance.oneHolderPerName", "profile.onePagePerHandle"];
+    const breaks = ["profile.onePagePerHandle", "allowance.oneHolderPerName"]; // not sorted: the wire keeps what the compiler wrote, in its order
     const decoded = await roundTrip(withBreaks(breaks));
     expect((decoded.model.operations["allowance.spend"] as unknown as { breaks?: ReadonlyArray<string> }).breaks).toEqual(breaks);
   });
@@ -46,5 +46,10 @@ describe("S-31: the wire keeps `breaks`", () => {
     const numbers = structuredClone(unsigned);
     numbers.model.operations["allowance.spend"]!.breaks = [1];
     expect((await Effect.runPromise(Effect.result(Wire.decode({ ...numbers, digest: Wire.digestOf(numbers as never) })))) ._tag).toBe("Failure");
+    for (const wrong of [null, {}, ["allowance.a", null]]) {
+      const other = structuredClone(unsigned);
+      other.model.operations["allowance.spend"]!.breaks = wrong;
+      expect((await Effect.runPromise(Effect.result(Wire.decode({ ...other, digest: Wire.digestOf(other as never) })))) ._tag, `a \`breaks\` of ${JSON.stringify(wrong)}`).toBe("Failure");
+    }
   });
 });

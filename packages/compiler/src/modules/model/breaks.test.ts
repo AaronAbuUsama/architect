@@ -117,10 +117,22 @@ describe("S-31: the model carries every rule an operation can break, with or wit
       "things/handle/invariants.ts": RULES,
       ...VERBS,
       "things/handle/verbs/claim.ts": VERB("claim", "claim", "Blueprint.step.database({ writes: [Page] })", 'import { Page } from "../../page/thing.ts";\nvoid Page;\n'),
+      "things/handle/verbs/look.ts": VERB("look", null, "Blueprint.step.database({ writes: [Page] })", 'import { Page } from "../../page/thing.ts";\nvoid Page;\n'),
     }));
+    expect(breaksOf(m, "handle.look"), "no move, and it writes only a page: the page's rule and none of handle's").toEqual(["page.onePerHandle"]);
     expect(breaksOf(m, "handle.claim")).toEqual(["handle.oneHolder", "handle.plain", "page.onePerHandle"]);
     expect(m.operations["handle.claim"]?.invariants, "the page rule refuses nothing").toEqual({ HandleTaken: "handle.oneHolder" });
     expect(breaksOf(m, "handle.release"), "release writes only its own record").toEqual([]);
+  });
+
+  it("a rule with no `while` is broken by any move (claim and release), and not by an operation with no move and a default step", async () => {
+    const m = await modelOf(project({
+      "things/handle/invariants.ts": `${RULES}export const anyMove = Blueprint.invariant.unique(Handle.fields.name);\n`,
+      ...VERBS,
+    }));
+    expect(breaksOf(m, "handle.claim")).toEqual(["handle.anyMove", "handle.oneHolder", "handle.plain"]);
+    expect(breaksOf(m, "handle.release"), "release leaves `claimed`, which clears the scoped rules, but a rule with no scope is in force in every state").toEqual(["handle.anyMove"]);
+    expect(m.operations["handle.look"]?.breaks).toEqual([]);
   });
 
   it("each rule is named once, as `<thing>.<rule>`, and every rule with a refusal on an operation is among its `breaks`", async () => {
@@ -150,6 +162,7 @@ const PAGE_FILES = {
   "things/page/verbs/unset.ts": PAGE_VERB("unset", "s: Blueprint.step.database()"),
   "things/page/verbs/reads.ts": PAGE_VERB("reads", "s: Blueprint.step.database({ writes: [] })"),
   "things/page/verbs/mixed.ts": PAGE_VERB("mixed", "a: Blueprint.step.database({ writes: [] }), b: Blueprint.step.database()"),
+  "things/page/verbs/mixedfirst.ts": PAGE_VERB("mixedfirst", "a: Blueprint.step.database(), b: Blueprint.step.database({ writes: [] })"),
   "things/page/verbs/named.ts": PAGE_VERB("named", "s: Blueprint.step.database({ writes: [Page] })"),
 };
 
@@ -171,6 +184,7 @@ describe("S-31 amendment: a database step with `writes` unset is unknown, `write
   it("an operation with one step that reads and one that is unknown breaks the rule, and one that names the thing in `writes` breaks it too", async () => {
     const m = await modelOf(project(PAGE_FILES));
     expect(breaksOf(m, "page.mixed"), "one unknown step is enough").toEqual(["page.onePerHandle"]);
+    expect(breaksOf(m, "page.mixedfirst"), "whichever step it is: the first as well as the last").toEqual(["page.onePerHandle"]);
     expect(breaksOf(m, "page.named"), "named in writes: section 3's rule 2, whatever rule 3 says").toEqual(["page.onePerHandle"]);
   });
 });

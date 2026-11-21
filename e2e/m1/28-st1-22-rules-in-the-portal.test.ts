@@ -90,7 +90,7 @@ describe("28 control: the fixture and the judge are sound", () => {
     expect(model.operations["handle.claim"]!.invariants).toEqual({ HandleTaken: "handle.oneHolderPerName", HandleAlreadyOwned: "handle.oneNamePerPerson" });
     expect(model.operations["handle.claim"]!.errors, "an invariant's error leaves `errors` (G5 section 3)").toEqual([]);
     expect(model.operations["handle.release"]!.invariants, "release only leaves `claimed`: no rule attached").toBeUndefined();
-    expect(model.operations["handle.claim"]!.breaks, "claim breaks all three, the page rule owns no refusal").toEqual(built.rules.map((r) => `${r.thing}.${r.name}`).sort());
+    expect(model.operations["handle.claim"]!.breaks, "claim breaks all three, the page rule owns no refusal").toEqual(["handle.oneHolderPerName", "handle.oneNamePerPerson", "profile.onePagePerHandle"]);
     expect(model.operations["handle.release"]!.breaks, "release breaks none").toEqual([]);
     expect(model.operations["profile.get"]!.breaks, "profile.get is a read (`writes: []`): it writes no row, so it breaks nothing and has no rules stop").toEqual([]);
     expect(model.operations["profile.get"]!.invariants, "and no refusal to attach").toBeUndefined();
@@ -267,6 +267,19 @@ describe.each([
   it(`is refused by the planted list: ${_}`, { timeout: 120_000 }, async () => {
     const planted = await judgedWith([[from, to]], PLANTED);
     expect(planted.spine.length, `planted:\n${planted.spine.join("\n")}`).toBeGreaterThan(0);
+  });
+});
+
+describe("28 S-31: the generated model and the portal's wire say the same", () => {
+  it("every operation's `breaks` in generated/model/model.json is the one in generated/portal/blueprint.json, and the lists are the compiler's (each rule once)", () => {
+    const model = JSON.parse(readFileSync(join(repo, "examples/plugged-in/generated/model/model.json"), "utf8")) as { operations: Record<string, { breaks?: unknown }> };
+    const wire = (pluggedIn as { model: { operations: Record<string, { breaks?: unknown }> } }).model.operations;
+    expect(Object.keys(model.operations).sort()).toEqual(Object.keys(wire).sort());
+    for (const [name, op] of Object.entries(model.operations)) {
+      expect(Array.isArray(op.breaks), `${name}: generated/model/model.json carries no \`breaks\` (the compiler's model drops it, S-31)`).toBe(true);
+      expect(wire[name]?.breaks, name).toEqual(op.breaks);
+      expect(new Set(op.breaks as Array<string>).size, `${name} names a rule twice`).toBe((op.breaks as Array<string>).length);
+    }
   });
 });
 
