@@ -12,10 +12,10 @@ for the same picture in a page; this file keeps the standing directions, the lin
 
 **Where things are.** M0 and layers 1 and 2 are done. M1's slices have landed on `goal/stage-1` (Goal 3) except those
 listed under "Every open line", and Gate M1 (M1.15) is not run yet. Plugged In's seven journeys run green in CI, in
-local and in test (`e2e-stage1`, a required check), and the climb is green: 331 of 331 grid cells. Goal 4 (on-chain)
+local and in test (`e2e-stage1`, a required check), and the climb is green: 331 of 331 cell-and-subject pairs. Goal 4 (on-chain)
 has started on `goal/on-chain`. K28 (21 November) cut three releases: the preview (Gate M1 on `main` plus npm under
-`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (PR #272, a draft)
-proposes the UI layer.
+`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (PR #272, open and ready for
+review) decides the UI layer, under Aaron's standing authority of 21 November; Goal 5 waits on #272 merging.
 
 **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Rows below that say `links` predate it;
 `milestones.md` is renamed in place ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)).
@@ -110,10 +110,10 @@ Goals run the work now (`design/goals/`), each on its own branch. The conductor 
 
 | Line | Branch | PRs | Done when | State, 21 November 2026 |
 |---|---|---|---|---|
-| **Goal 3, stage 1 (Plugged In)** | `goal/stage-1` | #263, #264, #266, #267, #269, #270, #271 open | `nx run e2e:stage1` and Gates M1 and M2 pass; the staging run; one pull request to `main` at the done check, after the preview merge (K28) | The climb is green, 331 of 331 cells. Merged today: S-29 (#265), S-17's HAN-15 (#268), S-30 (#254). In flight: S-27 (#264) and S-31 (#269); M2.01 (#263) in review; the staging checks (#266) merging; the M2.02 moved journeys (#267) passed and wait on #263; M1.39 (#271) and M1.12a (#270) open; M1.49 and M1.50 have no pull request yet |
+| **Goal 3, stage 1 (Plugged In)** | `goal/stage-1` | #263, #264, #266, #267, #270, #271, #277, #278, #280 open | `nx run e2e:stage1` and Gates M1 and M2 pass; the staging run; one pull request to `main` at the done check, after the preview merge (K28) | The climb is green, 331 of 331 cell-and-subject pairs. Merged today: S-30 (#254), S-29 (#265), S-17's HAN-15 (#268) and S-31 (#269, `b1d424e0`; it replaced #255, closed). Open, from `gh` on 21 November: S-27's fix and test (#264, `e2e-m1` failing at the last read); M2.01 (#263, CI running); the staging checks (#266, e2e jobs pending); the M2.02 journeys (#267, checks green, waiting on #263); M1.39 (#271, `check-static` failing at the last read); M1.12a's build (#270, `e2e-m0` failing at the last read; a checks author is writing its check, to land as one pull request with the build); the main merge (#277); S-33 and S-34's checks (#278, new, CI running). M1.49: in flight, checks first: a checks author is writing its check; no PR yet. M1.50: in flight, checks first: its check is #280 (open, new, CI running) |
 | **Goal 4, on-chain (1.0)** | `goal/on-chain` | #273 (start), #275 (chain decision, M6.01) | stage 2 and 3 slices, from `design/goals/04-on-chain.md` | Started 21 November. Its seam slice waits on M2.05, because both reshape `host-cloudflare` |
-| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, draft, on `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Not started: K29 waits on Aaron's grill answers. A Goal 5 lead will run it |
-| **Foreman** | `claude/foreman-c521e2` | #187 | the design and a Capxul test drive | Open for Aaron |
+| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, open, ready for review, into `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Not started: K29 is decided in #272 under Aaron's standing authority of 21 November, and Goal 5 waits on #272 merging. A Goal 5 lead will run it |
+| **Foreman** | `claude/foreman-c521e2` | #187 | the design and a Capxul test drive | Merged into `main` on 21 November (#187, F9); the branch is kept |
 | **K24, UI SDK** | `conductor/k24-ui-sdk` | #217, #215 | K24 decided, the verb-primitive spike | Open; K29 builds on K24 |
 | **M8, time's checks** | `main` | #274 | the checks for M8.02 to M8.04 | The checks are on `main` (#213); #274 names two dependency changes under Supersedes |
 
@@ -141,18 +141,17 @@ plugins and extensions; most won't stick, the kept ones are refactored, and prod
 
 ### What waits on Aaron
 
-1. **K29's grill answers** (#272): the UI layer and what it moves in stage 1.
-2. **The npm publish at Gate M1** (direction 12, K28): his sign-in. The licence for every published package.
-3. **Rotate the HeroUI personal token** printed in a conductor's tool output on 18 November (never committed).
-4. **Release credentials**, each in writing (M7.13), and the staging token's scope (M7.01).
+1. **The npm publish at Gate M1** (direction 12, K28): his sign-in. The licence for every published package.
+2. **Rotate the HeroUI personal token** printed in a conductor's tool output on 18 November (never committed).
+3. **Release credentials**, each in writing (M7.13), and the staging token's scope (M7.01).
 
 ### Next on the critical path
 
 The beta (K28) is the critical path. On `goal/stage-1`: land the open pull requests above (M2.01 first, then M2.02's
-journeys), S-27 and S-31, the staging checks, M1.12a, M1.39, then M1.49 and M1.50. When M1's slices are green, the
+journeys), S-27, the staging checks, M1.12a, M1.39 and S-33 and S-34's checks, then M1.50 (its check is #280) and M1.49. When M1's slices are green, the
 preview merge: one pull request from `goal/stage-1` to `main`, Gate M1 passing on it, then M1.51 and Aaron's npm
 publish. Then M2.03 to M2.08, `npm create orthograph` (M2.09), Gate M2 (M2.12) and the staging run. Beside it, Goal 4
-runs stage 2 and 3 work, and the UI layer (K29) waits on Aaron.
+runs stage 2 and 3 work, and Goal 5 (the UI layer) waits on #272 merging.
 
 ### Open questions carried by threads
 
@@ -166,7 +165,7 @@ the same list in its goal file. Taken from every file in `design/decisions/` on 
 open remote branch, 21 November 2026. An ID is the part before the first `-` (`K16a` in `K16a-scaffold-build.md`).
 
 **On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines, CI-speed · D1, D2, D3 · E1 · F1, F2,
-F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 · N1 · O1, O2 · P1 · R1 · S1.
+F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 · N1 · O1, O2 · P1 · R1 · S1.
 
 **Only on other branches:**
 
@@ -182,15 +181,20 @@ F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 · N1 
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
+| M7 | the cloud pass for staging (`M7-cloud`, M7.01) | `goal/stage-1`, `goal/on-chain` (#266 edits it) |
 | M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
+| S31 | an operation's model carries `breaks`, every rule it can break (`S31-breaks`) | `goal/stage-1` (#269, merged) |
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
+| W1 | a count with no metrics source is `not yet` (`W1-no-source-count`) | `goal/stage-1`, `goal/on-chain` |
+| W2 | an operation's docs page shows each journey as a worked example (`W2-docs-worked-examples`) | `goal/stage-1`, `goal/on-chain` |
 
 **Also taken, off `main`:** K24 (UI SDK is the base, #217), K25 (the blueprint on chain), K26 (on-chain pulled forward), K27 (three plugin kinds), K29
-(the UI layer, #272, a draft), G9 to G11 (`goal/stage-1`), `M2-auth` (#263), `M6-chain` (#275). `ST1-25-flakes` is a
+(the UI layer, #272, open), K30 (where the core ends, the repositories, declaring what you know, #185, open into `main`), G12 (a slice that changes acme's wire lands as a pair, #263, open),
+G9 to G11 (`goal/stage-1`), `M2-auth` (#263, #267), `M6-chain` (#275, #276, #279). `ST1-25-flakes` is a
 decision file; K29's ST1.25 is a slice id, and the two are unrelated.
 
-**Next free:** D5, E2, F9, G12, H3, K30, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F10, G13, H3, K31, N2, O4, P2, R2, S32, W3. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered, and still go on this list.
 
@@ -198,7 +202,7 @@ milestone, not numbered, and still go on this list.
 starts with it anywhere, adds it here with a one-line title in the same push, and only then hands it out:
 
 ```bash
-git fetch -q origin && for r in $(git branch -r --format='%(refname:short)'); do git ls-tree --name-only "$r" design/decisions/; done | grep -E '/G12(-|\.md$)'
+git fetch -q origin && for r in $(git branch -r --format='%(refname:short)'); do git ls-tree --name-only "$r" design/decisions/; done | grep -E '/G13(-|\.md$)'
 ```
 
 No output means it is free.

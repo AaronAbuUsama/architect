@@ -216,4 +216,4 @@ the whole branch; the goal then carries on from its branch. Then, when the done 
 request from `goal/stage-1` to `main`. It merges when Gates M1 and M2 pass on it, `nx run e2e:stage1` passes in CI, and
 a 🔍 reviewer passed the whole branch. Then tag `plugged-in/stage-1`.
 
-The preview merge and the releases are decided in `design/decisions/K28-releases.md`: the preview lands by one pull request into `main` once Gate M1's slices are green on `goal/stage-1`, and the goal carries on from its branch; the final merge at the done check stays as written.
+K28 decides the preview merge and the three releases: [`K28-releases.md`](../decisions/K28-releases.md).

@@ -11,7 +11,7 @@ The Goal 3 lead went through every snag whose Status was `open` in one pass, che
 `goal/stage-1` at `61a7df04`. The call for each is its Status line; Hit, Lost, Cause and Fix are unchanged. A snag blocks
 if it stands in the way of M2's auth journeys or principals, the story through the CLI, SDK, MCP and HTTP, `nx run
 e2e:stage1`, or a staging run (M7.03, M7.04); the seven journeys in `examples/plugged-in/journeys/` are green, so only
-future journeys count. S-29, S-30 and S-31 are in flight and S-01 to S-04, S-22, S-23 and S-25 were already fixed; none of
+future journeys count. S-29, S-30 and S-31 have merged (#265, #254, #269) and S-01 to S-04, S-22, S-23 and S-25 were already fixed; none of
 them was touched.
 
 | Verdict | Count | Snags |
@@ -28,7 +28,7 @@ change also removes a stray second `Status: fixed (#148)` under S-27, a copy of 
 1. **S-27, a throwing `pick` kills the run.** A small prove slice, and first because a single red step in the story or
    the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
    nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
-   is ready now.
+   is ready now: its fix and test are #264, open, with `e2e-m1` failing at the last read.
 2. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
    through the CLI and MCP, and the held-off grid cells `error.cli`, `error.mcp` and `invariant.cli` stay off. S-20
    and S-16 ride on it.
@@ -38,7 +38,7 @@ device half of S-17), cells held off until M2.08 (S-20, S-16), and small hygiene
 an owner and a trigger in its line, and the ones without a milestone slice have a line in `design/later.md`.
 
 Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target now (#261) and a required check on
-`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks (#266) are merging.
+`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks (#266) are open, with their e2e jobs pending.
 
 ## S-01 · prove · every run's numbers come from its text
 - Hit: the checks author, writing the climb recorder (#110): `ortho prove` prints only text, so `tools/climb/record.mjs`
@@ -292,7 +292,7 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open, blocks the climb and `e2e:climb`: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
+- Status: building (#264, open: the test red first, then the fix; `e2e-m1` failing at the last read), blocks the climb and `e2e:climb` until it merges: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
 - Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's
@@ -318,7 +318,7 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
 - Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: fix built (`bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
+- Status: fixed (#265: `bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
 
 ## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
 - Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
@@ -330,7 +330,7 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
 - Fix: framework. The compiler refuses a thing carrying `unique`, naming the thing and pointing at
   `Blueprint.invariant.unique` in `invariants.ts` (G5). A checks author first adds the case.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: fix built (the compiler refuses a thing carrying `unique`, #254); checks written (#251)
+- Status: fixed (the compiler refuses a thing carrying `unique`, #254); checks written (#251)
 
 ## S-31 · model · an operation's spine can't name a rule that owns no refusal
 - Hit: Codex on #249 (ST1.22). `profile.onePagePerHandle` refuses nothing, yet `handle.claim` writes a profile and the
@@ -346,5 +346,5 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
   unknown and breaks the rules of a machine-less thing; `writes: []` is reads only. `profile.get` declares it and has no
   rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: built (#255)
+- Status: fixed (#269, `b1d424e0`; #255 was closed in its favour)
 
