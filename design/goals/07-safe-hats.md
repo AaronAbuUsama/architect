@@ -196,4 +196,7 @@ cut from `main` (or `goal/safe-hats` with `main` merged in), never more pushes t
 ## Where it stands
 
 - **21 November 2026.** Brief written. Branch `goal/safe-hats` cut from `origin/main` at `1e0a989a`, worktree
-  `.claude/worktrees/safe-hats`. Codex not started yet.
+  `.claude/worktrees/safe-hats`.
+- **21 November 2026, 09:43 UTC.** Codex run 1 started on the prompt above: session `01a1fd7d-a64b-7660-b3ec-7cfba7a59b69`.
+  Its log is outside the repository, in the lead's scratch folder (`codex-1.jsonl`). To steer it:
+  `codex exec resume 01a1fd7d-a64b-7660-b3ec-7cfba7a59b69 "<message>"`, once the run in flight has ended.
