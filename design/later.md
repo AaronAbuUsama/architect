@@ -6,6 +6,18 @@ belongs to, and why it waits.
 - Indexers beyond the generated follower, for views too large for an organisation's index. Later.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
+- **Scaffolds that follow the blueprint** (Aaron, 21 November 2026, with the 📐 designer thread): a file scaffolded
+  once and "yours from now on" falls out of line when its declaration changes later, so it must be marked and
+  ratcheted, not left alone. Four steps, on what exists:
+  1. the scaffold's header also records the hash of the declaration it came from (the model already hashes every
+     operation and thing);
+  2. `ortho generate` never overwrites a scaffold, but when that hash moves it marks the file stale, says what changed
+     (the compiler's `compare` module: a new field, a new refusal, a yes now needed) and regenerates the brief;
+  3. `ortho check` lists the stale files as a ratchet that may only shrink: a blueprint change may land red with them
+     listed, a done check needs none, and where types can catch the change the build fails too;
+  4. the rule covers every file you own: handlers, journeys, pages and the app's own components.
+  **Decide before** M2.14 (`ortho add` for events, errors, roles and moves), which changes declarations that already
+  have scaffolds, and before the first generated page lands. Whoever reaches that point takes the next free K.
 - **PostHog as a sink** (O1 L2.O8, L2.O9): error tracking for defects and a `PostHogSource`. Aaron, 16 November 2026: leave it for now; the `Sink` seam keeps it one adapter away.
 - **Axiom as the sink** (O1 steps L2.O5, L2.O6, L2.O8): deployed workers export straight to Axiom per environment
   dataset, `watch` reads it through an `AxiomSource`. The cloud pass, on Aaron's account and tokens.
@@ -35,9 +47,6 @@ belongs to, and why it waits.
   confirms before calling. Waits for a design pass; the second UI SDK spike (PR #222) shows what drives it.
 - **Page marks for secret and hidden fields** (ledger PRJ-55, K24): the language has secret, private and issued;
   mapping them onto the page agent's marks waits for the second UI SDK spike (PR #222).
-- **Generated typed pieces** (ledger PRJ-56, K24): a form per operation, a list per read and a button per move,
-  generated on UI SDK, so ST1.04's screens need not be written by hand. Waits for the second UI SDK spike to say
-  whether it belongs in stage 1 or later.
 
 ## From stage two (layer one)
 
@@ -103,8 +112,3 @@ belongs to, and why it waits.
 - **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
 - **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
 - **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
-- **`@orthograph/portal-ui` moves from HeroUI Pro to UI SDK** (K24, replacing F7's open-libraries fallback): the same
-  exports, one at a time, on UI SDK's primitives, with the data grid and the board built on its behaviours
-  (`createReorder`, `createTransfer`) and the rest on Recharts, TanStack Table, cmdk, Shiki, react-markdown and Tiptap.
-  Today the portal uses HeroUI Pro behind `portal-ui`; HeroUI is phased out (K24). The move waits for the second
-  UI SDK spike, not for the licence.
