@@ -186,6 +186,11 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 ·
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
 | W1 | a count with no metrics source is `not yet` (`W1-no-source-count`) | `goal/stage-1`, `goal/on-chain` |
 | W2 | an operation's docs page shows each journey as a worked example (`W2-docs-worked-examples`) | `goal/stage-1`, `goal/on-chain` |
+| K25 | the blueprint on chain (a chain store, `lives:`), superseding K7's inline chain | reserved 20 November 2026 for the 📐 Solidity session |
+| K26 | on chain pulled forward (M6 ahead of the gates for M3 to M5) | reserved 20 November 2026 for the 📐 Solidity session |
+| K27 | the three plugin kinds: language, host, projection; no target (replaces K17's TargetSpec) | reserved 20 November 2026 for the 📐 Solidity session, Goal 4 |
+| K28 | releases (scope map) | open PR #262, reserved 21 November 2026 |
+| K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
 
 **Also taken, off `main`:** K24 (UI SDK is the base, #217), K25 (the blueprint on chain), K26 (on-chain pulled forward), K27 (three plugin kinds), K29
 (the UI layer, #272), K30 (where the core ends, the repositories, declaring what you know, #185), G12 (a slice that changes acme's wire lands as a pair, #263),
