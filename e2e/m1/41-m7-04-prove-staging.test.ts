@@ -74,7 +74,7 @@ beforeAll(async () => {
   const failed = started.find((r) => r.status === "rejected");
   if (failed !== undefined) throw (failed as PromiseRejectedResult).reason;
   const devs = started.map((r) => (r as PromiseFulfilledResult<Awaited<ReturnType<typeof startDev>>>).value);
-  [good, text, bad] = await Promise.all([recorder(PORTS.goodProxy, devs[0].url), recorder(PORTS.textProxy, devs[1].url), recorder(PORTS.badProxy, devs[2].url)]);
+  [good, text, bad] = await Promise.all([recorder(PORTS.goodProxy, devs[0]!.url), recorder(PORTS.textProxy, devs[1]!.url), recorder(PORTS.badProxy, devs[2]!.url)]);
   dead = await recorder(PORTS.dead);
   for (const r of [good, text, bad, dead]) cleanups.push(() => r.close());
   silent = { url: `http://127.0.0.1:${PORTS.silent}`, heard: () => [], close: async () => {} };
@@ -92,7 +92,7 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
       expect(hostOf("plugged-in", RUN, SUBDOMAIN)).toBe(`${worker}.${SUBDOMAIN}.workers.dev`);
       expect(hostOf("plugged-in", RUN, SUBDOMAIN)).toBe(`ortho-pluggedin-stg-${RUN}-worker.acme-account.workers.dev`);
       expect(story.steps).toHaveLength(5);
-      expect(story.reach.sort()).toEqual(["/handle/claim", "/link/add", "/profile/get"]);
+      expect([...story.reach].sort()).toEqual(["/handle/claim", "/link/add", "/profile/get"]);
       expect(story.others).toEqual(expect.arrayContaining(["/handle/release", "/link/order", "/link/remove"]));
       expect(story.others.filter((o) => story.reach.includes(o))).toEqual([]);
     });
@@ -146,11 +146,11 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
       ["the story failed", () => withDoc(doc({}, { verdict: "fail" })), /verdict is "fail"/],
       ["the story's verdict missing", () => withDoc(doc({}, { verdict: undefined })), /verdict is undefined/],
       ["steps null", () => withDoc(doc({}, { steps: null })), /expected a list/],
-      ["the last step left out", () => withDoc(doc({}, { steps: doc().journeys[0].steps.slice(0, -1) })), /the steps judged/],
-      ["the first step left out", () => withDoc(doc({}, { steps: doc().journeys[0].steps.slice(1) })), /the steps judged/],
-      ["a step added", () => withDoc(doc({}, { steps: [...doc().journeys[0].steps, { name: "one more", verdict: "pass", failures: [] }] })), /the steps judged/],
-      ["a step repeated", () => withDoc(doc({}, { steps: [doc().journeys[0].steps[0], ...doc().journeys[0].steps] })), /the steps judged/],
-      ["the steps reordered", () => withDoc(doc({}, { steps: [...doc().journeys[0].steps].reverse() })), /the steps judged/],
+      ["the last step left out", () => withDoc(doc({}, { steps: doc().journeys[0]!.steps.slice(0, -1) })), /the steps judged/],
+      ["the first step left out", () => withDoc(doc({}, { steps: doc().journeys[0]!.steps.slice(1) })), /the steps judged/],
+      ["a step added", () => withDoc(doc({}, { steps: [...doc().journeys[0]!.steps, { name: "one more", verdict: "pass", failures: [] }] })), /the steps judged/],
+      ["a step repeated", () => withDoc(doc({}, { steps: [doc().journeys[0]!.steps[0], ...doc().journeys[0]!.steps] })), /the steps judged/],
+      ["the steps reordered", () => withDoc(doc({}, { steps: [...doc().journeys[0]!.steps].reverse() })), /the steps judged/],
       ["a step renamed", () => withDoc(doc({}, {}, (i) => (i === 2 ? { name: "aaron adds a blog" } : {}))), /the steps judged/],
       ["the first step failing", () => withDoc(doc({}, {}, (i) => (i === 0 ? { verdict: "fail" } : {}))), /did not pass/],
       ["the last step failing", () => withDoc(doc({}, {}, (i) => (i === steps().length - 1 ? { verdict: "fail", failures: [{ message: "x" }] } : {}))), /did not pass/],
@@ -174,7 +174,7 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
       ["a denied host named in lower case on stderr", () => ({ ...right(), ran: { ...right().ran, err: "network-denied x.workers.dev\n" } }), /not this machine/],
       ["another route asked with a trailing slash", () => ({ ...right(), heard: [...reached(), "POST /link/remove/"] }), /--only was ignored/],
       ["another route asked under a prefix", () => ({ ...right(), heard: [...reached(), "POST /v2/handle/release"] }), /--only was ignored/],
-      ["no report file", () => ({ ...right(), file: undefined }), /wrote no file/],
+      ["no report file", () => ({ ...right(), file: undefined as unknown as string }), /wrote no file/],
       ["a report file of another verdict", () => ({ ...right(), file: JSON.stringify(doc({}, {}, (i) => (i === 4 ? { verdict: "fail" } : {}))) }), /not the --json document/],
       ["a report file that is not JSON", () => ({ ...right(), file: "prove ✔" }), /not the --json document/],
       ["a report file that is an array", () => ({ ...right(), file: "[]" }), /not the --json document/],
@@ -216,8 +216,8 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
     ];
     it.each(rows)("%s", async (_name, run, subdomain, app) => {
       const root = app === undefined ? judged.root : (() => { const p = planProject({ name: app }, { staging: false }); cleanups.push(p.remove); return p.root; })();
-      const ran = await staged(root, ["--run", run, "--only", STORY], { ORTHO_STAGING_SUBDOMAIN: subdomain });
-      const host = hostOf(app ?? "plugged-in", run, subdomain);
+      const ran = await staged(root, ["--run", run!, "--only", STORY], { ORTHO_STAGING_SUBDOMAIN: subdomain! });
+      const host = hostOf(app ?? "plugged-in", run!, subdomain!);
       expect(ran.err.split("\n").filter((l) => l.startsWith(DENIED)), `a staging prove went to the address ${host}? it said: ${said(ran)}`).toEqual([`${DENIED} ${host}`]);
       expect(ran.worlds.size).toBe(0);
     }, 120_000);
@@ -308,7 +308,7 @@ describe("41: ortho prove --env staging --run <id> (M7.04), with no cloud", () =
       expect(json?.journeys[0]?.steps.map((s) => s.verdict)).toEqual(["pass", "pass", "pass", "pass", "fail"]);
       const failure = json?.journeys[0]?.steps[4]?.failures[0];
       expect([typeof failure?.expected, typeof failure?.got]).toEqual(["string", "string"]);
-      expect(bad.heard().slice(before).filter((h) => h.startsWith("POST ")).map((h) => h.slice(5))).toEqual(expect.arrayContaining(story.reach));
+      expect(bad.heard().slice(before).filter((h) => h.startsWith("POST ")).map((h) => h.slice(5))).toEqual(expect.arrayContaining([...story.reach]));
     }, 240_000);
   });
 });

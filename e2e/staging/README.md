@@ -34,7 +34,7 @@ Red today on one reason: `ortho env` has `up`, `down` and `status` for a long-li
 
 ## The CI-only half (touches the cloud, runs only by hand)
 
-[`.github/workflows/staging.yml`](../../.github/workflows/staging.yml): `workflow_dispatch` only, one job, `concurrency: staging` so two runs never overlap.
+[`.github/workflows/staging.yml`](../../.github/workflows/staging.yml): `workflow_dispatch` only, one job, `concurrency: staging` so two runs never overlap. It runs only from a goal branch (`if: startsWith(github.ref, 'refs/heads/goal/')`): the same file sits on `main`, which has no `ortho env`, so a first job `refuse` (the opposite condition, no credential, no environment) fails a dispatch anywhere else with an `::error::` naming the ref, instead of a silent skip.
 
 | Step | Credentials | What it judges |
 |---|---|---|

@@ -1,6 +1,6 @@
 name: staging
 
-# M7.04, the CI-only check of Goal 3 (design/goals/03-stage-1-hill-climbed.md, "Staging"; design/decisions/M7-cloud.md and its addenda). One job, started by hand, and
+# M7.04, the CI-only check of Goal 3 (design/goals/03-stage-1-hill-climbed.md, "Staging"; design/decisions/M7-cloud.md and its addenda). One job (plus `refuse`, which fails a dispatch off a goal branch out loud), started by hand, and
 # nothing else starts it: no push, no pull request, no schedule. It plans, deploys Plugged In to Cloudflare `workers.dev`, runs the story, destroys what it made, and lists the
 # account. The job is red when any of these holds: the plan is wrong; up fails; the story fails; a resource with this run's prefix is left; a resource without it changed.
 #
@@ -23,7 +23,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # A dispatch on any ref that is not a goal branch is refused out loud: a skipped job would show nothing. `main` has no `ortho env` yet, and a run there would fail halfway with live
+  # credentials in play. This file is the same on `main` and on the goal branches, so the guard lives here. No credential, no checkout: it only says why.
+  refuse:
+    if: "!startsWith(github.ref, 'refs/heads/goal/')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: refuse
+        run: |
+          echo "::error::staging runs only from a goal branch (refs/heads/goal/...); this dispatch is on $REF"
+          exit 1
+        env:
+          REF: ${{ github.ref }}
+
   staging:
+    if: startsWith(github.ref, 'refs/heads/goal/')
     runs-on: ubuntu-latest
     # A protected environment: its branch rule (protected branches only) is set on GitHub by Aaron or the lead; this file only names it.
     environment: staging
