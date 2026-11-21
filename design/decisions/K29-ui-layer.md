@@ -400,8 +400,8 @@ with a `value`.
 - **Generated code may import UI SDK, in `generated/web/` only.** `AGENTS.md`'s package rule gains: "`generated/web/`
   also imports `@ui-sdk/*`, `react` and `@orthograph/web`." K24 said this lands with the first generated screen.
 - **The lint line moves.** `ortho/no-ui-in-worker` (`packages/lint/src/modules/rules/internal/ui.ts:5`) is on for
-  every `generated/` folder today, which would refuse every piece. It stays on for `generated/` except
-  `generated/web/`, and check 26's graph walk (nothing a Worker reaches imports React) is what really holds the line.
+  every `generated/` folder today, which would refuse every piece. ST1.25 carves `generated/web/` out of it,
+  so it stays on for the rest of `generated/`, and check 26's graph walk (nothing a Worker reaches imports React) is what really holds the line.
 - **The app's pages are built by `ortho build`,** into static assets the Worker serves (ST1.04 says "served by the
   Worker"). No licence is needed anywhere in an app, so K19's reason for the portal shipping prebuilt goes. The portal
   still ships prebuilt: it keeps `ortho build` fast and a project's Worker free of React, and it's reversible.
@@ -453,21 +453,23 @@ actions outside our portal (ST1.05) and the shell's chat (M1.24) stay in M3.
 
 ## 10. The slices
 
-All in `design/milestones.md`, ids from the stage 1 table; the goal that builds them is
-[`../goals/05-ui-layer.md`](../goals/05-ui-layer.md).
+All in `design/milestones.md`; the ids were allocated by the conductor on 21 November 2026. The goal that builds them
+is [`../goals/05-ui-layer.md`](../goals/05-ui-layer.md).
 
-- **M1.23** (S), then **M1.22** (M): moved from M3 into stage 1, ids and text unchanged, before ST1.01.
-- **ST1.01** (M) is now the web projection: `@orthograph/web` (the browser host, the piece runtime and the Orthograph
-  theme in `@orthograph/web/theme.css`, Q3) and the generator, per section 3, React parts only (Q4), with
-  `--through web` in Chromium. It needs M1.22. Its checks are written first by an author: a name is claimed once, a
-  taken name shows its refusal under the field, a release waits for a person's yes, a read reloads after a move, and
-  the pending state is observed, all on Plugged In.
+- **M1.23** (S), then **M1.22** (M): moved from M3 into stage 1, ids and text unchanged.
+- **ST1.25** (M), the web projection, in place of ST1.01 (the react projection, never built): `@orthograph/web` (the
+  browser host, the piece runtime and the Orthograph theme in `@orthograph/web/theme.css`, Q3) and the generator, per
+  section 3, React parts only (Q4), with `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for
+  `generated/web/` (section 6). It needs M1.22 and ST1.26.
+- **ST1.26** (S, checks), the web projection's checks, written first by an author on Plugged In: a name is claimed
+  once, a taken name shows its refusal under the field, a release waits for a person's yes, a read reloads after a
+  move, and the pending state is observed.
 - **ST1.04**'s three screens are built on the generated pieces, with the app's own link list (section 5).
 - **ST1.06** is "pieces behind a signed-in session", after the auth plugin (M2.06).
 - **ST2.03** is "pieces for client operations", with the submission lifecycle as piece state.
-- **ST1.25** (S, checks): check 15 rewritten by an author, per section 7 item 4; a planted HeroUI import fails lint;
-  the portal builds with `HEROUI_AUTH_TOKEN` unset. It fails until ST1.26 lands.
-- **ST1.26** (S, build): the portal off HeroUI in one change (Q2), per section 7. It needs ST1.25.
+- **ST1.28** (S, checks): check 15 rewritten by an author, per section 7 item 4; a planted HeroUI import fails lint;
+  the portal builds with `HEROUI_AUTH_TOKEN` unset. It fails until ST1.27 lands.
+- **ST1.27** (S, build): the portal off HeroUI in one change (Q2), per section 7. It needs ST1.28.
 - **Named value kinds** stays the language's (S-28, K24's gap): it upgrades every piece's field when it lands.
 
 ## Risks
@@ -487,9 +489,9 @@ All in `design/milestones.md`, ids from the stage 1 table; the goal that builds 
 Given by the conductor on 21 November 2026, under the standing authority Aaron gave it that day: "anything that's
 waiting on me, just go with the recommendations. You have authority." So each question takes its recommendation:
 
-1. **1A, actions now, with screens from generated pieces.** M1.23 and M1.22 move into stage 1; ST1.01 is the web
-   projection; ST1.04's screens are built on its pieces.
-2. **2A, HeroUI out of the portal in one change, now.** ST1.25 (check 15 rewritten) then ST1.26 (the change), beside
+1. **1A, actions now, with screens from generated pieces.** M1.23 and M1.22 move into stage 1; ST1.25 is the web
+   projection, with its checks (ST1.26) first; ST1.04's screens are built on its pieces.
+2. **2A, HeroUI out of the portal in one change, now.** ST1.28 (check 15 rewritten) then ST1.27 (the change), beside
    Goal 3's work.
 3. **3A, one Orthograph theme on UI SDK's `--ui-*` tokens,** in `@orthograph/web/theme.css`, shared by the portal and
    every app.
@@ -506,3 +508,7 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 - design/walkthrough/journey.md: "There is no React projection on `m1`" → "There is no web projection on `m1`"
 - design/packages.md: "the only importer of HeroUI Pro" → "the portal's components under our names"
 - design/portal.md: "Built on HeroUI Pro's app shell" → "Built through `@orthograph/portal-ui`"
+- design/frame/generators.md: "@orthograph/react/agents/skills/build-a-screen/" → "@orthograph/web/agents/skills/build-a-screen/"
+- design/walkthrough/journey.md: "a proof tab, built on HeroUI Pro" → "a proof tab, built through `@orthograph/portal-ui`"
+- design/walkthrough/journey.md: "the React hooks and three screens" → "the web pieces and three screens"
+- design/decisions/K9-growing-example.md: "The react projection over the SDK" → "ST1.25, the web projection, one UI SDK piece per operation"

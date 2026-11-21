@@ -39,7 +39,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 > - `AGENTS.md`, and this file word for word;
 > - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K24, K13 and K28;
 > - `design/ui/heroui-inventory.md` (every HeroUI use, with what replaces it);
-> - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.01, ST1.04, ST1.25 and ST1.26
+> - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25 to ST1.28 and ST1.04
 >   rows of `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
 > - the `ui-sdk`, `conductor`, `reviewer`, `author`, `threads` and `kanban` skills.
@@ -78,7 +78,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 - **Goal 3's hotspots** (from its open pull requests on 21 November 2026). Merge often, and keep each slice small where
   it touches them:
   - the portal's pages (`packages/portal/src/modules/pages/internal/`, `wire/`, `telemetry/`): S-31 adds each
-    operation's rules (#269) and M1.12a adds the request key to the calls table (#270). ST1.26's first half stays
+    operation's rules (#269) and M1.12a adds the request key to the calls table (#270). ST1.27's first half stays
     inside `packages/portal-ui` and `portal.css`; its second half (the frame's parts as UI SDK's) touches these files,
     so it waits for both to merge, or merges them in first;
   - the compiler's model (#269, and ST1.14 to ST1.16 before it): the actions and web projections read the model and
@@ -124,18 +124,18 @@ These touch only `packages/portal-ui`, `portal.css`, CI, lint and new code, none
 
 | # | Slice | Done when |
 |---|---|---|
-| 1 | **ST1.25, the checks for the portal off HeroUI** (checks author): check 15 rewritten, a planted HeroUI import fails lint, the portal builds with `HEROUI_AUTH_TOKEN` unset; and the `e2e:ui-layer` target, red until the goal is done | they fail on `goal/ui-layer` for HeroUI's imports only; checks 21, 26, 27 and 28 still pass |
-| 2 | **ST1.26, first half: inside `portal-ui`.** `Card` and `Widget` as our markup, `Timeline` as UI SDK's, `portal.css` on the Orthograph theme (`@orthograph/web/theme.css`, created here), the 15 unused names deleted, HeroUI's peers, scripts, CI step and cache removed (K29 section 7, items 1, 3 and 4) | ST1.25's checks pass; checks 21, 26, 27 and 28 still pass |
+| 1 | **ST1.28, the checks for the portal off HeroUI** (checks author): check 15 rewritten, a planted HeroUI import fails lint, the portal builds with `HEROUI_AUTH_TOKEN` unset; and the `e2e:ui-layer` target, red until the goal is done | they fail on `goal/ui-layer` for HeroUI's imports only; checks 21, 26, 27 and 28 still pass |
+| 2 | **ST1.27, first half: inside `portal-ui`.** `Card` and `Widget` as our markup, `Timeline` as UI SDK's, `portal.css` on the Orthograph theme (`@orthograph/web/theme.css`, created here), the 15 unused names deleted, HeroUI's peers, scripts, CI step and cache removed (K29 section 7, items 1, 3 and 4) | ST1.28's checks pass; checks 21, 26, 27 and 28 still pass (ST1.27's `snapshot()` check is slice 7's) |
 | 3 | **M1.23, the actions module** in `orthograph`, in Effect, agent-native's field names | M1.23's check |
-| 4 | **ST1.01's checks** (checks author), on Plugged In, against empty pieces: a name claimed once `--through web`, `HandleTaken` with `HN-001` under the field and failing an agent's step, a release that waits for a person's yes, a read that loads again after a write, pending observed before the answer | they fail with the web projection empty |
+| 4 | **ST1.26, the web projection's checks** (checks author), on Plugged In, against empty pieces: a name claimed once `--through web`, `HandleTaken` with `HN-001` under the field and failing an agent's step, a release that waits for a person's yes, a read that loads again after a write, pending observed before the answer | they fail with the web projection empty |
 
 ### Part 2: after Part 1, merging Goal 3 in often
 
 | # | Slice | Done when |
 |---|---|---|
 | 5 | **M1.22, the actions projection**: one generated action per operation in `generated/actions/` | M1.22's check |
-| 6 | **ST1.01, the web projection**: `@orthograph/web` (the browser host and the piece runtime), the pieces' templates, `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for `generated/web/` with check 26 still holding the Worker line (K29 sections 3 and 6) | ST1.01's checks from slice 4 |
-| 7 | **ST1.26, second half: the frame's parts as UI SDK's** (search, the environment picker, the tree, the tabs, the calls filter), each keeping its `data-portal` hook. Waits for #269 and #270 to reach `goal/stage-1` | ST1.26's check: an agent's `snapshot()` on the portal lists the search, the tree and the tabs by name |
+| 6 | **ST1.25, the web projection**: `@orthograph/web` (the browser host and the piece runtime), the pieces' templates, `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for `generated/web/` with check 26 still holding the Worker line (K29 sections 3 and 6) | ST1.26's checks |
+| 7 | **ST1.27, second half: the frame's parts as UI SDK's** (search, the environment picker, the tree, the tabs, the calls filter), each keeping its `data-portal` hook. Waits for #269 and #270 to reach `goal/stage-1`. ST1.27 is done when both halves are | ST1.27's check: an agent's `snapshot()` on the portal lists the search, the tree and the tabs by name |
 | 8 | **ST1.04's three screens** (the user): `/@name`, `/claim` and `/edit` in `examples/plugged-in/src/web/`, built on the pieces, with the app's own link list (K29 section 5). Needs ST1.03, Goal 3's handles plugin, on `goal/stage-1` | in Chromium a claim and a link show on `/@aaron`; Plugged In's claim, links and page journeys pass `--through web` |
 
 ### Where it meets Goal 3
@@ -165,7 +165,7 @@ nx run e2e:ui-layer
 ```
 
 It passes only when all of these hold, in CI on `goal/ui-layer`:
-- ST1.25's and ST1.01's checks, and M1.22's and M1.23's, are green;
+- ST1.26's and ST1.28's checks, and M1.22's and M1.23's, are green;
 - Plugged In's claim, links and page journeys pass `--through web`, with their test people, and the same verdicts as
   over HTTP;
 - in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/`;

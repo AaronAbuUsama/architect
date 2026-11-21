@@ -72,9 +72,9 @@ core everything else uses.
 | `ortho new` and `ortho new feature` | None | `packages/preset` is still the Nx preset | M2.09, M2.10 |
 | `ortho add` for events, errors, roles, moves | Partial | thing, operation, read, journey only | M2.14, M2.15 |
 | Adopt a mounted thing | None | | M2.19, M2.20 |
-| Journeys through the CLI, MCP and the page | None | no `--through` | M2.08, ST1.01 |
+| Journeys through the CLI, MCP and the page | None | no `--through` | M2.08, ST1.25 |
 | The handles plugin | None | the code runs inside Plugged In; not extracted | ST1.03 |
-| The web pieces on UI SDK (K29) | None | no `@orthograph/web`, no `generated/web/` | ST1.01, ST1.06 |
+| The web pieces on UI SDK (K29) | None | no `@orthograph/web`, no `generated/web/` | ST1.25, ST1.06 |
 | Plugged In's three screens | None | no `src/web/` | ST1.04 |
 | Staging: deploy, run the story, destroy | Spiked | five clean runs in `spikes/staging-pass`; no `ortho env up staging`, no infra projection | M7.01 (decided), M7.03, M7.04 |
 | Prove against a deployed address | None | no https client, no D1 facts reader; no slice | none |
@@ -84,12 +84,12 @@ core everything else uses.
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
 | UI SDK as the interface base | Decided | the UI SDK decision, K24, in review | K24 |
-| A generated piece per operation on UI SDK | Spiked | `spikes/ui-sdk-real-world`; no generator yet | ST1.01 (K29) |
+| A generated piece per operation on UI SDK | Spiked | `spikes/ui-sdk-real-world`; no generator yet | ST1.25 (K29) |
 | Agent marks from blueprint meaning | Spiked | three of four map; approval and a hidden payload field can't be declared | none |
 | Actions: one per operation, for the page, MCP and the CLI | Spiked | `spikes/agent-native-compat`, `ui-sdk-real-world/src/action.ts` | M1.22, M1.23 (moved into stage 1 by K29) |
 | Approvals asked once | Spiked | agent-native checks 04 to 06 | M1.23, M1.37 |
 | Portal chat and "Needs you" | Partial | `portal-ui` has the chat parts; nothing uses them | M1.24 |
-| The portal off HeroUI, on UI SDK | None | `packages/portal-ui` wraps HeroUI Pro today (M1.34, check 15) | ST1.25, ST1.26 (K29) |
+| The portal off HeroUI, on UI SDK | None | `packages/portal-ui` wraps HeroUI Pro today (M1.34, check 15) | ST1.28, ST1.27 (K29) |
 
 ### On chain and wallets (1.0, stages 2 and 3)
 

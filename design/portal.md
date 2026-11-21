@@ -163,7 +163,7 @@ the drawing needs that the model or telemetry doesn't give yet", below.
 - **The top bar.** The environment and window control (Q12), search over the model (`⌘K`), the "Needs you" count
   (K11's attention, from any mounted feature) and the chat.
 - **Built through `@orthograph/portal-ui`** (F7): its shell, KPI and chat components, on UI SDK once HeroUI leaves
-  (K29, ST1.26; Aaron's Q8 chose HeroUI Pro's app shell, superseded by K29, 21 November 2026).
+  (K29, ST1.27; Aaron's Q8 chose HeroUI Pro's app shell, superseded by K29, 21 November 2026).
 
 **Where each piece comes from.** Every table below marks its pieces:
 
@@ -1105,16 +1105,16 @@ command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
 Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md).
 K29 (21 November 2026, Aaron's answer 2A) moves what is behind the seam from HeroUI Pro to UI SDK, in one change
-(ST1.26), with check 15 rewritten first (ST1.25). In short:
+(ST1.27), with check 15 rewritten first (ST1.28). In short:
 
 - **`@orthograph/portal-ui`** (`packages/portal-ui`) exports our own names, shaped by these pages: `Shell` (tree, top
   bar, rail, drawer), `Board`, `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`,
   `Editor` and the `Chat` parts. Every page in this file, M1.24's shell and chat parts, and every extension face
-  import from it, never from the library under it. Until ST1.26 that library is HeroUI Pro, a peer dependency never
+  import from it, never from the library under it. Until ST1.27 that library is HeroUI Pro, a peer dependency never
   bundled; after it, UI SDK's components on the Orthograph theme (`@orthograph/web/theme.css`).
-  The names nobody calls yet are deleted in ST1.26 and come back, on UI SDK, with the first page that needs each.
-- **A lint rule** bans `@heroui-pro/*` everywhere; after ST1.26 no package imports it, and a planted import fails.
-- **No licence at build time** after ST1.26: the portal builds with `HEROUI_AUTH_TOKEN` unset. Until then Pro installs
+  The names nobody calls yet are deleted in ST1.27 and come back, on UI SDK, with the first page that needs each.
+- **A lint rule** bans `@heroui-pro/*` everywhere; after ST1.27 no package imports it, and a planted import fails.
+- **No licence at build time** after ST1.27: the portal builds with `HEROUI_AUTH_TOKEN` unset. Until then Pro installs
   from that CI secret, never committed, never run on pull requests from forks.
 - **What changes on the pages** is listed in K29 section 7 and `ui/heroui-inventory.md`: only Card, Widget and Timeline
   are used today, so the pages don't change.

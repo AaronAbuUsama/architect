@@ -31,7 +31,7 @@ packages/
   portal-ui/         @orthograph/portal-ui         the portal's components under our names; the portal and every face
                                                    build on its exports (F7, M1.34), on UI SDK once HeroUI leaves (K29)
   web/               @orthograph/web               the browser host and the runtime every generated piece shares, and
-                                                   the Orthograph theme on UI SDK's tokens (K29, ST1.01)
+                                                   the Orthograph theme on UI SDK's tokens (K29, ST1.25)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
 examples/
   acme/              the worked example: the allowance

@@ -275,7 +275,7 @@ export const web = Blueprint.projection({
 ```
 
 - **Today:** nothing. `spikes/ui-sdk-real-world` generated the claim form and replayed a real journey through it.
-  Built in ST1.01, ST1.06 and ST2.03.
+  Built in ST1.25, ST1.06 and ST2.03.
 - **Scope:** it renders pieces, not screens. Pages are the app's own code in `src/web/`, composed from the pieces and
   UI SDK's components, scaffolded once if asked.
 - **Replay:** a headless browser fills and presses the step's piece, as a person or as an agent through UI SDK's

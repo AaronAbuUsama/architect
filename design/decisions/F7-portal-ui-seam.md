@@ -5,7 +5,7 @@ thread's, under "Who decides" in `AGENTS.md`. It refines M1.25's Q8 answer (`des
 
 ## Why
 
-We keep HeroUI Pro (superseded by K29, 21 November 2026: HeroUI leaves the portal in ST1.26). Its licence (`node_modules/@heroui-pro/react/LICENSE`, version 1.0.0-beta.11) allows what we do
+We keep HeroUI Pro (superseded by K29, 21 November 2026: HeroUI leaves the portal in ST1.27). Its licence (`node_modules/@heroui-pro/react/LICENSE`, version 1.0.0-beta.11) allows what we do
 and forbids what a seam keeps us clear of:
 
 - **Within the project only.** Section 1: using Pro grants no right to extract, resell or distribute it "outside the
