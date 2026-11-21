@@ -78,13 +78,17 @@ const problems = (lines: ReadonlyArray<string>): ReadonlyArray<string> => {
     if (/skipped/.test(all)) found.push(`${name}: a step is skipped`);
     if (failure.kind === "world") {
       if (!header.includes(`starting world ${failure.world}: ${failure.operation} died`)) found.push(`${name}: must stop at starting world ${failure.world} calling ${failure.operation}: ${header}`);
-      if (!all.includes(`BlankReached: ${failure.operation}`)) found.push(`${name}: must name BlankReached: ${failure.operation}: ${header}`);
+      if (!header.includes(`BlankReached: ${failure.operation}`)) found.push(`${name}: must name BlankReached: ${failure.operation} in the header: ${header}`);
       if (!header.includes("no step ran")) found.push(`${name}: no step may have run: ${header}`);
+      if (block.length > 1) found.push(`${name}: no step line may follow a "no step ran" header: ${block[1]}`);
     } else {
       const failed = block.slice(1).map((l) => /^ {2}✘ "([^"]*)"/.exec(l)?.[1]).filter((t): t is string => t !== undefined);
       if (failed[0] !== failure.step) found.push(`${name}: the first failing step must be "${failure.step}", it was ${JSON.stringify(failed[0])}`);
       for (const held of failure.before) if (failed.includes(held)) found.push(`${name}: step "${held}" must hold (the runtime refuses before the handler)`);
-      if (!all.includes(`BlankReached: ${failure.operation}`)) found.push(`${name}: must name BlankReached: ${failure.operation}`);
+      // The failing step's own lines only: a step reports several `✘ "<title>"` lines (the answer, the span, the death, the handler),
+      // all under its title. A line of any other step, whatever it says, is not evidence for this one.
+      const own = block.slice(1).filter((l) => /^ {2}✘ "([^"]*)"/.exec(l)?.[1] === failure.step);
+      if (!own.join("\n").includes(`BlankReached: ${failure.operation}`)) found.push(`${name}: must name BlankReached: ${failure.operation} on the step "${failure.step}"`);
     }
   }
   return found;
@@ -188,6 +192,24 @@ describe("01 the judge: it accepts what an empty handler does and refuses everyt
     expect(problems(late)).toEqual(expect.arrayContaining([expect.stringContaining("the first failing step must be")]));
     const early = [good[0]!, '  ✘ "before signing up the newcomer is nobody": expected refused', ...good.slice(1)];
     expect(problems(early)).toEqual(expect.arrayContaining([expect.stringContaining("must be")]));
+  });
+  // Negative controls for the BlankReached text: it must be on the failing step's own line (or, for a world, on the header), never
+  // merely somewhere in the journey's block. Each of these passed the first judge, which searched the whole block.
+  it("a BlankReached on a later step does not stand in for the failing step's own (the decoy)", () => {
+    const decoy = [good[0]!, '  ✘ "the newcomer signs up": the server died: payload missing', '  ✘ "a wrong password is refused": the server died: BlankReached: person.sign-up', ...good.slice(3)];
+    expect(problems(decoy)).toEqual(expect.arrayContaining([expect.stringContaining("sign up and sign in: must name BlankReached: person.sign-up on the step \"the newcomer signs up\"")]));
+  });
+  it("a failing step that names another handler is refused, even when a later step names the right one", () => {
+    const other = [good[0]!, '  ✘ "the newcomer signs up": the server died: BlankReached: session.sign-in', '  ✘ "a wrong password is refused": the server died: BlankReached: person.sign-up', ...good.slice(3)];
+    expect(problems(other)).not.toEqual([]);
+  });
+  it("a step line under a \"no step ran\" header is refused (the world kind)", () => {
+    const worldPlusStep = good.flatMap((l) => l.startsWith("journey invite and accept") ? [l, '  ✘ "a step": the server died: BlankReached: organization.create'] : [l]);
+    expect(problems(worldPlusStep)).toEqual(expect.arrayContaining([expect.stringContaining("invite and accept: no step line may follow")]));
+  });
+  it("a world whose header lacks BlankReached is refused, though a step line under it has one", () => {
+    const moved = good.flatMap((l) => l.startsWith("journey invite and accept") ? ["journey invite and accept ✘ starting world founded: organization.create died: null; no step ran", '  ✘ "a step": BlankReached: organization.create'] : [l]);
+    expect(problems(moved)).toEqual(expect.arrayContaining([expect.stringContaining("invite and accept: must name BlankReached: organization.create in the header")]));
   });
   it("a skipped step is refused", () => expect(problems([...good.slice(0, 2), '  ✘ "x": skipped: omitted', ...good.slice(2)])).toEqual(expect.arrayContaining([expect.stringContaining("skipped")])));
 });
