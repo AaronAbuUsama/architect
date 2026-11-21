@@ -295,7 +295,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Fix: framework. The compiler refuses a thing carrying `unique`, naming the thing and pointing at
   `Blueprint.invariant.unique` in `invariants.ts` (G5). A checks author first adds the case.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: fix built (the compiler refuses a thing carrying `unique`, PR to follow); checks written (#251)
+- Status: fix built (the compiler refuses a thing carrying `unique`, #254); checks written (#251)
 
 ## S-31 · model · an operation's spine can't name a rule that owns no refusal
 - Hit: Codex on #249 (ST1.22). `profile.onePagePerHandle` refuses nothing, yet `handle.claim` writes a profile and the
