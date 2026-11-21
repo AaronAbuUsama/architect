@@ -1,0 +1,82 @@
+{
+  "//": "handle.release cut from Plugged In (origin/goal/stage-1 at eaf7a10e), with two HYPOTHETICAL additions no blueprint can declare today in this form: a payload field `reason` private to handleOwner (Blueprint.visibility.private exists, but no example uses it and none puts it on a payload), and `needsApproval: true` (the word K5 plans for actions; nothing declares an approval today).",
+  "operations": {
+    "handle.release": {
+      "kind": "operation",
+      "name": "handle.release",
+      "thing": "handle",
+      "verb": "release",
+      "identifier": "release",
+      "file": "blueprint/things/handle/verbs/release.ts",
+      "from": {
+        "kind": "app"
+      },
+      "description": "Free your name and take its public page offline. Anyone may claim the name afterwards.",
+      "payload": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id",
+          "description": "The handle's own id."
+        },
+        "reason": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "description": "Why you are letting the name go. Only you see it.",
+          "visibility": {
+            "private": [
+              "handleOwner"
+            ]
+          }
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "release",
+        "from": [
+          "claimed"
+        ],
+        "to": [
+          "released"
+        ],
+        "emits": "HandleReleased"
+      },
+      "errors": [],
+      "refusals": [
+        "HandleNotClaimed",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "handle.handleOwner"
+        }
+      ],
+      "refs": {
+        "handle": "handle"
+      },
+      "steps": {
+        "record": {
+          "name": "handle.release.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "2e2a0634cc287ac4",
+      "needsApproval": true
+    }
+  },
+  "refusals": {
+    "HandleNotClaimed": "HN-900",
+    "NotAllowed": "AR-001"
+  }
+}
