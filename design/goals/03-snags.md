@@ -17,7 +17,7 @@ them was touched.
 | Verdict | Count | Snags |
 |---|---|---|
 | Fixed already (found fixed in the code) | 3 | S-10 (#76), S-12 (#116, #117), S-19 (#205, #227, #229) |
-| Open, blocks | 2 | S-27, S-11 (S-17's HAN-15 is fixed) |
+| Open, blocks | 2 | S-27, S-11 (S-17's HAN-15 was fixed by #268 and is off the list) |
 | Parked, with an owner | 15 | S-05 to S-09, S-13 to S-17, S-20, S-21, S-24, S-26, S-28 (S-17: HAN-13 and HAN-14 are parked, HAN-15 is fixed) |
 
 That is 20 snags: S-05 to S-17 (13), S-19 to S-21 (3), S-24 and S-26 to S-28 (4). The brief counted 21 lines. This
@@ -29,10 +29,7 @@ change also removes a stray second `Status: fixed (#148)` under S-27, a copy of 
    the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
    nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
    is ready now.
-2. **S-17, HAN-15: the answer-shape eval lets a sign-in answer omit its issued token.** Fixed, a checks slice. It had to land
-   before M2.02's and M2.05's identity journeys are written, because a sign-in that issues no token would otherwise
-   pass the eval; after that the check cannot be added without moving a green journey.
-3. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
+2. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
    through the CLI and MCP, and the held-off grid cells `error.cli`, `error.mcp` and `invariant.cli` stay off. S-20
    and S-16 ride on it.
 
@@ -40,8 +37,8 @@ Everything parked is journey-language ergonomics no journey needs (S-05 to S-09)
 device half of S-17), cells held off until M2.08 (S-20, S-16), and small hygiene (S-14, S-21, S-24, S-26, S-28). Each has
 an owner and a trigger in its line, and the ones without a milestone slice have a line in `design/later.md`.
 
-Not a snag, but the done check depends on it: `nx run e2e:stage1` has no target in `e2e/project.json` yet, and the
-staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because nothing has been hit.
+Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target now (#261) and a required check on
+`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks (#266) are merging.
 
 ## S-01 · prove · every run's numbers come from its text
 - Hit: the checks author, writing the climb recorder (#110): `ortho prove` prints only text, so `tools/climb/record.mjs`
@@ -154,10 +151,10 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Hit: Codex's review of #116 (the code is #95's, M1.35).
 - HAN-13: a request answer stored before the envelope change refuses its own retry after an upgrade. Parked to M7.03:
   no world outlives an upgrade before M7.
-- HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
-  framework, check first.
+- HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Parked
+  (Goal 3 lead, 21 November 2026) to `later.md` (ST2.01), with the wallet's device path.
 - HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Fixed: the eval requires every issued answer field (`packages/prove/src/modules/evals/issued.test.ts`).
-- Status: open for HAN-14 only. HAN-14 is parked (Goal 3 lead, 21 November 2026): the device SDK is the wallet's browser path, Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03. HAN-15 is fixed, so M2.05's sign-in journeys are no longer blocked on it.
+- Status: parked (Goal 3 lead, 21 November 2026) for HAN-13 and HAN-14; HAN-15 is fixed (#268). HAN-14: the device SDK is the wallet's browser path. Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03. HAN-15 is fixed, so M2.05's sign-in journeys are no longer blocked on it.
 
 ## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
 - Hit: the journeys for HAN-11's two new wallet refusals (#113, #114). The coverage eval rightly asks for a journey
