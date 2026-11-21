@@ -178,7 +178,7 @@ the same list in its goal file. Taken from every file in `design/decisions/` on 
 open remote branch, 20 November 2026. An ID is the part before the first `-` (`K16a` in `K16a-scaffold-build.md`).
 
 **On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines, CI-speed · D1, D2, D3 · E1 · F1, F2,
-F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K19 · M0 · N1 · O1, O2 · P1 · R1 · S1.
+F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1, O2 · P1 · R1 · S1.
 
 **Only on other branches:**
 
@@ -194,10 +194,11 @@ F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K19 · M0 · N1 · O1
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
+| M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
 
-**Next free:** D5, E2, F9, G9, H3, K20, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F9, G9, H3, K24, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered, and still go on this list.
 

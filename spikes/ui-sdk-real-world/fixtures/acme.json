@@ -1,0 +1,82 @@
+{
+  "//": "Cut from origin/goal/stage-1 at eaf7a10e, examples/acme/generated/model/model.json. Real: a secret payload field and two issued answer fields.",
+  "operations": {
+    "session.sign-in": {
+      "kind": "operation",
+      "name": "session.sign-in",
+      "thing": "session",
+      "verb": "sign-in",
+      "identifier": "signIn",
+      "file": "blueprint/things/session/verbs/sign-in.ts",
+      "from": {
+        "kind": "app"
+      },
+      "description": "Sign in with email and password. The token is the bearer for every later call.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password",
+          "visibility": "secret"
+        }
+      },
+      "answer": {
+        "session": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          },
+          "ref": "session.id",
+          "visibility": "secret",
+          "issued": true
+        },
+        "token": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret",
+          "visibility": "secret",
+          "issued": true
+        }
+      },
+      "move": null,
+      "errors": [
+        "SessionCredentialsWrong"
+      ],
+      "refusals": [
+        "SessionCredentialsWrong"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "verify": {
+          "name": "session.sign-in.verify",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "5613fa720dc82a20"
+    }
+  },
+  "refusals": {
+    "SessionCredentialsWrong": "SE-001"
+  }
+}

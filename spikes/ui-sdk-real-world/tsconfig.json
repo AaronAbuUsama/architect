@@ -1,0 +1,10 @@
+{
+  // The generated code and what it imports are checked. page/ and test/ are the harness: esbuild and Node's own type
+  // stripping run them, and they import the goal checkout's source, which has its own compiler settings.
+  "compilerOptions": {
+    "target": "ES2023", "module": "ESNext", "moduleResolution": "Bundler", "jsx": "react-jsx",
+    "strict": true, "noEmit": true, "skipLibCheck": true, "allowImportingTsExtensions": true,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"], "types": ["node"]
+  },
+  "include": ["src/runtime.ts", "src/generate.ts", "generated"]
+}
