@@ -14,9 +14,9 @@ One file per check, so the ratchet lists them one per check (G9, `design/decisio
 
 | File | What it requires | Today |
 |---|---|---|
-| `01-budgets-journeys.test.ts` | on a fresh copy of `examples/budgets`, `ortho prove --env local` (read from prove's `--report`) runs its seven journeys, 26 steps, all green, and leaves nothing running | red: prove cannot load the journeys (`receipts` and the rest do not exist yet) |
+| `01-budgets-journeys.test.ts` | on a fresh copy of `examples/budgets`, `ortho prove --env local` (read from prove's `--report`) runs its seven journeys, 26 steps, all green, each step signed by its actor's own account (the report's `signer`, S-11), and leaves nothing running | red: prove cannot load the journeys (`receipts` and the rest do not exist yet) |
 | `02-seam-byte-identical.test.ts` | for acme and Plugged In, `ortho generate` into a copy with `generated/` removed writes `generated/` byte for byte as checked in | green, and must stay green |
-| `03-snags.test.ts` | every entry of `design/goals/04-snags.md` is `fixed` (naming the change) or `parked` (with `Owner:` and a reason), and S-01 to S-10 are all still there | red: S-01 to S-10 are open |
+| `03-snags.test.ts` | every entry of `design/goals/04-snags.md` is `fixed` (naming the change) or `parked` (with `Owner:` and a reason), and S-01 to S-11 are all still there | red: S-01 to S-11 are open |
 
 Each file opens with what it requires and ends its own controls: the readers (`journeyProblems`, `snagProblems`, `treeProblems` in
 `support.ts`) are tested against planted wrong inputs.
@@ -33,9 +33,9 @@ job changes. Anvil and Foundry are already on the CI job's runner.
 
 JSON has no comments, so this list sits here and in the `on-chain` target's description in `e2e/project.json`.
 
-1. "Each operation signed by its person" is not judged yet. The report says nothing today about who signed a step, so `01` cannot read
-   it without inventing a field. When the lead decides what prove's report says (an actor and the account that signed, per step),
-   the checks author of slice 7 or 8 adds it to `01`: every step that runs an operation was signed by the account of the actor
-   the journey names.
+1. Prove's report does not carry who signed a step yet (snag S-11). `01` already requires it: each journey's `cast: { <name>: { account } }`
+   (one CAIP-10 account per actor) and, per step, `actor` and `signer: { actor, account }`, with the signer's actor the step's actor and
+   its account that actor's account in the cast. The framework builders add the field (slice 8 for direct sends, slice 11 for signed
+   ones); `actor` on the step and `cast` on the journey are the checks author's reading of the lead's answer, to be matched in the field.
 2. Every slice's own check (slices 3 to 12), added by each slice's checks author as above.
 3. Slice 12's `nx` wiring: until budgets is in the Nx graph, this suite reaches it by path, not through a project target.

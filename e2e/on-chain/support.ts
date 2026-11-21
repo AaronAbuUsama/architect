@@ -44,7 +44,7 @@ export const journeyProblems = (seen: ReadonlyArray<{ readonly name: string; rea
 // ---- the snag log ----
 
 /** The first snag numbers that must stay in the log: the ten the journey author logged. An entry deleted does not count as fixed. */
-export const FIRST_SNAGS = 10;
+export const FIRST_SNAGS = 11;
 
 /** `Owner: <who>` up to the sentence's end (a full stop followed by a space or the end), so `later.md` stays whole. */
 const OWNER = /\bOwner:\s*(.*?)(?:\.(?:\s|$)|$)/;
@@ -53,7 +53,7 @@ const words = (text: string) => text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.
 /**
  * What is wrong with the snag log, one line per problem, each naming its snag. Reads only each entry's `- Status:` line:
  * `fixed` must name the change (a pull request `#123` or a commit hash); `parked` must name an owner (`Owner: <who>`) and give a
- * reason (at least four words besides the owner); `open` and `building` are named as open. Entries S-01 to S-10 must all be there.
+ * reason (at least four words besides the owner); `open` and `building` are named as open. Entries S-01 to S-11 must all be there.
  */
 export const snagProblems = (log: string): ReadonlyArray<string> => {
   const parts = log.split(/^## (?=S-\d+ )/m).slice(1);
@@ -84,6 +84,37 @@ export const snagProblems = (log: string): ReadonlyArray<string> => {
 };
 
 export const readSnagLog = () => existsSync(snagLog) ? readFileSync(snagLog, "utf8") : "";
+
+// ---- who signed ----
+
+export interface ReportedStep { readonly name?: string; readonly verdict: string; readonly actor?: string; readonly signer?: { readonly actor?: string; readonly account?: string } }
+export interface ReportedJourney { readonly name: string; readonly cast?: Readonly<Record<string, { readonly account?: string }>>; readonly steps: ReadonlyArray<ReportedStep> }
+
+/**
+ * What is wrong with who signed, per prove's report (snag S-11): every step names its `actor`, carries `signer: { actor, account }`, the
+ * signer's actor is the step's actor, and its account is that actor's account in the journey's `cast`, which gives each actor an
+ * account of its own. Every budgets step runs an operation, so every step is a chain step. Each problem names the journey and the step.
+ */
+export const signerProblems = (journeys: ReadonlyArray<ReportedJourney>): ReadonlyArray<string> =>
+  journeys.flatMap((j) => {
+    const cast = j.cast ?? {};
+    const accounts = Object.entries(cast).map(([name, c]) => [name, c.account] as const);
+    return [
+      ...(j.cast === undefined ? [`journey "${j.name}": the report has no cast with accounts`] : []),
+      ...accounts.filter(([, a]) => typeof a !== "string" || a === "").map(([n]) => `journey "${j.name}": cast member ${n} has no account`),
+      ...accounts.filter(([, a], i) => typeof a === "string" && accounts.findIndex(([, b]) => b === a) !== i).map(([n]) => `journey "${j.name}": cast member ${n} shares an account with another`),
+      ...j.steps.flatMap((s, i) => {
+        const at = `journey "${j.name}", step ${i + 1}${s.name ? ` (${s.name})` : ""}`;
+        if (s.signer === undefined) return [`${at}: no \`signer\` in the report`];
+        if (typeof s.actor !== "string" || s.actor === "") return [`${at}: no \`actor\` in the report`];
+        const account = cast[s.actor]?.account;
+        return [
+          ...(s.signer.actor === s.actor ? [] : [`${at}: signed by actor ${String(s.signer.actor)}, not ${s.actor}`]),
+          ...(typeof account === "string" && account !== "" && s.signer.account === account ? [] : [`${at}: signed by account ${String(s.signer.account)}, not ${s.actor}'s ${String(account)}`]),
+        ];
+      }),
+    ];
+  });
 
 // ---- generated files ----
 
