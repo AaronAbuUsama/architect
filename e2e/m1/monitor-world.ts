@@ -1,4 +1,4 @@
-// The one real world of check 38: a copy of Plugged In with a defect planted in `link.add`'s `record` step, on workerd with prove's local Collector (no Docker,
+// The one real world of check 39: a copy of Plugged In with a defect planted in `link.add`'s `record` step, on workerd with prove's local Collector (no Docker,
 // as check 20 runs it). aaron claims a name; aaron's `link.add` dies twice in `record` with a tagged error (`LedgerUnreachable`, a message of two lines); bob, who
 // holds no name, is refused `LinkNeedsHandle` (a refusal, never a defect). The spans are read back from the Collector, as the runtime wrote them.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -28,8 +28,8 @@ const plant = (root: string) => {
   const text = readFileSync(file, "utf8");
   const from = text.indexOf("    yield* steps.record(");
   const to = text.indexOf("    // The move add, to listed.");
-  if (from < 0 || to < from) throw new Error("check 38 cannot plant its defect: examples/plugged-in/src/link/add.ts no longer has a `record` step followed by its move");
-  writeFileSync(file, `${text.slice(0, from)}    yield* steps.record(Effect.die(new ${PLANTED_TAG}("${PLANTED_CAUSE}\\nsecond line of the cause")));\n\n${text.slice(to)}\nclass ${PLANTED_TAG} extends Error { readonly _tag = "${PLANTED_TAG}"; }\n`);
+  if (from < 0 || to < from) throw new Error("check 39 cannot plant its defect: examples/plugged-in/src/link/add.ts no longer has a `record` step followed by its move");
+  writeFileSync(file, `${text.slice(0, from)}    yield* steps.record(Effect.die(new LedgerFault("${PLANTED_CAUSE}\\nsecond line of the cause")));\n\n${text.slice(to)}\nclass LedgerFault extends Error { readonly _tag = "${PLANTED_TAG}"; }\n`);
 };
 
 export const openPlanted = async (): Promise<PlantedWorld> => {
@@ -51,7 +51,7 @@ export const openPlanted = async (): Promise<PlantedWorld> => {
     const first = await call("link/add", "aaron", link);
     const second = await call("link/add", "aaron", { ...link, title: "another link" });
     const refused = await call("link/add", "bob", link);
-    if (claim.status !== 200 || first.status !== 500 || second.status !== 500 || refused.status !== 422) throw new Error(`check 38's world did not answer as planted: claim ${claim.status}, defects ${first.status} ${second.status}, refusal ${refused.status}`);
+    if (claim.status !== 200 || first.status !== 500 || second.status !== 500 || refused.status !== 422) throw new Error(`check 39's world did not answer as planted: claim ${claim.status}, defects ${first.status} ${second.status}, refusal ${refused.status}`);
     const traces = new Map<string, Trace>();
     for (const { trace } of [claim, first, second, refused]) {
       const spans = await W.until<ReadonlyArray<Span>>(() => opened.spans(trace), (found) => found.some((s) => typeof s.attrs["operation"] === "string"));

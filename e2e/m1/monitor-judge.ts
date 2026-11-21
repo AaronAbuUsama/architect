@@ -1,4 +1,4 @@
-// The judge of check 38: reads a served portal's Alerts, Issues and home pages in a browser and says what is wrong with them, in plain sentences, against a
+// The judge of check 39: reads a served portal's Alerts, Issues and home pages in a browser and says what is wrong with them, in plain sentences, against a
 // TRUTH the check built from the compiler's rules and the calls it made (the oracle), never from anything the portal answered.
 // Hooks (`data-portal="<part>"`), which the real client and the reference page both owe:
 //   alerts-delivery  one on the Alerts page: data-sent "false" for local, data-environment, and the words "not sent"
@@ -27,7 +27,7 @@ export type Verdicts = Readonly<Record<"alerts" | "issues" | "home", ReadonlyArr
 
 interface El { readonly part: string; readonly attrs: Readonly<Record<string, string>>; readonly text: string; readonly href: string | null; readonly badges: number; readonly links: ReadonlyArray<string> }
 const SCAN = `(() => {
-  const vis = (e) => e.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true }) && !e.closest('[hidden],[aria-hidden="true"]');
+  const vis = (e) => { const r = e.getBoundingClientRect(); return e.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true }) && !e.closest('[hidden],[aria-hidden="true"]') && r.width > 0 && r.height > 0 && r.right > 0 && r.left < innerWidth; };
   return [...document.querySelectorAll("[data-portal]")].filter(vis).map((e) => ({
     part: e.getAttribute("data-portal"),
     attrs: Object.fromEntries([...e.attributes].map((a) => [a.name, a.value])),
@@ -70,6 +70,7 @@ export const judgeAlerts = async (portal: ServedPortal, truth: Truth): Promise<R
     if (a(row, "severity") !== want.severity) out.push(`${where}: data-severity is "${a(row, "severity")}", not ${want.severity}`);
     if (a(row, "owner") !== rule.labels["owner"]) out.push(`${where}: data-owner is "${a(row, "owner")}", not ${rule.labels["owner"]}`);
     if (want.state === "any" ? !["ok", "firing", "unknown"].includes(a(row, "state")) : a(row, "state") !== want.state) out.push(`${where}: data-state is "${a(row, "state")}", and the calls say ${want.state}`);
+    if (want.state !== "any" && !row.text.includes(want.state)) out.push(`${where}: the row does not say "${want.state}" to a person ("${row.text}")`);
     if (!row.text.includes(subjectOf(rule)) || !row.text.includes(rule.labels["owner"]!)) out.push(`${where}: the row does not show its subject and its owner to a person ("${row.text}")`);
   }
   const wanted = new Set(truth.rows.map((r) => `${r.rule}|${r.alert}`));
@@ -112,6 +113,8 @@ export const judgeHome = async (portal: ServedPortal, truth: Truth): Promise<Rea
   const rank = { alert: 0, issue: 1, breach: 2 } as const;
   const kinds = items.map((i) => rank[a(i, "kind") as keyof typeof rank] ?? 9);
   if (kinds.some((k, i) => i > 0 && k < kinds[i - 1]!)) out.push(`${route}: the list is not worst first (firing alerts, then open issues, then budget breaches)`);
+  const severities = items.filter((i) => a(i, "kind") === "alert").map((i) => (a(i, "severity") === "page" ? 0 : 1));
+  if (severities.some((s, i) => i > 0 && s < severities[i - 1]!)) out.push(`${route}: a ticket is listed before a page`);
   const want: ReadonlyArray<readonly [string, string, string | undefined, string]> = [
     ...truth.firing.map((f) => ["alert", f.rule, f.severity, "/portal/monitor/alerts"] as const),
     ...truth.issues.map((i) => ["issue", i.key, undefined, "/portal/monitor/issues"] as const),
@@ -122,7 +125,7 @@ export const judgeHome = async (portal: ServedPortal, truth: Truth): Promise<Rea
     const where = `${route}: ${kind} ${subject}`;
     if (mine.length !== 1) { out.push(`${where} is listed ${mine.length} times, and it is once`); continue; }
     if (severity !== undefined && a(mine[0]!, "severity") !== severity) out.push(`${where}: data-severity is "${a(mine[0]!, "severity")}", not ${severity}`);
-    if (!mine[0]!.links.some((l) => l.startsWith(href))) out.push(`${where}: no link to ${href} (links: ${mine[0]!.links.join(", ") || "none"})`);
+    if (!mine[0]!.links.some((l) => l === href || l.startsWith(`${href}?`))) out.push(`${where}: no link to ${href} (links: ${mine[0]!.links.join(", ") || "none"})`);
     if (!mine[0]!.text.includes(subject)) out.push(`${where}: the item does not show its subject ("${mine[0]!.text}")`);
   }
   const wanted = new Set(want.map(([k, s]) => `${k}|${s}`));

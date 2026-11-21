@@ -1,4 +1,4 @@
-// Check 38 (M1.49, K18): monitoring falls out of the model. Written by the checks author before the slice; a builder never edits it.
+// Check 39 (M1.49, K18): monitoring falls out of the model. Written by the checks author before the slice; a builder never edits it.
 // The done-when, in a local world: "20 calls slowed past `profile.get`'s budget fire its fast burn; one call does not; a planted defect in `link.add`'s
 // `record` step opens one issue and a second joins it; a refusal opens none; the same defect after its operation's declaration changes shows regressed;
 // screenshots are byte-identical at the same `now`", and the rest of the row: the rules derived and carried in the portal's data with their labels, the defect
@@ -74,7 +74,7 @@ const compiled = (edit?: (root: string) => void) => once(async () => {
 const rewrite = (root: string, file: string, from: RegExp | string, to: string) => {
   const path = join(root, file);
   const text = readFileSync(path, "utf8");
-  if (!text.match(from)) throw new Error(`check 38 cannot edit ${file}: ${String(from)} is not in it`);
+  if (!text.match(from)) throw new Error(`check 39 cannot edit ${file}: ${String(from)} is not in it`);
   writeFileSync(path, text.replace(from, to));
 };
 const asIs = compiled();
@@ -91,7 +91,7 @@ const byId = (rules: ReadonlyArray<AlertRule>) => [...rules].sort((a, b) => (a.i
 
 // ---- controls: the instruments can pass and can fail ----
 
-describe("38 control: the inputs the rules are derived from, and the instruments", () => {
+describe("39 control: the inputs the rules are derived from, and the instruments", () => {
   it("Plugged In declares what K18 derives from: budgets, refusal codes, journeys and environments, and two declarations that change are the only hashes that do", async () => {
     const [a, l, p] = [await asIs(), await linkChanged(), await profileChanged()];
     expect(Object.values(a.model.operations).filter((o) => o.budget != null).length, "operations with a budget").toBeGreaterThan(3);
@@ -131,7 +131,7 @@ describe("38 control: the inputs the rules are derived from, and the instruments
 
 // ---- A: the compiler derives the rules ----
 
-describe("38 A: the compiler derives the alert rules and writes them where the portal reads", () => {
+describe("39 A: the compiler derives the alert rules and writes them where the portal reads", () => {
   it("one latency objective per budget, one defect objective per operation, one anomaly per refusal code, one verdict per journey and environment", async () => {
     const { model } = await asIs();
     const rules = model.alertRules ?? [];
@@ -196,10 +196,14 @@ const SCENES: ReadonlyArray<readonly [string, ReadonlyArray<CallSpec>, Readonly<
   ["half slowed, half fast: only the slower burns fire", [...slow("profile.get", 10, 1), ...slow("profile.get", 10, 1, 20)], { "latency:profile.get": ["ok", "firing", "firing"] }],
   ["60 slowed 40 minutes ago, 20 fast calls now: the long window burns and the short one does not", [...slow("profile.get", 60, 40), ...slow("profile.get", 20, 1, 20)], { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed now among 200 fast ones 45 minutes ago: the short window burns and the long one does not", [...slow("profile.get", 20, 1), ...slow("profile.get", 200, 45, 20)], { "latency:profile.get": ["ok", "ok", "firing"] }],
+  ["20 calls that each took two attempts of 100 ms: 200 ms in all is past the budget", many(20, { op: "profile.get", minutesAgo: 1, ms: 200, outcome: "answered", attempts: 2 }), { "latency:profile.get": ["firing", "firing", "firing"] }],
+  ["a call exactly 5 minutes before now is in the short window", [...slow("profile.get", 19, 1), { op: "profile.get", minutesAgo: 5, at: NOW - 5 * MIN, ms: 400, outcome: "answered" }], { "latency:profile.get": ["firing", "firing", "firing"] }],
+  ["a call exactly at now is in the window", [...slow("profile.get", 19, 1), { op: "profile.get", minutesAgo: 0, at: NOW, ms: 400, outcome: "answered" }], { "latency:profile.get": ["firing", "firing", "firing"] }],
+  ["a call one millisecond older than 5 minutes is not", [...slow("profile.get", 19, 1), { op: "profile.get", minutesAgo: 5, at: NOW - 5 * MIN - 1, ms: 400, outcome: "answered" }], { "latency:profile.get": ["ok", "firing", "firing"] }],
   ["24 slowed 40 minutes ago and one now: the short windows hold one call", [...slow("profile.get", 24, 40), ...slow("profile.get", 1, 0.5)], { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed two hours ago: only the 3-day burn still holds them", slow("profile.get", 20, 120), { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed link.add calls fire link.add's burns and not profile.get's", [...slow("link.add", 20, 1), ...slow("profile.get", 1, 1)], { "latency:link.add": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
-  ["25 calls with two defects fire the defect objective's burns", [...slow("profile.get", 23, 1, 10), ...[0, 1].map((i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 10, minutesAgo: 1, at: NOW - 40_000 - i * 1000 }))], { "defect:profile.get": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
+  ["25 calls with two defects, which were also slow, fire the defect objective's burns and count in the latency objective's", [...slow("profile.get", 23, 1, 10), ...[0, 1].map((i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 400, minutesAgo: 1, at: NOW - 40_000 - i * 1000 }))], { "defect:profile.get": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "firing"] }],
   ["25 refused calls are good calls: no defect burn", many(25, { op: "profile.get", minutesAgo: 1, ms: 10, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), { "defect:profile.get": ["ok", "ok", "ok"], "latency:profile.get": ["ok", "ok", "ok"] }],
 ];
 
@@ -215,7 +219,7 @@ const sameAlerts = (got: ReadonlyArray<AlertRow>, want: ReadonlyArray<AlertRow>)
   }
 };
 
-describe("38 B: the portal evaluates the rules over the window at a fixed now", () => {
+describe("39 B: the portal evaluates the rules over the window at a fixed now", () => {
   describe.each(SCENES)("%s", (name, specs, hand) => {
     it("answers the alerts the calls say, with what each window counted", async () => {
       const c = await asIs();
@@ -271,8 +275,8 @@ describe("38 B: the portal evaluates the rules over the window at a fixed now", 
     const wire = await decode(withRules(c.wire, deriveRules(c.model)));
     const context = contextOf(wire, { traces: tracesOf(slow("profile.get", 20, 1)), ledger: ledgerOf() });
     const first = await monitor(context);
-    const sent = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("check 38: the portal sent something"));
-    const clock = vi.spyOn(Date, "now").mockImplementation(() => { throw new Error("check 38: the portal read the clock"); });
+    const sent = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("check 39: the portal sent something"));
+    const clock = vi.spyOn(Date, "now").mockImplementation(() => { throw new Error("check 39: the portal read the clock"); });
     try {
       const again = await monitor(context);
       expect(again.status, again.text).toBe(200);
@@ -288,6 +292,14 @@ describe("38 B: the portal evaluates the rules over the window at a fixed now", 
     const response = (query: string) => Effect.runPromise(PortalServer.handle(context, new Request(`http://127.0.0.1/_portal/v1/monitor${query}`)) as Effect.Effect<Response>);
     expect((await response("")).status).toBe(400);
     expect((await response("?digest=not-this-blueprint")).status).toBe(409);
+    expect((await response(`?digest=${context.blueprint.digest.slice(0, 12)}`)).status, "a prefix of the digest is not the digest").toBe(409);
+  });
+
+  it("has nothing to say without a live source, as the trace pages have not", async () => {
+    const c = await asIs();
+    const wire = await decode(withRules(c.wire, deriveRules(c.model)));
+    const bare = { blueprint: wire, reader: null, bundleRevision: null } as never;
+    expect((await monitor(bare)).status).toBe(404);
   });
 });
 
@@ -301,7 +313,7 @@ const defect = (op: string, step: string, tag: string, at: number): CallSpec => 
 const owner = (c: Compiled, op: string) => (c.model.operations[op] as { file: string }).file;
 const hashIn = (wire: { model: { operations: Record<string, { hash: string }> } }, op: string) => wire.model.operations[op]!.hash;
 
-describe("38 C: issues, keyed by (operation, step, error tag)", () => {
+describe("39 C: issues, keyed by (operation, step, error tag)", () => {
   it("a planted defect in link.add's record step opens one issue and a second joins it; a refusal opens none; the real world's spans, as the runtime wrote them", async () => {
     const world = await planted();
     const wire = await decode(withRules(world.wire, deriveRules(world.model)));
@@ -321,7 +333,7 @@ describe("38 C: issues, keyed by (operation, step, error tag)", () => {
     const wire = await decode(withRules(c.wire, deriveRules(c.model)));
     const t = (m: number) => NOW - m * MIN;
     const specs: Array<CallSpec> = [
-      defect("link.add", "record", "TagA", t(5)), defect("link.add", "record", "TagA", t(3)), defect("link.add", "record", "TagB", t(4)),
+      defect("link.add", "record", "TagA", t(3)), defect("link.add", "record", "TagA", t(5)), defect("link.add", "record", "TagB", t(4)), defect("link.add", "record", "TagB", t(4)),
       defect("link.add", "load", "TagA", t(2)), defect("link.order", "record", "TagA", t(1)),
       { op: "link.add", outcome: "refused", refusal: "LinkNeedsHandle", code: "LN-001", ms: 5, minutesAgo: 6 }, { op: "link.add", outcome: "answered", ms: 5, minutesAgo: 7 },
     ];
@@ -329,7 +341,7 @@ describe("38 C: issues, keyed by (operation, step, error tag)", () => {
       key: `${op}/${step}/${tag}`, operation: op, step, tag, owner: owner(c, op), occurrences, firstSeen: { at: t(first), hash: hashIn(wire as never, op) }, lastSeen: { at: t(last), hash: hashIn(wire as never, op) }, regressed: false,
     });
     expect(issuesOf(await monitor(contextOf(wire, { traces: tracesOf(specs), ledger: ledgerOf() })))).toEqual([
-      issue("link.add", "load", "TagA", 1, 2, 2), issue("link.add", "record", "TagA", 2, 5, 3), issue("link.add", "record", "TagB", 1, 4, 4), issue("link.order", "record", "TagA", 1, 1, 1),
+      issue("link.add", "load", "TagA", 1, 2, 2), issue("link.add", "record", "TagA", 2, 5, 3), issue("link.add", "record", "TagB", 2, 4, 4), issue("link.order", "record", "TagA", 1, 1, 1),
     ]);
   });
 
@@ -369,6 +381,11 @@ describe("38 C: issues, keyed by (operation, step, error tag)", () => {
     expect(shape(await run(wl, 3, true)), "it came back after its own declaration changed: regressed").toEqual(["H1", "H2", true, 3]);
     expect(shape(await run(wl, 4, true)), "and stays so").toEqual(["H1", "H2", true, 4]);
     expect(shape(await run(wl, 5, true, ledgerOf())), "a defect first seen after the change is not a regression").toEqual(["H2", "H2", false, 1]);
+    const early = ledgerOf();
+    const now = NOW + 9 * DAY;
+    const traces = tracesOf([defect("link.add", "record", "TagA", now - 2 * MIN)], now, 900);
+    await monitor(contextOf(wa, { traces, now, ledger: early }));
+    expect(shape(issuesOf(await monitor(contextOf(wl, { traces, now: now + MIN, ledger: early })))[0]!), "the same call, still in the window, read again after the declaration changed: it did not come back").toEqual(["H1", "H1", false, 1]);
   });
 });
 
@@ -385,7 +402,7 @@ const pageScene = once(async () => {
   const specs: Array<CallSpec> = [
     ...slow("profile.get", 20, 1), defect("profile.get", "load", "SqlError", NOW - 30_000), defect("link.add", "record", "LedgerUnreachable", NOW - 2 * MIN),
     { op: "link.add", outcome: "answered", ms: 20, minutesAgo: 3 }, { op: "handle.claim", outcome: "refused", refusal: "HandleTaken", code: "HN-001", ms: 10, minutesAgo: 4 },
-    ...slow("handle.resolve", 20, 120),
+    ...slow("handle.resolve", 20, 120), ...slow("handle.release", 18, 2, 20), ...slow("handle.release", 2, 2, 400),
   ];
   const rules = deriveRules(b.model);
   const rows = expected(rules, specs, NOW);
@@ -400,7 +417,7 @@ const pageScene = once(async () => {
     ],
     firing: [...new Set(rows.filter((r) => r.state === "firing").map((r) => r.rule))].map((id) => ({ rule: id, severity: rule(id).some((r) => r.state === "firing" && r.severity === "page") ? "page" : "ticket" }))
       .sort((x, y) => (x.severity === y.severity ? 0 : x.severity === "page" ? -1 : 1)),
-    breaches: ["profile.get"],
+    breaches: ["handle.release", "profile.get"],
   };
   return { wire: wb, raw: withRules(b.wire, rules), specs, truth, ledger, context: () => contextOf(wb, { traces: tracesOf(specs, NOW, 100), now: NOW, ledger }) };
 });
@@ -432,11 +449,11 @@ const judged = async (change: ReadonlyArray<readonly [string, string]> = []) => 
   try { return await judge(portal, truth); } finally { await portal.close(); }
 };
 
-describe("38 control: the reference page passes the judge, and the judge names each fault planted in it", () => {
-  it("the truth is what the scene says: three firing rules (two pages, one ticket), two issues (one regressed) and profile.get over its budget", async () => {
+describe("39 control: the reference page passes the judge, and the judge names each fault planted in it", () => {
+  it("the truth is what the scene says: four firing rules (two pages, two tickets), two issues (one regressed), and handle.release (a p95 over its budget, a median under it) and profile.get over their budgets", async () => {
     const { truth } = await pageScene();
-    expect(truth.firing.map((f) => `${f.rule}:${f.severity}`).sort()).toEqual(["defect:profile.get:page", "latency:handle.resolve:ticket", "latency:profile.get:page"]);
-    expect(truth.firing.map((f) => f.severity), "the pages before the ticket").toEqual(["page", "page", "ticket"]);
+    expect(truth.firing.map((f) => `${f.rule}:${f.severity}`).sort()).toEqual(["defect:profile.get:page", "latency:handle.release:ticket", "latency:handle.resolve:ticket", "latency:profile.get:page"]);
+    expect(truth.firing.map((f) => f.severity), "the pages before the tickets").toEqual(["page", "page", "ticket", "ticket"]);
     expect(truth.issues.map((i) => i.regressed)).toEqual([true, false]);
   });
 
@@ -468,6 +485,12 @@ describe("38 control: the reference page passes the judge, and the judge names e
     ["an alert item with the wrong severity", "home", "data-severity is", [[`' data-severity="' + f.severity`, `' data-severity="' + "page"`]]],
     ["items that link nowhere", "home", "no link to", [[`'><a href="' + href + '">'`, `'><a data-x="' + href + '">'`]]],
     ["every operation over its budget", "home", "which is not firing, open or over budget", [["> budget.p95Ms", ">= 0"]]],
+    ["firing alerts with the tickets first", "home", "a ticket is listed before a page", [[`.sort((a, b) => (a.severity === "page" ? 0 : 1) - (b.severity === "page" ? 0 : 1));\n    const breaches`, `;\n    const breaches`]]],
+    ["a breach judged by the median", "home", "is listed 0 times", [["d[Math.ceil(0.95 * d.length) - 1]", "d[Math.ceil(0.5 * d.length) - 1]"]]],
+    ["alert rows drawn off screen", "alerts", "is shown 0 times", [[`'<div data-portal="alert-row"`, `'<div style="position:absolute;left:-9999px" data-portal="alert-row"`]]],
+    ["issue rows drawn with no height", "issues", "is shown 0 times", [[`'<div data-portal="issue-row"`, `'<div style="height:0;overflow:hidden" data-portal="issue-row"`]]],
+    ["alert items linking to a lookalike path", "home", "no link to", [[`item("alert", f.id, ' data-severity="' + f.severity + '"', "/portal/monitor/alerts")`, `item("alert", f.id, ' data-severity="' + f.severity + '"', "/portal/monitor/alerts-old")`]]],
+    ["a row that says ok for a firing alert", "alerts", "does not say", [["' + a.alert + ' ' + a.state + ' <i>'", `' + a.alert + ' ' + (a.state === "firing" ? "ok" : a.state) + ' <i>'`]]],
   ] as ReadonlyArray<readonly [string, "alerts" | "issues" | "home", string, ReadonlyArray<readonly [string, string]>]>)("a fault", (name, group, said, change) => {
     it(`names ${name}`, { timeout: 120_000 }, async () => {
       const found = (await judged(change))[group];
@@ -476,7 +499,7 @@ describe("38 control: the reference page passes the judge, and the judge names e
   });
 });
 
-describe("38 D: the pages, as the real client draws them (built only in CI: red elsewhere with K19)", () => {
+describe("39 D: the pages, as the real client draws them (built only in CI: red elsewhere with K19)", () => {
   const real = async () => { const scene = await pageScene(); return { portal: await ServedPortals.open({ context: scene.context() }), truth: scene.truth }; };
   describe.each([["alerts", "the Alerts page lists every alert the environment evaluates, worst first, with its state, severity and owner, and says nothing is sent"], ["issues", "the Issues page lists each issue with its key, owner, occurrences, first and last seen by declaration hash and its regression"], ["home", "home lists the worst first: firing alerts, then open issues, then budgets breached, each linking to where it is shown"]] as const)("%s", (group, said) => {
     it(said, { timeout: 120_000 }, async () => {
@@ -497,7 +520,7 @@ describe("38 D: the pages, as the real client draws them (built only in CI: red 
 
 // ---- E: the runtime's defect span ----
 
-describe("38 control: today's world writes a defect's first line, ends the failing step and the call as errors, and ends a refusal ok", () => {
+describe("39 control: today's world writes a defect's first line, ends the failing step and the call as errors, and ends a refusal ok", () => {
   it("the planted defect and the refusal, in the spans the runtime wrote", { timeout: 300_000 }, async () => {
     const world = await planted();
     for (const trace of world.defects) {
@@ -514,7 +537,7 @@ describe("38 control: today's world writes a defect's first line, ends the faili
   });
 });
 
-describe("38 E: the defect span carries the error's tag", () => {
+describe("39 E: the defect span carries the error's tag", () => {
   it("the operation span of each call that died in record carries `error.tag`, the error's `_tag`, and still the cause's first line", { timeout: 300_000 }, async () => {
     const world = await planted();
     for (const trace of world.defects) {

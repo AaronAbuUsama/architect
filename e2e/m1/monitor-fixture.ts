@@ -1,4 +1,4 @@
-// What check 38 (M1.49) judges the portal's monitoring with: calls made into traces at fixed times, an honest `TraceSource` and metrics reader over
+// What check 39 (M1.49) judges the portal's monitoring with: calls made into traces at fixed times, an honest `TraceSource` and metrics reader over
 // them, an issue ledger that is only a Map, and the ORACLE, which says from the calls alone (never from anything the portal answered) which alerts
 // must fire. The rules it reads are the compiler's own, out of `generated/model/model.json`; the defaults they must carry are K18's and the research's.
 import { createHash } from "node:crypto";
@@ -54,6 +54,8 @@ export interface CallSpec {
   /** A defect: the step that died and the error's tag. */
   readonly step?: string; readonly tag?: string;
   readonly at?: number;
+  /** A call that took two attempts (the first lost the commit): its duration is the extent of both, each attempt taking half. */
+  readonly attempts?: 1 | 2;
 }
 
 const hex = (n: number) => createHash("sha256").update(`m1.49:${n}`).digest("hex");
@@ -67,16 +69,18 @@ export const tracesOf = (specs: ReadonlyArray<CallSpec>, now = NOW, from = 0): M
     const trace = hex(n).slice(0, 32);
     const sid = (k: number) => hex(n * 10 + k).slice(0, 16);
     const start = startOf(spec, now);
-    const op: Span = {
-      traceId: trace, spanId: sid(1), parentSpanId: "", name: spec.op, ms: spec.ms, start, status: spec.outcome === "defect" ? 2 : 1,
+    const attempts = spec.attempts ?? 1;
+    const each = Math.round(spec.ms / attempts);
+    const attemptSpan = (attempt: number): Span => ({
+      traceId: trace, spanId: sid(attempt === 1 ? 1 : 3), parentSpanId: "", name: spec.op, ms: each, start: start + (attempt - 1) * each, status: attempt === attempts && spec.outcome === "defect" ? 2 : 1,
       attrs: {
-        operation: spec.op, attempt: 1, "principal.kind": "anonymous", environment: ENV, store: "database",
-        ...(spec.outcome === "refused" ? { refusal: spec.refusal ?? "Refused", "refusal.code": spec.code ?? "XX-001" } : {}),
-        ...(spec.outcome === "defect" ? { defect: `Error: planted defect ${n}`, "error.tag": spec.tag ?? "Error" } : {}),
+        operation: spec.op, attempt, "principal.kind": "anonymous", environment: ENV, store: "database",
+        ...(attempt === attempts && spec.outcome === "refused" ? { refusal: spec.refusal ?? "Refused", "refusal.code": spec.code ?? "XX-001" } : {}),
+        ...(attempt === attempts && spec.outcome === "defect" ? { defect: `Error: planted defect ${n}`, "error.tag": spec.tag ?? "Error" } : {}),
       },
-    };
-    const spans: Array<Span> = [op];
-    if (spec.outcome === "defect" && spec.step !== undefined) spans.push({ traceId: trace, spanId: sid(2), parentSpanId: sid(1), name: `${spec.op}.${spec.step}`, attrs: { "step.kind": "database" }, status: 2, ms: 1, start: start + 1 });
+    });
+    const spans: Array<Span> = Array.from({ length: attempts }, (_, i) => attemptSpan(i + 1));
+    if (spec.outcome === "defect" && spec.step !== undefined) spans.push({ traceId: trace, spanId: sid(2), parentSpanId: sid(attempts === 1 ? 1 : 3), name: `${spec.op}.${spec.step}`, attrs: { "step.kind": "database" }, status: 2, ms: 1, start: start + (attempts - 1) * each + 1 });
     traces.set(trace, { spans, logs: [] });
   });
   return traces;

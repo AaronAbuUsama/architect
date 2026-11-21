@@ -1,4 +1,4 @@
-// The reference page of check 38: a client the check can run anywhere, drawn from the portal's data API alone (`/_portal/v1/blueprint`, `monitor`, `snapshot`),
+// The reference page of check 39: a client the check can run anywhere, drawn from the portal's data API alone (`/_portal/v1/blueprint`, `monitor`, `snapshot`),
 // as the real client (HeroUI Pro, built only in CI) must draw the same pages. It exists so that the judge in `monitor-judge.ts` is proved able to pass, and able
 // to fail, without that client. Written as plain JS in one string so that each control can plant one fault by replacing one phrase of it.
 export const standIn = (): string => `<!doctype html><html><head><meta charset="utf-8"><title>reference</title></head><body><script>
