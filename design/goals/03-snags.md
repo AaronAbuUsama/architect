@@ -118,7 +118,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   no world outlives an upgrade before M7.
 - HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
   framework, check first.
-- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
+- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Fixed: the eval requires every issued answer field (`packages/prove/src/modules/evals/issued.test.ts`).
 - Status: open (HAN-13 parked, M7.03)
 
 ## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
