@@ -67,9 +67,9 @@ The DX itself is on trial. Every snag is written down and becomes a fix.
 >   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
 > - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
 >   three lines: the slice, its check, its snags. Write for Aaron's ear.
-> - **Branch protection:** `goal/on-chain` is not protected yet (`design/decisions/CI-branch-protection.md` covers
->   `main`, `m1` and `goal/stage-1`); protecting it is a repository setting, so the conductor asks Aaron. Until then
->   the rule holds by discipline: never merge a red pull request, and never push to `goal/on-chain` directly.
+> - **Branch protection:** `goal/on-chain` is protected like `goal/stage-1` since 21 November 2026, admins included
+>   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. Never push to
+>   `goal/on-chain` directly.
 
 ## The bound
 
