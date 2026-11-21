@@ -488,6 +488,7 @@
             "path": "organization"
           }
         ],
+        "agentTool": true,
         "refs": {
           "organization": "organization"
         },
@@ -507,7 +508,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "14deeff32922c212"
+        "hash": "12a4457690ea752f"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -567,6 +568,7 @@
             "role": "invitation.invitee"
           }
         ],
+        "agentTool": true,
         "refs": {
           "invitation": "invitation"
         },
@@ -582,7 +584,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "40cceacba00c0163"
+        "hash": "92e1725c49048e8d"
       },
       "invitation.revoke": {
         "kind": "operation",
@@ -628,6 +630,7 @@
             "path": "invitation.organization"
           }
         ],
+        "agentTool": true,
         "refs": {
           "invitation": "invitation"
         },
@@ -643,7 +646,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "95edc097961ff88f"
+        "hash": "2e88e5bd83d2eed9"
       },
       "invitation.send": {
         "kind": "operation",
@@ -701,6 +704,7 @@
             "path": "organization"
           }
         ],
+        "agentTool": true,
         "refs": {
           "organization": "organization"
         },
@@ -717,7 +721,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "77c8ef0b1791ffb1"
+        "hash": "fb40c7cb89f22921"
       },
       "membership.get": {
         "kind": "read",
@@ -779,6 +783,7 @@
             "path": "membership.organization"
           }
         ],
+        "agentTool": true,
         "steps": {},
         "idempotent": null,
         "runs": "server",
@@ -786,7 +791,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "d8557c04ed7f857c"
+        "hash": "e734960d35d8a981"
       },
       "organization.create": {
         "kind": "operation",
@@ -836,6 +841,7 @@
             "kind": "signed-in"
           }
         ],
+        "agentTool": true,
         "mints": "organization",
         "steps": {
           "insert": {
@@ -853,7 +859,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "59e22d615e7c5782"
+        "hash": "44abc64a3e7dc160"
       },
       "organization.get": {
         "kind": "read",
@@ -909,6 +915,7 @@
             "role": "organization.owner"
           }
         ],
+        "agentTool": true,
         "steps": {},
         "idempotent": null,
         "runs": "server",
@@ -916,7 +923,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "8481a45e201eda3e"
+        "hash": "684ffa1f086e7c63"
       },
       "person.sign-up": {
         "kind": "operation",
@@ -975,6 +982,7 @@
             "kind": "anyone"
           }
         ],
+        "agentTool": true,
         "steps": {
           "create": {
             "name": "person.sign-up.create",
@@ -987,7 +995,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "79f794725e7f08d3"
+        "hash": "e7172748550f49b1"
       },
       "session.show": {
         "kind": "operation",
@@ -1028,6 +1036,7 @@
             "kind": "signed-in"
           }
         ],
+        "agentTool": true,
         "steps": {},
         "idempotent": null,
         "runs": "server",
@@ -1035,7 +1044,7 @@
         "budget": {
           "p95Ms": 100
         },
-        "hash": "fd19967b0d38e8da"
+        "hash": "79e085de8acc5c10"
       },
       "session.sign-in": {
         "kind": "operation",
@@ -1098,6 +1107,7 @@
             "kind": "anyone"
           }
         ],
+        "agentTool": true,
         "steps": {
           "verify": {
             "name": "session.sign-in.verify",
@@ -1110,7 +1120,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "e0820fd8a10524cf"
+        "hash": "13e27d0e3a08e66b"
       },
       "system.health": {
         "kind": "operation",
@@ -1141,6 +1151,7 @@
             "kind": "anyone"
           }
         ],
+        "agentTool": true,
         "steps": {},
         "idempotent": null,
         "runs": "server",
@@ -1148,7 +1159,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "ac3f84873bd5c233"
+        "hash": "d97534a72031965e"
       }
     },
     "journeys": {
@@ -2436,62 +2447,62 @@
   },
   "dependsOnByOperation": {
     "api-key.create": {
-      "operation:api-key.create": "14deeff32922c212",
+      "operation:api-key.create": "12a4457690ea752f",
       "thing:api-key": "dec54cf75bd4acb9",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.accept": {
-      "operation:invitation.accept": "40cceacba00c0163",
+      "operation:invitation.accept": "92e1725c49048e8d",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.revoke": {
-      "operation:invitation.revoke": "95edc097961ff88f",
+      "operation:invitation.revoke": "2e88e5bd83d2eed9",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.send": {
-      "operation:invitation.send": "77c8ef0b1791ffb1",
+      "operation:invitation.send": "fb40c7cb89f22921",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "membership.get": {
-      "operation:membership.get": "d8557c04ed7f857c",
+      "operation:membership.get": "e734960d35d8a981",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.create": {
-      "operation:organization.create": "59e22d615e7c5782",
+      "operation:organization.create": "44abc64a3e7dc160",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.get": {
-      "operation:organization.get": "8481a45e201eda3e",
+      "operation:organization.get": "684ffa1f086e7c63",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "person.sign-up": {
-      "operation:person.sign-up": "79f794725e7f08d3",
+      "operation:person.sign-up": "e7172748550f49b1",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "session.show": {
-      "operation:session.show": "fd19967b0d38e8da",
+      "operation:session.show": "79e085de8acc5c10",
       "thing:person": "ad771ebabdfe3e0e",
       "thing:session": "455311c2adae1097"
     },
     "session.sign-in": {
-      "operation:session.sign-in": "e0820fd8a10524cf",
+      "operation:session.sign-in": "13e27d0e3a08e66b",
       "thing:person": "ad771ebabdfe3e0e",
       "thing:session": "455311c2adae1097"
     },
     "system.health": {
-      "operation:system.health": "ac3f84873bd5c233",
+      "operation:system.health": "d97534a72031965e",
       "thing:system": "357767c64efceced"
     }
   },
@@ -2529,5 +2540,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "ce4cdb172f389428e8eba85192844a95d9b416783e578ae4c689a0ed01811c1d"
+  "digest": "aa5823e55e5625dd5d9f4dbd84fd4d960f256facf53b665cdf43e5d78c3f9667"
 }
