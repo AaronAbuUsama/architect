@@ -28,7 +28,7 @@ packages/
                                                    publish, watch
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
-  portal-ui/         @orthograph/portal-ui         the only importer of HeroUI Pro, a peer dependency never bundled; the
+  portal-ui/         @orthograph/portal-ui         today the only importer of HeroUI Pro (phased out, K24), a peer dependency never bundled; the
                                                    portal and every face build on its exports (F7, M1.34)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
 examples/
