@@ -400,10 +400,9 @@ prove still on every push to a protected branch. CI-speed's "Not done" stands as
 
 ## Supersedes
 
-Nothing. `git grep` finds no live doc that says otherwise:
-
-- the frame already calls docs and the portal projections (`design/frame/projections.md`, 3.7 and 3.8), and they stay
-  in the one `@orthograph/projections` package that `M1-plugins` X-10 names;
-- the milestones already extract auth, organisations and handles, and no live doc says "a second app";
-- `design/decisions/CI-speed.md`'s "Not done" is conditional on the inputs, which this record leaves to a slice;
-- the scope map's fourth disagreement (Capxul's timing) is answered in section 2, and marked so in `design/scope.md`.
+Nothing. `git grep` finds no live doc that says otherwise. The frame already calls docs and the portal projections
+(`design/frame/projections.md`, 3.7 and 3.8), and they stay in the one `@orthograph/projections` package that
+`M1-plugins` X-10 names. The milestones already extract auth, organisations and handles, and no live doc asks for a
+second app first. `design/decisions/CI-speed.md`'s "Not done" is conditional on the inputs, which this record leaves to
+a slice. The scope map's fourth disagreement (Capxul's timing) is answered in section 2, and marked so in
+`design/scope.md`.
