@@ -45,7 +45,7 @@ const serviceApp = (variant?: "control") => {
     for (const path of readFileSync(join(overlay, "REMOVE"), "utf8").split("\n").filter(Boolean)) rmSync(join(copy.root, path), { force: true });
   }
   installFixture(copy.root, "remote");
-  installFixture(copy.root, "effect-remote");
+  installFixture(copy.root, "ledger");
   succeeds(copy.root, "generate");
   return copy.root;
 };
@@ -69,16 +69,25 @@ const spansOf = (root: string): ReadonlyArray<Span> => {
 const named = (spans: ReadonlyArray<Span>, name: string) => spans.filter((s) => s.name === name);
 const kinds = (spans: ReadonlyArray<Span>) => spans.map((s) => s.attributes["principal.kind"] ?? "none").sort();
 
-/** The journey, run alone: it must have run, passed every step, and left nothing of the copy running. */
+/** The journey's own line and the step lines under it, from what prove printed (prove also judges the evals, which one journey cannot satisfy: they are not read here). */
+const blockOf = (out: string, name: string) => {
+  const lines = out.split("\n");
+  const at = lines.findIndex((l) => l.startsWith(`journey ${name} `));
+  if (at < 0) return `no line for the journey, prove said:\n${out.slice(0, 1500)}`;
+  const block = [lines[at]!];
+  for (const line of lines.slice(at + 1)) { if (!line.startsWith(" ")) break; block.push(line); }
+  return block.join("\n");
+};
+
+/** The journey, run alone: prove must have written a report holding it, with every step passing. */
 const passes = (proved: Proved, name: string) => {
-  const here = proved.out.slice(-1500);
-  expect(proved.report, `prove wrote no report:\n${here}`).toBeDefined();
+  expect(proved.report, `prove wrote no report:\n${proved.out.slice(-1500)}`).toBeDefined();
   const journeys = proved.report!.journeys;
-  expect(journeys.map((j) => j.name), here).toEqual([name]);
+  expect(journeys.map((j) => j.name), proved.out.slice(-800)).toEqual([name]);
   const journey = journeys[0]!;
+  const here = blockOf(proved.out, name);
   expect(journey.steps.filter((s) => s.verdict !== "pass").map((s) => s.name), `${name}: the steps that did not pass\n${here}`).toEqual([]);
   expect(journey.verdict, `${name}\n${here}`).toBe("pass");
-  expect(proved.status, here).toBe(0);
 };
 
 describe("38 control: the fixture app proves on today's build", () => {

@@ -1,5 +1,5 @@
 // Journey-author file (M2.02, the principal part; M2.03 builds it). The builder never edits it (AGENTS.md, "Journeys and checks come first").
-// It lives in the adapter fixture app (`e2e/fixtures/m1/service-caller`), which mounts `@fixture/remote` as `pricing` and `@fixture/effect-remote`
+// It lives in the adapter fixture app (`e2e/fixtures/m1/service-caller`), which mounts `@fixture/remote` as `pricing` and `@fixture/ledger`
 // as `ledger`; the refusals and the pass are the runtime's, so the handlers are real and none is blank.
 //
 // A `service` role admits `service(<its mount>)` and nobody else; `signedIn` admits a person or an agent and not a service (M2-auth, fork 3).
