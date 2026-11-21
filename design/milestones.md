@@ -476,7 +476,7 @@ Capxul's first feature runs in its staging.
 |---|---|---|---|---|---|
 | M7.01 ✅ | The cloud pass for staging (K10 section 8): the Cloudflare account Aaron uses for every environment for now, every resource prefixed, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential **Proof:** [`decisions/M7-cloud.md`](decisions/M7-cloud.md), passed by a 🔍 reviewer; the token's scope is recorded as asked, and `spikes/staging-pass` shows what it allows | S |
 | M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.13 | build | `npm view orthograph` shows the release | S |
-| M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
+| M7.03 | The infra projection: the plan of an environment's cloud resources from the model and mounts, made by wrangler and Cloudflare's REST API | M7.01 | build | `ortho env up staging` plans the expected resources | L |
 | M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing with its run's prefix in the account and changes nothing without it | M |
 | M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04, M7.13 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
 | M7.06 ∥ | Real releases: npm, Homebrew, GitHub (L2.06, cloud part) | M7.02 | build | `brew install` of acme's CLI works from the real tap | S |

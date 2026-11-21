@@ -2972,6 +2972,28 @@
         "publish": {},
         "hash": "0f14705e03d3bc97"
       },
+      "staging": {
+        "name": "staging",
+        "file": "blueprint/environments/staging.ts",
+        "runs": "always on",
+        "identity": "better-auth",
+        "lifetimeMs": null,
+        "cloud": {
+          "provider": "cloudflare",
+          "database": "d1"
+        },
+        "database": null,
+        "secrets": {},
+        "promotesFrom": null,
+        "deploy": {
+          "server": {
+            "how": "worker",
+            "domain": null
+          }
+        },
+        "publish": {},
+        "hash": "1f38e5ae45256ddc"
+      },
       "test": {
         "name": "test",
         "file": "blueprint/environments/test.ts",
@@ -3110,5 +3132,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "a4bf2becadbf88459d00dcc09b1df6780e47442ce96bfff9ba357e3e7f539630"
+  "digest": "9c405fa31c8daf654705c9ff404a48a117656560d5dae956454f7f3edda3d8e1"
 }

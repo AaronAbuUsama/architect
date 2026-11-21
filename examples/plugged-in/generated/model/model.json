@@ -2968,6 +2968,28 @@
       "publish": {},
       "hash": "0f14705e03d3bc97"
     },
+    "staging": {
+      "name": "staging",
+      "file": "blueprint/environments/staging.ts",
+      "runs": "always on",
+      "identity": "better-auth",
+      "lifetimeMs": null,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {
+        "server": {
+          "how": "worker",
+          "domain": null
+        }
+      },
+      "publish": {},
+      "hash": "1f38e5ae45256ddc"
+    },
     "test": {
       "name": "test",
       "file": "blueprint/environments/test.ts",
