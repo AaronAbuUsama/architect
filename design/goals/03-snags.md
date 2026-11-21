@@ -295,7 +295,11 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open, blocks the climb and `e2e:climb`: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
+- Status: fixed (#264)
+- Notes from #264: the failing line names the answer's top-level keys and never its values (a sign-in answer holds a token, and the report is kept), a `pick` that
+  returns a value holding itself reads `[Circular]` where it loops back, and a throw of anything (a string, a `RangeError`) fails the step. The guard around the
+  `refuses()` class is in the code but effectively unreachable: the compiler refuses a bad `refuses()` argument first, so no test can reach it. Journey code that
+  throws outside a check is S-32.
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
 - Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's
@@ -350,6 +354,18 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
 - Status: built (#255)
+
+## S-32 · prove · journey code that throws while the compiler describes a blueprint kills the run with no report
+- Hit: the 🔍 of #264 (S-27), reading what the `Effect.try` there does not cover. Not run on a planted journey yet: read from the code.
+- What: S-27 covers a throw inside a check. Three other places run journey code outside it. A throw inside a journey's `steps(...)` builder is caught first by the
+  compiler (`storiesOf`, `packages/compiler/src/modules/model/internal/journeys.ts:89`, called from `describe.ts:254`), and a starting world's `makes` and `gives`
+  run at `packages/prove/src/modules/journeys/service.ts:73-80`. A throw in any of them ends `ortho prove` with a stack trace and no `--report` file.
+- Lost: as in S-27, the curve records nothing for that run, and the climber sees a stack trace instead of a failed journey naming the file.
+- Cause: nothing wraps journey code there; S-27 wrapped only the check's `pick` and the refusal's class.
+- Fix: framework. A throw while describing a journey fails that journey (named, with the error's message) and the other journeys still run; a throwing
+  `makes` or `gives` fails the journey that declared it. A checks author first adds the cases beside `throwing-check.test.ts`.
+- Owner: the compiler (a later slice, for a framework builder).
+- Status: parked. Trigger: a climber's journey throws in a `steps(...)` builder or a world's `makes`/`gives`, or the next prove slice touches `storiesOf`.
 
 
 <!-- S-32 is PR #264's, not merged yet: its entry goes here. -->
