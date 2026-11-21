@@ -197,6 +197,7 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
 | M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
+| O4 | a successful span exports as UNSET under effect 4.1.4 (check 39's control: "not an error") | `goal/stage-1`, by Goal 3's lead |
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
 | K25 | the blueprint on chain (a chain store, `lives:`), superseding K7's inline chain | reserved 20 November 2026 for the 📐 Solidity session |
 | K26 | on chain pulled forward (M6 ahead of the gates for M3 to M5) | reserved 20 November 2026 for the 📐 Solidity session |
@@ -207,8 +208,9 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | K32 | goals coordinate themselves, through git and GitHub | `main`, by the conductor |
 | K33 | the work lives on GitHub natively: a milestone per goal, issue kinds, templates, the sync | #301, by the 📐 designer thread |
 | K34 | goals start by what they need, not by milestone order; the goal map | `main`, by the conductor |
+| K35 | Goals 8 to 16 briefed, short, with their branches | `main`, by the conductor |
 
-**Next free:** D5, E2, F10, G9, H3, K35, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F10, G9, H3, K36, N2, O5, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
 milestone, not numbered; a goal records its own in its brief, not here (K32), and `GOAL<n>-<slug>` names a call that
 belongs to one goal and no milestone.
