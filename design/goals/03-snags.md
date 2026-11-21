@@ -28,7 +28,7 @@ change also removes a stray second `Status: fixed (#148)` under S-27, a copy of 
 1. **S-27, a throwing `pick` kills the run.** A small prove slice, and first because a single red step in the story or
    the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
    nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
-   is ready now: its fix and test are #264, open, with `e2e-m1` failing at the last read.
+   is ready now: its fix and test: #264.
 2. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
    through the CLI and MCP, and the held-off grid cells `error.cli`, `error.mcp` and `invariant.cli` stay off. S-20
    and S-16 ride on it.
@@ -292,7 +292,7 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: building (#264, open: the test red first, then the fix; `e2e-m1` failing at the last read), blocks the climb and `e2e:climb` until it merges: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
+- Status: building (#264: the test red first, then the fix), blocks the climb and `e2e:climb` until it merges: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
 - Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's

@@ -16,7 +16,7 @@ for the same picture in a page; this file keeps the standing directions, the lin
 listed under "Every open line", and Gate M1 (M1.15) is not run yet. Plugged In's seven journeys run green in CI, in
 local and in test (`e2e-stage1`, a required check), and the climb is green: 331 of 331 cell-and-subject pairs. Goal 4 (on-chain)
 has started on `goal/on-chain`. K28 (21 November) cut three releases: the preview (Gate M1 on `main` plus npm under
-`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (`design/decisions/K29-*.md`, PR #272) decides the UI layer, under Aaron's standing authority of 21 November; Goal 5 starts once it is on `main`.
+`next`, slice M1.51), the beta (stage 1: Gate M2 plus the staging run) and 1.0 (stages 2 to 4). K29 (`design/decisions/K29-*.md`, PR #272) decides the UI layer, under Aaron's standing authority of 21 November; Goal 5 builds from it.
 
 **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Rows below that say `links` predate it;
 `milestones.md` is renamed in place ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)).
@@ -113,7 +113,7 @@ Goals run the work now (`design/goals/`), each on its own branch. The conductor 
 |---|---|---|---|---|
 | **Goal 3, stage 1 (Plugged In)** | `goal/stage-1` | open and merged pull requests: see the goal file | `nx run e2e:stage1` and Gates M1 and M2 pass; the staging run; one pull request to `main` at the done check, after the preview merge (K28) | Kept in one place, rewritten at every slice merge: "Where it stands" at the end of [`goals/03-stage-1-hill-climbed.md`](goals/03-stage-1-hill-climbed.md) |
 | **Goal 4, on-chain (1.0)** | `goal/on-chain` | see `design/goals/04-on-chain.md` | stage 2 and 3 slices, from `design/goals/04-on-chain.md` | Started 21 November. Its seam slice waits on M2.05, because both reshape `host-cloudflare` |
-| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, into `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Starts once K29 is on `main`; a Goal 5 lead runs it |
+| **Goal 5, the UI layer** | `goal/ui-layer` | #272 (K29, into `main`) | ST1.25 to ST1.28 and M1.22, M1.23 built, from K29 | Built from K29 by a Goal 5 lead |
 | **Foreman** | `claude/foreman-c521e2` | #187 | the design and a Capxul test drive | Merged into `main` on 21 November (#187, F9); the branch is kept |
 | **K24, UI SDK** | `conductor/k24-ui-sdk` | #217, #215 | K24 decided, the verb-primitive spike | K29 builds on K24 |
 | **M8, time's checks** | `main` | #274 | the checks for M8.02 to M8.04 | The checks are on `main` (#213, #274) |
@@ -149,7 +149,7 @@ plugins and extensions; most won't stick, the kept ones are refactored, and prod
 ### Next on the critical path
 
 The beta (K28) is the critical path. On `goal/stage-1`, the order is the goal file's "Where it stands": land the open pull requests and the builders for the merged checks; when M1's slices are green, the preview merge (one pull request from `goal/stage-1` to `main`, Gate M1 passing on it), then M1.51 and Aaron's npm publish. Then M2.03 to M2.08, `npm create orthograph` (M2.09), Gate M2 (M2.12) and the staging run. Beside it, Goal 4
-runs stage 2 and 3 work, and Goal 5 (the UI layer) waits on #272 merging.
+runs stage 2 and 3 work, and Goal 5 builds the UI layer from K29.
 
 ### Open questions carried by threads
 
