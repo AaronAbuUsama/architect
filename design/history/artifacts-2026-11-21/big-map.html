@@ -89,9 +89,9 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
   <div class="scroll"><table>
     <thead><tr><th>Goal</th><th>Thread</th><th>Branch</th><th>Ends when</th><th>Now</th></tr></thead>
     <tbody>
-      <tr><td><b>3 · Stage 1 of Plugged In</b><br><small>the beta, critical path</small></td><td>🎯 Goal 3 lead</td><td class="mono">goal/stage-1</td><td><code>nx run e2e:stage1</code> green, staging included; merges to main twice (preview, then done)</td><td><span class="chip partial">Running</span> Over a dozen merged today. Ready: main catch-up with the draft guards. 7 reviewed drafts queued for CI. Staging on Alchemy in review.</td></tr>
+      <tr><td><b>3 · Stage 1 of Plugged In</b><br><small>the beta, critical path</small></td><td>🎯 Goal 3 lead</td><td class="mono">goal/stage-1</td><td><code>nx run e2e:stage1</code> green, staging included; merges to main twice (preview, then done)</td><td><span class="chip partial">Running</span> Over a dozen merged today. Ready: main catch-up with the draft guards, and the compiler fixes for two snags. 6 reviewed drafts queued for CI. Staging on Alchemy in review.</td></tr>
       <tr><td><b>4 · On chain, end to end</b><br><small>1.0, stages 2 and 3</small></td><td>🎯 Goal 4 lead</td><td class="mono">goal/on-chain</td><td><code>nx run e2e:on-chain</code> green in CI</td><td><span class="chip partial">Running</span> Start, chain decision, budgets journeys and the red done check merged. Money decision and lead state ready. Slice 3's checks failed review: nobody has shown a correct build can pass them.</td></tr>
-      <tr><td><b>7 · Safe, Hats, budgets</b><br><small>the base for Capxul</small></td><td>🧑‍🏭 Foreman, steering Codex</td><td class="mono">goal/safe-hats</td><td>a reviewer runs <code>spikes/safe-hats-module/run-all.sh</code> from a clean clone, all green</td><td><span class="chip built">Done check passed</span> All 8 steps. <a href="https://github.com/AaronAbuUsama/architect/pull/294">#294</a> is in CI and merges when green.</td></tr>
+      <tr><td><b>7 · Safe, Hats, budgets</b><br><small>the base for Capxul</small></td><td>🧑‍🏭 Foreman, steering Codex</td><td class="mono">goal/safe-hats</td><td>a reviewer runs <code>spikes/safe-hats-module/run-all.sh</code> from a clean clone, all green</td><td><span class="chip built">Done check passed</span> All 8 steps, in the Foreman thread's review run. <a href="https://github.com/AaronAbuUsama/architect/pull/294">#294</a> is in CI and merges when green.</td></tr>
       <tr><td><b>5 · The UI layer</b><br><small>generated pieces on UI SDK</small></td><td>not started</td><td class="mono">goal/ui-layer</td><td>in its brief, <code>design/goals/05-ui-layer.md</code></td><td><span class="chip decided">Waiting</span> Starts when <a href="https://github.com/AaronAbuUsama/architect/pull/272">#272</a> (K29) is on main. Its CI is running.</td></tr>
       <tr><td><b>6 · The new portal</b><br><small>our components, the app map</small></td><td>not started</td><td class="mono">goal/portal</td><td><code>nx run e2e:portal-next</code>, then one cutover into stage 1</td><td><span class="chip decided">Waiting</span> Starts when <a href="https://github.com/AaronAbuUsama/architect/pull/285">#285</a> (K31) is on main, after #272.</td></tr>
     </tbody>
@@ -128,15 +128,15 @@ flowchart LR
   m1[m1, finished] -.- main
   </pre>
   <div class="kpis">
-    <div><strong>301 → 44</strong><span>branches on GitHub</span></div>
+    <div><strong>301 → 44</strong><span>branches on GitHub, before two new ones</span></div>
     <div><strong>481 → 160</strong><span>branches on this Mac</span></div>
     <div><strong>257 + 321</strong><span>deleted: already inside main or a goal branch</span></div>
   </div>
   <div class="grid2">
     <div><h3>Integration branches (5)</h3>
       <ul><li><code>main</code>: the record</li><li><code>goal/stage-1</code>: Goal 3</li><li><code>goal/on-chain</code>: Goal 4</li><li><code>goal/safe-hats</code>: Goal 7, merging</li><li><code>m1</code>: finished, kept for its protection rules</li></ul></div>
-    <div><h3>Open pull request branches (15)</h3>
-      <ul><li><b>Goal 3:</b> <code>m1-12a-build</code>, <code>m1-12a-check</code>, <code>m1-49-check</code>, <code>m1-50-check</code>, <code>m2-02-check</code>, <code>m7-03-build</code>, <code>prove-staging-check</code>, <code>s33-s34-build</code>, <code>s35-check</code>, <code>main-merge-nov21</code></li>
+    <div><h3>Open pull request branches (16)</h3>
+      <ul><li><b>Goal 3:</b> <code>m1-12a-build</code>, <code>m1-12a-check</code>, <code>m1-49-check</code>, <code>m1-50-check</code>, <code>m2-02-check</code>, <code>m7-03-build</code>, <code>prove-staging-check</code>, <code>s33-s34-build</code>, <code>s35-check</code>, <code>main-merge-nov21</code>, <code>chore/effect-4.1.4</code> (the Effect update)</li>
       <li><b>Goal 4:</b> <code>m6-money</code>, <code>m610-check</code>, <code>state-skill</code></li>
       <li><b>UI:</b> <code>claude/design-ui-layer-942878</code> (#272), <code>claude/app-map-portal</code> (#285)</li></ul></div>
   </div>
