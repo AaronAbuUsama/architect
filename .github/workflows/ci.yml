@@ -44,7 +44,12 @@ jobs:
       - id: live
         run: |
           if [[ "$EVENT" == pull_request ]]; then
-            draft=$(gh api "repos/$REPO/pulls/$PR" --jq .draft)
+            # Three tries: should the API fail, every job skips and the pull request waits for a rerun.
+            for try in 1 2 3; do
+              draft=$(gh api "repos/$REPO/pulls/$PR" --jq .draft) && break
+              [[ "$try" == 3 ]] && exit 1
+              sleep 5
+            done
           else
             draft=false
           fi
