@@ -411,26 +411,30 @@ with a `value`.
 - **`frame/projections.md` 3.4** ("React gives a web app hooks over the SDK … it renders hooks, not screens") is
   rewritten to the web projection: pieces per operation, not screens; pages stay the app's own code.
 
-## 7. The portal: off HeroUI
+## 7. The portal: off HeroUI, by a new client (K31, Goal 6)
 
 The inventory found that the portal uses three components (`Card`, `Widget`, `Timeline`), HeroUI's two stylesheets and
-nine of its tokens. Everything else is plain HTML that our checks read by `data-portal` hooks. So the move is:
+nine of its tokens. Everything else is plain HTML that our checks read by `data-portal` hooks. The same day, the app
+map grill (K31, [`K31-app-map.md`](K31-app-map.md)) found that half of the portal's frame is matched by hand, so moving
+the old client in place would carry that over. So the portal leaves HeroUI by being rebuilt, not ported:
 
-1. **One change, behind the same names.** Inside `@orthograph/portal-ui`: `Card` and `Widget` become our markup,
-   `Timeline` becomes UI SDK's. `portal.css` moves from HeroUI's tokens to `--ui-*` tokens and the shared theme
-   (Q3). The four page files keep their imports and their `data-portal` hooks, so checks 21 and 28 pass unchanged.
-2. **The frame's hand-rolled parts become UI SDK's,** because then an agent can use the portal too: search as
-   `Command` in a `Dialog`, the environment picker as `Select`, the tree as `Tree`, the operation tabs as `Tabs`, the
-   calls filter as `Select`, and the trace as `Waterfall` once it leaves experimental. Each keeps its hook.
-3. **The 15 names nobody calls are deleted,** not ported: `Shell`, `Grid`, `Board`, `Chart`, `Stat` and its parts,
-   `Code`, `Command`, `Peek`, `CardGroup`, `Markdown`, `Editor` and `Chat`. Each comes back, built on UI SDK, with the
-   first page that needs it: the grid and charts with the monitor (M1.49), the graph with M1.50, the chat with M1.24.
-   F7's names stay the words those pieces will have.
-4. **HeroUI comes out in the same change** (K24, step 4): the peers, `pro.mjs`, `sheets.mjs`, the gated typecheck,
-   the `HEROUI_AUTH_TOKEN` step and cache in CI, and `ortho/no-pro-outside-portal-ui`. Check 15 is a check, so a checks
-   author rewrites it (to: "only `@orthograph/portal-ui`, `@orthograph/web`, `generated/web/` and an app's `src/web/`
-   import `@ui-sdk/*`, nothing a Worker reaches imports them (check 26); nothing imports HeroUI"), and the
-   builder never touches it. Checks 26 and 27 stay.
+1. **A new client beside the old one.** Goal 6 ([`../goals/06-portal.md`](../goals/06-portal.md)) builds
+   `packages/portal-next` on UI SDK, the Orthograph theme and `@orthograph/shell`, its map declared in the blueprint
+   (K31). It reads the same data API at `/_portal/v1/*` and is served by the same server half
+   (`@orthograph/portal/server`, K19). The old client is not edited for this; Goal 3 keeps working on it.
+2. **The same checks, on both clients.** Checks 21 and 28 and the grid's portal evals run against both, and a list of
+   the checks the new client does not yet pass only shrinks (Goal 6's protocol). The frame's search, environment
+   picker, tree, operation tabs and calls filter are UI SDK's `Command`, `Select`, `Tree` and `Tabs`, each keeping its
+   hook, so an agent can use the portal too.
+3. **Cutover retires the old client** (ST1.27), once that list is empty: one change serves the new client at `/portal`
+   and deletes the old client, `@orthograph/portal-ui`, the HeroUI peers, `pro.mjs`, `sheets.mjs`, the gated
+   typecheck, the `HEROUI_AUTH_TOKEN` step and cache in CI, and `ortho/no-pro-outside-portal-ui`. F7's names (`Grid`,
+   `Chart`, `Chat` and the rest) come back on UI SDK, in the shell or the new client, with the first page that needs
+   them: the grid and charts with the monitor (M1.49), the graph with M1.50, the chat with M1.24.
+4. **Check 15 gates cutover** (ST1.28). It is a check, so a checks author rewrites it (to: "only `@orthograph/web`,
+   `@orthograph/shell`, `packages/portal-next`, `generated/web/` and an app's `src/web/` import `@ui-sdk/*`, nothing a
+   Worker reaches imports them (check 26); nothing imports HeroUI"), and the builder never touches it. Checks 26 and
+   27 stay.
 
 ## 8. Plugged In at the end of stage 1
 
@@ -462,7 +466,8 @@ is [`../goals/05-ui-layer.md`](../goals/05-ui-layer.md).
 
 - **M1.23** (S), then **M1.22** (M): moved from M3 into stage 1, ids and text unchanged.
 - **ST1.25** (M), the web projection, in place of ST1.01 (the react projection, never built): `@orthograph/web` (the
-  browser host, the piece runtime and the Orthograph theme in `@orthograph/web/theme.css`, Q3) and the generator, per
+  browser host and the piece runtime; the pieces use UI SDK's default tokens until the Orthograph theme, Q3, lands in
+  `@orthograph/theme` from Goal 6) and the generator, per
   section 3, React parts only (Q4), with `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for
   `generated/web/` (section 6). It needs M1.22 and ST1.26.
 - **ST1.26** (S, checks), the web projection's checks, written first by an author on Plugged In: a name is claimed
@@ -472,8 +477,9 @@ is [`../goals/05-ui-layer.md`](../goals/05-ui-layer.md).
 - **ST1.06** is "pieces behind a signed-in session", after the auth plugin (M2.06).
 - **ST2.03** is "pieces for client operations", with the submission lifecycle as piece state.
 - **ST1.28** (S, checks): check 15 rewritten by an author, per section 7 item 4; a planted HeroUI import fails lint;
-  the portal builds with `HEROUI_AUTH_TOKEN` unset. It fails until ST1.27 lands.
-- **ST1.27** (S, build): the portal off HeroUI in one change (Q2), per section 7. It needs ST1.28.
+  the portal builds with `HEROUI_AUTH_TOKEN` unset. It fails until ST1.27 lands, and it gates it.
+- **ST1.27** (S, build): retire the old client at cutover, per section 7 item 3: Goal 6's last slice, once its parity
+  list is empty. It needs ST1.28. The new client's own slices are Goal 6's, in its brief.
 - **Named value kinds** stays the language's (S-28, K24's gap): it upgrades every piece's field when it lands.
 
 ## Risks
@@ -495,10 +501,10 @@ waiting on me, just go with the recommendations. You have authority." So each qu
 
 1. **1A, actions now, with screens from generated pieces.** M1.23 and M1.22 move into stage 1; ST1.25 is the web
    projection, with its checks (ST1.26) first; ST1.04's screens are built on its pieces.
-2. **2A, HeroUI out of the portal in one change, now.** ST1.28 (check 15 rewritten) then ST1.27 (the change), beside
-   Goal 3's work.
-3. **3A, one Orthograph theme on UI SDK's `--ui-*` tokens,** in `@orthograph/web/theme.css`, shared by the portal and
-   every app.
+2. **2A, HeroUI out of the portal now, beside Goal 3's work,** with ST1.28 (check 15 rewritten) gating ST1.27. Aaron's
+   app map grill the same day (K31) made the change a new client and a cutover rather than a move in place (section 7).
+3. **3A, one Orthograph theme on UI SDK's `--ui-*` tokens,** shared by the portal and every app. It lives in its own
+   package, `@orthograph/theme`, built first by Goal 6 (K31), since the shell, the pieces and the new portal all use it.
 4. **4A, React only in the beta.** The primitive is framework-free, so another framework is one template, added when
    someone asks.
 

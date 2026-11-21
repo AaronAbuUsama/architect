@@ -29,10 +29,10 @@ packages/
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
   portal-ui/         @orthograph/portal-ui         the portal's components under our names; the portal and every face
-                                                   build on its exports (F7, M1.34) until cutover, when the new client replaces it (KXX, Goal 6)
+                                                   build on its exports (F7, M1.34); deleted at cutover, when the new client replaces the old (K31, Goal 6)
   shell/             @orthograph/shell             the app's map at run time: the router over the generated route table,
-                                                   the layouts and their slots, navigation, breadcrumb and palette (KXX)
-  theme/             @orthograph/theme             the one Orthograph stylesheet on UI SDK's `--ui-*` tokens (K29 Q3, KXX)
+                                                   the layouts and their slots, navigation, breadcrumb and palette (K31)
+  theme/             @orthograph/theme             the one Orthograph stylesheet on UI SDK's `--ui-*` tokens (K29 Q3, K31)
   portal-next/       @orthograph/portal-next       the new portal client on the shell and the map, until cutover (Goal 6)
   web/               @orthograph/web               the browser host and the runtime every generated piece shares
                                                    (K29, ST1.25)

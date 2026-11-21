@@ -162,8 +162,9 @@ the drawing needs that the model or telemetry doesn't give yet", below.
   ⌘K (Pro's `Command`) is the first way to any declaration, so no panel lists every refusal, value or journey.
 - **The top bar.** The environment and window control (Q12), search over the model (`⌘K`), the "Needs you" count
   (K11's attention, from any mounted feature) and the chat.
-- **Built through `@orthograph/portal-ui`** (F7): its shell, KPI and chat components, on UI SDK once HeroUI leaves
-  (K29, ST1.27; Aaron's Q8 chose HeroUI Pro's app shell, superseded by K29, 21 November 2026).
+- **Built through `@orthograph/portal-ui`** (F7) until cutover; then by the new client on UI SDK and
+  `@orthograph/shell`, its map declared in the blueprint (K29 section 7, K31, ST1.27; Aaron's Q8 chose HeroUI Pro's app
+  shell, superseded by K29, 21 November 2026).
 
 **Where each piece comes from.** Every table below marks its pieces:
 
@@ -1101,10 +1102,10 @@ a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-41
 scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
 command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
-## The portal's components behind one package (F7, K29, KXX)
+## The portal's components behind one package (F7, K29, K31)
 
 Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md).
-K29 (21 November 2026) moved what is behind the seam from HeroUI Pro to UI SDK; KXX, the same day, changed how: a new
+K29 (21 November 2026) moved what is behind the seam from HeroUI Pro to UI SDK; K31, the same day, changed how: a new
 client, `packages/portal-next`, is built beside the old one on UI SDK, `@orthograph/theme`, `@orthograph/shell` and a
 map declared in its own `blueprint/app/`, and the old client is deleted at cutover (Goal 6, [`goals/06-portal.md`](goals/06-portal.md)).
 This file's pages, routes and information architecture stay as agreed; only how they are built changes. In short:

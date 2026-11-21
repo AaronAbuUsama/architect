@@ -7,11 +7,12 @@ Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K
 On 21 November 2026 Aaron asked for the UI layer to be designed on UI SDK, with HeroUI phased out (K24). The four
 questions it raised were answered 1A 2A 3A 4A by the conductor, under the standing authority he gave it that day:
 "anything that's waiting on me, just go with the recommendations. You have authority." So actions come into stage 1,
-the screens are built from generated pieces, HeroUI leaves the portal in one change, there is one Orthograph theme on
+the screens are built from generated pieces, HeroUI leaves the portal now, there is one Orthograph theme on
 UI SDK's tokens, and the beta generates React only ([`../decisions/K29-ui-layer.md`](../decisions/K29-ui-layer.md)).
-The same day Aaron answered the app map grill (KXX, [`../decisions/KXX-app-map.md`](../decisions/KXX-app-map.md)): the
+The same day Aaron answered the app map grill (K31, [`../decisions/K31-app-map.md`](../decisions/K31-app-map.md)): the
 portal is rebuilt as a new client on the app's map, by Goal 6 ([`06-portal.md`](06-portal.md)), so the portal and the
-theme are Goal 6's, and this goal's screens declare their pages in the map language.
+theme are Goal 6's. This goal's done check never waits on Goal 6: Plugged In's pages declare themselves in the map
+language as a follow-on, once it lands.
 
 ## What this goal proves
 
@@ -30,7 +31,9 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
   value, and an approval when one is declared (M1.23, M1.22).
 - **A piece** is one generated UI SDK primitive per operation or read, bound to its action, with React parts beside it
   (`generated/web/<thing>/<verb>.ts` and `.react.tsx`). It is a move, a write or a read, worked out from the model.
-- **`@orthograph/web`** is the package every piece shares: the browser host and the piece runtime. The theme is `@orthograph/theme`, Goal 6's.
+- **`@orthograph/web`** is the package every piece shares: the browser host and the piece runtime. The pieces use UI
+  SDK's default tokens until the Orthograph theme (`@orthograph/theme`, Goal 6's first slice) lands, and the screens
+  slice takes it up.
 
 ## The prompt
 
@@ -39,7 +42,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), KXX (the app's map), K24, K13 and K28;
+> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K24, K13 and K28;
 > - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25, ST1.26 and ST1.04 rows of
 >   `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
@@ -134,7 +137,7 @@ These touch only new code and their own checks, none of what Goal 3 or Goal 6 is
 |---|---|---|
 | 3 | **M1.22, the actions projection**: one generated action per operation in `generated/actions/` | M1.22's check |
 | 4 | **ST1.25, the web projection**: `@orthograph/web` (the browser host and the piece runtime), the pieces' templates, `--through web` in Chromium, and `ortho/no-ui-in-worker` carved out for `generated/web/` with check 26 still holding the Worker line (K29 sections 3 and 6) | ST1.26's checks |
-| 5 | **ST1.04's three screens** (the user): Plugged In's three pages declared in `blueprint/app/` (KXX), and their code in `examples/plugged-in/src/web/`, built on the pieces, with the app's own link list (K29 section 5). Needs ST1.03 (Goal 3's handles plugin) and Goal 6's first landing (the map language and the shell) on `goal/stage-1` | in Chromium a claim and a link show on `/@aaron`; Plugged In's claim, links and page journeys pass `--through web` |
+| 5 | **ST1.04's three screens** (the user): `/@:handle`, `/claim` and `/edit` in `examples/plugged-in/src/web/`, built on the pieces, with the app's own link list (K29 sections 4 and 5), routed in `src/web/main.tsx` until the map language lands; on `@orthograph/theme` if Goal 6's theme landing has reached `goal/stage-1`, else UI SDK's default tokens. Needs ST1.03 (Goal 3's handles plugin) | in Chromium a claim and a link show on `/@aaron`; Plugged In's claim, links and page journeys pass `--through web` |
 
 ### Where it meets Goal 3
 
@@ -146,9 +149,11 @@ These touch only new code and their own checks, none of what Goal 3 or Goal 6 is
   journeys already use. ST1.06 (the pieces behind a signed-in session) is built after M2.06, in whichever goal is open
   then; it is not in this goal's done check.
 - **Goal 3 changes nothing here.** It never waits on this goal, and its model work merges in at every slice.
-- **Where it meets Goal 6.** Goal 6 builds the map language and the shell and lands them in `goal/stage-1` early;
-  slice 5 declares Plugged In's pages with them. The pieces and the shell meet only through a page's `shows` and
-  `offers`, so neither goal edits the other's files.
+- **Where it meets Goal 6.** Goal 6 owns `@orthograph/theme` and lands it in `goal/stage-1` first; slice 5 takes it
+  up. Goal 6 then lands the map language and the shell. **The follow-on, not in this done check:** once they are on
+  `goal/stage-1`, Plugged In's three pages are declared in `blueprint/app/` (K31) and `main.tsx`'s routes give way to
+  the generated route table, as one small slice in whichever goal is open then. The pieces and the shell meet only
+  through a page's `shows` and `offers`, so neither goal edits the other's packages.
 
 ## Decision IDs
 
@@ -169,8 +174,7 @@ It passes only when all of these hold, in CI on `goal/ui-layer`:
 - ST1.26's checks, and M1.22's and M1.23's, are green;
 - Plugged In's claim, links and page journeys pass `--through web`, with their test people, and the same verdicts as
   over HTTP;
-- in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/` and no route
-  matched by hand;
+- in Chromium a claim and a link show on `/@aaron`, built from the pieces, with no fetch in `src/web/`;
 - check 26 still passes, and acme's and Plugged In's existing generated files are unchanged (only
   `generated/actions/` and `generated/web/` are new);
 - every snag in `05-snags.md` is fixed, or parked with an owner and a reason.
@@ -194,4 +198,4 @@ check and the evidence below. It reaches `main` with stage 1.
 From Goal 3's pace (a medium slice takes three to six hours from opening to merge, checks first).
 - Part 1: about 4 to 8 hours. M1.23 is a small slice with agent-native's shape already spiked.
 - Part 2: about 16 to 24 hours. The web projection is the new machinery; #222 proved each part by hand.
-- Both: about 20 to 32 hours of continuous running, with slice 5 waiting on Goal 3's ST1.03 and Goal 6's first landing.
+- Both: about 20 to 32 hours of continuous running, with slice 5 waiting on Goal 3's ST1.03.

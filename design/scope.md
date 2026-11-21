@@ -89,7 +89,7 @@ core everything else uses.
 | Actions: one per operation, for the page, MCP and the CLI | Spiked | `spikes/agent-native-compat`, `ui-sdk-real-world/src/action.ts` | M1.22, M1.23 (moved into stage 1 by K29) |
 | Approvals asked once | Spiked | agent-native checks 04 to 06 | M1.23, M1.37 |
 | Portal chat and "Needs you" | Partial | `portal-ui` has the chat parts; nothing uses them | M1.24 |
-| The portal off HeroUI, on UI SDK | None | `packages/portal-ui` wraps HeroUI Pro today (M1.34, check 15) | ST1.28, ST1.27 (K29) |
+| The portal off HeroUI, on UI SDK | None | `packages/portal-ui` wraps HeroUI Pro today (M1.34, check 15) | Goal 6's new client, then ST1.28 and ST1.27 at cutover (K29, K31) |
 
 ### On chain and wallets (1.0, stages 2 and 3)
 
