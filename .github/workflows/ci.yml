@@ -539,7 +539,7 @@ jobs:
   # pull request, where a skip counts as passed (CI-docs-fast-path.md); should `changes` itself fail, this runs. No secret and no `id-token`.
   e2e-on-chain:
     needs: changes
-    if: ${{ !cancelled() && ((github.event_name == 'pull_request' && github.base_ref == 'goal/on-chain') || github.ref == 'refs/heads/goal/on-chain') && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled() && ((github.event_name == 'pull_request' && github.base_ref == 'goal/on-chain') || github.ref == 'refs/heads/goal/on-chain') && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
