@@ -76,7 +76,10 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
   }
 
   const milestoneByTitle = new Map(state.milestones.map((m) => [m.title, m]));
-  const byMarker = (marker) => state.issues.find((i) => (i.body ?? "").includes(marker));
+  // Only a real issue carrying the kind's label is the sync's own: a pull request or any other issue that quotes a
+  // marker (a template, a review) is never taken for it.
+  const byMarker = (marker, kind) =>
+    state.issues.find((i) => !i.pullRequest && i.labels.includes(kind) && (i.body ?? "").includes(marker));
   for (const g of goals) {
     const url = briefUrl(g);
     const description = `Goal ${g.number}. Brief: ${g.brief}.${g.done_check ? ` Done check: ${g.done_check}.` : ""}`;
@@ -84,7 +87,7 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
     if (!ms) steps.push({ do: "createMilestone", title: g.milestone, description });
     else if (ms.description !== description) steps.push({ do: "updateMilestone", number: ms.number, title: g.milestone, description });
 
-    const goalIssue = byMarker(goalMarker(g.number));
+    const goalIssue = byMarker(goalMarker(g.number), "kind:goal");
     const body = goalBody(g, url);
     const title = `Goal ${g.number}: ${g.title}`;
     if (!goalIssue) steps.push({ do: "createIssue", key: `goal ${g.number}`, title, body, type: "Feature", labels: labelsFor(g, "kind:goal"), milestone: g.milestone });
@@ -93,7 +96,7 @@ export const plan = ({ goals, state, briefUrl, migrate = false }) => {
     for (const s of g.slices) {
       if (s.number === null) continue;
       const marker = sliceMarker(g.number, s.number);
-      const sliceIssue = byMarker(marker);
+      const sliceIssue = byMarker(marker, "kind:slice");
       const sTitle = `Goal ${g.number} · ${s.number} · ${s.title}`;
       if (!sliceIssue) {
         steps.push({ do: "createIssue", key: `slice ${g.number}.${s.number}`, title: sTitle, body: sliceBody(g, s, url), type: "Task", labels: labelsFor(g, "kind:slice"), milestone: g.milestone });

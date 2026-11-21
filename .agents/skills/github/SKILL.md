@@ -54,7 +54,7 @@ The lead sets `lead:` and `status:` when it starts and whenever they change, in 
 that is how anyone can see which harness and model runs which goal. Only the parser's subset is allowed: `key: value`,
 `key: [a, b]`, a block list of `- item`, and one level of nested map. The sync refuses anything else.
 
-## The sync
+## The sync (one run at a time)
 
 ```bash
 node tools/github/sync.mjs                 # what it would do (a dry run, the default)

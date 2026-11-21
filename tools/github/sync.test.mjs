@@ -74,9 +74,9 @@ test("run twice: once GitHub holds it all, there is nothing to do", () => {
     labels: LABELS,
     milestones: [{ number: 9, title: goal.milestone, description: `Goal 6. Brief: ${goal.brief}. Done check: ${goal.done_check}.` }],
     issues: [
-      { number: 10, title: "Goal 6: The new portal", body: goalBody(goal, url()), labels: [], milestone: goal.milestone, subIssues: [11, 12] },
-      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: [], milestone: goal.milestone },
-      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: [], milestone: goal.milestone },
+      { number: 10, title: "Goal 6: The new portal", body: goalBody(goal, url()), labels: ["kind:goal"], milestone: goal.milestone, subIssues: [11, 12] },
+      { number: 11, title: "Goal 6 · 1 · The theme", body: sliceMarker(6, 1), labels: ["kind:slice"], milestone: goal.milestone },
+      { number: 12, title: "Goal 6 · 2 · The checks", body: sliceMarker(6, 2), labels: ["kind:slice"], milestone: goal.milestone },
     ],
   };
   assert.deepEqual(plan({ goals: [goal], state, briefUrl: url }), []);
@@ -96,4 +96,19 @@ test("the real briefs in this checkout parse", () => {
     assert.ok(r.goal.declared, `${f} has front matter`);
     assert.ok(r.goal.slices.length > 0, `${f} lists its slices`);
   }
+});
+
+test("a pull request or a stray issue that quotes a marker is never taken for the goal or a slice", () => {
+  const { goal } = readGoal("design/goals/06-portal.md", brief);
+  const state = {
+    labels: LABELS,
+    milestones: [],
+    issues: [
+      { number: 400, title: "a PR quoting the marker", body: goalMarker(6) + sliceMarker(6, 1), labels: ["kind:goal", "kind:slice"], pullRequest: true },
+      { number: 401, title: "an issue quoting it", body: goalMarker(6), labels: [] },
+    ],
+  };
+  const steps = plan({ goals: [goal], state, briefUrl: url });
+  assert.ok(!steps.some((s) => s.number === 400 || s.number === 401 || s.parent === 400 || s.parent === 401));
+  assert.ok(steps.some((s) => s.do === "createIssue" && s.key === "goal 6"));
 });

@@ -9,7 +9,8 @@
 //                                                      labels and release milestones to goal milestones and labels
 //   node tools/github/sync.mjs --apply                 do it
 //
-// It needs `gh`, signed in with the `repo` scope. It never deletes anything.
+// It needs `gh`, signed in with the `repo` scope. It never deletes anything. Run one at a time: two runs at once can
+// both create the same issue.
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { readGoal } from "./frontmatter.mjs";
@@ -61,7 +62,7 @@ const live = goals.filter((g) => !old.has(g.number));
 const briefUrl = (g) => `https://github.com/${repo}/blob/${g.ref ? g.ref.replace(/^origin\//, "") : "main"}/${g.brief}`;
 
 const issues = ghAll(`repos/${repo}/issues?state=all&per_page=100`);
-const goalNumbers = issues.filter((i) => /<!-- orthograph:goal=\d+ -->/.test(i.body ?? "")).map((i) => i.number);
+const goalNumbers = issues.filter((i) => !i.pull_request && i.labels.some((l) => l.name === "kind:goal")).map((i) => i.number);
 const subIssues = new Map(goalNumbers.map((n) => [n, ghAll(`repos/${repo}/issues/${n}/sub_issues?per_page=100`).map((x) => x.number)]));
 const state = {
   labels: ghAll(`repos/${repo}/labels?per_page=100`).map((l) => ({ name: l.name, color: l.color, description: l.description ?? "" })),
@@ -72,6 +73,7 @@ const state = {
     title: i.title,
     body: i.body ?? "",
     state: i.state,
+    pullRequest: Boolean(i.pull_request),
     labels: i.labels.map((l) => l.name),
     milestone: i.milestone?.title ?? null,
     type: i.type?.name ?? null,
