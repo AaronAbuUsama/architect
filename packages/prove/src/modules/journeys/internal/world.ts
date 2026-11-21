@@ -108,8 +108,9 @@ export const factsRecords = (facts: Facts, tableOf: (thing: Thing) => string | u
         const fields = yield* Schema.decodeUnknownEffect(structOf(thing.fields) as unknown as Codec)(row).pipe(Effect.orDie);
         return (typeof row["state"] === "string" ? { ...fields, state: row["state"] } : fields) as Instance;
       }),
-    // A role's rule reads by id only; a lookup by a unique field is a handler's (G4).
-    findBy: () => Effect.die(new Error("prove reads the world's rows by id; a lookup by a unique field is a handler's")),
+    // A role's rule reads by id only. A lookup by a rule (G5, `findBy(rule, value)`) or by a unique field (G4, `findBy(thing, field, value)`) is a handler's, and a handler
+    // runs on the world's own server, where the runtime holds the rules and makes the refusal: it never reaches this stand-in, which reads rows and enforces nothing.
+    findBy: () => Effect.die(new Error("prove reads the world's rows by id; a lookup by a rule or a unique field is a handler's, run by the world's server")),
     insert: () => Effect.die(new Error("prove reads the world; it never writes to it")),
     update: () => Effect.die(new Error("prove reads the world; it never writes to it")),
   }));
