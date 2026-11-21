@@ -83,6 +83,6 @@ Numbers are this log's own, from S-01; they never refer to Goal 3's log.
 ## S-11 · budgets · "prove's report doesn't say who signed"
 - Hit: the checks author, writing `e2e/on-chain/01-budgets-journeys.test.ts`: the done check requires each operation signed by its person, and `ortho prove --report` has nothing that says who signed a step.
 - Lost: check 01 cannot tell a runner that signs every step with one key from one that signs with each actor's wallet.
-- Cause: the report's steps carry a verdict only; a cast member has no account in the report (S-04).
-- Fix: framework, the field in prove's report: for each step that runs a chain operation, `actor` and `signer: { actor, account }` (the cast member's name and the CAIP-10 account that signed), and per journey `cast: { <name>: { account } }`. Slice 8 for direct sends and slice 11 for signed ones.
+- Cause: the report's steps carry no actor, signer or receipt; a cast member has no account in the report (S-04).
+- Fix: framework, the fields in prove's report: per journey `cast: { <name>: { account } }` (CAIP-10, `eip155:<chain>:0x<40 hex>`, one account per cast member); per step `actor` and `operation`, and for a chain operation `signer: { actor, account }` (the cast member's name and the account that signed) and, when a transaction is sent, `tx: { hash, by }`, `by` the account that sent it. Slice 8 for direct sends and slice 11 for signed ones.
 - Status: open
