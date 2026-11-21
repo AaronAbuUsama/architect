@@ -308,5 +308,5 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Fix: framework. The model carries each operation's `breaks`, and the portal's spine reads it. Check 28 pins the stop to
   the rules the model attaches today (`e2e/m1/rules-fixture.ts:215`), so a checks author first moves it to `breaks`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: checks written (#PR)
+- Status: checks written (#252)
 
