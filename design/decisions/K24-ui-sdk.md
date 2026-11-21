@@ -1,7 +1,7 @@
 # K24: UI SDK is the interface base, and HeroUI is phased out
 
 Decided 20 November 2026. Aaron's own yes, to the conductor, the same day: "yes this is a go". The direction is his;
-the steps, the pin and the order below are the building agent's (`AGENTS.md`, "Who decides"). It amends F7 and K19.
+the steps, the pin and the order below are the building agent's (`AGENTS.md`, "Who decides"). It supersedes parts of F7 and K19.
 
 ## Aaron's words
 
@@ -129,3 +129,20 @@ These are recorded here and go into `design/ledger.md` and `design/later.md` onc
 - **The grid and board are ours to build.** They are the portal's largest parts.
 - **Experimental pieces.** `createHistory` and `stageChanges` are marked experimental; nothing depends on them until
   they aren't.
+
+## Supersedes
+
+- design/decisions/F7-portal-ui-seam.md: "HeroUI Pro behind one package" → "one package behind the portal's components; today HeroUI Pro, moving to UI SDK, HeroUI phased out (K24)"
+- design/decisions/F7-portal-ui-seam.md: "the fallback rebuilds `portal-ui` on open libraries" → "the move to UI SDK, one export at a time, replaces the open-libraries fallback"
+- design/decisions/K19-portal-prebuilt.md: "a Pro licence is needed to build the portal" → "once the portal is on UI SDK no licence is needed at all"
+- design/later.md: "`@orthograph/portal-ui` on open libraries (F7)" → "`@orthograph/portal-ui` moves from HeroUI Pro to UI SDK (K24)"
+- design/later.md: "Waits until the HeroUI Pro licence lapses or its terms stop a framework importing it" → "The move waits for the second UI SDK spike, not for the licence"
+- design/packages.md: "`@heroui-pro/*` is imported only by `portal-ui` (lint, F7)" → "Today `@heroui-pro/*` is imported only by `portal-ui`; new screens build on UI SDK and HeroUI is phased out (K24)"
+- design/portal.md: "HeroUI Pro behind one package (F7)" → "One package behind the portal's components (F7, K24)"
+- design/portal.md: "`portal-ui` ... is the only importer of `@heroui-pro/react`" → "the only package the portal imports components from; today it wraps HeroUI Pro, and its insides move to UI SDK"
+- design/portal.md: "The fallback, if the licence lapses or its terms change, rebuilds `portal-ui`'s exports on open libraries" → "The data grid and the board go last, because UI SDK has neither"
+- .agents/skills/portal-design/SKILL.md: "mockups built from real HeroUI Pro components" → "real components (today HeroUI Pro behind `portal-ui`; new screens build on UI SDK, K24)"
+- .agents/skills/portal-design/SKILL.md: "Use what HeroUI (`@heroui/react`) and HeroUI Pro (`@heroui-pro/react/<part>`) already have" → "Use what `portal-ui` and UI SDK already have; HeroUI is phased out (K24)"
+- .agents/skills/portal-design/SKILL.md: "Every block sits in a Widget (`@heroui-pro/react/widget`)" → "Every block sits in a Widget (`portal-ui`'s, HeroUI Pro's today, UI SDK's after K24)"
+- .agents/skills/portal-design/SKILL.md: "`Avatar`, `Switch`, `Label` from HeroUI" → "from HeroUI today (phased out, K24)"
+- design/milestones.md: "HeroUI Pro behind one package" (M1.34) → "One package behind the portal's components; today HeroUI Pro, K24 moves it to UI SDK"

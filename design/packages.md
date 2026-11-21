@@ -47,8 +47,8 @@ Plugins come later, one package each: `@orthograph/auth` and `@orthograph/organi
 - `orthograph` (tag `scope:orthograph`) depends on nothing but Effect. Every other package may import it.
 - A project (`scope:project`) depends only on `scope:orthograph`, `scope:language` and `scope:host`.
 - `env:runtime` packages depend only on `env:runtime` packages; `env:build` packages may use both.
-- `@heroui-pro/*` is imported only by `portal-ui` (lint, F7); `portal-ui` is a leaf that only the portal and faces
-  depend on.
+- Today `@heroui-pro/*` is imported only by `portal-ui` (lint, F7); new screens build on UI SDK and HeroUI is phased out
+  (K24), after which the lint rule goes with it. `portal-ui` is a leaf that only the portal and faces depend on.
 - `language-effect`'s runtime is the only package generated code imports at run time, besides `orthograph`, the host and
   the project's own code.
 - `compiler` and `generators` never run in production.
