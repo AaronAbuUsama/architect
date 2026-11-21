@@ -65,7 +65,7 @@ describe("what an operation of a chain-stored thing does not declare is refused,
 });
 
 describe("an answer must be read from the move's event or be the new id", () => {
-  it("a spend answering a field its event does not carry", () => refuses(swap(CHAIN_BASE, `${V}/spend.ts`, "answer: { remaining: Amount },", "answer: { remaining: Amount, extra: Amount },"), [SPEND, word("extra"), /answer|event/i]));
+  it("a spend answering a field its event does not carry", () => refuses(swap(CHAIN_BASE, `${V}/spend.ts`, "answer: { remaining: Blueprint.money.of(Allowance.fields.token) },", "answer: { remaining: Blueprint.money.of(Allowance.fields.token), extra: Blueprint.money.of(Allowance.fields.token) },"), [SPEND, word("extra"), /answer|event/i]));
   it("a revoke answering a field of the thing its event does not carry", () => refuses(swap(CHAIN_BASE, `${V}/revoke.ts`, "answer: {},", "answer: { limit: Allowance.fields.limit },"), [REVOKE, word("limit"), /answer|event/i]));
   it("a grant answering a field its event does not carry beside the new id", () => refuses(swap(CHAIN_BASE, `${V}/grant.ts`, "answer: { allowance: Allowance.fields.id },", "answer: { allowance: Allowance.fields.id, spent: Allowance.fields.spent },"), [GRANT, word("spent"), /answer|event/i]));
 });
@@ -79,7 +79,7 @@ describe("a read of a chain-stored thing is public: only [Blueprint.anyone]", ()
 
 describe("a name that would collide in the generated contract is refused", () => {
   for (const field of ["signer", "nonce", "deadline", "signature"]) {
-    it(`a payload field named ${field}`, () => refuses(swap(CHAIN_BASE, `${V}/spend.ts`, "payload: { allowance: Allowance.fields.id,", `payload: { ${field}: Amount, allowance: Allowance.fields.id,`), [SPEND, word(field), /payload|reserved|generated|collid|clash/i]));
+    it(`a payload field named ${field}`, () => refuses(swap(CHAIN_BASE, `${V}/spend.ts`, "payload: { allowance: Allowance.fields.id,", `payload: { ${field}: Blueprint.money.of(Allowance.fields.token), allowance: Allowance.fields.id,`), [SPEND, word(field), /payload|reserved|generated|collid|clash/i]));
   }
   const copyOfRevoke = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/revoke.ts`]!);
   const copyOfGet = (verb: string): Files => put(CHAIN_BASE, `${V}/${verb}.ts`, CHAIN_BASE[`${V}/get.ts`]!);

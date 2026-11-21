@@ -49,7 +49,7 @@ const generate = (files: Files, then: ReadonlyArray<(f: Files) => Files> = []) =
   } finally { p.remove(); }
 };
 
-const exceeded = (fields: string) => (f: Files): Files => put(f, ERRORS, `import { Blueprint } from "orthograph";\nimport { Amount } from "../../values/money.ts";\n\nexport class AllowanceExceeded extends Blueprint.error({ ${fields} }, { exit: 41 }) {}\n`);
+const exceeded = (fields: string) => (f: Files): Files => put(f, ERRORS, `import { Blueprint } from "orthograph";\nimport { Allowance } from "./thing.ts";\n\nexport class AllowanceExceeded extends Blueprint.error({ ${fields} }, { exit: 41 }) {}\n`);
 
 describe("the lock of a chain project holds the Solidity wire of what the chain raises", () => {
   it("AllowanceExceeded is AL-001 with its signature; the runtime's chain refusals are AR-001 and AR-003 to AR-006; the machine's has a wire of its own name", () => {
@@ -68,7 +68,7 @@ describe("the lock of a chain project holds the Solidity wire of what the chain 
 
 describe("a changed shape keeps the code and moves the old wire identity to earlier", () => {
   it("adding a field: AL-001 keeps its code, takes the new signature, and the old one is in earlier", () => {
-    const [first, second] = generate(CHAIN_BASE, [exceeded("remaining: Amount, limit: Amount")]);
+    const [first, second] = generate(CHAIN_BASE, [exceeded("remaining: Blueprint.money.of(Allowance.fields.token), limit: Blueprint.money.of(Allowance.fields.token)")]);
     expect(second!.refusals["AL-001"]?.name).toBe("AllowanceExceeded");
     expect(second!.refusals["AL-001"]?.wire.solidity).toEqual(sol("AllowanceExceeded(uint128,uint128)"));
     expect(second!.refusals["AL-001"]?.earlier.map((w) => w.solidity)).toEqual([first!.refusals["AL-001"]!.wire.solidity]);
@@ -80,12 +80,12 @@ describe("a changed shape keeps the code and moves the old wire identity to earl
     expect(second!.refusals["AL-001"]?.earlier.map((w) => w.solidity)).toContainEqual(sol("AllowanceExceeded(uint128)"));
   });
   it("two changes in a row leave both old identities, the older first", () => {
-    const [, , third] = generate(CHAIN_BASE, [exceeded("remaining: Amount, limit: Amount"), exceeded("remaining: Blueprint.uint(64), limit: Amount")]);
+    const [, , third] = generate(CHAIN_BASE, [exceeded("remaining: Blueprint.money.of(Allowance.fields.token), limit: Blueprint.money.of(Allowance.fields.token)"), exceeded("remaining: Blueprint.uint(64), limit: Blueprint.money.of(Allowance.fields.token)")]);
     expect(third!.refusals["AL-001"]?.wire.solidity).toEqual(sol("AllowanceExceeded(uint64,uint128)"));
     expect(third!.refusals["AL-001"]?.earlier.map((w) => w.solidity)).toEqual([sol("AllowanceExceeded(uint128)"), sol("AllowanceExceeded(uint128,uint128)")]);
   });
   it("a change that leaves the signature alone (a field renamed's type kept) is not a new identity: the same signature stays current and nothing moves", () => {
-    const [first, second] = generate(CHAIN_BASE, [(f) => swap(f, ERRORS, "remaining: Amount", "left: Amount")]);
+    const [first, second] = generate(CHAIN_BASE, [(f) => swap(f, ERRORS, "remaining: Blueprint.money.of(Allowance.fields.token)", "left: Blueprint.money.of(Allowance.fields.token)")]);
     expect(second!.refusals["AL-001"]?.wire.solidity).toEqual(first!.refusals["AL-001"]!.wire.solidity);
     expect(second!.refusals["AL-001"]?.earlier).toEqual([]);
   });

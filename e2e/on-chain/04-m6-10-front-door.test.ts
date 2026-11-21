@@ -77,7 +77,7 @@ describe("controls: solidityProblems refuses each wrong model", () => {
     expect(plant((m) => { m.things.allowance.stateNumbers = [0, 1, 2]; })).not.toEqual([]);
   });
   it("knows the Solidity type of each value kind", () => {
-    expect([{ type: "uint", bits: 24 }, { type: "id", prefix: "x" }, { type: "text", max: 3 }, { type: "account" }, { type: "schema" }].map(solidityOf)).toEqual(["uint24", "bytes32", "string", "address", undefined]);
+    expect([{ type: "uint", bits: 24 }, { type: "id", prefix: "x" }, { type: "text", max: 3 }, { type: "account" }, { type: "schema" }, { type: "money", bits: 128, signed: false }, { type: "money", bits: 64, signed: true }].map(solidityOf)).toEqual(["uint24", "bytes32", "string", "address", undefined, "uint128", "int64"]);
   });
 });
 

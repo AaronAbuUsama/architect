@@ -82,6 +82,10 @@ describe("controls: lockProblems refuses each wrong lock", () => {
     expect(plant((l) => { l.refusals["TK-001"].earlier = {}; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].earlier = [{}]; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "bigint" }; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 128, signed: false, asset: { field: "token" } }; })).toEqual([]);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 128, signed: false, asset: { field: "token", token: "usdc" } }; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 128, asset: { token: "usdc" } }; })).toHaveLength(1);
+    expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "money", bits: 128, signed: false, asset: { coin: "usdc" } }; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].fields.cap = { value: "uint", bits: "64" }; })).toHaveLength(1);
     expect(plant((l) => { l.refusals["TK-001"].from = 7; })).toHaveLength(1);
   });

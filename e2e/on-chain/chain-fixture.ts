@@ -41,11 +41,11 @@ export const put = (files: Files, file: string, text: string | null): Files => (
 
 export const CHAIN_BASE: Files = {
   "stores/budgets.ts": `import { Blueprint } from "orthograph";\nexport default Blueprint.store.chain.evm();\n`,
-  "values/money.ts": `import { Blueprint } from "orthograph";\nexport const Amount = Blueprint.value(Blueprint.uint(128));\n`,
   "values/accounts.ts": `import { Blueprint } from "orthograph";\nexport const Recipient = Blueprint.value(Blueprint.account());\n`,
   "things/allowance/thing.ts": `import { Blueprint } from "orthograph";
 import budgets from "../../stores/budgets.ts";
-import { Amount } from "../../values/money.ts";
+
+const token = Blueprint.account();
 
 export const Allowance = Blueprint.thing({
   description: "Money a member may spend from a Safe, up to a limit.",
@@ -53,9 +53,9 @@ export const Allowance = Blueprint.thing({
     id: Blueprint.id("alw"),
     safe: Blueprint.account(),
     member: Blueprint.account(),
-    token: Blueprint.account(),
-    limit: Amount,
-    spent: Amount,
+    token,
+    limit: Blueprint.money.of(token),
+    spent: Blueprint.money.of(token),
   },
   lives: budgets,
 });
@@ -68,7 +68,6 @@ export const grantee = Blueprint.role(Allowance, { who: Allowance.fields.member 
 `,
   "things/allowance/events.ts": `import { Blueprint } from "orthograph";
 import { Allowance } from "./thing.ts";
-import { Amount } from "../../values/money.ts";
 import { Recipient } from "../../values/accounts.ts";
 
 export const AllowanceGranted = Blueprint.event({
@@ -76,9 +75,9 @@ export const AllowanceGranted = Blueprint.event({
   safe: Allowance.fields.safe,
   member: Allowance.fields.member,
   token: Allowance.fields.token,
-  limit: Amount,
+  limit: Blueprint.money.of(Allowance.fields.token),
 });
-export const AllowanceSpent = Blueprint.event({ allowance: Allowance.fields.id, amount: Amount, to: Recipient, remaining: Amount });
+export const AllowanceSpent = Blueprint.event({ allowance: Allowance.fields.id, amount: Blueprint.money.of(Allowance.fields.token), to: Recipient, remaining: Blueprint.money.of(Allowance.fields.token) });
 export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id });
 `,
   "things/allowance/machine.ts": `import { Blueprint } from "orthograph";
@@ -96,9 +95,9 @@ export const machine = Blueprint.machine(Allowance, {
 });
 `,
   "things/allowance/errors.ts": `import { Blueprint } from "orthograph";
-import { Amount } from "../../values/money.ts";
+import { Allowance } from "./thing.ts";
 
-export class AllowanceExceeded extends Blueprint.error({ remaining: Amount }, { exit: 41 }) {}
+export class AllowanceExceeded extends Blueprint.error({ remaining: Blueprint.money.of(Allowance.fields.token) }, { exit: 41 }) {}
 `,
   "things/allowance/verbs/get.ts": `import { Blueprint } from "orthograph";
 import { Allowance } from "../thing.ts";
@@ -140,13 +139,12 @@ import { Allowance } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { grantee } from "../roles.ts";
 import { AllowanceExceeded } from "../errors.ts";
-import { Amount } from "../../../values/money.ts";
 import { Recipient } from "../../../values/accounts.ts";
 
 export default Blueprint.operation(Allowance, {
   description: "Spend from what is left of the allowance: the Safe pays the token to the recipient.",
-  payload: { allowance: Allowance.fields.id, amount: Amount, to: Recipient },
-  answer: { remaining: Amount },
+  payload: { allowance: Allowance.fields.id, amount: Blueprint.money.of(Allowance.fields.token), to: Recipient },
+  answer: { remaining: Blueprint.money.of(Allowance.fields.token) },
   move: machine.moves.spend,
   errors: [AllowanceExceeded],
   allowed: [grantee],
@@ -213,6 +211,12 @@ export default Blueprint.operation(Note, {
   allowed: [grantee.of("allowance")],
 });
 `,
+};
+
+/** The assets a blueprint may name: a fixed token and a currency, as files under `blueprint/assets/` (M6-money item 2). */
+export const ASSETS: Files = {
+  "assets/usdc.ts": `import { Blueprint } from "orthograph";\nexport default Blueprint.asset.token({ symbol: "USDC", decimals: 6 });\n`,
+  "assets/eur.ts": `import { Blueprint } from "orthograph";\nexport default Blueprint.asset.currency("EUR");\n`,
 };
 
 // ---- a plain database project: the lock's fixtures, which need no chain ----

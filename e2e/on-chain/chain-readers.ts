@@ -7,9 +7,9 @@ import { selectorOf, type AnyModel } from "./chain-fixture.ts";
 
 // ---- the Solidity types of a chain store's values (M6-chain item 2, K25 item 5) ----
 
-/** The Solidity type of a value on an EVM chain store, worked out from the value's own meta: `uint(bits)` is `uint<bits>`, an id `bytes32`, text `string`, an account `address`. */
+/** The Solidity type of a value on an EVM chain store, worked out from the value's own meta: `uint(bits)` is `uint<bits>`, an id `bytes32`, text `string`, an account `address`, money `uint<bits>` or, signed, `int<bits>` (M6-money item 4). */
 export const solidityOf = (meta: Readonly<Record<string, unknown>>): string | undefined =>
-  meta.type === "uint" ? `uint${String(meta.bits)}` : meta.type === "id" ? "bytes32" : meta.type === "text" ? "string" : meta.type === "account" ? "address" : undefined;
+  meta.type === "uint" ? `uint${String(meta.bits)}` : meta.type === "money" ? `${meta.signed === true ? "int" : "uint"}${String(meta.bits)}` : meta.type === "id" ? "bytes32" : meta.type === "text" ? "string" : meta.type === "account" ? "address" : undefined;
 
 type Fields = Readonly<Record<string, { readonly value?: Record<string, unknown>; readonly solidity?: unknown }>>;
 const record = (x: unknown): Record<string, unknown> => (typeof x === "object" && x !== null ? (x as Record<string, unknown>) : {});
@@ -64,6 +64,11 @@ const valueProblems = (at: string, v: unknown): ReadonlyArray<string> => {
     case "uint": return [...extra(["value", "bits"]), ...(Number.isInteger(o["bits"]) ? [] : [`${at}: a uint without its bits`])];
     case "id": return [...extra(["value", "prefix"]), ...(typeof o["prefix"] === "string" ? [] : [`${at}: an id without its prefix`])];
     case "text": return [...extra(["value", "max"]), ...(Number.isInteger(o["max"]) ? [] : [`${at}: text without its max`])];
+    case "money": {
+      const asset = record(o["asset"]);
+      const one = Object.keys(asset).length === 1 && ["token", "currency", "field"].includes(Object.keys(asset)[0]!) && typeof Object.values(asset)[0] === "string";
+      return [...extra(["value", "bits", "signed", "asset"]), ...(Number.isInteger(o["bits"]) ? [] : [`${at}: money without its bits`]), ...(typeof o["signed"] === "boolean" ? [] : [`${at}: money without signed`]), ...(one ? [] : [`${at}: money's asset is not one of token, currency or field, a name`])];
+    }
     case "account": case "schema": return extra(["value"]);
     default: return [`${at}: value is ${JSON.stringify(o["value"])}, not uint, id, text, account or schema`];
   }
@@ -110,7 +115,7 @@ const entryProblems = (at: string, e: unknown): ReadonlyArray<string> => {
  * What is wrong with a `blueprint/refusals.lock`, as text: the exact schema of M6-chain item 4. JSON written as `JSON.stringify(x, null, 2)` and a newline;
  * the keys `generated` (a `Generated from ... Do not edit.` line), `lockVersion` (1), `refusals` (code to entry, in code order, each code `AB-123`) and
  * `retired` (code to the entry as it was); an entry holds `name`, `owner`, `from` (only for a declared error), `fields` (each a value: uint with
- * its bits, id with its prefix, text with its max, account, schema), `wire` (`effect: { tag }`, the name; `solidity: { signature, selector }` when a chain
+ * its bits, id with its prefix, text with its max, account, schema, money with bits, signed and its asset as `{ token | currency | field: name }`), `wire` (`effect: { tag }`, the name; `solidity: { signature, selector }` when a chain
  * store raises it, the selector being the real keccak of the signature) and `earlier` (a list of wire identities); no other key anywhere; no name twice.
  */
 export const lockProblems = (text: string): ReadonlyArray<string> => {

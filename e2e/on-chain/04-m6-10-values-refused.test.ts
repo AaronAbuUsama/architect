@@ -18,11 +18,11 @@
 // THE CONTROLS plant hollow refusals against `refusalLines` (in `chain-fixture.ts`): a loader's "can't load ..." line, a line with the word but not the file,
 // one with the file but not the field, and one naming the wrong field. Each must not count.
 import { describe, expect, it } from "vitest";
-import { CHAIN_BASE, DB_BASE, NOTE, compiles, inFile, put, refuses, refusalLines, swap, word, type Files } from "./chain-fixture.ts";
+import { ASSETS, CHAIN_BASE, DB_BASE, NOTE, compiles, inFile, put, refuses, refusalLines, swap, word, type Files } from "./chain-fixture.ts";
 
 const THING = "things/allowance/thing.ts";
 const FILE = inFile("blueprint/things/allowance/thing.ts");
-const field = (extra: string, imports = "") => swap(swap(CHAIN_BASE, THING, "    spent: Amount,\n", `    spent: Amount,\n    ${extra},\n`), THING, 'import budgets from "../../stores/budgets.ts";\n', `import budgets from "../../stores/budgets.ts";\n${imports}`);
+const field = (extra: string, imports = "") => swap(swap(CHAIN_BASE, THING, "    spent: Blueprint.money.of(token),\n", `    spent: Blueprint.money.of(token),\n    ${extra},\n`), THING, 'import budgets from "../../stores/budgets.ts";\n', `import budgets from "../../stores/budgets.ts";\n${imports}`);
 
 describe("controls: refusalLines counts only a line that says the file, the field and the word", () => {
   const needs = [FILE, word("contact"), /email/i] as const;
@@ -62,11 +62,11 @@ describe("the base compiles, so each refusal below is the one field's", () => {
 describe("a chain store refuses what a public chain would show", () => {
   it("an email field", () => refuses(field("contact: Blueprint.email()"), [FILE, word("contact"), /email/i]));
   it("a secret field", () => refuses(field("pin: Blueprint.visibility.secret(Blueprint.text({ max: 40 }))"), [FILE, word("pin"), /secret/i]));
-  it("a secret value kept as a field (a named value marked secret)", () => refuses(field("pin: Blueprint.visibility.secret(Amount)"), [FILE, word("pin"), /secret/i]));
+  it("a secret value kept as a field (a named value marked secret)", () => refuses(field("pin: Blueprint.visibility.secret(Blueprint.uint(64))"), [FILE, word("pin"), /secret/i]));
   it("a private field, private to a role", () => {
     const files = put(NOTE, "things/note/thing.ts", NOTE["things/note/thing.ts"]!
-      .replace('import { Allowance } from "../allowance/thing.ts";', 'import { Allowance } from "../allowance/thing.ts";\nimport { grantee } from "../allowance/roles.ts";\nimport { Amount } from "../../values/money.ts";')
-      .replace("    by: Blueprint.account(),", "    by: Blueprint.account(),\n    balance: Blueprint.visibility.private(Amount, grantee),"));
+      .replace('import { Allowance } from "../allowance/thing.ts";', 'import { Allowance } from "../allowance/thing.ts";\nimport { grantee } from "../allowance/roles.ts";')
+      .replace("    by: Blueprint.account(),", "    by: Blueprint.account(),\n    balance: Blueprint.visibility.private(Blueprint.uint(64), grantee),"));
     refuses({ ...CHAIN_BASE, ...files }, [inFile("blueprint/things/note/thing.ts"), word("balance"), /private/i]);
   });
   it("a private value on an event field", () => refuses(
@@ -96,10 +96,14 @@ describe("an id whose prefix leaves no room to mint a suffix in 32 bytes is refu
   }
 });
 
-describe("a uint that is no Solidity width is refused", () => {
-  const amount = (bits: number) => put(CHAIN_BASE, "values/money.ts", `import { Blueprint } from "orthograph";\nexport const Amount = Blueprint.value(Blueprint.uint(${bits}));\n`);
-  // The refusal may name the thing's field or the value that holds the width.
-  const said: ReadonlyArray<ReadonlyArray<RegExp>> = [[FILE, word("limit"), /bits|uint|8/i], [inFile("blueprint/values/money.ts"), word("Amount"), /bits|uint|8/i]];
-  it("128 and 256 are fine", () => { for (const n of [8, 128, 256]) expect(compiles(amount(n)).things["allowance"]).toBeDefined(); });
-  for (const n of [0, 7, 12, 260, 264]) it(`uint(${n})`, () => refuses(amount(n), ...said));
+describe("a uint or a money that is no Solidity width is refused", () => {
+  const widths = (spec: (n: number) => string) => (n: number): Files => field(`odd: ${spec(n)}`);
+  const said: ReadonlyArray<RegExp> = [FILE, word("odd"), /bits|uint|int|8/i];
+  const uint = widths((n) => `Blueprint.uint(${n})`);
+  const money = (n: number): Files => ({ ...ASSETS, ...field(`odd: Blueprint.money(usdc, { bits: ${n} })`, 'import usdc from "../../assets/usdc.ts";\n') });
+  it("8, 128 and 256 are fine, as uint and as money", () => { for (const n of [8, 128, 256]) { expect(compiles(uint(n)).things["allowance"]).toBeDefined(); expect(compiles(money(n)).things["allowance"]).toBeDefined(); } });
+  for (const n of [0, 7, 12, 260, 264]) {
+    it(`uint(${n})`, () => refuses(uint(n), said));
+    it(`money of a token asset with bits ${n}`, () => refuses(money(n), said));
+  }
 });
