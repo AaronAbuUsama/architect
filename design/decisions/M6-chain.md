@@ -193,6 +193,8 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
 }
 ```
 
+Superseded by M6-money, 21 November 2026: an amount's input is written `"value": "money"` with its `asset` (M6-money item 5); its Solidity type is unchanged.
+
 - **Entries are sorted** by operation name, then path, then reads and generated entries by name, so the file is stable.
 - **Every event on chain carries `by` and `nonce`** before its declared fields: the acting account and the nonce its
   call took. K7 Q3 says `confirmed` means the follower saw the declared event for the call's intent, and gave a vote's
@@ -238,6 +240,8 @@ generate. It holds every refusal of the project, whatever language raises it, Ef
   "retired": { }                         // code → the entry as it was when its name left the blueprint
 }
 ```
+
+Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "money", "bits": 128, "signed": false, "asset": { "field": "token" } }` (M6-money item 5).
 
 - **The first lock keeps today's codes.** The first generate after this lands numbers every existing refusal exactly as
   `describe.ts` does now, so acme's and Plugged In's codes and generated files do not change.
@@ -365,6 +369,8 @@ export const grantee = Blueprint.role(Allowance, { who: Allowance.fields.member 
 // verbs: grant (allowed: [treasury], decided on the payload's safe, item 5), spend (allowed: [grantee], payload
 // { allowance, amount, to }), revoke (allowed: [treasury]), get (allowed: [Blueprint.anyone], item 9)
 ```
+
+Superseded by M6-money, 21 November 2026: `values/money.ts` is gone; every amount is `Blueprint.money.of` the allowance's token (M6-money, "The budgets example").
 
 The Safe and its test token come from the `safe` adapter's starting world (slice 7): a Safe owned by the cast's `ada`,
 with the budgets module enabled and a test token minted to it. The budgets example's `funded` world starts from it.

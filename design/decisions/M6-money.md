@@ -44,12 +44,29 @@ amount: Blueprint.money.of(Allowance.fields.token),    // in an operation, event
   export const Allowance = Blueprint.thing({ fields: { /* … */ token, limit: Blueprint.money.of(token) }, lives: budgets });
   ```
 
-  The compiler refuses, naming the thing and the field: a field of another thing; a value that is not in exactly one of
-  the thing's fields; a field that holds no asset. For now an asset-holding field is an `account()`, a token contract;
-  a per-row currency is later (`design/later.md`). No name is ever written as a string.
-- **The amount's own value is the same everywhere.** Payload, event, error and answer fields that count the same money
-  use the same `money.of` field, so a spend's `amount`, its event's `remaining` and the allowance's `limit` all count
-  the allowance's token.
+  The compiler refuses each of these, naming the thing and the field:
+  - `money.of` in a declaration that belongs to no thing, such as a named value in `values/`;
+  - `money.of` a field of another thing, including a money field reused from another thing (`Ticket.fields.price` in
+    an operation on Allowance);
+  - a value object that is in none, or more than one, of the thing's fields;
+  - a field that is not an `account()`.
+
+  For now only an `account()` field holds an asset, read as a token contract. The compiler cannot tell a token from a
+  wallet, so `money.of(member)` compiles, and the journeys catch it. A per-row currency is later (`design/later.md`).
+  No name is ever written as a string. `money.of(x, { signed, bits })` takes the same options as `money` (item 4).
+- **Which row's token.** Every `money.of` in an operation, its answer, its event or its error counts the token of the
+  row the operation acts on, as that row stands once the move has run. So `grant`, which makes the row, counts the
+  `token` its payload carries. An operation that makes a row and carries a `money.of` amount must carry that field
+  too, or it is refused. `spend` counts the stored row's `token`. A face reads it from the same row.
+- **Two money values are the same** when their `bits`, `signed` and asset agree once resolved: the same asset file, or
+  the same field of the same thing. They need not be the same object. This is the rule every existing comparison of
+  values uses for money, such as "an answer is a field of the move's event": the three `money.of(Allowance.fields.token)`
+  in budgets' spend, events and errors are one value.
+- **Where the compiler resolves it.** Today a value's `meta` is copied into the model as it stands
+  (`packages/compiler/src/modules/model/internal/describe.ts:56` and `:251`). A money value can't be, because its asset
+  is a live reference: the asset declaration, whose name comes from its path, or a field or value object of a thing.
+  So the new `ValueMeta` variant holds those references, and the compiler resolves them to names when it builds the
+  model. A reference it can't resolve is refused under (a).
 
 ### 2. An asset is a file (grill 2A)
 
@@ -63,12 +80,19 @@ export default Blueprint.asset.token({ symbol: "USDC", decimals: 6 });
 export default Blueprint.asset.currency("EUR");       // ISO 4217; its places come from the code (EUR 2, JPY 0)
 ```
 
-- **A token's address is bound per network, in the environment,** beside its stores:
-  `assets: { usdc: Chain.evm.token("0x…") }`. The blueprint never holds an address. An environment that runs a
-  chain store and uses a fixed token asset must bind it, or `ortho check` refuses the environment, naming the asset.
+- **A token's address is bound per network, in the environment,** beside its stores, keyed by the store that uses it,
+  since one environment may hold chain stores on more than one network (one budgets module per network, K25):
+  `assets: { usdc: { budgets: Chain.evm.token("0x…") } }`. The blueprint never holds an address. Every chain store
+  whose things use a fixed token asset must have that asset bound for it, or `ortho check` refuses the environment,
+  naming the asset and the store.
+- **The declared decimals are checked against the token.** When a world or a deploy starts an environment, the host
+  reads `decimals()` and `symbol()` of every bound token and refuses to start if either differs from the asset file,
+  naming the asset, the store and both values. So the asset file is the one owner of the places, and a wrong binding
+  can't mis-scale money silently.
 - **(b) A chain-stored money field counts a token.** A currency has no chain binding, so the compiler refuses
-  `Blueprint.money(eur)` in a thing that lives in a chain store, or in an operation, event or error of one, naming the
-  thing, the field and the asset. A per-row asset there is already a token (item 1).
+  `Blueprint.money(eur)` anywhere on a chain-stored thing: a field, a payload, an answer, an event, an error or a read,
+  including a field reused from elsewhere. It names the thing, the field and the asset. A per-row asset there is
+  already a token (item 1).
 - An unknown currency code is refused where it is declared, naming the file.
 
 ### 3. Base units wherever data goes, formatted only at the faces (grill 3A)
@@ -86,7 +110,9 @@ data travels or rests, and is turned into "1.25 USDC" only where a person or an 
 
 - **(c) The wire string is base-unit digits only:** `^(0|[1-9][0-9]*)$`, and `^(0|-?[1-9][0-9]*)$` for a signed field.
   No decimal point, no exponent, no leading zeros, no `+`, no `-0`, no spaces, no asset symbol. Effect's decoding
-  refuses anything else, and anything outside the field's range, before a handler runs, as it does for `uint` today.
+  refuses anything else, and anything outside the field's range, before a handler runs. Today's `uint` schema
+  (`Schema.BigIntFromString`) refuses `1e3`, `+5` and spaces but accepts `007` and `-0`, so the builder adds the
+  pattern check. Slice 3 tightens `uint` to the unsigned pattern too: one rule for whole numbers on the wire.
 - **The faces format, and never round.**
   - The CLI reads `1.25` (or `1.25 USDC`) as the asset's units and refuses more places than the asset has; it prints
     `1.25 USDC`. Its `--json` output carries base units, like the wire.
@@ -105,10 +131,28 @@ number, so a limit or a payment gets "never negative" free. A ledger entry or a 
 `Blueprint.money(usdc, { signed: true })`, an `int<bits>` on chain, a leading `-` allowed on the wire. Debit and credit
 columns are not needed.
 
-### 5. Built now, in slice 3 (grill 5A)
+### 5. In `surface.json` and `refusals.lock`
+
+A money field is written as M6-chain items 3 and 4 write any value, with its asset resolved:
+
+```jsonc
+// surface.json, an entry's input
+{ "name": "amount", "type": "uint128", "value": "money", "asset": { "field": "token" } }
+
+// refusals.lock, a refusal's field
+"fields": { "remaining": { "value": "money", "bits": 128, "signed": false, "asset": { "field": "token" } } }
+```
+
+`asset` is `{ "token": "<name>" }`, `{ "currency": "<name>" }` or `{ "field": "<name>" }`. `ortho check` reports as major a
+change to a money field's asset, `bits` or `signed`, and a `uint` field becoming money or money becoming `uint`. The
+Solidity type stays what `bits` and `signed` give, so the budgets contract's ABI is unchanged.
+
+### 6. Built now, in slice 3 (grill 5A)
 
 Slice 3 (M6.10) builds `Blueprint.money`, `Blueprint.asset`, the model's `money` value, Effect's schema with (c), the
-Solidity types, and the refusals of (a), (b) and item 4. The faces format in their own slices: the CLI and the chain
+Solidity types, the lock's encoding (item 5), and the refusals of (a), (b), item 2's unbound asset and item 4.
+`surface.json`'s encoding comes with slice 4 (M6.11), and the decimals check at start with slice 7, where the host
+starts a chain. The faces format in their own slices: the CLI and the chain
 client in slice 8 (M6.14), the docs and MCP descriptions with the projections that write them. The budgets example
 counts its amounts in the allowance's token from this change on.
 
@@ -149,9 +193,13 @@ the journeys' `100n` stay as written, since the code holds base units.
 | Slice 4 (M6.11): `language-solidity` | `uint<bits>` and `int<bits>` from the model's `money` value; unchanged for budgets |
 | Slice 8 (M6.14): the client and the CLI | read and print amounts in the asset's units; read a per-row token's `symbol()` and `decimals()` |
 | `examples/budgets` | its amounts become `money.of` the allowance's token |
+| `design/frame/` | the on-chain allowance example and the glossary's value line stop teaching money as a bare `uint` |
 | Goal 7's Safe spike, Capxul | the same base-unit and asset shape |
 
 ## Supersedes
+
+- design/frame/README.md (glossary, value): "(`Amount`: bigint in Effect, uint128 in Solidity)" → "(`Blueprint.uint(128)`: bigint in Effect, uint128 in Solidity; money is `Blueprint.money`, M6-money)"
+- design/frame/examples/allowance-on-chain.md: "export const Amount = Blueprint.value(Blueprint.uint(128));   // bigint in Effect, uint128 in Solidity" → "limit: Blueprint.money.of(token),   // base units of the row's token: bigint in Effect, uint128 in Solidity (M6-money)"
 
 - design/later.md (money as a value): "Capxul's Payment, Budget, Invoice and Ledger entry each need one. Waits for a design pass; no slice until then." → "Decided in M6-money, 21 November 2026; a currency taken from a field on the row, and the portal's formatting, are later."
 - design/ledger.md (THI-07): "Recorded as a known gap by Aaron, 20 November 2026; waits for a design pass." → "Recorded as a known gap by Aaron, 20 November 2026; decided in M6-money, 21 November 2026."
