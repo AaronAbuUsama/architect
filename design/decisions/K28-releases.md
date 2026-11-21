@@ -15,9 +15,9 @@ every goal argued its own priority, and Goal 4 could not tell whether it was on 
 
 | Release | A person outside can… | Done when |
 |---|---|---|
-| **Preview** | install Orthograph from npm, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 (M1.15) passes on `main`, and `@orthograph/*` is on npm under `next` (M1.51, new) |
+| **Preview** | install Orthograph from npm, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 (M1.15) passes on `main`, and the `@orthograph/*` packages, `orthograph` and the preset are on npm under `next` (M1.51, new) |
 | **Beta** | start an app with `npm create orthograph`, sign people in, claim `@name` on a real page, deploy it to Cloudflare and tear it down | Gate M2 (M2.12), the stage 1 gate, and Goal 3's done check with its staging run |
-| **1.0** | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | stages 2 to 4 on `main`, plus M7.01 to M7.04, M7.06 and M7.13, as `milestones.md` already said |
+| **1.0** | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | the beta, then the stage 2, 3 and 4 gates on `main`, plus M7.01 to M7.04, M7.06 and M7.13: all four stage gates, as `milestones.md` already said |
 
 Options weighed: wallets inside the beta (stage 2 joins it), and no preview with the beta first. Both were set aside.
 The first puts Goal 4 on the critical path while Goal 3 reshapes the same core. The second ships nothing until
@@ -25,7 +25,8 @@ sign-in works, and drops Aaron's 19 November yes to a preview.
 
 ## What follows
 
-- **M1.51, the npm preview**, is added to M1: `publish` may target npmjs for `@orthograph/*` under `next` only, and
+- **M1.51, the npm preview**, is added to M1: `publish` may target npmjs for the `@orthograph/*` packages, `orthograph`
+  and the preset under `next` only, and
   Aaron signs in and runs `npm publish` (direction 12). npm's `latest`, Homebrew and real releases stay in M7.
 - **Goal 4 serves 1.0.** Its slices are stage 2 and stage 3 work. It runs beside Goal 3, and its slice 1 (the
   language and host seam) waits until Goal 3's sign-in extraction (M2.05) has settled the host, because both reshape
@@ -35,4 +36,4 @@ sign-in works, and drops Aaron's 19 November yes to a preview.
 ## Supersedes
 
 - `design/milestones.md`: "The npm org `@orthograph` is not needed until M7" → "The npm org `@orthograph` is not needed until the preview (M1.51, K28)"
-- `design/milestones.md`: "npm, Homebrew and the rest of M7 still wait on the stage 4 gate." → "npm's `latest` tag, Homebrew and the rest of M7 still wait on the stage 4 gate; the preview under `next` is M1.51 (K28)."
+- `design/milestones.md` and `design/decisions/K10-factory.md` (dated, noted in place): "npm, Homebrew and the rest of M7 still wait on the stage 4 gate." → "npm's `latest` tag, Homebrew and the rest of M7 still wait on the stage 4 gate; the preview under `next` is M1.51 (K28)."

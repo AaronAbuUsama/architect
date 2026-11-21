@@ -23,9 +23,9 @@ before it:
 
 | Release | A person outside can… | Done when | Left to build |
 |---|---|---|---|
-| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | Gate M1's leftovers (M1.39, M1.49, M1.50, M1.12a, MCP's output schema); the npm preview itself (M1.51, added by K28; publish refuses npmjs today); Goal 3's branch landing on `main` |
-| **Beta** (stage 1, "workable") | start an app with `npm create orthograph`, sign people in, claim `@name` on a real page, and deploy it to Cloudflare and tear it down | Gate M2 (M2.12) and Goal 3's done check (`e2e:stage1`, staging included) | all of M2 (principals, auth and organizations as plugins, secrets, `ortho new`), the handles plugin, React hooks, the three screens, staging deploy and destroy |
-| **1.0** (stages 2 to 4) | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | the stage 2, 3 and 4 gates on `main`, plus M7.01 to M7.04, M7.06 and M7.13 | most of M6 (on chain), M5.01 and M5.03 (webhooks), M3.01 to M3.03 (workflows), M4 (agents), M8 (time), stage 4 entire, the real release |
+| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | milestone 1's last pieces: the chains-and-wallets docs page, derived alerts, machine graphs, the request key in traces, and MCP's output schema; the npm preview itself (added by K28; publish refuses npmjs today); Goal 3's branch landing on `main` |
+| **Beta** (stage 1, "workable") | start an app with `npm create orthograph`, sign people in, claim `@name` on a real page, and deploy it to Cloudflare and tear it down | Gate M2 (M2.12) and Goal 3's done check (`e2e:stage1`, staging included) | all of milestone 2 (kinds of caller, auth and organizations as plugins, secrets, `ortho new`), the handles plugin, React hooks, the three screens, staging deploy and destroy |
+| **1.0** (stages 2 to 4) | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | the stage 2, 3 and 4 gates on `main`, plus M7.01 to M7.04, M7.06 and M7.13 | most of the on-chain milestone, webhooks, workflows, agents, time, all of stage 4, the real release |
 
 **Where Goal 4 falls.** Goal 4 (on chain, end to end) serves 1.0, not the preview or the beta: its slices 2 and 9 to
 11 are stage 2 work, and slices 1, 3 to 8 and 12 are stage 3. Only slice 1 (the language and host seam) touches the
@@ -38,19 +38,19 @@ core everything else uses.
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
 | Things, fields, machines, operations, steps | Built | `packages/orthograph/src/modules/{things,machines,operations}` | M1.03, M1.26 |
-| Values | Partial | a value's pattern never reaches the model (S-28) | M1.42 |
+| Values | Partial | a value's pattern never reaches the model (open problem S-28) | M1.42 |
 | Errors with one refusals table | Built | `examples/plugged-in/generated/api/src/errors.ts` | M1.47 |
 | Events the compiler checks are fillable | Built | `packages/compiler/src/modules/model/internal/fillable.ts` | M1.48 |
-| Invariants (unique rules), enforced and explained | Built | checks 31, 32, 34, 35; portal Rules section (#249) | ST1.09 to ST1.22 |
+| Invariants (unique rules), enforced and explained | Built | checks 31, 32, 34, 35; the portal's Rules section | ST1.09 to ST1.22 |
 | Visibility: public, private, secret, issued | Built | `packages/language-effect/src/modules/visibility` | M1.35 |
 | Stores (database, actor) | Built | `packages/host-cloudflare/src/modules/{store,actors}` | M1.17 |
 | Generated server, SDK, CLI, docs | Built | checks 14 and 20; `generators/.../docs.ts` | M1.11 to M1.13 |
-| Generated MCP | Partial | tool calls carry no request key (S-16) | M1.12, M1.37 |
+| Generated MCP | Partial | tool calls carry no request key (open problem S-16) | M1.12, M1.37 |
 | Request key in traces | None | the portal's calls page says no span carries it | M1.12a |
 | Self-explaining scaffold and journey stubs | Built | `projections/.../handlers` | M1.44, M1.45 |
 | Plugins, mounts, adapters as steps, projections as plugins | Built | checks 01 to 08 | M1.05 to M1.14 |
 | `ortho prove`: nine evals, `--changed`, warm world | Built | checks 29, 30 | M1.16, ST1.23, ST1.24 |
-| Prove fails fast on a broken source | None | checks 33 and 36 red; S-29's build running | S-29 |
+| Prove fails fast on a broken source | None | checks 33 and 36 red; the fix for prove hanging is being built | S-29 |
 | Climb check and the grid (331 of 331) | Built | CI `e2e-climb`, `e2e-grid` | Goal 3 |
 | Logbook, promote, publish to the local registry, watch | Built | layer 2 checks | L2 |
 | Telemetry carrying the model | Built | checks 13, 17 | M1.18 to M1.21, M1.36 |
@@ -63,7 +63,7 @@ core everything else uses.
 
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
-| Plugged In's seven journeys | Built | 56 of 56 steps green, 21 November; CI job in review (#261) | ST1.02 |
+| Plugged In's seven journeys | Built | 56 of 56 steps green, 21 November; a required CI check on stage 1 | ST1.02 |
 | Principals beyond a person (agent, service, system, `Via`) | None | `roles/types.ts` has `anonymous` and `person` only | M2.01, M2.03 |
 | Roles declared with `who` and `holds` | None | only `rule` | M2.17, M2.18 |
 | Auth as a plugin | Partial | Better Auth runs in `host-cloudflare`; its things are copied into each app | M2.05, M2.06 |
@@ -83,7 +83,7 @@ core everything else uses.
 
 | Capability | Status | Evidence, or what is missing | Slices |
 |---|---|---|---|
-| UI SDK as the interface base | Decided | K24 (#217, open) | K24 |
+| UI SDK as the interface base | Decided | the UI SDK decision, K24, in review | K24 |
 | A generated form per operation on UI SDK | Spiked | `spikes/ui-sdk-real-world`; no generator, no slice | none |
 | Agent marks from blueprint meaning | Spiked | three of four map; approval and a hidden payload field can't be declared | none |
 | Actions: one per operation, for the page, MCP and the CLI | Spiked | `spikes/agent-native-compat`, `ui-sdk-real-world/src/action.ts` | M1.22, M1.23 (moved to M3) |
@@ -143,7 +143,7 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 5. Generated screens on UI SDK have no slice, and the blueprint can't declare an approval or a hidden payload field.
 6. Stage 2 needs webhooks (M5.01, M5.03) and SIWE linking (M2.13); neither is in any goal.
 7. Stage 3's signature collection and the keeper rest on workflows, which have no decision or spike.
-8. The journey language's open snags (S-05 to S-09: one world per journey, comparing answers, malformed payloads).
+8. The journey language's open problems: one world per journey, comparing one answer with the last, and sending malformed payloads.
 9. Stage 3's Safe and Hats spike and stage 4's Aztec club spike don't exist, though both stages start from them.
 
 ## 5. Where the docs disagree (to fix when the releases are agreed)
