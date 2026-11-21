@@ -409,7 +409,7 @@ export const infra = Blueprint.projection({
 });
 ```
 
-- **Today:** D3 #5 deferred Alchemy to the cloud pass. Wrangler configs live in `.ortho/environments/` (D3 #17).
+- **Today:** the `infra` projection (`packages/projections/src/modules/infra`) writes the Alchemy stack to `generated/infra/alchemy.run.ts` (M7-03, `design/decisions/M7-03-infra-projection.md`), run by `ortho env up|destroy staging --run <id>`; the local environments keep their wrangler configs in `.ortho/environments/` (D3 #17).
 - **Inputs:** this projection reads the environments, not just the model. That is why `render` is given them.
 
 ### 3.12 A Python SDK

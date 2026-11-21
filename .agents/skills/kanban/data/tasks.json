@@ -1230,10 +1230,10 @@
   "size": "S",
   "stage": "review",
   "thread": "m1-lead",
-  "title": "HeroUI Pro behind one package",
+  "title": "One package behind the portal's components (HeroUI Pro today, phased out by K24)",
   "updatedAt": "2026-11-19T09:47:54Z",
   "waiting": null,
-  "what": "HeroUI Pro behind one package (decisions/F7-portal-ui-seam.md): @orthograph/portal-ui at packages/portal-ui, the only importer of @heroui-pro/react, which it takes as a peer dependency and never bundles, exporting our names (Shell, Board, Grid, Chart, Stat, Card, Widget, Timeline, Command, Code, Markdown, Editor, the Chat parts) for the portal's pages and the Factory face; no-restricted-imports bans @heroui-pro/* in every other package and in generated code (spikes exempt); CI installs Pro from the HEROUI_AUTH_TOKEN secret (created by Aaron, 19 November), cached by lockfile, never on fork pull requests"
+  "what": "One package behind the portal's components, HeroUI Pro today and phased out by K24 (decisions/F7-portal-ui-seam.md): @orthograph/portal-ui at packages/portal-ui, the only importer of @heroui-pro/react, which it takes as a peer dependency and never bundles, exporting our names (Shell, Board, Grid, Chart, Stat, Card, Widget, Timeline, Command, Code, Markdown, Editor, the Chat parts) for the portal's pages and the Factory face; no-restricted-imports bans @heroui-pro/* in every other package and in generated code (spikes exempt); CI installs Pro from the HEROUI_AUTH_TOKEN secret (created by Aaron, 19 November), cached by lockfile, never on fork pull requests"
  },
  "M1-35": {
   "doneWhen": "a generated check renders every output for every audience over a fixture thing whose answer and refusal carry a public, a private and a secret field: no secret leaves through any output, a private field reaches only a principal holding its role, and a field the declaration doesn't name never leaves",
