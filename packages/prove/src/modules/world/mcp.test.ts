@@ -182,9 +182,9 @@ describe("the remote MCP server", () => {
       const over = yield* Effect.promise(() => asAda.callTool({ name: "allowance.grant", arguments: { organization, member: olga.person, limit: "1001" } }));
       expect([over["isError"], textOf(over)]).toEqual([true, "[AL-003] AllowanceLimitTooHigh { cap: 1000 }"]);
 
-      // An agent is no one to make a key: there is no such tool, so no secret is an answer to it.
-      const made = yield* Effect.promise(() => asAda.callTool({ name: "api-key.create", arguments: { organization, name: "ci" } }).catch((e: unknown) => ({ isError: true, content: [{ type: "text", text: String(e) }] })));
-      expect(made["isError"]).toBe(true);
+      // An agent is no one to make a key: it is not shown the tool, and naming it anyway is refused as the API refuses it, so no secret is an answer.
+      const made = yield* Effect.promise(() => asAda.callTool({ name: "api-key.create", arguments: { organization, name: "ci" } }));
+      expect([made["isError"], textOf(made)]).toEqual([true, "[AR-001] NotAllowed"]);
       // And a secret can't be sent: the secret input is not in the tool, and naming it anyway is refused.
       const signedIn = yield* Effect.promise(() => asAda.callTool({ name: "session.sign-in", arguments: { email: ada.email, password: ada.password } }));
       expect(signedIn["isError"]).toBe(true);

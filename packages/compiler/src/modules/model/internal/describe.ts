@@ -2,6 +2,7 @@
 import { Duration } from "effect";
 import type { AnyErrorClass, CallStep, Field, FieldsInput, Operation, Read, Step, Thing, Value, Visibility } from "orthograph";
 import type { BlankOperationModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
+import { admitsAgent } from "orthograph";
 import { Blanks } from "orthograph/server";
 import { IDEMPOTENCY_CONFLICT, MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
@@ -9,7 +10,7 @@ import { exitClashes, notFoundShapes, operationExitClashes } from "./exits.ts";
 import { unfillable } from "./fillable.ts";
 import { RUNS_NEEDS, deviceProblems } from "./device.ts";
 import { environmentsOf } from "./environments.ts";
-import { admitsAgent, allowedOf } from "./allowed.ts";
+import { allowedOf } from "./allowed.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
@@ -181,7 +182,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     const entry = {
       kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from, description: op.description,
-      payload, answer, move, errors, ...(Object.keys(broken.refusals).length > 0 ? { invariants: broken.refusals } : {}), breaks: broken.breaks, refusals, allowed, agentTool: !onDevice && allowed.some(admitsAgent), ...found, ...(mints !== undefined ? { mints } : {}),
+      payload, answer, move, errors, ...(Object.keys(broken.refusals).length > 0 ? { invariants: broken.refusals } : {}), breaks: broken.breaks, refusals, allowed, agentTool: !onDevice && admitsAgent(op.allowed), ...found, ...(mints !== undefined ? { mints } : {}),
       steps,
       ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
       idempotent: op.idempotent ?? null,
@@ -233,7 +234,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         ? `List ${thing}s, ${read.order === "newest" ? "newest first" : "oldest first"}, ${read.page} to a page${read.where.length > 0 ? `, filtered by ${read.where.join(", ")}` : ""}.`
         : `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
       payload, answer: fieldsModel(read.answer, `${file} answer`, "a read answer"),
-      move: null, errors: [], breaks: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed, agentTool: allowed.some(admitsAgent),
+      move: null, errors: [], breaks: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed, agentTool: admitsAgent(read.allowed),
       steps: {}, idempotent: null, runs: "server" as const, test: "unit" as const,
       budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
       ...(list ? { list: { where: [...read.where], order: read.order ?? "newest", page: read.page ?? 0 } } : {}),

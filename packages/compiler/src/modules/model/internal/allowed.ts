@@ -37,7 +37,3 @@ export const allowedOf = (layout: Layout, roleNames: ReadonlyMap<Role<any>, stri
   };
   return allowedModel;
 };
-
-/** Some entry admits an agent: `anyone`, or a person-bound entry whose kept ways in include `agent`. A service and the system never are. */
-export const admitsAgent = (a: AllowedModel) =>
-  a.kind === "anyone" || ((a.kind === "signed-in" || a.kind === "role" || a.kind === "role-of") && !("service" in a && a.service !== undefined) && (a.via === undefined || a.via.includes("agent")));

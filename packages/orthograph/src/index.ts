@@ -55,6 +55,7 @@ export type { BlueprintError, ErrorClass, AnyErrorClass } from "#modules/errors/
 export type { Unique, Invariant, KeyOf, UniqueOptions } from "#modules/invariants/types.js";
 export type { Machine, Move, NotFrom, State } from "#modules/machines/types.js";
 export { acting } from "#modules/roles/types.js";
+export { admitsAgent } from "#modules/roles/service.js";
 export type { Role, RoleOf, ServiceRole, SignedIn, System, Narrowed, Allowed, Principal, Acting, Way, InstanceOf } from "#modules/roles/types.js";
 export type { Operation, Read, ReadAnswer, Order, Page, ListPayload, ListItem, Steps, OperationSpec, Step, CallStep, StepKind, Runs, TestKind, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
 export type { Blank } from "#modules/blanks/types.js";
