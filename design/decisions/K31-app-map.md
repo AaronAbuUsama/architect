@@ -1,7 +1,7 @@
-# KXX: the app's map, in the blueprint
+# K31: the app's map, in the blueprint
 
 **Decided 21 November 2026 by Aaron**, answering the 📐 designer thread's grill on the app's information architecture
-(the six questions in [`../briefs/KXX-app-map-grill.md`](../briefs/KXX-app-map-grill.md), drawn on the "App map grill"
+(the six questions in [`../briefs/K31-app-map-grill.md`](../briefs/K31-app-map-grill.md), drawn on the "App map grill"
 board). His words: "I agree with all of your defaults." So each question takes its A. It builds on K29 (the pieces)
 and changes how the portal leaves HeroUI: a new portal, built on this, replaces the old one (Goal 6,
 [`../goals/06-portal.md`](../goals/06-portal.md)).

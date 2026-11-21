@@ -1,6 +1,6 @@
 # Goal 6: the new portal, on our own components and the app's map
 
-Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with KXX.
+Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31, on terms agreed with the conductor the same day.
 
 ## Aaron's words, 21 November 2026
 
@@ -10,7 +10,7 @@ want this to be able to run in parallel to the other work that's actually runnin
 
 ## What this goal proves
 
-1. **The map falls out.** An app declares its map in the blueprint (KXX), and the router, the shell, the palette, the
+1. **The map falls out.** An app declares its map in the blueprint (K31), and the router, the shell, the palette, the
    breadcrumbs, the agent's map and the docs come from it.
 2. **Our own components are enough.** The portal is rebuilt on UI SDK, the Orthograph theme and our shell, with no
    HeroUI and no licence anywhere.
@@ -33,7 +33,7 @@ want this to be able to run in parallel to the other work that's actually runnin
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/KXX-app-map.md` (the map), `K29-ui-layer.md` (the pieces, UI SDK) and `K19-portal-prebuilt.md` (the portal's
+> - `design/decisions/K31-app-map.md` (the map), `K29-ui-layer.md` (the pieces, UI SDK) and `K19-portal-prebuilt.md` (the portal's
 >   server and client line), and `design/ui/heroui-inventory.md` (every part of the old client, with what replaces it);
 > - `design/portal.md` (the agreed information architecture: keep it; this goal changes how the portal is built, not
 >   what it shows) and the `portal-design` skill (the process and the style guide);
@@ -53,18 +53,43 @@ want this to be able to run in parallel to the other work that's actually runnin
 >   in the same change, and record it.
 > - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
 >   the board (the `kanban` skill).
+>   Goal 5 owns the actions, `@orthograph/web` and the web projection; you own the map, the shell, the theme and the new
+>   client. Neither goal edits the other's packages.
 > - **Reporting:** each time a slice merges, report to the conductor session, in two or three lines: the slice, its
 >   check, the parity list's length. Write for Aaron's ear.
+> - **Cutover goes through the conductor** (the protocol, point 5). Never merge into `goal/stage-1` without the yes it
+>   names.
 > - **Branch protection:** ask the conductor to protect `goal/portal` like `goal/stage-1` before the first pull request.
 
 ## The bound
 
-- **Inside:** the map language (KXX) in `orthograph` and the compiler, the app projection (`generated/app/`), the shell
-  (`packages/shell`, `@orthograph/shell`), the theme (`packages/theme`, `@orthograph/theme`), the new client
-  (`packages/portal-next`), its checks, and cutover.
+- **Inside:** the theme (`packages/theme`, `@orthograph/theme`), the map language (K31) as new modules in `orthograph`
+  and the compiler, the app projection (`generated/app/`), the shell (`packages/shell`, `@orthograph/shell`), the new
+  client (`packages/portal-next`), its checks, and cutover.
+- **The core-language rule.** The map comes in as new modules only. No existing module is edited beyond registering
+  the new ones, and a blueprint that declares no app and no pages generates byte-identical output. These are the only
+  existing files this goal may touch before cutover, and only as said:
+
+  | File | Only this |
+  |---|---|
+  | `packages/orthograph/src/index.ts` | spread the new `app` module into the `Blueprint` object and export its types |
+  | `packages/compiler/src/modules/model/service.ts` | set the `blueprint/app/` files aside before `readLayout`, and call the new `app` module after `describe`, adding `app` to the model only when one is declared |
+  | `packages/compiler/src/modules/model/types.ts` | `readonly app?: AppModel` on `Model`, "present only when the blueprint has an `app/` folder", the type imported from the new module |
+  | `packages/projections/src/main.ts` | export the `app` projection |
+  | `.oxlintrc.json` | the module-boundary tags for `scope:shell`, `scope:theme` and `scope:portal-next` |
+  | `e2e/served-portal/` | the checks author's `PORTAL_CLIENT=old|next` switch, the old client the default |
+  | `e2e/project.json`, `e2e/package.json` | the `portal-next` target and the new packages as workspace dependencies |
+  | `.github/workflows/ci.yml` | one job that runs the portal checks against the new client, not yet blocking |
+  | `pnpm-lock.yaml` | what `pnpm install` writes for the above |
+  | `design/handoff.md`, `STATE.md`, the board, `design/milestones.md` | this goal's own lines |
+
+  A change that needs any other existing file is a snag for its owner, through the conductor, never an edit here.
+  The new modules are `packages/orthograph/src/modules/app/` (`Blueprint.app`, `Blueprint.page`, `Blueprint.layout`,
+  `Blueprint.nav`; a page's type is `AppPage`, since `Page` is already a read's page of results) and
+  `packages/compiler/src/modules/app/` (`model.app`, its hash and the four refusals).
 - **Outside, never edited before cutover:** `packages/portal` (the old client, the wire and the server half),
-  `packages/portal-ui`, `@orthograph/web` and the web projection (Goal 5's), Plugged In, and every Goal 3 journey and
-  check. After cutover, only cutover's own pull request touches `packages/portal`.
+  `packages/portal-ui`, the actions, `@orthograph/web` and the web projection (Goal 5's), Plugged In, and every Goal 3
+  journey and check. Only cutover's own pull request touches `packages/portal` and `packages/portal-ui`.
 - **The information architecture stays** as `portal.md` agreed it, so no new UX grill. A screen the old client lacks
   (the map's tree, the agent's view) is drawn first, by the `portal-design` process, and shown to Aaron before it is
   built (his rule: ask before drawing UX).
@@ -87,9 +112,13 @@ key in the calls table, #270). So:
    new one automatically, and nothing is forgotten.
 4. **Data goes through Goal 3.** The new client reads the data API and the wire types as they are. A field it needs and
    the API lacks is an additive request to Goal 3 through the conductor, never an edit here.
-5. **The cut-off.** When the parity list is empty and the done check passes, the lead tells the conductor; Goal 3 stops
-   adding features to the old client from then; cutover's pull request lands; from then on all portal work goes to
-   the new client.
+5. **The cut-off, through the conductor.** When the parity list is empty and the done check passes, the lead tells the
+   conductor. The conductor agrees a freeze with Goal 3's lead: from then Goal 3 adds nothing to the old client.
+   Cutover's pull request into `goal/stage-1` merges only with Goal 3's lead's yes, written on the pull request, and a
+   🔍 reviewer's pass. From then on all portal work goes to the new client.
+6. **One owner for each shared piece.** The theme is this goal's, built first and landed early, so Goal 5's screens
+   take it up; until it lands, Goal 5's pieces use UI SDK's default tokens. The actions and `@orthograph/web` are Goal
+   5's. Neither goal edits the other's packages; a need on the other side is a snag through the conductor.
 
 ## The five roles
 
@@ -102,41 +131,46 @@ key in the calls table, #270). So:
 | **🔍 Reviewer** | a verdict on each pull request | anything it reviews |
 
 When the portal builder is stuck on something it can't fix inside `packages/portal-next`, it writes a snag in
-`design/goals/06-snags.md` (created in slice 1, the shape of `03-snags.md`) and moves on. It never works around the map
+`design/goals/06-snags.md` (created in slice 1, the shape of Goal 3's snag log) and moves on. It never works around the map
 or the shell from inside the client.
 
 ## The slices
 
 Each slice starts with its check, written first and failing, and ends with it green on `goal/portal`.
 
-### Part 1: the map, beside everyone (none of it touches Goal 3's or Goal 5's files)
+### Part 1: the theme and the map, beside everyone (none of it touches Goal 3's or Goal 5's files)
 
 | # | Slice | Done when |
 |---|---|---|
-| 1 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's four refusals (KXX), a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call | they fail with the map empty; the old client's checks still pass |
-| 2 | **The map language.** `Blueprint.app`, `Blueprint.page`, `Blueprint.layout`, `Blueprint.nav` in `orthograph`; `model.app` in the compiler, hashed; the four compile errors; the derived default | slice 1's language and compiler checks |
-| 3 | **The app projection.** `generated/app/`: the route table, a typed link per page, the navigation, the palette's index and the agent's map, as data | slice 1's projection checks; acme's and Plugged In's other generated files unchanged |
-| 4 | **The theme and the shell.** `@orthograph/theme`; `@orthograph/shell`: the router over the route table, the layouts (`sidebar`, `topNav`, `none`) and their slots, the navigation, the breadcrumb and the ⌘K palette, on UI SDK (`navigation-menu`, `collapsible`, `scroll-area`, `command`, `menu`) | slice 1's shell checks in Chromium; an agent's `snapshot()` on a fixture shell lists its navigation and palette by name |
+| 1 | **The theme.** `@orthograph/theme`: one stylesheet on UI SDK's `--ui-*` tokens (K29 Q3), the type scale and spacing, light and dark; the snag log | its check (written first): a fixture page on it in Chromium resolves every `--ui-*` token to the theme's value, in both schemes, and builds with `HEROUI_AUTH_TOKEN` unset |
+| 2 | **The checks.** The two-client runner, `nx run e2e:portal-next`, the parity list (every portal check, all red), and the map's own checks: the compiler's four refusals (K31), a derived default map for a fixture with no `app.ts`, typed links, a palette that lists only what the caller may open and call, and **the byte-identical check**: acme's and Plugged In's `model.json` and every generated file equal `goal/stage-1`'s, byte for byte, with the map modules in | they fail with the map empty, except the byte-identical check, which passes and must keep passing; the old client's checks still pass |
+| 3 | **The map language.** `Blueprint.app`, `Blueprint.page`, `Blueprint.layout`, `Blueprint.nav` in `orthograph`'s new `app` module; `model.app` in the compiler's new `app` module, hashed; the four compile errors; registered in the four files the bound names | slice 2's language and compiler checks; the byte-identical check |
+| 4 | **The app projection.** `generated/app/`, for a project that mounts it: the route table, a typed link per page, the navigation, the palette's index and the agent's map, as data; with no `app.ts`, the derived default, worked out here and never written into the model | slice 2's projection checks; the byte-identical check |
+| 5 | **The shell.** `@orthograph/shell`: the router over the route table, the layouts (`sidebar`, `topNav`, `none`) and their slots, the navigation, the breadcrumb and the ⌘K palette, on UI SDK (`navigation-menu`, `collapsible`, `scroll-area`, `command`, `menu`) and the theme | slice 2's shell checks in Chromium; an agent's `snapshot()` on a fixture shell lists its navigation and palette by name |
 
-**First landing, after slice 4:** one pull request from `goal/portal` into `goal/stage-1`, so Goal 5's Plugged In
-screens can declare their pages. Merge `goal/stage-1` in first. It merges when CI is green and a 🔍 reviewer passed it.
+**The theme landing, after slice 1:** one pull request from `goal/portal` into `goal/stage-1` carrying only
+`packages/theme` and its check, so Goal 5's screens take it up. Merge `goal/stage-1` in first. It merges when CI is
+green and a 🔍 reviewer passed it.
+
+**The map landing, after slice 5:** the same, for the map language, the app projection and the shell, so Plugged In's
+pages can declare themselves (Goal 5's follow-on). The byte-identical check must pass on it.
 
 ### Part 2: the new client
 
 | # | Slice | Done when |
 |---|---|---|
-| 5 | **The frame.** `packages/portal-next`: its `blueprint/app/` declaring `portal.md`'s map (home, things, operations and their five tabs, environments, compare, journeys, starting worlds, reference, plugins, monitor, traces), the top bar (environment picker, ⌘K), the rail and its panels, the tree, the live rail, each keeping its `data-portal` hook | check 21's frame clauses leave the parity list |
-| 6 | **Home, things and operations** (the contract, metrics, proof, docs and notes tabs) | their lines leave the list |
-| 7 | **Environments, compare, journeys, starting worlds** | their lines leave the list |
-| 8 | **Reference, plugins and the rules** (check 28) | their lines leave the list |
-| 9 | **Monitor and traces** (a trace on UI SDK's `Waterfall`, or ours if it is still experimental) | their lines leave the list; the screenshots are byte-identical across two runs |
-| 10 | **The agent's portal.** The agent's map tool on the portal; every control by name | an agent's `snapshot()` lists the search, the tree, the tabs and the environment picker by name |
+| 6 | **The frame.** `packages/portal-next`: its `blueprint/app/` declaring `portal.md`'s map (home, things, operations and their five tabs, environments, compare, journeys, starting worlds, reference, plugins, monitor, traces), the top bar (environment picker, ⌘K), the rail and its panels, the tree, the live rail, each keeping its `data-portal` hook | check 21's frame clauses leave the parity list |
+| 7 | **Home, things and operations** (the contract, metrics, proof, docs and notes tabs) | their lines leave the list |
+| 8 | **Environments, compare, journeys, starting worlds** | their lines leave the list |
+| 9 | **Reference, plugins and the rules** (check 28) | their lines leave the list |
+| 10 | **Monitor and traces** (a trace on UI SDK's `Waterfall`, or ours if it is still experimental) | their lines leave the list; the screenshots are byte-identical across two runs |
+| 11 | **The agent's portal.** The agent's map tool on the portal; every control by name | an agent's `snapshot()` lists the search, the tree, the tabs and the environment picker by name |
 
 ### Part 3: cutover
 
 | # | Slice | Done when |
 |---|---|---|
-| 11 | **Cutover**, after the cut-off. Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`'s HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step), and folds `e2e:portal-next` into the normal portal checks | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
+| 12 | **Cutover (ST1.27)**, after the cut-off (the protocol, point 5). Check 15 rewritten first by a checks author (ST1.28); then one pull request into `goal/stage-1` that serves `portal-next` at `/portal`, deletes the old client, `@orthograph/portal-ui`, HeroUI and the licence machinery (`pro.mjs`, `sheets.mjs`, the CI step and cache, `ortho/no-pro-outside-portal-ui`), and folds `e2e:portal-next` into the normal portal checks. It merges with Goal 3's lead's yes and a 🔍 pass | every portal check passes on the one client; check 15 passes; the portal builds with `HEROUI_AUTH_TOKEN` unset |
 
 ## Decision IDs
 
@@ -144,6 +178,9 @@ The lead keeps this list; ask the lead for the next one before writing a decisio
 
 | ID | File | Taken by |
 |---|---|---|
+| K31 | `design/decisions/K31-app-map.md` | the 📐 designer, before this goal started |
+
+The next free IDs are in `design/handoff.md`; take one through the conductor, as the `threads` skill says.
 
 ## The done check
 
@@ -153,14 +190,15 @@ nx run e2e:portal-next
 
 It passes only when all of these hold, in CI on `goal/portal`:
 - the parity list is empty: every portal check passes against the new client;
-- the map's checks pass (slices 1 to 4), and acme's and Plugged In's existing generated files are unchanged;
+- the theme's and the map's checks pass (slices 1 to 5), and the byte-identical check passes: a blueprint with no app
+  and no pages generates exactly what it did on `goal/stage-1`;
 - the new client declares its map in `blueprint/app/`, with no route matched by hand;
 - an agent's `snapshot()` lists the portal's frame by name;
 - nothing in `packages/portal-next`, `packages/shell` or `packages/theme` imports HeroUI, and they build with
   `HEROUI_AUTH_TOKEN` unset;
 - every snag in `06-snags.md` is fixed, or parked with an owner and a reason.
 
-Then cutover (slice 11) lands, and the goal is done.
+Then cutover (slice 12) lands through the conductor, and the goal is done.
 
 ## Evidence for Aaron
 
@@ -172,6 +210,6 @@ Then cutover (slice 11) lands, and the goal is done.
 
 ## Estimate
 
-From Goal 3's pace (a medium slice three to six hours, checks first). Part 1: about 14 to 20 hours, the map language
-and the shell being new. Part 2: about 18 to 26 hours, six pages whose content and checks already exist. Cutover: 2 to
-4 hours. All: about 34 to 50 hours, with slice 11 waiting on the cut-off.
+From Goal 3's pace (a medium slice three to six hours, checks first). Part 1: about 16 to 22 hours, the theme first,
+the map language and the shell being new. Part 2: about 18 to 26 hours, six pages whose content and checks already exist. Cutover: 2 to
+4 hours. All: about 36 to 52 hours, with slice 12 waiting on the cut-off.

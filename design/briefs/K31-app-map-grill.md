@@ -1,7 +1,7 @@
-# KXX grill: the app's map
+# K31 grill: the app's map
 
 **Answered 21 November 2026: all A.** Aaron: "I agree with all of your defaults." Recorded in
-[`../decisions/KXX-app-map.md`](../decisions/KXX-app-map.md).
+[`../decisions/K31-app-map.md`](../decisions/K31-app-map.md).
 
 Six questions for Aaron, 21 November 2026, from the 📐 designer thread, asked aloud (he listens rather than reads) and
 drawn on the "App map grill" board (https://claude.ai/artifact/8V9XikbuMFRpFXiMzmAMJW): a dashboard shell coloured
