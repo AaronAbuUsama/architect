@@ -1,6 +1,6 @@
 // The wrong pages check 40's controls plant (author skill, proof 5): the stand-in client (graph-standin.ts) with ONE line changed, the routes where the fault
 // shows, and what the judge must say. `from` is quoted from the stand-in; a control fails loudly if the stand-in no longer holds it.
-export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string; readonly model?: "invalid-payload" }
+export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string; readonly model?: "invalid-payload" | "plugins" }
 
 const MAP = "/portal/map", WORLDS = "/portal/worlds";
 const STRUCT = "/portal/things/handle?lighting=structure";
@@ -93,4 +93,14 @@ export const PAGE: ReadonlyArray<PagePlant> = [
   { name: "a count on states by generated content", from: '<div id="root">', to: '<style>[data-kind=state]::after{content:"3"}</style><div id="root">', routes: [LIVE], says: "has generated content" },
   { name: "a state that is lit", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-lit=\"true\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "is lit" },
   { name: "a state that carries a trace mark", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-moved=\"1\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "carries a trace mark" },
+  // found by the second review: a count made by CSS, and a label on the wrong edge or far from its own
+  { name: "a count by `::after` on a child of each state: `<i>` inside, `i::after{content:\"2×\"}`", from: "+ esc(n.label) + g.nodes", to: "+ esc(n.label) + (n.kind === \"state\" ? '<style>[data-kind=state] i::after{content:\"2×\"}</style><i></i>' : \"\") + g.nodes", routes: [LIVE, STRUCT], says: "a state shows no count" },
+  { name: "a count by `::after` on a sibling beside each state: `b::after{content:\"2×\"}`", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" ? '<style>b::after{content:\"2×\"}</style><b></b>' : \"\");", routes: [LIVE, STRUCT], says: "show in the graph outside a move" },
+  { name: "a count by `::before` on a child of each state, in single quotes: `x2`", from: "+ esc(n.label) + g.nodes", to: "+ esc(n.label) + (n.kind === \"state\" ? \"<style>[data-kind=state] i::before{content:'x2'}</style><i></i>\" : \"\") + g.nodes", routes: [LIVE], says: "a state shows no count" },
+  { name: "every label on every edge: each edge's text holds all of the graph's labels", from: 'esc(e.label ?? "") + "</text></g></svg>")', to: 'g.edges.map((x) => esc(x.label ?? "")).join(" ") + "</text></g></svg>")', routes: [STRUCT, MAP], says: "more than its own label" },
+  { name: "labels swapped between two edges (the first, and the first with another label)", from: 'esc(e.label ?? "") + "</text></g></svg>")', to: 'esc(((a) => { const b = g.edges.find((x) => x.label !== a.label) ?? a; return (e === a ? b : e === b ? a : e).label ?? ""; })(g.edges[0])) + "</text></g></svg>")', routes: [STRUCT, MAP], says: "does not say its label" },
+  { name: "every label at a fixed corner, (5, 15)", from: '<text x="\' + e.points[0].x * SCALE + \'" y="\' + e.points[0].y * SCALE + \'" font-size="10">', to: '<text x="5" y="15" font-size="10">', routes: [STRUCT, MAP], says: "px from its line" },
+  { name: "labels drawn 60 px from the line they label", from: '<text x="\' + e.points[0].x * SCALE + \'" y="\' + e.points[0].y * SCALE + \'" font-size="10">', to: '<text x="\' + (e.points[0].x * SCALE + 60) + \'" y="\' + (e.points[0].y * SCALE + 60) + \'" font-size="10">', routes: [STRUCT, MAP], says: "px from its line" },
+  { name: "an edge that says its label and something else besides: `2x banana`", from: 'esc(e.label ?? "") + "</text></g></svg>")', to: 'esc(e.label ?? "") + " 2x banana</text></g></svg>")', routes: [LIVE_H], says: "more than its own label" },
+  { name: "a map that drops its `mounts` edges (a plugin mounted: Plugged In with echo and greet)", model: "plugins", from: "g.edges.map(edge).join(\"\") + \"</div>\"", to: "g.edges.filter((e) => e.kind !== \"mounts\").map(edge).join(\"\") + \"</div>\"", routes: [MAP], says: "is drawn 0 times" },
 ];

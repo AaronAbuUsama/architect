@@ -64,6 +64,19 @@ export const importing = (files: Record<string, string>, name: string): Readonly
 
 /** What a built client carries when elk is in it: its package, its option ids (they survive minifying: they are strings), its Java names. */
 export const ELK_MARKERS: ReadonlyArray<RegExp> = [/elkjs/i, /elk\.bundled/, /org\.eclipse\.elk/, /["']elk\.(?:algorithm|layered|direction|edgeRouting|hierarchyHandling)\b/];
+/** Every file under a built client, by path and content, whatever it is called: `.js`, `.mjs`, `.cjs`, a worker, a chunk with no extension. Nothing is skipped by name (not `node_modules`, not `.map`), so where a bundle hides elk is no defence. */
+export const filesUnder = (root: string): Record<string, string> => {
+  const found: Record<string, string> = {};
+  const walk = (dir: string) => {
+    for (const e of readdirSync(join(root, dir), { withFileTypes: true })) {
+      const path = dir === "" ? e.name : `${dir}/${e.name}`;
+      if (e.isDirectory()) walk(path); else if (e.isFile()) found[path] = readFileSync(join(root, path), "utf8");
+    }
+  };
+  if (existsSync(root)) walk("");
+  return found;
+};
+
 /** A built client's text files with elk in them, by path and the marker that matched. */
 export const elkInside = (files: Record<string, string>): ReadonlyArray<string> =>
   Object.entries(files).flatMap(([path, text]) => ELK_MARKERS.filter((m) => m.test(text)).map((m) => `${path} matches ${String(m)}`));

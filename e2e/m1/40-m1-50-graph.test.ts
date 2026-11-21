@@ -26,7 +26,7 @@
 // WHAT RUNS WHERE (as check 28): the generator-side and seam assertions run anywhere (`pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/40`). The pages
 // of the real portal need its client, which needs HeroUI Pro, so `@orthograph/portal` builds it in CI only (`packages/portal/dist/client`): the "portal draws them" and
 // "bundle" groups can only go green there, and until it is built they fail here with a message that says so. The controls prove the judges against a stand-in client.
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Effect } from "effect";
@@ -43,7 +43,7 @@ import { PAGE } from "./graph-page-plants.ts";
 import { run, standIn, standInServer } from "./graph-standin.ts";
 import { committed, generateAcme, generateChained, generatePluggedIn, generateWithNeeds, generateWithPlugin, type Generated, type PortalData } from "./graph-project.ts";
 import { allVisits, placesOf, plainVisit, visitProblems } from "./graph-routes.ts";
-import { elkDeclaration, elkInside, flowDeclaration, importProblems, importing, lockHas, manifests, sourcesUnder, type Manifest } from "./graph-seam.ts";
+import { elkDeclaration, elkInside, filesUnder, flowDeclaration, importProblems, importing, lockHas, manifests, sourcesUnder, type Manifest } from "./graph-seam.ts";
 import { textFiles } from "./portal-seam.ts";
 import { repo, succeeds, textAt } from "./support.ts";
 
@@ -148,7 +148,7 @@ describe("40 M1.50: elk stays in the generator, React Flow in portal-ui", () => 
   });
   it("D: the portal's built client draws with React Flow and holds no elk: no package name, no Java name, no option id (CI only: the client is built there with HeroUI Pro)", () => {
     expect(existsSync(join(dist, "index.html")), `${dist}/index.html is missing: \`@orthograph/portal\` builds its client once, with the licence, in CI`).toBe(true);
-    const files = textFiles(dist, (p) => /\.(js|mjs|css|html|map|json)$/.test(p));
+    const files = filesUnder(dist);
     expect(Object.keys(files).some((p) => p.endsWith(".js")), "the built client has script").toBe(true);
     expect(Object.keys(files).some((p) => /\.(js|mjs)$/.test(p) && /react-flow|@xyflow/.test(files[p]!)), "the client carries React Flow (the Graph ships)").toBe(true);
     expect(elkInside(files), "elk in the built client").toEqual([]);
@@ -331,14 +331,14 @@ describe("40 control: the page judge accepts a portal drawn from the data and na
     try { expect(await visitProblems(portal, g2, [...allVisits(m2, l2)].find((v) => v.route === `/portal/things/link?lighting=trace&journey=a-stranger-cannot-edit-a-page`)!)).toEqual([]); } finally { await portal.close(); }
   });
   it.each(PAGE)("$name", { timeout: 120_000 }, async (p) => {
-    const pm = p.model === "invalid-payload" ? refusedBy("InvalidPayload") : m, pg = p.model === undefined ? graphs : fakeGraphs(pm), pl = p.model === undefined ? live : liveFixture(pm);
+    const pm = p.model === "invalid-payload" ? refusedBy("InvalidPayload") : p.model === "plugins" ? withNeeds(m) : m, pg = p.model === undefined ? graphs : fakeGraphs(pm), pl = p.model === undefined ? live : liveFixture(pm);
     const portal = await stand(pg, pl.counts, [[p.from, p.to]], pm);
     try {
       const found: Array<string> = [];
       for (const route of p.routes) {
         const visit = [...allVisits(pm, pl)].find((v) => v.route === route);
         if (visit === undefined) throw new Error(`the control names a route no pass visits: ${route}`);
-        found.push(...await visitProblems(portal, graphs, visit));
+        found.push(...await visitProblems(portal, pg, visit));
       }
       expect(found.some((f) => f.includes(p.says)), `expected "${p.says}" in:\n${said(found)}`).toBe(true);
     } finally { await portal.close(); }
@@ -409,5 +409,26 @@ describe("40 control: the seam instruments", () => {
     expect(elkInside({ "c.js": '{"elk.algorithm":"layered"}' })).not.toEqual([]);
     expect(elkInside({ "d.js.map": '{"sources":["../node_modules/elkjs/lib/elk.bundled.js"]}' })).not.toEqual([]);
     expect(elkInside({ "e.js": 'var react_flow="react-flow__node",xy="@xyflow/react"', "f.css": ".react-flow{}", "g.html": "<title>Portal</title>" })).toEqual([]);
+  });
+  // The built client is scanned by what is in each file, not by what it is called (a bundler may write `.cjs`, a worker, a chunk with no extension).
+  const builtClient = (extra: Record<string, string>): string => {
+    const dir = mkdtempSync(join(tmpdir(), "graph-dist-"));
+    dirs.push(dir);
+    for (const [path, text] of Object.entries({ "index.html": "<title>Portal</title>", "assets/app.js": 'var x="react-flow__node"', ...extra })) { mkdirSync(join(dir, path, ".."), { recursive: true }); writeFileSync(join(dir, path), text); }
+    return dir;
+  };
+  const OLD_FILTER = (p: string) => /\.(js|mjs|css|html|map|json)$/.test(p);
+  it("a built client with no elk in it is clean, whatever its files are called", () => {
+    expect(elkInside(filesUnder(builtClient({ "assets/layout.cjs": "module.exports=1", "assets/chunk": "var a=1" })))).toEqual([]);
+  });
+  it.each([
+    ["a `.cjs` file", "assets/layout.cjs"],
+    ["a file with no extension", "assets/layout-chunk"],
+    ["a worker with an odd extension", "assets/worker.bundle"],
+    ["a file in a folder called node_modules", "node_modules/elk/worker"],
+  ] as ReadonlyArray<readonly [string, string]>)("elk in %s is found, and the old scan (by extension) would have missed it", (_, path) => {
+    const dir = builtClient({ [path]: 'var e=require("elkjs/lib/elk.bundled.js")' });
+    expect(Object.keys(textFiles(dir, OLD_FILTER)), "the extension filter does not even read it").not.toContain(path);
+    expect(elkInside(filesUnder(dir)).join("\n"), "elk in the built client").toContain(path);
   });
 });
