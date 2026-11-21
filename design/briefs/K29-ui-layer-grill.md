@@ -1,5 +1,8 @@
 # K29 grill: Orthograph's UI layer
 
+**Answered 21 November 2026: 1A 2A 3A 4A,** given by the conductor under Aaron's standing authority; recorded in
+K29, "Aaron's answers".
+
 Four questions for Aaron, 21 November 2026, from the 📐 designer thread. The full proposal is
 `design/decisions/K29-ui-layer.md`; the evidence is `design/ui/heroui-inventory.md`.
 

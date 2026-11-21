@@ -1,9 +1,9 @@
 # K29: Orthograph's UI layer, on UI SDK
 
-**Draft, 21 November 2026.** Proposed by the 📐 designer thread Aaron asked for that day. Nothing here is decided
-until Aaron answers the grill at the end; his answers are recorded under "Aaron's answers", and the milestone rows and
-the superseded words change in the same pull request. It builds on K24 (UI SDK is the base; actions first; derive,
-don't declare) and answers the question K24 left open.
+**Decided 21 November 2026.** Proposed by the 📐 designer thread Aaron asked for that day, and answered 1A 2A 3A 4A
+under Aaron's standing authority to the conductor (see "Aaron's answers"). It builds on K24 (UI SDK is the base;
+actions first; derive, don't declare) and answers the question K24 left open: actions move into stage 1, and stage 1's
+screens are built on generated pieces. The milestone rows and the superseded words changed in the same pull request.
 
 Read with it: `design/ui/heroui-inventory.md` (every HeroUI use, and what UI SDK has for each), the vendored skill in
 `.agents/skills/ui-sdk/`, and the two spikes, `spikes/ui-sdk-verb-primitive` (#215) and `spikes/ui-sdk-real-world`
@@ -443,23 +443,31 @@ nine of its tokens. Everything else is plain HTML that our checks read by `data-
 - `ortho prove --through web` replays the journeys through these pieces in Chromium, as #222's proof 4 did by hand,
   and gets the same verdicts as over HTTP.
 
-## 9. The open question: actions before the screens, or hooks?
+## 9. Actions before the screens (answered: actions now)
 
 K13 (Aaron, 19 November) moved actions (M1.22, M1.23) to M3 to lock down what exists first. K24 then made actions the
-spine of the UI. Stage 1's screens are now the beta (K28). Which way the screens are built is Q1 of the grill below,
-with the evidence.
+spine of the UI, and stage 1's screens are the beta (K28). Q1 of the grill asked which way the screens are built; the
+answer is A: actions come into stage 1, and the screens are built on the generated pieces, not on hand-written hooks.
+K13's reason still holds for the rest of what it moved: MCP from the whole model (M1.37), the host's caller for
+actions outside our portal (ST1.05) and the shell's chat (M1.24) stay in M3.
 
-## 10. The slices this proposes
+## 10. The slices
 
-Named here; their ids come from the conductor's allocator once Aaron has answered.
+All in `design/milestones.md`, ids from the stage 1 table; the goal that builds them is
+[`../goals/05-ui-layer.md`](../goals/05-ui-layer.md).
 
-- **Actions into stage 1** (if Q1 is A): M1.23 (S) then M1.22 (M) move from M3 to stage 1, ids unchanged.
-- **The web projection** (new, M): `@orthograph/web` and the generator, per section 3; `--through web` in Chromium.
-  Its checks are written first by an author: a claim, a taken name, a release that waits for a yes, a read that
-  reloads, and an agent step refused with its code, all on Plugged In.
-- **ST1.01** is replaced by the web projection. **ST1.04**'s screens are built on the pieces. **ST1.06** becomes
-  "pieces behind a signed-in session".
-- **The portal off HeroUI** (new, S, beside Goal 3's work, per section 7), and a checks slice for check 15.
+- **M1.23** (S), then **M1.22** (M): moved from M3 into stage 1, ids and text unchanged, before ST1.01.
+- **ST1.01** (M) is now the web projection: `@orthograph/web` (the browser host, the piece runtime and the Orthograph
+  theme in `@orthograph/web/theme.css`, Q3) and the generator, per section 3, React parts only (Q4), with
+  `--through web` in Chromium. It needs M1.22. Its checks are written first by an author: a name is claimed once, a
+  taken name shows its refusal under the field, a release waits for a person's yes, a read reloads after a move, and
+  the pending state is observed, all on Plugged In.
+- **ST1.04**'s three screens are built on the generated pieces, with the app's own link list (section 5).
+- **ST1.06** is "pieces behind a signed-in session", after the auth plugin (M2.06).
+- **ST2.03** is "pieces for client operations", with the submission lifecycle as piece state.
+- **ST1.25** (S, checks): check 15 rewritten by an author, per section 7 item 4; a planted HeroUI import fails lint;
+  the portal builds with `HEROUI_AUTH_TOKEN` unset. It fails until ST1.26 lands.
+- **ST1.26** (S, build): the portal off HeroUI in one change (Q2), per section 7. It needs ST1.25.
 - **Named value kinds** stays the language's (S-28, K24's gap): it upgrades every piece's field when it lands.
 
 ## Risks
@@ -476,8 +484,25 @@ Named here; their ids come from the conductor's allocator once Aaron has answere
 
 ## Aaron's answers
 
-(To be recorded from the grill.)
+Given by the conductor on 21 November 2026, under the standing authority Aaron gave it that day: "anything that's
+waiting on me, just go with the recommendations. You have authority." So each question takes its recommendation:
+
+1. **1A, actions now, with screens from generated pieces.** M1.23 and M1.22 move into stage 1; ST1.01 is the web
+   projection; ST1.04's screens are built on its pieces.
+2. **2A, HeroUI out of the portal in one change, now.** ST1.25 (check 15 rewritten) then ST1.26 (the change), beside
+   Goal 3's work.
+3. **3A, one Orthograph theme on UI SDK's `--ui-*` tokens,** in `@orthograph/web/theme.css`, shared by the portal and
+   every app.
+4. **4A, React only in the beta.** The primitive is framework-free, so another framework is one template, added when
+   someone asks.
 
 ## Supersedes
 
-(Filled in when decided, one line per replaced phrase.)
+- design/frame/projections.md: "React gives a web app hooks over the SDK" → "The web projection gives a web app one generated piece per operation, on UI SDK"
+- design/frame/projections.md: "it renders hooks, not screens" → "it renders pieces, not screens"
+- design/frame/projections.md: "React's hook must reach the error state with the typed class" → "The web piece must reach its refusal state with the declared code"
+- design/milestones.md: "(actions join in M3, with M1.22)" → "(actions join with M1.22, in stage 1, K29)"
+- design/milestones.md: "(actions come with M1.22, in M3)" → "(actions come with M1.22, in stage 1, K29)"
+- design/walkthrough/journey.md: "There is no React projection on `m1`" → "There is no web projection on `m1`"
+- design/packages.md: "the only importer of HeroUI Pro" → "the portal's components under our names"
+- design/portal.md: "Built on HeroUI Pro's app shell" → "Built through `@orthograph/portal-ui`"
