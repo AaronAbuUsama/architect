@@ -155,7 +155,7 @@ typed-in status drifts, as the board's ticks did (lesson 18).
 - **Now:** the kanban board as it is, with the fields above added. It works today and Aaron already uses it.
 - **Next, when Capxul starts:** the same shape, declared as Orthograph things in Capxul's own blueprint, as ordinary app
   code, built once and used. The board's data moves over with one import. Capxul needs people signed in, which is the
-  beta in the three releases (preview, beta and 1.0, K28 on pull request 262), so this step comes no earlier than that.
+  beta in the three releases (preview, beta and 1.0, `design/decisions/K28-releases.md:19`), so this step comes no earlier than that.
 - **Later:** extracted as a feature when a second app (Orthograph's own project) needs it. The always-on loop is then a
   Durable Object calling those operations. K11's work board is the design that extraction meets.
 

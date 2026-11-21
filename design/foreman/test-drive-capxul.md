@@ -479,8 +479,7 @@ saying yes to that session's recommendations as a batch, his answer stands inste
 8. **No declared signing by several people.** Capxul's founding answers the approvals its Directors must sign, and a
    later `approval.sign` collects them (`packages/blueprint/src/things/company/verbs/create.ts:147-149`). Orthograph's
    nearest is an action that asks its own caller first (`needsApproval`, M1.23); the Safe, hats and budgets are stage 3
-   plans (the model draft, section 4), and so part of the 1.0 release, not the preview or the beta (K28, on pull request
-   262).
+   plans (the model draft, section 4), and so part of the 1.0 release, not the preview or the beta (`design/decisions/K28-releases.md:20`).
 9. **A mount can't rename what it brings.** A mount's verbs are choose, include, narrow and omit
    (`packages/orthograph/src/modules/plugins/service.ts:36-39` on goal/stage-1), and `ortho add feature --as <name>`
    names the mount, not its things (`packages/cli/src/modules/mounting/README.md:3` on goal/stage-1), so a plugin's
