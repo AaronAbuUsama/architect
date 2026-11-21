@@ -5,7 +5,8 @@
 //   alert-row        one per (rule, alert) the environment evaluates: data-rule, data-alert, data-kind, data-subject, data-severity, data-owner, data-state ("firing" | "ok" | ...),
 //                    showing its subject and its owner; the firing rows first, the pages before the tickets
 //   issue-row        one per issue: data-key, data-operation, data-step, data-tag, data-owner, data-occurrences, data-first-seen, data-first-hash, data-last-seen, data-last-hash,
-//                    data-regressed "true" | "false", and a `regressed-badge` inside it exactly when regressed
+//                    data-regressed "true" | "false", and a `regressed-badge` inside it exactly when regressed; its text also shows the key, the owner, the occurrences and the first and last seen
+//                    (as the epoch in ms or as ISO 8601), each as a word of its own; an alert row's text says its state as a word of its own
 //   worst-first      on home: `worst-item` per firing rule (data-kind "alert", data-subject the rule id, data-severity the highest firing), per issue (data-kind "issue", data-subject the key),
 //                    per operation whose p95 is over its budget (data-kind "breach", data-subject the operation); in that order of kinds, each holding a link to where it is shown
 import type { ServedPortal } from "../served-portal/types.ts";
@@ -45,6 +46,12 @@ const once = (els: ReadonlyArray<El>, part: string, where: string, out: Array<st
   return found[0];
 };
 const a = (e: El, name: string) => e.attrs[`data-${name}`] ?? "";
+const words = (text: string) => text.split(" ");
+/** A time as a person reads it: the epoch in milliseconds, or the same instant as ISO 8601 (with or without the milliseconds, with a `T` or a space). */
+const timeWords = (at: number): ReadonlyArray<string> => {
+  const iso = new Date(at).toISOString();
+  return [String(at), iso, iso.replace(/\.\d{3}Z$/, "Z"), iso.replace("T", " "), iso.replace("T", " ").replace(/\.\d{3}Z$/, "Z")];
+};
 const subjectOf = (r: AlertRule) => r.labels["operation"] ?? r.labels["code"] ?? r.labels["journey"] ?? "";
 
 export const judgeAlerts = async (portal: ServedPortal, truth: Truth): Promise<ReadonlyArray<string>> => {
@@ -70,7 +77,7 @@ export const judgeAlerts = async (portal: ServedPortal, truth: Truth): Promise<R
     if (a(row, "severity") !== want.severity) out.push(`${where}: data-severity is "${a(row, "severity")}", not ${want.severity}`);
     if (a(row, "owner") !== rule.labels["owner"]) out.push(`${where}: data-owner is "${a(row, "owner")}", not ${rule.labels["owner"]}`);
     if (want.state === "any" ? !["ok", "firing", "unknown"].includes(a(row, "state")) : a(row, "state") !== want.state) out.push(`${where}: data-state is "${a(row, "state")}", and the calls say ${want.state}`);
-    if (want.state !== "any" && !row.text.includes(want.state)) out.push(`${where}: the row does not say "${want.state}" to a person ("${row.text}")`);
+    if (want.state !== "any" && !words(row.text).includes(want.state)) out.push(`${where}: the row does not say "${want.state}" to a person, as a word of its own ("${row.text}")`);
     if (!row.text.includes(subjectOf(rule)) || !row.text.includes(rule.labels["owner"]!)) out.push(`${where}: the row does not show its subject and its owner to a person ("${row.text}")`);
   }
   const wanted = new Set(truth.rows.map((r) => `${r.rule}|${r.alert}`));
@@ -98,6 +105,10 @@ export const judgeIssues = async (portal: ServedPortal, truth: Truth): Promise<R
     for (const [name, got, wantValue] of same) if (got !== String(wantValue)) out.push(`${where}: data-${name} is "${got}", not ${wantValue}`);
     if ((row.badges > 0) !== want.regressed) out.push(`${where}: ${want.regressed ? "regressed, and no `regressed-badge` shows it" : "not regressed, and a `regressed-badge` says so"}`);
     if (!row.text.includes(want.key) || !row.text.includes(want.owner)) out.push(`${where}: the row does not show its key and its owner to a person ("${row.text}")`);
+    const seen = words(row.text);
+    if (!seen.includes(String(want.occurrences))) out.push(`${where}: the row does not show its ${want.occurrences} occurrences as text ("${row.text}"), only a data attribute can hold them`);
+    if (!timeWords(want.firstAt).some((t) => seen.includes(t))) out.push(`${where}: the row does not show when it was first seen as text, ${timeWords(want.firstAt)[1]} ("${row.text}")`);
+    if (!timeWords(want.lastAt).some((t) => seen.includes(t))) out.push(`${where}: the row does not show when it was last seen as text, ${timeWords(want.lastAt)[1]} ("${row.text}")`);
   }
   const wanted = new Set(truth.issues.map((i) => i.key));
   for (const row of rows) if (!wanted.has(a(row, "key"))) out.push(`${route}: a row for ${a(row, "key")}, which is no issue (a refusal opens none)`);

@@ -141,16 +141,29 @@ export const monitor = async (context: PortalContext, digest: string = context.b
 export const rulesOf = (model: unknown): ReadonlyArray<AlertRule> => ((model as { alertRules?: ReadonlyArray<AlertRule> }).alertRules ?? []);
 const within = (spec: CallSpec, since: number, now: number) => startOf(spec, now) >= now - since && startOf(spec, now) <= now;
 
-/** Which alerts must fire in `env` at `now` over `specs`, and what each window counted. A burn alert fires when both its windows burn at least its rate and its short window held `minCalls` calls. Refusals count as good calls. */
-export const expected = (rules: ReadonlyArray<AlertRule>, specs: ReadonlyArray<CallSpec>, now: number, env: string = ENV): ReadonlyArray<AlertRow> =>
+/** A wrong evaluator, as a plant: `strict` fires only when the burn is MORE than the rate; `dropRefused` leaves refused calls out of the call count. The check refuses each (see "39 control: the scenes refuse"). */
+export type Fault = "strict" | "dropRefused";
+
+/** Decimals as integers, millionths: a rate of 14.4 or a target of 0.999 is never divided in floats (0.05 / (1 - 0.95) is 0.99999..., not 1). */
+const MILLIONTHS = 1_000_000n;
+const millionths = (x: number): bigint => BigInt(Math.round(x * 1_000_000));
+/** `bad / calls / (1 - target) >= burn`, decided as `bad >= burn * (1 - target) * calls` with no division: bad * 10^12 >= burnM * (10^6 - targetM) * calls. */
+const burnsAtLeast = (bad: number, calls: number, target: number, burn: number, strict: boolean): boolean => {
+  const left = BigInt(bad) * MILLIONTHS * MILLIONTHS;
+  const right = millionths(burn) * (MILLIONTHS - millionths(target)) * BigInt(calls);
+  return calls > 0 && (strict ? left > right : left >= right);
+};
+
+/** Which alerts must fire in `env` at `now` over `specs`, and what each window counted. A burn alert fires when both its windows burn at its rate or MORE (equality fires) and its short window held `minCalls` calls. A refusal is a call, and a good one for the defect objective; a latency call is bad when it took over `thresholdMs`, whatever it ended as. */
+export const expected = (rules: ReadonlyArray<AlertRule>, specs: ReadonlyArray<CallSpec>, now: number, env: string = ENV, fault?: Fault): ReadonlyArray<AlertRow> =>
   rules.filter((r) => r.labels["environment"] === "*" || r.labels["environment"] === env).flatMap((rule): Array<AlertRow> => {
     if (rule.alerts === undefined) return [{ rule: rule.id, alert: rule.kind, state: "any", severity: rule.labels["severity"]! }];
     return rule.alerts.map((a) => {
       const windows = a.windowsMs.map((ms) => {
-        const mine = specs.filter((s) => s.op === rule.labels["operation"] && within(s, ms, now));
+        const mine = specs.filter((s) => s.op === rule.labels["operation"] && within(s, ms, now) && !(fault === "dropRefused" && s.outcome === "refused"));
         return { ms, calls: mine.length, bad: mine.filter((s) => (rule.kind === "latency" ? s.ms > rule.thresholdMs! : s.outcome === "defect")).length };
       });
-      const burns = windows.every((w) => w.calls > 0 && w.bad / w.calls / (1 - rule.target!) >= a.burn);
+      const burns = windows.every((w) => burnsAtLeast(w.bad, w.calls, rule.target!, a.burn, fault === "strict"));
       return { rule: rule.id, alert: a.name, state: burns && windows[a.windowsMs.length - 1]!.calls >= rule.minCalls! ? "firing" : "ok", severity: a.severity, windows };
     });
   });

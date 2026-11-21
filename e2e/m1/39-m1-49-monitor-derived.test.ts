@@ -16,7 +16,8 @@
 //      page (monitor-standin.ts) that runs anywhere, with one planted fault per control.
 //   E  the runtime: the world's own defect span.
 //
-// Decisions of the author, where the row and K18 leave the shape open (each is what a builder owes; changing one is the author's, with a reason):
+// Decisions of the author, where the row and K18 leave the shape open (each is what a builder owes; changing one is the author's, with a reason). The one place that
+// records them is the addendum of design/decisions/K18-monitoring-falls-out.md ("the fixed shapes"); keep it and this list the same:
 //  1. The rules are `model.alertRules` in `generated/model/model.json` and in the portal's `generated/portal/blueprint.json` (the wire keeps it). Each is
 //     { id, kind: latency | defect | anomaly | verdict, labels, ... }. The labels are exactly `environment`, the subject (`operation`, `code` or `journey`), `severity` and
 //     `owner`. A latency or defect rule has `target`, `windowDays`, `minCalls` and three `alerts` (K18's fast, slow and ticket burn: rate, long and short window, severity); a
@@ -27,8 +28,8 @@
 //     `alerts` one row per (rule, alert) the environment evaluates ({ rule, alert, state: firing | ok, severity, windows: [{ ms, calls, bad }] long then short, on the burn alerts),
 //     `issues` one per issue ({ key, operation, step, tag, owner, occurrences, firstSeen: { at, hash }, lastSeen: { at, hash }, regressed }). Both are evaluated over `live.source.window(ms, now)`
 //     and `live.metrics.window(ms, now)` for each window an alert names (not only `live.windowMs`), and the portal reads no clock.
-//  3. A burn alert fires when the objective burns at its rate or more over BOTH windows ((bad / calls) / (1 - target)) and the short window held at least `minCalls` (20) calls.
-//     A latency call is bad when its duration (the extent of its attempt spans) is over `thresholdMs`; a defect call is bad when it ended as a defect; a refusal is a good call.
+//  3. A burn alert fires when the objective burns at its rate or more (equality fires: `bad >= burn * (1 - target) * calls`, in integers) over BOTH windows and the short window held at least `minCalls` (20) calls.
+//     A latency call is bad when its duration (the extent of its attempt spans) is over `thresholdMs`, whatever it ended as; a defect call is bad when it ended as a defect; a refusal is a call, and a good one for the defect objective.
 //  4. The defect span: the operation span of a call that died carries `error.tag` beside `defect` (the error's `_tag`, else its constructor name). An issue is (the operation, the step, that tag):
 //     the step is the failing step's span (`<operation>.<step>`, the deepest span that ended as an error). A refusal opens none. `occurrences` counts calls, never evaluations.
 //  5. Kept past the window: `PortalContext.ledger?: { get(key): Effect<unknown>, put(key, value): Effect<void> }`, opaque JSON by key, which the portal reads and writes however it likes and where a
@@ -126,6 +127,21 @@ describe("39 control: the inputs the rules are derived from, and the instruments
     expect(states(slow(19))).toEqual(["fast:ok", "slow:ok", "ticket:ok"]);
     expect(states(slow(20, 150))).toEqual(["fast:ok", "slow:ok", "ticket:ok"]);
     expect(states(slow(20, 151))).toEqual(["fast:firing", "slow:firing", "ticket:firing"]);
+    // By hand, at exact equality (target 0.95, so a burn of r needs r * 0.05 * 20 = r bad calls in 20, and floats get 0.05 / (1 - 0.95) = 0.99999...): 1 in 20 is exactly the ticket rate of 1, 6 in 20 exactly the slow rate of 6, 14.4 is not a whole call so 14 does not fire and 15 does.
+    const mix = (bad: number) => [...slow(bad, 400), ...slow(20 - bad, 20)];
+    expect(states(mix(1)), "1 slow in 20: 0.05 / 0.05 = 1, the ticket rate exactly").toEqual(["fast:ok", "slow:ok", "ticket:firing"]);
+    expect(states(mix(0))).toEqual(["fast:ok", "slow:ok", "ticket:ok"]);
+    expect(states(mix(5))).toEqual(["fast:ok", "slow:ok", "ticket:firing"]);
+    expect(states(mix(6)), "6 slow in 20: 0.3 / 0.05 = 6, the slow rate exactly").toEqual(["fast:ok", "slow:firing", "ticket:firing"]);
+    expect(states(mix(14))).toEqual(["fast:ok", "slow:firing", "ticket:firing"]);
+    expect(states(mix(15))).toEqual(["fast:firing", "slow:firing", "ticket:firing"]);
+    // A refusal is a call: 2 defects among 23 refusals burn 80 times over; leave the refusals out and 2 calls are under the minimum.
+    const defects = (n: number) => Array.from({ length: n }, (_, i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 5, minutesAgo: 1, at: NOW - 50_000 - i * 1000 }));
+    const refused = (n: number, ms: number) => many(n, { op: "profile.get", minutesAgo: 1, ms, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" });
+    const defectStates = (specs: Array<CallSpec>) => expected(rules, specs, NOW).filter((r) => r.rule === "defect:profile.get").map((r) => `${r.alert}:${r.state}`);
+    expect(defectStates([...defects(2), ...refused(23, 10)])).toEqual(["fast:firing", "slow:firing", "ticket:firing"]);
+    expect(defectStates([...defects(2), ...refused(17, 10)]), "19 calls: under the minimum").toEqual(["fast:ok", "slow:ok", "ticket:ok"]);
+    expect(states([...slow(19, 400), ...refused(1, 400)]), "a refusal that took 400 ms is the twentieth slow call").toEqual(["fast:firing", "slow:firing", "ticket:firing"]);
   });
 });
 
@@ -204,6 +220,12 @@ const SCENES: ReadonlyArray<readonly [string, ReadonlyArray<CallSpec>, Readonly<
   ["20 slowed two hours ago: only the 3-day burn still holds them", slow("profile.get", 20, 120), { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed link.add calls fire link.add's burns and not profile.get's", [...slow("link.add", 20, 1), ...slow("profile.get", 1, 1)], { "latency:link.add": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
   ["25 calls with two defects, which were also slow, fire the defect objective's burns and count in the latency objective's", [...slow("profile.get", 23, 1, 10), ...[0, 1].map((i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 400, minutesAgo: 1, at: NOW - 40_000 - i * 1000 }))], { "defect:profile.get": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "firing"] }],
+  ["1 slow call in 20 is exactly the ticket burn (0.05 / 0.05 = 1): the ticket fires, the faster burns do not", [...slow("profile.get", 1, 1), ...slow("profile.get", 19, 1, 20)], { "latency:profile.get": ["ok", "ok", "firing"] }],
+  ["6 slow calls in 20 is exactly the slow burn (0.3 / 0.05 = 6): the slow and ticket burns fire, the fast one does not", [...slow("profile.get", 6, 1), ...slow("profile.get", 14, 1, 20)], { "latency:profile.get": ["ok", "firing", "firing"] }],
+  ["15 slow calls in 20 is over the fast burn's 14.4: all three fire; 14 is not", [...slow("profile.get", 15, 1), ...slow("profile.get", 5, 1, 20)], { "latency:profile.get": ["firing", "firing", "firing"] }],
+  ["14 slow calls in 20 are under the fast burn's 14.4", [...slow("profile.get", 14, 1), ...slow("profile.get", 6, 1, 20)], { "latency:profile.get": ["ok", "firing", "firing"] }],
+  ["2 defects among 23 refused calls: the refusals are calls, so the defect burns fire", [...many(23, { op: "profile.get", minutesAgo: 1, ms: 10, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), ...[0, 1].map((i): CallSpec => ({ op: "profile.get", step: "load", tag: "SqlError", outcome: "defect", ms: 5, minutesAgo: 1, at: NOW - 50_000 - i * 1000 }))], { "defect:profile.get": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
+  ["19 slow answered calls and one slow refusal: the refusal is the twentieth call and the twentieth slow one", [...slow("profile.get", 19, 1), ...many(1, { op: "profile.get", minutesAgo: 1, ms: 400, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" })], { "latency:profile.get": ["firing", "firing", "firing"], "defect:profile.get": ["ok", "ok", "ok"] }],
   ["25 refused calls are good calls: no defect burn", many(25, { op: "profile.get", minutesAgo: 1, ms: 10, outcome: "refused", refusal: "ProfileNotFound", code: "PR-001" }), { "defect:profile.get": ["ok", "ok", "ok"], "latency:profile.get": ["ok", "ok", "ok"] }],
 ];
 
@@ -300,6 +322,24 @@ describe("39 B: the portal evaluates the rules over the window at a fixed now", 
     const wire = await decode(withRules(c.wire, deriveRules(c.model)));
     const bare = { blueprint: wire, reader: null, bundleRevision: null } as never;
     expect((await monitor(bare)).status).toBe(404);
+  });
+});
+
+describe("39 control: the scenes refuse a monitor with a wrong rule", () => {
+  // The portal is judged against the oracle, so a portal with a fault is an oracle with it: the scenes must tell them apart.
+  const caught = async (fault: "strict" | "dropRefused") => {
+    const rules = deriveRules((await asIs()).model);
+    return SCENES.filter(([, specs]) => JSON.stringify(expected(rules, specs, NOW, ENV, fault)) !== JSON.stringify(expected(rules, specs, NOW))).map(([name]) => name);
+  };
+  it("a monitor that fires only when the burn is more than the rate (`>` for `>=`) is refused at each rate it sits exactly on", async () => {
+    const names = await caught("strict");
+    expect(names.filter((n) => /exactly the ticket burn/.test(n)), "1 in 20 against the ticket rate").toHaveLength(1);
+    expect(names.filter((n) => /exactly the slow burn/.test(n)), "6 in 20 against the slow rate").toHaveLength(1);
+  });
+  it("a monitor that leaves refused calls out of the call count is refused by a mixed scene and by a slow refusal", async () => {
+    const names = await caught("dropRefused");
+    expect(names.filter((n) => /2 defects among 23 refused/.test(n)), "the defect burn needs all 25 calls").toHaveLength(1);
+    expect(names.filter((n) => /one slow refusal/.test(n)), "the latency burn needs the refusal as its twentieth call").toHaveLength(1);
   });
 });
 
@@ -490,6 +530,10 @@ describe("39 control: the reference page passes the judge, and the judge names e
     ["alert rows drawn off screen", "alerts", "is shown 0 times", [[`'<div data-portal="alert-row"`, `'<div style="position:absolute;left:-9999px" data-portal="alert-row"`]]],
     ["issue rows drawn with no height", "issues", "is shown 0 times", [[`'<div data-portal="issue-row"`, `'<div style="height:0;overflow:hidden" data-portal="issue-row"`]]],
     ["alert items linking to a lookalike path", "home", "no link to", [[`item("alert", f.id, ' data-severity="' + f.severity + '"', "/portal/monitor/alerts")`, `item("alert", f.id, ' data-severity="' + f.severity + '"', "/portal/monitor/alerts-old")`]]],
+    ["a state that is only inside another word", "alerts", "as a word of its own", [["' + a.alert + ' ' + a.state + ' <i>'", `' + a.alert + ' x' + a.state + ' <i>'`]]],
+    ["occurrences only in a data attribute", "issues", "occurrences as text", [[`'</b> <span>' + i.occurrences + '</span> <span>'`, `'</b> <span>'+ '</span> <span>'`]]],
+    ["a first seen only in a data attribute", "issues", "when it was first seen as text", [[`<span>' + new Date(i.firstSeen.at).toISOString() + '</span>`, `<span></span>`]]],
+    ["a last seen only in a data attribute", "issues", "when it was last seen as text", [[`<span>' + new Date(i.lastSeen.at).toISOString() + '</span>`, `<span></span>`]]],
     ["a row that says ok for a firing alert", "alerts", "does not say", [["' + a.alert + ' ' + a.state + ' <i>'", `' + a.alert + ' ' + (a.state === "firing" ? "ok" : a.state) + ' <i>'`]]],
   ] as ReadonlyArray<readonly [string, "alerts" | "issues" | "home", string, ReadonlyArray<readonly [string, string]>]>)("a fault", (name, group, said, change) => {
     it(`names ${name}`, { timeout: 120_000 }, async () => {
