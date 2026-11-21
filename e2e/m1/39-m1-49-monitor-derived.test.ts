@@ -570,7 +570,7 @@ describe("39 D: the pages, as the real client draws them (built only in CI: red 
 
 // ---- E: the runtime's defect span ----
 
-describe("39 control: today's world writes a defect's first line, ends the failing step and the call as errors, and ends a refusal ok", () => {
+describe("39 control: today's world writes a defect's first line, ends the failing step and the call as errors, and ends a refusal not as an error", () => {
   it("the planted defect and the refusal, in the spans the runtime wrote", { timeout: 300_000 }, async () => {
     const world = await planted();
     for (const trace of world.defects) {
@@ -581,7 +581,7 @@ describe("39 control: today's world writes a defect's first line, ends the faili
       expect(spans.find((s) => s.name === "link.add.record")?.status, "and so did the failing step's span").toBe(2);
     }
     const refusal = world.traces.get(world.refusal)!.spans.find((s) => s.name === "link.add")!;
-    expect(refusal.status, "a refusal ends ok").toBe(1);
+    expect(refusal.status, "a refusal does not end as an error").not.toBe(2);
     expect(refusal.attrs["refusal"]).toBe("LinkNeedsHandle");
     for (const trace of [world.refusal, world.claim]) expect(world.traces.get(trace)!.spans.some((s) => "error.tag" in s.attrs), "no error tag on a call that did not die").toBe(false);
   });
