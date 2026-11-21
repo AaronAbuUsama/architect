@@ -22,15 +22,15 @@ States: claimed, released. A move from the wrong state is refused HandleNotClaim
 | claim | (creates) | claimed | HandleClaimed |
 | release | claimed | released | HandleReleased |
 
+## Invariants
+
+- `handle.oneHolderPerName`: another claimed handle holds this name. Unique on name, while claimed; refused HandleTaken.
+- `handle.oneNamePerPerson`: you already hold a name. Unique on owner, while claimed; refused HandleAlreadyOwned.
+
 ## Events
 
 - `HandleClaimed`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move claim
 - `HandleReleased`: carries handle (handle.id: The handle's own id.), name (handle.name: A name of up to 32 lowercase letters and digits, starting with a letter: the address of a public page.); emitted by the move release
-
-## Unique
-
-- name: unique while claimed
-- owner: unique while claimed
 
 ## Roles
 
