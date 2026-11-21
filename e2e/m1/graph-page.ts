@@ -24,6 +24,11 @@
 //               line, and a label at a corner or on another edge's far side is refused. Only an edge's two ENDS are compared with the data's route (above): React Flow
 //               draws its own curve between them, so the label is measured against the curve drawn, not against the data's polyline (a polyline's midpoint is not
 //               the bezier's). Known limit: a label drawn on a different edge that runs within 24 px of its own passes the position test (its text must still be its own).
+//               WHERE THE LABEL IS DRAWN: inside the edge's own element, as `BaseEdge`'s `label` prop draws it. React Flow's `EdgeLabelRenderer` portals a label OUTSIDE
+//               the edge's `<g>` (into the viewport's label layer), so this judge does not find it as the edge's text and says the edge does not say its label; use `BaseEdge`'s
+//               `label`, not `EdgeLabelRenderer` (whether to judge portalled labels is in design/later.md).
+//               WHAT A PERSON SEES: hidden means `hidden`, `display:none`, `visibility:hidden`, near-transparent, or no size. `aria-hidden` is NOT hidden: it only hides an
+//               element from a screen reader, a sighted person still sees it, so a count in an `aria-hidden` element is refused like any other.
 // NOT TRIED: deliberate obfuscation. A client that loads elk from a CDN, or writes its module name in pieces so no scan reads `elkjs`, is out of this check's
 //   reach. The bundle scan in the seam half (every file under the built client, by content) and the Nx module boundaries (`elkjs` is the generator's, never the
 //   portal's or portal-ui's) own those; a later review should not ask this judge to.
@@ -34,7 +39,7 @@ import type { Laid } from "./graph-expect.ts";
 import type { ServedPortal } from "../served-portal/types.ts";
 
 const SCAN = `(() => {
-  const vis = (e) => e.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true }) && !e.closest('[hidden],[aria-hidden="true"]');
+  const vis = (e) => e.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, opacityProperty: true, visibilityProperty: true }) && !e.closest('[hidden]');
   const q = (s, from = document) => [...from.querySelectorAll(s)].filter(vis);
   const a = (e, n) => e.getAttribute(n);
   const r = (e) => { const b = e.getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, h: b.height }; };
