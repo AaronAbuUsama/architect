@@ -596,7 +596,7 @@ writes with a blank handler, so a journey can compile against it.
 | `allowance-policy` and `allowance-policy.set` are new | M2.07 | M2.23 | M2.23 | every output of acme, the same files |
 | `acts` joins `api-key.create`'s payload (fork 5) | M2.07 when acme mounts organizations; the credential mark is M2.05 | M2.24, in the skeleton's declaration | M2.23 | `api-key/create` in SDK, CLI, docs and API, and the model |
 | `via` joins `session.show`'s answer | M2.03 in acme's own `show` and handler; M2.05 carries it into the plugin | M2.02's principal part (acme's `show.ts`), M2.24 (the skeleton) | M2.03's final commits | `session/show` in SDK, CLI, docs and API, and the model |
-| the model gains a `via` on every `allowed` entry that is narrowed, and an `agentTool` on every operation | M2.03, in the compiler | none: derived. The two narrowings (`api-key.create`, `invitation.accept`) are written in the skeleton by M2.24 and enter acme's model when it mounts organizations | M2.03 (the shape, every operation), M2.23 (the two narrowings) | `model.json`, the portal's `blueprint.json`, the MCP tool list; check 12's whole-model digest (`projections.ts:38-40`) and the compiler snapshot |
+| the model gains a `via` on every `allowed` entry that is narrowed, and an `agentTool` on every operation | M2.03, in the compiler | M2.02's principal part: the two narrowings in acme's own declarations, `.via(Via.session, Via.device)` on `examples/acme/blueprint/things/api-key/verbs/create.ts` and `.notVia(Via.agent)` on `invitation/verbs/accept.ts` (both unprotected), so `an agent passes the owner rule` and `an agent cannot consent for a person` can pass in acme at M2.03; M2.24 writes the same narrowings in the skeleton | M2.03 (the shape, every operation, and the two narrowings) | `model.json`, the portal's `blueprint.json`, the MCP tool list; check 12's whole-model digest (`projections.ts:38-40`) and the compiler snapshot |
 | `issues` replaces `identity` in every environment | M2.03, in `examples/acme/blueprint/environments/*.ts` (unprotected) and the compiler | none | M2.03 | the model's `environments`; the snapshot (`acme.model.json:3749`, `:3800` say `"identity": "better-auth"`) |
 
 ## The pair map
@@ -610,21 +610,27 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
 
 - *Author, first commits.* acme's four principal journeys (`a key and a session are the same person`, `an agent passes the
   owner rule`, `an agent cannot consent for a person`, `the system is nobody signed in`); `session.show`'s answer `via` in
-  `examples/acme/blueprint/things/session/verbs/show.ts`; `a service is nobody signed in` in `e2e/m2` with the adapter
+  `examples/acme/blueprint/things/session/verbs/show.ts`; the two narrowings, `.via(Via.session, Via.device)` on
+  `api-key/verbs/create.ts` and `.notVia(Via.agent)` on `invitation/verbs/accept.ts`; `a service is nobody signed in` in `e2e/m2` with the adapter
   fixture. Red for the missing surface only: `.via`, `.tools()`, `lacks`, `Blueprint.system`, the `service` role, and
   `via` in the answer.
-- *Builder.* the runtime, `issues:` in the four environment files and `ortho.config.ts`, the 16 guards, acme's `src/session/show.ts`
+- *Builder.* the runtime, `issues:` in acme's four environment files and `ortho.config.ts` and in every other app's
+  (`examples/{starter,plugged-in,signup,work}/blueprint/environments/*.ts`, unprotected, with their `generated/`), the 15
+  unprotected guards (the sixteenth, `examples/starter/test/fixtures/journeys/owner-step-skipped/organization/create.ts:11`,
+  is a protected fixture that dies with the starter at M2.09: left alone), acme's `src/session/show.ts`
   answering `via`, `generated/`, and every package test that writes a `Principal` (`git grep -n 'kind: "person"' -- packages`
   finds 25 files).
 - *Author, final commits.* the three baselines, the snapshot and `who-may-call/main.ts` (the server's `Principals.of`
-  takes the door, `server.ts:125`, `:208`). The diff must show: every operation's `agentTool`, `session/show`, the
+  takes the door, `server.ts:125`, `:208`). The diff must show: every operation's `agentTool`, the two narrowings' `via` (and `agentTool: false` on
+  `invitation/accept`), `session/show`, the
   environments' `issues`, the principal journeys' worked examples in the docs, and the server's `principals.of` lines. Nothing else.
 
 **M2.05, with M2.25** (`goal-3/m2-05-check`)
 
 - *Author, first commits.* delete acme's `sign-up-and-sign-in.ts` and its copy of `a key and a session are the same person`
   (both exist in the auth skeleton); repoint `invite-and-accept.ts:8`, `grant-an-allowance.ts:7`, the principal journey
-  `the system is nobody signed in` and `who-may-call/main.ts:47-48` at `@orthograph/auth/blueprint/...`. Red for one reason:
+  `the system is nobody signed in` and `who-may-call/main.ts:47-48` at `@orthograph/auth/blueprint/...`, and the acme journey counts the move shifts
+  (`e2e/m1/00-controls.test.ts:112-113`, `e2e/layer1/02-acme-proves.test.ts:20`, `e2e/m1/29-st1-23-prove-changed.test.ts:138,268,618`). Red for one reason:
   with its copy gone and auth not mounted, the coverage eval names `PersonEmailTaken` and `SessionCredentialsWrong` as
   reached by no journey.
 - *Builder.* acme's mount file `blueprint/features/auth.ts`, the identity entry, the server generator, the world, the move
@@ -641,7 +647,10 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   the organizations journeys and its own `founded` and `invited` deleted, the retained journeys and the fixtures repointed:
   `journeys/{read-an-allowance,revoke-then-spend,grant-an-allowance,an-invitation-is-used-once,invite-and-accept,an-owner-makes-an-api-key}.ts`,
   `test/fixtures/evals/coverage/rename.ts` and `README.md` (it installs a verb into `blueprint/things/organization/`),
-  `performance/grant.ts:9,21`, `who-may-call/main.ts:43-48`, `test/fixtures/layer2/list-read/an-owner-lists-allowances.ts:4`, and
+  `performance/grant.ts:9,21`, `who-may-call/main.ts:43-48`, the scaffold goldens `e2e/fixtures/m1/scaffold-explains/**/*.golden`
+  (check 19 compares them byte for byte; `allowance-grant-created-in-active.ts.golden:4` imports `organization/roles.ts`),
+  `e2e/m1/25-unique-fields.test.ts:277` (it copies acme's `organization` folder), the journey and eval counts in
+  `e2e/m1/00-controls.test.ts:112-113`, `e2e/layer1/02-acme-proves.test.ts:20` and `e2e/m1/29-st1-23-prove-changed.test.ts:138,268,618`, `test/fixtures/layer2/list-read/an-owner-lists-allowances.ts:4`, and
   `examples/acme/journeys/README.md`. Red for two reasons: `organization.create` still takes `cap`, and acme does not yet
   mount organizations, so `capped` has no `founded`.
 - *Builder.* the plugin's handlers, `holds` roles, acme's mount file, `allowance-policy`'s handler, `grant.ts` reading it,
@@ -653,7 +662,7 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   `cli/generate/generate.test.ts:31`, `generators/render/render.test.ts:32`, `prove/prove/prove.test.ts:75` and `:120-125`,
   whose blank-handler line becomes `starting world founded` for the plugin's world and `starting world capped` for acme's).
 - *Author, final commits.* the three baselines and the snapshot, and `who-may-call/main.ts`. The diff must show: `cap` gone,
-  `allowance-policy` and its `set` added, `acts` on `api-key/create`, the narrowings in the model, the six things as mounted.
+  `allowance-policy` and its `set` added, `acts` on `api-key/create`, the narrowings now coming from the plugin (unchanged in the model), the six things as mounted.
 
 **M2.09, with M2.27** (`goal-3/m2-09-check`): the author re-authors `e2e/layer1/01`, `layer1/06`, `e2e/layer2/05` and
 `services.ts`, `e2e/m1/25` and `packages/prove/src/modules/prove/starter.test.ts` (an author's file by what it asserts), and
@@ -971,11 +980,19 @@ and `service` cast entries are M2.03's surface (journeys API in `orthograph`, th
 `Blueprint.layer` and `provides` are M2.04's and M2.05's; plugin starting worlds are M2.22's. Checks that need them fail
 for the missing surface only, and are listed in `e2e/m2/expected-failing/` with the slice that clears each.
 
+## Checks slices still to add (the lead's, before their builds start)
+
+Two later build slices write behaviour that only a protected journey can prove, and no checks slice precedes them yet:
+M2.13 (an agent's wallet link is refused, under `**/blueprint/journeys/**`) and M2.10 (new to proved to published to
+mounted). Each gets a checks slice, numbered from M2.28, before its build starts; the lead adds the rows then, when their
+needs are known. And M2.17 and M2.18: if the model's role kind moves acme's model bytes (it carries `roleRules` per thing),
+that slice is a pair under G12, and its author says so in its first commit.
+
 ## What each later slice does, from this record
 
 | Slice | Does | Done when (what changes from the table in `milestones.md`) |
 |---|---|---|
-| M2.03 | the five kinds and `acting`; `Narrowed`, `.via`, `.notVia`; `Blueprint.system`; the `service` role; `agentTool`; `issues:` for `identity:`; `Principals.of` with a door; the request key and span attributes; the world's `/_world/credential`; the journey API's `.via` and `.tools()`; the 16 guards; canon quotes re-quoted. A pair with M2.02's principal part | the four principal journeys of M2.02 pass in acme, `a service is nobody signed in` passes in the adapter fixture, and the pair merges green |
+| M2.03 | the five kinds and `acting`; `Narrowed`, `.via`, `.notVia`; `Blueprint.system`; the `service` role; `agentTool`; `issues:` for `identity:`; `Principals.of` with a door; the request key and span attributes; the world's `/_world/credential`; the journey API's `.via` and `.tools()`; the 15 unprotected guards; canon quotes re-quoted. A pair with M2.02's principal part | the four principal journeys of M2.02 pass in acme, `a service is nobody signed in` passes in the adapter fixture, and the pair merges green |
 | M2.04 | `Blueprint.secret`, names from mount and export, `Redacted`, `Blueprint.layer(plugin, { secrets, settings, db })` | as written, and acme's `generated/` is byte for byte what it was: checks 12, 14 and 21 stay green with no baseline recaptured |
 | M2.24 | the two skeletons, the plugins' journeys placed, the `e2e/m2` checks pointed at the packages | the checks fail on blank handlers only |
 | M2.05 | the identity entry, the worker's move of Better Auth, the `auth` store, `provides`, the server generator, the world, acme's mount, the handlers of `packages/auth`. A pair with M2.25 | the identity journeys pass with acme mounting it |

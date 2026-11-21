@@ -71,7 +71,11 @@ red one on. The same holds for every baseline above, because a baseline is a has
    their `make-baseline.ts`, the compiler snapshot and the who-may-call fixture from the real build output, and review the diff
    line by line against the slice's "what moves" list. A line that list does not explain is a finding for the builder, not a
    recapture. The branch merges the base in, never rebases (`AGENTS.md`).
-5. **The check pull request then merges into `goal/stage-1` with everything green.** No layer 1, layer 2 or m1 job is red on
+5. **The check pull request then merges into `goal/stage-1` with everything green.** Its head ends in `-check`, so the
+   `builder-paths` job skips on it, and the build pull request was not required to pass it: the 🔍 reviewer of this final
+   pull request re-runs `tools/ci/builder-paths.sh <check tip at the build's branch point> <the build's merge commit>` and
+   pastes the output, and checks that the set of baseline keys that changed equals the set of `generated/` files the build
+   pull request changed (the baselines are hash maps, so this is how "line by line" is read). No layer 1, layer 2 or m1 job is red on
    `goal/stage-1` between the pair's first commit and its last. The check branch itself is red until step 4, which is allowed:
    its base is not `main`, and `goal/stage-1` never sees it.
 
