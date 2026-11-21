@@ -13,13 +13,14 @@ export const manifests = (root = repo): Record<string, Manifest> => {
   const read = (path: string) => { if (existsSync(join(root, path))) found[path] = JSON.parse(readFileSync(join(root, path), "utf8")) as Manifest; };
   read("package.json");
   read("e2e/package.json");
+  read("docs/canon/package.json");
   for (const area of ["packages", "examples"]) if (existsSync(join(root, area))) for (const d of readdirSync(join(root, area), { withFileTypes: true })) if (d.isDirectory()) read(`${area}/${d.name}/package.json`);
   return found;
 };
 
 const EXACT = /^\d+\.\d+\.\d+$/;
 /** Where `name` is declared, by package.json and field. */
-const where = (all: Record<string, Manifest>, name: string) => Object.entries(all).flatMap(([path, m]) => FIELDS.filter((f) => m[f]?.[name] !== undefined).map((f) => ({ path, field: f, version: m[f]![name]! })));
+const where = (all: Record<string, Manifest>, name: string) => Object.entries(all).flatMap(([path, m]) => FIELDS.flatMap((f) => Object.entries(m[f] ?? {}).filter(([key, version]) => key === name || version.includes(`npm:${name}@`)).map(([, version]) => ({ path, field: f, version }))));
 
 /** `elkjs` is the generator's: a pinned dependency of `packages/generators` and declared nowhere else, so it can never reach a bundle through a package that ships. */
 export const elkDeclaration = (all: Record<string, Manifest>): ReadonlyArray<string> => {
@@ -57,7 +58,7 @@ export const sourcesUnder = (dirs: ReadonlyArray<string>, root = repo): Record<s
   return found;
 };
 
-const IMPORT = (name: string) => new RegExp(`(?:from\\s*|import\\s*\\(?\\s*|require\\s*\\(\\s*)["']${name.replace(/[/.]/g, "\\$&")}(?:/[^"']*)?["']`);
+const IMPORT = (name: string) => new RegExp(`(?:from\\s*|import\\s*\\(?\\s*|require\\s*\\(\\s*)["'\`]${name.replace(/[/.]/g, "\\$&")}(?:/[^"'\`]*)?["'\`]`);
 /** The files that import `name` (a bare specifier or a subpath of it). */
 export const importing = (files: Record<string, string>, name: string): ReadonlyArray<string> => Object.entries(files).filter(([, text]) => IMPORT(name).test(text)).map(([path]) => path).sort();
 
@@ -66,3 +67,18 @@ export const ELK_MARKERS: ReadonlyArray<RegExp> = [/elkjs/i, /elk\.bundled/, /or
 /** A built client's text files with elk in them, by path and the marker that matched. */
 export const elkInside = (files: Record<string, string>): ReadonlyArray<string> =>
   Object.entries(files).flatMap(([path, text]) => ELK_MARKERS.filter((m) => m.test(text)).map((m) => `${path} matches ${String(m)}`));
+
+/** The lockfile resolves `name` at `version` (a pin to a version that does not exist is no pin). */
+export const lockHas = (lock: string, name: string, version: string): boolean => lock.includes(`${name}@${version}:`) || lock.includes(`'${name}@${version}':`);
+
+const GENERATOR = "packages/generators/src/", PORTAL_UI = "packages/portal-ui/src/";
+/** Who imports what, over source files by path: `elkjs` in the generator's own source (its tests too) and nowhere else; `@xyflow/react` in portal-ui's and nowhere else; and each is imported where it belongs. */
+export const importProblems = (sources: Record<string, string>): ReadonlyArray<string> => {
+  const under = (prefix: string, inside: boolean) => Object.fromEntries(Object.entries(sources).filter(([path]) => path.startsWith(prefix) === inside));
+  return [
+    ...importing(under(GENERATOR, false), "elkjs").map((p) => `\`elkjs\` is imported in ${p}: only packages/generators/src may`),
+    ...(importing(under(GENERATOR, true), "elkjs").length === 0 ? ["the generator does not import `elkjs`: it lays the graphs out with it"] : []),
+    ...importing(under(PORTAL_UI, false), "@xyflow/react").map((p) => `\`@xyflow/react\` is imported in ${p}: only packages/portal-ui/src may`),
+    ...(importing(under(PORTAL_UI, true), "@xyflow/react").length === 0 ? ["portal-ui does not import `@xyflow/react`: its Graph draws with it"] : []),
+  ];
+};

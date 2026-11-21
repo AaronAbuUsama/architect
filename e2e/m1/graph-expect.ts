@@ -19,7 +19,7 @@ export interface Graphs { readonly map: Laid; readonly worlds: Laid; readonly ma
 
 interface Move { readonly from: ReadonlyArray<string>; readonly to: ReadonlyArray<string>; readonly emits: string }
 export interface GraphModel {
-  readonly things: Readonly<Record<string, { readonly name: string; readonly from: { readonly kind: string; readonly mount?: string }; readonly fields: Readonly<Record<string, { readonly ref?: string }>>; readonly machine: null | { readonly states: ReadonlyArray<string>; readonly moves: Readonly<Record<string, Move>> } }>>;
+  readonly things: Readonly<Record<string, { readonly name: string; readonly from: { readonly kind: string; readonly mount?: string }; readonly fields: Readonly<Record<string, { readonly ref?: string }>>; readonly events: Readonly<Record<string, unknown>>; readonly machine: null | { readonly states: ReadonlyArray<string>; readonly moves: Readonly<Record<string, Move>> } }>>;
   readonly operations: Readonly<Record<string, { readonly name: string; readonly thing: string; readonly payload: Readonly<Record<string, { readonly ref?: string }>>; readonly move: null | { readonly key: string } }>>;
   readonly mounts?: Readonly<Record<string, { readonly kind: string; readonly needs?: ReadonlyArray<string> }>>;
   readonly startingWorlds: Readonly<Record<string, { readonly name: string; readonly from: string | null }>>;
@@ -30,12 +30,12 @@ export interface GraphModel {
 
 export interface XNode { readonly key: string; readonly kind: string; readonly parent?: string }
 /** `label` null: the check does not pin it. `noteHas`: the edge's `note` must name this event. */
-export interface XEdge { readonly kind: string; readonly from: string; readonly to: string; readonly label: string | null; readonly noteHas?: string }
+export interface XEdge { readonly kind: string; readonly from: string; readonly to: string; readonly label: string | null; readonly noteHas?: string; readonly noteLacks?: ReadonlyArray<string> }
 export interface Spec { readonly nodes: ReadonlyArray<XNode>; readonly edges: ReadonlyArray<XEdge> }
 
 const START = "start";
 const nodeKey = (kind: string, label: string) => `${kind}:${label}`;
-const edge = (kind: string, from: string, to: string, label: string | null, noteHas?: string): XEdge => ({ kind, from, to, label, ...(noteHas === undefined ? {} : { noteHas }) });
+const edge = (kind: string, from: string, to: string, label: string | null, noteHas?: string, noteLacks?: ReadonlyArray<string>): XEdge => ({ kind, from, to, label, ...(noteHas === undefined ? {} : { noteHas, noteLacks: noteLacks ?? [] }) });
 const refThing = (ref: string | undefined) => ref?.split(".")[0];
 
 /** The blueprint map: every thing inside the app or the plugin it comes from, the ids that tie things (fields, payloads), the mounts and the needs. `on:` handlers wait for M3.08: the model carries none, so none is drawn. */
@@ -68,7 +68,7 @@ export const machineSpec = (m: GraphModel, thing: string): Spec => {
   const machine = m.things[thing]!.machine!;
   const nodes: Array<XNode> = [{ key: START, kind: "start" }, ...machine.states.map((s) => ({ key: nodeKey("state", s), kind: "state" }))];
   const edges = Object.entries(machine.moves).flatMap(([key, mv]) => (mv.from.length === 0 ? [START] : mv.from.map((f) => nodeKey("state", f)))
-    .flatMap((from) => mv.to.map((to) => edge("move", from, nodeKey("state", to), key, mv.emits))));
+    .flatMap((from) => mv.to.map((to) => edge("move", from, nodeKey("state", to), key, mv.emits, Object.keys(m.things[thing]!.events).filter((e) => e !== mv.emits)))));
   return { nodes, edges };
 };
 
@@ -131,6 +131,7 @@ export const structureProblems = (what: string, laid: Laid | undefined, spec: Sp
     for (const e of laid.edges) {
       const t = ends(e);
       if (t !== undefined && e.kind === s.kind && t[0] === s.from && t[1] === s.to && e.label === s.label && !(e.note ?? "").includes(s.noteHas)) out.push(`${what}: the \`${String(s.label)}\` edge's note "${e.note ?? ""}" does not name the event ${s.noteHas}`);
+      if (t !== undefined && e.kind === s.kind && t[0] === s.from && t[1] === s.to && e.label === s.label) for (const other of s.noteLacks ?? []) if ((e.note ?? "").includes(other)) out.push(`${what}: the \`${String(s.label)}\` edge's note "${e.note ?? ""}" also names ${other}, an event of the thing's that the move does not emit`);
     }
   }
   return out;
@@ -142,16 +143,16 @@ const absolute = (n: Placed, byId: Map<string, Placed>): Pt => {
   return { x, y };
 };
 const overlap = (a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-const SLACK = 2;
+const SLACK = 2, MIN_BOX = 12, ROOM = 120;
 
 /** Positions that are a picture: every box a real size, none on another, children inside their group, every edge a route from its source to its target. */
-export const geometryProblems = (what: string, laid: Laid | undefined): ReadonlyArray<string> => {
+export const geometryProblems = (what: string, laid: Laid | undefined, entryFirst = false): ReadonlyArray<string> => {
   if (laid === undefined || laid === null || !Array.isArray(laid.nodes) || !Array.isArray(laid.edges)) return [];
   const out: Array<string> = [];
   if (!num(laid.width) || !num(laid.height) || laid.width <= 0 || laid.height <= 0) out.push(`${what}: the graph's width and height are not positive numbers`);
   const byId = new Map(laid.nodes.map((n) => [n.id, n]));
   const bad = new Set<string>();
-  for (const n of laid.nodes) if (![n.x, n.y, n.w, n.h].every(num) || n.w <= 0 || n.h <= 0 || n.x < 0 || n.y < 0) { out.push(`${what}: \`${keyOf(n)}\` has no real position and size (x ${String(n.x)}, y ${String(n.y)}, w ${String(n.w)}, h ${String(n.h)})`); bad.add(n.id); }
+  for (const n of laid.nodes) if (![n.x, n.y, n.w, n.h].every(num) || n.w < (n.kind === "group" ? 1 : MIN_BOX) || n.h < (n.kind === "group" ? 1 : MIN_BOX) || n.x < 0 || n.y < 0) { out.push(`${what}: \`${keyOf(n)}\` has no real position and a size of at least ${String(MIN_BOX)} (x ${String(n.x)}, y ${String(n.y)}, w ${String(n.w)}, h ${String(n.h)})`); bad.add(n.id); }
   const good = laid.nodes.filter((n) => !bad.has(n.id));
   for (const [i, a] of good.entries()) for (const b of good.slice(i + 1)) if ((a.parent ?? "") === (b.parent ?? "") && overlap(a, b)) out.push(`${what}: \`${keyOf(a)}\` and \`${keyOf(b)}\` overlap`);
   for (const n of good) {
@@ -159,11 +160,22 @@ export const geometryProblems = (what: string, laid: Laid | undefined): Readonly
     if (p === undefined || bad.has(p.id)) { if (n.x + n.w > laid.width + SLACK || n.y + n.h > laid.height + SLACK) out.push(`${what}: \`${keyOf(n)}\` reaches outside the graph's ${String(laid.width)} by ${String(laid.height)}`); continue; }
     if (n.x + n.w > p.w + SLACK || n.y + n.h > p.h + SLACK) out.push(`${what}: \`${keyOf(n)}\` reaches outside its group \`${keyOf(p)}\``);
   }
+  // The canvas fits what it holds: every node and route inside it, and no more than a margin of room around them.
+  const all = good.map((n) => { const p = absolute(n, byId); return { x: p.x, y: p.y, w: n.w, h: n.h }; });
+  const right = Math.max(0, ...all.map((b) => b.x + b.w), ...laid.edges.flatMap((e) => (Array.isArray(e.points) ? e.points.filter((p: Pt) => p !== null && num(p.x)).map((p: Pt) => p.x) : [])));
+  const down = Math.max(0, ...all.map((b) => b.y + b.h), ...laid.edges.flatMap((e) => (Array.isArray(e.points) ? e.points.filter((p: Pt) => p !== null && num(p.y)).map((p: Pt) => p.y) : [])));
+  if (num(laid.width) && num(laid.height) && (laid.width > right + ROOM || laid.height > down + ROOM)) out.push(`${what}: the graph is ${String(laid.width)} by ${String(laid.height)} and what it holds reaches ${String(Math.ceil(right))} by ${String(Math.ceil(down))}`);
+  // A layered picture starts at the entry: in a machine and in the worlds, the entry is the left-most node.
+  if (entryFirst) {
+    const entry = good.find((n) => n.kind === "start");
+    if (entry !== undefined) for (const n of good) if (n !== entry && absolute(n, byId).x + SLACK < absolute(entry, byId).x) out.push(`${what}: \`${keyOf(n)}\` lies left of the entry: the layout runs against its edges`);
+  }
   const box = (id: string) => { const n = byId.get(id); return n === undefined || bad.has(id) ? undefined : { ...absolute(n, byId), w: n.w, h: n.h }; };
   const within = (p: Pt, b: { x: number; y: number; w: number; h: number }) => p.x >= b.x - SLACK && p.x <= b.x + b.w + SLACK && p.y >= b.y - SLACK && p.y <= b.y + b.h + SLACK;
   for (const e of laid.edges) {
     const pts = e.points;
     if (!Array.isArray(pts) || pts.length < 2 || !pts.every((p) => p !== null && typeof p === "object" && num(p.x) && num(p.y))) { out.push(`${what}: edge \`${e.kind}\` "${e.id}" has no route of two points or more`); continue; }
+    if (pts.some((p) => p.x < -SLACK || p.y < -SLACK || p.x > laid.width + SLACK || p.y > laid.height + SLACK)) out.push(`${what}: edge "${e.id}" runs outside the graph`);
     const a = box(e.from), b = box(e.to);
     if (a !== undefined && !within(pts[0]!, a)) out.push(`${what}: edge "${e.id}" does not start on its source`);
     if (b !== undefined && !within(pts[pts.length - 1]!, b)) out.push(`${what}: edge "${e.id}" does not end on its target`);
@@ -175,11 +187,14 @@ export const geometryProblems = (what: string, laid: Laid | undefined): Readonly
 export const graphProblems = (graphs: Graphs | undefined, m: GraphModel): ReadonlyArray<string> => {
   if (graphs === undefined || graphs === null || typeof graphs !== "object") return ["the portal's data (generated/portal/blueprint.json) has no `graphs`"];
   const out: Array<string> = [
+    ...Object.keys(graphs).filter((k) => !["map", "worlds", "machines"].includes(k)).map((k) => `graphs.${k}: the portal's graphs are the map, the worlds and the machines, nothing else`),
     ...structureProblems("map", graphs.map, mapSpec(m)), ...geometryProblems("map", graphs.map),
-    ...structureProblems("worlds", graphs.worlds, worldsSpec(m)), ...geometryProblems("worlds", graphs.worlds),
+    ...structureProblems("worlds", graphs.worlds, worldsSpec(m)), ...geometryProblems("worlds", graphs.worlds, true),
   ];
   const wanted = machineThings(m);
-  for (const t of wanted) out.push(...structureProblems(`machine ${t}`, graphs.machines?.[t], machineSpec(m, t)), ...geometryProblems(`machine ${t}`, graphs.machines?.[t]));
+  for (const t of wanted) out.push(...structureProblems(`machine ${t}`, graphs.machines?.[t], machineSpec(m, t)), ...geometryProblems(`machine ${t}`, graphs.machines?.[t], true));
+  const ids = [graphs.map, graphs.worlds, ...wanted.map((t) => graphs.machines?.[t])].map((l) => l?.id);
+  for (const id of ids) if (typeof id !== "string" || id === "" || ids.filter((i) => i === id).length > 1) out.push(`a graph's \`id\` is ${JSON.stringify(id)}: each graph names itself, and no two share a name`);
   for (const t of Object.keys(graphs.machines ?? {})) if (!wanted.includes(t)) out.push(`machine ${t}: the graphs hold a machine for a thing that has none`);
   return out;
 };

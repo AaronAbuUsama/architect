@@ -61,4 +61,16 @@ export const PAGE: ReadonlyArray<PagePlant> = [
   { name: "a trace that lights only the first move of a step it made twice", from: "out[op.move.key].moved.push(i + 1);", to: "if (out[op.move.key].moved.length === 0) out[op.move.key].moved.push(i + 1);", routes: [STORY], says: "has moved" },
   { name: "a trace that lights nothing in the data's lit", from: "t.moved.length + t.refused.length > 0", to: "t.moved.length > 0", routes: [STRANGER], says: "has lit" },
   { name: "nodes that move when the lighting changes (in the data)", from: "data-x=\"' + n.x + '\"", to: "data-x=\"' + (mode === \"live\" ? n.x + 3 : n.x) + '\"", routes: [LIVE], says: "carries" },
+  // found by the hostile pass
+  { name: "edges with no text", from: 'esc(e.label ?? "") + "</span>")', to: '"" + "</span>")', routes: [STRUCT, MAP], says: "does not say its label" },
+  { name: "edges that say something else", from: 'esc(e.label ?? "") + "</span>")', to: '"banana" + "</span>")', routes: [WORLDS, MAP], says: "does not say its label" },
+  { name: "nodes five times as tall as the data's", from: "'px;height:' + n.h * SCALE", to: "'px;height:' + n.h * SCALE * 5", routes: [STRUCT], says: "of its size" },
+  { name: "a graph drawn as a speck", from: "const SCALE = 0.8;", to: "const SCALE = 0.1;", routes: [STRUCT], says: "nobody can read it" },
+  { name: "a first node with no width", from: "'px;width:' + n.w * SCALE", to: "'px;width:' + (n.kind === \"start\" ? 0 : n.w * SCALE)", routes: [STRUCT], says: "has no size on the screen" },
+  { name: "nodes faded to almost nothing", from: "outline:1px solid #999;font:11px sans-serif", to: "outline:1px solid #999;opacity:0.01;font:11px sans-serif", routes: [STRUCT], says: "is faded to" },
+  { name: "a graph clipped to no height", from: "'px;margin:30px\">'", to: "'px;margin:30px;height:0;overflow:hidden\">'", routes: [STRUCT], says: "has no size on the screen" },
+  { name: "a count beside each state, outside its text", from: ".map(box).join(\"\") + \"</div>\";", to: ".map(box).join(\"\") + \"</div>\" + (n.kind === \"state\" && live ? \"<b>2</b>\" : \"\");", routes: [LIVE], says: "show in the graph outside a move" },
+  { name: "a count on states by generated content", from: '<div id="root">', to: '<style>[data-kind=state]::after{content:"3"}</style><div id="root">', routes: [LIVE], says: "has generated content" },
+  { name: "a state that is lit", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-lit=\"true\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "is lit" },
+  { name: "a state that carries a trace mark", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-moved=\"1\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [TRACE_L], says: "carries a trace mark" },
 ];

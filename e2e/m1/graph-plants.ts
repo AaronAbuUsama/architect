@@ -64,4 +64,14 @@ export const LAID: ReadonlyArray<Plant> = [
   { name: "an edge that does not start on its source", model: "plugged-in", says: "does not start on its source", plant: (g) => { set(edge(g.machines["handle"]!, "move", "claim"), "points", [{ x: 4000, y: 4000 }, { x: 4001, y: 4000 }]); } },
   { name: "an edge that does not end on its target", model: "plugged-in", says: "does not end on its target", plant: (g) => { const e = edge(g.machines["handle"]!, "move", "release"); set(e, "points", [e.points[0], { x: 4000, y: 4000 }]); } },
   { name: "an edge to a node that is not there", model: "plugged-in", says: "one of them is no node", plant: (g) => { set(edge(g.map, "ref", "owner"), "to", "nowhere"); } },
+  // found by the hostile pass
+  { name: "a route that leaves the graph between its two ends", model: "plugged-in", says: "runs outside the graph", plant: (g) => { const e = edge(g.map, "ref", "owner"); set(e, "points", [e.points[0], { x: 1e9, y: -1e9 }, e.points[e.points.length - 1]]); } },
+  { name: "a canvas a million times what it holds", model: "plugged-in", says: "the graph is 1000000000 by", plant: (g) => { set(g.machines["link"]!, "width", 1e9); set(g.machines["link"]!, "height", 1e9); } },
+  { name: "nodes of one pixel, edges re-pointed", model: "plugged-in", says: "a size of at least 12", plant: (g) => { for (const n of g.machines["handle"]!.nodes) { set(n, "w", 1); set(n, "h", 1); } } },
+  { name: "a machine laid out against its edges", model: "plugged-in", says: "lies left of the entry", plant: (g) => { const l = g.machines["handle"]!; for (const n of l.nodes) set(n, "x", l.width - n.x - n.w); for (const e of l.edges) set(e, "points", e.points.map((p) => ({ x: l.width - p.x, y: p.y }))); } },
+  { name: "the worlds laid out against their edges", model: "acme", says: "lies left of the entry", plant: (g) => { const l = g.worlds; for (const n of l.nodes) set(n, "x", l.width - n.x - n.w); for (const e of l.edges) set(e, "points", e.points.map((p) => ({ x: l.width - p.x, y: p.y }))); } },
+  { name: "a key in graphs nobody asked for", model: "plugged-in", says: "graphs.extra", plant: (g) => { (g as unknown as Record<string, unknown>)["extra"] = structuredClone(g.map); } },
+  { name: "a graph that names itself like another", model: "plugged-in", says: "no two share a name", plant: (g) => { set(g.worlds, "id", g.map.id); } },
+  { name: "a graph with no name", model: "plugged-in", says: "each graph names itself", plant: (g) => { set(g.machines["link"]!, "id", ""); } },
+  { name: "a move whose note names every event of its thing", model: "plugged-in", says: "also names HandleReleased", plant: (g) => { set(edge(g.machines["handle"]!, "move", "claim"), "note", "emits HandleClaimed HandleReleased"); } },
 ];

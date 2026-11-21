@@ -38,7 +38,7 @@ import { PAGE } from "./graph-page-plants.ts";
 import { run, standIn, standInServer } from "./graph-standin.ts";
 import { committed, generateAcme, generateChained, generatePluggedIn, generateWithPlugin, type Generated, type PortalData } from "./graph-project.ts";
 import { allVisits, placesOf, plainVisit, visitProblems } from "./graph-routes.ts";
-import { elkDeclaration, elkInside, flowDeclaration, importing, manifests, sourcesUnder, type Manifest } from "./graph-seam.ts";
+import { elkDeclaration, elkInside, flowDeclaration, importProblems, importing, lockHas, manifests, sourcesUnder, type Manifest } from "./graph-seam.ts";
 import { textFiles } from "./portal-seam.ts";
 import { repo, succeeds, textAt } from "./support.ts";
 
@@ -118,13 +118,15 @@ describe("37 M1.50: elk stays in the generator, React Flow in portal-ui", () => 
   const all = manifests();
   it("`elkjs` is a pinned dependency of packages/generators and declared nowhere else", () => { expect(elkDeclaration(all), said(elkDeclaration(all))).toEqual([]); });
   it("`@xyflow/react` is portal-ui's, pinned where it is installed, and declared nowhere else", () => { expect(flowDeclaration(all), said(flowDeclaration(all))).toEqual([]); });
+  it("the lockfile resolves both at the versions the packages pin", () => {
+    const lock = readFileSync(join(repo, "pnpm-lock.yaml"), "utf8");
+    const pins = (pkg: string, name: string) => (all[pkg]?.dependencies?.[name] ?? all[pkg]?.devDependencies?.[name]) ?? "none";
+    expect(lockHas(lock, "elkjs", pins("packages/generators/package.json", "elkjs")), "pnpm-lock.yaml resolves elkjs at generators' pin").toBe(true);
+    expect(lockHas(lock, "@xyflow/react", pins("packages/portal-ui/package.json", "@xyflow/react")), "pnpm-lock.yaml resolves @xyflow/react at portal-ui's pin").toBe(true);
+  });
   it("`elkjs` is imported in packages/generators and nowhere else (never the portal, portal-ui, the front door, generated code or the blueprint); `@xyflow/react` in portal-ui only", () => {
-    const sources = sourcesUnder(["packages", "examples/plugged-in/src", "examples/plugged-in/blueprint", "examples/plugged-in/generated", "examples/acme/src", "examples/acme/generated"]);
-    const own = Object.fromEntries(Object.entries(sources).filter(([path]) => !path.startsWith("packages/generators/src/") && !path.startsWith("packages/portal-ui/src/") && !/\.test\.tsx?$/.test(path)));
-    expect(importing(own, "elkjs"), "`elkjs` imported outside packages/generators/src").toEqual([]);
-    expect(importing(Object.fromEntries(Object.entries(sources).filter(([path]) => path.startsWith("packages/generators/src/"))), "elkjs"), "the generator lays out with elkjs").not.toEqual([]);
-    expect(importing(Object.fromEntries(Object.entries(sources).filter(([path]) => !path.startsWith("packages/portal-ui/src/"))), "@xyflow/react"), "`@xyflow/react` imported outside packages/portal-ui/src").toEqual([]);
-    expect(importing(Object.fromEntries(Object.entries(sources).filter(([path]) => path.startsWith("packages/portal-ui/src/"))), "@xyflow/react"), "portal-ui draws with @xyflow/react").not.toEqual([]);
+    const sources = sourcesUnder(["packages", "examples/plugged-in/src", "examples/plugged-in/blueprint", "examples/plugged-in/generated", "examples/acme/src", "examples/acme/blueprint", "examples/acme/generated", "docs/canon"]);
+    expect(importProblems(sources), said(importProblems(sources))).toEqual([]);
   });
   it("`@orthograph/portal-ui` exports `Graph`", () => {
     const index = sourcesUnder(["packages/portal-ui/src"])["packages/portal-ui/src/index.ts"] ?? "";
@@ -318,7 +320,9 @@ describe("37 control: the seam instruments", () => {
     ["elk with a range", { "packages/generators/package.json": { dependencies: { elkjs: "^0.12.1" } } }, "pinned exactly"],
     ["elk also in the portal", { "packages/portal/package.json": { dependencies: { elkjs: "0.12.1" } } }, "only the generator's own"],
     ["elk also in portal-ui's dev dependencies", { "packages/portal-ui/package.json": { dependencies: { "@xyflow/react": "12.12.1" }, devDependencies: { elkjs: "0.12.1" } } }, "only the generator's own"],
+    ["elk behind an alias in the portal", { "packages/portal/package.json": { dependencies: { layout: "npm:elkjs@0.12.1" } } }, "only the generator's own"],
     ["elk also in the root", { "package.json": { devDependencies: { elkjs: "0.12.1" } } }, "package.json (devDependencies)"],
+    ["elk in the canon's own package", { "docs/canon/package.json": { dependencies: { elkjs: "0.12.1" } } }, "docs/canon/package.json"],
   ] as ReadonlyArray<readonly [string, Record<string, Manifest>, string]>)("%s", (_, over, says) => { expect(elkDeclaration(manifest(over)).join("\n")).toContain(says); });
   it.each([
     ["React Flow not declared", { "packages/portal-ui/package.json": {} }, "neither a dependency nor a peer"],
@@ -326,9 +330,25 @@ describe("37 control: the seam instruments", () => {
     ["React Flow in the portal", { "packages/portal/package.json": { dependencies: { "@xyflow/react": "12.12.1" } } }, "only portal-ui may hold it"],
     ["React Flow in the generator", { "packages/generators/package.json": { dependencies: { elkjs: "0.12.1", "@xyflow/react": "12.12.1" } } }, "only portal-ui may hold it"],
   ] as ReadonlyArray<readonly [string, Record<string, Manifest>, string]>)("%s", (_, over, says) => { expect(flowDeclaration(manifest(over)).join("\n")).toContain(says); });
+  it.each([
+    ["elk imported in portal-ui", { "packages/generators/src/a.ts": 'import E from "elkjs";', "packages/portal-ui/src/graph.tsx": 'import E from "elkjs";\nimport { ReactFlow } from "@xyflow/react";' }, "is imported in packages/portal-ui/src/graph.tsx"],
+    ["elk imported in a test of the portal", { "packages/generators/src/a.ts": 'import E from "elkjs";', "packages/portal-ui/src/g.tsx": 'import { ReactFlow } from "@xyflow/react";', "packages/portal/src/layout.test.ts": 'import E from "elkjs";' }, "is imported in packages/portal/src/layout.test.ts"],
+    ["elk imported by acme's blueprint", { "packages/generators/src/a.ts": 'import E from "elkjs";', "packages/portal-ui/src/g.tsx": 'import { ReactFlow } from "@xyflow/react";', "examples/acme/blueprint/x.ts": 'await import(`elkjs`)' }, "is imported in examples/acme/blueprint/x.ts"],
+    ["React Flow imported by the portal", { "packages/generators/src/a.ts": 'import E from "elkjs";', "packages/portal-ui/src/g.tsx": 'import { ReactFlow } from "@xyflow/react";', "packages/portal/src/p.tsx": 'import { ReactFlow } from "@xyflow/react";' }, "is imported in packages/portal/src/p.tsx"],
+    ["the generator does not lay out with elk", { "packages/portal-ui/src/g.tsx": 'import { ReactFlow } from "@xyflow/react";' }, "the generator does not import"],
+    ["portal-ui does not draw with React Flow", { "packages/generators/src/a.ts": 'import E from "elkjs";' }, "portal-ui does not import"],
+  ] as ReadonlyArray<readonly [string, Record<string, string>, string]>)("%s", (_, files, says) => { expect(importProblems(files).join("\n")).toContain(says); });
+  it("the right imports are none", () => { expect(importProblems({ "packages/generators/src/a.ts": 'import E from "elkjs/lib/elk.bundled.js";', "packages/generators/src/a.test.ts": 'import E from "elkjs";', "packages/portal-ui/src/g.tsx": 'import { ReactFlow } from "@xyflow/react";' })).toEqual([]); });
+  it("the lockfile check refuses a pin the lockfile does not hold", () => {
+    expect(lockHas("  elkjs@0.12.1:\n    resolution: {}", "elkjs", "0.12.1")).toBe(true);
+    expect(lockHas("  'elkjs@0.12.1':\n    resolution: {}", "elkjs", "0.12.1")).toBe(true);
+    expect(lockHas("  elkjs@0.12.1:\n", "elkjs", "0.0.0")).toBe(false);
+    expect(lockHas("  elkjs@0.12.10:\n", "elkjs", "0.12.1")).toBe(false);
+    expect(lockHas("", "elkjs", "none")).toBe(false);
+  });
   it("an import is found however it is written, and a package of a similar name is not one", () => {
-    const files = { "a.ts": 'import ELK from "elkjs/lib/elk.bundled.js";', "b.ts": 'const e = await import("elkjs");', "c.ts": 'const e = require("elkjs")', "d.ts": 'import x from "elkjs-lite"', "e.ts": 'import { a } from "not-elkjs"', "f.ts": "// elkjs is the generator's" };
-    expect(importing(files, "elkjs")).toEqual(["a.ts", "b.ts", "c.ts"]);
+    const files = { "a.ts": 'import ELK from "elkjs/lib/elk.bundled.js";', "b.ts": 'const e = await import("elkjs");', "c.ts": 'const e = require("elkjs")', "g.ts": 'const e = await import(`elkjs`);', "d.ts": 'import x from "elkjs-lite"', "e.ts": 'import { a } from "not-elkjs"', "f.ts": "// elkjs is the generator's" };
+    expect(importing(files, "elkjs")).toEqual(["a.ts", "b.ts", "c.ts", "g.ts"]);
     expect(importing({ "a.tsx": 'import { ReactFlow } from "@xyflow/react";', "b.ts": 'import "@xyflow/react/dist/style.css"', "c.ts": 'import x from "@xyflow/react-extra"' }, "@xyflow/react")).toEqual(["a.tsx", "b.ts"]);
   });
   it("elk in a built client is found by its name, its Java names or its option ids, and React Flow alone is clean", () => {
