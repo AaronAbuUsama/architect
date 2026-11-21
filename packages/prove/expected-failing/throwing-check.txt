@@ -1,9 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`owner.of(...).via` is not a function), so every test here that runs a copy of acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > control: a check that returns false is a plain failed step, the run goes on and exits 1
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > does not print the answer's values, only its keys, in the output or the report
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > exits with prove's code for a failing step, 1, not a crash
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > fails a step whose check returns an object that holds itself, with a named line, and the run still writes its report
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > fails a step whose check throws something that is not a TypeError, naming what it threw
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > fails its step with the journey, the step, the answer and the error's message, and no stack trace
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > goes on: the step after the throws, and every later journey, run, and a later journey passes
-src/modules/journeys/throwing-check.test.ts > S-27: a journey check that throws > writes --report, with the throwing steps failed and the rest as they were

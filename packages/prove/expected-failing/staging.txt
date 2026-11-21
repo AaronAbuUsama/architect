@@ -1,9 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/promote/staging.test.ts > publication identity > installs the captured SDK and CLI even if source changes after capture during publication
-src/modules/promote/staging.test.ts > publication identity > owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs
-src/modules/promote/staging.test.ts > publication identity > records no new production release or carried pass when existing package bytes conflict
-src/modules/promote/staging.test.ts > publication identity > refuses pre-existing different same-version package bytes instead of claiming successful reuse
-src/modules/promote/staging.test.ts > publication identity > repairs a persisted partial release on retry without duplicating complete carried facts
-src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects source mutation at proof completion before model storage, publishing or passing verdicts
-src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects staging replacement after its initial check, including rollback=false
-src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects staging replacement after its initial check, including rollback=true

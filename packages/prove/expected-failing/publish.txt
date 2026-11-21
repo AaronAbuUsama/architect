@@ -1,7 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/publish/publish.test.ts > ortho publish > --dry-run lists exactly what would go out, and sends nothing
-src/modules/publish/publish.test.ts > ortho publish > --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them
-src/modules/publish/publish.test.ts > ortho publish > `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world
-src/modules/publish/publish.test.ts > ortho publish > a prerelease goes out under `next`, numbered one past the last
-src/modules/publish/publish.test.ts > ortho publish > a prerelease published after a release never takes `latest` from it
-src/modules/publish/publish.test.ts > ortho publish > without a registry, --local says so and exits 2; with neither flag it says how to use it

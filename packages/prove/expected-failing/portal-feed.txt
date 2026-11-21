@@ -1,2 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/portal-feed/portal-feed.test.ts > a local world's portal > carries the world's own call: the row, the count, and a trace page of structure only

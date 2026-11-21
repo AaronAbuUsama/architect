@@ -1,2 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/prove/call-metrics.test.ts > exports two pre-handler refusals and their durations from a real world

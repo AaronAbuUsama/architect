@@ -1,8 +1,0 @@
-# M2.02 principal part (pair with M2.03, G12): acme cannot load on today's build (`.notVia` and `lacks` do not exist, `session.show` answers no `via`), so every test here that proves, models or publishes acme is red. Each passes when M2.03 builds them; the pair lands green and this folder is deleted with the last line.
-src/modules/watch/watch.test.ts > watch over staging's traffic > a slow handler is drift, and drift becomes a task that the next clean watch removes
-src/modules/watch/watch.test.ts > watch over staging's traffic > counts a defect apart from a refusal, and judges the same evals except coverage: a refusal the operation does not declare fails
-src/modules/watch/watch.test.ts > watch over staging's traffic > does not count prove's own calls, which carry a caller span of prove's making
-src/modules/watch/watch.test.ts > watch over staging's traffic > leaves a replayed call's answer to prove: it answers from what was stored, so its span carries none
-src/modules/watch/watch.test.ts > watch over staging's traffic > prints p95 against budget, the refusal counts and `drift none` for a healthy window
-src/modules/watch/watch.test.ts > watch over staging's traffic > says plainly when the window holds no traffic
-src/modules/watch/watch.test.ts > watch over staging's traffic > says, and does not call drift, a p95 over budget on too few calls: with a handful, the p95 is only the slowest call
