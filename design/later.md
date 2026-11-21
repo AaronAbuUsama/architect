@@ -185,6 +185,14 @@ Each is a parked snag in `design/goals/03-snags.md`, with its trigger.
 - **The model records a value's pattern** (S-28): `Values.email`'s pattern lives only in its Schema, so the grid's output-schema eval uses a `max === 254` stopgap (`e2e/grid/src/modules/output-schema/internal/sample.ts`). The model carries a pattern or format, and the stopgap is deleted. Waits for a second pattern-bearing value, or a sample the heuristic cannot give.
 - **Check 40's page judge: three counts and labels it does not read** (M1.50, round 3): a count made by a CSS `counter()` beside a state (`counter-increment` and `content: counter(n)`, which no text node holds); a label split into two `<text>` nodes, one of them far from the line; and whether labels drawn by React Flow's `EdgeLabelRenderer` (portalled outside the edge's `<g>`) should be judged at all, now that the judge expects `BaseEdge`'s `label`. Taken if a builder draws any of them.
 
+## From check 39 (M1.49's monitor, 21 November 2026)
+
+Check 39 (`e2e/m1/39-m1-49-monitor-derived.test.ts`) does not judge these three; the fixed shapes are in the addendum of `design/decisions/K18-monitoring-falls-out.md`.
+
+- **An anomaly and a verdict actually firing**: the rules are derived and listed, but check 39 judges only the burn alerts' firing. A check that makes a refusal-code spike fire its anomaly, and a failed journey fire its verdict.
+- **Nested step spans, the deepest wins**: an issue's step is the deepest failing step span; check 39 plants one level (`link.add.record`). A defect two steps down, and a call with no step span at all, are not judged.
+- **The constructor-name fallback for `error.tag`**: a thrown error with no `_tag` takes its constructor's name; check 39 plants only a tagged error whose class name differs from its tag.
+
 ## From M2-auth (Goal 3 lead, 21 November 2026)
 
 - **SDK and CLI reach filtering** (`decisions/M2-auth.md`, small calls 16; replaces `decisions/K1-kits.md`'s table at
