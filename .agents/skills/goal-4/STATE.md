@@ -58,6 +58,16 @@ Read first-hand by the lead, 21 November 2026.
 
 Goal 7 puts M6-money's shape into its budgets module next.
 
+Goal 7's spike passed its done check ([#294](https://github.com/AaronAbuUsama/architect/pull/294)): a hat budgets module, fuzz, an Anvil run, and a
+draft `design/decisions/ST3-budgets.md` (stage 3, ST3.02). Read by the lead on 21 November 2026; it changes nothing in
+Goal 4:
+- Its rows are keyed by (Safe, hat); Goal 4's by a client-minted id with `safe` and `member` fields. Stage 3 can keep
+  id keys with a rule on (safe, hat), and that also answers its open "regrant" question: a regrant is a new row.
+- Its spender is whoever wears the hat, read live from Hats: neither a `who` nor a `holds` role (M6-chain item 5).
+  A chain role that reads another contract is a stage 3 decision, not Goal 4's.
+- Its payment (`spikes/safe-hats-module/src/SafePayment.sol`) already uses `execTransactionFromModuleReturnData`:
+  the reference for snag S-12. Its amounts already follow M6-money.
+
 ## Passed to Goal 3 (through the conductor)
 
 - Codex: `packages/compiler/src/modules/model/internal/invariants.ts:83`, a rule refusal's auto-filled field schemas
