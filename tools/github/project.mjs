@@ -22,7 +22,7 @@ export const projectFields = (goals) => [
   select("Kind", KINDS.map((k) => [k, "GRAY", ""])),
   select("Status", STATUSES),
   select("Release", ["preview", "beta", "1.0"].map((r) => [r, "GRAY", ""])),
-  select("Harness", ["claude", "amp", "codex"].map((h) => [h, "GRAY", ""])),
+  select("Harness", ["claude", "amp", "codex", "opencode"].map((h) => [h, "GRAY", ""])),
   { name: "Model", dataType: "TEXT", options: [] },
   select("Lead role", ["lead", "author", "builder", "reviewer", "designer", "spike"].map((r) => [r, "GRAY", ""])),
   { name: "Start", dataType: "DATE", options: [] },

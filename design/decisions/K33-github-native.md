@@ -68,8 +68,8 @@ $ grep -c '^| `' design/ledger.md   # 731 rows of open problems, in a file nothi
    - the brief's front matter, `lead: { harness, model, since }` and `status:`, set by the lead when it starts and
      mirrored into the goal issue;
    - every pull request's labels, `role:<role>` and `harness:<harness>` (`harness:claude`, `harness:amp`,
-     `harness:codex`), and the template's "Harness and model" line; a model is never a label, since models change
-     weekly;
+     `harness:codex`, `harness:opencode`, the last added 21 November 2026 on Aaron's word), and the template's
+     "Harness and model" line; a model is never a label, since models change weekly;
    - a comment on the slice issue when an agent takes it: `[goal-<n> · <role> · <harness> · <model>] Taking this.`;
    - and the same first line on every comment an agent posts, anywhere (item 15).
    None of this is an attribution line in a commit; it is data on the work.

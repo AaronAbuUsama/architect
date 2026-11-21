@@ -46,7 +46,7 @@ branch: goal/portal
 base: goal/stage-1
 status: running               # ready | running | landing | done | parked
 lead:
-  harness: amp                # claude | amp | codex
+  harness: amp                # claude | amp | codex | opencode
   model: claude-opus-5-5      # the model id the lead runs on
   since: 2026-11-22
 done_check: nx run e2e:portal-next

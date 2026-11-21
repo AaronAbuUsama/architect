@@ -7,7 +7,7 @@ branch: goal/ui-layer
 base: goal/stage-1
 status: ready          # ready | running | landing | done | parked
 lead:
-  harness: null        # claude | amp | codex, set by the lead when it starts
+  harness: null        # claude | amp | codex | opencode, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
 done_check: nx run e2e:ui-layer
@@ -31,7 +31,7 @@ slices:
 
 Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K29.
 
-**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 5. Read `AGENTS.md` and
+**To start it, in any harness** (Claude Code, Amp, Codex, OpenCode): "You lead Goal 5. Read `AGENTS.md` and
 `design/goals/05-ui-layer.md`, and run it." Nothing else is needed. Milestone `Goal 5: the UI layer`, label `release:beta` (K33).
 
 ## The goal, in plain words

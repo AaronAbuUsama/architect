@@ -7,7 +7,7 @@ branch: goal/portal
 base: goal/stage-1
 status: ready          # ready | running | landing | done | parked
 lead:
-  harness: null        # claude | amp | codex, set by the lead when it starts
+  harness: null        # claude | amp | codex | opencode, set by the lead when it starts
   model: null          # the model id it runs on
   since: null          # the date it started
 done_check: nx run e2e:portal-next
@@ -38,7 +38,7 @@ slices:
 
 Branch `goal/portal`, cut from `goal/stage-1`. Written 21 November 2026 with K31, on terms agreed with the conductor the same day.
 
-**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 6. Read `AGENTS.md` and
+**To start it, in any harness** (Claude Code, Amp, Codex, OpenCode): "You lead Goal 6. Read `AGENTS.md` and
 `design/goals/06-portal.md`, and run it." Nothing else is needed. Milestone `Goal 6: the new portal`, label `release:beta` (K33).
 
 ## The goal, in plain words
