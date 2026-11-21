@@ -200,3 +200,22 @@ cut from `main` (or `goal/safe-hats` with `main` merged in), never more pushes t
 - **21 November 2026, 09:43 UTC.** Codex run 1 started on the prompt above: session `01a1fd7d-a64b-7660-b3ec-7cfba7a59b69`.
   Its log is outside the repository, in the lead's scratch folder (`codex-1.jsonl`). To steer it:
   `codex exec resume 01a1fd7d-a64b-7660-b3ec-7cfba7a59b69 "<message>"`, once the run in flight has ended.
+- **21 November 2026, about 09:55 UTC. Steer 1, a scope addition.** Goal 4's lead asked for five Safe answers that
+  its slice 7 rests on. The lead stopped run 1 while it was still on pins and resumed the same session (run 2) with
+  them, to be answered before Hats:
+  - **A1:** deploy a Safe from its release.
+  - **A2:** `enableModule` on a 1-of-1 Safe.
+  - **A3:** how a failed ERC-20 transfer comes back through `execTransactionFromModule`.
+  - **A4:** a Safe as an ERC-1271 signer, accepted by `SignatureChecker`.
+  - **A5:** a Safe calling the module's direct entry, relayed by anyone, with its gas.
+
+  The budgets module is also shaped to `M6-chain.md`, where it fits:
+  - one deployment per network, keyed by Safe;
+  - the Safe grants;
+  - a direct entry and a signed entry;
+  - ordered nonces;
+  - the `Budgets` EIP-712 domain;
+  - `by` and `nonce` on each event;
+  - its errors.
+
+  The A1 to A5 findings come first in the README, under "For Goal 4".

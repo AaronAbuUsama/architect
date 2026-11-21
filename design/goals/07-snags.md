@@ -15,3 +15,13 @@ Each entry looks like this:
 ```
 
 Numbers are this log's own, from S-01.
+
+## S-01 · scope · "a second goal's needs arrived ten minutes after the builder started"
+- Seen: Goal 4's lead sent five Safe questions that its slice 7 rests on. Codex was still verifying pins, so it had
+  written nothing yet.
+- Cost: one stopped run and one resume, a few minutes. A headless `codex exec` can't take a message mid-run, so a steer
+  means stopping it, by PID, and resuming the same session.
+- Steer: run 1 was stopped, then resumed as run 2 with A1 to A5 first and the budgets module shaped to `M6-chain.md`.
+- For Foreman: before starting a builder, ask every goal that depends on its area what it needs from it. Here the
+  conductor, or the board's links, would have shown Goal 4 waiting on Safe answers. Steering costs a restart, so steer
+  early and in batches.
