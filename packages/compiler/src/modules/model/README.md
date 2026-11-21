@@ -17,5 +17,7 @@ Builds the model, the one description every generator reads, from a loaded bluep
   `things.<thing>.invariants.<name>` (`kind`, `fields`, and `while`, `refuse`, `description` when written), hashed with
   the thing. The compiler adds each rule's refusal to `refusals` of every operation that can break it (`internal/invariants.ts`,
   decision G5 section 3) and maps it back in `operations.<op>.invariants` (refusal to `<thing>.<rule>`), never in `errors`;
-  the exit-clash scan reads them too. A thing or operation with no rule carries neither field, so its hash is unchanged.
+  every operation also carries `breaks`, the full names of every rule it can break, with a refusal or without (S31; a database step that
+  leaves `writes` unset is unknown and breaks the rules of a thing with no machine, `writes: []` is reads only). The exit-clash scan reads them too.
+  A thing with no rule carries no `invariants` field, so its hash is unchanged.
   Tests: `invariants.test.ts`.
