@@ -503,7 +503,7 @@ packages/auth/                       @orthograph/auth: who is calling
     worker.ts                         the identity entry
     modules/better-auth/              moved from host-cloudflare/src/modules/auth (six slots)
     modules/credentials/              session via marks, the `acts` mark, `wld_` tokens for worlds
-    modules/pages/                    /login, /consent, /device: plain pages (For Aaron)
+    modules/pages/                    /login, /consent, /device: plain pages (see "The sign-in pages")
   example/                            the plugin's own app (M2.10)
 
 packages/organizations/              @orthograph/organizations: who belongs where     needs: [auth]
@@ -833,13 +833,15 @@ for the missing surface only, and are listed in `e2e/m2/expected-failing/` with 
 - design/milestones.md (M2.12) and .agents/skills/kanban/data/tasks.json: "M2.13 to M2.20" → "M2.13 to M2.22"
 - design/milestones.md (M2.11) and .agents/skills/kanban/data/tasks.json: "The work app mounts auth and organizations" → "The work app mounts auth"
 
+## The sign-in pages (the conductor's call, 21 November 2026)
+
+The question this section used to put to Aaron is settled by the conductor, on Aaron's behalf, in the direction it
+recommended: in M2 the auth plugin serves three plain, working sign-in pages, with no design work. They are where a person
+types the code from their terminal (`/device`), where they agree to let an agent in (`/consent`), and where they sign in
+before that (`/login`). Better Auth already points to them (`options.ts:27`, `:49-50`). M2.06's MCP sign-in journey goes
+through these real pages, never around them to Better Auth's API. The designed versions come with the generated app, after
+Aaron's interface grill.
+
 ## For Aaron
 
-One question, and nothing waits on it: the build goes ahead on the recommended answer.
-
-**Do you want the sign-in pages, in M2, to be plain and working (recommended), with the designed ones coming with the
-generated app?** Three pages are user-facing: where a person types the code from their terminal (`/device`), where they
-agree to let an agent in (`/consent`), and where they sign in before that (`/login`). Better Auth already points to
-them (`options.ts:27`, `:49-50`), and nothing serves them yet. The journeys and the stage 1 gate only need pages that
-work. The look is yours (UX before drawing): if you would rather see them drawn first, they wait for the generated app,
-and M2.06's MCP sign-in journey then drives Better Auth's API directly instead of the page.
+Nothing is open.
