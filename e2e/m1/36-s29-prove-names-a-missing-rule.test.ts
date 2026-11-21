@@ -106,7 +106,7 @@ const plain = (text: string) => text.replace(/\x1b\[[0-9;]*m/g, "");
 const wordAt = (line: string, rule: string) => [...line.matchAll(new RegExp(`(?<![\\w$])${rule}(?![\\w$])`, "g"))].map((m) => m.index!);
 /** Any phrase that says something is absent. Bare "not" or "no" are not here: they sit in "(not yet checked)" and "no journeys ran". */
 const CUE = new RegExp([
-  "no matching export", "(?:not|n't) export(?:ed)?", "no exported member", "does not provide an export", "no (?:rule|export)s? named", "missing", "lacks?", "absent",
+  "no matching export", "(?:not|(?:is|was|are|does|do)n't) export(?:ed)?", "no exported member", "does not provide an export", "no (?:rule|export)s? named", "missing", "lacks?", "absent",
   "not found", "unresolved", "cannot find", "could not (?:find|resolve)", "undefined",
 ].map((phrase) => `(?<![\\w-])(?:${phrase})(?![\\w-])`).join("|"), "i");
 /** The invariants file at a path boundary, however much of the path is written (`handle/invariants.ts`, the full path, backslashes too); not `link/invariants.ts`, nor `xhandle/invariants.ts`. */
