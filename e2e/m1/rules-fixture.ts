@@ -1,7 +1,8 @@
 // What check 28 (ST1.22) judges the portal with: a wire for Plugged In that carries its rules the way G5 section 3 says the model does
 // (`things.<t>.invariants`, `operations.<op>.invariants` from refusal to rule), and a judge that reads a served portal's pages and says what is
 // wrong with them. The rules are Plugged In's three one-line `unique` entries as they stand (until ST1.19): their fields and states are READ from
-// the wire's `unique`; only their names, their refusals and the one description are the check's, and they reach the portal through the wire alone.
+// the wire's `unique`; only their names, their refusals and the one description are the check's, and they reach the portal through the wire alone. From ST1.19 the wire carries
+// the rules itself and no `unique`: they are then read back out of `invariants`, and built the same way (see `withRules`).
 import { Wire } from "@orthograph/portal";
 import type { ServedPortal } from "../served-portal/types.ts";
 
@@ -28,7 +29,16 @@ export const withRules = async (pluggedIn: unknown, naming: Naming, keepUnique: 
   const { digest: _, ...unsigned } = structuredClone(pluggedIn) as Raw;
   const rules: Array<Rule> = [];
   for (const [thing, t] of Object.entries(unsigned.model.things)) {
-    for (const [field, u] of Object.entries(t.unique ?? {})) {
+    // From ST1.19 the wire carries Plugged In's rules itself (`invariants`) and no `unique`: each is read back as the one-liner it replaced (its first key field and its scope) and cleared, with the
+    // operations' maps to it, so that `naming` builds every variant the same way, from the wire's own fields and scopes.
+    const given = Object.entries(t.unique ?? {});
+    const declared = Object.values((t.invariants ?? {}) as Record<string, { readonly fields: ReadonlyArray<string>; readonly while?: ReadonlyArray<string> }>);
+    const lifted = given.length > 0 ? [] : declared.map((i): [string, { while?: ReadonlyArray<string> }] => [i.fields[0]!, i.while === undefined ? {} : { while: i.while }]);
+    if (lifted.length > 0) {
+      delete t.invariants;
+      for (const op of Object.values(unsigned.model.operations)) if (op.thing === thing) delete op.invariants;
+    }
+    for (const [field, u] of [...given, ...lifted]) {
       const n = naming[`${thing}.${field}`];
       if (n === undefined) throw new Error(`no name for the rule on ${thing}.${field}`);
       const rule: Rule = { thing, name: n.name, fields: [field], while: n.while ?? u.while ?? [], ...(n.refuse === undefined ? {} : { refuse: n.refuse }), ...(n.description === undefined ? {} : { description: n.description }) };

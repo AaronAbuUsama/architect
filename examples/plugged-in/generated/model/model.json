@@ -874,11 +874,10 @@
             {
               "kind": "spans",
               "present": [
-                "handle.claim",
-                "handle.claim.load"
+                "handle.claim"
               ],
               "absent": [
-                "handle.claim.record"
+                "handle.claim.commit"
               ]
             }
           ]
@@ -906,7 +905,7 @@
               "kind": "spans",
               "present": [],
               "absent": [
-                "handle.claim.record"
+                "handle.claim.commit"
               ]
             }
           ]
@@ -980,7 +979,7 @@
           ]
         }
       ],
-      "sourceHash": "81f595a52e30adb0bb60fe9c49f504fd2c44693086af336a78959daa2fd731dd"
+      "sourceHash": "825970c4c2ee15bec0a09cbe441c687fca206510f5e55d1be6f39282a7f7d797"
     },
     "journeys/a-stranger-cannot-edit-a-page.ts": {
       "name": "a stranger cannot edit a page",
@@ -1986,7 +1985,6 @@
               "kind": "spans",
               "present": [
                 "handle.claim",
-                "handle.claim.load",
                 "handle.claim.record",
                 "handle.claim.commit"
               ],
@@ -2058,7 +2056,7 @@
               "kind": "spans",
               "present": [],
               "absent": [
-                "handle.claim.record"
+                "handle.claim.commit"
               ]
             }
           ]
@@ -2084,7 +2082,7 @@
           ]
         }
       ],
-      "sourceHash": "cb3cfae36bbafa5dea03849e4b480d6be8203257c4097b4f154d73827bb27910"
+      "sourceHash": "a0d5051a94778bac15b3dac41f5305882efe1b6b4a71327e7c009305b7ea02f6"
     },
     "journeys/release-a-handle.ts": {
       "name": "release a handle",
@@ -2585,7 +2583,6 @@
               "kind": "spans",
               "present": [
                 "handle.claim",
-                "handle.claim.load",
                 "handle.claim.record",
                 "handle.claim.commit"
               ],
@@ -2721,7 +2718,7 @@
           ]
         }
       ],
-      "sourceHash": "d57196a360730b167b836fafb7b4d3b0ee16913c6a8ef79690b16a102f0f5b5d"
+      "sourceHash": "b80cde07d3ca9b6d50ab2247c5eae2c71e8214734fdce3d1a2102118df0a73a2"
     }
   },
   "startingWorlds": {

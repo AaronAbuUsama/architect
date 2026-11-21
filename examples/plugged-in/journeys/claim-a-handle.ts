@@ -40,7 +40,7 @@ export default Blueprint.journey("claim a handle", {
       expect((a) => a.handle).toMatch(/^hdl_[0-9a-z]+$/),
       emits(HandleClaimed, { handle: s.last.handle, name: "firstpage" }),
       machine.isIn(s.last.handle, "claimed"),
-      spans({ present: ["handle.claim", "handle.claim.load", "handle.claim.record", "handle.claim.commit"] }),
+      spans({ present: ["handle.claim", "handle.claim.record", "handle.claim.commit"] }),
     ),
     s.step(
       "the name now resolves to a handle",
@@ -59,7 +59,7 @@ export default Blueprint.journey("claim a handle", {
       s.aaron.run(claim, { name: "secondpage" }),
       refuses(HandleAlreadyOwned),
       noEvents(),
-      spans({ absent: ["handle.claim.record"] }),
+      spans({ absent: ["handle.claim.commit"] }),
     ),
     s.step(
       "the refused second name is still free",

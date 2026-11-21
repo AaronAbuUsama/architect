@@ -11,11 +11,14 @@ const fixtures = join(import.meta.dirname, "../../../fixtures");
 
 const json = <A>(path: string): A => JSON.parse(readFileSync(path, "utf8")) as A;
 
-/** The captured evidence of a project. Acme has no captured run, so it has no CLI, MCP, spans or prove report. */
-export const evidenceOf = (name: "plugged-in" | "acme"): Promise<ProjectEvidence> => {
+/**
+ * The captured evidence of a project. Acme has no captured run, so it has no CLI, MCP, spans or prove report. `plugged-in-rules` is Plugged In as ST1.19 leaves it (a throwaway stand-in
+ * of the slice, captured on 21 November 2026): the evals of the invariant row judge it, because today's Plugged In declares no rule.
+ */
+export const evidenceOf = (name: "plugged-in" | "plugged-in-rules" | "acme"): Promise<ProjectEvidence> => {
   const dir = join(fixtures, name);
   const files = json<Readonly<Record<string, string>>>(join(dir, "files.json"));
-  const run = name === "plugged-in" ? json<Pick<ProjectEvidence, "cli" | "mcp" | "spans" | "prove">>(join(dir, "run.json")) : { cli: {}, mcp: undefined, spans: undefined, prove: undefined };
+  const run = name !== "acme" ? json<Pick<ProjectEvidence, "cli" | "mcp" | "spans" | "prove">>(join(dir, "run.json")) : { cli: {}, mcp: undefined, spans: undefined, prove: undefined };
   return Promise.resolve({ model: JSON.parse(files["generated/model/model.json"]!) as ProjectModel, files, portal: json<ProjectEvidence["portal"]>(join(dir, "portal.json")), ...run });
 };
 
