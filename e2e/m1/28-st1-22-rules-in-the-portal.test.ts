@@ -72,9 +72,12 @@ const all = (v: Verdicts) => [...v.section, ...v.sentences, ...v.refusals, ...v.
 describe("28 control: the fixture and the judge are sound", () => {
   it("the rules are read out of Plugged In's own `unique` entries, and the wire that carries them decodes and names them as G5's model does", async () => {
     const built = await withRules(pluggedIn, AS_THEY_STAND, true);
-    const unique = (pluggedIn as { model: { things: Record<string, { unique?: Record<string, { while?: ReadonlyArray<string> }> }> } }).model.things;
+    // Until ST1.19 the scope is read from the wire's one-liner; from it, from the rule the wire carries (both are the wire's own, never the check's).
+    const things = (pluggedIn as { model: { things: Record<string, { unique?: Record<string, { while?: ReadonlyArray<string> }>; invariants?: Record<string, { while?: ReadonlyArray<string> }> }> } }).model.things;
+    const scope = things["handle"]!.unique?.["name"]?.while ?? things["handle"]!.invariants?.["oneHolderPerName"]?.while;
+    expect(scope, "Plugged In's wire says where the name rule holds").toEqual(["claimed"]);
     expect(built.rules.map((r) => `${r.thing}.${r.name}`)).toEqual(["handle.oneHolderPerName", "handle.oneNamePerPerson", "profile.onePagePerHandle"]);
-    expect(built.rules.find((r) => r.name === "oneHolderPerName")?.while, "the scope is the wire's own").toEqual(unique["handle"]!.unique!["name"]!.while);
+    expect(built.rules.find((r) => r.name === "oneHolderPerName")?.while, "the scope is the wire's own").toEqual(scope);
     const model = built.wire.model;
     expect(model.operations["handle.claim"]!.invariants).toEqual({ HandleTaken: "handle.oneHolderPerName", HandleAlreadyOwned: "handle.oneNamePerPerson" });
     expect(model.operations["handle.claim"]!.errors, "an invariant's error leaves `errors` (G5 section 3)").toEqual([]);

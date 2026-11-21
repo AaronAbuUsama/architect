@@ -30,6 +30,10 @@ export interface OperationModel {
   readonly move: MoveModel | null;
   /** Every refusal a call can get: the declared ones and the runtime's own (`NotAllowed`). */
   readonly refusals?: ReadonlyArray<string>;
+  /** The errors the operation's handler is left to refuse (`errors:`); a rule's refusal is not among them (G5 section 3). */
+  readonly errors?: ReadonlyArray<string>;
+  /** From each refusal a rule owns, the rule that gives it: `{ HandleTaken: "handle.oneHolderPerName" }` (G5 section 3). */
+  readonly invariants?: Readonly<Record<string, string>>;
   readonly allowed: ReadonlyArray<{ readonly kind: string; readonly role?: string }>;
   readonly steps?: Readonly<Record<string, StepModel>>;
   readonly idempotent?: unknown;
@@ -41,6 +45,14 @@ export interface MachineModel {
   readonly moves: Readonly<Record<string, { readonly from: ReadonlyArray<string>; readonly to: ReadonlyArray<string>; readonly emits: string }>>;
   readonly notFrom: { readonly error: string; readonly exit: number; readonly code: string };
 }
+/** A rule of a thing (`Blueprint.invariant.unique`), as the model carries it under `things.<thing>.invariants.<rule>`. */
+export interface RuleModel {
+  readonly kind: string;
+  readonly fields: ReadonlyArray<string>;
+  readonly while?: ReadonlyArray<string>;
+  readonly refuse?: string;
+  readonly description?: string;
+}
 export interface ThingModel {
   readonly name: string;
   readonly identifier: string;
@@ -50,6 +62,10 @@ export interface ThingModel {
   readonly events?: Readonly<Record<string, Fields>>;
   readonly errors?: Readonly<Record<string, { readonly fields: Fields; readonly exit: number; readonly code: string }>>;
   readonly notFound?: { readonly error: string; readonly exit: number; readonly code: string };
+  /** The thing's rules by their own name (`oneHolderPerName`); a rule's full name is `<thing>.<rule>`. */
+  readonly invariants?: Readonly<Record<string, RuleModel>>;
+  /** G4's one-line `unique` view; ST1.20 retires it. */
+  readonly unique?: Readonly<Record<string, unknown>>;
 }
 export interface JourneyModel {
   readonly name: string;

@@ -683,7 +683,7 @@ device operation's spans reach the environment's sink, ledger `LAH-02`, before S
 
 ### 14. invariant
 
-**Waiting for the grid to learn `invariant`, then for ST1.19.** No journey touches an invariant card yet, and the grid cannot see one even when it does: `e2e/grid/src/modules/touches/service.ts` emits no `invariant` row and no evals exist for the block, so ST1.19's rules alone switch nothing on. The checks author adds both, beside ST1.19's checks (a line in the ST1.19 row's needs in `design/milestones.md`); the cards are then switched on by Plugged In's claim journey and their pairs go on `e2e/grid/expected-red.json`.
+**Waiting for the grid to learn `invariant`, then for ST1.19.** No journey touches an invariant card yet, and the grid cannot see one even when it does: `e2e/grid/src/modules/touches/service.ts` emits no `invariant` row and no evals exist for the block, so ST1.19's rules alone switch nothing on. The checks author adds both, beside ST1.19's checks (a line in the ST1.19 row's needs in `design/milestones.md`); the cards are then switched on by Plugged In's claim journey and their pairs go on `e2e/grid/expected-red.json`. Superseded by `ST1-19-checks.md`, 21 November 2026: the grid has learned `invariant` (the touches row, eight evals, `invariant.cli` held off), and the claim journey's switched-on cells and their 24 red pairs are on the lists.
 
 **Invariants (unique rules, G5).** A thing's rule that stays true among many records of it, declared once in `things/<thing>/invariants.ts` with `Blueprint.invariant.unique(field or tuple, { while, refuse, description })`. The runtime refuses for the handler; every output says the rule. Joined the grid on 20 November 2026 (ST1.10), graded from `goal/stage-1`.
 

@@ -18,13 +18,47 @@ export const cli = over("operation.cli", (op, e) => {
   ];
 });
 
-/** operation.mcp: one tool named as the operation, described as the model describes it, read-only exactly when it is a read. */
+/**
+ * What a tool's description says after the model's: one sentence `Refuses <Error> when <reason>.` for each refusal a rule gives the operation (G5, ST1.17),
+ * for exactly the errors the model's `invariants` names, each once, and nothing else. An operation no rule refuses for says no more than its own description.
+ */
+const ruleSentences = (rest: string, owed: ReadonlyArray<string>): ReadonlyArray<string> => {
+  // One sentence after another, each `Refuses <Error> when <reason>.` ending at the first full stop that is followed by a space or the end; whatever is left over is not one.
+  const names: Array<string> = [];
+  const odd: Array<string> = [];
+  const text = rest.trim();
+  for (let at = 0; at < text.length;) {
+    const sentence = /Refuses (\w+) when (\S[^]*?)\.(?= |$)/y;
+    sentence.lastIndex = at;
+    const found = sentence.exec(text);
+    if (found === null) { odd.push(text.slice(at)); break; }
+    names.push(found[1]!);
+    at = sentence.lastIndex;
+    while (text[at] === " ") at += 1;
+  }
+  return [
+    ...odd.map((s) => `"${s}" is not a "Refuses <Error> when <reason>." sentence`),
+    ...owed.filter((n) => !names.includes(n)).map((n) => `no sentence for ${n}, which a rule refuses for this operation`),
+    ...names.filter((n) => !owed.includes(n)).map((n) => `a sentence for ${n}, which no rule refuses for this operation`),
+    ...names.filter((n, i) => names.indexOf(n) !== i).map((n) => `${n} is said more than once`),
+  ];
+};
+/** A tool's description against the model's: the model's words, then only what `ruleSentences` allows. The problems, empty when it is right. */
+const descriptionProblems = (tool: string | undefined, model: string | undefined, owed: ReadonlyArray<string>): ReadonlyArray<string> => {
+  if (tool === undefined || model === undefined) return tool === model ? [] : [`the tool says "${tool ?? ""}", the model says "${model ?? ""}"`];
+  if (tool === model) return owed.length === 0 ? [] : [`the tool says only "${tool}", the model also owes a sentence for ${owed.join(", ")}`];
+  if (!tool.startsWith(`${model} `)) return [`the tool says "${tool}", the model says "${model}"`];
+  const problems = ruleSentences(tool.slice(model.length), owed);
+  return problems.length === 0 ? [] : [`the tool says "${tool}" after the model's "${model}": ${problems.join("; ")}`];
+};
+
+/** operation.mcp: one tool named as the operation, described as the model describes it (then a sentence for each refusal a rule owns), read-only exactly when it is a read. */
 export const mcp = over("operation.mcp", (op, e) => {
   if (e.mcp === undefined) return ["the MCP server's tools/list could not be read"];
   const tool = e.mcp.find((t) => t.name === op.name);
   if (tool === undefined) return [`tools/list has no tool ${op.name}`];
   return [
-    ...(tool.description === op.description ? [] : [`the tool says "${tool.description ?? ""}", the model says "${op.description ?? ""}"`]),
+    ...descriptionProblems(tool.description, op.description, Object.keys(op.invariants ?? {})),
     ...((tool.annotations?.readOnlyHint === true) === (op.kind === "read") ? [] : [`the tool is ${tool.annotations?.readOnlyHint === true ? "" : "not "}marked read-only, but the model's ${op.name} is ${op.kind === "read" ? "a read" : "an operation"}`]),
     ...(tool.inputSchema === undefined ? ["the tool has no input schema"] : []),
   ];

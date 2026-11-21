@@ -19,7 +19,7 @@ export default Blueprint.journey("a person claims a page and shares it", {
       expect((a) => a.handle).toMatch(/^hdl_[0-9a-z]+$/),
       emits(HandleClaimed, { handle: s.last.handle, name: "aaron" }),
       handle.isIn(s.last.handle, "claimed"),
-      spans({ present: ["handle.claim", "handle.claim.load", "handle.claim.record", "handle.claim.commit"] }),
+      spans({ present: ["handle.claim", "handle.claim.record", "handle.claim.commit"] }),
     ),
     s.step(
       "aaron adds his GitHub",
