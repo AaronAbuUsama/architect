@@ -213,5 +213,35 @@ expect "gate: no jobs is a usage error" 2 gate false
 expect "gate: a bad DOCS_ONLY is a usage error" 2 gate yes check-static=success
 expect "gate: an argument without a result is a usage error" 2 gate false check-static
 
+# required-jobs: no draft run can pass a required check (design/decisions/CI-drafts-race.md)
+wf() { # <body of one job, its keys indented four spaces>; prints the path of a workflow holding it as job `gate`
+  local f; f="$(mktemp "$scratch/wf.XXXX")"
+  printf 'name: ci\njobs:\n  other:\n    runs-on: ubuntu-latest\n  gate:\n%s\n    runs-on: ubuntu-latest\n' "$1" > "$f"
+  echo "$f"
+}
+req() { "$here/required-jobs.sh" "$@"; }
+dname="    name: \${{ github.event.pull_request.draft && 'gate (draft)' || 'gate' }}"
+dguard='    if: github.event.pull_request.draft != true'
+dguard_needs="    needs: other
+    if: \${{ github.event.pull_request.draft != true && !cancelled() }}"
+expect "required-jobs: the draft name and guard pass" 0 req "$(wf "$dname
+$dguard")" gate
+expect "required-jobs: with needs, the guard and !cancelled() pass" 0 req "$(wf "$dname
+$dguard_needs")" gate
+expect "required-jobs: this repository's ci.yml passes" 0 req "$here/../../.github/workflows/ci.yml" \
+  check e2e-layer1 e2e-layer2 e2e-m0 builder-paths
+expect "required-jobs: a plain name fails" 1 req "$(wf "    name: gate
+$dguard")" gate
+expect "required-jobs: no name fails" 1 req "$(wf "$dguard")" gate
+expect "required-jobs: another skip condition fails" 1 req "$(wf "$dname
+    if: github.event.pull_request.draft != true && endsWith(github.head_ref, '-build')")" gate
+expect "required-jobs: no draft guard fails" 1 req "$(wf "$dname")" gate
+expect "required-jobs: needs without !cancelled() fails" 1 req "$(wf "$dname
+    needs: other
+$dguard")" gate
+expect "required-jobs: a job not in the workflow fails" 1 req "$(wf "$dname
+$dguard")" nope
+expect "required-jobs: no job ids is a usage error" 2 req "$(wf "$dname")"
+
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi
 echo "all tools/ci cases pass"
