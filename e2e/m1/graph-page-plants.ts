@@ -37,6 +37,8 @@ export const PAGE: ReadonlyArray<PagePlant> = [
   { name: "an edge drawn twice", from: "g.edges.map(edge).join(\"\") + \"</div>\"", to: "g.edges.concat(g.edges).map(edge).join(\"\") + \"</div>\"", routes: [STRUCT], says: "is drawn 2 times" },
   { name: "an edge left out", from: "+ g.edges.map(edge).join(\"\") + \"</div>\"", to: "+ g.edges.slice(1).map(edge).join(\"\") + \"</div>\"", routes: [STRUCT, MAP], says: "is drawn 0 times" },
   { name: "an edge drawn between the wrong nodes", from: "data-from=\"' + e.from + '\"", to: "data-from=\"' + e.to + '\"", routes: [MAP], says: "is drawn" },
+  { name: "a move edge outside the `move` check 21 reads", from: 'const wrap = (inner) => e.kind === "move" ?', to: "const wrap = (inner) => false ?", routes: [STRUCT], says: "is not inside the `move`" },
+  { name: "a move whose wrapper counts what the edge does not", from: 'data-count="\' + (mode === "live" ? n : "") + \'">\' + inner', to: 'data-count="\' + (mode === "live" ? n + 1 : "") + \'">\' + inner', routes: [LIVE], says: "is not inside the `move`" },
   // the graph itself
   { name: "a graph nobody can see", from: "'<div data-portal=\"graph\" data-graph=\"'", to: "'<div hidden data-portal=\"graph\" data-graph=\"'", routes: [STRUCT, MAP], says: "draws 0 graphs" },
   { name: "a graph outside the lifecycle", from: "'<div data-portal=\"lifecycle\" data-thing=\"'", to: "'<div data-thing=\"'", routes: [STRUCT], says: "not inside the thing's `lifecycle`" },
@@ -48,7 +50,7 @@ export const PAGE: ReadonlyArray<PagePlant> = [
   { name: "live counts read from the wrong thing", from: "live[thing + \".\" + l]", to: "live[\"link.\" + l]", routes: [LIVE_H], says: "has count" },
   { name: "live counts missing", from: "n = live ? (live[thing + \".\" + l] ?? 0) : 0", to: "n = 0", routes: [LIVE], says: "has count" },
   { name: "live lit for a move made zero times", from: "mode === \"live\" ? n > 0", to: "mode === \"live\" ? true", routes: [LIVE_H], says: "has lit" },
-  { name: "structure that lights moves", from: ": false;\n      return", to: ": true;\n      return", routes: [STRUCT], says: "has lit true" },
+  { name: "structure that lights moves", from: ": false;\n      const wrap", to: ": true;\n      const wrap", routes: [STRUCT], says: "has lit true" },
   { name: "a lighting that says the wrong mode", from: "data-mode=\"' + mode + '\"", to: "data-mode=\"' + (mode === \"trace\" ? \"live\" : mode) + '\"", routes: [TRACE_L], says: "its lighting is live" },
   { name: "a trace that keeps a live count", from: "(mode === \"live\" && e.kind === \"move\" ? n : \"\")", to: "(e.kind === \"move\" ? n : \"\")", routes: [TRACE_L], says: "has count" },
   { name: "a trace that counts a refusal at the door", from: "!DOOR.includes(c.error)", to: "true", routes: [STRANGER], says: "has refused" },

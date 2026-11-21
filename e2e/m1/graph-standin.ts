@@ -34,7 +34,8 @@ Promise.all([fetch("/_portal/v1/blueprint").then((x) => x.json()), fetch("/_port
     const edge = (e) => {
       const l = e.label ?? "", t = trace[l] ?? { moved: [], refused: [] }, n = live ? (live[thing + "." + l] ?? 0) : 0;
       const lit = mode === "live" ? n > 0 : mode === "trace" ? t.moved.length + t.refused.length > 0 : false;
-      return '<span data-portal="graph-edge" data-edge="' + e.id + '" data-kind="' + e.kind + '" data-from="' + e.from + '" data-to="' + e.to + '" data-lit="' + lit + '" data-count="' + (mode === "live" && e.kind === "move" ? n : "") + '" data-moved="' + (mode === "trace" ? t.moved.join(",") : "") + '" data-refused="' + (mode === "trace" ? t.refused.join(",") : "") + '" style="position:absolute;left:' + e.points[0].x * SCALE + 'px;top:' + e.points[0].y * SCALE + 'px;font:10px sans-serif">' + esc(e.label ?? "") + "</span>";
+      const wrap = (inner) => e.kind === "move" ? '<span data-portal="move" data-move="' + l + '" data-lit="' + lit + '" data-count="' + (mode === "live" ? n : "") + '">' + inner + "</span>" : inner;
+      return wrap('<span data-portal="graph-edge" data-edge="' + e.id + '" data-kind="' + e.kind + '" data-from="' + e.from + '" data-to="' + e.to + '" data-lit="' + lit + '" data-count="' + (mode === "live" && e.kind === "move" ? n : "") + '" data-moved="' + (mode === "trace" ? t.moved.join(",") : "") + '" data-refused="' + (mode === "trace" ? t.refused.join(",") : "") + '" style="position:absolute;left:' + e.points[0].x * SCALE + 'px;top:' + e.points[0].y * SCALE + 'px;font:10px sans-serif">' + esc(e.label ?? "") + "</span>");
     };
     return '<div data-portal="graph" data-graph="' + id + '" data-mode="' + mode + '" data-width="' + g.width + '" data-height="' + g.height + '" style="position:relative;width:' + g.width * SCALE + 'px;height:' + g.height * SCALE + 'px;margin:30px">'
       + g.nodes.filter((n) => !n.parent).map(box).join("") + g.edges.map(edge).join("") + "</div>";

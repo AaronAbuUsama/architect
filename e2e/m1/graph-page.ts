@@ -4,6 +4,7 @@
 //   graph-node  data-node (the laid node's id), data-kind, data-parent ("" at the root), data-x, data-y, data-w, data-h (the laid numbers, as the data has them);
 //               the node's own text carries its label, and a state's text carries nothing else (no count, ever)
 //   graph-edge  data-edge (the laid edge's id), data-kind, data-from, data-to (node ids), data-lit "true"|"false", data-count (a number on a live move, else ""),
+//               a move edge sits inside the `move` check 21 reads (`data-portal="move"`, data-move the move's key, data-lit and data-count the edge's own), so the strip's hooks stay
 //               data-moved ("8,10": the trace's steps the move was made at, else ""), data-refused ("10:link.notFrom": step and refusal, else "")
 // Routes and lighting: `/portal/map`, `/portal/worlds`, and `/portal/things/<thing>` whose `lifecycle` holds the thing's machine graph (so checks 21 and 28
 // keep reading `lifecycle`); `?lighting=structure|live|trace` picks the lighting (default: live when the portal has `live`, else structure) and
@@ -20,7 +21,7 @@ const SCAN = `(() => {
     graph: a(g, "data-graph"), mode: a(g, "data-mode"), width: a(g, "data-width"), height: a(g, "data-height"),
     defaultBoxes: g.querySelectorAll('[class*="react-flow__node-default"],[class*="react-flow__node-input"],[class*="react-flow__node-output"]').length,
     nodes: q('[data-portal="graph-node"]', g).map((e) => ({ node: a(e, "data-node"), kind: a(e, "data-kind"), parent: a(e, "data-parent"), x: a(e, "data-x"), y: a(e, "data-y"), w: a(e, "data-w"), h: a(e, "data-h"), count: a(e, "data-count"), text: e.innerText.trim(), rect: r(e) })),
-    edges: q('[data-portal="graph-edge"]', g).map((e) => ({ edge: a(e, "data-edge"), kind: a(e, "data-kind"), from: a(e, "data-from"), to: a(e, "data-to"), lit: a(e, "data-lit"), count: a(e, "data-count"), moved: a(e, "data-moved"), refused: a(e, "data-refused") })),
+    edges: q('[data-portal="graph-edge"]', g).map((e) => ({ edge: a(e, "data-edge"), kind: a(e, "data-kind"), from: a(e, "data-from"), to: a(e, "data-to"), lit: a(e, "data-lit"), count: a(e, "data-count"), moved: a(e, "data-moved"), refused: a(e, "data-refused"), move: (() => { const w = e.closest('[data-portal="move"]'); return w === null ? null : { move: a(w, "data-move"), lit: a(w, "data-lit"), count: a(w, "data-count") }; })() })),
   });
   return {
     graphs: q('[data-portal="graph"]').map((g) => ({ ...graph(g), inLifecycle: g.closest('[data-portal="lifecycle"]') !== null })),
@@ -30,7 +31,7 @@ const SCAN = `(() => {
 })()`;
 
 export interface SeenNode { node: string | null; kind: string | null; parent: string | null; x: string | null; y: string | null; w: string | null; h: string | null; count: string | null; text: string; rect: { l: number; t: number; w: number; h: number } }
-export interface SeenEdge { edge: string | null; kind: string | null; from: string | null; to: string | null; lit: string | null; count: string | null; moved: string | null; refused: string | null }
+export interface SeenEdge { edge: string | null; kind: string | null; from: string | null; to: string | null; lit: string | null; count: string | null; moved: string | null; refused: string | null; move: { move: string | null; lit: string | null; count: string | null } | null }
 export interface SeenGraph { graph: string | null; mode: string | null; width: string | null; height: string | null; defaultBoxes: number; nodes: Array<SeenNode>; edges: Array<SeenEdge>; inLifecycle: boolean }
 export interface Seen { graphs: Array<SeenGraph>; lifecycles: number; status: string | null }
 
@@ -72,6 +73,7 @@ export const drawnProblems = (what: string, seen: SeenGraph | undefined, laid: L
     const drawn = eh.get(e.id) ?? [];
     if (drawn.length !== 1) { out.push(`${what}: edge "${e.id}" is drawn ${String(drawn.length)} times`); continue; }
     const d = drawn[0]!;
+    if (e.kind === "move" && (d.move === null || d.move.move !== e.label || d.move.lit !== d.lit || (d.move.count ?? "") !== (d.count ?? ""))) out.push(`${what}: edge "${e.id}" is not inside the \`move\` of its label "${e.label ?? ""}" (data-move, data-lit, data-count as the edge's own): check 21 reads the arrows there`);
     if (d.kind !== e.kind || d.from !== e.from || d.to !== e.to) out.push(`${what}: edge "${e.id}" is drawn ${String(d.kind)} ${String(d.from)} to ${String(d.to)}, the data says ${e.kind} ${e.from} to ${e.to}`);
   }
   for (const id of eh.keys()) if (!laid.edges.some((e) => e.id === id)) out.push(`${what}: the page draws edge "${id}", the data has none`);
