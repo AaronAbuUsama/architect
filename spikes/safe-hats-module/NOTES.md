@@ -77,3 +77,12 @@ STEP 5 DONE: All 13 Forge tests and the full Anvil script passed, including budg
    open risks. Calendar months depend on K23 and M8.
 
 STEP 6 DONE: All 14 Forge tests passed on the real module, and the seeded invariant caught the stale rollover mutant.
+
+7. **The stage-three budgets decision is drafted.** It proposes where the
+   budget, hat, spend, period and pending signature live. It names the chain
+   events and reads that the follower needs, and traces the agent's child hat
+   to the local run. Signature collection stays open for the workflows spike.
+   The draft points to both Goal 4 decisions on their branches and records
+   the calendar-month and regrant gaps for review.
+
+STEP 7 DONE: Drafted the stage-three budgets decision with verified source references and left signature collection open.
