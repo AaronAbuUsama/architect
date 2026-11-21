@@ -97,5 +97,5 @@ Every thread is one type, titled with its emoji; the skills are in `.agents/skil
 word for starting, messaging, reading and archiving a thread), `conductor` (the loop), `spike` (running a spike),
 `author` (writing journeys and checks, and proving each fair), `reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
 the process and the style guide) and `kanban` (the board Aaron and the conductor track every slice on, its data saved
-in the repo, and `STATE.md`, where the project stands). `.claude/skills` and `.claude/agents/reviewer.md`
+in the repo, and `STATE.md`, where the project stands). On `goal/on-chain`, `goal-4` is how Goal 4's lead works and resumes, with its own `STATE.md`. `.claude/skills` and `.claude/agents/reviewer.md`
 are links to it; edit them only in `.agents/skills/`.
