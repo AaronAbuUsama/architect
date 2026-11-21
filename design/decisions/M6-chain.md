@@ -178,6 +178,10 @@ generated base declares; the clients (SDK, CLI) are generated from it and never 
     { "entry": "get", "signature": "get(bytes32)", "selector": "0x…", "kind": "read", "operation": "allowance.get", "mutability": "view", "inputs": [/* … */], "outputs": [/* the read's fields, then state */], "role": null, "refusals": ["AL-901"], "events": [] },
     { "entry": "nonces", "signature": "nonces(address)", "selector": "0x…", "kind": "generated", "mutability": "view" },
     { "entry": "hasRole", "signature": "hasRole(bytes32,address)", "selector": "0x…", "kind": "generated", "mutability": "view" },
+    { "entry": "grantRole", "signature": "grantRole(bytes32,address)", "selector": "0x…", "kind": "generated", "mutability": "nonpayable", "refusals": ["AR-001"] },   // IAccessControl: NotAllowed unless the blueprint declares who grants (K25 item 4)
+    { "entry": "revokeRole", "signature": "revokeRole(bytes32,address)", "selector": "0x…", "kind": "generated", "mutability": "nonpayable", "refusals": ["AR-001"] },
+    { "entry": "renounceRole", "signature": "renounceRole(bytes32,address)", "selector": "0x…", "kind": "generated", "mutability": "nonpayable", "refusals": ["AR-001"] },
+    { "entry": "getRoleAdmin", "signature": "getRoleAdmin(bytes32)", "selector": "0x…", "kind": "generated", "mutability": "view" },
     { "entry": "eip712Domain", "signature": "eip712Domain()", "selector": "0x…", "kind": "generated", "mutability": "view" }
   ],
   "events": [
@@ -300,7 +304,7 @@ chain (Goal 3's seam note; slice 4's check).
 
 The compiler also refuses a name that would collide in the generated contract: a payload field named `signer`,
 `nonce`, `deadline` or `signature`; an operation whose entry name equals another's `<name>BySig`; and an operation or
-read named like a generated entry (`nonces`, `hasRole`, `eip712Domain`, `grantRole`, `revokeRole`).
+read named like a generated entry (`nonces`, `eip712Domain` and `IAccessControl`'s `hasRole`, `getRoleAdmin`, `grantRole`, `revokeRole`, `renounceRole`).
 
 ### 9. Reads of a chain-stored thing are public
 
