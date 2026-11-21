@@ -36,10 +36,11 @@ sign-in works, and drops Aaron's 19 November yes to a preview.
   🔍 reviewer that wrote none of it passing the whole branch), and Goal 3 carries on from its branch. This amends Goal
   3's "Landing" section, which had one merge at the end; the final merge at the done check stays.
 - **The staging environment** that Goal 3's staging workflow runs under exists on GitHub as `staging`, limited to
-  `main` and `goal/*` (set by the conductor, 21 November 2026). Its credentials stay the repository's, as Aaron set them.
+  `main` and `goal/*` (set by the conductor, 21 November 2026). Its credentials stay the repository's.
 - **`e2e-stage1` is a required check** on `goal/stage-1` (Aaron's yes in the same words; set 21 November 2026).
 
 ## Supersedes
 
 - `design/milestones.md`: "The npm org `@orthograph` is not needed until M7" → "The npm org `@orthograph` is not needed until the preview (M1.51, K28)"
 - `design/milestones.md` and `design/decisions/K10-factory.md` (dated, noted in place): "npm, Homebrew and the rest of M7 still wait on the stage 4 gate." → "npm's `latest` tag, Homebrew and the rest of M7 still wait on the stage 4 gate; the preview under `next` is M1.51 (K28)."
+- `design/goals/03-stage-1-hill-climbed.md` (Landing): "When the done check passes, open one pull request from `goal/stage-1` to `main`." → "Two merges. First the preview (K28): once Gate M1's slices are green on `goal/stage-1`, open one pull request from `goal/stage-1` to `main`."
