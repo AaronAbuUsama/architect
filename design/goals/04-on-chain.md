@@ -74,7 +74,9 @@ Rewritten by the lead at every merge into `goal/on-chain` (K32); `.agents/skills
 - **Landed:** slice 0 (K27); slice 1b, the chain decision ([#275](https://github.com/AaronAbuUsama/architect/pull/275)); slice 2, the budgets example, its
   seven journeys and the `e2e:on-chain` done check ([#276](https://github.com/AaronAbuUsama/architect/pull/276), [#279](https://github.com/AaronAbuUsama/architect/pull/279)); the goal-4 skill ([#284](https://github.com/AaronAbuUsama/architect/pull/284)).
 - **Open:** money, M6-money ([#287](https://github.com/AaronAbuUsama/architect/pull/287)); slice 3's checks ([#283](https://github.com/AaronAbuUsama/architect/pull/283), 🔍 passed); slice 3's build
-  (`goal-4/m610-build`, a draft when it opens); this merge of `main`.
+  (`goal-4/m610-build`, a draft when it opens); this merge of `goal/stage-1`, which brings CI-drafts. Effect 4.1.4
+  arrives through Goal 3's next merge of `main` (it changes acme's generated hashes, which the seam check holds to
+  `goal/stage-1`'s).
 - **Waits on:** slice 1 waits for Goal 3's sign-in extraction (M2.05) on `goal/stage-1` (K28). Snags S-01 to S-12 are
   open, each naming its slice.
 
