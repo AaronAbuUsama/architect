@@ -30,4 +30,8 @@ const read: TelemetryApi["read"] = (blueprint, live) =>
 const trace: TelemetryApi["trace"] = (live, id) =>
   attempt(live.source.find(id)).pipe(Effect.map((found) => found.state === "unavailable" ? found : { state: "available", value: found.value === undefined ? undefined : traceOf(id, found.value) }));
 
-export const Telemetry: TelemetryApi = { read, trace };
+const calls: TelemetryApi["calls"] = (blueprint, traces, environment, window) => callsOf(traces, environment, {}, kindsOf(blueprint), window).all;
+
+const identity: TelemetryApi["identity"] = (call) => `${call.trace}/${[...call.attemptSpans].sort().join(",")}`;
+
+export const Telemetry: TelemetryApi = { read, calls, identity, trace };
