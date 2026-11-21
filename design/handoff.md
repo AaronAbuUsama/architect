@@ -191,7 +191,7 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23, K28 · M0 ·
 
 **Also taken, off `main`:** K24 (UI SDK is the base, #217), K25 (the blueprint on chain), K26 (on-chain pulled forward), K27 (three plugin kinds), K29
 (the UI layer, #272, open), K30 (where the core ends, the repositories, declaring what you know, #185, open into `main`), G12 (a slice that changes acme's wire lands as a pair, #263, open),
-G9 to G11 (`goal/stage-1`), `M2-auth` (#263, #267), `M6-chain` (#275, #276, #279). `ST1-25-flakes` is a
+G9 to G11 (`goal/stage-1`), `M2-auth` (#263, #267), `M6-chain` (#275, #276, #279), `M7-03-infra-projection` (#282, open). `ST1-25-flakes` is a
 decision file; K29's ST1.25 is a slice id, and the two are unrelated.
 
 **Next free:** D5, E2, F10, G13, H3, K31, N2, O4, P2, R2, S32, W3. Never fill a gap (F3, F4, G2): it may have been handed out
