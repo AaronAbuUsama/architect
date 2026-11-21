@@ -7,7 +7,7 @@ branch: goal/on-chain
 base: goal/stage-1
 status: running        # ready | running | landing | done | parked
 lead:
-  harness: claude-code
+  harness: claude
   model: claude-opus-5-5
   since: 2026-11-21
 done_check: nx run e2e:on-chain
@@ -47,6 +47,24 @@ coordinates through git and GitHub (K32, K33): its milestone (`Goal 4: on chain`
 `release:1.0` label on every pull request and issue; the front matter above is what the sync reads (K33 item 5). New
 snags are Snag issues in the milestone; `04-snags.md` stays as the record of S-01 to S-12. Every comment Goal 4's
 agents post on GitHub starts with `[goal-4 · <role> · claude · <model>]`.
+
+## The goal, in plain words
+
+- **In one sentence:** Let an app keep some of its records on a blockchain, written in the same description as the
+  rest of it, so its contract, its client and its tests come from that description too.
+- **Why:** Capxul pays people from a shared wallet (a Safe) within limits. Today that contract and its client would be
+  written by hand beside the app, and nothing would keep them in step with the app's own rules.
+- **When it's done, you can:** describe an allowance (who may spend how much of which token from which Safe), write one
+  small rule in Solidity, and run the budgets example's journeys on a local chain: grant, spend within the limit, be
+  refused over it, revoke, each signed by the person who does it.
+- **It is:** a chain store, values with their Solidity types and money that knows its asset, the Solidity language that
+  writes the contract, a host that deploys it, the `safe` adapter, the client, a relayer and a follower, and the
+  budgets example that proves them.
+- **It isn't:** hats, owner signatures above a budget, agents spending, time on chain, a public test chain, Solana or
+  Noir, or the portal's chain views.
+- **Done when:** `nx run e2e:on-chain` passes in CI on `goal/on-chain`: every slice's check, every budgets journey on
+  Anvil, acme's and Plugged In's generated files unchanged, and every snag fixed or parked.
+- **Waits on:** slice 1 waits for Goal 3's sign-in extraction (M2.05). Everything else can run.
 
 ## Where it stands
 

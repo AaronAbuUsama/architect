@@ -80,7 +80,8 @@ review findings back to the author who wrote the check. In another harness, use 
 Every comment Goal 4's lead or its subagents post starts with `[goal-4 · <role> · claude · <model>]` (role: lead,
 author, builder, reviewer, hostile). Pull requests carry the milestone `Goal 4: on chain`, the labels `goal-4`,
 `release:1.0`, `role:<role>`, `harness:claude`, and the template's "Harness and model" line. A new snag is a Snag
-issue in the milestone. The brief's front matter is what `tools/github/sync.mjs` reads; keep `status` and `lead`
+issue in the milestone. When an agent takes a slice, it comments on the slice's issue: "Taking this: claude, <model>,
+<role>" (K33 item 4). The brief's front matter is what `tools/github/sync.mjs` reads; keep `status` and `lead`
 current.
 
 ## Talking to Aaron

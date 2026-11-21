@@ -36,7 +36,8 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 **`main` merged in** by [#303](https://github.com/AaronAbuUsama/architect/pull/303) (draft, 🔍 round 2): through Goal 3's own main merge (#277, now on
 `goal/stage-1`), then `origin/main`: CI-drafts (#293) and Effect 4.1.4 (#295) everywhere, the draft guard on
 `e2e-on-chain`, and the brief adopting K32 and K33 (front matter, "Where it stands", owned paths). When
-[#287](https://github.com/AaronAbuUsama/architect/pull/287) merges, its own row puts `M6-money` in the brief's decision list.
+[#287](https://github.com/AaronAbuUsama/architect/pull/287) merges, its own row puts `M6-money` in the brief's decision list. Slice 1b doesn't parse as a slice number in K33's
+`readSlice` (digits only), so the sync skips it; asked on [#301](https://github.com/AaronAbuUsama/architect/pull/301#issuecomment-7061949704) to accept `\d+[a-z]?`. Goal 4 keeps the name `1b`.
 
 ## Waiting on Aaron
 
