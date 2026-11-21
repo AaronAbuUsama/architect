@@ -53,6 +53,7 @@ what M2 builds, so the order costs parallel work and buys nothing.
 | `design/goals/03-stage-1-hill-climbed.md` | its quote of the old rule, rewritten; Goal 3's copy on `goal/stage-1` takes it when it merges `main` in |
 | K26 (dated record, on `goal/stage-1`) | a Superseded note on item 5, by a pull request Goal 3 merges |
 | `design/goals/map.md` | the goals and their needs, drawn from the cells above |
+| `design/docs/index.html`, the roadmap | its line on milestone order |
 
 ## Supersedes
 
@@ -60,3 +61,4 @@ what M2 builds, so the order costs parallel work and buys nothing.
 - `design/milestones.md`: "Gate M2, unchanged" → "none (K34): a decision; the engine is the one the workflows spike proved (#289)"
 - `design/milestones.md`: "M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it" → "M7.13: M7.01 alone (K34), and every other M7 slice needs it"
 - `design/milestones.md`: "Nothing in milestone n+1 starts until gate n" → "A milestone is done when its gate passes on `main` from a clean checkout, locally and in CI. A slice starts once what it `needs` has landed, in any milestone order (K34)."
+- `design/docs/index.html`: "Nothing in the next one starts until that gate" → "A slice starts once what it needs has landed, in any milestone order, and a milestone is done when its gate passes on `main` (K34)."
