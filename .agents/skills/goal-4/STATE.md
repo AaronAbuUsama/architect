@@ -11,6 +11,7 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 
 - `goal/on-chain` has stage 1 merged in at `37778735` ([#273](https://github.com/AaronAbuUsama/architect/pull/273), merged as `51c0bd87`), the snag log, and the branch's
   protection recorded.
+- The goal-4 skill and this file: **merged** 21 November 2026 ([#284](https://github.com/AaronAbuUsama/architect/pull/284), `ef768ce1`). Later notes ride the next pull request (CI-drafts).
 - Slice 0 (K27): done before the goal.
 - Slice 1 (the language and host seam): **held** until Goal 3's sign-in extraction (M2.05) merges on `goal/stage-1`
   (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start: M2.05's row in
@@ -28,7 +29,6 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 |---|---|---|---|
 | [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | CI (🔍 passed) |
 | [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | conflicts with `goal/on-chain` (merge it in), hostile pass, money's cases (after [#287](https://github.com/AaronAbuUsama/architect/pull/287)), 🔍 |
-| [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
 
 `e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
 
