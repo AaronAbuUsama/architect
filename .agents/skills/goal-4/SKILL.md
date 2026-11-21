@@ -11,7 +11,7 @@ memory.** Read it before anything else, and update it in the same pull request a
 
 ## Resume in this order
 
-Some files below arrive with open pull requests (`M6-chain.md` with #275, `e2e/on-chain/` with #279); until they
+Some files below arrive with open pull requests (`e2e/on-chain/` with #279); until they
 merge, read them on their branches (`git show origin/<branch>:<path>`, branches in STATE.md).
 
 

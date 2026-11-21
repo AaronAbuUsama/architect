@@ -4,8 +4,8 @@ Updated 21 November 2026 by the Goal 4 lead. Check against GitHub before acting 
 
 ## Hand-over in one line
 
-Lead Goal 4: read this file, then the goal-4 skill's "Resume in this order". Next action: merge the open pull requests
-below in order as CI goes green, then get slice 3 built.
+Lead Goal 4: read this file, then the goal-4 skill's "Resume in this order". Next action: merge [#279](https://github.com/AaronAbuUsama/architect/pull/279) when CI is
+green, then get slice 3 built.
 
 ## Where it stands
 
@@ -15,10 +15,9 @@ below in order as CI goes green, then get slice 3 built.
 - Slice 1 (the language and host seam): **held** until Goal 3's sign-in extraction (M2.05) merges on `goal/stage-1`
   (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start: M2.05's row in
   `git show origin/goal/stage-1:design/milestones.md` is ticked ✅, or `gh pr list --base goal/stage-1 --state merged --search M2.05`.
-- Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, [#275](https://github.com/AaronAbuUsama/architect/pull/275). 🔍 passed after two rounds; waiting on
-  CI, then merge.
-- Slice 2 (M6.02): the budgets blueprint and seven journeys, [#276](https://github.com/AaronAbuUsama/architect/pull/276) (🔍 passed); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
-  (hostile pass, two 🔍 rounds, passed). Both wait on CI and on [#275](https://github.com/AaronAbuUsama/architect/pull/275).
+- Slice 1b (the chain decision, M6.01): `design/decisions/M6-chain.md`, **merged** 21 November 2026 ([#275](https://github.com/AaronAbuUsama/architect/pull/275), `dee1926b`).
+- Slice 2 (M6.02): the budgets blueprint and seven journeys, **merged** 21 November 2026 ([#276](https://github.com/AaronAbuUsama/architect/pull/276), `b776818d`); the `e2e:on-chain` done check, [#279](https://github.com/AaronAbuUsama/architect/pull/279)
+  (hostile pass, two 🔍 rounds, passed), waits on CI. Its `e2e-on-chain` job has already run green.
 - Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass was running (a subagent of the old lead; if its result isn't on #283, run it again), then
   a 🔍 and a framework builder. Its build waits on the money answers.
 - Slices 4 to 12: not started.
@@ -27,9 +26,7 @@ below in order as CI goes green, then get slice 3 built.
 
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
-| [#275](https://github.com/AaronAbuUsama/architect/pull/275) | `goal-4/m6-chain` | the chain decision | CI |
-| [#276](https://github.com/AaronAbuUsama/architect/pull/276) | `goal-4/m602-journeys-check` | budgets blueprint and journeys | CI, [#275](https://github.com/AaronAbuUsama/architect/pull/275) |
-| [#279](https://github.com/AaronAbuUsama/architect/pull/279) | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI, [#276](https://github.com/AaronAbuUsama/architect/pull/276) |
+| [#279](https://github.com/AaronAbuUsama/architect/pull/279) | `goal-4/m602-target-check` | the `e2e:on-chain` done check | CI |
 | [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | hostile pass, 🔍, the money answers |
 | [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
 
@@ -53,6 +50,8 @@ After [#279](https://github.com/AaronAbuUsama/architect/pull/279) merges: add `e
   aren't checked against the key fields'.
 - Codex: `packages/projections/src/modules/server/internal/worker-config.ts:67`, rule index names differing only in case
   collide in SQLite.
+- Codex (on #283): `packages/language-effect/src/modules/records/internal/holder.ts:31`, the pre-commit unique-rule check
+  rescans every held row per row, cubic in a bulk write's size.
 
 ## Snags
 
