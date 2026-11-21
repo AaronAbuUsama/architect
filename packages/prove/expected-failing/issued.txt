@@ -1,0 +1,3 @@
+# HAN-15 (S-17): the answer-shape eval exempts an issued field from presence. Both tests pass once calls.ts requires every issued answer field.
+src/modules/evals/issued.test.ts > answer shape: an issued field must be on the answer > fails a sign-in answer that leaves out its issued token, naming the operation and the field
+src/modules/evals/issued.test.ts > answer shape: an issued field must be on the answer > fails an answer that leaves out every issued field
