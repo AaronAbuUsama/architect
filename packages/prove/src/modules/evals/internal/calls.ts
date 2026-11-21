@@ -146,13 +146,14 @@ export const steps: PerOperation = (op, evidence) =>
     return [...missing, ...late];
   }));
 
-/** 9. Every declared refusal, and every rule's refusal (the runtime's own, G5), has the log that decided it, inside the operation's span. A rule's log names the rule. */
+/** 9. Every declared refusal, and every rule's refusal (the runtime's own, G5), has the log that decided it, inside the operation's span. A rule's refusal names its rule on the span (`refusal.invariant`, its full name): log text is redacted of hidden values, so it is never matched. */
 export const explainability: PerOperation = (op, evidence) =>
   verdict("explainability", op.name, evidence.flatMap((e) => {
     const rule = e.refusal === undefined ? undefined : op.invariants?.[e.refusal];
     if (!e.refusal || (!op.errors.includes(e.refusal) && rule === undefined)) return [];
     const ids = new Set(subtree(e.trace, e.opSpan).map((s) => s.spanId));
-    const inside = e.trace.logs.filter((l) => ids.has(l.spanId));
-    if (rule !== undefined) return inside.some((l) => l.body.includes(rule)) ? [] : [`${where(e)}: ${e.refusal} has no deciding log naming ${rule}`];
-    return inside.length > 0 ? [] : [`${where(e)}: ${e.refusal} has no deciding log`];
+    if (!e.trace.logs.some((l) => ids.has(l.spanId))) return [`${where(e)}: ${e.refusal} has no deciding log`];
+    if (rule === undefined) return [];
+    const named = attr(e, "refusal.invariant");
+    return named === rule ? [] : [`${where(e)}: ${e.refusal} names ${typeof named === "string" ? named : "no rule"} on its span, not ${rule}`];
   }));
