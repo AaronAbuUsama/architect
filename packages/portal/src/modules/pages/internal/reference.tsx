@@ -4,6 +4,8 @@ import type { PortalData } from "../types.ts";
 import { refusalCount, refusalTotals, whyNot } from "./live.ts";
 import { eventsOf, refusalsOf } from "./model.ts";
 import { NotYet } from "./not-yet.tsx";
+import { refusalOwners } from "./rules.ts";
+import { Refusal } from "./rules.tsx";
 import { Page, Table, who } from "./parts.tsx";
 
 type Kind = "access" | "refusals" | "events" | "values" | "machines";
@@ -17,6 +19,7 @@ const Body = ({ data, kind }: { readonly data: PortalData; readonly kind: Kind }
   }
   if (kind === "refusals") {
     const why = whyNot(data, "metrics");
+    const owners = refusalOwners(blueprint);
     return (
       <>
       {why === undefined ? null : <p>Counts: <NotYet hole="metrics" what={why} /></p>}
@@ -31,10 +34,10 @@ const Body = ({ data, kind }: { readonly data: PortalData; readonly kind: Kind }
             const spansRead = totals !== undefined && totals.door !== null;
             // No metrics source: no count, no span claim, and the cells say `not yet`.
             return count === null ? (
-              <tr key={name} data-portal="ref-row" data-name={name} data-code={code}><td>{name}</td><td>{code}</td><td>not yet</td><td>not yet</td></tr>
+              <tr key={name} data-portal="ref-row" data-name={name} data-code={code}><td><Refusal name={name} owner={owners.get(name)} /></td><td>{code}</td><td>not yet</td><td>not yet</td></tr>
             ) : (
               <tr key={name} data-portal="ref-row" data-name={name} data-code={code} data-count={String(count)} {...(!spansRead && trace === null ? {} : { "data-span": trace === null ? "none" : "trace" })} {...(trace === null ? {} : { "data-trace": trace })}>
-                <td>{name}</td><td>{code}</td><td>{count}</td><td>{trace !== null ? <a href={`/portal/traces/${trace}`}>open the trace</a> : spansRead ? "no span" : "not yet"}</td>
+                <td><Refusal name={name} owner={owners.get(name)} /></td><td>{code}</td><td>{count}</td><td>{trace !== null ? <a href={`/portal/traces/${trace}`}>open the trace</a> : spansRead ? "no span" : "not yet"}</td>
               </tr>
             );
           })}

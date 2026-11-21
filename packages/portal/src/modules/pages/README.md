@@ -11,3 +11,10 @@ The things on home are `@orthograph/portal-ui` cards; the frame, the rail and th
 
 This module is the client half of the portal: React and portal-ui live here and nowhere else in `@orthograph/portal` (the lint rule
 `ortho/no-ui-in-worker` is off for it and on for the rest), and `vite build` bundles it, with HeroUI Pro, into `dist/client`.
+
+**Rules (ST1.22, G5).** A thing's page has a Rules section under its lifecycle (`rules.tsx`, `Rules`), one row per rule of `things.<t>.invariants`, and an
+Errors table. A refusal a rule owns reads as the rule's sentence with a link to the rule's row (`rules.tsx`, `Owned`, one markup on every surface: an
+operation's refusals, a thing's errors, the reference page, and the generated docs the pages embed). An operation that is not a read has a spine
+(`spine.tsx`), and one that can break a rule has a `rules` stop between its `move` and its `commit`. The sentence is `orthograph/sentences`'
+`ruleSentence`, the one the docs and MCP say; nothing here writes a rule's name or words. A rule's refusal appears once on an operation's page, in its
+refusals list, so the rules stop names rules and not refusals. Hooks: `design/decisions/ST1-22-rules-in-the-portal.md`.

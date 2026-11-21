@@ -4,6 +4,7 @@ import type { PortalData } from "../types.ts";
 import { Calls } from "./calls.tsx";
 import { environmentsOf, journeysCalling } from "./model.ts";
 import { NotYet } from "./not-yet.tsx";
+import { refusalOwners } from "./rules.ts";
 import { Cell, Docs, Table, noteOf } from "./parts.tsx";
 
 export const MetricsTab = ({ data, op }: { readonly data: PortalData; readonly op: OperationWire }) => (
@@ -44,7 +45,7 @@ export const ProofTab = ({ data, op }: { readonly data: PortalData; readonly op:
 };
 
 export const DocsTab = ({ data, op }: { readonly data: PortalData; readonly op: OperationWire }) => (
-  <Docs text={data.blueprint.docs[`${op.thing}/${op.verb}.md`]} />
+  <Docs text={data.blueprint.docs[`${op.thing}/${op.verb}.md`]} owners={refusalOwners(data.blueprint)} />
 );
 
 export const NotesTab = ({ op }: { readonly op: OperationWire }) => (

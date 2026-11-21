@@ -1,22 +1,3 @@
 {
-  "pairs": [
-    {
-      "cell": "invariant.portal",
-      "subject": "handle.oneHolderPerName",
-      "reason": "the thing's page has no Rules section, a refusal no link to its rule and an operation's spine no `rules` stop (check 28's hooks), and Plugged In declares no rule yet (ST1.19)",
-      "waitsOn": "ST1.22 and ST1.19: packages/portal/src/modules/wire/types.ts and the site's thing and operation pages (packages/portal/src/modules/site)"
-    },
-    {
-      "cell": "invariant.portal",
-      "subject": "handle.oneNamePerPerson",
-      "reason": "the thing's page has no Rules section, a refusal no link to its rule and an operation's spine no `rules` stop (check 28's hooks), and Plugged In declares no rule yet (ST1.19)",
-      "waitsOn": "ST1.22 and ST1.19: packages/portal/src/modules/wire/types.ts and the site's thing and operation pages (packages/portal/src/modules/site)"
-    },
-    {
-      "cell": "invariant.portal",
-      "subject": "profile.onePagePerHandle",
-      "reason": "the thing's page has no Rules section, a refusal no link to its rule and an operation's spine no `rules` stop (check 28's hooks), and Plugged In declares no rule yet (ST1.19)",
-      "waitsOn": "ST1.22 and ST1.19: packages/portal/src/modules/wire/types.ts and the site's thing and operation pages (packages/portal/src/modules/site)"
-    }
-  ]
+  "pairs": []
 }

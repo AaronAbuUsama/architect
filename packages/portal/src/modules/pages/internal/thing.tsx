@@ -4,13 +4,17 @@ import type { ThingWire } from "#modules/wire/types.js";
 import type { PortalData } from "../types.ts";
 import { Lifecycle } from "./lifecycle.tsx";
 import { journeysRunning, litOf, tallyOf } from "./live.ts";
-import { eventsOf } from "./model.ts";
-import { Docs, FieldRows, Page } from "./parts.tsx";
+import { eventsOf, refusalsOf } from "./model.ts";
+import { Docs, FieldRows, Page, Table } from "./parts.tsx";
+import { refusalOwners } from "./rules.ts";
+import { Refusal, Rules } from "./rules.tsx";
 
 export const ThingPage = ({ data, thing }: { readonly data: PortalData; readonly thing: ThingWire }) => {
   const { blueprint } = data;
   const ops = Object.values(blueprint.model.operations).filter((o) => o.thing === thing.name);
   const events = eventsOf(thing);
+  const owners = refusalOwners(blueprint);
+  const errors = Object.entries(thing.errors ?? {});
   return (
     <Page status={200} data={data} scope={`thing:${thing.name}`} operations={ops.map((o) => o.name)}>
       <h1>{thing.name}</h1>
@@ -19,10 +23,20 @@ export const ThingPage = ({ data, thing }: { readonly data: PortalData; readonly
       <h2>Fields</h2>
       <FieldRows fields={thing.fields} />
       {thing.machine ? <><h2>Machine</h2><Lifecycle data={data} thing={thing} counted /></> : null}
+      <Rules thing={thing} />
       {events.length > 0 ? (
         <>
           <h2>Events</h2>
           <ul>{events.map(([name, fields]) => <li key={name}>{`${name}: ${Object.entries(fields).map(([f, v]) => `${f} (${v.named ?? String(v.value["type"] ?? "?")})`).join(", ")}`}</li>)}</ul>
+        </>
+      ) : null}
+      {errors.length > 0 ? (
+        <>
+          <h2>Errors</h2>
+          <Table
+            head={["Error", "Code", "Exit"]}
+            rows={errors.map(([name, e]) => [<Refusal name={name} owner={owners.get(name)} code={refusalsOf(blueprint)[name] ?? e.code} />, refusalsOf(blueprint)[name] ?? e.code, String(e.exit)])}
+          />
         </>
       ) : null}
       {thing.roles.length > 0 ? <><h2>Roles</h2><ul>{thing.roles.map((r) => <li key={r}>{r}</li>)}</ul></> : null}
@@ -40,7 +54,7 @@ export const ThingPage = ({ data, thing }: { readonly data: PortalData; readonly
           );
         })}
       </ul>
-      <Docs text={blueprint.docs[`${thing.name}/index.md`]} />
+      <Docs text={blueprint.docs[`${thing.name}/index.md`]} owners={owners} />
     </Page>
   );
 };
