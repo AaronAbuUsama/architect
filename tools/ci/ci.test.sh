@@ -213,34 +213,47 @@ expect "gate: no jobs is a usage error" 2 gate false
 expect "gate: a bad DOCS_ONLY is a usage error" 2 gate yes check-static=success
 expect "gate: an argument without a result is a usage error" 2 gate false check-static
 
-# required-jobs: no draft run can pass a required check (design/decisions/CI-drafts-race.md)
+# required-jobs: no draft run, and no stale draft payload, can pass a required check (design/decisions/CI-drafts-race.md)
 wf() { # <body of one job, its keys indented four spaces>; prints the path of a workflow holding it as job `gate`
   local f; f="$(mktemp "$scratch/wf.XXXX")"
-  printf 'name: ci\njobs:\n  other:\n    runs-on: ubuntu-latest\n  gate:\n%s\n    runs-on: ubuntu-latest\n' "$1" > "$f"
+  printf 'name: ci\njobs:\n  ready:\n    runs-on: ubuntu-latest\n  other:\n    runs-on: ubuntu-latest\n  gate:\n%s\n    runs-on: ubuntu-latest\n' "$1" > "$f"
   echo "$f"
 }
 req() { "$here/required-jobs.sh" "$@"; }
-dname="    name: \${{ github.event.pull_request.draft && 'gate (draft)' || 'gate' }}"
-dguard='    if: github.event.pull_request.draft != true'
-dguard_needs="    needs: other
-    if: \${{ github.event.pull_request.draft != true && !cancelled() }}"
-expect "required-jobs: the draft name and guard pass" 0 req "$(wf "$dname
-$dguard")" gate
-expect "required-jobs: with needs, the guard and !cancelled() pass" 0 req "$(wf "$dname
-$dguard_needs")" gate
+dname="    name: \${{ needs.ready.outputs.draft != 'false' && 'gate (draft)' || 'gate' }}"
+dlive="    if: needs.ready.outputs.draft == 'false'"
+dlive_c="    if: \${{ needs.ready.outputs.draft == 'false' && !cancelled() }}"
+expect "required-jobs: ready, the live guard and the draft name pass" 0 req "$(wf "$dname
+    needs: ready
+$dlive")" gate
+expect "required-jobs: with other needs, the live guard and !cancelled() pass" 0 req "$(wf "$dname
+    needs: [ready, other]
+$dlive_c")" gate
 expect "required-jobs: this repository's ci.yml passes" 0 req "$here/../../.github/workflows/ci.yml" \
   check e2e-layer1 e2e-layer2 e2e-m0 builder-paths
 expect "required-jobs: a plain name fails" 1 req "$(wf "    name: gate
-$dguard")" gate
-expect "required-jobs: no name fails" 1 req "$(wf "$dguard")" gate
-expect "required-jobs: another skip condition fails" 1 req "$(wf "$dname
-    if: github.event.pull_request.draft != true && endsWith(github.head_ref, '-build')")" gate
-expect "required-jobs: no draft guard fails" 1 req "$(wf "$dname")" gate
-expect "required-jobs: needs without !cancelled() fails" 1 req "$(wf "$dname
+    needs: ready
+$dlive")" gate
+expect "required-jobs: a name keyed on the payload fails" 1 req "$(wf "    name: \${{ github.event.pull_request.draft && 'gate (draft)' || 'gate' }}
+    needs: ready
+$dlive")" gate
+expect "required-jobs: no name fails" 1 req "$(wf "    needs: ready
+$dlive")" gate
+expect "required-jobs: not needing ready fails" 1 req "$(wf "$dname
     needs: other
-$dguard")" gate
+$dlive_c")" gate
+expect "required-jobs: the payload's draft guard fails" 1 req "$(wf "$dname
+    needs: ready
+    if: github.event.pull_request.draft != true")" gate
+expect "required-jobs: another skip condition fails" 1 req "$(wf "$dname
+    needs: ready
+    if: needs.ready.outputs.draft == 'false' && endsWith(github.head_ref, '-build')")" gate
+expect "required-jobs: other needs without !cancelled() fail" 1 req "$(wf "$dname
+    needs: [ready, other]
+$dlive")" gate
 expect "required-jobs: a job not in the workflow fails" 1 req "$(wf "$dname
-$dguard")" nope
+    needs: ready
+$dlive")" nope
 expect "required-jobs: no job ids is a usage error" 2 req "$(wf "$dname")"
 
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi

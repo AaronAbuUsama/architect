@@ -14,12 +14,14 @@ up to date, so every merge to `main` made every open pull request into `main` ru
 
 ## The call
 
-1. **A draft pull request runs no CI.** Every job in `ci.yml` starts with `github.event.pull_request.draft != true`, and
+1. **A draft pull request runs no CI.** Every job in `ci.yml` starts with `github.event.pull_request.draft != true` (_Superseded by
+   CI-drafts-race, 21 November 2026: every job in `ci.yml` needs `ready`, which reads the pull request's live draft
+   state_), and
    `ready_for_review` starts a run. Open pull requests as drafts; mark one ready when its local checks are green and a
    🔍 reviewer has passed it (the reviewer reads the draft's diff). Push after that only to answer review or CI. A draft
    cannot merge, so a skipped job on a draft never lets anything through. (_Superseded by CI-drafts-race, 21 November
-   2026: a draft-payload run can arrive after the ready one; it has its own concurrency group, and its skipped jobs
-   carry names no required check matches._)
+   2026: a draft-payload run can arrive after the ready one, and its suite is the one branch protection reads; every
+   job now goes by the live draft state._)
 2. **Test locally first.** Before marking ready, run the checks the change touches on your machine (`nx affected` or the
    named targets), and push once rather than once per fix.
 3. **`main` no longer requires up to date** (`strict: false`, set 21 November 2026). `main`'s own push run still checks

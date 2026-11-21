@@ -60,8 +60,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   request may not touch journeys, evals or checks. On a docs-only pull request `e2e-layer1` and `e2e-layer2`
   pass without running their steps (`design/decisions/CI-docs-fast-path.md`). Open pull requests as drafts: a draft runs no CI, so test
   locally, get the 🔍 pass, then mark it ready and CI runs once; keep at most two ready pull requests per lane in CI at
-  once (`design/decisions/CI-drafts.md`). A run whose payload still says draft can never pass a required check or
-  cancel the ready run (`design/decisions/CI-drafts-race.md`). Bring a branch up to date by merging its base in, never by
+  once (`design/decisions/CI-drafts.md`). CI goes by the pull request's live draft state, never the event's payload, so a
+  push just before `gh pr ready` still runs CI (`design/decisions/CI-drafts-race.md`). Bring a branch up to date by merging its base in, never by
   rebasing, so the commits a reviewer already read keep their identity.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
