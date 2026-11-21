@@ -70,6 +70,38 @@ describe("who a credential is (M2-auth, fork 2 and 3)", () => {
   });
 });
 
+describe("an agent's key at its rate-limit boundary (review of #297, round 2)", () => {
+  it("never reads as a person: one read of the key decides, and a key that cannot be read is no one", { timeout: 60_000 }, async () => {
+    const instance = AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, worlds: true });
+    const as = (authorization: string, door: "api" | "mcp" = "api") => Effect.runPromise(Effect.flatMap(Principals, (p) => p.of(authorization, door)).pipe(Effect.provide(AuthD1.layer(instance))));
+    const mail = `limit.${crypto.randomUUID().slice(0, 8)}@example.test`;
+    const person = (await Effect.runPromise(Effect.flatMap(Auth, (x) => x.signUp({ email: mail, password: "correct horse battery", name: "Limit" })).pipe(Effect.provide(AuthD1.layer(instance))))).person;
+    const { token } = await Effect.runPromise(AuthD1.credential(instance, { kind: "agent", person }));
+    const kinds = (seen: ReadonlyArray<{ readonly kind: string; readonly via?: string }>) => seen.map((p) => (p.kind === "person" ? `person/${p.via}` : p.kind));
+    // Past the boundary one at a time (the plugin allows 10 requests a window), then a burst across it.
+    // One call at the MCP door first takes a single slot, so the API door's double charge lands its last slot on the second read of the key.
+    const serial: Array<{ readonly kind: string; readonly via?: string }> = [await as(`Bearer ${token}`, "mcp")];
+    for (let i = 0; i < 14; i++) serial.push(await as(`Bearer ${token}`));
+    const burst = await Promise.all(Array.from({ length: 20 }, () => as(`Bearer ${token}`)));
+    const seen = kinds([...serial, ...burst]);
+    expect(seen.filter((k) => k.startsWith("person")), seen.join(" ")).toEqual([]);
+    expect(seen[0], "the first reads as an agent").toBe("agent");
+    expect(new Set(seen), "past the boundary it is no one, never a person").toEqual(new Set(["agent", "anonymous"]));
+  });
+
+  it("a key whose mark cannot be read is no one, and one with no mark is a person by key", { timeout: 30_000 }, async () => {
+    const instance = AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, worlds: true });
+    const as = (authorization: string) => Effect.runPromise(Effect.flatMap(Principals, (p) => p.of(authorization, "api")).pipe(Effect.provide(AuthD1.layer(instance))));
+    const mail = `closed.${crypto.randomUUID().slice(0, 8)}@example.test`;
+    const person = (await Effect.runPromise(Effect.flatMap(Auth, (x) => x.signUp({ email: mail, password: "correct horse battery", name: "Closed" })).pipe(Effect.provide(AuthD1.layer(instance))))).person;
+    const plain = await Effect.runPromise(AuthD1.credential(instance, { kind: "key", person }));
+    const marked = await Effect.runPromise(AuthD1.credential(instance, { kind: "agent", person }));
+    expect((await as(`Bearer ${plain.token}`)).kind).toBe("person");
+    await env.DB.prepare(`UPDATE "auth_apikey" SET "metadata" = 'not json' WHERE "referenceId" = ? AND "metadata" IS NOT NULL`).bind(person).run();
+    expect(await as(`Bearer ${marked.token}`)).toEqual({ kind: "anonymous" });
+  });
+});
+
 describe("a key at Better Auth's own routes (snag 446)", () => {
   it("is refused at every route, by header or by bearer, and a session is not", { timeout: 30_000 }, async () => {
     const instance = AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET });

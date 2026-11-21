@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Option, Schema } from "effect";
 import { Auth, AuthRefused, Principals, type PrincipalDoor } from "@orthograph/language-effect";
 import type { Principal } from "orthograph";
 import type { AuthD1Api, AuthInstance, CastMember } from "./types.ts";
@@ -13,17 +13,41 @@ const ANONYMOUS: Principal = { kind: "anonymous" };
 const call = <A>(a: AuthInstance, f: (auth: BetterAuth) => Promise<A>) =>
   Effect.tryPromise({ try: () => held(a).auth().then(f), catch: (e) => e });
 
-/** Whether a key was made for an agent: its mark, which only the world (and, from M2.07, `api-key.create`) puts there. */
-const madeForAnAgent = (a: AuthInstance, key: string) =>
-  call(a, (auth) => auth.api.verifyApiKey({ body: { key } })).pipe(
-    Effect.map((r) => r.valid && (r.key?.metadata as { readonly acts?: unknown } | null | undefined)?.acts === ACTS_FOR_AN_AGENT),
-    Effect.orElseSucceed(() => false),
+/** What a key row says of whose hands it is: marked for an agent, plain, or a row that cannot be read (which is no one's). */
+type Mark = "agent" | "plain" | "unreadable";
+
+const Acts = Schema.Struct({ acts: Schema.optionalKey(Schema.Unknown) });
+const parseMark = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.NullOr(Acts)));
+
+/**
+ * The mark of the key Better Auth just resolved: read from that key's own row (`session.id` is the key's id), once, with no second
+ * `verifyApiKey` to charge the key's rate limit again. Fails closed: a row that is missing, or whose metadata cannot be read, is
+ * `unreadable`, and an unreadable key is no one (review of #297, round 2).
+ */
+const markOf = (a: AuthInstance, keyId: string): Effect.Effect<Mark> =>
+  Effect.tryPromise(() => held(a).db.prepare(`SELECT "metadata" FROM "auth_apikey" WHERE "id" = ?`).bind(keyId).first<{ metadata: string | null }>()).pipe(
+    Effect.map((row): Mark => {
+      if (row === null) return "unreadable";
+      if (row.metadata === null || row.metadata === "") return "plain";
+      const parsed = parseMark(row.metadata);
+      return Option.isNone(parsed) ? "unreadable" : parsed.value?.acts === ACTS_FOR_AN_AGENT ? "agent" : "plain";
+    }),
+    Effect.orElseSucceed((): Mark => "unreadable"),
   );
 
 /**
- * Who a credential is (M2-auth, fork 2). A session token is a person by session; an `ak_` key is a person by key, or an agent when it
- * was made for one; a world's token is the system or a service, where worlds are hosted. At the MCP door every credential makes an
- * agent for its person. Nothing, or a credential that is not good, is anonymous, never an error.
+ * The one place a resolved person becomes a principal, for every door (M2-auth, fork 2): a session is a person by session; a key is a person
+ * by key, or an agent when its row says so; a key whose row cannot be read is no one; at the MCP door every credential is an agent.
+ */
+const principalFor = (who: { readonly person: string; readonly email: string }, way: "session" | "key", mark: Mark, door: PrincipalDoor): Principal =>
+  mark === "unreadable" ? ANONYMOUS
+  : door === "mcp" || mark === "agent" ? { kind: "agent", ...who, via: "agent" }
+  : { kind: "person", ...who, via: way };
+
+/**
+ * Who a credential is. A session token is a person by session; an `ak_` key is a person by key, or an agent when it was made for one; a
+ * world's token is the system or a service, where worlds are hosted. Nothing, or a credential that is not good or cannot be read, is
+ * anonymous, never an error and never a person.
  */
 const principalOf = (a: AuthInstance, authorization: string | undefined, door: PrincipalDoor = "api"): Effect.Effect<Principal> => {
   const credential = authorization?.match(/^Bearer\s+(\S+)$/i)?.[1];
@@ -35,9 +59,7 @@ const principalOf = (a: AuthInstance, authorization: string | undefined, door: P
     Effect.flatMap((s): Effect.Effect<Principal> => {
       if (!s) return Effect.succeed(ANONYMOUS);
       const who = { person: s.user.id, email: s.user.email };
-      return (door === "mcp" || !isKey ? Effect.succeed(door === "mcp") : madeForAnAgent(a, credential)).pipe(
-        Effect.map((agent): Principal => (agent ? { kind: "agent", ...who, via: "agent" } : { kind: "person", ...who, via: isKey ? "key" : "session" })),
-      );
+      return (isKey ? markOf(a, s.session.id) : Effect.succeed<Mark>("plain")).pipe(Effect.map((mark) => principalFor(who, isKey ? "key" : "session", mark, door)));
     }),
     Effect.orElseSucceed(() => ANONYMOUS),
   );
