@@ -26,33 +26,53 @@ owns:
   - packages/auth/
   - packages/organizations/
 slices:
-  - "M1.12a · the request key on every attempt's span, with check 38 (#281)"
-  - "M1.49 · monitoring derived from the model, check 39 (#290)"
-  - "M1.50 · one Graph for machines, the map and the worlds, check 40 (#280)"
-  - "M7.03 and M7.04 · staging up and destroy through Alchemy, and prove --env staging (#282, #291)"
-  - "S-35 · the unique check indexed by rule and key, not cubic (#292)"
-  - "M1.15 · Gate M1, then the preview merge into main"
-  - "M2.02 · journeys for both plugins (#267, #297)"
-  - "M2.03 · the five principals, paired with M2.02's principal part (#297)"
-  - "M2.04 · secrets by declaration"
-  - "M2.05 · auth, identity (with M2.24 and M2.25)"
-  - "M2.06 · auth, ways in (with M2.26)"
-  - "M2.07 · organizations (with M2.18, M2.22 and M2.23)"
-  - "M2.08 · journeys through the clients"
-  - "M2.09 · ortho new scaffolds Plugged In (with M2.27)"
-  - "M2.10 · ortho new feature and publish --local"
-  - "M2.11 · the work app mounts auth"
-  - "M2.05b · the host's Better Auth removed"
-  - "ST1.03, ST1.04, ST1.06 to ST1.08 · stage 1's own slices"
-  - "M2.13 to M2.22 · the rest of M2"
-  - "M2.12 · Gate M2, the stage 1 gate"
-  - "The staging run, then the stage 1 merge into main"
+  - "1 · M1.12a, the request key on every attempt's span, with check 38 (#281)"
+  - "2 · M1.49, monitoring derived from the model, check 39 (#290)"
+  - "3 · M1.50, one Graph for machines, the map and the worlds, check 40 (#280)"
+  - "4 · M7.03 and M7.04, staging up and destroy through Alchemy, and prove --env staging (#282, #291)"
+  - "5 · S-35, the unique check indexed by rule and key, not cubic (#292)"
+  - "6 · M1.15, Gate M1, then the preview merge into main (after 1, 2, 3, 4, 5)"
+  - "7 · M2.02, journeys for both plugins (#267, #297)"
+  - "8 · M2.03, the five principals, paired with M2.02's principal part (#297)"
+  - "9 · M2.04, secrets by declaration"
+  - "10 · M2.05, auth, identity (with M2.24 and M2.25)"
+  - "11 · M2.06, auth, ways in (with M2.26)"
+  - "12 · M2.07, organizations (with M2.18, M2.22 and M2.23)"
+  - "13 · M2.08, journeys through the clients"
+  - "14 · M2.09, ortho new scaffolds Plugged In (with M2.27)"
+  - "15 · M2.10, ortho new feature and publish --local"
+  - "16 · M2.11, the work app mounts auth"
+  - "17 · M2.05b, the host's Better Auth removed (after 16)"
+  - "18 · ST1.03, ST1.04, ST1.06 to ST1.08, stage 1's own slices"
+  - "19 · M2.13 to M2.22, the rest of M2"
+  - "20 · M2.12, Gate M2, the stage 1 gate (after 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)"
+  - "21 · The staging run, then the stage 1 merge into main (after 6, 20)"
 ---
 # Goal 3: stage 1 of Plugged In, hill-climbed through its journeys
 
 **To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 3. Read `AGENTS.md` and
 `design/goals/03-stage-1-hill-climbed.md`, and run it." Nothing else is needed. Milestone `Goal 3: stage 1, hill-climbed`, label
 `release:beta` (K33). The front matter above is what the sync reads; this file stays the whole context (K32).
+
+## The goal, in plain words
+
+- **In one sentence:** Take the example app, Plugged In, to its first release: every journey a person or an agent
+  takes through it passes on this computer, in test and on a real staging site, with sign-in and organizations built in.
+- **Why:** The framework's parts each pass their own checks, but no real app has been built with them from end to end
+  yet. Running one app's journeys is how we find what is missing, and we fix it in the framework, not in the app.
+- **When it's done, you can:** start a new app from the starter, sign in as a person or as an agent, join an
+  organization, claim a name and add links, and send the app to a short-lived staging site that is torn down after.
+- **It is:** the framework's last first-release pieces, its first staging deploy, and the sign-in and organizations
+  work, each landed with its checks written first by someone who didn't build it.
+- **It isn't:** the web building blocks or the new portal (two other goals), anything on a blockchain (its own goal),
+  or a production deploy.
+- **Done when:** the example app's first-release checks all pass on this goal's branch, and the branch merges into the
+  main line for the first beta.
+- **Waits on:** nothing to start. The early preview waits on the first milestone's checks passing; the blockchain goal
+  waits on our sign-in work.
+- **Words used:** a journey: one thing a person or an agent does, written as steps a test runs. Staging: a real copy
+  of the app on Cloudflare, made for one run and destroyed after. Hill-climbing: run every journey, fix the framework
+  where one fails, and run again.
 
 ## Aaron's words, 19 November 2026
 
