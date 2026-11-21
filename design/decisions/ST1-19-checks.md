@@ -48,6 +48,11 @@ and none on G4's spelling, a claim handler that looks nothing up and names neith
 which rule decided (`refusal.invariant`), and the committed `generated/model/model.json` as `ortho generate` writes it. The test that proves prove green and the journeys' refusals passes
 today (a guard); the other six are listed in `e2e/m1/expected-failing/34-st1-19-plugged-in-declares-its-rules.txt`.
 
+**Known gaps of check 34** (the hostile pass of 21 November 2026; each is a wrong build no climber writes, so by G7's scope call 4 it is a line here and not a fix): an operation the build adds
+that refuses by hand with an error of its own (it names neither `HandleTaken` nor `HandleAlreadyOwned`, maps no rule, and `link.add`-style calls to it are not the claim); an error built at run time
+out of two strings, which no name search reads (a computed access on `Errors.declared` is refused); a handler that annotates a span with another name. What a handler can say in `src` about the two
+refusals, about `refusal.invariant` and `refusal.log` and about `findBy`'s old spelling is read in every file of `src`, not only the four the slice names.
+
 ## Supersedes
 
 - e2e/grid/README.md: "Plugged In's seven stage 1 journeys switched on 53 cells (7 rows, 316 cell-and-subject pairs)." → "Plugged In's seven stage 1 journeys switched on 61 cells (8 rows, 331 cell-and-subject pairs"

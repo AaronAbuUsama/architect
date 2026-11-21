@@ -85,7 +85,7 @@ describe("invariant.portal: the Rules section, the refusal's link and the spine 
     expect(has(why("portal", T, withPage(pluggedIn, thing, 'data-while="claimed" data-refuse="HandleTaken"', 'data-while="claimed,released" data-refuse="HandleTaken"')), 'data-while is "claimed,released"')).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, thing, 'data-refuse="HandleTaken"', 'data-refuse=""')), 'data-refuse is ""')).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, thing, ' id="rule-oneHolderPerName"', "")), "the row has no id")).toBe(true);
-    expect(has(why("portal", T, withPage(pluggedIn, thing, ' id="rule-oneNamePerPerson"', ' id="rule-oneHolderPerName"')), "is on more than one row")).toBe(true);
+    expect(has(why("portal", T, withPage(pluggedIn, thing, ' id="rule-oneNamePerPerson"', ' id="rule-oneHolderPerName"')), "is on more than one element")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, thing, /<span data-portal="rule-sentence">another[^<]*<\/span>/, "")), "has 0 sentences")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, thing, /(<span data-portal="rule-sentence">another[^<]*<\/span>)/, "$1$1")), "has 2 sentences")).toBe(true);
   });
@@ -100,7 +100,7 @@ describe("invariant.portal: the Rules section, the refusal's link and the spine 
   });
   it("a refusal on the operation's page that is missing, says another rule, has no link, links elsewhere, has no sentence or the wrong one", () => {
     expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-refusal="HandleTaken"', 'data-refusal="HandleGone"')), "shows HandleTaken 0 times")).toBe(true);
-    expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-refusal="HandleTaken" data-rule="handle.oneHolderPerName"', 'data-refusal="HandleTaken" data-rule="handle.oneNamePerPerson"')), 'says its rule is "handle.oneNamePerPerson"')).toBe(true);
+    expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-refusal="HandleTaken" data-rule="handle.oneHolderPerName"', 'data-refusal="HandleTaken" data-rule="handle.oneNamePerPerson"')), "shows HandleTaken 0 times")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-portal="rule-link"', 'data-portal="link"')), "has 0 links to its rule")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, 'href="/portal/things/handle#rule-oneHolderPerName"', 'href="/portal/things/handle#rule-oneNamePerPerson"')), "not to the rule's row")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, 'href="/portal/things/handle#rule-oneHolderPerName"', 'href="/portal/things/link#rule-oneHolderPerName"')), "not to the rule's row")).toBe(true);
@@ -110,7 +110,7 @@ describe("invariant.portal: the Rules section, the refusal's link and the spine 
   it("a spine with no rules stop, one out of place, one naming another rule, or two", () => {
     expect(has(why("portal", T, withPage(pluggedIn, claim, /<li data-portal="spine-stop" data-stop="rules"[^>]*>rules<\/li>/, "")), "needs one rules stop between move and commit")).toBe(true);
     expect(has(why("portal", T, withPage(pluggedIn, claim, /<ol>.*<\/ol>/, '<ol><li data-portal="spine-stop" data-stop="rules" data-rules="handle.oneHolderPerName">rules</li><li data-portal="spine-stop" data-stop="move">move</li><li data-portal="spine-stop" data-stop="commit">commit</li></ol>')), "needs one rules stop")).toBe(true);
-    expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-rules="handle.oneHolderPerName,handle.oneNamePerPerson"', 'data-rules="handle.oneNamePerPerson"')), 'names "handle.oneNamePerPerson", not handle.oneHolderPerName')).toBe(true);
+    expect(has(why("portal", T, withPage(pluggedIn, claim, 'data-rules="handle.oneHolderPerName,handle.oneNamePerPerson"', 'data-rules="handle.oneNamePerPerson"')), "the model says the operation can break handle.oneHolderPerName, handle.oneNamePerPerson")).toBe(true);
   });
   it("a rule that refuses nothing needs only its row", () => {
     expect(why("portal", P)).toEqual([]);

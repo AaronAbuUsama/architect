@@ -8,8 +8,12 @@ const otherRefusals = (e: ProjectEvidence, f: Found) => Object.keys(f.thing.erro
 /** The sentence of a refusals-table row's `when` cell: what comes before `; by the rule <name>`. */
 const whenSentence = (when: string, full: string) => {
   const at = when.indexOf("; by the rule");
-  return { sentence: (at < 0 ? when : when.slice(0, at)).trim(), byRule: Reading.hasName(at < 0 ? "" : when.slice(at), full) };
+  // `by the rule <name>` names this rule and no other.
+  return { sentence: (at < 0 ? when : when.slice(0, at)).trim(), byRule: at >= 0 && when.slice(at + "; by the rule".length).trim().replace(/\.$/, "") === full };
 };
+
+/** A markdown page as it reads: fenced code and comments are no part of it. */
+const clean = (text: string) => text.replace(/```[^]*?```/g, "").replace(/<!--[^]*?-->/g, "");
 
 /**
  * invariant.docs: the thing's page has an Invariants section with one bullet that names the rule in full, its key fields, the states it holds in, its sentence
@@ -17,10 +21,12 @@ const whenSentence = (when: string, full: string) => {
  * in its Refusals table whose `when` is the rule's sentence "; by the rule <name>".
  */
 export const docs = over("invariant.docs", (f, e) => {
-  const page = e.files[`generated/docs/${f.thing.name}/index.md`];
-  if (page === undefined) return [`generated/docs/${f.thing.name}/index.md was not generated`];
+  const raw = e.files[`generated/docs/${f.thing.name}/index.md`];
+  if (raw === undefined) return [`generated/docs/${f.thing.name}/index.md was not generated`];
+  const page = clean(raw);
   const section = Reading.mdSection(page, "Invariants");
   if (section === undefined) return [`the ${f.thing.name} page has no Invariants section`];
+  const headings = (page.match(/^##\s+Invariants\s*$/gm) ?? []).length;
   const bullets = Reading.mdBullets(section).filter((b) => Reading.hasName(b, f.full));
   const bullet = bullets[0];
   const colon = bullet === undefined ? -1 : bullet.indexOf(":");
@@ -30,6 +36,7 @@ export const docs = over("invariant.docs", (f, e) => {
   const after = sentenceEnd < 0 ? "" : rest.slice(sentenceEnd);
   const states = f.rule.while ?? [];
   return [
+    ...(headings > 1 ? [`the ${f.thing.name} page has ${headings} Invariants sections, it needs one`] : []),
     ...(bullet === undefined ? [`the Invariants section has no bullet for ${f.full}`] : [
       ...(bullets.length > 1 ? [`the Invariants section has ${bullets.length} bullets for ${f.full}`] : []),
       ...sentenceProblems(e, f, own, `${f.full}'s bullet`),
@@ -37,12 +44,14 @@ export const docs = over("invariant.docs", (f, e) => {
       ...states.filter((s) => !Reading.hasName(after, s)).map((s) => `${f.full}'s bullet does not say it holds while ${s}`),
       ...(f.rule.refuse === undefined ? [] : Reading.hasName(after, f.rule.refuse) ? [] : [`${f.full}'s bullet does not say it refuses ${f.rule.refuse}`]),
       ...otherRefusals(e, f).filter((x) => Reading.hasName(after, x)).map((x) => `${f.full}'s bullet names ${x}, which it does not refuse`),
+      ...Object.keys(f.thing.fields).filter((x) => !f.rule.fields.includes(x) && Reading.hasName(after, x)).map((x) => `${f.full}'s bullet names ${x}, which is not in its key`),
+      ...(f.thing.machine?.states ?? []).filter((x) => !states.includes(x) && Reading.hasName(after, x)).map((x) => `${f.full}'s bullet names the state ${x}, which it does not hold in`),
       ...(f.rule.refuse === undefined && !/\b(nothing|no refusal|defect)\b/i.test(after) ? [`${f.full}'s bullet does not say the rule refuses nothing`] : []),
     ]),
     ...(f.rule.refuse === undefined ? [] : f.breakers.flatMap((op) => {
       const opPage = e.files[`generated/docs/${op.thing}/${op.verb}.md`];
       if (opPage === undefined) return [`generated/docs/${op.thing}/${op.verb}.md was not generated`];
-      const rows = Reading.mdRecords(Reading.mdSection(opPage, "Refusals") ?? "").filter((r) => Reading.hasName(r["refusal"] ?? "", f.rule.refuse!));
+      const rows = Reading.mdRecords(Reading.mdSection(clean(opPage), "Refusals") ?? "").filter((r) => Reading.hasName(r["refusal"] ?? "", f.rule.refuse!));
       if (rows.length !== 1) return [`${op.name}'s page has ${rows.length} Refusals rows for ${f.rule.refuse}, it needs one`];
       const when = whenSentence(rows[0]!["when"] ?? "", f.full);
       return [
@@ -62,7 +71,7 @@ export const mcp = over("invariant.mcp", (f, e) => {
   const tools = e.mcp;
   const refuse = f.rule.refuse;
   const docsRow = (op: { readonly thing: string; readonly verb: string }) =>
-    refuse === undefined ? undefined : Reading.mdRecords(Reading.mdSection(e.files[`generated/docs/${op.thing}/${op.verb}.md`] ?? "", "Refusals") ?? "").find((r) => Reading.hasName(r["refusal"] ?? "", refuse));
+    refuse === undefined ? undefined : Reading.mdRecords(Reading.mdSection(clean(e.files[`generated/docs/${op.thing}/${op.verb}.md`] ?? ""), "Refusals") ?? "").find((r) => Reading.hasName(r["refusal"] ?? "", refuse));
   return [
     ...(refuse === undefined ? tools.filter((t) => /\bwhen\b/.test(t.description ?? "") && (t.description ?? "").includes(f.full)).map((t) => `${t.name} says something of ${f.full}, a rule that refuses nothing`) : f.breakers.flatMap((op) => {
       const tool = tools.find((t) => t.name === op.name);
@@ -72,6 +81,7 @@ export const mcp = over("invariant.mcp", (f, e) => {
       const fromDocs = docsRow(op) === undefined ? "" : whenSentence(docsRow(op)!["when"] ?? "", f.full).sentence;
       return [
         ...sentenceProblems(e, f, said[0]!, `${op.name}'s tool`),
+        ...(fromDocs === "" && f.rule.description === undefined ? [`${op.name}'s docs page has no sentence for ${refuse}, so the tool's cannot be the same one`] : []),
         ...(fromDocs === "" || said[0]!.replace(/\.$/, "") === fromDocs.replace(/\.$/, "") ? [] : [`${op.name}'s tool says "${said[0]!.replace(/\.$/, "")}", the docs say "${fromDocs.replace(/\.$/, "")}": one sentence in both`]),
       ];
     })),
@@ -93,8 +103,10 @@ export const telemetry = over("invariant.telemetry", (f, e) => {
   return [
     ...(refused.length === 0 ? [`no span has refusal=${refuse}: the refused call was not traced`] : []),
     ...refused.filter((s) => s.attrs["refusal.invariant"] !== f.full).map((s) => `span ${s.name} has refusal ${refuse} and refusal.invariant ${String(s.attrs["refusal.invariant"] ?? "none")}, expected ${f.full}`),
+    ...(code === undefined ? [`the model has no code for ${refuse}`] : []),
+    ...refused.filter((s) => !f.breakers.some((op) => op.name === s.attrs["operation"])).map((s) => `span ${s.name} refuses ${refuse} for operation ${String(s.attrs["operation"] ?? "none")}, which the model says cannot break the rule`),
     ...refused.filter((s) => s.attrs["refusal.code"] !== code).map((s) => `span ${s.name} has refusal.code ${String(s.attrs["refusal.code"] ?? "none")}, expected ${code ?? "the model's code"}`),
-    ...refused.filter((s) => typeof s.attrs["refusal.log"] !== "string" || !Reading.hasName(s.attrs["refusal.log"], f.full)).map((s) => `span ${s.name}'s deciding log line is "${String(s.attrs["refusal.log"] ?? "")}", it should say which rule decided (${f.full}): the runtime writes it, not the handler`),
+    ...refused.filter((s) => typeof s.attrs["refusal.log"] !== "string" || !s.attrs["refusal.log"].startsWith(`${f.full}:`)).map((s) => `span ${s.name}'s deciding log line is "${String(s.attrs["refusal.log"] ?? "")}", it should begin "${f.full}:", the rule that decided: the runtime writes it, not the handler`),
     ...named.filter((s) => s.attrs["refusal"] !== refuse).map((s) => `span ${s.name} names ${f.full} and refuses ${String(s.attrs["refusal"] ?? "nothing")}, not ${refuse}`),
   ];
 });

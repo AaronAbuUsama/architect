@@ -9,23 +9,27 @@
 // `unique:` is gone), and the runtime, not the handler, refuses (the refused calls' spans say which rule decided: `refusal.invariant`).
 // Written by the checks author; a builder never edits this file (AGENTS.md, "Journeys and checks come first").
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { FileSource } from "@orthograph/prove";
 import { Effect } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { freePort } from "./clients.ts";
 import * as L from "./loop.ts";
-import { REFUSALS, WANTED, claimProblems, code, operationProblems, readProblems, ruleProblems, type ModelView, type Sources } from "./rules-plugged-in.ts";
+import { REFUSALS, WANTED, claimProblems, code, operationProblems, ownedProblems, readProblems, ruleProblems, type ModelView, type Sources } from "./rules-plugged-in.ts";
 import { cli } from "../layer1/support.ts";
 import { nothingRunning, repo } from "./support.ts";
 
 const example = join(repo, "examples/plugged-in");
 const source = (path: string) => readFileSync(join(example, path), "utf8");
-const sourcesOf = (read: (path: string) => string): Sources => ({
-  "profile.get": read("src/profile/get.ts"), "handle.resolve": read("src/handle/resolve.ts"), "link.add": read("src/link/add.ts"), "handle.claim": read("src/handle/claim.ts"),
-  others: { "handle.release": read("src/handle/release.ts"), "link.order": read("src/link/order.ts"), "link.remove": read("src/link/remove.ts") },
+/** Every `.ts` file under `src`, by its path from the project: a handler is anywhere a handler can import from. */
+const srcFiles = (root: string): Readonly<Record<string, string>> => Object.fromEntries(readdirSync(join(root, "src"), { recursive: true, encoding: "utf8" }).filter((p) => p.endsWith(".ts")).sort().map((p) => [`src/${p}`, readFileSync(join(root, "src", p), "utf8")]));
+const sourcesOf = (files: Readonly<Record<string, string>>): Sources => ({
+  "profile.get": files["src/profile/get.ts"] ?? "", "handle.resolve": files["src/handle/resolve.ts"] ?? "", "link.add": files["src/link/add.ts"] ?? "", "handle.claim": files["src/handle/claim.ts"] ?? "",
+  others: Object.fromEntries(Object.entries(files).filter(([p]) => !["src/profile/get.ts", "src/handle/resolve.ts", "src/link/add.ts", "src/handle/claim.ts"].includes(p))),
 });
+/** Every file under `generated/` of a project, by its path from `generated/`; what a tool leaves in a dot-folder (`.wrangler`) is no output. */
+const generatedFiles = (root: string): Readonly<Record<string, string>> => Object.fromEntries(readdirSync(join(root, "generated"), { recursive: true, withFileTypes: true }).filter((d) => d.isFile()).map((d) => join(d.parentPath, d.name).slice(join(root, "generated").length + 1)).filter((path) => !/(^|\/)\./.test(path)).sort().map((p) => [p, readFileSync(join(root, "generated", p), "utf8")]));
 
 // ---- controls: the readers, planted ----
 
@@ -96,6 +100,14 @@ describe("34 controls: the readers pass what is right and refuse each thing plan
     expect(readProblems(planted("handle.resolve", (s) => s.replace("const held = records.findBy(oneHolderPerName, name);", "// records.findBy(oneHolderPerName, name)")))).toContain("handle.resolve does not find through findBy(oneHolderPerName, …)");
     expect(readProblems({ ...goodSources(), others: { "link.order": 'records.findBy(Handle, "owner", p)' } })).toEqual([`link.order still finds by G4's findBy(Thing, "field", …)`]);
   });
+  it("src: either refusal named in any file, or the runtime's span attributes written by a handler; not in a comment", () => {
+    expect(ownedProblems({ "src/handle/guard.ts": "return yield* new (Errors.declared as any)(\"x\"); // HandleTaken" })).toEqual([]);
+    expect(ownedProblems({ "src/handle/guard.ts": "const e = new HandleTaken({});" })).toEqual(["src/handle/guard.ts names HandleTaken: the runtime refuses it, for the rules"]);
+    expect(ownedProblems({ "src/x.ts": "import { HandleAlreadyOwned } from '../blueprint/things/handle/errors.ts';" })).toHaveLength(1);
+    expect(ownedProblems({ "src/x.ts": 'Effect.annotateCurrentSpan({ "refusal.invariant": "handle.oneHolderPerName", "refusal.log": "x" })' })).toHaveLength(2);
+    expect(ownedProblems({ "src/handle/guard.ts": 'return yield* new (Errors.declared as any)["Handle" + "Taken"]({});' })).toEqual(["src/handle/guard.ts picks a declared error by a computed name, which no name search can read"]);
+    expect(ownedProblems({ "src/handle/claim.ts": "const claim = records.insert(Handle, { id, name, owner });" })).toEqual([]);
+  });
   it("claim: a lookup left in it, either refusal named in code, even in the destructuring that fetches the errors; not a comment", () => {
     expect(claimProblems("const holder = yield* steps.load(records.findBy(Handle, 'name', name));")[0]).toContain("still looks a holder up");
     expect(claimProblems("return yield* new HandleTaken({});")).toEqual(["handle.claim's handler still names HandleTaken"]);
@@ -151,8 +163,10 @@ describe("34 ST1.19: Plugged In declares its rules", () => {
     expect(operationProblems(proved.model!)).toEqual([]);
   });
 
-  it("keeps the committed generated model as `ortho generate` writes it, so the grid and the portal read this commit's rules", () => {
-    expect(JSON.parse(readFileSync(join(example, "generated/model/model.json"), "utf8"))).toEqual(JSON.parse(readFileSync(join(proved.copy!.root, "generated/model/model.json"), "utf8")));
+  it("keeps the committed generated/ as `ortho generate` writes it, file for file, so the grid, the docs and the portal read this commit's rules", () => {
+    const committed = generatedFiles(example);
+    const fresh = generatedFiles(proved.copy!.root);
+    expect({ files: Object.keys(committed), differing: Object.keys(committed).filter((p) => committed[p] !== fresh[p]) }).toEqual({ files: Object.keys(fresh), differing: [] });
   });
 
   it("leaves no one-line `unique:` entry, `new HandleTaken` or `new HandleAlreadyOwned` anywhere in examples/plugged-in (`git grep -n`, as the slice words it)", () => {
@@ -161,11 +175,12 @@ describe("34 ST1.19: Plugged In declares its rules", () => {
   });
 
   it("finds the page through findBy(onePagePerHandle, …) in profile.get, and every other read (handle.resolve, link.add) through its rule too, none on G4's spelling", () => {
-    expect(readProblems(sourcesOf(source))).toEqual([]);
+    expect(readProblems(sourcesOf(srcFiles(example)))).toEqual([]);
   });
 
   it("leaves the refusals to the runtime: handle.claim's handler looks nothing up and names neither HandleTaken nor HandleAlreadyOwned", () => {
     expect(claimProblems(source("src/handle/claim.ts"))).toEqual([]);
+    expect(ownedProblems(srcFiles(example)), "no file of `src` refuses for the rules or writes the runtime's span attributes").toEqual([]);
   });
 
   it("is proved green by `ortho prove`, with the claim journeys that refuse both rules still passing", () => {

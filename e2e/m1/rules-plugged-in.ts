@@ -75,6 +75,17 @@ export const readProblems = (src: Sources): ReadonlyArray<string> => {
   ];
 };
 
+/**
+ * What the runtime owns, in every file of the project's `src`: neither refusal is named in code (a handler that refuses by hand in a file of its own, or one the claim imports, is the same
+ * defect as one in `claim.ts`), and no handler writes the attributes the runtime puts on a refused call's span (`refusal.invariant`, `refusal.log`): they say which rule decided.
+ */
+export const ownedProblems = (files: Readonly<Record<string, string>>): ReadonlyArray<string> =>
+  Object.entries(files).flatMap(([name, text]) => [
+    ...["HandleTaken", "HandleAlreadyOwned"].filter((n) => new RegExp(`\\b${n}\\b`).test(code(text))).map((n) => `${name} names ${n}: the runtime refuses it, for the rules`),
+    ...["refusal.invariant", "refusal.log"].filter((a) => code(text).includes(a)).map((a) => `${name} writes ${a}, which the runtime writes on a refused call`),
+    ...(/\bdeclared\b[^\n;]*\[/.test(code(text)) ? [`${name} picks a declared error by a computed name, which no name search can read`] : []),
+  ]);
+
 /** The claim handler leaves the refusals to the runtime: it looks nothing up and names neither error in code. */
 export const claimProblems = (claim: string): ReadonlyArray<string> => [
   ...(/\bfindBy\(/.test(code(claim)) ? ["handle.claim still looks a holder up with findBy: the runtime refuses for the rules"] : []),

@@ -91,7 +91,7 @@ describe("invariant.server: the index, the mount, the served map and prove", () 
   const sql = "generated/server/migrations/0001_things.sql";
   it("no index, an index on other columns, a wider scope, a narrower scope, a full table when the rule is scoped, a partial one when it is not", () => {
     expect(has(why("server", "handle.oneHolderPerName", withText(pluggedIn, sql, /CREATE UNIQUE INDEX "handle_oneHolderPerName"[^\n]*\n/, "")), 'no unique index "handle_oneHolderPerName"')).toBe(true);
-    expect(has(why("server", "handle.oneHolderPerName", withText(pluggedIn, sql, 'ON "handle" ("name") WHERE', 'ON "handle" ("owner") WHERE')), "is over (owner), the rule's key is (name)")).toBe(true);
+    expect(has(why("server", "handle.oneHolderPerName", withText(pluggedIn, sql, 'ON "handle" ("name") WHERE', 'ON "handle" ("owner") WHERE')), 'is over ("owner"), the rule\'s key is ("name")')).toBe(true);
     expect(has(why("server", "handle.oneHolderPerName", withText(pluggedIn, sql, `("name") WHERE "state" IN ('claimed')`, `("name") WHERE "state" IN ('claimed', 'released')`)), "holds while claimed, released, the rule while claimed")).toBe(true);
     expect(has(why("server", "handle.oneHolderPerName", withText(pluggedIn, sql, `("name") WHERE "state" IN ('claimed')`, `("name")`)), "holds in every state")).toBe(true);
     expect(has(why("server", "profile.onePagePerHandle", withText(pluggedIn, sql, `ON "profile" ("handle");`, `ON "profile" ("handle") WHERE "state" IN ('x');`)), "is partial")).toBe(true);

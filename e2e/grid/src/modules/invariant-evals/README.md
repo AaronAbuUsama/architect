@@ -32,5 +32,9 @@ the fixture with `capture --out <folder> --run` when Plugged In declares its own
 ## Known gaps
 
 - The portal eval reads the markup's hooks, not what a person sees: a row hidden with CSS passes (check 28 judges visibility in Chromium).
+- Forms no generator emits, found by the hostile pass of 21 November 2026 and not built: two things declaring one error name (the compiler's collision check), an endpoint's `error: [X]` written inside an
+  earlier string literal, `invariantsIn("<thing>",` only in dead code or a quoted string, an SDK call file that is empty, an index with an expression for a column that the strict column check does not name,
+  `refusal.log` wording beyond starting with the rule's name, a refused call that opened no handler span (an idempotent replay: the refused spans are not counted against the journeys' refusing steps).
+- A rule that refuses nothing is covered on the tool side by `operation.mcp` (a sentence that no rule refuses for an operation is red), not by `invariant.mcp`.
 - `invariant.sdk` does not run the TypeScript checker over the SDK's error union (`error.sdk` does not either): it reads the endpoint's error list the SDK's types derive from.
 - A rule with a composite key (a tuple) is judged by the same rules, but no project has one yet: no planted case.
