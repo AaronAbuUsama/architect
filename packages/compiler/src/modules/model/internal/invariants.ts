@@ -97,7 +97,7 @@ export interface Acting {
 /**
  * The rules an operation can break (G5, section 3): its move on the rule's thing can end in a `while` state (any move, for a rule with
  * no `while`); one of its database steps names the thing in `writes`; or the thing has no machine, and the operation is on it and has a
- * database step. `refusals` maps each broken rule's refusal to the rule's full name; `breaks` is every rule broken, refusal or not.
+ * database step that leaves `writes` unset (unknown; `writes: []` is reads only, S31). `refusals` maps each broken rule's refusal to the rule's full name; `breaks` is every rule broken, refusal or not.
  */
 export const breakersOf = (op: Acting, things: Readonly<Record<string, ThingModel>>): { readonly refusals: Readonly<Record<string, string>>; readonly breaks: ReadonlyArray<string> } => {
   const database = Object.values(op.steps).filter((s) => s.type === "database");
@@ -108,7 +108,7 @@ export const breakersOf = (op: Acting, things: Readonly<Record<string, ThingMode
       const own = op.thing === thing;
       const byMove = own && op.move !== null && (rule.while === undefined || op.move.to.some((s) => rule.while!.includes(s)));
       const byWrites = database.some((s) => s.writes?.includes(thing));
-      const bare = own && t.machine === null && database.length > 0;
+      const bare = own && t.machine === null && database.some((s) => s.writes === undefined);
       if (!byMove && !byWrites && !bare) continue;
       breaks.push(`${thing}.${name}`);
       if (rule.refuse !== undefined) refusals[rule.refuse] = `${thing}.${name}`;

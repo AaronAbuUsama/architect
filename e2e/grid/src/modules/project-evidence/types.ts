@@ -34,6 +34,8 @@ export interface OperationModel {
   readonly errors?: ReadonlyArray<string>;
   /** From each refusal a rule owns, the rule that gives it: `{ HandleTaken: "handle.oneHolderPerName" }` (G5 section 3). */
   readonly invariants?: Readonly<Record<string, string>>;
+  /** Every rule the operation can break, `<thing>.<rule>`, whether or not the rule owns a refusal (S31). Absent in a model captured before S31: then `invariants` is what it can break. */
+  readonly breaks?: ReadonlyArray<string>;
   readonly allowed: ReadonlyArray<{ readonly kind: string; readonly role?: string }>;
   readonly steps?: Readonly<Record<string, StepModel>>;
   readonly idempotent?: unknown;

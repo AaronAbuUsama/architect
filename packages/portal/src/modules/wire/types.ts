@@ -50,6 +50,8 @@ const Operation = Schema.Struct({
   errors: Schema.Array(Schema.String),
   /** Each refusal the runtime makes for a rule, to the rule's full name (`HandleTaken` to `handle.oneHolderPerName`, G5); absent when the operation breaks none. These refusals are also in `refusals`. */
   invariants: Schema.optionalKey(Schema.Record(Schema.String, Schema.String)),
+  /** Every rule the operation can break, as `<thing>.<rule>`, whether or not it owns a refusal (S31); absent on an older wire. */
+  breaks: Schema.optionalKey(Schema.Array(Schema.String)),
   refusals: Schema.Array(Schema.String),
   allowed: Schema.Array(Schema.Struct({ kind: Schema.String, role: Schema.optionalKey(Schema.String), path: Schema.optionalKey(Schema.String) })),
   steps: Schema.Record(Schema.String, Schema.Struct({ name: Schema.String, type: Schema.String })),
