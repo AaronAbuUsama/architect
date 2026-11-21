@@ -38,3 +38,5 @@ own. GitHub's merge queue would batch merges, but it needs the repository in an 
 - `design/decisions/CI-docs-fast-path.md` (dated, noted in place): "**Main stays strict.**" → "`main` no longer requires up to date; its own push run checks every merge"
 - `design/decisions/CI-branch-protection.md` (dated, noted in place): "the branch must contain the current `main` before it merges" → "`false` on `main` now"
 - `.agents/skills/threads/SKILL.md`: "CI ran on a head that includes the" → "CI is green on the head that will merge; the target branch's own push run checks every merge"
+- `design/decisions/CI-speed.md` (dated, noted in place): "Still no." → "turned off; `main`'s own push run checks every merge"
+- `design/decisions/CI-speed.md` (dated, noted in place): "`main` is strict" → "`main` is not strict since 21 November"
