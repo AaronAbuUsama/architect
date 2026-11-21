@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import { resolve } from "node:path";
 import { StagingRefused } from "../types.ts";
 import { appOf } from "./app.ts";
-import { prefixOf, RUN, stagingUrl } from "./plan.ts";
+import { owns, prefixOf, RUN, stagingUrl } from "./plan.ts";
 
 const LABEL = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
 /** This machine only, as `ORTHO_STAGING_API` is for the lister: a stray variable cannot send a proof somewhere else. */
@@ -13,6 +13,10 @@ export interface Address {
   readonly url: string;
   /** What a refusal calls it: `run r4417`. */
   readonly label: string;
+  /** `ortho-<app>-stg-<run>`: the name every resource of the run starts with. */
+  readonly prefix: string;
+  /** Whether a name (a database's) belongs to the run. */
+  readonly owns: (name: string) => boolean;
 }
 
 /**
@@ -31,14 +35,11 @@ export const proveAddress = (options: {
       return yield* new StagingRefused({ message: `--run needs a run id of 1 to 20 lower-case letters and digits (got ${run === undefined ? "none" : JSON.stringify(run)})` });
     }
     const label = `run ${run}`;
-    if (origin !== undefined) {
-      const at = LOOPBACK.exec(origin)?.[1];
-      if (at === undefined) return yield* new StagingRefused({ message: `ORTHO_STAGING_ORIGIN must be an http address on this machine (localhost or 127.0.0.1), got ${JSON.stringify(origin)}` });
-      return { url: at, label };
-    }
-    if (subdomain === undefined || !LABEL.test(subdomain)) {
+    const at = origin === undefined ? undefined : LOOPBACK.exec(origin)?.[1];
+    if (origin !== undefined && at === undefined) return yield* new StagingRefused({ message: `ORTHO_STAGING_ORIGIN must be an http address on this machine (localhost or 127.0.0.1), got ${JSON.stringify(origin)}` });
+    if (at === undefined && (subdomain === undefined || !LABEL.test(subdomain))) {
       return yield* new StagingRefused({ message: `ORTHO_STAGING_SUBDOMAIN is ${subdomain === undefined ? "not set" : `not a subdomain (${JSON.stringify(subdomain)})`}: one label of lower-case letters, digits and dashes, 1 to 63, not starting or ending with a dash` });
     }
-    const app = yield* appOf(resolve(options.root));
-    return { url: stagingUrl(prefixOf(app, run), subdomain), label };
+    const prefix = prefixOf(yield* appOf(resolve(options.root)), run);
+    return { url: at ?? stagingUrl(prefix, subdomain!), label, prefix, owns: (name: string) => owns(prefix, name) };
   });

@@ -76,7 +76,7 @@ describe("staging up and destroy", () => {
     expect(await at("r1", undefined)).toMatch(/ORTHO_STAGING_SUBDOMAIN/);
     expect(await at("r1", "a.b")).toMatch(/ORTHO_STAGING_SUBDOMAIN/);
     expect(await at("r1", "acme", "http://example.com")).toMatch(/ORTHO_STAGING_ORIGIN/);
-    expect(await Effect.runPromise(proveAddress({ root: "/nowhere", run: "r1", subdomain: undefined, origin: "http://127.0.0.1:8787/" }))).toEqual({ url: "http://127.0.0.1:8787", label: "run r1" });
+    expect(await Effect.runPromise(proveAddress({ root, run: "r1", subdomain: undefined, origin: "http://127.0.0.1:8787/" }))).toMatchObject({ url: "http://127.0.0.1:8787", label: "run r1", prefix: "ortho-pluggedin-stg-r1" });
   });
 
   it("destroy deletes what the run's prefix owns, matched at a dash, and nothing else", async () => {

@@ -89,7 +89,7 @@ const prove = Command.make(
     const proved = env === "staging"
       ? proveAddress({ root, run: Option.getOrUndefined(run), subdomain: process.env[Names.variable("STAGING_SUBDOMAIN")], origin: process.env[Names.variable("STAGING_ORIGIN")] }).pipe(
           Effect.mapError((e) => e.message),
-          Effect.flatMap(({ url, label }) => Prove.staged({ root, url, label, ...(Option.isSome(only) ? { only: only.value } : {}) })),
+          Effect.flatMap(({ url, label, owns }) => Prove.staged({ root, url, label, ...(process.env["CLOUDFLARE_API_TOKEN"] && process.env["CLOUDFLARE_ACCOUNT_ID"] ? { d1: { token: process.env["CLOUDFLARE_API_TOKEN"], account: process.env["CLOUDFLARE_ACCOUNT_ID"], owns } } : {}), ...(Option.isSome(only) ? { only: only.value } : {}) })),
           Effect.tap((proved) => Effect.sync(() => {
             if (Option.isSome(report)) writeFileSync(report.value, JSON.stringify(proved.structured, null, 2) + "\n");
             process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.join("\n") + "\n");

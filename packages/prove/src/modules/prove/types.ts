@@ -2,6 +2,7 @@
 // `ortho prove --env test`: the same, in a world of the long-lived test environment, with a signed verdict per operation.
 import { Data, type Effect, type Scope } from "effect";
 import type { Result, TokenSource } from "#modules/verdicts/types.js";
+import type { D1Access } from "#modules/journeys/types.js";
 import type { ProveReport } from "./internal/structured.ts";
 
 export type { ChangedDetail, FailureDetail, JourneyDetail, ProveReport, StepDetail } from "./internal/structured.ts";
@@ -84,6 +85,8 @@ export interface ProveApi {
     /** What the address is called in a refusal, e.g. `run r4417`. */
     readonly label: string;
     readonly only?: string;
+    /** The deployed environment's database, read through Cloudflare's API with the operator's credential. Without it the journeys' facts come from the Worker's own `/_world`, which only a local world has. */
+    readonly d1?: D1Access;
   }) => Effect.Effect<Report, ProveFailed>;
 
   /**

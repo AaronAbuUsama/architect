@@ -33,3 +33,4 @@ The module returns what to say (`Said`); only `main.ts` prints and exits. Alchem
 project's name and the run, with the subdomain from `ORTHO_STAGING_SUBDOMAIN` (one DNS label), never typed in a project. A bad run, or a
 missing or bad subdomain, is a refusal (exit 2) naming it. `ORTHO_STAGING_ORIGIN` (an `http` address on this machine only) is the address as
 it is, and then no subdomain is needed. Nothing is contacted. Check 41.
+`proveAddress` also returns the prefix and `owns`, so `prove` finds the run's D1 databases by name.
