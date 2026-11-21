@@ -77,4 +77,5 @@ runs, the check runs on its head and its merge state while the ready run was goi
 - `.github/workflows/ci.yml`: "a skipped job counts as passed where it is required" → "the job still runs and passes at once, guarding nothing: a required job never skips"
 - AGENTS.md: "skip passes (`design/decisions/CI-docs-fast-path.md`)" → "pass without running their steps (`design/decisions/CI-docs-fast-path.md`)"
 - `design/decisions/CI-docs-fast-path.md` (dated, noted in place): "skip through a job-level `if:`" → "run and pass without their steps"
+- `design/decisions/CI-speed.md` (dated, noted in place): "as the layer gates already do" → "the layer gates now run and pass without their steps; a required job never skips"
 - `design/decisions/CI-branch-protection.md` (dated, noted in place): "which is skipped, and so passes, on anything but a `-build` branch" → "which runs and passes at once on anything but a `-build` branch"

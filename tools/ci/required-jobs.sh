@@ -8,7 +8,8 @@
 #      skipped job's name, so on a draft run the check carries that text, which no required check matches.
 #   tools/ci/required-jobs.sh <workflow.yml> <job id>...
 # The job ids are the branch's required checks (CI-branch-protection.md). Exits 0 when every job keeps both rules,
-# 1 otherwise, 2 on a usage error.
+# 1 otherwise, 2 on a usage error. It reads the job's own `name:` and `if:` lines only, and fails closed on any other
+# shape; it cannot tell whether a job's steps decide rightly once the job runs, which review still checks.
 set -euo pipefail
 
 [ "$#" -ge 2 ] || { echo "usage: required-jobs.sh <workflow.yml> <job id>..." >&2; exit 2; }
