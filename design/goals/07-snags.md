@@ -36,3 +36,12 @@ Numbers are this log's own, from S-01.
   reviews and commits.
 - For Foreman: the supervisor committing is the better shape anyway. Every step gets a review before it enters
   history, and the builder needs no write access to git. Brief a headless builder that way from the start.
+
+## S-03 · CI · "the lead's step pushes each queued a full CI run"
+- Seen: `ci.yml` runs on every push to `goal/**`, as well as on pull requests. The lead pushed after each reviewed
+  step, so four runs queued on a branch with no pull request, while CI was the bottleneck for every lane.
+- Cost: four queued runs, cancelled by the lead (21 November 2026, about 10:15 UTC). None of them proved anything a
+  local run hadn't.
+- Steer: commit locally after each step, and push once, when the draft pull request opens (the CI-drafts rule).
+- For Foreman: a supervisor's habit of pushing for safety costs shared CI. Know which pushes start CI before you
+  push, and treat local commits as safe enough until the work is ready for review.
