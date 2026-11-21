@@ -8,3 +8,25 @@
    unrelated test dependencies. The existing EVM spike's compiler and npm
    versions carry over. All dates and sources are in `versions.json`.
    The lead moved the five Safe proofs ahead of Hats. Those are next.
+
+2. **A1–A5 passed on Anvil.** The smallest deploy uses the Safe singleton,
+   SafeProxyFactory and CompatibilityFallbackHandler. MultiSend is unnecessary
+   for single calls. Both a one-owner Safe and a two-of-three Safe enabled the
+   module by signing a SafeTx. Safe's boolean-only module entry returned true
+   for a false-returning token and false for a reverting token. The return-data
+   entry preserved the distinction, which the probe mapped to two errors.
+   OpenZeppelin accepted the real Safe's ERC-1271 SafeMessage and rejected a
+   tampered signature. The same probe accepted a Safe direct call submitted by
+   a non-owner. See `evidence/goal-4.txt`. The first direct relay run exposed
+   an address casing difference in the test assertion. Address comparison now
+   ignores casing. Next is the Hats-only payment proof.
+   The proof passed before Hats implementation began. Three staging attempts
+   hit a sandbox denial creating this worktree's Git index lock. The proof and
+   its evidence are preserved separately while the Hat work proceeds.
+
+3. **Hats payments passed in Foundry.** A pinned Hats deployment and a real
+   Safe proxy paid both assets, and all four refusal paths passed. The disabled
+   module bubbled up Safe's GS104. Hats' configured toggle and eligibility
+   addresses control the two revocations. The Safe signing helper needed a
+   narrower Solidity scope to stay within the compiler's stack limit.
+   See `evidence/hat-foundry.txt`. Next is the same Hats path on Anvil.
