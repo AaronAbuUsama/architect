@@ -1,4 +1,4 @@
-// What check 37 expects a machine's graph to light, from the model and a fixture, never from the page (M1.50: "live counts on moves, a trace from a
+// What check 40 expects a machine's graph to light, from the model and a fixture, never from the page (M1.50: "live counts on moves, a trace from a
 // journey's run, no state shows a count").
 // Decisions of the checks author, for the builder (each is the model's own reading, none is a taste):
 //  - A TRACE is read from a journey's declared steps, in order: a step on an operation of this thing that has a move, whose checks `emits` an event,

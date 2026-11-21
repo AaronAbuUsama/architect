@@ -1,4 +1,4 @@
-// The instruments of check 37's seam half (M1.50): where `elkjs` and `@xyflow/react` may be declared and imported, and a scanner for elk in a built client.
+// The instruments of check 40's seam half (M1.50): where `elkjs` and `@xyflow/react` may be declared and imported, and a scanner for elk in a built client.
 // Both read plain text, so a control can plant one wrong file and the verdict never rests on an unproved tool.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";

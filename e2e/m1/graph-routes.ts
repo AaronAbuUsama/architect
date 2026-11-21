@@ -1,4 +1,4 @@
-// The pages check 37 opens, each with what it must draw: the map, the worlds, and a thing's page with its machine in `lifecycle` under one of the three lightings.
+// The pages check 40 opens, each with what it must draw: the map, the worlds, and a thing's page with its machine in `lifecycle` under one of the three lightings.
 // `visitProblems` opens one route and says everything wrong with the graph on it.
 import type { ServedPortal } from "../served-portal/types.ts";
 import { machineThings, type GraphModel, type Graphs } from "./graph-expect.ts";

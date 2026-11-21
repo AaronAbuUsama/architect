@@ -1,4 +1,4 @@
-// How check 37 judges a machine's lighting (see graph-light.ts for what each mode means): structure lights nothing, live puts the window's moves on
+// How check 40 judges a machine's lighting (see graph-light.ts for what each mode means): structure lights nothing, live puts the window's moves on
 // the move edges, trace lights one journey's path. The labels of the edges come from the laid data (the move's key); the numbers come from the model and the fixture.
 import type { Laid } from "./graph-expect.ts";
 import type { Lit } from "./graph-light.ts";

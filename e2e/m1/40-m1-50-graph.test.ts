@@ -1,4 +1,4 @@
-// Check 37 (M1.50): one `Graph` for the machines, the blueprint map and the worlds. The done-when, clause by clause:
+// Check 40 (M1.50): one `Graph` for the machines, the blueprint map and the worlds. The done-when, clause by clause:
 //   A  "Plugged In's portal draws its map, both machines and the worlds chain with no position written by hand"
 //   B  "two generations give byte-identical layouts"
 //   C  "a journey's run lights its path on the machine and no state shows a count"
@@ -19,7 +19,7 @@
 //     reading `lifecycle`). Nodes are our components, drawn where the data puts them; `?lighting=structure|live|trace` picks the lighting (default live when the
 //     portal has `live`), `&journey=<file name>` the trace's journey. Lighting never moves a node. Rules for each lighting are in `graph-light.ts`.
 //
-// WHAT RUNS WHERE (as check 28): the generator-side and seam assertions run anywhere (`pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/37`). The pages
+// WHAT RUNS WHERE (as check 28): the generator-side and seam assertions run anywhere (`pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/40`). The pages
 // of the real portal need its client, which needs HeroUI Pro, so `@orthograph/portal` builds it in CI only (`packages/portal/dist/client`): the "portal draws them" and
 // "bundle" groups can only go green there, and until it is built they fail here with a message that says so. The controls prove the judges against a stand-in client.
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -49,7 +49,7 @@ const said = (found: ReadonlyArray<string>) => found.join("\n");
 
 // ---- A and B: what `ortho generate` writes (anywhere) ----
 
-describe("37 M1.50: the generator writes the portal's graphs", () => {
+describe("40 M1.50: the generator writes the portal's graphs", () => {
   const made: Array<Generated> = [];
   const gen = new Map<string, Generated>();
   const once = (name: string, make: () => Generated): Generated => { const hit = gen.get(name) ?? make(); gen.set(name, hit); if (!made.includes(hit)) made.push(hit); return hit; };
@@ -114,7 +114,7 @@ describe("37 M1.50: the generator writes the portal's graphs", () => {
 
 // ---- the seam: who declares and imports what (anywhere) ----
 
-describe("37 M1.50: elk stays in the generator, React Flow in portal-ui", () => {
+describe("40 M1.50: elk stays in the generator, React Flow in portal-ui", () => {
   const all = manifests();
   it("`elkjs` is a pinned dependency of packages/generators and declared nowhere else", () => { expect(elkDeclaration(all), said(elkDeclaration(all))).toEqual([]); });
   it("`@xyflow/react` is portal-ui's, pinned where it is installed, and declared nowhere else", () => { expect(flowDeclaration(all), said(flowDeclaration(all))).toEqual([]); });
@@ -143,7 +143,7 @@ describe("37 M1.50: elk stays in the generator, React Flow in portal-ui", () => 
 
 // ---- the real portal draws them (CI: the client is built there) ----
 
-describe("37 M1.50: the portal draws the graphs, where the data puts them, lit as the model and the run say", () => {
+describe("40 M1.50: the portal draws the graphs, where the data puts them, lit as the model and the run say", () => {
   let served: ServedPortal | undefined;
   let data: Generated | undefined;
   const live = liveFixture(committed().model);
@@ -192,7 +192,7 @@ describe("37 M1.50: the portal draws the graphs, where the data puts them, lit a
 
 // ---- the instruments, proved (all pass anywhere) ----
 
-describe("37 control: the oracle and the lighting rules are read out of the model", () => {
+describe("40 control: the oracle and the lighting rules are read out of the model", () => {
   const wire = committed();
   const m = wire.model;
   it("Plugged In's expected graphs: one app group of three things, four edges between them, handle and link's machines, five worlds and seven journeys on them", () => {
@@ -225,7 +225,7 @@ describe("37 control: the oracle and the lighting rules are read out of the mode
 
 const acmeWire = () => JSON.parse(readFileSync(join(repo, "examples/acme/generated/portal/blueprint.json"), "utf8")) as PortalData;
 const acmeModel = () => acmeWire().model;
-describe("37 control: the geometry and structure judge names each wrong graph and accepts a right one", () => {
+describe("40 control: the geometry and structure judge names each wrong graph and accepts a right one", () => {
   it("a correct generator's graphs (the stand-in's plain layout) pass for Plugged In and for acme", () => {
     for (const m of [committed().model, acmeModel()]) expect(graphProblems(fakeGraphs(m), m), said(graphProblems(fakeGraphs(m), m))).toEqual([]);
   });
@@ -264,7 +264,7 @@ const clientWith = (changes: ReadonlyArray<readonly [string, string]>): string =
 const stand = (graphs: Graphs, counts: unknown, changes: ReadonlyArray<readonly [string, string]> = []) =>
   ServedPortals.open({ context: { blueprint: { ...committed(), graphs }, counts }, clientDir: clientWith(changes), server: standInServer, run });
 
-describe("37 control: the page judge accepts a portal drawn from the data and names each wrong one", () => {
+describe("40 control: the page judge accepts a portal drawn from the data and names each wrong one", () => {
   const m = committed().model, graphs = fakeGraphs(m), live = liveFixture(m);
   it("the stand-in client, drawn from the data, passes every page: the map, the worlds, each machine under each lighting and each journey's trace, and a thing with no machine", { timeout: 300_000 }, async () => {
     const portal = await stand(graphs, live.counts);
@@ -307,7 +307,7 @@ describe("37 control: the page judge accepts a portal drawn from the data and na
   });
 });
 
-describe("37 control: the seam instruments", () => {
+describe("40 control: the seam instruments", () => {
   const manifest = (over: Record<string, Manifest>): Record<string, Manifest> => ({ "packages/generators/package.json": { dependencies: { elkjs: "0.12.1" } }, "packages/portal-ui/package.json": { dependencies: { "@xyflow/react": "12.12.1" } }, "packages/portal/package.json": {}, ...over });
   it("the right declarations pass, and so does React Flow as a peer dependency with an exact dev copy", () => {
     expect(elkDeclaration(manifest({}))).toEqual([]);

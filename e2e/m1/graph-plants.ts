@@ -1,4 +1,4 @@
-// The wrong outputs check 37's controls plant (author skill, proof 5): each is one wrong thing done to a graph that is otherwise right, and the judge must
+// The wrong outputs check 40's controls plant (author skill, proof 5): each is one wrong thing done to a graph that is otherwise right, and the judge must
 // name it. `LAID` is for the laid graphs in the portal's data (graph-expect.ts), `PAGE` for the stand-in client (graph-standin.ts), by replacing one line of it.
 import type { Graphs, Laid, Placed, Route } from "./graph-expect.ts";
 

@@ -1,4 +1,4 @@
-// Check 37's stand-in client: a page that draws the graphs the portal's data carries, with the hooks graph-page.ts reads, so the judge can be shown a
+// Check 40's stand-in client: a page that draws the graphs the portal's data carries, with the hooks graph-page.ts reads, so the judge can be shown a
 // portal that does what M1.50 says (and refused one that does not: the controls change one line of this page at a time). It is not the portal, which only
 // CI can build (it needs HeroUI Pro). It reads `/_portal/v1/blueprint` (the wire, with `graphs`) and `/_portal/v1/moves` (the live counts, its own stub);
 // the lighting logic is written here a second time, from the contract in graph-light.ts, so the oracle is not just echoed back.

@@ -1,4 +1,4 @@
-// The wrong pages check 37's controls plant (author skill, proof 5): the stand-in client (graph-standin.ts) with ONE line changed, the routes where the fault
+// The wrong pages check 40's controls plant (author skill, proof 5): the stand-in client (graph-standin.ts) with ONE line changed, the routes where the fault
 // shows, and what the judge must say. `from` is quoted from the stand-in; a control fails loudly if the stand-in no longer holds it.
 export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string }
 

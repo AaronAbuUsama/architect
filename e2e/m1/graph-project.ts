@@ -1,4 +1,4 @@
-// The projects check 37 generates with the real `ortho generate` and reads the portal's data from: Plugged In (the done-when's own subject), Plugged In in a
+// The projects check 40 generates with the real `ortho generate` and reads the portal's data from: Plugged In (the done-when's own subject), Plugged In in a
 // second folder (two generations), acme (starting worlds that chain, a machine with more states), acme with a plugin mounted (a group around its things),
 // and Plugged In with one starting world moved onto another (the chain one step deeper).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -34,7 +34,7 @@ export const generateChained = (): Generated => {
     const file = join(copy.root, "blueprint/starting-worlds/page-with-links.ts");
     const source = readFileSync(file, "utf8");
     const edited = source.replace('Blueprint.startingWorld("page-with-links", {\n', 'Blueprint.startingWorld("page-with-links", {\n  from: "claimed",\n');
-    if (edited === source) throw new Error("check 37: page-with-links.ts no longer opens the way the control expects");
+    if (edited === source) throw new Error("check 40: page-with-links.ts no longer opens the way the control expects");
     writeFileSync(file, edited);
     succeeds(copy.root, "generate");
     return read(copy);

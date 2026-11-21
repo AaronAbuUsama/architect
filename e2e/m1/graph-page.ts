@@ -1,4 +1,4 @@
-// The judge of check 37's browser half: reads a served portal's pages in headless Chromium (as checks 21 and 28 do) and says what is wrong with the graphs
+// The judge of check 40's browser half: reads a served portal's pages in headless Chromium (as checks 21 and 28 do) and says what is wrong with the graphs
 // it draws. The hooks a builder owes (`data-portal="<part>"`, data in `data-*`, only what a person can see counts: not hidden, not near-transparent):
 //   graph       data-graph "map" | "worlds" | "machine:<thing>", data-mode "structure" | "live" | "trace", data-width, data-height (the laid graph's own size)
 //   graph-node  data-node (the laid node's id), data-kind, data-parent ("" at the root), data-x, data-y, data-w, data-h (the laid numbers, as the data has them);

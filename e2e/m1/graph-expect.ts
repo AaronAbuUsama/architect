@@ -1,4 +1,4 @@
-// What check 37 (M1.50) judges a laid graph against. Everything expected comes out of the model (`wire.model`), never out of the laid
+// What check 40 (M1.50) judges a laid graph against. Everything expected comes out of the model (`wire.model`), never out of the laid
 // graph being judged: `expectedGraphs` is a pure function of the model, and `structureProblems` / `geometryProblems` say what is wrong
 // with one `Laid` in plain sentences (an empty list is a pass).
 //

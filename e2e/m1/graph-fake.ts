@@ -1,4 +1,4 @@
-// Check 37's stand-in generator: a plain, deterministic layout of the model's expected graphs, written here so the judge and the stand-in client
+// Check 40's stand-in generator: a plain, deterministic layout of the model's expected graphs, written here so the judge and the stand-in client
 // have a picture to look at. It is not elk and not the builder's: it only has to be a valid picture (real sizes, nothing overlapping, children
 // inside their group, routes from source to target). The real generator lays out with `elkjs` (M1.50); this one never ships.
 import { machineSpec, machineThings, mapSpec, worldsSpec, type GraphModel, type Graphs, type Laid, type Placed, type Route, type Spec } from "./graph-expect.ts";
