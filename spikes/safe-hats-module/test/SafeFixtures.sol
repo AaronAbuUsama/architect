@@ -14,6 +14,16 @@ contract TestToken is ERC20("Spike token", "SPIKE") {
     }
 }
 
+contract SixDecimalToken is TestToken {
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "SPIKE6";
+    }
+}
+
 contract FalseToken {
     function transfer(address, uint256) external pure returns (bool) {
         return false;
@@ -29,7 +39,7 @@ contract RevertingToken {
 }
 
 contract SafeRouteProbe is BudgetAuthorization, SafePayment {
-    event Paid(address indexed by, uint256 nonce, address indexed to, uint256 amount);
+    event Paid(address indexed by, uint256 nonce, address indexed to, uint128 amount);
 
     event CallResult(bool success);
 
@@ -49,7 +59,7 @@ contract SafeRouteProbe is BudgetAuthorization, SafePayment {
         emit CallResult(success);
     }
 
-    function _spend(address by, uint256 nonce, address from, uint256, address to, uint256 amount)
+    function _spend(address by, uint256 nonce, address from, uint256, address to, uint128 amount)
         internal
         override
     {

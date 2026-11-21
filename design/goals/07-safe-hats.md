@@ -188,6 +188,13 @@ Then the pull request into `main` merges, with CI green and every thread resolve
 
 ## Landing
 
+CI is shared and slow, so this follows the conductor's CI-drafts rule (pull request 293, 21 November 2026):
+- Codex's steps go onto `goal/safe-hats` as they pass review.
+- The whole spike lands in one pull request, or two at most, opened as a **draft**.
+- The 🔍 pass is given on the draft's diff, and the README's commands are run locally, before it is marked ready, so
+  CI runs once.
+- At most one of this goal's pull requests is ready and in CI at a time.
+
 The lead opens pull requests from `goal/safe-hats` into `main`. Merge `origin/main` in first, by a merge, never a
 rebase. A spike pull request adds only `spikes/safe-hats-module/`, the draft decision and these two goal files. Each
 needs CI green, every thread resolved, and a 🔍 pass. After a merge, the next pull request comes from a fresh branch

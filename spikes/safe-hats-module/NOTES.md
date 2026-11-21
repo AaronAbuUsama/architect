@@ -44,3 +44,22 @@
 
 STEP 3 DONE: The pinned Hats and threshold Safe paid both assets and refused all four invalid paths on Anvil.
 STEP 4 DONE: All four SafeTx signature formats executed and all three malformed cases reverted with GS026.
+
+5. **Budgets passed in Foundry and on Anvil.** Only the Safe may create, change
+   or revoke its row. That keeps the authority to allocate Safe funds with the
+   Safe's owner threshold while a hat grants permission to spend an allocation.
+   Both Safes used one module deployment. The child hat had its own smaller
+   budget, and turning the child hat off blocked its wearer immediately.
+   Spend receipts and ERC-20 balances confirm the module did not hold the funds.
+   The fixed-length windows are epoch-aligned. A limit change preserves spend
+   already charged to the current period. Revocation is terminal for a Safe
+   and hat pair, keeping previously signed spends from applying to a recreated
+   row with a different token. The token and period duration stay fixed.
+   All money uses uint128 base units. The display preserves the last base unit
+   with both six and eighteen decimals. The tests also transferred the full
+   uint128 maximum. Moving the shared BudgetSpend amount to uint128 changed
+   the Goal 4 digest, so its proof was re-run too. Safe's return-data path still
+   validates ERC-20 transfer results. Evidence is in `evidence/budget-foundry.txt`
+   and `evidence/budget-anvil.txt`.
+
+STEP 5 DONE: All 13 Forge tests and the full Anvil script passed, including budgets, rollover, child-hat controls and exact token amounts.

@@ -51,3 +51,35 @@ each mined a reverted transaction and decoded as `GS026`. The replay uses the
 identical old calldata and signature blob. Safe recomputes the signed hash with
 its current nonce, so the old signatures fail the owner validation.
 [Signature run](evidence/safe-signatures.txt), [Runnable checks](script/safe-signatures.ts)
+
+## Budget findings
+
+1. One budget module served two Safes. Each row is keyed by the paying Safe
+   and hat. Only a call from that Safe can create, change or revoke its budget.
+   The person used their own admin hat to mint a child hat for the agent and
+   later turn it off. The agent could spend under the child hat up to its own
+   lower limit. [Anvil run](evidence/budget-anvil.txt)
+2. Direct spends take the caller from `msg.sender`. Relayed spends check an
+   EIP-712 signature with OpenZeppelin's `SignatureChecker`. The domain is
+   `{ name: "Budgets", version: "1", chainId, verifyingContract }`, where
+   `verifyingContract` is the budget module. The type is
+   `BudgetSpend(address safe,uint256 hatId,address to,uint128 amount,address signer,uint256 nonce,uint256 deadline)`.
+   The signed path checks deadline, signature, nonce, row, hat, amount and
+   payment, in that order, then emits the spend. A signer's nonce is shared
+   across both entries and all rows in this module. The module's budget events
+   put indexed `by` first and `nonce` second. [Encoder](script/budget-data.ts),
+   [Foundry run](evidence/budget-foundry.txt)
+3. The row's ERC-20 supplies the units. Limit, spent, amount and remaining
+   are unsigned `uint128` base units and travel on the wire as digit strings.
+   The client reads the token's symbol and decimals for display. The run
+   showed exactly `1.250001 SPIKE6` and `1.250000000000000001 SPIKE`. Foundry
+   paid the full `uint128` maximum. The module widens the amount for ERC-20
+   `transfer` through Safe's `execTransactionFromModuleReturnData` so a token
+   returning false can be refused. [Money evidence](evidence/budget-anvil.txt),
+   [Payout code](src/SafePayment.sol)
+4. The prototype uses fixed periods starting at Unix epoch multiples of the
+   configured length. It restores the full limit at the next boundary. The
+   Safe can change the limit during a period while keeping prior spend charged.
+   It can revoke the row permanently. Token and period length are fixed at
+   creation. Calendar-month rules and payouts from fee-on-transfer or rebasing
+   tokens are outside this proof. [Rollover and limit tests](evidence/budget-foundry.txt)

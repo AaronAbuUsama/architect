@@ -10,6 +10,10 @@ import {CompatibilityFallbackHandler} from "safe/handler/CompatibilityFallbackHa
 import {TestToken} from "./SafeFixtures.sol";
 
 abstract contract HatFixture is Test {
+    Safe private singleton;
+    SafeProxyFactory private factory;
+    CompatibilityFallbackHandler private handler;
+
     Hats internal hats;
     Safe internal safe;
     TestToken internal token;
@@ -24,15 +28,10 @@ abstract contract HatFixture is Test {
         outsider = makeAddr("outsider");
         recipient = makeAddr("recipient");
 
-        Safe singleton = new Safe();
-        SafeProxyFactory factory = new SafeProxyFactory();
-        address[] memory owners = new address[](1);
-        owners[0] = ada;
-        bytes memory initializer = abi.encodeCall(
-            Safe.setup,
-            (owners, 1, address(0), "", address(new CompatibilityFallbackHandler()), address(0), 0, payable(address(0)))
-        );
-        safe = Safe(payable(address(factory.createProxyWithNonce(address(singleton), initializer, 1))));
+        singleton = new Safe();
+        factory = new SafeProxyFactory();
+        handler = new CompatibilityFallbackHandler();
+        safe = newSafe(1);
         vm.deal(address(safe), 10 ether);
         token = new TestToken();
         token.mint(address(safe), 100 ether);
@@ -43,16 +42,29 @@ abstract contract HatFixture is Test {
         assertTrue(hats.mintHat(personHat, ada));
     }
 
+    function newSafe(uint256 salt) internal returns (Safe) {
+        address[] memory owners = new address[](1);
+        owners[0] = ada;
+        bytes memory initializer = abi.encodeCall(
+            Safe.setup, (owners, 1, address(0), "", address(handler), address(0), 0, payable(address(0)))
+        );
+        return Safe(payable(address(factory.createProxyWithNonce(address(singleton), initializer, salt))));
+    }
+
     function safeCall(address to, bytes memory data) internal {
+        safeCall(safe, to, data);
+    }
+
+    function safeCall(Safe account, address to, bytes memory data) internal {
         bytes memory signature;
         {
-            bytes32 digest = safe.getTransactionHash(
-                to, 0, data, Enum.Operation.Call, 0, 0, 0, address(0), address(0), safe.nonce()
+            bytes32 digest = account.getTransactionHash(
+                to, 0, data, Enum.Operation.Call, 0, 0, 0, address(0), address(0), account.nonce()
             );
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(adaKey, digest);
             signature = abi.encodePacked(r, s, v);
         }
-        assertTrue(safe.execTransaction(
+        assertTrue(account.execTransaction(
             to, 0, data, Enum.Operation.Call, 0, 0, 0, address(0), payable(address(0)), signature
         ));
     }

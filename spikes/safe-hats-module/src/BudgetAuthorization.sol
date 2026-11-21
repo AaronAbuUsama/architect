@@ -11,14 +11,14 @@ abstract contract BudgetAuthorization is EIP712 {
     error BadSignature();
 
     bytes32 internal constant SPEND_TYPEHASH = keccak256(
-        "BudgetSpend(address safe,uint256 hatId,address to,uint256 amount,address signer,uint256 nonce,uint256 deadline)"
+        "BudgetSpend(address safe,uint256 hatId,address to,uint128 amount,address signer,uint256 nonce,uint256 deadline)"
     );
 
     mapping(address => uint256) public nonces;
 
     constructor() EIP712("Budgets", "1") {}
 
-    function spend(address safe, uint256 hatId, address to, uint256 amount, uint256 nonce) external {
+    function spend(address safe, uint256 hatId, address to, uint128 amount, uint256 nonce) external {
         _authorizeSpend(msg.sender, nonce, safe, hatId, to, amount);
     }
 
@@ -26,7 +26,7 @@ abstract contract BudgetAuthorization is EIP712 {
         address safe,
         uint256 hatId,
         address to,
-        uint256 amount,
+        uint128 amount,
         address signer,
         uint256 nonce,
         uint256 deadline,
@@ -40,16 +40,20 @@ abstract contract BudgetAuthorization is EIP712 {
         _authorizeSpend(signer, nonce, safe, hatId, to, amount);
     }
 
-    function _authorizeSpend(address by, uint256 nonce, address safe, uint256 hatId, address to, uint256 amount)
+    function _authorizeSpend(address by, uint256 nonce, address safe, uint256 hatId, address to, uint128 amount)
         private
     {
-        uint256 expected = nonces[by];
-        if (nonce != expected) revert InvalidNonce(expected, nonce);
-        nonces[by] = expected + 1;
+        _takeNonce(by, nonce);
         _spend(by, nonce, safe, hatId, to, amount);
     }
 
-    function _spend(address by, uint256 nonce, address safe, uint256 hatId, address to, uint256 amount)
+    function _takeNonce(address by, uint256 nonce) internal {
+        uint256 expected = nonces[by];
+        if (nonce != expected) revert InvalidNonce(expected, nonce);
+        nonces[by] = expected + 1;
+    }
+
+    function _spend(address by, uint256 nonce, address safe, uint256 hatId, address to, uint128 amount)
         internal
         virtual;
 }
