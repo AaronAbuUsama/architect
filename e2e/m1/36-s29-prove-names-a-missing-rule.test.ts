@@ -6,7 +6,7 @@
 //
 // WHAT IS REQUIRED. On a copy of `examples/plugged-in` with that export removed, `ortho prove` (the whole run, and `--only` one journey) exits non-zero within 60 s,
 // and one line of its output (colour codes stripped) names the missing export (`oneHolderPerName`) together with a file: the invariants file, or a handler file that imports it,
-// and says, near the export, that it is absent ("not exported", "no matching export", "lacks", "missing", ...). No line says the other rule is missing, and no generic timeout
+// (any path that ends in `handle/invariants.ts`, however much of it is written) and says, near the export, that it is absent ("not exported", "no matching export", "lacks", "missing", ...). No line says the other rule is missing, and no generic timeout
 // line stands in for the answer. Behaviour is pinned, not wording: the matcher below wants those facts on one line, in any phrasing.
 //
 // THE BOUND, 60 s, as check 33's: above a healthy world's slowest start, far below a hang. A prove still running at 60 s fails the check, but is left running until 90 s,
@@ -100,31 +100,52 @@ const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 const plain = (text: string) => text.replace(/\x1b\[[0-9;]*m/g, "");
 /** Phrases that say an export is absent. Bare "not", "no", "never" or "cannot" are not here: they sit in "(not yet checked)" and "no journeys ran". */
 const ABSENCE = new RegExp([
-  "no matching export", "no export named", "has no export", "(?:is(?:n't| not)|was(?:n't| not)|are(?:n't| not)) exported", "(?:does(?:n't| not)|did(?:n't| not)) (?:export|provide|declare|define|contain|have)",
+  "no matching export", "no export named", "(?:has )?no exported member(?: named)?", "has no export", "(?:is(?:n't| not)|was(?:n't| not)|are(?:n't| not)) exported", "(?:does(?:n't| not)|did(?:n't| not)) (?:export|provide|declare|define|contain|have)",
   "missing", "lacks?", "lacking", "absent", "unresolved import", "not found", "(?:can't|cannot|could not|couldn't) find", "not defined",
 ].map((phrase) => `\\b(?:${phrase})(?![\\w-])`).join("|"), "gi");
-/** A negation just before an absence word turns it round: "none missing", "not missing", "0 files not found". */
-const NEGATED = /\b(?:not|no|none|nothing|never|nor|without|0|zero)\W+(?:\w+\W+)?$/i;
+/** A negation a few words before an absence word turns it round: "none missing", "not missing", "isn't missing", "no import is missing", "0 files not found". */
+const NEGATED = /\b(?:not|no|none|nothing|never|nor|without|0|zero|\w+n't)\W+(?:\w+\s+){0,2}$/i;
 /** Where `rule` (a whole word) occurs in the line. */
 const wordAt = (line: string, rule: string) => [...line.matchAll(new RegExp(`(?<![\\w$])${rule}(?![\\w$])`, "g"))].map((m) => m.index!);
+/**
+ * The clause with every path (a quoted string holding a slash, or a bare word holding one) folded to one `P`, so that nearness does not depend on how long the
+ * platform's tmpdir is: esbuild quotes an absolute path, about 72 characters on Linux CI and 116 on a Mac. The file test below reads the line as it was.
+ */
+const folded = (clause: string) => clause
+  .replace(/(?<!\w)(["'`])(?:(?!\1)[^\n])*?[\\/](?:(?!\1)[^\n])*\1(?!\w)/g, "<path>")
+  .replace(/[^\s"'`(),;]*[\\/][^\s"'`(),;]*/g, "<path>");
+/** Said as a question or a supposition ("is X missing from ...?", "if X were missing ..."), a clause claims nothing. */
+const HYPOTHETICAL = /\b(?:if|whether|unless|were|would|should|might)\b|^\W*(?:is|are|was|does|do|did|has|have|can|could)\s/i;
+/** The loose words of absence ("missing", "lacks", "not found") say a rule is absent only when they take it, or "from"/"in" a place, as object; "missing description" or "lacks a test for X" do not. */
+const GENERIC = /^(?:missing|lacks?|lacking|absent|not found)$/i;
+const OBJECT = new RegExp(`^\\s*["'\`]?(?:(?:an?|the)\\s+)?(?:(?:named|export|exported|rule)\\s+)*["'\`]?(?:${Object.keys(RULES).join("|")}|export|import|member|declaration|rule)(?![\\w$])`, "i");
+const TAIL = /^\s*(?:$|[,.:)?!"'`(]|<path>|(?:from|in|on|at|by|for|as|and|but|because|here|there)\b)/i;
+/** Whether the absence word `m` in `clause` is a claim that something is absent: not negated, not a supposition, and for a loose word, taking a fitting object (a file before it, "<file> not found", is the file that is absent). */
+const claims = (clause: string, m: RegExpMatchArray) => {
+  const before = clause.slice(0, m.index!), after = clause.slice(m.index! + m[0].length);
+  if (NEGATED.test(before) || HYPOTHETICAL.test(before)) return false;
+  if (!GENERIC.test(m[0])) return true;
+  return /<path>(?:\s+(?:is|was|are))?\s*$/.test(before) ? OBJECT.test(after) : OBJECT.test(after) || TAIL.test(after);
+};
 const NEAR = 100;
-/** True when a word of absence, not negated, sits in a clause (`;` ends one) within NEAR characters of `rule`, and `rule` is the nearer of the two rules to it: the line says that rule is absent. */
-const blamesOnLine = (line: string, rule: Rule) => line.split(";").some((clause) => {
+/** True when a word of absence, not negated, sits in a clause (`;` ends one) within NEAR characters of `rule` (paths folded), and `rule` is the nearer of the two rules to it: the line says that rule is absent. */
+const blamesOnLine = (line: string, rule: Rule) => line.split(";").map(folded).some((clause) => {
   const mine = wordAt(clause, rule), other = wordAt(clause, RULES[rule].other);
   return [...clause.matchAll(ABSENCE)].some((m) => {
     const at = (names: ReadonlyArray<number>) => Math.min(...names.map((n) => Math.min(Math.abs(n - (m.index! + m[0].length)), Math.abs(n - m.index!))), Infinity);
-    return !NEGATED.test(clause.slice(0, m.index!)) && at(mine) <= NEAR && at(mine) <= at(other);
+    return claims(clause, m) && at(mine) <= NEAR && at(mine) <= at(other);
   });
 });
 /** Any line, colour stripped, that says `rule` is absent. */
 const blames = (out: string, rule: Rule) => plain(out).split("\n").some((line) => blamesOnLine(line, rule));
+/** The invariants file at a path boundary, however much of the path is written (`handle/invariants.ts`, `things/handle/...`, the full path, backslashes too); not `link/invariants.ts`, nor `xhandle/invariants.ts`. */
+const FILE = /(?<![\w.-])handle[\\/]invariants\.ts(?![\w-])/;
 /**
  * A line that says the export is missing: the absence tied to the export (near it, and nearer than to the other rule), and a file on the same line (the invariants
  * file, or a handler that imports it, at a path boundary). An echo of the import, a "loaded rules" log or "is exported from" carries the first two and not the third.
  */
 const namesTheExportAndAFile = (out: string, rule: Rule = EXPORT) => plain(out).split("\n").some((line) =>
-  blamesOnLine(line, rule) &&
-  new RegExp(`(^|[^\\w.-])(${[INVARIANTS, ...RULES[rule].importers].map(escaped).join("|")})(?![\\w-])`).test(line));
+  blamesOnLine(line, rule) && (FILE.test(line) || new RegExp(`(^|[^\\w.-])(${RULES[rule].importers.map(escaped).join("|")})(?![\\w-])`).test(line)));
 /** Any line that blames a timeout or a wait: the generic message S-29 asks not to be the whole answer. */
 const sayTimeout = (out: string) => /time[ds]?[ -]?out|timing out|gave up|never became ready|deadline|waiting for|did not (come up|start|finish|become ready) (in|within)/i.test(out);
 const explains = (out: string, rule: Rule = EXPORT) => namesTheExportAndAFile(out, rule) && !sayTimeout(out);
@@ -174,6 +195,18 @@ describe("36 controls: the matcher, and an intact copy", () => {
     expect(explains(`${INVARIANTS} lacks oneNamePerPerson ${"x".repeat(150)} ${EXPORT}`), "the absence is far from the export").toBe(false);
     expect(explains(`${INVARIANTS} exports ${EXPORT}, nothing is missing`), "a negated absence word").toBe(false);
     expect(explains(`${EXPORT} is not missing from ${INVARIANTS}`), "not missing").toBe(false);
+    expect(explains(`${EXPORT} isn't missing from ${INVARIANTS}`), "isn't missing").toBe(false);
+    expect(explains(`${EXPORT} wasn't missing from ${INVARIANTS}`), "wasn't missing").toBe(false);
+    expect(explains(`${INVARIANTS} exports ${EXPORT}, no import is missing`), "a negation a few words before the absence").toBe(false);
+    expect(explains(`${EXPORT}: ${INVARIANTS} not found`), "the file is absent, not the export").toBe(false);
+    expect(explains(`${EXPORT} in ${INVARIANTS}: missing description`), "missing something else").toBe(false);
+    expect(explains(`is ${EXPORT} missing from ${INVARIANTS}?`), "a question").toBe(false);
+    expect(explains(`if ${EXPORT} were missing from ${INVARIANTS}, prove would say so`), "a supposition").toBe(false);
+    expect(explains(`src/handle/resolve.ts lacks a test for ${EXPORT}`), "lacks something else").toBe(false);
+    // Wrong files: another thing's invariants file, a longer directory name.
+    expect(explains(`${EXPORT} missing in blueprint/things/xhandle/invariants.ts`), "a longer directory name").toBe(false);
+    expect(explains(`link/invariants.ts does not export ${EXPORT}`), "link/invariants.ts").toBe(false);
+    expect(explains(`node_modules/foo/invariants.ts does not export ${EXPORT}`), "node_modules/foo/invariants.ts").toBe(false);
     expect(explains(`${INVARIANTS}: ${EXPORT} ok; 0 files not found`), "an absence in another clause").toBe(false);
     expect(explains(`${EXPORT} ${INVARIANTS} missing_not`), "absence word inside a longer word").toBe(false);
     expect(blames(`${INVARIANTS}: ${EXPORT}, oneNamePerPerson missing`, "oneNamePerPerson"), "blames reads the other rule").toBe(true);
@@ -187,6 +220,25 @@ describe("36 controls: the matcher, and an intact copy", () => {
     expect(explains(`${EXPORT} missing in node_modules/foo/invariants.ts`), "another project's invariants file").toBe(false);
     expect(explains(`${EXPORT} missing, imported by src/link/add.ts`), "a handler that does not import it").toBe(false);
     expect(explains(`gave up waiting; the world never became ready (${EXPORT}, ${INVARIANTS})`)).toBe(false);
+    // Fair, by the 🔍 of #253: what a prove that runs the types step first prints (the three real lines, ortho check's, raw tsc's and its TS2724 suggestion), a short path,
+    // a long absolute one (esbuild's, about 72 characters on Linux CI and 116 on a Mac: nearness must not depend on it), backslashes, node's own SyntaxError.
+    const TS = `Module '"../../${INVARIANTS}"' has no exported member '${EXPORT}'.`;
+    expect(explains(`  src/handle/resolve.ts:6  TS2305: ${TS}`), "ortho check's line").toBe(true);
+    expect(explains(`src/handle/resolve.ts(6,10): error TS2305: ${TS}`), "raw tsc").toBe(true);
+    const TS2724 = `src/handle/resolve.ts(6,10): error TS2724: '"../../${INVARIANTS}"' has no exported member named '${EXPORT}'. Did you mean 'oneNamePerPerson'?`;
+    expect(explains(TS2724), "tsc's TS2724, whose suggestion is not a claim that oneNamePerPerson is missing").toBe(true);
+    expect(blames(TS2724, "oneNamePerPerson")).toBe(false);
+    expect(problems({ status: 1, out: TS2724, seconds: 9, hung: false })).toEqual([]);
+    const blamed = `${TS2724}\noneNamePerPerson is missing from ${INVARIANTS}`;
+    expect(blames(blamed, "oneNamePerPerson"), "a line that says oneNamePerPerson is missing").toBe(true);
+    expect(problems({ status: 1, out: blamed, seconds: 9, hung: false }), "is refused").toHaveLength(1);
+    expect(explains(`has no exported member '${EXPORT}'; oneNamePerPerson is missing, src/handle/resolve.ts`)).toBe(true);
+    expect(explains(`handle/invariants.ts does not export ${EXPORT}`), "short path").toBe(true);
+    expect(explains(`things/handle/invariants.ts does not export ${EXPORT}`), "path from things").toBe(true);
+    expect(explains(`blueprint\\things\\handle\\invariants.ts does not export ${EXPORT}`), "backslashes").toBe(true);
+    expect(explains(`No matching export in "${"/var/folders/".padEnd(200, "x")}/${INVARIANTS}" for import "${EXPORT}"`), "a 200-character absolute path").toBe(true);
+    expect(explains(`SyntaxError: The requested module 'file:///${"x".repeat(200)}/${INVARIANTS}' does not provide an export named '${EXPORT}'`), "node's SyntaxError, a long file URL").toBe(true);
+    expect(explains(`"${EXPORT}" is not exported by "${INVARIANTS}", imported by "src/handle/resolve.ts".`), "rollup").toBe(true);
     expect(explains(`src/link/add.ts imports oneNamePerPerson, which ${INVARIANTS} does not export`, "oneNamePerPerson")).toBe(true);
     expect(explains(`src/link/add.ts imports oneNamePerPerson, which ${INVARIANTS} does not export`), "the other rule's message").toBe(false);
   });
