@@ -149,7 +149,7 @@ the briefs on `main` and on the goal branches. It made:
   blocked-by links for their order;
 - 19 open issues and pull requests moved from their `goal-<n>` labels and release milestones to their goal's milestone
   and release label;
-- the Project, [Orthograph](https://github.com/users/AaronAbuUsama/projects/3), under Aaron's account, with its nine
+- the Project, Orthograph, first under Aaron's account (since closed; see below), with its nine
   fields, eight views (All goals, By status, Roadmap, and one per goal) and all 22 issues as items, their fields set.
 
 The Preview, Beta and 1.0 milestones were then empty, and were closed, not deleted. A second dry run planned nothing.
@@ -173,13 +173,14 @@ Still to do, in this order:
 1. **Aaron gives the apps the repository.** The Claude app is installed on Open-Harness for selected repositories, so
    `architect` is added to it; Codex's connector is installed on the organization. Until then, Codex reviews and
    Claude's Auto-fix don't reach this repository.
-2. **Aaron grants the token `admin:org`** (`gh auth refresh -s admin:org`): GitHub requires it to make an
-   organization's issue types. The sync stops before writing anything without it.
-3. **One sync run** (`--goal-branches --project --apply`) makes the six types and sets each issue's, rewrites the goal
-   pages with the new address, and makes the Project again under Open-Harness, items and fields included. The one
-   under Aaron's account is then closed.
-4. The issue forms already name the new types (`type: Snag` and the rest), so this change merges after step 3, or a
-   form would name a type that doesn't exist yet.
+2. **Done the same day.** Aaron granted the token `admin:org`, which GitHub requires to make an organization's issue
+   types (the sync stops before writing anything without it). One sync run (`--goal-branches --project --apply`) then
+   made the six types, Goal, Slice, Snag, Ask, Decision and Gap, and set every issue's; rewrote the goal pages with the
+   new address; added Goal 4's slices, `1b` among them, from its brief on `goal/on-chain`; and made the Project again
+   under the organization, [Orthograph](https://github.com/orgs/Open-Harness/projects/1), with its fields, views and
+   items. A second dry run planned nothing. The Project under Aaron's account was closed, not deleted, with a pointer
+   to the new one.
+3. The issue forms name the new types (`type: Snag` and the rest), which now exist, so this change can merge.
 
 The live docs now name `Open-Harness/architect`. The old address stays in the dated records, in spikes (records of
 their run), and in the naming check (`e2e/m0/names.test.ts`, which tests that the address isn't flagged); the redirect
