@@ -1,4 +1,4 @@
-// Goal 4, slice 3 (M6.10), ninth check, the chain half of `blueprint/refusals.lock`: the Solidity wire identity of a refusal a chain store raises, and `earlier`
+// Goal 4, slice 4 (M6.11), lock check, the chain half of `blueprint/refusals.lock`: the Solidity wire identity of a refusal a chain store raises, and `earlier`
 // (`design/decisions/M6-chain.md` item 4: "Adding or retyping a field gives the code a new wire identity; the old one moves to `earlier`, so a client still decodes an
 // older contract"). Written by the checks author; a builder never edits this file (AGENTS.md, "Journeys and checks come first").
 //
@@ -12,9 +12,8 @@
 //     signature and selector) to `earlier`; both, applied one after the other, leave both old identities in `earlier`, in the order they were replaced;
 //   - generating again, unchanged, changes the lock not at all.
 //
-// THIS FILE NEEDS `ortho generate` TO SUCCEED ON A CHAIN PROJECT. Before slice 4 (M6.11) no language renders a chain store, and slice 1's refusal of an operation no
-// language takes may stop generate. It is the checks author's question to the lead whether this file belongs to slice 3 or to slice 4's check; it is one file, so it moves
-// whole (the pull request's "Questions for the lead").
+// THIS FILE NEEDS `ortho generate` TO SUCCEED ON A CHAIN PROJECT, which M6-chain item 11 puts in slice 4 (M6.11): the Solidity wire entries come with the Solidity
+// language. Slice 3's own check (`04-m6-10-refusals-lock`, `-lock-codes`) holds the lock's Effect wire and fields.
 //
 // THE CONTROLS are the lock reader's (`04-m6-10-refusals-lock.test.ts`: a selector that is not the keccak of its signature, a signature not of the name, an `earlier`
 // that is empty or not a list) and `selectorOf`'s against the known selectors.

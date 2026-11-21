@@ -10,7 +10,7 @@
 //     errors file, the error and that the runtime has the name; a declared error named NotAllowed or IdempotencyConflict is refused the same way today (control, true today);
 //   - in a project with no chain store, `refusals` holds only what it holds today (AR-001 and AR-002 beside the thing's own), because acme's and Plugged In's generated model.json
 //     must stay byte for byte (check 02): the four codes are the chain's, in the lock and the model of a project that has a chain store.
-// Whether the four are in the lock of a project with a chain store is judged in `04-m6-10-lock-chain-wire.test.ts`.
+// Whether the four are in the lock of a project with a chain store is judged in `05-m6-11-lock-chain-wire.test.ts`.
 //
 // THE CONTROLS: the planted wrong outputs are the model's own refusals map against the literal table below, and `refuses` (as in the values and operations checks).
 import { describe, expect, it } from "vitest";

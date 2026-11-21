@@ -13,7 +13,7 @@
 //   - the model's `refusals` map is read from the lock: after the lock is edited to give TicketBusy TK-007, `ortho model` says TK-007 for it, in `refusals` and on
 //     the thing's error, and TicketTooBig keeps TK-001 (a model that numbered the errors itself would say TK-002);
 //   - `ortho check` passes on the project generate just wrote (the lock is not drift), exit 0, and reports no change.
-// Where the schema's chain half is judged (the Solidity wire of a chain-raised refusal, `earlier` after a field changes): `04-m6-10-lock-chain-wire.test.ts`.
+// Where the schema's chain half is judged (the Solidity wire of a chain-raised refusal, `earlier` after a field changes): `05-m6-11-lock-chain-wire.test.ts`.
 // The lock's evolution (swap, add, rename, retire): `04-m6-10-lock-codes.test.ts`.
 //
 // THE CONTROLS plant a wrong lock against `lockProblems`, one change each: an extra or a missing key at the top, in an entry and in a wire; a version other than 1;
