@@ -286,7 +286,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: check written (#253)
+- Status: fix built (`bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
 
 ## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
 - Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
