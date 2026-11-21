@@ -35,8 +35,9 @@ The build plan's rules, unchanged except for names:
 
 1. **One slice, one session.** A slice ends green: every existing check passes. It is proved by its *done when*, a
    command and its expected output. A slice that won't fit a session is split before it starts.
-2. **Gates.** Each milestone ends in one e2e suite, `nx run e2e:m<n>`. Nothing in milestone n+1 starts until gate n
-   passes on `main` from a clean checkout, locally and in CI. **After Gate M2 the order is by stage** ("v1.0: four
+2. **Gates.** Each milestone ends in one e2e suite, `nx run e2e:m<n>`. A milestone is done when its gate
+   passes on `main` from a clean checkout, locally and in CI. A slice starts once what it `needs` has landed, in any
+   milestone order (K34). **After Gate M2 the order is by stage** ("v1.0: four
    stages" below, K9): a stage's slices may come from any milestone, and each stage ends in its own gate.
 3. **Decisions just in time.** A decision slice sits right before the first slice that needs it and ends with a record
    in `design/decisions/`.
@@ -80,15 +81,15 @@ M4.14), workspaces, experiments and the building agents (M3.20, M4.17 to M4.25, 
 never waits on them.
 
 **The gates of M3 to M6 no longer order the work.** Their suites still run, beside, once their slices exist. Where a
-stage's slice `needs` one of those gates, a stage gate stands in:
+slice's `needs` named one of those gates, it is read as below; K34 rewrote the ones that only said milestone order:
 
-| Slice | Its `needs` says | Read it as |
+| Slice | Its `needs` said | Read it as |
 |---|---|---|
-| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |
-| M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
-| M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
-| M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
-| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the dedicated account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
+| M6.01 (stage 2's chain decision) | Gate M5 | none: started 20 November 2026 (K26, Aaron's exception) |
+| M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | none (K34): a decision |
+| M3.01 (workflows, stage 3) | Gate M2 | none (K34): a decision; the engine is the one the workflows spike proved (#289) |
+| M4.01 (agents, stage 3) | Gate M3 | none (K34): a decision |
+| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the dedicated account (K10, Aaron's Q6). M7.13: M7.01 alone (K34), and every other M7 slice needs it |
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
@@ -143,7 +144,7 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| ST4.01 | The budgets declaration in Noir on Aztec: a private budget note spent down, a private ballot with a public tally, in an in-process `proofs: "verified"` network (K7 Q7) | ST3.08 | spike | `spikes/aztec-club/README.md` answers it with a run, a tampered proof rejected | S |
+| ST4.01 | The budgets declaration in Noir on Aztec: a private budget note spent down, a private ballot with a public tally, in an in-process `proofs: "verified"` network (K7 Q7) | none (K34): it reads the budgets declaration in `examples/budgets` | spike | `spikes/aztec-club/README.md` answers it with a run, a tampered proof rejected | S |
 | ST4.02 | `language-noir`, the `aztec` store kind, `chain-aztec` on the `ChainPort`, `proofs: "verified"` worlds, from K7's design | ST4.01 | decision | `decisions/ST4-aztec.md` written | S |
 | ST4.03 | Journeys for the club | ST4.02 | checks | they fail on empty handlers | M |
 | ST4.04 | `chain-aztec`, and Aztec in a world with proofs verified; its `ChainPort.clock` (K23: a warp, then the L1 blocks finality needs) | ST4.02 | build | a world's Aztec network rejects a tampered proof and is gone when the world ends | M |
@@ -305,7 +306,7 @@ twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks, each wait through `Timers` so a stepped world moves it, K23), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
+| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks, each wait through `Timers` so a stepped world moves it, K23), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | none (K34) | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
 | M3.04 | Journeys for the factory (W1) in K11's shape ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)): goal, item, claim, board, question, attention; "only a fact closes", claims and leases, touches never shared while running, attention | M3.01 | checks | they fail on empty handlers | M |
@@ -355,7 +356,7 @@ agent: how long a start takes, and whether anything is left).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M4.01 | H1 and H2 under the frame: the Run thing, where Pi runs (a Durable Object per run, Node for the bench), the local model server and model, pinned | Gate M3 | decision | `decisions/M4-agents.md` written | S |
+| M4.01 | H1 and H2 under the frame: the Run thing, where Pi runs (a Durable Object per run, Node for the bench), the local model server and model, pinned | none (K34) | decision | `decisions/M4-agents.md` written | S |
 | M4.02 | Journeys for the agents feature, prose then steps | M4.01 | checks | they fail on empty handlers | M |
 | M4.03 | The floor (A0): the run record and folder, the trusted scorer, check 4 as the first runner | M4.01 | build | check 4 runs through the runner and writes a scored record | M |
 | M4.04 | The Pi Durable seam on Node SQLite (A1) | M4.03 | build | a run survives a process kill and resumes its transcript | M |
@@ -395,7 +396,7 @@ actors; `ortho prove` names each adapter's stand-in.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M5.01 | Views (where a view lives, how it is rebuilt), the general outbox (S22, S24), `step.await` on adapter events | Gate M4 | decision | `decisions/M5-reach-out.md` written | S |
+| M5.01 | Views (where a view lives, how it is rebuilt), the general outbox (S22, S24), `step.await` on adapter events | none (K34) | decision | `decisions/M5-reach-out.md` written | S |
 | M5.02 | Journeys for payments and notifications | M5.01 | checks | they fail on empty handlers | M |
 | M5.03 | Events in, general: doors that verify signatures, `on:` for adapter events and our own as `system`, idempotency by event id | M5.01 | build | a webhook sent twice settles once | M |
 | M5.04 | The outbox for every move: events written with the state, delivered at least once; an undeliverable one is a defect with a redelivery command | M5.03 | build | killing a delivery mid-way delivers once after restart | M |
@@ -424,7 +425,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | none (K26, K34) | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for the chain: contracts, the relayer and the follower (Codex's planned files `06` to `08`; the wallet's are M1.28 and M2.13) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | Moved to M1.29 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.04 | Moved to M2.13 (K7 F4: the wallet is the first plugin) | | | | |
@@ -468,9 +469,9 @@ Capxul's first feature runs in its staging.
 | M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04, M7.13 | build | the conformance test passes against Stripe's test mode | M |
 | M7.08 ∥ | The builder's read-only staging telemetry token (with Aaron's yes) | M7.04 | build | an unattended builder reads staging traces, redacted | S |
 | M7.09 ∥ | Contracts on a testnet (L4.08, cloud part) | M7.04, M7.13 | build | a changed vault is redeployed and verified | M |
-| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | M7.13 | decision | `decisions/M7-capxul.md` written | S |
+| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | none (K34) | decision | `decisions/M7-capxul.md` written | S |
 | M7.11 | Capxul's first feature on Orthograph, in its staging | M7.10, M7.05 | build | its journeys are green in Capxul's staging | M |
-| M7.13 | The release pass: the credentials the release needs (npm, Homebrew tap, GitHub, Stripe test mode, a testnet), each with Aaron's written yes, and the cost under the cap | ST4.08, M7.01 | decision | `decisions/M7-release.md` written, with Aaron's yes per credential | S |
+| M7.13 | The release pass: the credentials the release needs (npm, Homebrew tap, GitHub, Stripe test mode, a testnet), each with Aaron's written yes, and the cost under the cap | M7.01 (K34) | decision | `decisions/M7-release.md` written, with Aaron's yes per credential | S |
 | M7.14 | Monitors to the sink ([`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md)): the same rule list written to each declared sink (Axiom monitors with the burn rate in APL; Grafana alert rules and dashboards through its Foundation SDK); `alerts` routes on the environment file, which can only lower a severity | M1.49, M7.01 | build | in the staging pass the generated monitors exist with their labels; 20 slowed calls fire the builder route; a route that raises a severity fails `ortho check`; every monitor is destroyed afterwards; production routes compile, and nothing pages without Aaron's written yes | M |
 | M7.12 | **Gate M7** | all of M7 | e2e | `nx run e2e:m7` passes, and the gate's resources are destroyed | S |
 
