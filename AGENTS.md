@@ -48,7 +48,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
   evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet lists, a file per check
   in `e2e/m1/expected-failing/` and a file per test file in `packages/<package>/expected-failing/` (G11), or delete a file there. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
-  check changed stops and asks its author.
+  check changed stops and asks its author. A slice that changes acme's wire, its model or its checked-in `generated/` lands as a
+  pair, `goal-3/<slice>-check` and `goal-3/<slice>-build`, because layer 1 and layer 2 have no ratchet (G12,
+  `design/decisions/G12-paired-landing.md`).
 - **Merge your own pull requests when CI is green,** every review thread is resolved and a 🔍 reviewer that wrote none
   of it has passed it. The 🔍 pass is the gate. Codex is advisory (`design/decisions/CI-codex-advisory.md`): comment
   "@codex review" when it is available, and answer any finding it posts before the merge, but nobody waits on it; if
@@ -56,7 +58,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   threads, admins included (`design/decisions/CI-branch-protection.md`): `main`, `m1` and `goal/stage-1` require their
   CI jobs and every conversation resolved. `main` and `goal/stage-1` also require `builder-paths`: a `-build` pull
   request may not touch journeys, evals or checks. A docs-only pull request skips `e2e-layer1` and `e2e-layer2`, and a
-  skip passes (`design/decisions/CI-docs-fast-path.md`). Bring a branch up to date by merging its base in, never by
+  skip passes (`design/decisions/CI-docs-fast-path.md`). Open pull requests as drafts: a draft runs no CI, so test
+  locally, get the 🔍 pass, then mark it ready and CI runs once; keep at most two ready pull requests per lane in CI at
+  once (`design/decisions/CI-drafts.md`). Bring a branch up to date by merging its base in, never by
   rebasing, so the commits a reviewer already read keep their identity.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)

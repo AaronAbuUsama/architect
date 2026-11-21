@@ -11,6 +11,7 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 
 - `goal/on-chain` has stage 1 merged in at `37778735` ([#273](https://github.com/AaronAbuUsama/architect/pull/273), merged as `51c0bd87`), the snag log, and the branch's
   protection recorded.
+- The goal-4 skill and this file: **merged** 21 November 2026 ([#284](https://github.com/AaronAbuUsama/architect/pull/284), `ef768ce1`). Later notes ride the next pull request (CI-drafts).
 - Slice 0 (K27): done before the goal.
 - Slice 1 (the language and host seam): **held** until Goal 3's sign-in extraction (M2.05) merges on `goal/stage-1`
   (K28; both reshape `host-cloudflare`). Not merged as of this update. Check at each slice start: M2.05's row in
@@ -19,18 +20,26 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 - Slice 2 (M6.02): the budgets blueprint and seven journeys, **merged** 21 November 2026 ([#276](https://github.com/AaronAbuUsama/architect/pull/276), `b776818d`); the `e2e:on-chain` done check, **merged** 21 November 2026 ([#279](https://github.com/AaronAbuUsama/architect/pull/279), `607d62cf`);
   `e2e-on-chain` is now a required check on `goal/on-chain`. Slice 2 is done.
 - Slice 3 (M6.10, the chain store and values): checks written, [#283](https://github.com/AaronAbuUsama/architect/pull/283), aligned to M6-chain item 11 (its lock-wire file moved to slice 4); a hostile pass was running (a subagent of the old lead; if its result isn't on #283, run it again), then
-  a 🔍 and a framework builder. Its build waits on money's cases (M6-money).
+  a 🔍 and a framework builder. Money's cases, two hostile passes' fixes and proof 2 (a stand-in ortho passing every 04 file) are in; the 🔍 passed on its second round (head `763b6d1c`), and #283 is ready, in CI. A framework builder (a subagent of this lead, its own worktree) builds on `goal-4/m610-build` from the checks plus M6-money, and opens a draft. Merge [#287](https://github.com/AaronAbuUsama/architect/pull/287) before #283 (item 11 cites M6-money). Tell slice 3's builder: `02-seam-byte-identical` needs acme's and Plugged In's `blueprint/refusals.lock` committed.
 - Slices 4 to 12: not started.
 
 ## Open pull requests, in merge order
 
 | PR | Branch | What | Waiting on |
 |---|---|---|---|
+| [#303](https://github.com/AaronAbuUsama/architect/pull/303) | `goal-4/main-merge` | `goal/stage-1` merged in (with CI-drafts); K32 and K33 | 🔍, then ready |
 | [#287](https://github.com/AaronAbuUsama/architect/pull/287) | `goal-4/m6-money` | the money decision | CI (🔍 passed) |
-| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | conflicts with `goal/on-chain` (merge it in), hostile pass, money's cases (after [#287](https://github.com/AaronAbuUsama/architect/pull/287)), 🔍 |
-| [#284](https://github.com/AaronAbuUsama/architect/pull/284) | `goal-4/state-skill` | this skill | CI, 🔍 |
+| [#283](https://github.com/AaronAbuUsama/architect/pull/283) | `goal-4/m610-check` | slice 3's checks | CI (🔍 passed); merge after [#287](https://github.com/AaronAbuUsama/architect/pull/287) |
 
 `e2e-on-chain` is required on `goal/on-chain` since 21 November 2026 (`design/decisions/CI-branch-protection.md`).
+
+**`goal/stage-1` merged in** by [#303](https://github.com/AaronAbuUsama/architect/pull/303), which carries Goal 3's own merge of `main` (#277) and with it
+CI-drafts (#293); the draft guard added to `e2e-on-chain`; the brief adopting K32 and K33 (front matter, "Where it
+stands", owned paths). **Effect 4.1.4** came the right way: Goal 3 pinned every package to it on `goal/stage-1` (#302, `0a359317`) and
+regenerated acme and Plugged In; #303 merges that and moves `examples/budgets` to 4.1.4 with it. (Bumping it from
+`main` first would have moved Goal 3's integrity hashes on this branch alone, which `02-seam-byte-identical` refuses.) When
+[#287](https://github.com/AaronAbuUsama/architect/pull/287) merges, its own row puts `M6-money` in the brief's decision list. Slice 1b doesn't parse as a slice number in K33's
+`readSlice` (digits only), so the sync skips it; asked on [#301](https://github.com/AaronAbuUsama/architect/pull/301#issuecomment-7061949704) to accept `\d+[a-z]?`. Goal 4 keeps the name `1b`.
 
 ## Waiting on Aaron
 
@@ -58,6 +67,16 @@ Read first-hand by the lead, 21 November 2026.
 
 Goal 7 puts M6-money's shape into its budgets module next.
 
+Goal 7's spike passed its done check ([#294](https://github.com/AaronAbuUsama/architect/pull/294)): a hat budgets module, fuzz, an Anvil run, and a
+draft `design/decisions/ST3-budgets.md` (stage 3, ST3.02). Read by the lead on 21 November 2026; it changes nothing in
+Goal 4:
+- Its rows are keyed by (Safe, hat); Goal 4's by a client-minted id with `safe` and `member` fields. Stage 3 can keep
+  id keys with a rule on (safe, hat), and that also answers its open "regrant" question: a regrant is a new row.
+- Its spender is whoever wears the hat, read live from Hats: neither a `who` nor a `holds` role (M6-chain item 5).
+  A chain role that reads another contract is a stage 3 decision, not Goal 4's.
+- Its payment (`spikes/safe-hats-module/src/SafePayment.sol`) already uses `execTransactionFromModuleReturnData`:
+  the reference for snag S-12. Its amounts already follow M6-money.
+
 ## Passed to Goal 3 (through the conductor)
 
 - Codex: `packages/compiler/src/modules/model/internal/invariants.ts:83`, a rule refusal's auto-filled field schemas
@@ -70,6 +89,9 @@ Goal 7 puts M6-money's shape into its budgets module next.
 ## Snags
 
 S-01 to S-12 open (`design/goals/04-snags.md`): each a framework piece the budgets journeys need, each naming its slice.
+From K33 (21 November 2026), new snags are Snag issues in Goal 4's milestone. The done check's snag line
+(`e2e/on-chain/03-snags.test.ts`) reads only `04-snags.md`, so a checks author must extend it to require every Snag
+issue in the milestone closed or parked, before the goal lands.
 
 ## What went well
 

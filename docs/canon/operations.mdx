@@ -221,7 +221,7 @@ return Effect.flatMap(newCallId, (callId) => loop(1, callId));
 An operation may declare no steps at all (`packages/orthograph/src/modules/operations/types.ts:46`). A step's kind says
 what does the work. `database` is the store's, `wait` is a timer's. The kinds are an open list: `sync`, `check` and
 `prove` are named for languages that run on a chain or a client (N1), and nothing matches on all of them
-(`packages/orthograph/src/modules/operations/types.ts:19`). Every chain detail waits on K7.
+(`packages/orthograph/src/modules/operations/types.ts:19`). K7 added no step kind for a chain. A call into a contract we didn't write is a declared step with one declared refusal (K7 Q2), and on Aztec the "sync first" step is the SDK's job, never a handler's ([chains-and-wallets](chains-and-wallets.mdx)).
 
 **Every required step must run, in order.** Eval 6 checks it on every answered call; an `optional` step may be absent:
 

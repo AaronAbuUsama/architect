@@ -21,12 +21,12 @@ merge, read them on their branches (`git show origin/<branch>:<path>`, branches 
 3. `design/goals/04-snags.md`: every snag, and who owns it.
 4. `design/decisions/M6-chain.md`: the chain decision every slice builds to (items 1 to 11).
 5. `AGENTS.md`, and the `threads`, `author` and `reviewer` skills.
-6. `gh pr list --base goal/on-chain` and `git log --oneline -15 origin/goal/on-chain`, to check STATE.md against GitHub.
+6. `gh issue list --label goal-4`, `gh pr list --base goal/on-chain` and `git log --oneline -15 origin/goal/on-chain`, to check STATE.md against GitHub.
    Where they disagree, GitHub is right: fix STATE.md.
 
 ## The loop, per slice
 
-1. **Start:** check `goal/stage-1` for anything that changes the plan (slice 1 waits for Goal 3's sign-in extraction,
+1. **Start:** read the open issues in Goal 4's milestone (Ask issues above all) and pull requests into `goal/on-chain` (K32, K33). Check `goal/stage-1` for anything that changes the plan (slice 1 waits for Goal 3's sign-in extraction,
    M2.05). Merge `origin/goal/stage-1` into the slice's first branch, by a merge, never a rebase.
 2. **Decision step,** if the slice needs one: the lead writes it in `design/decisions/` (take an ID from the goal
    file's "Decision IDs" table), runs `tools/ci/supersedes.sh`, and gets a 🔍 pass.
@@ -39,9 +39,10 @@ merge, read them on their branches (`git show origin/<branch>:<path>`, branches 
 6. **Build:** a framework builder on a `-build` branch turns the check green, removing only lines from
    `expected-failing/`. At most three builders at once. Then a 🔍.
 7. **Merge** when CI is green, every thread is answered and resolved, and the 🔍 passed: `gh pr merge <n> --merge`.
-8. **After the merge,** in one docs pull request: update `STATE.md`, `design/handoff.md` if it names Goal 4, and the
-   slice's line in the goal file. Then report to the conductor in two or three plain lines: the slice, its check, its
-   snags.
+8. **For every merge,** in the pull request that merges, or the next one when CI-drafts folds the note in, but always
+   before the next slice starts: rewrite the brief's "Where it stands" and `STATE.md`, and `design/handoff.md` if it names Goal 4. Say the slice, its
+   check and its snags there and in the pull request, for Aaron's ear (K32). A message to the conductor is welcome, but
+   nothing depends on it.
 
 ## How the roles were run (21 November 2026)
 
@@ -67,8 +68,21 @@ review findings back to the author who wrote the check. In another harness, use 
   `pnpm-lock.yaml` importer so `--frozen-lockfile` passes.
 - **CI takes 45 to 60 minutes a pull request.** Batch a pull request's fixes into one push, and work the next slice
   while it runs.
+- **CI-drafts (the conductor's decision, 21 November 2026, #293).** Open every pull request as a draft: a draft runs no
+  CI. Get its 🔍 and run the affected checks locally, then mark it ready, and CI runs once. Push to a ready pull
+  request only to answer review or CI. Keep at most two of Goal 4's pull requests ready at once; fold small fixes
+  (like STATE.md notes) into the next one.
 - **Builders may only shrink `e2e/on-chain/expected-failing/`;** `tools/ci/builder-paths.sh` enforces it once #279 has
   merged.
+
+## On GitHub (K33)
+
+Every comment Goal 4's lead or its subagents post starts with `[goal-4 · <role> · claude · <model>]` (role: lead,
+author, builder, reviewer, hostile). Pull requests carry the milestone `Goal 4: on chain, end to end`, the labels `goal-4`,
+`release:1.0`, `role:<role>`, `harness:claude`, and the template's "Harness and model" line. A new snag is a Snag
+issue in the milestone. When an agent takes a slice, it comments on the slice's issue: "Taking this: claude, <model>,
+<role>" (K33 item 4). The brief's front matter is what `tools/github/sync.mjs` reads; keep `status` and `lead`
+current.
 
 ## Talking to Aaron
 
