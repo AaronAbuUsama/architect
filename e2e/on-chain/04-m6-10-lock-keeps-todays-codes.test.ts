@@ -17,8 +17,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { lockProblems } from "./chain-readers.ts";
 import { acme, ortho } from "./chain-fixture.ts";
-import { copyOf } from "../layer1/support.ts";
-import { repo, treeProblems } from "./support.ts";
+import { copyOf, repo } from "../layer1/support.ts";
+import { treeProblems } from "./seam.ts";
 
 type Lock = { refusals: Record<string, { name: string; owner: string; from?: string; earlier: unknown[] }>; retired: Record<string, unknown> };
 /** What is wrong with a lock next to the checked-in refusals map (name to code): one line per difference. */
@@ -39,7 +39,7 @@ describe("controls: codesOf refuses a lock that is not today's", () => {
     expect(codesOf(lock({ "XX-001": "B", "XX-002": "A" }), today)).toHaveLength(2);
     expect(codesOf(lock({ "XX-001": "A", "XX-002": "B", "XX-003": "C" }), today)).toHaveLength(1);
     expect(codesOf(lock({ "XX-001": "A" }), today)).toHaveLength(1);
-    expect(codesOf(lock({ "XX-001": "A", "XX-002": "B", "XX-003": "B" }), today)).toHaveLength(1);
+    expect(codesOf(lock({ "XX-001": "A", "XX-002": "B", "XX-003": "B" }), today).join("\n")).toContain("twice");
   });
 });
 
