@@ -520,7 +520,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      # The whole history, every branch: check 03 reads `git log HEAD` for the pull requests and commits a snag cites, and check 02 compares
+      # with Goal 3's output at `git merge-base HEAD origin/goal/stage-1`.
       - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6.1.0
       - uses: actions/setup-node@v7.1.0
         with:
