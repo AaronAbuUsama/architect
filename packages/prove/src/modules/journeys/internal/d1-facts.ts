@@ -7,6 +7,8 @@ import type { CallRecord, Facts } from "../types.ts";
 const parse = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Unknown));
 const NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
 const API = "https://api.cloudflare.com/client/v4";
+const PAGE = 100;
+const PAGES_MAX = 50;
 
 export interface D1Access {
   readonly token: string;
@@ -32,10 +34,17 @@ export const d1Facts = ({ token, account, owns, api = API }: D1Access): Facts =>
       }),
     );
   const die = (what: string) => (why: string) => Effect.die(new Error(`reading ${what} from D1 failed: ${why}`));
-  const databases = call("GET", "/d1/database?per_page=100").pipe(
-    Effect.map((r) => (Array.isArray(r) ? (r as ReadonlyArray<{ uuid?: unknown; name?: unknown }>) : []).flatMap((d) => (typeof d.uuid === "string" && typeof d.name === "string" && owns(d.name) ? [d.uuid] : []))),
-    Effect.catch(die("the databases")),
-  );
+  /** Every page of the account's databases: a shared account holds more than one page, and a database past the first must still be found. */
+  const databases = Effect.gen(function* () {
+    const owned: Array<string> = [];
+    for (let page = 1; page <= PAGES_MAX; page += 1) {
+      const r = yield* call("GET", `/d1/database?per_page=${PAGE}&page=${page}`);
+      const listed = Array.isArray(r) ? (r as ReadonlyArray<{ uuid?: unknown; name?: unknown }>) : [];
+      for (const d of listed) if (typeof d.uuid === "string" && typeof d.name === "string" && owns(d.name)) owned.push(d.uuid);
+      if (listed.length < PAGE) return owned;
+    }
+    return yield* Effect.fail(`more than ${PAGE * PAGES_MAX} databases listed`);
+  }).pipe(Effect.catch(die("the databases")));
   /** Every row `sql` returns in each of the run's databases; one without the table has none. */
   const rows = (sql: string, params: ReadonlyArray<string>) =>
     Effect.gen(function* () {
@@ -50,7 +59,17 @@ export const d1Facts = ({ token, account, owns, api = API }: D1Access): Facts =>
     record: (table, id) => (NAME.test(table) ? rows(`SELECT * FROM "${table}" WHERE "id" = ?`, [id]).pipe(Effect.map((r) => r[0] ?? null)) : Effect.succeed(null)),
     journal: (trace) =>
       rows(`SELECT * FROM "_journal" WHERE "trace" = ? ORDER BY "seq"`, [trace]).pipe(
-        Effect.map((r) => r.map((row) => ({ ...row, fields: JSON.parse(String(row["fields"])) as unknown })) as unknown as CallRecord["journal"]),
+        // One trace's rows can sit in several of the run's databases; together they keep the journal's own order.
+        Effect.map((r) => [...r].sort((a, b) => Number(a["seq"]) - Number(b["seq"]))),
+        Effect.flatMap((r) =>
+          Effect.forEach(r, (row) =>
+            Option.match(parse(String(row["fields"])), {
+              onNone: () => die("a journal row")(`its fields are not JSON (seq ${String(row["seq"])})`),
+              onSome: (fields) => Effect.succeed({ ...row, fields }),
+            }),
+          ),
+        ),
+        Effect.map((r) => r as unknown as CallRecord["journal"]),
       ),
   };
 };

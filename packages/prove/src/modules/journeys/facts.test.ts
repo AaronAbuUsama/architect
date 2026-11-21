@@ -80,6 +80,27 @@ describe("facts from the run's D1 databases", () => {
     expect(asked.filter((a) => a.sql !== undefined).map((a) => a.path)).toContain(`/accounts/${ACCOUNT}/d1/database/db-2/query`);
   });
 
+  it("finds the run's databases past the first page, and merges one trace's journal across them in order", async () => {
+    const asked: string[] = [];
+    const others = Array.from({ length: 100 }, (_, i) => ({ uuid: `other-${i}`, name: `someone-else-${i}` }));
+    const port = await listen(http((req, res) => {
+      let text = "";
+      req.on("data", (c: Buffer) => (text += c));
+      req.on("end", () => {
+        asked.push(req.url ?? "");
+        if (req.method === "GET") return body(res, 200, { success: true, result: req.url?.includes("&page=1") ? others : [{ uuid: "db-1", name: "ortho-p-stg-r1-db" }, { uuid: "db-2", name: "ortho-p-stg-r1-db-ledger" }] });
+        const sql = (JSON.parse(text) as { sql: string }).sql;
+        if (!sql.includes("_journal")) return body(res, 200, { success: true, result: [{ results: req.url?.includes("db-2") ? [{ id: "1", handle: "ada" }] : [] }] });
+        return body(res, 200, { success: true, result: [{ results: req.url?.includes("db-1") ? [{ seq: 3, trace: "t", fields: "{}" }] : [{ seq: 1, trace: "t", fields: "{}" }, { seq: 2, trace: "t", fields: "{}" }] }] });
+      });
+    }));
+    const facts = d1Facts(access(`http://127.0.0.1:${port}`));
+    expect(await Effect.runPromise(facts.record("link", "1"))).toEqual({ id: "1", handle: "ada" });
+    expect((await Effect.runPromise(facts.journal("t"))).map((r) => (r as unknown as { seq: number }).seq)).toEqual([1, 2, 3]);
+    expect(asked.filter((u) => u.includes("&page=2")).length).toBeGreaterThan(0);
+    expect(asked.some((u) => u.includes("other-"))).toBe(false);
+  });
+
   it("an error from the API reaches the run without the token or the account", async () => {
     const { api } = await fake(true);
     const message = await Effect.runPromise(d1Facts(access(api)).record("link", "1").pipe(Effect.exit)).then((x) => String(x));
