@@ -198,6 +198,7 @@
         "emits": "SheetClosed"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "SheetNotOpen",
         "SheetNotFound"
@@ -225,7 +226,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "f9b5ec5bc01ce4b1"
+      "hash": "5ff2de75e7294f8e"
     },
     "sheet.get": {
       "kind": "read",
@@ -281,6 +282,7 @@
       },
       "move": null,
       "errors": [],
+      "breaks": [],
       "refusals": [],
       "allowed": [
         {
@@ -294,7 +296,7 @@
       "budget": {
         "p95Ms": 50
       },
-      "hash": "b6bc2b60a642024d"
+      "hash": "647f208a50cda6f5"
     },
     "sheet.join": {
       "kind": "operation",
@@ -346,6 +348,7 @@
       "errors": [
         "SheetFull"
       ],
+      "breaks": [],
       "refusals": [
         "SheetFull",
         "SheetNotOpen",
@@ -379,7 +382,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "092fb1304d8eb535"
+      "hash": "0654da6d079c113d"
     },
     "sheet.open": {
       "kind": "operation",
@@ -428,6 +431,7 @@
         "emits": "SheetOpened"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "IdempotencyConflict"
       ],
@@ -449,7 +453,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "f9c720a62bc5a5a0"
+      "hash": "8c2cdb4e47331efb"
     }
   },
   "journeys": {
