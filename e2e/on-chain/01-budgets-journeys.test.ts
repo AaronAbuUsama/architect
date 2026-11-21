@@ -133,6 +133,14 @@ describe("controls: reportProblems refuses each hollow reading", () => {
     held("`by` another actor's account", plant(step(0, { tx: { hash: hash(9), by: ACCOUNTS["olga"] } }), GRANT));
     held("`by` missing", plant(step(0, { tx: { hash: hash(9) } }), GRANT));
     held("tx.by differing from signer.account", plant(step(4, { tx: { hash: hash(9), by: ACCOUNTS["bob"] } }), WRONG));
+    // one transaction per step: a hash repeated within a journey, across journeys, or in another case is refused
+    const TWICE = "a spend submitted twice lands once"; // two sent transactions: steps 1 and 4
+    const first = honest().find((j) => j.name === TWICE)!.steps[0]!.tx!.hash!;
+    held("a hash repeated within a journey", plant(step(3, { tx: { hash: first, by: ACCOUNTS["olga"] } }), TWICE));
+    held("a hash repeated across journeys", plant(step(0, { tx: { hash: first, by: ACCOUNTS["ada"] } }), GRANT));
+    expect(reportProblems(plant(step(3, { tx: { hash: first, by: ACCOUNTS["olga"] } }), TWICE))).toHaveLength(1);
+    held("a hash repeated in another case", plant(step(0, { tx: { hash: first.toUpperCase().replace("0X", "0x"), by: ACCOUNTS["ada"] } }), GRANT));
+    expect(reportProblems(plant(step(0, { tx: { hash: hash(9999), by: ACCOUNTS["ada"] } }), GRANT))).toEqual([]);
     expect(reportProblems(plant(step(1, { signer: { actor: "someone", account: "x" } }), GRANT)), "a read is not judged for a signer").toEqual([]);
   });
   it("every journey and every step is judged, not the first, and each problem names where", () => {

@@ -24,11 +24,17 @@ Each file opens with what it requires and carries its own controls: the readers 
 
 ## Later slices add their check here
 
-Each later slice's checks author adds that slice's check as `NN-<slice>.test.ts` in this folder, with the next number, red, and
-lists it in `expected-failing/` (one file per check file, named after it, keys `on-chain/NN-<slice>.test.ts > describe > test`) in
-the same pull request, saying in the body why (which slice, when due). Its builder turns it green and deletes its lines, or the file
-when the last goes (`tools/ci/builder-paths.sh` lets a `-build` branch only remove). Nothing else in this folder, the target or the
-job changes. Anvil and Foundry are already on the CI job's runner.
+`slices.json` names the check each of slices 3 to 12 must add, by its number prefix (`04` to `15`; slice 12 has three, for M6.16, M6.17 and
+M6.18). Each slice's checks author adds `NN-<name>.test.ts` with that prefix, red, and lists it in `expected-failing/` (one file per check file,
+named after it, keys `on-chain/NN-<name>.test.ts > describe > test`) in the same pull request, saying in the body why (which slice, when due).
+Its builder turns it green and deletes its lines, or the file when the last goes: `tools/ci/builder-paths.sh` lets a `-build` branch only
+remove from `e2e/on-chain/expected-failing/` (its cases are in `tools/ci/ci.test.sh`) and refuses an edit to any check file or to `slices.json`.
+Nothing else in this folder, the target or the job changes. Anvil and Foundry are already on the CI job's runner.
+
+`nx run e2e:on-chain` has three steps: the ratchet; `empty-list.mjs`, red while `expected-failing/` holds any file; and `presence.mjs`, red
+while a check named in `slices.json` is not in this folder with a test in it, or while `slices.json` stops naming a slice. So "every slice's
+check is green" cannot pass by there being no check. `00-done-check-gate.test.ts` plants each hole against it. Today the done check is red for
+both reasons.
 
 ## What the done check still needs
 
@@ -37,5 +43,5 @@ JSON has no comments, so this list sits here and in the `on-chain` target's desc
 1. Prove's report does not carry who signed a step yet (snag S-11). `01` already requires it: per journey `cast: { <name>: { account } }`;
    per step `actor`, `operation` and, for a chain operation, `signer: { actor, account }` and, when a transaction is sent, `tx: { hash, by }`.
    The framework builders add the fields (slice 8 for direct sends, slice 11 for signed ones).
-2. Every slice's own check (slices 3 to 12), added by each slice's checks author as above.
+2. Every slice's own check (slices 3 to 12), added by each slice's checks author as above; `presence.mjs` fails until each is there.
 3. Slice 12's `nx` wiring: until budgets is in the Nx graph, this suite reaches it by path, not through a project target.

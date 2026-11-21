@@ -84,7 +84,9 @@ const castProblems = (at: string, declared: ReadonlyArray<string>, cast: Reporte
  */
 export const reportProblems = (journeys: ReadonlyArray<ReportedJourney>): ReadonlyArray<string> => {
   const names = journeys.map((j) => j.name);
+  const hashes = journeys.flatMap((j) => j.steps.flatMap((s, i) => typeof s.tx?.hash === "string" ? [{ hash: s.tx.hash.toLowerCase(), at: `journey "${j.name}", step ${i + 1}` }] : []));
   return [
+    ...hashes.filter((h, i) => hashes.findIndex((o) => o.hash === h.hash) !== i).map((h) => `${h.at}: tx.hash ${h.hash.slice(0, 12)}… is the hash of an earlier step too (one transaction per step: hashes are distinct across the run)`),
     ...Object.keys(PIN).filter((n) => !names.includes(n)).map((n) => `journey "${n}" did not run`),
     ...names.filter((n) => !(n in PIN)).map((n) => `unexpected journey "${n}"`),
     ...names.filter((n, i) => names.indexOf(n) !== i).map((n) => `journey "${n}" ran twice`),
