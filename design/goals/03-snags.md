@@ -284,3 +284,15 @@ takes each, check first, and the climber comes back to that step once it is fixe
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
 - Status: open
+
+## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
+- Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
+  `ortho model` exited 0, the model carried no rule and the migration no index, with no problem message.
+- Lost: `tsc` refuses the property in a typed project, so only plain JavaScript, an ignored type error or a skipped
+  typecheck reaches it; there the constraint is dropped without a word and two rows may then hold one value.
+- Cause: ST1.20 removed G4's reader in `packages/compiler/src/modules/model/internal/describe.ts`, and nothing took its
+  place to refuse the retired property.
+- Fix: framework. The compiler refuses a thing carrying `unique`, naming the thing and pointing at
+  `Blueprint.invariant.unique` in `invariants.ts` (G5). A checks author first adds the case.
+- Owner: Goal 3 lead, for a framework builder.
+- Status: open

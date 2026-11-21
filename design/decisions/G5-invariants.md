@@ -311,9 +311,3 @@ thread ST1.21, which owns `docs/canon/check.mjs`; the portal designer ST1.22 aft
 ST1.20 (21 November 2026) retired G4's spelling in the live docs.
 
 - design/frame/writing-a-feature.md: "unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)" → "`wallet/invariants.ts` declares `Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])`"
-
-## Supersedes
-
-ST1.20 (21 November 2026) retired G4's spelling in the live docs.
-
-- design/frame/writing-a-feature.md: "unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)" → "`wallet/invariants.ts` declares `Blueprint.invariant.unique([Wallet.fields.address, Wallet.fields.chain])`"
