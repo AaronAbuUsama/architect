@@ -204,7 +204,7 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | K27 | the three plugin kinds: language, host, projection; no target (replaces K17's TargetSpec) | reserved 20 November 2026 for the 📐 Solidity session, Goal 4 |
 | K28 | releases (scope map) | open PR #262, reserved 21 November 2026 |
 | K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
-| K31 | the app's map in the blueprint, and Goal 6 | reserved 21 November 2026 for the UI-layer thread (#285) |
+| K31 | the app's map in the blueprint, and Goal 6 | taken 21 November 2026 by the 📐 designer thread, #285 |
 | K32 | goals coordinate themselves, through git and GitHub | `main`, by the conductor |
 | K33 | the work lives on GitHub natively: a milestone per goal, issue kinds, templates, the sync | #301, by the 📐 designer thread |
 | K34 | goals start by what they need, not by milestone order; the goal map | `main`, by the conductor |

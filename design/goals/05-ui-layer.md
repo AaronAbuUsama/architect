@@ -2,6 +2,9 @@
 
 Branch `goal/ui-layer`, cut from `goal/stage-1`. Written 21 November 2026 with K29.
 
+**To start it, in any harness** (Claude Code, Amp, Codex): "You lead Goal 5. Read `AGENTS.md` and
+`design/goals/05-ui-layer.md`, and run it." Nothing else is needed. Label `goal-5`, milestone `Beta`.
+
 ## Aaron's words
 
 On 21 November 2026 Aaron asked for the UI layer to be designed on UI SDK, with HeroUI phased out (K24). The four
@@ -42,16 +45,17 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >
 > This file is the whole brief: it holds every agreement this goal depends on (below, "The agreements"), so a lead
 > starting cold, on any account or session, needs only the repository. Read "Where it stands" at the end first, and
-> rewrite it at every slice merge. The conductor is whichever session runs the `conductor` skill;
-> `.agents/skills/kanban/STATE.md` says where the whole project stands.
+> rewrite it at every slice merge. You coordinate yourself, through the repository and GitHub only ("How this goal
+> coordinates", below); `.agents/skills/kanban/STATE.md` says where the whole project stands.
 >
 > Read first:
 > - `AGENTS.md`, and this file word for word;
-> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K24, K13 and K28;
+> - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K32 (how goals
+>   coordinate), K24, K13 and K28;
 > - `design/frame/projections.md` 3.4 (the web projection) and the M1.22, M1.23, ST1.25, ST1.26 and ST1.04 rows of
 >   `design/milestones.md`;
 > - `spikes/ui-sdk-real-world/` (#222) and `spikes/ui-sdk-verb-primitive/` (#215), their READMEs first;
-> - the `ui-sdk`, `conductor`, `reviewer`, `author`, `threads` and `kanban` skills.
+> - the `ui-sdk`, `reviewer`, `author`, `threads` and `kanban` skills.
 >
 > - **Branch:** `goal/ui-layer`, cut from the tip of `goal/stage-1` when this goal starts.
 >   - Every change reaches it through a pull request into `goal/ui-layer`. Merge each one when CI is green and a 🔍
@@ -65,10 +69,11 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 > - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
 >   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
 >   Rewrite "Where it stands" in the same pull request.
-> - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
->   three lines: the slice, its check, its snags. Write for Aaron's ear.
-> - **Branch protection:** ask the conductor to protect `goal/ui-layer` like `goal/stage-1` before the first pull
->   request (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved.
+> - **Reporting:** "Where it stands", rewritten in the pull request that merges each slice. Nobody is messaged.
+> - **Branch protection** is set on `goal/ui-layer` before this goal starts, like `goal/stage-1`
+>   (`design/decisions/CI-branch-protection.md`): its CI jobs must pass and every conversation be resolved. If
+>   `gh api repos/AaronAbuUsama/architect/branches/goal/ui-layer/protection` finds none, it needs an admin: write that
+>   in "Where it stands" and stop before the first pull request.
 
 ## The bound
 
@@ -89,7 +94,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 - **Goal 3's hotspots** (from its open pull requests on 21 November 2026). Merge often, and keep each slice small where
   it touches them:
   - the compiler's model (#269, and ST1.14 to ST1.16 before it): the actions and web projections read the model and
-    never change it. A field they need that the model lacks is a snag for Goal 3, not an edit here;
+    never change it. A field they need that the model lacks is an issue labelled `goal-3`, not an edit here;
   - `orthograph`'s front door (ST1.14): M1.23's actions module sits beside it, so merge before touching the module
     index;
   - `examples/plugged-in` and `e2e/` (#267, the journeys): this goal writes only `examples/plugged-in/src/web/` and its
@@ -124,10 +129,47 @@ moves on. It never writes a fetch or a hand-made form to get round a piece. The 
 - Status: fixed
 ```
 
+## How this goal coordinates (K32)
+
+This goal coordinates itself, in whatever harness runs it, through the repository and GitHub only, never through a chat
+or a coordinating session ([`../decisions/K32-goals-coordinate-themselves.md`](../decisions/K32-goals-coordinate-themselves.md)).
+
+- **Label and milestone.** Every pull request and issue of this goal carries the label `goal-5` and the milestone
+  `Beta` (K28's releases).
+- **The paths it owns:**
+  - `packages/orthograph/src/modules/actions/` (M1.23) and its line in `packages/orthograph/src/index.ts`;
+  - `packages/web/` (`@orthograph/web`);
+  - the actions and web projections, `packages/projections/src/modules/{actions,web}/`, their lines in
+    `packages/projections/src/main.ts`, and the generators' templates for them;
+  - `examples/plugged-in/src/web/`;
+  - this goal's checks (ST1.26, M1.22's and M1.23's) and the `e2e:ui-layer` target;
+  - `design/goals/05-ui-layer.md` and `05-snags.md`;
+  - and only these lines of shared files: in `.oxlintrc.json`, `scope:web`'s module-boundary tags for `packages/web/`
+    and the carve-out of `ortho/no-ui-in-worker` for `generated/web/` (K29 section 6); in
+    `examples/plugged-in/generated/`, the new `actions/` and `web/` folders generate writes; in `e2e/project.json` and
+    `.github/workflows/ci.yml`, the `e2e:ui-layer` target and its job; and what `pnpm install` writes to
+    `pnpm-lock.yaml`.
+  Nothing else is this goal's. Touching another goal's path is a cross-goal ask, never a quiet edit.
+- **Where it stands.** The lead rewrites "Where it stands" at the end of this file in every pull request that merges
+  into `goal/ui-layer`: what landed, what is open, what it waits on, in two or three lines written for Aaron's ear. That is the
+  report; nobody is messaged. This goal's own snags go in `design/goals/05-snags.md`, and only its own.
+- **Asking another goal for something** is a GitHub issue labelled for the goal that must act (`goal-3` for Goal 3, `goal-6` for Goal 6), naming
+  this goal and what done looks like. Never push to another goal's branch or edit its files by pull request; the
+  owner acts on the issue.
+- **Asks to this goal** are open issues labelled `goal-5`. Read them at the start of every slice, after merging
+  `goal/stage-1` in, and close each with the pull request that answers it.
+- **Decisions** this goal makes are named by area and a slug (`WEB-<slug>`, as in `WEB-piece-state`), never numbered. Before using a name, check
+  that no file starts with it on `main` or any open branch (`git ls-tree -r --name-only origin/<branch>
+  design/decisions/`), and list it under "Decision IDs" below.
+- **Changing an agreement** below is an issue labelled for the other goal; each lead then edits only its own brief.
+- **Branch protection** on `goal/ui-layer` is set by the conductor before this goal starts (K32). If
+  `gh api repos/AaronAbuUsama/architect/branches/goal/ui-layer/protection` finds none, write that in "Where it stands" and stop
+  before the first pull request.
+
 ## The agreements (21 November 2026)
 
 Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when Goal 6 was split off. They
-hold whoever leads either goal; changing one goes through the conductor and is written here and in Goal 6's brief.
+hold whoever leads either goal; changing one starts with an issue labelled for the other goal.
 
 1. **The theme is Goal 6's.** `@orthograph/theme` is Goal 6's first slice, landed in `goal/stage-1` on its own. Until
    it lands, the pieces use UI SDK's default tokens; this goal's screens slice (slice 5) takes it up.
@@ -136,15 +178,16 @@ hold whoever leads either goal; changing one goes through the conductor and is w
    goal's "existing generated files unchanged" keeps holding while Goal 6 lands.
 3. **Neither goal edits the other's packages.** This goal owns the actions module in `orthograph`, `packages/web`, the
    actions and web projections and `examples/plugged-in/src/web/`. Goal 6 owns `packages/theme`, `packages/shell`,
-   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is a snag sent to its
-   owner through the conductor.
+   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is an issue labelled for that goal
+   (above), never an edit.
 4. **This done check never waits on the map.** Plugged In's pages are declared in the map language as a follow-on,
    once Goal 6's map landing reaches `goal/stage-1` (see "Where it meets Goal 6").
 5. **The waits.** The screens (slice 5) wait on ST1.03, Goal 3's handles plugin. The sign-in piece waits on M2.05 and
    M2.06, Goal 3's auth plugin; until then the screens use the test people Plugged In's journeys use, and ST1.06 is not
    in this done check.
 6. **The portal is Goal 6's.** It is rebuilt beside the old one; a list of the portal checks the new client fails only
-   shrinks; cutover lands in `goal/stage-1` only with Goal 3's lead's yes and a 🔍 pass, agreed through the conductor.
+   shrinks; cutover lands in `goal/stage-1` only after Goal 3's lead agrees the freeze on a `goal-3` issue, with Goal 3's
+   lead's yes on the cutover pull request and a 🔍 pass.
    This goal never edits either client.
 
 ## The slices
@@ -186,9 +229,8 @@ These touch only new code and their own checks, none of what Goal 3 or Goal 6 is
 
 ## Decision IDs
 
-The lead keeps this list (the `threads` skill: decision IDs come from one allocator; on a goal, the goal file). Ask the
-lead for the next one before writing a decision file on this branch. None is reserved yet: K29 settles the shape, and a
-question the slices raise gets the next free ID from `design/handoff.md`.
+K29 settles the shape. A question the slices raise is a decision named `WEB-<slug>` (K32), never a number, so no
+allocator is needed: check the name is free, then list it here in the pull request that adds it.
 
 | ID | File | Taken by |
 |---|---|---|

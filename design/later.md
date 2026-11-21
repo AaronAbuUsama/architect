@@ -6,6 +6,9 @@ belongs to, and why it waits.
 - Indexers beyond the generated follower, for views too large for an organisation's index. Later.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
+- **The rest of the app's map** (K31): the docs' page per screen, `ortho add page <name>`, the agent's `map` tool on
+  an app, and `open(pages.x)` in `ortho prove --through web`. Goal 6 builds the map, the app projection and the shell
+  first, and proves them on the portal; these wait until an app other than the portal has a declared map.
 - **Scaffolds that follow the blueprint** (Aaron, 21 November 2026, with the 📐 designer thread): a file scaffolded
   once and "yours from now on" falls out of line when its declaration changes later, so it must be marked and
   ratcheted, not left alone. Four steps, on what exists:
