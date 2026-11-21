@@ -382,12 +382,15 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   (`packages/language-effect/src/modules/handler/internal/invariants.ts:26`) copies the caller's row value into the
   refusal's field, so a duplicate claim answers with an internal error where the declared refusal belongs.
 - Cause: the compiler compares field names (`key.includes(field)`), never the field's value schema.
-- Fix: framework. The compiler refuses a refusal field whose schema differs from the rule's key field, one line naming
-  the thing, the rule and the field. A separately declared equal schema (`Blueprint.uint(32)` twice, the same id prefix)
-  is the same schema and passes. Checks: `packages/compiler/src/modules/model/refusal-field-schema.test.ts`, held on
+- Fix: framework. The compiler refuses a refusal field whose value is not the rule's key field's own, one line naming
+  the thing, the rule and the field. The comparison is strict (the lead's call, on the reviewer's advice): a value whose
+  schema has no named type (`Blueprint.value(Schema...)`) is equal only when it is the same object; any other value
+  (text, number, id) is equal when its kind and its numbers match. A separately declared equal `Blueprint.uint(32)`
+  twice, or the same id prefix, passes; a text with a larger `max` than the key's is refused. The message says to declare
+  the field with the key field's own value (share the constant). Checks: `packages/compiler/src/modules/model/refusal-field-schema.test.ts`, held on
   `packages/compiler/expected-failing/refusal-field-schema.txt` (G11).
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open; checks written (this pull request)
+- Status: built (goal-3/s33-s34-build)
 
 ## S-34 · compiler · two rules of one thing whose names differ only in case compile, and the world's migrations never finish
 - Hit: Codex on #275 (Goal 4). Rules `byURL` and `byUrl` on one thing are accepted.
@@ -403,4 +406,4 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   `packages/compiler/src/modules/model/rule-name-case.test.ts`, held on
   `packages/compiler/expected-failing/rule-name-case.txt` (G11).
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open; checks written (this pull request)
+- Status: built (goal-3/s33-s34-build)
