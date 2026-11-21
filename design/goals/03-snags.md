@@ -310,6 +310,9 @@ takes each, check first, and the climber comes back to that step once it is fixe
   rule), so the wire never carries a rule with no refusal on an operation.
 - Fix: framework. The model carries each operation's `breaks`, and the portal's spine reads it. Check 28 pins the stop to
   the rules the model attaches today (`e2e/m1/rules-fixture.ts:215`), so a checks author first moves it to `breaks`.
+  Amended 21 November 2026 (`design/decisions/S31-breaks.md`, point 4): a database step with `writes` unset stays
+  unknown and breaks the rules of a machine-less thing; `writes: []` is reads only. `profile.get` declares it and has no
+  rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: open
+- Status: checks written (#252)
 
