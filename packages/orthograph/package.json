@@ -7,7 +7,7 @@
     "./server": "./src/server.ts"
   },
   "dependencies": {
-    "effect": "4.1.1"
+    "effect": "4.1.4"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
