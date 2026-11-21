@@ -193,10 +193,17 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | G8 | a refused call is traced in `<operation>.refused` | `goal/stage-1` |
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
+| K30 | the model and the map: where the core ends, the repositories, declaring what you know, extraction, staleness in CI | `claude/orthograph-model-cf3dca` (#185), reserved |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
 | M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
+| K25 | the blueprint on chain (a chain store, `lives:`), superseding K7's inline chain | reserved 20 November 2026 for the 📐 Solidity session |
+| K26 | on chain pulled forward (M6 ahead of the gates for M3 to M5) | reserved 20 November 2026 for the 📐 Solidity session |
+| K27 | the three plugin kinds: language, host, projection; no target (replaces K17's TargetSpec) | reserved 20 November 2026 for the 📐 Solidity session, Goal 4 |
+| K28 | releases (scope map) | open PR #262, reserved 21 November 2026 |
+| K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
+| K31 | the app's map in the blueprint | taken 21 November 2026 by the 📐 designer thread, #285 |
 
 **Next free:** D5, E2, F10, G9, H3, K32, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or

@@ -23,7 +23,8 @@ and time, and never counts or browses the app's stored data.
   become a problem, we'll just clean-room the components that we need." So the portal is HeroUI Pro only, with no free
   face. **Fallback, recorded:** if Pro's licence ever blocks distribution, we clean-room the components the portal uses
   into our own package; the page contract stays as it is, so only the face changes. "The portal's components behind one package (F7,
-  K29)" below settles how; K29 (21 November 2026) moves what is behind it to UI SDK.
+  K29, K31)" below settles how. Superseded by K24, 20 November 2026: UI SDK is the base and HeroUI is phased out; and by
+  K29 and K31, 21 November 2026: a new client on UI SDK replaces the old one at cutover.
 
 ### Round 2 (19 November 2026, in the chat: "Agreed to all questions")
 
@@ -1119,7 +1120,6 @@ This file's pages, routes and information architecture stay as agreed; only how 
 - **At cutover** the new client is served at `/portal`, the old client, `portal-ui`'s HeroUI and the licence machinery
   are deleted, check 15 (rewritten first) passes, and the portal builds with `HEROUI_AUTH_TOKEN` unset.
 
-This replaces round 1's "clean-room the components we need" with one place to do it.
 
 ## What this changes elsewhere
 

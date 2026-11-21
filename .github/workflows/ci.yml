@@ -3,7 +3,10 @@ name: ci
 on:
   push:
     branches: [main, "layer/**", "m[0-9]", "goal/**"]
+  # ready_for_review: a draft runs nothing (every job below starts with the draft guard), and marking it ready runs CI
+  # once (design/decisions/CI-drafts.md).
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -21,6 +24,7 @@ jobs:
   # as three jobs side by side (design/decisions/CI-speed.md): prove's tests alone took 13 of check's 16 minutes, so they
   # run in shards, and the rest runs beside them. The small `check` job at the end passes only when both did.
   check-static:
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -46,7 +50,7 @@ jobs:
   # request, like the layer gates: no prove test reads design/ or a doc outside packages/ (CI-speed.md).
   prove-tests:
     needs: changes
-    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
     name: prove-tests (${{ matrix.shard }}/3)
     strategy:
       fail-fast: false
@@ -71,7 +75,7 @@ jobs:
   # skipped by the docs fast path.
   check:
     needs: [changes, check-static, prove-tests]
-    if: ${{ !cancelled() }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled()) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -88,7 +92,7 @@ jobs:
   # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
   # Any other pull request or push skips it, and a skipped job counts as passed where it is required.
   builder-paths:
-    if: github.event_name == 'pull_request' && endsWith(github.head_ref, '-build')
+    if: github.event.pull_request.draft != true && (github.event_name == 'pull_request' && endsWith(github.head_ref, '-build'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -100,12 +104,12 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
 
   # Is this pull request docs only? Then the layer gates below and prove-tests skip (design/decisions/CI-docs-fast-path.md,
-  # CI-speed.md): main is strict, so every pull request reruns all of CI each time another lands, and a docs change cannot
-  # move them. Docs-only is every changed path under design/, or a *.md file outside packages/, e2e/ and examples/
+  # CI-speed.md): a docs change cannot move them. Docs-only is every changed path under design/, or a *.md file outside packages/, e2e/ and examples/
   # (tools/ci/docs-only.sh). A push, or a pull request with any other change, runs everything. check-static and `e2e-m0`
   # always run, since they lint the docs, total the e2e READMEs, build the design docs and run the supersedes guard.
   # Never workflow-level `paths-ignore`: a workflow that never starts leaves its required checks pending forever.
   changes:
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -131,7 +135,7 @@ jobs:
   e2e-layer1:
     # Skipped on a docs-only pull request, where a skip counts as passed. Should `changes` itself fail, this runs.
     needs: changes
-    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -153,7 +157,7 @@ jobs:
   e2e-layer2:
     # Skipped on a docs-only pull request, where a skip counts as passed. Should `changes` itself fail, this runs.
     needs: changes
-    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -182,7 +186,7 @@ jobs:
   # e2e/m8/expected-failing/, and fails on any other. Skipped on a docs-only pull request, like the gates above.
   e2e-m8:
     needs: changes
-    if: ${{ !cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+    if: ${{ github.event.pull_request.draft != true && (!cancelled() && !(needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -199,6 +203,7 @@ jobs:
   # The canon's check (docs/canon/README.md) runs beside it: every quote, reference and component in the MDX pages.
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
   e2e-m0:
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
