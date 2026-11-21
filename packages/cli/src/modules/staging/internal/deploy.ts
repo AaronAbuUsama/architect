@@ -37,7 +37,7 @@ export const up = (tools: Tools, credentials: Credentials, root: string, plan: P
     for (let attempt = 1; ; attempt++) {
       const done = yield* alchemy(tools, credentials, root, plan.prefix, "deploy", secret);
       if (done.status === 0) break;
-      const failed = new StagingFailed({ message: `the deploy failed: ${clip(done.output, credentials)}` });
+      const failed = new StagingFailed({ message: `the deploy failed: ${clip(done.output, credentials, [secret])}` });
       if (attempt >= RETRIES || !done.output.includes("10007")) return yield* failed;
       yield* tools.pause(RETRY_AFTER);
     }

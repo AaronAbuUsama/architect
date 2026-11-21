@@ -49,6 +49,13 @@ three days old when installed (`@distilled.cloud/cloudflare` rc.20 and `@alchemy
 `@effect/sql-d1` move from 4.1.1 to 4.1.4 (4.1.4, published 11 November 2026) in every package and example. Alchemy v2 is a weekly-changing beta (R1): the exact pin is what
 keeps it still, and a bump is a decision of its own.
 
+## Alchemy is a beta, and `state()` is avoided
+
+Alchemy 2.0.0-beta.87 is a beta, pinned exactly (no range, no caret). We move off it at its 2.0 release, as a decision of its own. `Cloudflare.state()` is
+avoided on purpose: the stack keeps Alchemy's local state under the run's folder and the sweep never depends on it. The destroy sweep tries every delete,
+Workers and databases, and only then reports the failures together (exit 1), so one failed Worker delete does not leave the databases behind. The deploy
+failure message redacts the token, the account id and the Worker's random secret.
+
 ## Not done here
 
 The real deploy has not been run: it waits for the hand-run staging workflow and the lead's go, so the stack has been type-checked against

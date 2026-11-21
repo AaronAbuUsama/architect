@@ -4,7 +4,7 @@ import { isAbsolute, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { makeStaging, prefixOf, stagingUrl } from "./service.ts";
-import type { Account, Credentials, Options, Plan, Tools } from "./types.ts";
+import { StagingFailed, type Account, type Credentials, type Options, type Plan, type Tools } from "./types.ts";
 
 const example = resolve(import.meta.dirname, "../../../../../examples/plugged-in");
 const scratch = join(example, "tmp/cli-staging");
@@ -134,6 +134,23 @@ describe("staging up and destroy", () => {
     expect(world.databases.size).toBe(0);
   });
 
+  it("one failed Worker delete does not stop the databases from being deleted: the sweep tries every delete, then exits 1 with the failures together", async () => {
+    const mine = "ortho-pluggedin-stg-2";
+    const world = pretend([`${mine}-worker`, `${mine}-worker-b`], [`${mine}-db`, `${mine}-db-ledger`]);
+    const tools: Tools = {
+      ...world.tools,
+      account: (c) => ({ ...world.tools.account(c), deleteWorker: (name) => (name.endsWith("-b") ? Effect.fail(new StagingFailed({ message: `refused for ${credentials.token}` })) : world.tools.account(c).deleteWorker(name)) }),
+    };
+    const said = await run(makeStaging(tools).destroy(options("2")));
+    expect(said.exit).toBe(1);
+    expect(said.err).toContain("1 deletes failed");
+    expect(said.err).toContain("refused for [token]");
+    expect(said.err).not.toContain(credentials.token);
+    expect(world.calls.filter((c) => c.startsWith("delete database"))).toHaveLength(2);
+    expect(world.databases.size).toBe(0);
+    expect([...world.workers]).toEqual([`${mine}-worker-b`]);
+  });
+
   it.each(["up", "destroy"] as const)("%s with no token or no account id exits 2 naming what is missing, and never touches the cloud", async (verb) => {
     const world = pretend();
     const touched: string[] = [];
@@ -199,6 +216,15 @@ describe("staging up and destroy", () => {
     expect(said.err).not.toContain(credentials.token);
     expect(said.err).not.toContain(credentials.account);
     expect(said.err.length).toBeLessThan(340);
+  });
+
+  it("a deploy failure never holds the Worker's random secret either", async () => {
+    const world = pretend([], [], (verb) => (verb === "deploy" ? { status: 1, output: `rejected secret not-a-real-secret for ${credentials.token}` } : { status: 0, output: "" }));
+    const said = await run(makeStaging(world.tools).up(options("83")));
+    expect(said.exit).toBe(1);
+    expect(said.err).toContain("[secret]");
+    expect(said.err).not.toContain("not-a-real-secret");
+    expect(said.err).not.toContain(credentials.token);
   });
 
   it("a relative --root (the workflow passes examples/plugged-in) still gives Alchemy an absolute stack, input and working folder", async () => {
