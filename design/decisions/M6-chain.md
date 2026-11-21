@@ -343,6 +343,30 @@ accepted as written. The slices that build each (S-01 to S-10 in `04-snags.md`) 
 - **`BadSignature` and `SignatureExpired`** are reached by the generated Foundry tests (slice 5), not by journeys: no
   cast member forges a signature, and a journey doesn't move block time (M6.21).
 
+### 11. The model's chain shapes (slice 3's checks author's questions, #283)
+
+- **The model** records a chain store as `stores.<file>.kind: "chain.evm"`; each field of a chain-stored thing gains a
+  `solidity` key (`"uint128"`, `"bytes32"`, `"string"`, `"address"`); the thing gains `stateNumbers`
+  (`{ "absent": 0, "active": 1, … }`, item 2); `Blueprint.account()`'s `ValueMeta` is `{ type: "account" }`; and a
+  `who` role is `{ kind: "who", who: "<field>" }` in `roles`, beside K20's `holds` shape. Blueprints with no chain store
+  are byte-identical.
+- **`ortho check` classifies against the checked-in `generated/model/model.json`.** Moving a thing to a chain store and
+  reordering or removing a chain-stored thing's states are major; appending a state is minor. Slice 3 builds the
+  classification where `ortho check` calls such a change a patch today.
+- **AR-003 to AR-006 appear in the model's `refusals` only when the project has a chain store**, so acme's and Plugged
+  In's models stay byte-identical; their names are reserved in every project.
+- **The lock's Solidity wire identities come with the Solidity language.** Slice 3 writes the lock with each code's
+  Effect wire and fields, and `ortho model` compiles a chain project; slice 4 adds the `solidity` wire entries, and the
+  check that `ortho generate` succeeds on a chain project moves to slice 4.
+- **A `schema(...)` value** on a chain store is refused (K25 item 5); how one declares its Solidity type waits for a
+  blueprint that needs it. `holds` roles and `who` on a database thing are M2.18's, not slice 3's.
+- **Confirmed readings:** a creating move whose payload lacks the role's field is refused; secret or private fields on
+  a chain-stored thing's events are refused, as on the thing; `.of(path)` to a chain `who` role compiles; an `earlier`
+  item has the shape of a `wire` entry; lock field values are `{ value: "uint", bits }`, `{ value: "text", max }`,
+  `{ value: "id", prefix }` and `{ value: "account" }` (Superseded by M6-money, 21 November 2026: and money's `{ value: "money", bits, signed, asset }`, M6-money item 5); an id prefix of 16 characters or more is refused on a chain
+  store, since a minted id is the prefix, `_` and 16 characters (`language-effect/src/modules/ids/service.ts:8`) and must
+  fit 32 bytes.
+
 ## The budgets example, as the journey author will write it
 
 A sketch for slice 2, not its words: the journey author owns `examples/budgets/blueprint/`.
