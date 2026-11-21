@@ -173,8 +173,8 @@ actions, approvals, the chat and MCP from the whole model (M1.22 to M1.24, M1.37
 
 ### Decision IDs
 
-The one allocator for `design/decisions/` off a goal branch (the `conductor` and `threads` skills); a goal's lead keeps
-the same list in its goal file. Taken from every file in `design/decisions/` on `main`, `m1`, `goal/stage-1` and every
+The list of lettered IDs for `design/decisions/`, kept by the conductor (the `conductor` and `threads` skills); a goal
+names its own calls by slug instead (K32). Taken from every file in `design/decisions/` on `main`, `m1`, `goal/stage-1` and every
 open remote branch, 20 November 2026. An ID is the part before the first `-` (`K16a` in `K16a-scaffold-build.md`).
 
 **On `main`:** CI-branch-protection, CI-codex-advisory, CI-docs-fast-path, CI-model-integration-deadlines, CI-speed · D1, D2, D3 · E1 · F1, F2,
@@ -203,12 +203,15 @@ F5, F6, F7, F8, F9 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 �
 | K27 | the three plugin kinds: language, host, projection; no target (replaces K17's TargetSpec) | reserved 20 November 2026 for the 📐 Solidity session, Goal 4 |
 | K28 | releases (scope map) | open PR #262, reserved 21 November 2026 |
 | K29 | the UI layer: generated pieces on UI SDK | reserved 21 November 2026 for the UI-layer thread |
+| K31 | the app's map in the blueprint, and Goal 6 | reserved 21 November 2026 for the UI-layer thread (#285) |
+| K32 | goals coordinate themselves, through git and GitHub | `main`, by the conductor |
 
-**Next free:** D5, E2, F10, G9, H3, K31, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
+**Next free:** D5, E2, F10, G9, H3, K33, N2, O4, P2, R2, S2. Never fill a gap (F3, F4, G2): it may have been handed out
 before this list existed. `CI-<slug>`, `M<n>-<slug>`, `ST<n>-<slug>` and `Gate<n>` are named by their slug or
-milestone, not numbered, and still go on this list.
+milestone, not numbered; a goal records its own in its brief, not here (K32), and `GOAL<n>-<slug>` names a call that
+belongs to one goal and no milestone.
 
-**To claim one,** ask the conductor (on a goal, its lead); never mint one yourself. The conductor checks that no file
+**To claim a lettered one,** ask the conductor; a goal names its own calls by milestone or area and a slug (K32). The conductor checks that no file
 starts with it anywhere, adds it here with a one-line title in the same push, and only then hands it out:
 
 ```bash

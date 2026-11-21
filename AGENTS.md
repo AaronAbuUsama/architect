@@ -37,7 +37,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   goal works on `m<n>`, one commit per milestone slice, each ending green with its "done when" check. It loops
   generate, run, fix until the check passes, then moves on. The milestone reaches `main` by one pull request, merged
   when CI is green, its gate passes and a 🔍 reviewer subagent passed it. Threads are optional, for work that truly runs in
-  parallel.
+  parallel. A goal may run in any harness (Claude Code, Amp, Codex) and coordinates only through the repository and
+  GitHub: its brief's "Where it stands", a `goal-<n>` label, the release milestones, and issues for asks between goals
+  (`design/decisions/K32-goals-coordinate-themselves.md`).
 - **Spikes** answer one question in throwaway code under `spikes/<name>/`, on a `spike/<name>` branch. Each ends with
   a README (question, tried, found, the decision it supports, open risks) and is merged into `main` for the record.
   Spike code is never imported by packages.
