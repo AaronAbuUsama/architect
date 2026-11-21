@@ -12,7 +12,7 @@ Lands #<the slice, snag, ask or gap this lands>
 
 - **Goal and slice:** Goal <n>, slice <n> (or: none)
 - **Role:** lead | author | builder | reviewer | designer | spike
-- **Harness and model:** <claude | amp | codex>, <model id>
+- **Harness and model:** <claude | amp | codex | opencode>, <model id>
 - **Check:** `<the command>`: <what it printed>
 
 ## What it changes

@@ -1,12 +1,12 @@
 ---
 name: threads
-description: Thread types for Orthograph's agent threads, each with its emoji, job and finish line, whatever agent runs it (Amp, Claude Code, Codex). Read it when you start a thread, or when your brief names your type ("you are a 🔨 builder thread").
+description: Thread types for Orthograph's agent threads, each with its emoji, job and finish line, whatever agent runs it (Amp, Claude Code, Codex, OpenCode). Read it when you start a thread, or when your brief names your type ("you are a 🔨 builder thread").
 ---
 
 # Thread types
 
 A **thread** is one agent conversation working on Orthograph: an Amp thread, a Claude Code session, a Codex
-session. Every thread is one **thread type**. Its title starts with the type's emoji, so Aaron can see what each one is
+session, an OpenCode session. Every thread is one **thread type**. Its title starts with the type's emoji, so Aaron can see what each one is
 at a glance: `<emoji> <Type>: <subject>`, for example `🔨 Builder: L1.13 generators v0`. Where your
 agent has tags or labels, tag it `thread:<type>`, in your agent's form (the table at the end).
 
@@ -83,14 +83,14 @@ Unless Aaron says otherwise, he talks to you through speech-to-text and listens 
 
 The kit names actions, not tools. Use your agent's own:
 
-| Action | Claude Code (cloud) | Amp | Codex |
-|---|---|---|---|
-| Start a thread | `create_session` | `create_thread`: an orb by default, or a live `amp` runner on Aaron's Mac when one is connected | a new session: `codex exec` (or `codex` and `/new`) on the machine, `codex cloud exec --env <env>` in the cloud |
-| Run a short side task | a subagent (`Agent`) | a subagent (`Task`) | a subagent: ask Codex to spawn one |
-| Message a thread | `send_message` | `send_thread_message`; a thread it starts reports back the same way when its brief asks it to | `codex queue --thread <session> --message "…" --resume`, for a session on the same machine; none for a cloud chat |
-| Read a thread | `list_events` | `read_thread` for its whole history, `get_thread_status` for its live state and latest messages | its transcript under `~/.codex/sessions/`, or `/export` inside it; `codex cloud list` for cloud chats |
-| Archive a thread | `archive_session` | `update_thread` with `archived: true` (`false` restores it); the threads it started stay active | `codex archive <session>` (`codex unarchive` restores it); the subagent sessions it spawned go with it |
-| Tag a thread | the tag `thread:<type>` | the label `thread-<type>`: labels take only letters, digits and hyphens | none: the title carries the type (`/rename`) |
-| A thread's link | `https://claude.ai/code/<session id>` | a Markdown link, the title as its text: `[<title>](https://ampcode.com/threads/T-…)` | a cloud chat's `url` from `codex cloud list`; a local session has none, so give its session ID |
+| Action | Claude Code (cloud) | Amp | Codex | OpenCode |
+|---|---|---|---|---|
+| Start a thread | `create_session` | `create_thread`: an orb by default, or a live `amp` runner on Aaron's Mac when one is connected | a new session: `codex exec` (or `codex` and `/new`) on the machine, `codex cloud exec --env <env>` in the cloud | `opencode run --title "<emoji> <title>" "<brief>"` on the machine; add `--share` for a link |
+| Run a short side task | a subagent (`Agent`) | a subagent (`Task`) | a subagent: ask Codex to spawn one | a subagent: ask for the `general` or `explore` subagent |
+| Message a thread | `send_message` | `send_thread_message`; a thread it starts reports back the same way when its brief asks it to | `codex queue --thread <session> --message "…" --resume`, for a session on the same machine; none for a cloud chat | `opencode run --session <session> "…"`, for a session on the same machine |
+| Read a thread | `list_events` | `read_thread` for its whole history, `get_thread_status` for its live state and latest messages | its transcript under `~/.codex/sessions/`, or `/export` inside it; `codex cloud list` for cloud chats | `opencode export <session>` (JSON); `opencode session list` for the IDs |
+| Archive a thread | `archive_session` | `update_thread` with `archived: true` (`false` restores it); the threads it started stay active | `codex archive <session>` (`codex unarchive` restores it); the subagent sessions it spawned go with it | none: `opencode session delete` erases it for good, so leave it |
+| Tag a thread | the tag `thread:<type>` | the label `thread-<type>`: labels take only letters, digits and hyphens | none: the title carries the type (`/rename`) | none: the title carries the type (`--title`) |
+| A thread's link | `https://claude.ai/code/<session id>` | a Markdown link, the title as its text: `[<title>](https://ampcode.com/threads/T-…)` | a cloud chat's `url` from `codex cloud list`; a local session has none, so give its session ID | the link `--share` prints; an unshared session has none, so give its session ID |
 
 Where a cell is wrong for your agent, fix it in a pull request: this table is the one place it is written.

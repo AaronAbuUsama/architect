@@ -20,6 +20,7 @@ export const LABELS = [
   ["harness:claude", "f9d0c4", "Worked in Claude Code"],
   ["harness:amp", "f9d0c4", "Worked in Amp"],
   ["harness:codex", "f9d0c4", "Worked in Codex"],
+  ["harness:opencode", "f9d0c4", "Worked in OpenCode"],
   ["blocked", "b60205", "Waiting on something outside its goal; the body says what"],
   ["needs-aaron", "e99695", "Only Aaron can unblock it: money, a credential, production, or the goal itself"],
 ].map(([name, color, description]) => ({ name, color, description }));
