@@ -181,3 +181,12 @@ Each is a parked snag in `design/goals/03-snags.md`, with its trigger.
 - **`--only` should not count coverage against the journeys it excluded, and the climber's worktree needs `pnpm install` said** (S-24): coverage lines ("reached by no journey") fail a one-journey run while every step is green; the goal's prompt says nothing of the install. Taken at the lessons step (loop step 5 of Goal 3). The scaffold half of S-24 is ST1.17's.
 - **Declared names as constants, and a check that no state name is a string outside `generated/`** (S-26): `subject.state === "removed"` (`examples/plugged-in/src/link/order.ts:46`) and `refuses(machine.notFrom, { state: "removed" })` in two journeys move onto `machine.states.<state>` (ST1.14), then a lint or canon check pins it. Waits for a blueprint that renames a state.
 - **The model records a value's pattern** (S-28): `Values.email`'s pattern lives only in its Schema, so the grid's output-schema eval uses a `max === 254` stopgap (`e2e/grid/src/modules/output-schema/internal/sample.ts`). The model carries a pattern or format, and the stopgap is deleted. Waits for a second pattern-bearing value, or a sample the heuristic cannot give.
+
+## From M2-auth (Goal 3 lead, 21 November 2026)
+
+- **SDK and CLI reach filtering** (`decisions/M2-auth.md`, small calls 16; replaces `decisions/K1-kits.md`'s table at
+  `:240-241`). In M2 only MCP tools are hidden by reach. The SDK and the CLI carry every operation, and the role check
+  refuses what a credential may not do. K1 meant the SDK to carry only operations a session or a key can reach,
+  and the CLI only those a device session or a key can reach. **Trigger:** a generated client's refusal on a call its credential
+  could never make is reported as confusing in a journey or by a user, or the second app ships a CLI with an operation
+  only `Via.agent` reaches.
