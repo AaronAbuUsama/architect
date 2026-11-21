@@ -46,7 +46,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { ServedPortals } from "../served-portal/service.ts";
 import type { PortalServerModule } from "../served-portal/types.ts";
 import * as L from "./loop.ts";
-import { DAY, ENV, MIN, NOW, WINDOW, contextOf, decode, deriveRules, expected, ledgerOf, many, metricsOf, monitor, sourceOf, tracesOf, withRules, type AlertRow, type AlertRule, type CallSpec, type IssueRow, type ModelIn } from "./monitor-fixture.ts";
+import { DAY, ENV, HOUR, MIN, NOW, WINDOW, contextOf, decode, deriveRules, expected, ledgerOf, many, metricsOf, monitor, sourceOf, tracesOf, withRules, type AlertRow, type AlertRule, type CallSpec, type IssueRow, type ModelIn } from "./monitor-fixture.ts";
 import { judge, type Truth, type TruthIssue } from "./monitor-judge.ts";
 import { standIn } from "./monitor-standin.ts";
 import { PLANTED_CAUSE, PLANTED_TAG, openPlanted } from "./monitor-world.ts";
@@ -194,6 +194,8 @@ const SCENES: ReadonlyArray<readonly [string, ReadonlyArray<CallSpec>, Readonly<
   ["20 calls exactly at the budget are not slowed past it", slow("profile.get", 20, 1, 150), { "latency:profile.get": ["ok", "ok", "ok"] }],
   ["20 calls one millisecond past it are", slow("profile.get", 20, 1, 151), { "latency:profile.get": ["firing", "firing", "firing"] }],
   ["half slowed, half fast: only the slower burns fire", [...slow("profile.get", 10, 1), ...slow("profile.get", 10, 1, 20)], { "latency:profile.get": ["ok", "firing", "firing"] }],
+  ["60 slowed 40 minutes ago, 20 fast calls now: the long window burns and the short one does not", [...slow("profile.get", 60, 40), ...slow("profile.get", 20, 1, 20)], { "latency:profile.get": ["ok", "ok", "firing"] }],
+  ["20 slowed now among 200 fast ones 45 minutes ago: the short window burns and the long one does not", [...slow("profile.get", 20, 1), ...slow("profile.get", 200, 45, 20)], { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["24 slowed 40 minutes ago and one now: the short windows hold one call", [...slow("profile.get", 24, 40), ...slow("profile.get", 1, 0.5)], { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed two hours ago: only the 3-day burn still holds them", slow("profile.get", 20, 120), { "latency:profile.get": ["ok", "ok", "firing"] }],
   ["20 slowed link.add calls fire link.add's burns and not profile.get's", [...slow("link.add", 20, 1), ...slow("profile.get", 1, 1)], { "latency:link.add": ["firing", "firing", "firing"], "latency:profile.get": ["ok", "ok", "ok"] }],
@@ -224,6 +226,31 @@ describe("38 B: the portal evaluates the rules over the window at a fixed now", 
       expect(answered.status, answered.text).toBe(200);
       sameAlerts(answered.body!.alerts, want);
     });
+  });
+
+  it("reads the threshold from the rule: link.add's raised budget (200 ms) is slowed past at 210 ms and not at 180", async () => {
+    const l = await linkChanged();
+    const rules = deriveRules(l.model);
+    const wire = await decode(withRules(l.wire, rules));
+    for (const [ms, state] of [[180, "ok"], [210, "firing"]] as const) {
+      const specs = slow("link.add", 20, 1, ms);
+      const answered = await monitor(contextOf(wire, { traces: tracesOf(specs) }));
+      expect(answered.status, answered.text).toBe(200);
+      sameAlerts(answered.body!.alerts, expected(rules, specs, NOW));
+      expect(answered.body!.alerts.find((r) => r.rule === "latency:link.add" && r.alert === "fast")?.state, `20 calls at ${ms} ms`).toBe(state);
+    }
+  });
+
+  it("evaluates the list it is handed, not the defaults: an operation's own target, windows, rate and minimum calls (K18's `slo`)", async () => {
+    const c = await asIs();
+    const rules = deriveRules(c.model).map((r) => (r.id === "latency:profile.get"
+      ? { ...r, target: 0.9, minCalls: 5, alerts: [{ name: "fast", burn: 2, windowsMs: [2 * HOUR, 10 * MIN], severity: "page" }, ...r.alerts!.slice(1)] }
+      : r));
+    const specs = slow("profile.get", 5, 8);
+    const answered = await monitor(contextOf(await decode(withRules(c.wire, rules)), { traces: tracesOf(specs) }));
+    expect(answered.status, answered.text).toBe(200);
+    sameAlerts(answered.body!.alerts, expected(rules, specs, NOW));
+    expect(answered.body!.alerts.find((r) => r.rule === "latency:profile.get" && r.alert === "fast")?.state, "5 slowed calls 8 minutes ago, against a 10-minute short window and 5 calls").toBe("firing");
   });
 
   it("evaluates for the environment it is in: the same calls give a test portal the verdicts of test and none of local", async () => {
