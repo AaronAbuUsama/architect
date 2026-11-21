@@ -597,7 +597,7 @@ writes with a blank handler, so a journey can compile against it.
 | `acts` joins `api-key.create`'s payload (fork 5) | M2.07 when acme mounts organizations; the credential mark is M2.05 | M2.24, in the skeleton's declaration | M2.23 | `api-key/create` in SDK, CLI, docs and API, and the model |
 | `via` joins `session.show`'s answer | M2.03 in acme's own `show` and handler; M2.05 carries it into the plugin | M2.02's principal part (acme's `show.ts`), M2.24 (the skeleton) | M2.03's final commits | `session/show` in SDK, CLI, docs and API, and the model |
 | the model gains a `via` on every `allowed` entry that is narrowed, and an `agentTool` on every operation | M2.03, in the compiler | M2.02's principal part: the two narrowings in acme's own declarations, `.via(Via.session, Via.device)` on `examples/acme/blueprint/things/api-key/verbs/create.ts` and `.notVia(Via.agent)` on `invitation/verbs/accept.ts` (both unprotected), so `an agent passes the owner rule` and `an agent cannot consent for a person` can pass in acme at M2.03; M2.24 writes the same narrowings in the skeleton | M2.03 (the shape, every operation, and the two narrowings) | `model.json`, the portal's `blueprint.json`, the MCP tool list; check 12's whole-model digest (`projections.ts:38-40`) and the compiler snapshot |
-| `issues` replaces `identity` in every environment | M2.03, in `examples/acme/blueprint/environments/*.ts` (unprotected) and the compiler | none | M2.03 | the model's `environments`; the snapshot (`acme.model.json:3749`, `:3800` say `"identity": "better-auth"`) |
+| `issues` replaces `identity` in every environment (Superseded by the lead's call of 21 November 2026 (see "As built in M2.03"): the examples move to `issues:` in M2.05, not M2.03.) | M2.03, in `examples/acme/blueprint/environments/*.ts` (unprotected) and the compiler | none | M2.03 | the model's `environments`; the snapshot (`acme.model.json:3749`, `:3800` say `"identity": "better-auth"`) |
 
 ## The pair map
 
@@ -614,7 +614,7 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   `api-key/verbs/create.ts` and `.notVia(Via.agent)` on `invitation/verbs/accept.ts`; `a service is nobody signed in` in `e2e/m2` with the adapter
   fixture. Red for the missing surface only: `.via`, `.tools()`, `lacks`, `Blueprint.system`, the `service` role, and
   `via` in the answer.
-- *Builder.* the runtime, `issues:` for `identity:` in acme's four environment files (`ortho.config.ts` keeps `auth` until M2.05, Smaller calls 4) and in work's; the
+- *Builder.* (Superseded by the lead's call of 21 November 2026 (see "As built in M2.03"): the examples move to `issues:` in M2.05, not M2.03.) the runtime, `issues:` for `identity:` in acme's four environment files (`ortho.config.ts` keeps `auth` until M2.05, Smaller calls 4) and in work's; the
   other apps' environments (`examples/{starter,plugged-in,signup}/blueprint/environments/*.ts`, unprotected, with their `generated/`) drop `identity:` and write no `issues:`, the 15
   unprotected guards (the sixteenth, `examples/starter/test/fixtures/journeys/owner-step-skipped/organization/create.ts:11`,
   is a protected fixture that dies with the starter at M2.09: left alone), acme's `src/session/show.ts`
@@ -1026,6 +1026,7 @@ that slice is a pair under G12, and its author says so in its first commit.
 
 ## Supersedes
 
+- design/milestones.md (M2.03): "`issues:` per environment, replacing `identity:`" → "`issues:` per environment beside `identity:` (the examples move to `issues:` in M2.05)"
 - design/milestones.md (Gate M2): "scaffolds an app with auth and organizations" → "scaffolds Plugged In at stage 1 with auth and handles"
 - design/frame/skills-questions.md (the quoted gate): "scaffolds an app with auth and organizations" → "scaffolds Plugged In at stage 1 with auth and handles"
 - .agents/skills/kanban/data/lanes.json (M2 gate): "scaffolds an app with auth and organizations" → "scaffolds Plugged In at stage 1 with auth and handles"
@@ -1070,8 +1071,7 @@ step reuses that.
 What the build did that this record left open, or did differently. Nothing here changes a call above.
 
 - **`identity:` stays beside `issues:`, optional.** `Blueprint.environment` takes `issues` and no longer requires `identity`; the model records
-  each when the file says it. No example file was moved from `identity:` to `issues:` in this slice: that move waits for the slice that mounts an
-  identity (M2.05), as "Smaller calls" 4 says, so no baseline moves for it.
+  each when the file says it. The examples move from `identity:` to `issues:` in M2.05, which builds identity, not in M2.03 (the lead, 21 November 2026), so #297's baselines stay still.
 - **A world mints with one door.** `POST /_world/credential` takes `{ name, via }` (`session`, `key` or `agent`), `{ system: true }` or
   `{ service: "<mount>" }`. A key or an agent's key is Better Auth's own `ak_` key, the agent's marked `metadata.acts = "agent"`; the system's and
   a service's is `wld_<hex payload>.<HMAC-SHA-256 under AUTH_SECRET>`, accepted only where the server hosts worlds (`hostsWorlds`). `Via.device` has no
