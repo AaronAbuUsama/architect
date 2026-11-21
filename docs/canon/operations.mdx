@@ -12,7 +12,7 @@ status: specified
 milestone: M1
 slices: [M1.20, M1.26, M3.16]
 decisions: [K5, O2, N1]
-links: [machines, roles, handlers, doors, traces]
+links: [machines, invariants, roles, handlers, doors, traces]
 ---
 
 ## The idea
@@ -116,7 +116,7 @@ sent: it is the handler's bug, so the call dies (see `handlers`).
 
 A refusal is an answer the operation was built to give: the caller asked, and the system said no, on purpose. Every
 refusal has a name, a code and an exit code. Every door shows the name and the code, and the CLI exits with the exit
-code. A refusal can come from three places.
+code. A refusal can come from four places: the handler, the machine, the runtime's own checks and the thing's rules.
 
 **Declared errors** depend on the data, and only the handler can know them. They live in the thing's `errors.ts`, each
 with the fields it carries and its exit code:
@@ -142,6 +142,23 @@ the same `NotAllowed` for an id that doesn't exist, so a read never tells an out
 stranger refused: every one of its operations allows `Blueprint.anyone`. Acme's `allowance.spend` is the example
 there, where only the grantee may spend (see `roles`).
 
+**A rule's refusal** is made for you too. A rule says what must stay true among many records of one thing, such as
+one holder per name. When a call breaks it, the runtime refuses with the rule's own error, after the move and before
+the commit. The rule owns the error, so the operation never lists it in `errors` and its handler never raises it. Plugged
+In's `handle.claim` lists none, and still refuses `HandleTaken`, as this journey shows (rules are on
+[invariants](invariants.mdx)):
+
+<Scenario journey="examples/plugged-in/journeys/a-name-is-claimed-once.ts" step="a taken name is refused" />
+
+So the four places differ in who decides, and in when:
+
+| Place | Who decides | Refused as | When |
+|---|---|---|---|
+| the thing's rules | the runtime, from what the rules say about many records | the rule's own error (`HandleTaken`) | after the move, before the commit |
+| the machine | the runtime, from one record's state | `<Thing>Not<State>` | before the handler |
+| the runtime's own checks | who may call, whether the record exists, a request key reused | `NotAllowed`, `<Thing>NotFound`, `IdempotencyConflict` | before the handler |
+| the handler | only the handler can know | a declared error | inside the handler |
+
 **Codes.** The compiler numbers every refusal, and the model records the number, so no generator works one out:
 
 ```ts file=packages/compiler/src/modules/model/internal/codes.ts name=MACHINE_NUMBER,RUNTIME_CODES lines=8-15
@@ -155,7 +172,7 @@ export const IDEMPOTENCY_CONFLICT = "IdempotencyConflict";
 export const RUNTIME_CODES = { NotAllowed: "AR-001", [IDEMPOTENCY_CONFLICT]: "AR-002" } as const;
 ```
 
-A code is the thing's prefix and a number. Declared errors are 1, 2, 3 in the order `errors.ts` declares them, the
+A code is the thing's prefix and a number. Declared errors, a rule's among them, are 1, 2, 3 in the order `errors.ts` declares them, the
 machine's is always 900, a missing instance's (`<Thing>NotFound`, which the runtime refuses before the handler) is 901,
 and the runtime's own take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for `SheetNotOpen`, `SH-901`
 for `SheetNotFound`, `AR-001` for `NotAllowed` and `AR-002` for `IdempotencyConflict` (a request key reused with another payload, on operations that keep an answer by key). The generated code keeps each one's code, its exit code and its HTTP
@@ -394,11 +411,12 @@ checked the same way whichever door it came through. The action sits beside the 
 
 If the answer is fields the thing holds, make it a read. A read you didn't have to write can't have a bug in it.
 
-### A declared error or the machine's refusal
+### A declared error, the machine's refusal or a rule
 
 If the answer depends only on the instance's state, let the machine refuse: you write nothing, and it is checked
-before the handler runs. Declare an error only when it depends on data the handler reads, like people against the
-places left.
+before the handler runs. If it depends only on whether another record of the same thing already holds a key, such as
+a name, declare a rule and let the runtime refuse ([invariants](invariants.mdx)). Declare an error only when it
+depends on data the handler reads, like people against the places left.
 
 ### A required step or an optional one
 
@@ -423,6 +441,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   makes. See `handlers`.
 - **Not the move.** A move is a machine's step from one state to another, with its event. An operation names the
   move it makes; the machine owns it. See `machines`.
+- **Not a rule.** A rule says what stays true among many records, and owns its refusal. See `invariants`.
 - **Not the role.** `allowed` names roles; what a role is and how it is checked is on `roles`.
 - **Not a span.** A step makes a span, but the span, its attributes and how a refusal looks in a trace are on
   `traces`.
@@ -439,6 +458,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 | A read's shape | `packages/orthograph/src/modules/operations/types.ts:102` | built |
 | Refusal codes, numbered by the compiler | `packages/compiler/src/modules/model/internal/codes.ts:18` | built |
 | The payload decoded, `InvalidPayload` | `packages/language-effect/src/modules/handler/service.ts:105` | built |
+| A rule's refusal, after the move and before the commit | `packages/language-effect/src/modules/handler/internal/invariants.ts:14` | built |
 | The machine's refusal, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:39` | built |
 | The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:90` | built |
 | A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:91` | built |
@@ -458,6 +478,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 | Undeclared errors don't compile | proved | layer 2 | `packages/generators/src/modules/render/handler-type.test.ts:40` |
 | Refusal codes, stable and unique | proved | layer 2 | `packages/compiler/src/modules/model/refusal-codes.test.ts:61`, `packages/prove/src/modules/evals/evals.test.ts:42` |
 | The machine's refusal before the handler | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, signup's `fill a sheet` |
+| A rule's refusal, made by the runtime and listed on each operation that can break it | proved | ST1.16 | `e2e/m1/25-unique-fields.test.ts:73`, Plugged In's `a name is claimed once` |
 | One call per request key | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:42`, signup's `join twice with one request` |
 | The nine evals on every operation | proved | layer 2 | `e2e/layer1/08-signup-proves.test.ts:15` |
 | The budget, reviewed and never failed | proved | layer 2 | `packages/prove/src/modules/evals/evals.test.ts:31` |

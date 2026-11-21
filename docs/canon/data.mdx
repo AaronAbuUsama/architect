@@ -11,7 +11,7 @@ status: specified
 milestone: M1
 slices: [M1.17, M1.24, M5.05, M5.06]
 decisions: [K3, K5]
-links: [things, stores, views, adapters, portal, workflows, languages-and-hosts]
+links: [things, stores, invariants, views, adapters, portal, workflows, languages-and-hosts]
 ---
 
 ## The idea
@@ -132,6 +132,27 @@ changes two stores, or a store and a chain, is a [workflow](workflows.mdx), with
 commits (K5 seam 6). A source is never migrated and never committed to. A handler only calls it, through a step the
 operation declares, so the call shows in the trace with its declared errors (K3 item 8).
 
+### What stays true among many records
+
+A store holds one row per instance, and some things must be true among all the rows of a thing: one holder per name.
+That is declared on the thing, as a rule ([invariants](invariants.mdx)), not on the place it lives, so it moves with the
+thing. The store holds it as an index of its own, per rule, generated from the model. Plugged In's two handle rules and
+its profile rule become three indexes, the first two on `handle`:
+
+```sql file=examples/plugged-in/generated/server/migrations/0001_things.sql lines=10-11
+CREATE UNIQUE INDEX "handle_oneHolderPerName" ON "handle" ("name") WHERE "state" IN ('claimed');
+CREATE UNIQUE INDEX "handle_oneNamePerPerson" ON "handle" ("owner") WHERE "state" IN ('claimed');
+```
+
+and the third, on `profile`, with no states to name:
+
+```sql file=examples/plugged-in/generated/server/migrations/0001_things.sql lines=27
+CREATE UNIQUE INDEX "profile_onePagePerHandle" ON "profile" ("handle");
+```
+
+A rule is about the records of one thing, which live in one store. A thing that lives as actors has no table to hold
+one, so the compiler refuses a rule on it.
+
 ### A projection's own state
 
 Some projections keep data. The portal keeps notes about declarations and chat threads, and neither is part of the
@@ -161,6 +182,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
   and kinds in depth are on [stores](stores.mdx), in layer 4.
 - **Not a "home".** That word is retired: a thing lives in a store (K3, ledger `G-03`).
 - **Not a cache, KV or R2.** None of them can take an atomic commit, so no thing lives in one (K3 item 3).
+- **Not what stays true among records.** That is a rule, on [invariants](invariants.mdx).
 - **Not how a field is hidden.** Who may see a field is visibility, on [things](things.mdx).
 
 ## Where it lives
@@ -169,6 +191,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 |---|---|---|
 | `lives` today | `packages/orthograph/src/modules/things/types.ts:32` | built |
 | the store port: find, list, commit | `packages/language-effect/src/modules/records/types.ts:62` | built |
+| a rule's index, generated beside the table | `examples/plugged-in/generated/server/migrations/0001_things.sql:10` | built |
 | the D1 schema, generated from the model | `examples/signup/generated/server/migrations/0001_things.sql:3` | built |
 | declared stores, `lives` taking one | `blueprint/stores/` | planned, M1.17 |
 | the portal's notes and threads in its own store | the portal feature | planned, M1.24 |
