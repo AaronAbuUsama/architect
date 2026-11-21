@@ -90,6 +90,14 @@ Still Aaron's to do: move the account id from a repository variable to a secret 
 shows in Actions logs), and give staging an Axiom dataset and ingest token for its traces. Until then staging runs
 without traces.
 
+## Addendum, 21 November 2026: how long a staging name may be
+
+Every staging name is `ortho-<app>-stg-<run>-…`, so a long app or store name can push one past Cloudflare's limit. Workers on
+`workers.dev` take at most 63 characters (Cloudflare's workers.dev page: "Must be 63 characters or less"). Cloudflare states no limit for a
+D1 database name as of today, so D1 is held to the same 63, to be safe. The plan refuses (exit 2, no plan) a name that would pass
+either; check 37 pins it (`e2e/m1/staging-plan.ts`). The lead's call, 21 November 2026; it only refuses, so raising it later
+breaks nothing.
+
 ## Supersedes
 
 - design/frame/secrets.md: "which one `Cloudflare.secrets` means is a" → "`Cloudflare.secrets` means each Worker's own secrets, not the account-level Secrets Store"
