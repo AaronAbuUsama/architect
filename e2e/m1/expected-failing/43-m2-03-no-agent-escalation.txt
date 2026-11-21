@@ -1,0 +1,4 @@
+# M2.03 (review of #297): `enableSessionForAPIKeys: true` with `/api/auth/*` open lets an agent's `x-api-key` make a new `ak_` key at `POST /api/auth/api-key/create` with no `acts` mark, a person's by key, which `invitation.accept` then accepts. Each passes when the builder closes that route; the control that Olga still accepts fails only because the escalation consumed her invitation.
+m1/43-m2-03-no-agent-escalation.test.ts > 43 M2.03: Better Auth's routes, with an agent's key > `POST /api/auth/api-key/create` is refused, or the key it makes still reads as an agent
+m1/43-m2-03-no-agent-escalation.test.ts > 43 M2.03: Better Auth's routes, with an agent's key > `invitation.accept` with a key an agent made is refused
+m1/43-m2-03-no-agent-escalation.test.ts > 43 control: a person is not locked out by any of it > Olga herself still accepts her invitation after every attempt above: nothing consumed it
