@@ -309,6 +309,9 @@ examples/plugged-in/src/web/
   theme.css           the app's tokens over the shared theme
 ```
 
+A scaffolded file falls out of line when its declaration changes later; how it is marked stale and ratcheted is
+[`../later.md`](../later.md), "Scaffolds that follow the blueprint", decided before the first generated page lands.
+
 The entry, the one file that runs effects, as `AGENTS.md` asks:
 
 ```tsx

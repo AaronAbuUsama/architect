@@ -6,6 +6,18 @@ belongs to, and why it waits.
 - Indexers beyond the generated follower, for views too large for an organisation's index. Later.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
+- **Scaffolds that follow the blueprint** (Aaron, 21 November 2026, with the 📐 designer thread): a file scaffolded
+  once and "yours from now on" falls out of line when its declaration changes later, so it must be marked and
+  ratcheted, not left alone. Four steps, on what exists:
+  1. the scaffold's header also records the hash of the declaration it came from (the model already hashes every
+     operation and thing);
+  2. `ortho generate` never overwrites a scaffold, but when that hash moves it marks the file stale, says what changed
+     (the compiler's `compare` module: a new field, a new refusal, a yes now needed) and regenerates the brief;
+  3. `ortho check` lists the stale files as a ratchet that may only shrink: a blueprint change may land red with them
+     listed, a done check needs none, and where types can catch the change the build fails too;
+  4. the rule covers every file you own: handlers, journeys, pages and the app's own components.
+  **Decide before** M2.14 (`ortho add` for events, errors, roles and moves), which changes declarations that already
+  have scaffolds, and before the first generated page lands. Whoever reaches that point takes the next free K.
 - **PostHog as a sink** (O1 L2.O8, L2.O9): error tracking for defects and a `PostHogSource`. Aaron, 16 November 2026: leave it for now; the `Sink` seam keeps it one adapter away.
 - **Axiom as the sink** (O1 steps L2.O5, L2.O6, L2.O8): deployed workers export straight to Axiom per environment
   dataset, `watch` reads it through an `AxiomSource`. The cloud pass, on Aaron's account and tokens.
