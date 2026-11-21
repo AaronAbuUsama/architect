@@ -4,8 +4,12 @@
 //      every attempt's operation span, as the caller sent it (never the store's `<op>|<who>|<key>`); its replay (the same key, which changed
 //      nothing) has it too, with `request.replayed`; a keyed refusal has it on the operation's span (a declared refusal) and on `<op>.refused` (a role's
 //      refusal); a call with no key has none, and a key sent to an operation that keeps no answer by key is not one it honours, so none.
+//      The retry is judged on a real race: eight concurrent keyed spends on one allowance, repeated until a call has lost its commit and run again, and the
+//      test fails (never skips) if no call ever retried; every attempt span of a retried call must carry the key.
 //   B  the data: the portal's own data API (`@orthograph/portal/server`, run here) reads a window's spans into `telemetry.calls[].requestKey`: the
 //      key as sent, once for a call that took two attempts, `null` for a call with none (never a string: the table words the gap).
+//      The rule, pinned here (`design/portal.md` says only "the key as sent"): `requestKey` is the key any of the call's attempt spans carries, so it is the same
+//      whether all attempts, only the first or only the retry's span carry it (the windows `true`, `"first"` and `"retry"` of `request-key-fixture.ts`).
 //   C  the table: in a window where some calls carry a key, the calls table shows each call's key (the `data-request-key` hook and the cell under the
 //      `request-key` column), a keyless row says `none` (the builder's word, kept: the design gives none; `not yet` is for a window that has no key at all, check 21 L),
 //      and the request-key filter takes a part of a key (not only its start) and leaves the calls whose key has it, and no other, the keyless ones included.
@@ -76,6 +80,33 @@ describe("38 A: request.key is on the operation's span", () => {
     expect(JSON.stringify([...one, ...replay].map((s) => s.attrs)), "the person and the operation are never glued onto the key").not.toMatch(/allowance\.spend\||\|per_/);
   });
 
+  it("a keyed call that lost its commit race and retried has the key on every attempt's span, the retry's included", { timeout: 240_000 }, async () => {
+    // Concurrent keyed spends on one allowance race for its version: the loser's commit says `conflict` and the handler runs again (`attempt` 2, 3, ...).
+    // A round of eight, each with its own key, is repeated until one call has retried; if none has after twelve rounds the test FAILS (never skips,
+    // never passes without a retried attempt to read).
+    const { allowance, olga } = await fund();
+    const racers: Array<{ readonly key: string; readonly trace: string; readonly spans: ReadonlyArray<Span> }> = [];
+    let retried: typeof racers = [];
+    for (let round = 0; round < 12 && retried.length === 0; round++) {
+      const calls = await Promise.all(Array.from({ length: 8 }, (_, i) => { const key = `m112a-race-${round}-${i}`; return spend(olga, allowance, "1", key).then((call) => ({ key, call })); }));
+      for (const { key, call } of calls) {
+        expect([call.status, Object.keys(call.body)], `${key}: ${call.text}`).toEqual([200, ["remaining"]]);
+        racers.push({ key, trace: call.trace, spans: operation(await seen.spans(call.trace), "allowance.spend") });
+      }
+      retried = racers.filter((r) => r.spans.some((s) => (s.attrs["attempt"] as number) >= 2));
+    }
+    expect(retried.length, `no keyed call retried in ${racers.length} concurrent spends: the race this test needs never happened, so it judged nothing (a failure, not a skip)`).toBeGreaterThan(0);
+    for (const r of retried) {
+      const attempts = r.spans.map((s) => s.attrs["attempt"] as number);
+      expect(Math.max(...attempts), `${r.key} has a span at attempt >= 2`).toBeGreaterThanOrEqual(2);
+      expect(new Set(attempts).size, "one operation span per attempt number, none missing").toBe(attempts.length);
+      expect(keys(r.spans), `every attempt's span (attempts ${attempts.join(", ")}) of ${r.key} carries the key as sent, the retry's too`).toEqual(r.spans.map(() => r.key));
+    }
+    // The first attempt lost a commit race: the retry is a real one, not a span the test made up (a commit span says `conflict`, as the portal reads it).
+    const conflicts = (await Promise.all(retried.map((r) => seen.spans(r.trace)))).flat().filter((s) => s.attrs["commit.outcome"] === "conflict");
+    expect(conflicts.length, "the attempts that retried lost their commit (`commit.outcome` conflict)").toBeGreaterThan(0);
+  });
+
   it("a call made with no key has none on any span, and nor does a key sent to an operation that keeps no answer by key", async () => {
     const { allowance, ada, olga, setup } = await fund();
     const keyless = await spend(olga, allowance, "10");
@@ -130,6 +161,20 @@ describe("38 B: the data API reads the key into the calls", () => {
     const wire = await pluggedIn();
     const run = windowOf(wire);
     expect((await rowsOf(wire, run)).map((c) => [c.trace, c.requestKey]), "newest first, the key per call").toEqual(run.calls.map((c) => [c.trace, c.key]));
+  });
+
+  it.each([
+    ["only the retry (attempt 2) carries it", "retry"],
+    ["only the first attempt carries it", "first"],
+  ] as const)("a call of two attempts where %s: its `requestKey` is still the key, whichever attempt it is on", async (_name, keyed) => {
+    const wire = await pluggedIn();
+    const run = windowOf(wire, keyed);
+    const retried = [...run.traces.values()].flatMap((t) => t.spans).filter((s) => s.attrs["attempt"] === 2);
+    expect(retried.map((s) => "request.key" in s.attrs), "control: the window is what it says: the retry carries the key only in `retry`").toEqual([keyed === "retry"]);
+    expect([...run.traces.values()].flatMap((t) => t.spans).filter((s) => s.attrs["attempt"] === 1 && "request.key" in s.attrs).length, "and the first attempts: all four keyed in `first`, three of four (not the retried call's) in `retry`").toBe(keyed === "first" ? 4 : 3);
+    const rows = await rowsOf(wire, run);
+    expect(rows.map((c) => [c.trace, c.requestKey]), "the retried call (the oldest) has its key, the others theirs").toEqual(run.calls.map((c) => [c.trace, c.key]));
+    expect(rows[rows.length - 1]!.requestKey, "the retried call's key is the one sent").toBe(KEYS.claim);
   });
 
   it("in a window from before the spans carried a key, every `requestKey` is `null` (the table says `not yet`, check 21 L)", async () => {

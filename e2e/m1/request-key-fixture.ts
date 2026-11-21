@@ -26,16 +26,24 @@ const refusalOf = (wire: BlueprintWire): string => wire.model.operations["handle
 const span = (n: number, trace: number, name: string, start: number, attrs: Record<string, unknown>, over: Partial<Span> = {}): Span =>
   ({ traceId: id(trace), spanId: sid(n), parentSpanId: "", name, attrs, status: 1, ms: 9, start, ...over });
 
-/** The window. `keyed: false` is a window from before the span carried the key: the same calls and none of the keys. */
-export const window = (wire: BlueprintWire, keyed = true): Window => {
+/**
+ * Which spans carry the key: `true` all of them (a real run: every attempt), `false` none (a window from before the span carried the key: the same calls
+ * and none of the keys), `"first"` the retried call's attempt 1 only and `"retry"` its attempt 2 only (the spans a source that lost one of them leaves).
+ * The portal's rule (`design/portal.md` is silent; fixed here): a call's `requestKey` is the key its attempts' spans carry, whichever of them has it, so
+ * the same key in all three windows that have one; it never depends on which attempt the key was read from.
+ */
+export type Keyed = boolean | "first" | "retry";
+export const window = (wire: BlueprintWire, keyed: Keyed = true): Window => {
   const refusal = refusalOf(wire);
-  const k = (key: string): Record<string, unknown> => (keyed ? { "request.key": key } : {});
+  // `attempt` is given for the retried call only: the one-attempt calls carry their key in every window that has keys.
+  const k = (key: string, attempt?: number): Record<string, unknown> =>
+    (keyed === false || (attempt !== undefined && ((keyed === "first" && attempt !== 1) || (keyed === "retry" && attempt !== 2))) ? {} : { "request.key": key });
   const traces = new Map<string, Trace>();
   const put = (n: number, spans: ReadonlyArray<Span>) => traces.set(id(n), { spans: [...spans], logs: [] });
   // 1. the keyed call: two attempts (the first lost the commit), both spans carry the key
   put(1, [
-    span(10, 1, "handle.claim", at(9), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", ...k(KEYS.claim) }),
-    span(11, 1, "handle.claim", at(9) + 3, { operation: "handle.claim", attempt: 2, "principal.kind": "anonymous", ...k(KEYS.claim) }),
+    span(10, 1, "handle.claim", at(9), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", ...k(KEYS.claim, 1) }),
+    span(11, 1, "handle.claim", at(9) + 3, { operation: "handle.claim", attempt: 2, "principal.kind": "anonymous", ...k(KEYS.claim, 2) }),
   ]);
   // 2. its replay: the same key again, which changed nothing
   put(2, [span(20, 2, "handle.claim", at(8), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous", "request.replayed": true, ...k(KEYS.claim) })]);
@@ -46,7 +54,7 @@ export const window = (wire: BlueprintWire, keyed = true): Window => {
   put(4, [span(40, 4, "handle.claim", at(6), { operation: "handle.claim", attempt: 1, "principal.kind": "agent", refusal, ...k(KEYS.refused) })]);
   // 5. no key
   put(5, [span(50, 5, "handle.claim", at(5), { operation: "handle.claim", attempt: 1, "principal.kind": "anonymous" })]);
-  const key = (value: string) => (keyed ? value : null);
+  const key = (value: string) => (keyed === false ? null : value);
   return {
     traces,
     calls: [
