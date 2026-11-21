@@ -1,4 +1,4 @@
-// The "Orthograph" Project (K33): one user-level GitHub Project over every goal, laid on top of the milestones,
+// The "Orthograph" Project (K33): one GitHub Project, owned by the repository's owner, over every goal, laid on top of the milestones,
 // sub-issues and labels. Pure: no I/O. `projectGh.mjs` reads and writes it; `sync.mjs --project` runs both.
 
 export const PROJECT_TITLE = "Orthograph";

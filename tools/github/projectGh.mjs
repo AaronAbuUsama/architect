@@ -1,5 +1,5 @@
 // Reads and writes the "Orthograph" Project through GitHub's GraphQL API (K33). `project.mjs` decides; this does.
-// A user-level Project needs the token's `project` scope; `hasProjectScope` says whether it has it, never the token.
+// The Project needs the token's `project` scope; `hasProjectScope` says whether it has it, never the token.
 import { execFileSync } from "node:child_process";
 import { PROJECT_TITLE, projectPlan } from "./project.mjs";
 
