@@ -194,6 +194,7 @@ F5, F6, F7, F8 · G1 · Gate2 · H1, H2 · K1 to K7, K9 to K23 · M0 · N1 · O1
 | K8 | the canon's first review | `claude/docs-canon-cf2c38` (not on `main`) |
 | K16a | building the scaffold that explains itself | `m1` |
 | M1 | the milestone's calls, one file each (`M1-model`, `M1-plugins`, …) | `m1`, `goal/stage-1`, `m1-12-clients` |
+| M8 | time's calls, one file each (`M8-checks`: what time's checks assume) | `main` |
 | O3 | every call names its shape | `fix/operation-span-first` (#48, closed) |
 | ST1 | stage one's calls (`ST1-02-plugged-in-ownership`) | `goal/stage-1` |
 | K25 | the blueprint on chain (a chain store, `lives:`), superseding K7's inline chain | reserved 20 November 2026 for the 📐 Solidity session |
