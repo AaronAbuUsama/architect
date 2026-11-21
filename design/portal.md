@@ -22,8 +22,8 @@ and time, and never counts or browses the app's stored data.
 - **Q8, HeroUI Pro: neither A nor B.** "We're using it privately anyway, so it's no problem for now. If it ever does
   become a problem, we'll just clean-room the components that we need." So the portal is HeroUI Pro only, with no free
   face. **Fallback, recorded:** if Pro's licence ever blocks distribution, we clean-room the components the portal uses
-  into our own package; the page contract stays as it is, so only the face changes. "HeroUI Pro behind one package (F7)"
-  below settles how.
+  into our own package; the page contract stays as it is, so only the face changes. "One package behind the portal's components (F7, K24)"
+  below settles how. Superseded by K24, 20 November 2026: UI SDK is the base and HeroUI is phased out; today the portal still uses HeroUI Pro behind `portal-ui`.
 
 ### Round 2 (19 November 2026, in the chat: "Agreed to all questions")
 
@@ -1101,23 +1101,23 @@ a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-41
 scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
 command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
-## HeroUI Pro behind one package (F7)
+## One package behind the portal's components (F7, K24)
 
-Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md),
-with the licence clauses. In short:
+Aaron, 19 November 2026: "Yes, add the seam" ([`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md)). On
+20 November 2026 he decided UI SDK is the interface base and HeroUI is phased out
+([`decisions/K24-ui-sdk.md`](decisions/K24-ui-sdk.md)). Today the portal uses HeroUI Pro behind `portal-ui`; new
+screens build on UI SDK, and HeroUI goes when nothing imports it. In short:
 
-- **`@orthograph/portal-ui`** (`packages/portal-ui`) is the only importer of `@heroui-pro/react`, which it takes as a
-  peer dependency and never bundles, so it is published like our other packages and each user brings their own Pro
-  licence (Aaron: "we can import it"). It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
+- **`@orthograph/portal-ui`** (`packages/portal-ui`) is the only package the portal imports components from. Today it
+  wraps `@heroui-pro/react`, taken as a peer dependency and never bundled, so each user brings their own Pro licence.
+  Its insides move to UI SDK one export at a time (K24). It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
   `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor` and the `Chat` parts. Every page in this
-  file, M1.24's shell and chat parts, and every extension face import from it, never from Pro.
-- **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included. Spikes are exempt.
-- **Pro installs at build time** from the `HEROUI_AUTH_TOKEN` CI secret (Aaron created it on 19 November 2026), never committed, never run on
-  pull requests from forks. Locally it installs from his `heroui-pro login`, as the mock does.
-- **The fallback**, if the licence lapses or its terms change, rebuilds `portal-ui`'s exports on open libraries; the
-  pages don't change. It is later work (`later.md`).
+  file, M1.24's shell and chat parts, and every extension face import from it, never from a library.
+- **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included, until HeroUI is removed (K24). Spikes are exempt.
+- **Until then Pro installs at build time** from the `HEROUI_AUTH_TOKEN` CI secret, never committed, never run on
+  pull requests from forks. Locally it installs from `heroui-pro login`, as the mock does. Both go when HeroUI does.
+- **The data grid and the board go last**, because UI SDK has neither; they are built on its behaviours.
 
-This replaces round 1's "clean-room the components we need" with one place to do it.
 
 ## What this changes elsewhere
 

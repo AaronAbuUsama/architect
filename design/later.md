@@ -103,6 +103,8 @@ belongs to, and why it waits.
 - **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
 - **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
 - **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
-- **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
-  Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
-  or its terms stop a framework importing it.
+- **`@orthograph/portal-ui` moves from HeroUI Pro to UI SDK** (K24, replacing F7's open-libraries fallback): the same
+  exports, one at a time, on UI SDK's primitives, with the data grid and the board built on its behaviours
+  (`createReorder`, `createTransfer`) and the rest on Recharts, TanStack Table, cmdk, Shiki, react-markdown and Tiptap.
+  Today the portal uses HeroUI Pro behind `portal-ui`; HeroUI is phased out (K24). The move waits for the second
+  UI SDK spike, not for the licence.
