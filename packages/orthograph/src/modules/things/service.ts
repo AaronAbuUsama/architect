@@ -6,7 +6,8 @@ export const Things: ThingsApi = {
     const fields: Record<string, Field> = {};
     const declared = typeof spec.lives === "object" ? spec.lives : undefined;
     const lives = declared ? declared.of : (spec.lives ?? "database");
-    const thing = { kind: "thing", description: spec.description, fields, lives, store: declared, code: spec.code, notFound: undefined } as unknown as Thing<F>;
+    // A stray `unique` (G4's retired key, absent from the type on purpose) rides along so the compiler can refuse the thing by name (S-30).
+    const thing = { kind: "thing", description: spec.description, fields, lives, store: declared, code: spec.code, notFound: undefined, ...("unique" in spec ? { unique: spec.unique } : {}) } as unknown as Thing<F>;
     for (const [key, input] of Object.entries(spec.fields) as Array<[string, FieldInput]>) {
       fields[key] = Object.freeze({
         kind: "field", of: thing as Thing, key, value: valueOf(input), from: input.kind === "field" ? input : undefined, visibility: input.visibility,
