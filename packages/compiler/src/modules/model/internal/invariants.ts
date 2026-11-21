@@ -3,6 +3,7 @@ import type { AnyErrorClass, Field, Thing, Unique } from "orthograph";
 import { Blanks } from "orthograph/server";
 import type { InvariantModel, StepModel, ThingModel } from "../types.ts";
 import { pascal, type ThingFiles } from "./layout.ts";
+import { describeValue, sameValue, valueOfInput } from "./same-value.ts";
 
 /** What `invariantsOf` needs to know about the rest of the blueprint. */
 export interface RuleContext {
@@ -50,8 +51,12 @@ export const invariantsOf = (t: ThingFiles, ctx: RuleContext, problems: Array<st
   const file = `${t.base}/invariants.ts`;
   const owners = new Map<AnyErrorClass, string>();
   const model: Record<string, InvariantModel> = {};
+  const spelled = new Map<string, string>();
   for (const [name, rule] of [...t.invariants].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     const at = `${file}: ${t.name}.${name}`;
+    const clash = spelled.get(name.toLowerCase());
+    if (clash !== undefined) problems.push(`${at}: ${t.name}.${clash} and ${t.name}.${name} differ only in case, and the database compares index names without regard to case (the second index would fail to be created); rename one`);
+    else spelled.set(name.toLowerCase(), name);
     if (rule.form !== "unique") { problems.push(`${at}: is a "${rule.form}" rule, and only unique is known`); continue; }
     if (t.thing?.lives === "actor") problems.push(`${at}: a rule needs a thing that lives in the database, and ${t.name} lives as actors: each instance is its own Durable Object, a commit writes one instance, and there is no shared index or list to look in`);
     const fields = keyOf(rule, t, at, ctx, problems);
@@ -78,8 +83,12 @@ const refusalOf = (rule: Unique, t: ThingFiles, name: string, key: ReadonlyArray
   const first = owners.get(error);
   if (first !== undefined) problems.push(`${at}: ${tag} is already refused for ${t.name}.${first}; an error belongs to at most one rule`);
   else owners.set(error, name);
-  for (const field of Object.keys(error.fields)) {
-    if (!key.includes(field)) problems.push(`${at}: ${tag} carries ${field}, which is not in the rule's key (${key.join(", ")}); the runtime fills the refusal from the caller's own row, so it may carry only key fields`);
+  for (const [field, input] of Object.entries(error.fields)) {
+    if (!key.includes(field)) { problems.push(`${at}: ${tag} carries ${field}, which is not in the rule's key (${key.join(", ")}); the runtime fills the refusal from the caller's own row, so it may carry only key fields`); continue; }
+    const keyField = t.thing?.fields[field];
+    if (keyField === undefined) continue;
+    const carried = valueOfInput(input);
+    if (!sameValue(carried, keyField.value)) problems.push(`${at}: ${tag} carries ${field} as ${describeValue(carried)}, and the key field ${field} is ${describeValue(keyField.value)}; the runtime copies the caller's own value into the refusal, so declare the field with the key field's own value (share the constant), as ${pascal(t.name)}.fields.${field}`);
   }
   for (const verb of ctx.verbs) {
     if (verb.errors.includes(error)) problems.push(`${at}: ${tag} is refused by the runtime for ${t.name}.${name}; take it out of \`errors\` in ${verb.file}.`);
@@ -97,7 +106,7 @@ export interface Acting {
 /**
  * The rules an operation can break (G5, section 3): its move on the rule's thing can end in a `while` state (any move, for a rule with
  * no `while`); one of its database steps names the thing in `writes`; or the thing has no machine, and the operation is on it and has a
- * database step. `refusals` maps each broken rule's refusal to the rule's full name; `breaks` is every rule broken, refusal or not.
+ * database step that leaves `writes` unset (unknown; `writes: []` is reads only, S31). `refusals` maps each broken rule's refusal to the rule's full name; `breaks` is every rule broken, refusal or not.
  */
 export const breakersOf = (op: Acting, things: Readonly<Record<string, ThingModel>>): { readonly refusals: Readonly<Record<string, string>>; readonly breaks: ReadonlyArray<string> } => {
   const database = Object.values(op.steps).filter((s) => s.type === "database");
@@ -108,7 +117,7 @@ export const breakersOf = (op: Acting, things: Readonly<Record<string, ThingMode
       const own = op.thing === thing;
       const byMove = own && op.move !== null && (rule.while === undefined || op.move.to.some((s) => rule.while!.includes(s)));
       const byWrites = database.some((s) => s.writes?.includes(thing));
-      const bare = own && t.machine === null && database.length > 0;
+      const bare = own && t.machine === null && database.some((s) => s.writes === undefined);
       if (!byMove && !byWrites && !bare) continue;
       breaks.push(`${thing}.${name}`);
       if (rule.refuse !== undefined) refusals[rule.refuse] = `${thing}.${name}`;

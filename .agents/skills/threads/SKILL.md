@@ -30,8 +30,9 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
 
 ## Rules every type keeps
 
-- **Land on a fresh base.** Merge a pull request only when it has no conflicts and CI ran on a head that includes the
-  current target branch. Two pull requests that were each green can break the branch together.
+- **Land without a catch-up run.** Merge a pull request when it has no conflicts and CI is green on the head that will
+  merge; the target branch's own push run checks every merge, and a red one is fixed first (`design/decisions/CI-drafts.md`).
+  Bring a branch up to date only for a real conflict or a change it needs.
 - **Every build pull request needs a 🔍 pass,** as well as CI: a builder's pull request into a goal or milestone branch
   as much as a layer into `main`. The build pull requests are where runtime defects merge. The 🔍 pass is the gate;
   Codex is advisory (`AGENTS.md`): ask it with `@codex review` when it is available, answer what it posts before the

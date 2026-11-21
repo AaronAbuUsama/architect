@@ -394,6 +394,11 @@
         "HandleTaken": "handle.oneHolderPerName",
         "HandleAlreadyOwned": "handle.oneNamePerPerson"
       },
+      "breaks": [
+        "handle.oneHolderPerName",
+        "handle.oneNamePerPerson",
+        "profile.onePagePerHandle"
+      ],
       "refusals": [
         "HandleTaken",
         "HandleAlreadyOwned",
@@ -409,7 +414,10 @@
       "steps": {
         "record": {
           "name": "handle.claim.record",
-          "type": "database"
+          "type": "database",
+          "writes": [
+            "profile"
+          ]
         }
       },
       "idempotent": "request",
@@ -418,7 +426,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "ec57bf4d03bb379c"
+      "hash": "f3b0ba5eb265de74"
     },
     "handle.release": {
       "kind": "operation",
@@ -453,6 +461,7 @@
         "emits": "HandleReleased"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "HandleNotClaimed",
         "NotAllowed"
@@ -478,7 +487,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "2e2a0634cc287ac4"
+      "hash": "f875bc245f1b5a16"
     },
     "handle.resolve": {
       "kind": "operation",
@@ -515,6 +524,7 @@
       "errors": [
         "HandleNotFound"
       ],
+      "breaks": [],
       "refusals": [
         "HandleNotFound"
       ],
@@ -535,7 +545,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "ec35f5ac1d996508"
+      "hash": "fbe1dbfa3de5ad1f"
     },
     "link.add": {
       "kind": "operation",
@@ -588,6 +598,7 @@
       "errors": [
         "LinkNeedsHandle"
       ],
+      "breaks": [],
       "refusals": [
         "LinkNeedsHandle",
         "NotAllowed",
@@ -615,7 +626,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "852d172add3d2ea9"
+      "hash": "68e3a0e037ae0530"
     },
     "link.order": {
       "kind": "operation",
@@ -651,6 +662,7 @@
       "errors": [
         "LinkAlreadyRemoved"
       ],
+      "breaks": [],
       "refusals": [
         "LinkAlreadyRemoved",
         "NotAllowed"
@@ -680,7 +692,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "4382439fbc661685"
+      "hash": "6955c4a359ef7c40"
     },
     "link.remove": {
       "kind": "operation",
@@ -715,6 +727,7 @@
         "emits": "LinkRemoved"
       },
       "errors": [],
+      "breaks": [],
       "refusals": [
         "LinkNotListed",
         "NotAllowed"
@@ -740,7 +753,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "7f27cb775ec09be1"
+      "hash": "c5986166d415489f"
     },
     "profile.get": {
       "kind": "operation",
@@ -782,6 +795,7 @@
       "errors": [
         "ProfileNotFound"
       ],
+      "breaks": [],
       "refusals": [
         "ProfileNotFound"
       ],
@@ -793,7 +807,8 @@
       "steps": {
         "load": {
           "name": "profile.get.load",
-          "type": "database"
+          "type": "database",
+          "writes": []
         }
       },
       "idempotent": null,
@@ -802,7 +817,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "f6e1480cfdff97f8"
+      "hash": "f7c27314764a8886"
     }
   },
   "journeys": {

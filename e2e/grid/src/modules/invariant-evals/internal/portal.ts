@@ -72,7 +72,8 @@ export const portal = over("invariant.portal", (f, e) => {
       const shown = ofThisRule.filter((r) => r.attrs["data-refusal"] === f.rule.refuse);
       const stops = tagsOf(page, "spine-stop").map((s) => s.attrs["data-stop"]);
       const rules = tagsOf(page, "spine-stop").find((s) => s.attrs["data-stop"] === "rules");
-      const owned = [...new Set(Object.values(op.invariants ?? {}))].sort();
+      // What the model says it can break: `breaks` (a rule that owns no refusal is in it), else, in a model older than S31, the rules behind its refusals (as the portal's `rulesBroken` does).
+      const owned = [...new Set(op.breaks ?? Object.values(op.invariants ?? {}))].sort();
       return [
         ...(shown.length === 1 ? [] : [`/portal/operations/${op.name} shows ${f.rule.refuse} ${shown.length} times, it needs once`]),
         ...ofThisRule.filter((r) => r.attrs["data-refusal"] !== f.rule.refuse).map((r) => `/portal/operations/${op.name} shows ${r.attrs["data-refusal"] ?? "a refusal"} as ${f.full}'s, which refuses ${f.rule.refuse}`),

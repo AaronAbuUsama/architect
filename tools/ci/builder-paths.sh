@@ -7,7 +7,7 @@
 # checks pass; the list only shrinks, e2e/ratchet/README.md): a line deleted from a file, or a whole file deleted, passes; a line added to
 # one, or a file added, is a hit. The grid's list, e2e/grid/expected-red.json, is the same kind of list (G7): it may lose pairs, judged by
 # cell and subject with jq, but a pair added there is a hit.
-# Protected: the e2e checks and their fixtures; every blueprint's journeys; the evals (prove's evals module) and the
+# Protected: the e2e checks and their fixtures; the staging workflow, which is the M7.04 check; every blueprint's journeys; the evals (prove's evals module) and the
 # runner's generic step checks (prove's journeys/internal/checks.ts); and the break fixtures the checks are proved on.
 # The rest of prove's journeys runner is builder code.
 set -euo pipefail
@@ -23,6 +23,7 @@ shrink_only_pairs="e2e/grid/expected-red.json"
 
 protected=(
   ':(glob)e2e/**'
+  ':(glob).github/workflows/staging.yml'
   ':(glob)packages/*/expected-failing/**'
   ':(glob)examples/*/journeys/**'
   ':(glob)**/blueprint/journeys/**'

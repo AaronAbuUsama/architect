@@ -11,14 +11,14 @@ The Goal 3 lead went through every snag whose Status was `open` in one pass, che
 `goal/stage-1` at `61a7df04`. The call for each is its Status line; Hit, Lost, Cause and Fix are unchanged. A snag blocks
 if it stands in the way of M2's auth journeys or principals, the story through the CLI, SDK, MCP and HTTP, `nx run
 e2e:stage1`, or a staging run (M7.03, M7.04); the seven journeys in `examples/plugged-in/journeys/` are green, so only
-future journeys count. S-29, S-30 and S-31 are in flight and S-01 to S-04, S-22, S-23 and S-25 were already fixed; none of
+future journeys count. S-29, S-30 and S-31 have merged (#265, #254, #269) and S-01 to S-04, S-22, S-23 and S-25 were already fixed; none of
 them was touched.
 
 | Verdict | Count | Snags |
 |---|---|---|
 | Fixed already (found fixed in the code) | 3 | S-10 (#76), S-12 (#116, #117), S-19 (#205, #227, #229) |
-| Open, blocks | 3 | S-27, S-17 (HAN-15 only), S-11 |
-| Parked, with an owner | 14 | S-05 to S-09, S-13 to S-16, S-20, S-21, S-24, S-26, S-28 (S-17's HAN-13 and HAN-14 are parked inside its line) |
+| Open, blocks | 2 | S-27, S-11 (S-17's HAN-15 was fixed by #268 and is off the list) |
+| Parked, with an owner | 15 | S-05 to S-09, S-13 to S-17, S-20, S-21, S-24, S-26, S-28 (S-17: HAN-13 and HAN-14 are parked, HAN-15 is fixed) |
 
 That is 20 snags: S-05 to S-17 (13), S-19 to S-21 (3), S-24 and S-26 to S-28 (4). The brief counted 21 lines. This
 change also removes a stray second `Status: fixed (#148)` under S-27, a copy of S-25's left by a merge.
@@ -28,11 +28,8 @@ change also removes a stray second `Status: fixed (#148)` under S-27, a copy of 
 1. **S-27, a throwing `pick` kills the run.** A small prove slice, and first because a single red step in the story or
    the grid otherwise stops every journey after it and the report file, so the climb curve and `nx run e2e:climb` record
    nothing. It touches only `packages/prove/src/modules/journeys/internal/checks.ts`, so it conflicts with nothing and
-   is ready now.
-2. **S-17, HAN-15: the answer-shape eval lets a sign-in answer omit its issued token.** A checks slice. It must land
-   before M2.02's and M2.05's identity journeys are written, because a sign-in that issues no token would otherwise
-   pass the eval; after that the check cannot be added without moving a green journey.
-3. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
+   is ready now: its fix and test: #264.
+2. **S-11, `prove --through cli|mcp`.** This is M2.08 itself, so it follows M2.05. Without it the story cannot run
    through the CLI and MCP, and the held-off grid cells `error.cli`, `error.mcp` and `invariant.cli` stay off. S-20
    and S-16 ride on it.
 
@@ -40,8 +37,8 @@ Everything parked is journey-language ergonomics no journey needs (S-05 to S-09)
 device half of S-17), cells held off until M2.08 (S-20, S-16), and small hygiene (S-14, S-21, S-24, S-26, S-28). Each has
 an owner and a trigger in its line, and the ones without a milestone slice have a line in `design/later.md`.
 
-Not a snag, but the done check depends on it: `nx run e2e:stage1` has no target in `e2e/project.json` yet, and the
-staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because nothing has been hit.
+Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target now (#261) and a required check on
+`goal/stage-1`; what it still needs is listed in `e2e/stage1/README.md`. The staging checks merged (#266); the build is M7.03 and M7.04 (#282).
 
 ## S-01 · prove · every run's numbers come from its text
 - Hit: the checks author, writing the climb recorder (#110): `ortho prove` prints only text, so `tools/climb/record.mjs`
@@ -154,10 +151,10 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Hit: Codex's review of #116 (the code is #95's, M1.35).
 - HAN-13: a request answer stored before the envelope change refuses its own retry after an upgrade. Parked to M7.03:
   no world outlives an upgrade before M7.
-- HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Open,
-  framework, check first.
-- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
-- Status: open, blocks M2.05's sign-in journeys (HAN-15 only): a checks slice makes the answer-shape eval (`packages/prove/src/modules/evals/internal/calls.ts:49`) require a declared `Blueprint.issued` field to be present on a sign-in answer, before M2.05's identity journeys are written. HAN-14 is parked (Goal 3 lead, 21 November 2026): the device SDK is the wallet's browser path, Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03.
+- HAN-14: the device SDK types a redacted answer as whole, so `answer.pin.length` type-checks and crashes. Parked
+  (Goal 3 lead, 21 November 2026) to `later.md` (ST2.01), with the wallet's device path.
+- HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Fixed: the eval requires every issued answer field (`packages/prove/src/modules/evals/issued.test.ts`).
+- Status: parked (Goal 3 lead, 21 November 2026) for HAN-13 and HAN-14; HAN-15 is fixed (#268). HAN-14: the device SDK is the wallet's browser path. Owner: later.md (stage 2 wallets), revisit when ST2.01 starts. HAN-13 stays parked to M7.03. HAN-15 is fixed, so M2.05's sign-in journeys are no longer blocked on it.
 
 ## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
 - Hit: the journeys for HAN-11's two new wallet refusals (#113, #114). The coverage eval rightly asks for a journey
@@ -295,7 +292,11 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework, run `pick` inside `Effect.try` and turn a throw into the step's failure, naming the step, the answer
   and the error. A checks author first adds a prove test with a journey whose `pick` throws.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: open, blocks the climb and `e2e:climb`: run `check.pick` inside `Effect.try` in `packages/prove/src/modules/journeys/internal/checks.ts` (lines 76 and 82 today) and fail the step naming the answer and the error; a checks author first adds a prove test with a journey whose `pick` throws. A small prove slice, first of the blockers.
+- Status: fixed (#264)
+- Notes from #264: the failing line names the answer's top-level keys and never its values (a sign-in answer holds a token, and the report is kept), a `pick` that
+  returns a value holding itself reads `[Circular]` where it loops back, and a throw of anything (a string, a `RangeError`) fails the step. The guard around the
+  `refuses()` class is in the code but effectively unreachable: the compiler refuses a bad `refuses()` argument first, so no test can reach it. Journey code that
+  throws outside a check is S-32.
 
 ## S-28 · model · a value's pattern is not in the model, so evals, docs and clients can't see it
 - Hit: the 🔍 of #154 (Codex's P2 on `output-schema/internal/sample.ts`): the MCP output-schema eval builds a sample answer from the model's
@@ -321,7 +322,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework. Prove exits non-zero within 60 s (the bound check 33 uses) and names the file and the missing
   export. A checks author first adds the case beside check 33.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: fix built (`bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
+- Status: fixed (#265: `bringUp` reads wrangler's log while it waits, and stops wrangler and fails with esbuild's error the moment the worker cannot build; checks 33 and 36 pass); check written (#253)
 
 ## S-30 · compiler · a blueprint that still declares G4's `unique` property compiles silently and loses its rule
 - Hit: the 🔍 of #245 (ST1.20) put a stale `unique: { owner: {} }` on Plugged In's `Handle` behind `@ts-ignore`;
@@ -333,7 +334,7 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
 - Fix: framework. The compiler refuses a thing carrying `unique`, naming the thing and pointing at
   `Blueprint.invariant.unique` in `invariants.ts` (G5). A checks author first adds the case.
 - Owner: Goal 3 lead, for a framework builder.
-- Status: fix built (the compiler refuses a thing carrying `unique`, #254); checks written (#251)
+- Status: fixed (the compiler refuses a thing carrying `unique`, #254); checks written (#251)
 
 ## S-31 · model · an operation's spine can't name a rule that owns no refusal
 - Hit: Codex on #249 (ST1.22). `profile.onePagePerHandle` refuses nothing, yet `handle.claim` writes a profile and the
@@ -344,10 +345,62 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   rule an operation can break (`breaks`), but the model keeps only `refusals` (`operations.<op>.invariants`, refusal to
   rule), so the wire never carries a rule with no refusal on an operation.
 - Fix: framework. The model carries each operation's `breaks`, and the portal's spine reads it. Check 28 pins the stop to
-  the rules the model attaches today (`e2e/m1/rules-fixture.ts:215`), so a checks author first moves it to `breaks`.
+  the rules the model attaches today (`e2e/m1/rules-fixture.ts`), so a checks author first moves it to `breaks`.
   Amended 21 November 2026 (`design/decisions/S31-breaks.md`, point 4): a database step with `writes` unset stays
   unknown and breaks the rules of a machine-less thing; `writes: []` is reads only. `profile.get` declares it and has no
   rules stop; `handle.claim` declares `writes: [Profile]`.
 - Owner: Goal 3 lead, for a checks author and then a framework builder.
-- Status: checks written (#252)
+- Status: fixed (#269, `b1d424e0`; #255 was closed in its favour)
 
+## S-32 · prove · journey code that throws while the compiler describes a blueprint kills the run with no report
+- Hit: the 🔍 of #264 (S-27), reading what the `Effect.try` there does not cover. Not run on a planted journey yet: read from the code.
+- What: S-27 covers a throw inside a check. Three other places run journey code outside it. A throw inside a journey's `steps(...)` builder is caught first by the
+  compiler (`storiesOf`, `packages/compiler/src/modules/model/internal/journeys.ts:89`, called from `describe.ts:254`), and a starting world's `makes` and `gives`
+  run at `packages/prove/src/modules/journeys/service.ts:73-80`. A throw in any of them ends `ortho prove` with a stack trace and no `--report` file.
+- Lost: as in S-27, the curve records nothing for that run, and the climber sees a stack trace instead of a failed journey naming the file.
+- Cause: nothing wraps journey code there; S-27 wrapped only the check's `pick` and the refusal's class.
+- Fix: framework. A throw while describing a journey fails that journey (named, with the error's message) and the other journeys still run; a throwing
+  `makes` or `gives` fails the journey that declared it. A checks author first adds the cases beside `throwing-check.test.ts`.
+- Owner: the compiler (a later slice, for a framework builder).
+- Status: parked. Trigger: a climber's journey throws in a `steps(...)` builder or a world's `makes`/`gives`, or the next prove slice touches `storiesOf`.
+
+
+<!-- S-32 is PR #264's, not merged yet: its entry goes here. -->
+
+## S-33 · compiler · a refusal field of another schema than the rule's key field compiles, and the duplicate claim ends in an internal error
+- Hit: Codex on #273 (Goal 4). `refusalOf` (`packages/compiler/src/modules/model/internal/invariants.ts:83`) checks only the
+  names of the fields a rule's refusal carries against the key, not their schemas.
+- Reproduced (21 November 2026, on a copy of Plugged In with `HandleTaken` changed to
+  `Blueprint.error({ name: Blueprint.uint(32) }, { exit: 10 })`, over the text key `Handle.fields.name`):
+  `ortho model` exits 0 and prints `operation handle.claim  refuses HandleTaken, HandleAlreadyOwned, ...`.
+  `ortho prove` then fails the journey: `"a taken name is refused": expected refused with HandleTaken, failed with 500`
+  (and the same for "another person's request key is not aaron's"), with `prove ✘ 2 failing`.
+- Lost: a mismatched refusal is never refused at compile time; `settleViolation`
+  (`packages/language-effect/src/modules/handler/internal/invariants.ts:26`) copies the caller's row value into the
+  refusal's field, so a duplicate claim answers with an internal error where the declared refusal belongs.
+- Cause: the compiler compares field names (`key.includes(field)`), never the field's value schema.
+- Fix: framework. The compiler refuses a refusal field whose value is not the rule's key field's own, one line naming
+  the thing, the rule and the field. The comparison is strict (the lead's call, on the reviewer's advice): a value whose
+  schema has no named type (`Blueprint.value(Schema...)`) is equal only when it is the same object; any other value
+  (text, number, id) is equal when its kind and its numbers match. A separately declared equal `Blueprint.uint(32)`
+  twice, or the same id prefix, passes; a text with a larger `max` than the key's is refused. The message says to declare
+  the field with the key field's own value (share the constant). Checks: `packages/compiler/src/modules/model/refusal-field-schema.test.ts`, held on
+  `packages/compiler/expected-failing/refusal-field-schema.txt` (G11).
+- Owner: Goal 3 lead, for a framework builder.
+- Status: built (goal-3/s33-s34-build)
+
+## S-34 · compiler · two rules of one thing whose names differ only in case compile, and the world's migrations never finish
+- Hit: Codex on #275 (Goal 4). Rules `byURL` and `byUrl` on one thing are accepted.
+- Reproduced (21 November 2026, on a copy of Plugged In with both rules added to `handle/invariants.ts`): `ortho model`
+  exits 0. `ortho generate` writes `CREATE UNIQUE INDEX "handle_byURL"` and `CREATE UNIQUE INDEX "handle_byUrl"` to
+  `0001_things.sql`, and `ortho prove` exits 2: `prove couldn't run: the local database couldn't be made: Error: ✘ [ERROR]
+  index handle_byUrl already exists: SQLITE_ERROR`.
+- Lost: SQLite compares index names without regard to case, so the second `CREATE UNIQUE INDEX` that
+  `packages/projections/src/modules/server/internal/worker-config.ts:67` writes fails and the world never comes up.
+- Cause: the compiler checks no rule name against the others of its thing.
+- Fix: framework. The compiler refuses two rule names on one thing that match when case is ignored, naming the thing and
+  both rules. The same name on two different things stays allowed (the index is prefixed by the thing). Checks:
+  `packages/compiler/src/modules/model/rule-name-case.test.ts`, held on
+  `packages/compiler/expected-failing/rule-name-case.txt` (G11).
+- Owner: Goal 3 lead, for a framework builder.
+- Status: built (goal-3/s33-s34-build)

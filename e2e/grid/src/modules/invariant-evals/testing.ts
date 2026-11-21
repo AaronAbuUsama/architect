@@ -22,6 +22,8 @@ export const portalPages = (model: ProjectModel): Readonly<Record<string, string
   })),
   ...Object.fromEntries(Object.values(model.operations).map((op) => {
     const owned = Object.entries(op.invariants ?? {});
+    /** What the operation can break: `breaks` when the model has it (S31), else the rules behind its refusals. */
+    const broken = op.breaks ?? owned.map(([, full]) => full);
     return [`/portal/operations/${op.name}`, html([
       `<main><h1>${op.name}</h1><ul>`,
       ...owned.map(([refusal, full]) => {
@@ -30,7 +32,7 @@ export const portalPages = (model: ProjectModel): Readonly<Record<string, string
         return `<li data-portal="refusal" data-refusal="${refusal}" data-rule="${full}"><span data-portal="refusal-sentence">${sentenceOf(thing, rule)}</span> <a data-portal="rule-link" href="/portal/things/${thing}#rule-${name}">${full}</a></li>`;
       }),
       `</ul>`,
-      owned.length === 0 ? "" : `<ol><li data-portal="spine-stop" data-stop="move">move</li><li data-portal="spine-stop" data-stop="rules" data-rules="${owned.map(([, full]) => full).join(",")}">rules</li><li data-portal="spine-stop" data-stop="commit">commit</li></ol>`,
+      broken.length === 0 ? "" : `<ol><li data-portal="spine-stop" data-stop="move">move</li><li data-portal="spine-stop" data-stop="rules" data-rules="${broken.join(",")}">rules</li><li data-portal="spine-stop" data-stop="commit">commit</li></ol>`,
       `</main>`,
     ])] as const;
   })),
