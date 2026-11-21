@@ -1,0 +1,126 @@
+// Check 35 (S-30, `design/goals/03-snags.md`): the compiler refuses G4's retired `unique` property on a thing, in words. ST1.20 removed `unique` from
+// `Blueprint.thing`'s types, so a typed project is refused by tsc. A project that skips typecheck, ignores the error (`// @ts-ignore`) or writes the thing
+// in plain JavaScript still reaches the compiler, and there the rule was dropped without a word: `ortho model` and `ortho generate` exited 0, the model
+// carried no rule and the migration no index, and two rows could hold one value. Meaning was lost silently.
+// Written by the checks author; a builder never edits this file (AGENTS.md, "Journeys and checks come first").
+//
+// WHAT IS REQUIRED. In a throwaway copy of `examples/plugged-in` whose thing carries `unique: { <field>: { while: [...] } }`:
+//   - `ortho model` and `ortho generate` exit non-zero (a failed compile that says why);
+//   - what they print names the thing, says `unique` (the thing and `unique` on one line), and points at `invariants.ts` or `Blueprint.invariant.unique` (G5);
+//   - nothing is written: every file of the copy is byte for byte what it was. For generate the copy's `generated/` is removed first, so a compiler that
+//     went on would write it again, and the check then finds it still absent.
+// Where the property is caught (in `Blueprint.thing`, in the loader, in the compiler) is the builder's choice; this check reads only the command line.
+// Variants: the property on handle and on profile (the thing's name is not hard-coded), behind `// @ts-ignore`; and handle declared in a plain `.js` file
+// that the blueprint's `thing.ts` re-exports (the compiler walks only `.ts` blueprint files, so a `.js` one is reached by import).
+// Controls, true today: an intact copy compiles (model exit 0; generate into a removed `generated/` writes the committed one back); a thing with a FIELD
+// named `unique` is not the retired property and compiles; the message reader knows a good message from a hollow one. Not passable hollow: a compiler
+// that refuses everything fails the controls; a message with no thing, no `unique` or no pointer fails the reader.
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { copyOf, ortho } from "../layer1/support.ts";
+import { repo } from "./support.ts";
+
+const example = join(repo, "examples/plugged-in");
+const copies: Array<ReturnType<typeof copyOf>> = [];
+afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
+const fresh = () => { const copy = copyOf(example); copies.push(copy); return copy.root; };
+const edit = (root: string, file: string, change: (text: string) => string) => { const path = join(root, file); writeFileSync(path, change(readFileSync(path, "utf8"))); };
+
+const HANDLE = "blueprint/things/handle/thing.ts";
+const PROFILE = "blueprint/things/profile/thing.ts";
+const RETIRED = (field: string) => `  // @ts-ignore: G4's retired property, as a project that skips typecheck would carry it\n  unique: { ${field}: { while: ["claimed"] } },\n`;
+
+/** Every file of a folder but node_modules and dot-folders, by path, with a digest: what "nothing is written" is judged against. */
+const tree = (root: string): Readonly<Record<string, string>> =>
+  Object.fromEntries(readdirSync(root, { recursive: true, withFileTypes: true })
+    .filter((d) => d.isFile()).map((d) => join(d.parentPath, d.name).slice(root.length + 1))
+    .filter((p) => !p.startsWith("node_modules/") && !/(^|\/)\./.test(p)).sort()
+    .map((p) => [p, createHash("sha256").update(readFileSync(join(root, p))).digest("hex")]));
+
+interface Way { readonly thing: string; readonly prepare: (root: string) => void }
+const ways: Readonly<Record<string, Way>> = {
+  "a `// @ts-ignore`d `unique` on handle": { thing: "handle", prepare: (root) => edit(root, HANDLE, (t) => t.replace('  code: "HN",\n', `  code: "HN",\n${RETIRED("name")}`)) },
+  "a `// @ts-ignore`d `unique` on profile (the thing's name is not hard-coded)": { thing: "profile", prepare: (root) => edit(root, PROFILE, (t) => t.replace('  code: "PR",\n', `  code: "PR",\n${RETIRED("handle")}`)) },
+  "handle declared in a plain .js file that thing.ts re-exports": {
+    thing: "handle",
+    prepare: (root) => {
+      const js = readFileSync(join(root, HANDLE), "utf8").replace('  code: "HN",\n', '  code: "HN",\n  unique: { name: { while: ["claimed"] } },\n');
+      writeFileSync(join(root, "blueprint/things/handle/thing.impl.js"), js);
+      writeFileSync(join(root, HANDLE), 'export { Handle } from "./thing.impl.js";\n');
+    },
+  },
+};
+
+/** What a refusal must say: a line with the thing and `unique`, and a pointer to where the rule goes now. Meaning, not wording. */
+const says = (out: string, thing: string) => ({
+  names: out.split("\n").some((line) => new RegExp(`\\b${thing}\\b`, "i").test(line) && /\bunique\b/i.test(line)),
+  points: /invariants\.ts|Blueprint\.invariant\.unique/.test(out),
+});
+
+describe("35 controls: the message reader and an intact copy", () => {
+  it("the reader knows a good message from a hollow one", () => {
+    const good = "thing handle declares `unique`, which is retired: declare it with Blueprint.invariant.unique in blueprint/things/handle/invariants.ts";
+    expect(says(good, "handle")).toEqual({ names: true, points: true });
+    expect(says(good, "profile").names, "it names another thing").toBe(false);
+    expect(says("thing handle: unique is retired; use Blueprint.invariant.unique", "handle")).toEqual({ names: true, points: true });
+    expect(says("the blueprint failed to compile", "handle")).toEqual({ names: false, points: false });
+    expect(says("handle: unique is retired", "handle")).toEqual({ names: true, points: false });
+    expect(says("a thing declares unique: see invariants.ts", "handle")).toEqual({ names: false, points: true });
+    expect(says("handle is fine\nunique rows are fine\nsee invariants.ts", "handle").names, "the thing and `unique` on different lines").toBe(false);
+    expect(says("", "handle")).toEqual({ names: false, points: false });
+  });
+
+  it("an intact copy of Plugged In compiles: `ortho model` exits 0 and shows handle", () => {
+    const model = ortho(fresh(), "model");
+    expect(model.status, model.stderr).toBe(0);
+    expect(model.stdout).toMatch(/^thing handle /m);
+  });
+
+  it("`ortho generate` in an intact copy whose generated/ was removed exits 0 and writes the committed generated/ back (so 'nothing written' below can fail)", () => {
+    const root = fresh();
+    const committed = tree(join(root, "generated"));
+    expect(Object.keys(committed)).toContain("model/model.json");
+    rmSync(join(root, "generated"), { recursive: true });
+    const generate = ortho(root, "generate");
+    expect(generate.status, generate.stderr).toBe(0);
+    expect(tree(join(root, "generated"))).toEqual(committed);
+  });
+
+  it("a thing with a FIELD called unique is not the retired property: it compiles", () => {
+    const root = fresh();
+    edit(root, HANDLE, (t) => t.replace("    owner:", '    unique: Blueprint.described(Blueprint.id("per"), "A field that happens to be called unique."),\n    owner:'));
+    const model = ortho(root, "model");
+    expect(model.status, model.stderr + model.stdout).toBe(0);
+    expect(model.stdout).toMatch(/^thing handle /m);
+  });
+});
+
+describe.each(Object.entries(ways))("35: %s is refused, in words, and nothing is written", (_way, { thing, prepare }) => {
+  it("`ortho model` exits non-zero, naming the thing and the retired `unique` and pointing at Blueprint.invariant.unique or invariants.ts; no file changes", () => {
+    const root = fresh();
+    prepare(root);
+    const before = tree(root);
+    const model = ortho(root, "model");
+    const out = `${model.stdout}\n${model.stderr}`;
+    expect(model.status, `compiled with exit 0 and said: ${JSON.stringify(out.slice(0, 200))}`).not.toBe(0);
+    expect(says(out, thing).names, `no line names ${thing} with unique:\n${out.slice(0, 600)}`).toBe(true);
+    expect(says(out, thing).points, `no pointer to invariants.ts or Blueprint.invariant.unique:\n${out.slice(0, 600)}`).toBe(true);
+    expect(tree(root)).toEqual(before);
+  });
+
+  it("`ortho generate` exits non-zero with the same words and writes nothing (generated/ was removed first and stays gone)", () => {
+    const root = fresh();
+    prepare(root);
+    rmSync(join(root, "generated"), { recursive: true });
+    const before = tree(root);
+    const generate = ortho(root, "generate");
+    const out = `${generate.stdout}\n${generate.stderr}`;
+    expect(generate.status, `generated with exit 0 and said: ${JSON.stringify(out.slice(0, 200))}`).not.toBe(0);
+    expect(says(out, thing).names, `no line names ${thing} with unique:\n${out.slice(0, 600)}`).toBe(true);
+    expect(says(out, thing).points, `no pointer to invariants.ts or Blueprint.invariant.unique:\n${out.slice(0, 600)}`).toBe(true);
+    expect(existsSync(join(root, "generated")), "generated/ was written").toBe(false);
+    expect(tree(root)).toEqual(before);
+  });
+});

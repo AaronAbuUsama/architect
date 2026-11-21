@@ -1,0 +1,2 @@
+# S-30: the compiler drops G4's retired `unique` on a thing without a word. Passes when `Compiler.model` fails, naming handle and pointing at Blueprint.invariant.unique / invariants.ts. The two controls pass today.
+src/modules/model/retired-unique.test.ts > retired unique: refused > a `// @ts-ignore`d `unique` on handle fails the model, naming handle and pointing at invariants.ts / Blueprint.invariant.unique
