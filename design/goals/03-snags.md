@@ -366,3 +366,41 @@ staging workflow (M7.03, M7.04) is not built. Neither is a snag today, because n
   `makes` or `gives` fails the journey that declared it. A checks author first adds the cases beside `throwing-check.test.ts`.
 - Owner: the compiler (a later slice, for a framework builder).
 - Status: parked. Trigger: a climber's journey throws in a `steps(...)` builder or a world's `makes`/`gives`, or the next prove slice touches `storiesOf`.
+
+
+<!-- S-32 is PR #264's, not merged yet: its entry goes here. -->
+
+## S-33 · compiler · a refusal field of another schema than the rule's key field compiles, and the duplicate claim ends in an internal error
+- Hit: Codex on #273 (Goal 4). `refusalOf` (`packages/compiler/src/modules/model/internal/invariants.ts:83`) checks only the
+  names of the fields a rule's refusal carries against the key, not their schemas.
+- Reproduced (21 November 2026, on a copy of Plugged In with `HandleTaken` changed to
+  `Blueprint.error({ name: Blueprint.uint(32) }, { exit: 10 })`, over the text key `Handle.fields.name`):
+  `ortho model` exits 0 and prints `operation handle.claim  refuses HandleTaken, HandleAlreadyOwned, ...`.
+  `ortho prove` then fails the journey: `"a taken name is refused": expected refused with HandleTaken, failed with 500`
+  (and the same for "another person's request key is not aaron's"), with `prove ✘ 2 failing`.
+- Lost: a mismatched refusal is never refused at compile time; `settleViolation`
+  (`packages/language-effect/src/modules/handler/internal/invariants.ts:26`) copies the caller's row value into the
+  refusal's field, so a duplicate claim answers with an internal error where the declared refusal belongs.
+- Cause: the compiler compares field names (`key.includes(field)`), never the field's value schema.
+- Fix: framework. The compiler refuses a refusal field whose schema differs from the rule's key field, one line naming
+  the thing, the rule and the field. A separately declared equal schema (`Blueprint.uint(32)` twice, the same id prefix)
+  is the same schema and passes. Checks: `packages/compiler/src/modules/model/refusal-field-schema.test.ts`, held on
+  `packages/compiler/expected-failing/refusal-field-schema.txt` (G11).
+- Owner: Goal 3 lead, for a framework builder.
+- Status: open; checks written (this pull request)
+
+## S-34 · compiler · two rules of one thing whose names differ only in case compile, and the world's migrations never finish
+- Hit: Codex on #275 (Goal 4). Rules `byURL` and `byUrl` on one thing are accepted.
+- Reproduced (21 November 2026, on a copy of Plugged In with both rules added to `handle/invariants.ts`): `ortho model`
+  exits 0. `ortho generate` writes `CREATE UNIQUE INDEX "handle_byURL"` and `CREATE UNIQUE INDEX "handle_byUrl"` to
+  `0001_things.sql`, and `ortho prove` exits 2: `prove couldn't run: the local database couldn't be made: Error: ✘ [ERROR]
+  index handle_byUrl already exists: SQLITE_ERROR`.
+- Lost: SQLite compares index names without regard to case, so the second `CREATE UNIQUE INDEX` that
+  `packages/projections/src/modules/server/internal/worker-config.ts:67` writes fails and the world never comes up.
+- Cause: the compiler checks no rule name against the others of its thing.
+- Fix: framework. The compiler refuses two rule names on one thing that match when case is ignored, naming the thing and
+  both rules. The same name on two different things stays allowed (the index is prefixed by the thing). Checks:
+  `packages/compiler/src/modules/model/rule-name-case.test.ts`, held on
+  `packages/compiler/expected-failing/rule-name-case.txt` (G11).
+- Owner: Goal 3 lead, for a framework builder.
+- Status: open; checks written (this pull request)
