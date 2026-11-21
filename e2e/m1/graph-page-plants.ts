@@ -1,0 +1,62 @@
+// The wrong pages check 37's controls plant (author skill, proof 5): the stand-in client (graph-standin.ts) with ONE line changed, the routes where the fault
+// shows, and what the judge must say. `from` is quoted from the stand-in; a control fails loudly if the stand-in no longer holds it.
+export interface PagePlant { readonly name: string; readonly from: string; readonly to: string; readonly routes: ReadonlyArray<string>; readonly says: string }
+
+const MAP = "/portal/map", WORLDS = "/portal/worlds";
+const STRUCT = "/portal/things/handle?lighting=structure";
+const LIVE = "/portal/things/link?lighting=live";
+const LIVE_H = "/portal/things/handle?lighting=live";
+const TRACE_L = "/portal/things/link?lighting=trace&journey=add-order-and-remove-a-link";
+const TRACE_H = "/portal/things/handle?lighting=trace&journey=release-a-handle";
+const STORY = "/portal/things/link?lighting=trace&journey=the-story";
+const STRANGER = "/portal/things/link?lighting=trace&journey=a-stranger-cannot-edit-a-page";
+const PROFILE = "/portal/things/profile";
+const ROOT = "g.nodes.filter((n) => !n.parent).map(box).join(\"\")";
+
+export const PAGE: ReadonlyArray<PagePlant> = [
+  // nodes: left out, added, repeated, wrong
+  { name: "a root node drawn twice", from: ROOT, to: "g.nodes.filter((n) => !n.parent).concat(g.nodes.filter((n) => !n.parent)).map(box).join(\"\")", routes: [STRUCT, WORLDS], says: "is drawn 2 times" },
+  { name: "a node left out", from: ROOT, to: "g.nodes.filter((n) => !n.parent && n.label !== \"released\" && n.kind !== \"journey\").map(box).join(\"\")", routes: [STRUCT, WORLDS], says: "is drawn 0 times" },
+  { name: "a node the data does not have", from: "+ g.edges.map(edge).join(\"\") + \"</div>\";", to: "+ g.edges.map(edge).join(\"\") + '<div data-portal=\"graph-node\" data-node=\"ghost\" data-kind=\"thing\" data-parent=\"\" data-x=\"0\" data-y=\"0\" data-w=\"10\" data-h=\"10\">ghost</div></div>';", routes: [MAP], says: "draws node \"ghost\"" },
+  { name: "a node of another kind", from: "'\" data-kind=\"' + n.kind + '\" data-parent=\"'", to: "'\" data-kind=\"' + (n.kind === \"state\" ? \"world\" : n.kind) + '\" data-parent=\"'", routes: [STRUCT], says: "is drawn as world" },
+  { name: "a node whose parent the page forgets", from: "(n.parent ?? \"\")", to: "\"\"", routes: [MAP], says: "is drawn as thing in \"\"" },
+  { name: "an x that is not the data's, on states only", from: "'\" data-x=\"' + n.x + '\"", to: "'\" data-x=\"' + (n.kind === \"state\" ? n.x + 1 : n.x) + '\"", routes: [STRUCT, MAP], says: "carries" },
+  { name: "a size that is not the data's, on journeys only", from: "data-w=\"' + n.w + '\"", to: "data-w=\"' + (n.kind === \"journey\" ? n.w + 1 : n.w) + '\"", routes: [WORLDS], says: "carries" },
+  { name: "a node that does not say its name", from: "+ esc(n.label) + g.nodes", to: "+ (n.kind === \"world\" ? \"\" : esc(n.label)) + g.nodes", routes: [WORLDS], says: "does not say" },
+  // no count on a state
+  { name: "a state that shows a count in its text", from: "+ esc(n.label) + g.nodes", to: "+ esc(n.label) + (n.kind === \"state\" ? \" x\" + (live ? 3 : 0) : \"\") + g.nodes", routes: [LIVE, STRUCT], says: "a state shows no count" },
+  { name: "a state that carries a count attribute", from: "'\" style=\"position:absolute;left:' + n.x * SCALE", to: "'\"' + (n.kind === \"state\" ? ' data-count=\"2\"' : \"\") + ' style=\"position:absolute;left:' + n.x * SCALE", routes: [LIVE], says: "carries a count" },
+  // where they are on the screen
+  { name: "a client that moves some nodes itself", from: "left:' + n.x * SCALE + 'px;top:'", to: "left:' + (n.x * SCALE + (n.kind === \"state\" ? 15 : 0)) + 'px;top:'", routes: [STRUCT], says: "away from where the data puts it" },
+  { name: "a client that lays one kind out again, in a group", from: "top:' + n.y * SCALE", to: "top:' + (n.kind === \"thing\" ? 3 : n.y) * SCALE", routes: [MAP], says: "away from where the data puts it" },
+  { name: "a node drawn at another scale", from: "'px;width:' + n.w * SCALE", to: "'px;width:' + n.w * SCALE * (n.kind === \"state\" ? 2 : 1)", routes: [STRUCT], says: "of its size" },
+  { name: "nodes that move when the lighting changes (on the screen)", from: "left:' + n.x * SCALE + 'px;top:'", to: "left:' + (n.x + (mode === \"live\" && n.kind === \"state\" ? 40 : 0)) * SCALE + 'px;top:'", routes: [LIVE], says: "away from where the data puts it" },
+  // components, not default boxes
+  { name: "React Flow's default box", from: "const box = (n) => '<div data-portal=\"graph-node\"", to: "const box = (n) => '<div class=\"react-flow__node-default\" data-portal=\"graph-node\"", routes: [STRUCT], says: "default boxes" },
+  // edges
+  { name: "an edge drawn twice", from: "g.edges.map(edge).join(\"\") + \"</div>\"", to: "g.edges.concat(g.edges).map(edge).join(\"\") + \"</div>\"", routes: [STRUCT], says: "is drawn 2 times" },
+  { name: "an edge left out", from: "+ g.edges.map(edge).join(\"\") + \"</div>\"", to: "+ g.edges.slice(1).map(edge).join(\"\") + \"</div>\"", routes: [STRUCT, MAP], says: "is drawn 0 times" },
+  { name: "an edge drawn between the wrong nodes", from: "data-from=\"' + e.from + '\"", to: "data-from=\"' + e.to + '\"", routes: [MAP], says: "is drawn" },
+  // the graph itself
+  { name: "a graph nobody can see", from: "'<div data-portal=\"graph\" data-graph=\"'", to: "'<div hidden data-portal=\"graph\" data-graph=\"'", routes: [STRUCT, MAP], says: "draws 0 graphs" },
+  { name: "a graph outside the lifecycle", from: "'<div data-portal=\"lifecycle\" data-thing=\"'", to: "'<div data-thing=\"'", routes: [STRUCT], says: "not inside the thing's `lifecycle`" },
+  { name: "two graphs on a thing's page", from: "+ draw(\"machine:\" + name, name) +", to: "+ draw(\"machine:\" + name, name) + draw(\"machine:\" + name, name) +", routes: [STRUCT], says: "draws 2 graphs" },
+  { name: "a graph for a thing that has no machine", from: "+ \"</div>\" : \"\")", to: "+ \"</div>\" : '<div data-portal=\"lifecycle\" data-thing=\"' + name + '\">' + draw(\"map\") + \"</div>\")", routes: [PROFILE], says: "has no machine" },
+  { name: "a graph that says its size wrong", from: "data-width=\"' + g.width + '\"", to: "data-width=\"' + (g.width + 1) + '\"", routes: [WORLDS], says: "the graph says" },
+  // lighting
+  { name: "a live count one too many", from: "n = live ? (live[thing + \".\" + l] ?? 0) : 0", to: "n = live ? (live[thing + \".\" + l] ?? 0) + 1 : 0", routes: [LIVE], says: "has count" },
+  { name: "live counts read from the wrong thing", from: "live[thing + \".\" + l]", to: "live[\"link.\" + l]", routes: [LIVE_H], says: "has count" },
+  { name: "live counts missing", from: "n = live ? (live[thing + \".\" + l] ?? 0) : 0", to: "n = 0", routes: [LIVE], says: "has count" },
+  { name: "live lit for a move made zero times", from: "mode === \"live\" ? n > 0", to: "mode === \"live\" ? true", routes: [LIVE_H], says: "has lit" },
+  { name: "structure that lights moves", from: ": false;\n      return", to: ": true;\n      return", routes: [STRUCT], says: "has lit true" },
+  { name: "a lighting that says the wrong mode", from: "data-mode=\"' + mode + '\"", to: "data-mode=\"' + (mode === \"trace\" ? \"live\" : mode) + '\"", routes: [TRACE_L], says: "its lighting is live" },
+  { name: "a trace that keeps a live count", from: "(mode === \"live\" && e.kind === \"move\" ? n : \"\")", to: "(e.kind === \"move\" ? n : \"\")", routes: [TRACE_L], says: "has count" },
+  { name: "a trace that counts a refusal at the door", from: "!DOOR.includes(c.error)", to: "true", routes: [STRANGER], says: "has refused" },
+  { name: "a trace that drops refusals", from: "if (c.kind === \"refuses\"", to: "if (false && c.kind === \"refuses\"", routes: [TRACE_L], says: "has refused" },
+  { name: "a trace that numbers its steps from zero", from: "moved.push(i + 1)", to: "moved.push(i)", routes: [TRACE_L], says: "has moved" },
+  { name: "a trace right for one move and wrong for the other", from: "if (s.checks.some((c) => c.kind === \"emits\"))", to: "if (op.move.key !== \"release\" && s.checks.some((c) => c.kind === \"emits\"))", routes: [TRACE_H], says: "has moved" },
+  { name: "a trace of another journey", from: "=== file)?.[1]", to: "=== \"claim-a-handle\")?.[1]", routes: [TRACE_L], says: "has moved" },
+  { name: "a trace that lights only the first move of a step it made twice", from: "out[op.move.key].moved.push(i + 1);", to: "if (out[op.move.key].moved.length === 0) out[op.move.key].moved.push(i + 1);", routes: [STORY], says: "has moved" },
+  { name: "a trace that lights nothing in the data's lit", from: "t.moved.length + t.refused.length > 0", to: "t.moved.length > 0", routes: [STRANGER], says: "has lit" },
+  { name: "nodes that move when the lighting changes (in the data)", from: "data-x=\"' + n.x + '\"", to: "data-x=\"' + (mode === \"live\" ? n.x + 3 : n.x) + '\"", routes: [LIVE], says: "carries" },
+];
