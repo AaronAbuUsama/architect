@@ -1,13 +1,12 @@
 // S-19 / HAN-18 (G5 section 6, ST1.11), the unit's and the memory store's half: one call that moves a value between holders (A `x` to `y`, then B `y` to `z`) must
 // commit in memory as it does on D1, because the unit writes a row that frees a key before the row that takes it; a straight swap and a clash among the call's own
-// rows are the handler's bug and die naming the unique field, never a conflict the call would retry; and the memory store applies the writes one at a time and
+// rows are the handler's bug and die naming the rule, never a conflict the call would retry; and the memory store applies the writes one at a time and
 // checks after each, so it refuses what D1 refuses. The D1 half, with the same cases and the same answers, is
 // `packages/host-cloudflare/src/modules/store/write-order.test.ts`. Written by the checks author; the builder never edits this file.
 //
-// SPELLING. Written in G4's declaration (`unique: { name: { while: ["claimed"] } }`), because that is what runs on `goal/stage-1` today and S-19 is about the stores, not
-// the declaration. When G4's spelling is retired (ST1.16, ST1.20) the checks author respells `Handle` onto `invariants.ts` and the defect's name becomes the rule's
-// (`handle.oneHolderPerName`); the cases and their answers do not change. The unit's `writes` are in commit order and fail as a defect (never a typed failure) when the
-// call's own rows clash or cycle, with a message that names the unique field.
+// SPELLING. Respelled at ST1.20 from G4's declaration (`unique: { name: ..., owner: ... }`) onto G5's rules (`Blueprint.invariant.unique`), handed to the store and the unit
+// as `{ name, rule }`; the defect's name is the rule's full name (`handle.oneHolderPerName`, `handle.oneNamePerPerson`). The cases and their answers did not change. The unit's
+// `writes` are in commit order and fail as a defect (never a typed failure) when the call's own rows clash or cycle, with a message that names the rule.
 // Today the memory store checks final values only and the unit writes in the order the handler made them, so the cases below that move a value fail.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Cause, Effect, Exit } from "effect";
@@ -20,17 +19,26 @@ const Handle = Blueprint.thing({
   description: "A name someone holds.",
   code: "HD",
   fields: { id: Blueprint.id("hdl"), name: Blueprint.text({ max: 40 }), owner: Blueprint.text({ max: 40 }) },
-  unique: { name: { while: ["claimed"] }, owner: { while: ["claimed"] } },
 });
+const machine = Blueprint.machine(Handle, {
+  states: ["claimed", "released"],
+  moves: { claim: { from: [], to: "claimed", emits: Blueprint.event({}) }, release: { from: ["claimed"], to: "released", emits: Blueprint.event({}) } },
+  notFrom: { exit: 60 },
+});
+const B = Blueprint as any;
+const rules = [
+  { name: "handle.oneHolderPerName", rule: B.invariant.unique(Handle.fields.name, { while: [machine.states.claimed] }) },
+  { name: "handle.oneNamePerPerson", rule: B.invariant.unique(Handle.fields.owner, { while: [machine.states.claimed] }) },
+];
 const row = (id: string, name: string, owner: string, state = "claimed") => [Handle, { id, name, owner, state }] as const;
 type Initial = ReadonlyArray<readonly [any, any]>;
 
 const inMemory = <A,>(initial: Initial, f: (store: Store["Service"]) => Effect.Effect<A, any, any>) => {
-  const memory = storeMemory(initial as any);
+  const memory = storeMemory(initial as any, rules);
   return Effect.runPromise(Effect.flatMap(Store, f).pipe(Effect.provide(memory.layer)) as Effect.Effect<A>).then((a) => ({ a, memory }));
 };
 const exitOf = <A,>(initial: Initial, f: (store: Store["Service"]) => Effect.Effect<A, any, any>) => {
-  const memory = storeMemory(initial as any);
+  const memory = storeMemory(initial as any, rules);
   return Effect.runPromiseExit(Effect.flatMap(Store, f).pipe(Effect.provide(memory.layer)) as Effect.Effect<A>);
 };
 const rename = (id: string, version: number, changes: Record<string, string>) => ({ kind: "update", thing: Handle, id, version, changes, state: undefined }) as any;
@@ -45,7 +53,7 @@ describe("S-19 control: what commits today", () => {
   it("two renames to free names, and a plain claim, commit in memory", async () => {
     const { a } = await inMemory([row("hdl_1", "a", "o1"), row("hdl_2", "b", "o2")], (store) => Effect.gen(function* () {
       const first = yield* commit(store, rename("hdl_1", 0, { name: "x" }), rename("hdl_2", 0, { name: "y" }));
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.insert(Handle, { id: "hdl_3" as never, name: "c", owner: "o3" }, "claimed");
       return { first, second: yield* commit(store, ...(yield* unit.writes)) };
     }));
@@ -60,7 +68,7 @@ describe("S-19 control: what commits today", () => {
 
   it("keeps the handler's order for rows that free nothing and take nothing", async () => {
     const { a } = await inMemory([row("hdl_1", "a", "o1"), row("hdl_2", "b", "o2")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.update(Handle, "hdl_2", { name: "bb" });
       yield* unit.records.update(Handle, "hdl_1", { name: "aa" });
       return (yield* unit.writes).map(idOf);
@@ -70,7 +78,7 @@ describe("S-19 control: what commits today", () => {
 
   it("a clash with a row this call did not write is the store's conflict to decide, not a defect of the call", async () => {
     const { a } = await inMemory([row("hdl_1", "x", "o1")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.insert(Handle, { id: "hdl_2" as never, name: "x", owner: "o2" }, "claimed");
       return { exit: yield* Effect.exit(unit.writes), outcome: yield* commit(store, insert("hdl_2", "x", "o2")) };
     }));
@@ -106,7 +114,7 @@ describe("the memory store applies writes one at a time (S-19)", () => {
 describe("the unit orders its writes: frees before takes (S-19)", () => {
   it("A `x` to `y` then B `y` to `z`: the unit writes B first, and the call commits", async () => {
     const { a } = await inMemory([row("hdl_1", "x", "o1"), row("hdl_2", "y", "o2")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.update(Handle, "hdl_1", { name: "y" });
       yield* unit.records.update(Handle, "hdl_2", { name: "z" });
       const writes = yield* unit.writes;
@@ -118,7 +126,7 @@ describe("the unit orders its writes: frees before takes (S-19)", () => {
 
   it("a chain of three moves is written from the end of the chain back", async () => {
     const { a } = await inMemory([row("hdl_1", "a", "o1"), row("hdl_2", "b", "o2"), row("hdl_3", "c", "o3")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.update(Handle, "hdl_1", { name: "b" });
       yield* unit.records.update(Handle, "hdl_2", { name: "c" });
       yield* unit.records.update(Handle, "hdl_3", { name: "d" });
@@ -131,7 +139,7 @@ describe("the unit orders its writes: frees before takes (S-19)", () => {
 
   it("a release and a claim of the same name in one call: the release is written first", async () => {
     const { a } = await inMemory([row("hdl_1", "x", "o1")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.insert(Handle, { id: "hdl_2" as never, name: "x", owner: "o2" }, "claimed");
       yield* unit.setState(Handle, "hdl_1", "released");
       const writes = yield* unit.writes;
@@ -142,39 +150,39 @@ describe("the unit orders its writes: frees before takes (S-19)", () => {
   });
 });
 
-describe("a call that cannot be ordered, or clashes with itself, is a defect naming the unique field (S-19)", () => {
-  it("a straight swap has no order: it dies, naming the field, not a conflict", async () => {
+describe("a call that cannot be ordered, or clashes with itself, is a defect naming the rule (S-19)", () => {
+  it("a straight swap has no order: it dies, naming the rule, not a conflict", async () => {
     const exit = await exitOf([row("hdl_1", "x", "o1"), row("hdl_2", "y", "o2")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.update(Handle, "hdl_1", { name: "y" });
       yield* unit.records.update(Handle, "hdl_2", { name: "x" });
       return yield* unit.writes;
     }));
     expect(isDefect(exit), defectMessage(exit)).toBe(true);
-    expect(defectMessage(exit)).toMatch(/\bname\b/);
+    expect(defectMessage(exit)).toMatch(/handle\.oneHolderPerName/);
   });
 
-  it("two fields whose frees and takes cross die too, naming one of them", async () => {
+  it("two rules whose frees and takes cross die too, naming one of them", async () => {
     // hdl_1 frees name `x` and takes owner `o2`; hdl_2 frees owner `o2` and takes name `x`: each must be written after the other.
     const exit = await exitOf([row("hdl_1", "x", "o1"), row("hdl_2", "y", "o2")], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.update(Handle, "hdl_1", { name: "z", owner: "o2" });
       yield* unit.records.update(Handle, "hdl_2", { name: "x", owner: "o9" });
       return yield* unit.writes;
     }));
     expect(isDefect(exit), defectMessage(exit)).toBe(true);
-    expect(defectMessage(exit)).toMatch(/\b(name|owner)\b/);
+    expect(defectMessage(exit)).toMatch(/handle\.(oneHolderPerName|oneNamePerPerson)/);
   });
 
   it("two inserts of one name in one call clash with themselves: a defect, found before any commit", async () => {
     const { a, memory } = await inMemory([], (store) => Effect.gen(function* () {
-      const unit = yield* Unit.make(store);
+      const unit = yield* Unit.make(store, rules);
       yield* unit.records.insert(Handle, { id: "hdl_1" as never, name: "same", owner: "o1" }, "claimed");
       yield* unit.records.insert(Handle, { id: "hdl_2" as never, name: "same", owner: "o2" }, "claimed");
       return yield* Effect.exit(unit.writes);
     }));
     expect(isDefect(a as any), defectMessage(a as any)).toBe(true);
-    expect(defectMessage(a as any)).toMatch(/\bname\b/);
+    expect(defectMessage(a as any)).toMatch(/handle\.oneHolderPerName/);
     expect(memory.rows).toEqual([]);
   });
 });
