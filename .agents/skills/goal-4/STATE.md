@@ -35,11 +35,9 @@ CI is green, then get slice 3's checks (with money's cases) through a hostile pa
 
 **`goal/stage-1` merged in** by [#303](https://github.com/AaronAbuUsama/architect/pull/303), which carries Goal 3's own merge of `main` (#277) and with it
 CI-drafts (#293); the draft guard added to `e2e-on-chain`; the brief adopting K32 and K33 (front matter, "Where it
-stands", owned paths). **Effect 4.1.4 (#295) is not in it, on purpose:** bumping Goal 3's packages (`projections` and
-others only `goal/stage-1` has) moves their integrity hash in acme's and Plugged In's generated model, and
-`02-seam-byte-identical` requires those files to equal `goal/stage-1`'s byte for byte. So Effect 4.1.4 reaches Goal 4
-when Goal 3 merges `main` (with #295) into `goal/stage-1` and bumps its packages; Goal 4 then merges `goal/stage-1` at
-its next slice start. (Tried 21 November 2026: `ortho generate` on acme changed 24 lines of hashes.) When
+stands", owned paths). **Effect 4.1.4** came the right way: Goal 3 pinned every package to it on `goal/stage-1` (#302, `0a359317`) and
+regenerated acme and Plugged In; #303 merges that and moves `examples/budgets` to 4.1.4 with it. (Bumping it from
+`main` first would have moved Goal 3's integrity hashes on this branch alone, which `02-seam-byte-identical` refuses.) When
 [#287](https://github.com/AaronAbuUsama/architect/pull/287) merges, its own row puts `M6-money` in the brief's decision list. Slice 1b doesn't parse as a slice number in K33's
 `readSlice` (digits only), so the sync skips it; asked on [#301](https://github.com/AaronAbuUsama/architect/pull/301#issuecomment-7061949704) to accept `\d+[a-z]?`. Goal 4 keeps the name `1b`.
 
