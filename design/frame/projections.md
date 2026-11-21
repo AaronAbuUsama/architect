@@ -399,7 +399,7 @@ export const keeper = Blueprint.projection({
 
 ### 3.11 Infrastructure
 
-Infrastructure is the plan per environment, carried out with wrangler and Cloudflare's REST API: Workers, D1, R2, Durable Object bindings, domains and secret names.
+Infrastructure is the Alchemy stack per environment: Workers, D1, R2, Durable Object bindings, domains and secret names.
 
 ```ts
 export const infra = Blueprint.projection({
@@ -409,7 +409,7 @@ export const infra = Blueprint.projection({
 });
 ```
 
-- **Today:** M7-03 builds staging on wrangler and Cloudflare's REST API, not Alchemy (`design/decisions/M7-03-infra-projection.md`). The plan is `packages/cli/src/modules/staging/internal/plan.ts`; wrangler configs live in `.ortho/environments/` (D3 #17) and `.ortho/staging/<prefix>/`.
+- **Today:** the `infra` projection (`packages/projections/src/modules/infra`) writes the Alchemy stack to `generated/infra/alchemy.run.ts` (M7-03, `design/decisions/M7-03-infra-projection.md`), run by `ortho env up|destroy staging --run <id>`; the local environments keep their wrangler configs in `.ortho/environments/` (D3 #17).
 - **Inputs:** this projection reads the environments, not just the model. That is why `render` is given them.
 
 ### 3.12 A Python SDK

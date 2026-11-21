@@ -10,17 +10,21 @@ prints it as one JSON document, and the real `up` and `destroy` run the same fun
 dash, so run `1` does not own run `12`'s resources. A run id is 1 to 20 of `a-z0-9`; a name that would be over 63 characters is
 refused (exit 2, no plan).
 
-**`up`** makes the databases (Cloudflare's REST API), applies each one's migrations and deploys the Worker with wrangler, from a
-config derived from the generated one (`workers_dev` on, `preview_urls` off, the revision and the bundle's hash set; the calls
-the spike proved). A first deploy is retried once after a pause (spike snag 11). A fresh `AUTH_SECRET` is set on the Worker, and
-`up` waits for three good answers from the address before it hands it on (snag 10). The portal's client is not part of the
-staging Worker (snag 5). `Staging.url(prefix, subdomain)` is the address of the Worker, from this module.
+**`up`** builds the bundle once, writes the run's input (`.ortho/staging/<prefix>/stack-input.json`: the plan, the bundle's path, the
+Worker's plain settings) and runs `alchemy deploy` of the generated stack (`generated/infra/alchemy.run.ts`, the `infra` projection)
+at the run's stage, from the run's folder, where Alchemy keeps its local state. Alchemy makes the databases and applies their
+migrations, uploads the bundle, binds the databases and namespaces, turns the address on (previews off) and sets a fresh
+`AUTH_SECRET`, handed over in the environment, never as an argument. A first deploy is retried once after a pause (spike snag 11), and
+`up` waits for three good answers from the address before it hands it on (snag 10). The portal's client is not part of the staging
+Worker (snag 5). `Staging.url(prefix, subdomain)` is the address of the Worker, from this module.
 
-**`destroy`** lists the account's Workers and D1 databases and deletes those the run owns: nothing it did not list, nothing
-without the prefix. It needs nothing from `up`, so it cleans after an `up` that died halfway. A Worker's Durable Object
+**`destroy`** has Alchemy destroy the stack first when the run's state is here, then always sweeps: it lists the account's Workers and
+D1 databases and deletes those the run owns: nothing it did not list, nothing without the prefix. The sweep needs nothing from `up`, no
+Alchemy state and no file, so it cleans after an `up` that died halfway and in another job than the `up`. A Worker's Durable Object
 namespaces go with it.
 
 **Credentials** are `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, read by `main.ts` alone and handed in. Without them
 `up` and `destroy` exit 2 naming what is missing and open no connection. Nothing prints either value.
 
-The module returns what to say (`Said`); only `main.ts` prints and exits. Test: `staging.test.ts`.
+The module returns what to say (`Said`); only `main.ts` prints and exits. Alchemy's async work is inside its own process, started in
+`internal/live.ts`. Decision: `design/decisions/M7-03-infra-projection.md`. Test: `staging.test.ts`.

@@ -1,5 +1,6 @@
-// The real world `up` and `destroy` act through: Cloudflare's REST API, wrangler as a child process, one GET, the bundle's build. `main.ts` adds the way to wait.
+// The real world `up` and `destroy` act through: Cloudflare's REST API (the destroy sweep), the Alchemy CLI as a child process (the one place a process is started), one GET, the bundle's build. `main.ts` adds the way to wait.
 import { spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,24 +9,25 @@ import { Build } from "@orthograph/prove";
 import { StagingFailed, type Tools } from "../types.ts";
 import { account } from "./cloudflare.ts";
 
-const wranglerBin = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
+const alchemyBin = join(dirname(fileURLToPath(import.meta.resolve("alchemy/package.json"))), "bin/cli.js");
 
 export const live = (pause: Tools["pause"], env: Readonly<Record<string, string | undefined>>): Tools => ({
   account,
-  // The credentials are wrangler's environment alone; the rest of the process's environment is the caller's, minus any Cloudflare variable it held.
-  wrangler: ({ args, cwd, credentials, input }) =>
+  // Alchemy's async work is inside its own process: this side only starts it and reads how it ended. The credentials are its environment alone; the rest of the process's environment is
+  // the caller's, minus any Cloudflare variable it held.
+  alchemy: ({ args, cwd, credentials, env: given }) =>
     Effect.try({
       try: () => {
-        const done = spawnSync(process.execPath, [wranglerBin, ...args], {
+        mkdirSync(cwd, { recursive: true });
+        const done = spawnSync(process.execPath, [alchemyBin, ...args], {
           cwd,
           encoding: "utf8",
-          ...(input === undefined ? {} : { input }),
           maxBuffer: 64 * 1024 * 1024,
-          env: { ...clean(env), CLOUDFLARE_API_TOKEN: credentials.token, CLOUDFLARE_ACCOUNT_ID: credentials.account, CI: "1", NO_COLOR: "1", WRANGLER_SEND_METRICS: "false" },
+          env: { ...clean(env), ...given, CLOUDFLARE_API_TOKEN: credentials.token, CLOUDFLARE_ACCOUNT_ID: credentials.account, CI: "1", NO_COLOR: "1", ALCHEMY_TELEMETRY_DISABLED: "1" },
         });
         return { status: done.status ?? 1, output: `${done.stdout ?? ""}${done.stderr ?? ""}` };
       },
-      catch: () => new StagingFailed({ message: "wrangler could not be started" }),
+      catch: () => new StagingFailed({ message: "alchemy could not be started" }),
     }),
   probe: (url) => Effect.tryPromise({ try: (signal) => fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]) }).then((res) => res.status), catch: () => 0 }).pipe(Effect.orElseSucceed(() => 0)),
   pause,
@@ -37,6 +39,6 @@ export const live = (pause: Tools["pause"], env: Readonly<Record<string, string 
     ),
 });
 
-/** The environment with no Cloudflare variable in it: a build never holds a credential. */
+/** The environment with no Cloudflare or Alchemy variable in it: a build never holds a credential. */
 const clean = (env: Readonly<Record<string, string | undefined>>): Record<string, string> =>
-  Object.fromEntries(Object.entries(env).filter((e): e is [string, string] => e[1] !== undefined && !/^(CLOUDFLARE_|CF_|WRANGLER_)/.test(e[0])));
+  Object.fromEntries(Object.entries(env).filter((e): e is [string, string] => e[1] !== undefined && !/^(CLOUDFLARE_|CF_|WRANGLER_|ALCHEMY_|ORTHO_STAGING_|ORTHO_AUTH_)/.test(e[0])));

@@ -3018,54 +3018,63 @@
         "file": "blueprint/projections/api.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
       },
       "cli": {
         "kind": "projection",
         "file": "blueprint/projections/cli.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
+      },
+      "infra": {
+        "kind": "projection",
+        "file": "blueprint/projections/infra.ts",
+        "package": "@orthograph/projections",
+        "version": "0.0.0",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
+        "chosen": {},
+        "hash": "a8f9f814f58bfd10"
       },
       "mcp": {
         "kind": "projection",
         "file": "blueprint/projections/mcp.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
       },
       "model": {
         "kind": "projection",
         "file": "blueprint/projections/model.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
       },
       "sdk": {
         "kind": "projection",
         "file": "blueprint/projections/sdk.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
       },
       "server": {
         "kind": "projection",
         "file": "blueprint/projections/server.ts",
         "package": "@orthograph/projections",
         "version": "0.0.0",
-        "integrity": "sha256-Z1w7go4q/pfnMf7ONn7Hsazz9Y7XIm5uTrdaRzJqeCA=",
+        "integrity": "sha256-s9V9qnxaerIh38WOJXmLbRVNOv1wt1j60gwcld5NLt4=",
         "chosen": {},
-        "hash": "b12620c3b456db98"
+        "hash": "a8f9f814f58bfd10"
       }
     }
   },
@@ -3132,5 +3141,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "9c405fa31c8daf654705c9ff404a48a117656560d5dae956454f7f3edda3d8e1"
+  "digest": "1f76063b9ade63acc9441a55bc0e2776d8ca5aa2f41f116cbb5529a1638d5cbc"
 }

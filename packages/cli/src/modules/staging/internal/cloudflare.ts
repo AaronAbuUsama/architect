@@ -1,4 +1,4 @@
-// A Cloudflare account over its REST API, the calls the spike proved (`spikes/staging-pass`: listing, `d1 create`, `delete --force`, the subdomain). The only file here that reaches the network.
+// A Cloudflare account over its REST API, the calls the spike proved (`spikes/staging-pass`: the listings, `delete --force`, the subdomain). The only file here that reaches the network.
 // Nothing it says holds the token or the account id: an error names what was asked and what Cloudflare answered.
 import { Effect } from "effect";
 import { StagingFailed, type Account, type Credentials } from "../types.ts";
@@ -55,13 +55,6 @@ const rows = <A>(credentials: Credentials, what: string, path: string, pick: (ro
 export const account = (credentials: Credentials): Account => ({
   workers: rows(credentials, "list the Workers", "/workers/scripts", (r) => (typeof r["id"] === "string" ? r["id"] : undefined)),
   databases: rows(credentials, "list the D1 databases", "/d1/database", (r) => (typeof r["uuid"] === "string" && typeof r["name"] === "string" ? { id: r["uuid"], name: r["name"] } : undefined)),
-  createDatabase: (name) =>
-    call(credentials, `create the database ${name}`, "POST", "/d1/database", { name }).pipe(
-      Effect.flatMap((answered) => {
-        const uuid = (answered.result as { readonly uuid?: unknown } | undefined)?.uuid;
-        return typeof uuid === "string" ? Effect.succeed(uuid) : Effect.fail(new StagingFailed({ message: `Cloudflare made the database ${name} and named no id` }));
-      }),
-    ),
   deleteWorker: (name) => call(credentials, `delete the Worker ${name}`, "DELETE", `/workers/scripts/${encodeURIComponent(name)}?force=true`).pipe(Effect.asVoid),
   deleteDatabase: (id) => call(credentials, "delete a database", "DELETE", `/d1/database/${encodeURIComponent(id)}`).pipe(Effect.asVoid),
   subdomain: call(credentials, "read the workers.dev subdomain", "GET", "/workers/subdomain").pipe(

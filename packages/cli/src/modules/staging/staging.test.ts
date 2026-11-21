@@ -1,10 +1,10 @@
-// `ortho env up|destroy staging` against a pretend account, in this process: what the real verbs do with the plan, with no cloud, no wrangler and no credential. Check 37 (e2e/m1) runs the printed plan through the real command.
+// `ortho env up|destroy staging` against a pretend account, in this process: what the real verbs do with the plan, with no cloud, no Alchemy process and no credential. Check 37 (e2e/m1) runs the printed plan through the real command.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { makeStaging, prefixOf, stagingUrl } from "./service.ts";
-import type { Account, Credentials, Options, Tools } from "./types.ts";
+import type { Account, Credentials, Options, Plan, Tools } from "./types.ts";
 
 const example = resolve(import.meta.dirname, "../../../../../examples/plugged-in");
 const scratch = join(example, "tmp/cli-staging");
@@ -19,16 +19,17 @@ beforeAll(() => {
 });
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
-interface Pretend { readonly tools: Tools; readonly calls: string[]; readonly workers: Set<string>; readonly databases: Map<string, string> }
-/** A pretend account holding `workers` and `databases` (name to id); every call is noted. Wrangler "deploys" by adding the Worker named in the config it was given. */
-const pretend = (workers: ReadonlyArray<string> = [], databases: ReadonlyArray<string> = [], wrangler: (args: ReadonlyArray<string>, tries: number) => { status: number; output: string } = () => ({ status: 0, output: "" })): Pretend => {
+interface Pretend { readonly tools: Tools; readonly calls: string[]; readonly workers: Set<string>; readonly databases: Map<string, string>; readonly seen: Array<{ args: ReadonlyArray<string>; cwd: string; env: Readonly<Record<string, string>> }> }
+type Alchemy = (verb: string, tries: number) => { status: number; output: string };
+/** A pretend account holding `workers` and `databases` (name to id); every call is noted. Alchemy "deploys" by making what the stack's input says (as the generated stack does) and keeping state under its cwd, and "destroys" by removing it. */
+const pretend = (workers: ReadonlyArray<string> = [], databases: ReadonlyArray<string> = [], alchemy: Alchemy = () => ({ status: 0, output: "" })): Pretend => {
   const calls: string[] = [];
+  const seen: Pretend["seen"] = [];
   const held = new Set(workers);
   const dbs = new Map(databases.map((n, i) => [n, `id-${i}`]));
   const account = (_c: Credentials): Account => ({
     workers: Effect.sync(() => [...held]),
     databases: Effect.sync(() => [...dbs].map(([name, id]) => ({ name, id }))),
-    createDatabase: (name) => Effect.sync(() => { calls.push(`create ${name}`); dbs.set(name, `new-${dbs.size}`); return `new-${dbs.size - 1}`; }),
     deleteWorker: (name) => Effect.sync(() => { calls.push(`delete worker ${name}`); held.delete(name); }),
     deleteDatabase: (id) => Effect.sync(() => { calls.push(`delete database ${id}`); for (const [n, i] of dbs) if (i === id) dbs.delete(n); }),
     subdomain: Effect.succeed("acct"),
@@ -36,18 +37,29 @@ const pretend = (workers: ReadonlyArray<string> = [], databases: ReadonlyArray<s
   const attempts = new Map<string, number>();
   const tools: Tools = {
     account,
-    wrangler: ({ args, input }) => Effect.sync(() => {
-      const verb = args.slice(0, 2).join(" ");
+    alchemy: ({ args, cwd, env }) => Effect.sync(() => {
+      const verb = String(args[0]);
       attempts.set(verb, (attempts.get(verb) ?? 0) + 1);
-      calls.push(`wrangler ${verb}${input === undefined ? "" : " (secret on stdin)"}`);
-      return wrangler(args, attempts.get(verb) ?? 1);
+      calls.push(`alchemy ${verb}`);
+      seen.push({ args, cwd, env });
+      const done = alchemy(verb, attempts.get(verb) ?? 1);
+      if (done.status !== 0) return done;
+      const input = JSON.parse(readFileSync(String(env["ORTHO_STAGING_INPUT"]), "utf8")) as { plan: Plan };
+      if (verb === "deploy") {
+        mkdirSync(join(cwd, ".alchemy/state"), { recursive: true });
+        for (const r of input.plan.resources) { if (r.kind === "worker") held.add(String(r.name)); if (r.kind === "d1") dbs.set(String(r.name), `made-${dbs.size}`); }
+      } else {
+        rmSync(join(cwd, ".alchemy"), { recursive: true, force: true });
+        for (const r of input.plan.resources) { if (r.kind === "worker") held.delete(String(r.name)); if (r.kind === "d1") dbs.delete(String(r.name)); }
+      }
+      return done;
     }),
     probe: () => Effect.succeed(200),
     pause: (ms) => Effect.sync(() => { calls.push(`pause ${ms}`); }),
     secret: () => "not-a-real-secret",
     build: () => Effect.succeed({ main: "/built/main.js", revision: "abc1234", sha256: "f".repeat(64) }),
   };
-  return { tools, calls, workers: held, databases: dbs };
+  return { tools, calls, workers: held, databases: dbs, seen };
 };
 const run = <A>(e: Effect.Effect<A>) => Effect.runPromise(e);
 
@@ -79,6 +91,49 @@ describe("staging up and destroy", () => {
     expect(world.calls).toEqual([]);
   });
 
+  it("destroy with no Alchemy state at all, as in another job than the `up`, still deletes this run's Worker and databases, and only those", async () => {
+    const mine = "ortho-pluggedin-stg-3";
+    rmSync(join(root, ".ortho"), { recursive: true, force: true });
+    const world = pretend(
+      [`${mine}-worker`, "ortho-pluggedin-stg-33-worker", "ortho-pluggedin-stg-4-worker", "unrelated"],
+      [`${mine}-db`, `${mine}-db-ledger`, "ortho-pluggedin-stg-33-db", "ortho-pluggedin-stg-4-db", "unrelated-db"],
+    );
+    const said = await run(makeStaging(world.tools).destroy(options("3")));
+    expect(said.exit, said.err).toBe(0);
+    expect(world.calls.filter((c) => c.startsWith("alchemy"))).toEqual([]);
+    expect(said.out).toContain("alchemy no state");
+    expect([...world.workers].sort()).toEqual(["ortho-pluggedin-stg-33-worker", "ortho-pluggedin-stg-4-worker", "unrelated"]);
+    expect([...world.databases.keys()].sort()).toEqual(["ortho-pluggedin-stg-33-db", "ortho-pluggedin-stg-4-db", "unrelated-db"]);
+  });
+
+  it("destroy with the run's Alchemy state has Alchemy destroy first and then sweeps, so a leftover Alchemy did not know is deleted too", async () => {
+    const world = pretend();
+    expect((await run(makeStaging(world.tools).up(options("6")))).exit).toBe(0);
+    // A leftover of the same run that Alchemy never tracked, and another run's.
+    world.workers.add("ortho-pluggedin-stg-6-worker-extra"); world.workers.add("ortho-pluggedin-stg-66-worker");
+    const said = await run(makeStaging(world.tools).destroy(options("6")));
+    expect(said.exit, said.err).toBe(0);
+    expect(said.out).toContain("alchemy destroyed");
+    const after = world.calls.slice(world.calls.indexOf("alchemy destroy"));
+    expect(after[0]).toBe("alchemy destroy");
+    expect(after.slice(1).length).toBeGreaterThan(0);
+    expect(after.slice(1).every((c) => c.startsWith("delete"))).toBe(true);
+    expect(after.slice(1)).toEqual(["delete worker ortho-pluggedin-stg-6-worker-extra"]);
+    expect([...world.workers]).toEqual(["ortho-pluggedin-stg-66-worker"]);
+    expect([...world.databases.keys()]).toEqual([]);
+  });
+
+  it("an Alchemy destroy that fails does not stop the sweep, and says so with no credential in it", async () => {
+    const world = pretend([], [], (verb) => (verb === "destroy" ? { status: 1, output: `broke on ${credentials.token}` } : { status: 0, output: "" }));
+    expect((await run(makeStaging(world.tools).up(options("8")))).exit).toBe(0);
+    const said = await run(makeStaging(world.tools).destroy(options("8")));
+    expect(said.exit, said.err).toBe(0);
+    expect(said.out).toContain("alchemy failed: broke on [token]");
+    expect(said.out).not.toContain(credentials.token);
+    expect(world.workers.size).toBe(0);
+    expect(world.databases.size).toBe(0);
+  });
+
   it.each(["up", "destroy"] as const)("%s with no token or no account id exits 2 naming what is missing, and never touches the cloud", async (verb) => {
     const world = pretend();
     const touched: string[] = [];
@@ -102,45 +157,56 @@ describe("staging up and destroy", () => {
     expect(world.calls).toEqual([]);
   });
 
-  it("up makes the database, applies its migrations, deploys, sets the secret and says the address", async () => {
+  it("up has Alchemy deploy the generated stack at the run's stage, with the plan's names in its input and the secret in the environment, and says the address", async () => {
     const world = pretend();
     const said = await run(makeStaging(world.tools).up(options("77")));
     expect(said.err).toBe("");
     expect(said.exit).toBe(0);
     expect(said.out).toBe("staging up https://ortho-pluggedin-stg-77-worker.acct.workers.dev\n");
-    expect(world.calls).toEqual(["create ortho-pluggedin-stg-77-db", "wrangler d1 migrations", "wrangler deploy --config", "wrangler secret put (secret on stdin)", "pause 2000", "pause 2000"]);
-    // The derived config names the plan's database with its real id, turns the address on and the previews off, and carries the bundle.
-    const config = JSON.parse(readFileSync(join(root, ".ortho/staging/ortho-pluggedin-stg-77/wrangler.json"), "utf8").split("\n").filter((l) => !l.startsWith("//")).join("\n")) as Record<string, any>;
-    expect(config).toMatchObject({ name: "ortho-pluggedin-stg-77-worker", main: "/built/main.js", no_bundle: true, workers_dev: true, preview_urls: false });
-    expect(config["d1_databases"]).toMatchObject([{ binding: "DB", database_name: "ortho-pluggedin-stg-77-db", database_id: "new-0" }]);
-    expect(config["vars"]).toMatchObject({ ORTHO_ENVIRONMENT: "staging", ORTHO_REVISION: "abc1234", ORTHO_BUNDLE_SHA256: "f".repeat(64) });
-    expect(JSON.stringify(config)).not.toContain(credentials.token);
+    expect(world.calls).toEqual(["alchemy deploy", "pause 2000", "pause 2000"]);
+    const call = world.seen[0]!;
+    expect(call.args).toEqual(["deploy", join(root, "generated/infra/alchemy.run.ts"), "--stage", "ortho-pluggedin-stg-77", "--yes"]);
+    expect(call.cwd).toBe(join(root, ".ortho/staging/ortho-pluggedin-stg-77"));
+    expect(call.env["ORTHO_AUTH_SECRET"]).toBe("not-a-real-secret");
+    expect(call.args.join(" ")).not.toContain("not-a-real-secret");
+    // The input holds the plan, the bundle and the settings, and no credential or secret.
+    const input = JSON.parse(readFileSync(call.env["ORTHO_STAGING_INPUT"]!, "utf8")) as Record<string, any>;
+    expect(input["plan"]).toMatchObject({ prefix: "ortho-pluggedin-stg-77", resources: [{ kind: "worker", name: "ortho-pluggedin-stg-77-worker" }, { kind: "d1", name: "ortho-pluggedin-stg-77-db", binding: "DB" }, { kind: "durable-object-namespace", class: "World" }] });
+    expect(input).toMatchObject({ main: "/built/main.js", vars: { ORTHO_ENVIRONMENT: "staging", ORTHO_REVISION: "abc1234", ORTHO_BUNDLE_SHA256: "f".repeat(64) } });
+    expect(JSON.stringify(input)).not.toContain(credentials.token);
+    expect(JSON.stringify(input)).not.toContain("not-a-real-secret");
+  });
+
+  it("the generated stack takes every name from the plan: its text holds none of its own", () => {
+    const text = readFileSync(join(example, "generated/infra/alchemy.run.ts"), "utf8");
+    expect(text.split("\n")[0]).toMatch(/^\/\/ Generated from .* Do not edit\.$/);
+    expect(text).not.toMatch(/ortho-|-stg-|-worker/);
   });
 
   it("a first deploy that fails with code 10007 is tried again after a pause, once", async () => {
-    const world = pretend([], [], (args, tries) => (args[0] === "deploy" && tries === 1 ? { status: 1, output: "This Worker does not exist on your account [code: 10007]" } : { status: 0, output: "" }));
+    const world = pretend([], [], (verb, tries) => (verb === "deploy" && tries === 1 ? { status: 1, output: "This Worker does not exist on your account [code: 10007]" } : { status: 0, output: "" }));
     const said = await run(makeStaging(world.tools).up(options("78")));
     expect(said.exit, said.err).toBe(0);
-    expect(world.calls.filter((c) => c.startsWith("wrangler deploy"))).toHaveLength(2);
+    expect(world.calls.filter((c) => c === "alchemy deploy")).toHaveLength(2);
     expect(world.calls).toContain("pause 20000");
   });
 
-  it("a deploy that fails any other way fails up (exit 1), with wrangler's words and no credential", async () => {
-    const world = pretend([], [], (args) => (args[0] === "deploy" ? { status: 1, output: `boom for ${credentials.token} in ${credentials.account}` } : { status: 0, output: "" }));
+  it("a deploy that fails any other way fails up (exit 1), with Alchemy's words cut to 300 characters and no credential", async () => {
+    const world = pretend([], [], (verb) => (verb === "deploy" ? { status: 1, output: `boom for ${credentials.token} in ${credentials.account} ${"x".repeat(900)}` } : { status: 0, output: "" }));
     const said = await run(makeStaging(world.tools).up(options("79")));
     expect(said.exit).toBe(1);
     expect(said.err).toContain("the deploy failed");
     expect(said.err).not.toContain(credentials.token);
     expect(said.err).not.toContain(credentials.account);
+    expect(said.err.length).toBeLessThan(340);
   });
 
-  it("a relative --root (the workflow passes examples/plugged-in) still gives wrangler an absolute config path", async () => {
-    const configs: string[] = [];
-    const world = pretend([], [], (args) => { const at = args.indexOf("--config"); if (at >= 0) configs.push(String(args[at + 1])); return { status: 0, output: "" }; });
+  it("a relative --root (the workflow passes examples/plugged-in) still gives Alchemy an absolute stack, input and working folder", async () => {
+    const world = pretend();
     const said = await run(makeStaging(world.tools).up({ ...options("81"), root: relative(process.cwd(), root) }));
     expect(said.exit, said.err).toBe(0);
-    expect(configs.length).toBeGreaterThan(0);
-    for (const c of configs) { expect(isAbsolute(c), c).toBe(true); expect(existsSync(c), c).toBe(true); }
+    const call = world.seen[0]!;
+    for (const p of [String(call.args[1]), call.cwd, call.env["ORTHO_STAGING_INPUT"]!]) { expect(isAbsolute(p), p).toBe(true); expect(existsSync(p), p).toBe(true); }
   });
 
   it("a generated config that binds something the plan does not cover (R2) is refused before anything is deployed", async () => {
@@ -152,6 +218,6 @@ describe("staging up and destroy", () => {
     writeFileSync(path, before);
     expect(said.exit).toBe(1);
     expect(said.err).toContain("r2_buckets");
-    expect(world.calls.filter((c) => c.startsWith("wrangler"))).toEqual([]);
+    expect(world.calls.filter((c) => c.startsWith("alchemy"))).toEqual([]);
   });
 });

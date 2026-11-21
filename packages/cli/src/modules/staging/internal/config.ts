@@ -1,71 +1,63 @@
-// The staging Worker's wrangler config, derived from the generated one (spike snags 1, 2 and 6): the planned names, the real database ids, the address turned on
-// and the previews off said out loud, and the revision and the bundle's hash set so `/_ortho/bundle` answers.
-import { dirname, resolve } from "node:path";
+// What the generated Alchemy stack (generated/infra/alchemy.run.ts) reads of a run: the plan, the bundle, and the Worker's plain settings. The stack takes its names from the plan
+// and its settings from here: the server config's vars, the revision and the bundle's hash, set so `/_ortho/bundle` answers (spike snag 6).
 import { Names } from "orthograph/server";
 import { Effect } from "effect";
 import { StagingFailed, type Plan } from "../types.ts";
-import { ENVIRONMENT, workerOf } from "./plan.ts";
+import { ENVIRONMENT } from "./plan.ts";
 
-interface Generated {
-  readonly name?: string;
+interface Server {
   readonly d1_databases?: ReadonlyArray<Record<string, unknown>>;
   readonly vars?: Record<string, string>;
 }
 
-/** The keys of the generated config the plan covers: databases and Durable Objects are planned; the rest is plain settings. Anything else is refused. */
+/** The keys of the server's wrangler config the plan covers: databases and Durable Objects are planned; the rest is plain settings. Anything else is refused, because the stack would not make it and `destroy` would not list it. */
 const COVERED = new Set(["name", "main", "compatibility_date", "compatibility_flags", "d1_databases", "durable_objects", "migrations", "vars"]);
 
-/** The generated file is JSONC with whole-line comments only. */
-export const parseGenerated = (text: string): Effect.Effect<Generated & Record<string, unknown>, StagingFailed> =>
+/** The server's config is JSONC with whole-line comments only. */
+export const parseServer = (text: string): Effect.Effect<Server & Record<string, unknown>, StagingFailed> =>
   Effect.try({
-    try: () => JSON.parse(text.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n")) as Generated & Record<string, unknown>,
+    try: () => JSON.parse(text.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n")) as Server & Record<string, unknown>,
     catch: () => new StagingFailed({ message: "generated/server/wrangler.jsonc is not readable: run `ortho generate`" }),
   });
 
 export interface Derive {
-  readonly generated: Generated & Record<string, unknown>;
-  /** Where the generated file is: its migrations folders are read from beside it. */
-  readonly generatedPath: string;
+  readonly server: Server & Record<string, unknown>;
   readonly plan: Plan;
-  /** Each planned database's id, by name. */
-  readonly ids: Readonly<Record<string, string>>;
   readonly built: { readonly main: string; readonly revision: string; readonly sha256: string };
 }
 
-/** Every database the generated config binds is one the plan names, and the other way round: the plan and the projection cannot drift apart unseen. */
-export const deployConfig = ({ generated, generatedPath, plan, ids, built }: Derive): Effect.Effect<string, StagingFailed> =>
+/** The file the stack's `ORTHO_STAGING_INPUT` names. */
+export interface StackInput {
+  readonly plan: Plan;
+  readonly main: string;
+  readonly vars: Readonly<Record<string, string>>;
+}
+
+/** Every database the server binds is one the plan names, and the other way round: the plan and the projection cannot drift apart unseen. */
+export const stackInput = ({ server, plan, built }: Derive): Effect.Effect<string, StagingFailed> =>
   Effect.gen(function* () {
     // Only what the plan covers may be bound: a binding of another kind (R2, KV, queues, services...) would be made by `up` and not deleted by `destroy`.
-    const odd = Object.keys(generated).filter((k) => !COVERED.has(k));
+    const odd = Object.keys(server).filter((k) => !COVERED.has(k));
     if (odd.length > 0) {
       return yield* new StagingFailed({ message: `generated/server/wrangler.jsonc has ${odd.join(", ")}, which the staging plan does not cover: plan it (and its destroy) before it is deployed` });
     }
     const planned = plan.resources.filter((r) => r.kind === "d1");
-    const bound = (generated.d1_databases ?? []).map((d) => String(d["binding"]));
+    const bound = (server.d1_databases ?? []).map((d) => String(d["binding"]));
     const unplanned = bound.filter((b) => !planned.some((r) => r.binding === b));
     const unbound = planned.filter((r) => !bound.includes(String(r.binding)));
     if (unplanned.length > 0 || unbound.length > 0) {
       return yield* new StagingFailed({ message: `the plan and generated/server/wrangler.jsonc disagree about the databases: bound but not planned ${JSON.stringify(unplanned)}, planned but not bound ${JSON.stringify(unbound.map((r) => r.binding))}` });
     }
-    const config = {
-      ...generated,
-      name: workerOf(plan.prefix),
+    const input: StackInput = {
+      plan,
       main: built.main,
-      no_bundle: true,
-      // Left unset, wrangler turns both on and says so (spike snag 2): staging has the address and no preview URLs.
-      workers_dev: true,
-      preview_urls: false,
-      d1_databases: (generated.d1_databases ?? []).map((d) => {
-        const name = String(planned.find((r) => r.binding === d["binding"])?.name);
-        return { ...d, database_name: name, database_id: ids[name], migrations_dir: resolve(dirname(generatedPath), String(d["migrations_dir"] ?? "migrations")) };
-      }),
       vars: {
-        ...generated.vars,
+        ...server.vars,
         OTLP_URL: "",
         [Names.variable("ENVIRONMENT")]: ENVIRONMENT,
         [Names.variable("REVISION")]: built.revision,
         [Names.variable("BUNDLE_SHA256")]: built.sha256,
       },
     };
-    return `// Generated by ortho env up from generated/server/wrangler.jsonc. Do not edit.\n${JSON.stringify(config, null, 2)}\n`;
+    return `${JSON.stringify(input, null, 2)}\n`;
   });

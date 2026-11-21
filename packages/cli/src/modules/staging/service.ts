@@ -39,7 +39,7 @@ const credentialsOf = ({ token, account }: Options["credentials"]): Effect.Effec
 const settle = (work: Effect.Effect<Said, StagingRefused | StagingFailed>): Effect.Effect<Said> =>
   work.pipe(Effect.catchTags({ StagingRefused: (e) => Effect.succeed(refusal(e.message, 2)), StagingFailed: (e) => Effect.succeed(refusal(e.message, 1)) }));
 
-/** The root, made absolute once: wrangler runs in another folder, so a relative `--root` (the workflow passes `examples/plugged-in`) would name a config that is not there. */
+/** The root, made absolute once: the stack runs in another folder, so a relative `--root` (the workflow passes `examples/plugged-in`) would name files that are not there. */
 const absolute = (options: Options): Options => ({ ...options, root: resolve(options.root) });
 
 export const makeStaging = (tools: Tools): StagingApi => ({
@@ -57,8 +57,8 @@ export const makeStaging = (tools: Tools): StagingApi => ({
       const options = absolute(given);
       const p = yield* planOf(options);
       const credentials = yield* credentialsOf(options.credentials);
-      const done = yield* destroy(tools, credentials, p);
-      return said(`${p.environment} destroy ${p.prefix}: ${done.workers} Workers and ${done.databases} databases deleted\n`);
+      const done = yield* destroy(tools, credentials, options.root, p);
+      return said(`${p.environment} destroy ${p.prefix}: alchemy ${done.alchemy}; the sweep deleted ${done.workers} Workers and ${done.databases} databases\n`);
     })),
   prefix: prefixOf,
   url: stagingUrl,

@@ -35,12 +35,10 @@ export class StagingRefused extends Data.TaggedError("StagingRefused")<{ readonl
 /** The cloud said no, or answered something unreadable: exit 1. What it says never holds a credential. */
 export class StagingFailed extends Data.TaggedError("StagingFailed")<{ readonly message: string }> {}
 
-/** What a Cloudflare account is asked, by the REST calls the spike proved (`spikes/staging-pass`). Every method acts on one account. */
+/** What a Cloudflare account is asked, by the REST calls the spike proved (`spikes/staging-pass`): the listings the destroy sweep reads, its deletes, and the address. Every method acts on one account. */
 export interface Account {
   readonly workers: Effect.Effect<ReadonlyArray<string>, StagingFailed>;
   readonly databases: Effect.Effect<ReadonlyArray<{ readonly id: string; readonly name: string }>, StagingFailed>;
-  /** Makes a database and gives its id. */
-  readonly createDatabase: (name: string) => Effect.Effect<string, StagingFailed>;
   /** Deletes a Worker and, with it, its Durable Object namespaces. */
   readonly deleteWorker: (name: string) => Effect.Effect<void, StagingFailed>;
   readonly deleteDatabase: (id: string) => Effect.Effect<void, StagingFailed>;
@@ -53,11 +51,11 @@ export interface Credentials {
   readonly account: string;
 }
 
-/** The world `up` and `destroy` act through, handed in: the cloud, wrangler (which migrates and deploys), the address's first answers, and waiting. */
+/** The world `up` and `destroy` act through, handed in: the cloud, Alchemy (which makes and removes what the stack declares), the address's first answers, and waiting. */
 export interface Tools {
   readonly account: (credentials: Credentials) => Account;
-  /** Runs wrangler in `cwd` with the credentials in its environment (and `input` on its standard input); only its status and its words come back. */
-  readonly wrangler: (options: { readonly args: ReadonlyArray<string>; readonly cwd: string; readonly credentials: Credentials; readonly input?: string }) => Effect.Effect<{ readonly status: number; readonly output: string }, StagingFailed>;
+  /** Runs the Alchemy CLI in `cwd`, where its state lives, with the credentials and `env` in its environment; only its status and its words come back. */
+  readonly alchemy: (options: { readonly args: ReadonlyArray<string>; readonly cwd: string; readonly credentials: Credentials; readonly env: Readonly<Record<string, string>> }) => Effect.Effect<{ readonly status: number; readonly output: string }, StagingFailed>;
   /** The HTTP status of one GET, or 0 when nothing answered. */
   readonly probe: (url: string) => Effect.Effect<number>;
   /** Waits; the only place a wait is made. */
