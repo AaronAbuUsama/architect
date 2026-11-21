@@ -1884,7 +1884,7 @@
   "plain": "",
   "pr": null,
   "ref": "M2.03",
-  "size": "the principal journeys pass in acme",
+  "size": "the principal journeys pass in acme (person, agent, system) and in the adapter fixture (service)",
   "stage": "backlog",
   "thread": null,
   "title": "Principals in roles/types.ts",
@@ -1935,7 +1935,7 @@
   "title": "@orthograph/auth, identity",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "@orthograph/auth, identity: person, session, api-key; Better Auth behind its worker entry; AUTH_SECRET declared"
+  "what": "@orthograph/auth, identity: person and session, with the key, device and agent credentials; Better Auth behind its worker entry; AUTH_SECRET declared"
  },
  "M2-06": {
   "doneWhen": "acme login and MCP sign-in journeys pass",
@@ -1979,7 +1979,7 @@
   "title": "@orthograph/organizations",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "@orthograph/organizations: organisation, membership, invitation, owner, member, holds, starting worlds founded and invited; acme's copies deleted"
+  "what": "@orthograph/organizations: organisation, membership, invitation, api-key, owner, member, holds, starting worlds founded, invited and joined; acme's copies deleted, and its cap becomes acme's own allowance-policy"
  },
  "M2-08": {
   "doneWhen": "M2.05",
@@ -2062,10 +2062,10 @@
   "size": "S",
   "stage": "backlog",
   "thread": null,
-  "title": "The work app mounts auth and organizations",
+  "title": "The work app mounts auth",
   "updatedAt": "2026-11-19T09:00:00Z",
   "waiting": null,
-  "what": "The work app mounts auth and organizations"
+  "what": "The work app mounts auth"
  },
  "M2-12": {
   "doneWhen": "nx run e2e:m2 passes on main; examples/links is tagged links/stage-1",
@@ -2079,7 +2079,7 @@
    "M2.13",
    "M2.16"
   ],
-  "needsText": "M2.02 to M2.11, M2.13 to M2.20, ST1.01 to ST1.04, ST1.06 to ST1.22",
+  "needsText": "M2.02 to M2.11, M2.13 to M2.22, ST1.01 to ST1.04, ST1.06 to ST1.22",
   "order": 64,
   "plain": "One command makes a new app with sign-in and organisations; the links example at stage 1.",
   "pr": null,
