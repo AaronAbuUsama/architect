@@ -387,7 +387,7 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
   the field with the key field's own value (share the constant). Checks: `packages/compiler/src/modules/model/refusal-field-schema.test.ts`, held on
   `packages/compiler/expected-failing/refusal-field-schema.txt` (G11).
 - Owner: Goal 3 lead, for a framework builder.
-- Status: built (goal-3/s33-s34-build)
+- Status: fixed (#288)
 
 ## S-34 · compiler · two rules of one thing whose names differ only in case compile, and the world's migrations never finish
 - Hit: Codex on #275 (Goal 4). Rules `byURL` and `byUrl` on one thing are accepted.
@@ -403,4 +403,10 @@ Not a snag, but the done check depends on it: `nx run e2e:stage1` is a target no
   `packages/compiler/src/modules/model/rule-name-case.test.ts`, held on
   `packages/compiler/expected-failing/rule-name-case.txt` (G11).
 - Owner: Goal 3 lead, for a framework builder.
-- Status: built (goal-3/s33-s34-build)
+- Status: fixed (#288)
+
+## S-36 · language-effect · S-19's write-order ratio sits on its bar under load
+- Issue: [#304](https://github.com/AaronAbuUsama/architect/issues/304) (K33: snags are issues from 21 November 2026; this file keeps the record).
+- Hit: the 🔍 of #292. `write-order-scale.test.ts:60` measured 16.0055 against a limit of 16 once on a loaded Mac, then passed three times.
+- Fix: a checks author backs the ratio with a deterministic count, as #292 does for S-35, and keeps the time bound with headroom.
+- Owner: Goal 3 lead, for a checks author.
