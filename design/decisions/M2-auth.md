@@ -216,7 +216,7 @@ export type Principal =
 | Axis | A | B | C |
 |---|---|---|---|
 | Floor-first | ✅ the real thing: agent, service and system exist in code | ✅ same, one kind fewer | ❌ promises, ships nothing |
-| Reversibility | ⚠️ the 16 guards change once, then B is a type edit | ✅ | ✅ |
+| Reversibility | ⚠️ the 16 guards (15 unprotected and the starter's fixture) change once, then B is a type edit | ✅ | ✅ |
 | Blast radius | ⚠️ runtime 3 sites, plugin handlers 5, Plugged In 2, canon quote | ✅ smallest | ✅ none |
 | Correctness / integrity | ✅ "not a person" is the default for new code | ❌ every `kind === "person"` check silently admits agents | ❌ F4 8.10 stays unprovable |
 | Fit | ✅ K2 and K10 say "the agent principal" (`K10-factory.md:55`) | ⚠️ K1's, older | ❌ |
@@ -580,7 +580,7 @@ fixture or a baseline.
 | starting worlds | `examples/acme/blueprint/starting-worlds/{founded,invited}.ts` | `packages/organizations/blueprint/starting-worlds/{founded,invited,joined}.ts` (declared in M2.24, handlers filled by M2.07); acme keeps `funded` and gains `capped` (M2.23) | M2.24 (the plugin's), M2.23 (acme's) | `funded` still starts `from: "founded"`, which needs the mount fold (M2.22). Acme's own `founded` and `invited` are deleted by M2.23's author commits, because a plugin world with the same name as an app's is a `check` error. `starting-worlds/` is not in `builder-paths.sh`'s protected list, so CI would not stop a builder writing a world; the decision keeps worlds with the author because each file's header calls it a journey-author file |
 | journeys | acme's `sign-up-and-sign-in` (auth); `an-owner-makes-an-api-key`, `invite-and-accept`, `an-invitation-is-used-once` (organizations) | the plugins' `blueprint/journeys/`: authored in M2.02 as stand-ins, placed in the packages by M2.24 | M2.24 places them; acme's copies are deleted by the author, never the builder: auth's in M2.25, organizations' in M2.23 | acme's `outsider-cannot-revoke` is about `allowance.revoke`: it stays. M2.05 and M2.07 fill handlers and write no journey |
 | the cap | `organization.fields.cap`, `organization.create`'s `cap`, `grant.ts:13` | acme's `allowance-policy` (small calls, 8) | M2.23 (checks and declarations), then M2.07 (handlers) | **acme's wire changes**, see the next section |
-| `ortho.config.ts`'s `auth: Auth.betterAuth(...)` and `Identity` | `examples/{acme,work}/ortho.config.ts:5,9`, `orthograph/src/modules/{config,identity}` | gone: the mount and `issues:` say it | M2.03 | `AuthKit` is read by nothing (`config/types.ts:1-12`); 33 files name `Identity.` |
+| `ortho.config.ts`'s `auth: Auth.betterAuth(...)` and `Identity` | `examples/{acme,work}/ortho.config.ts:5,9`, `orthograph/src/modules/{config,identity}` | gone: the mount and `issues:` say it | acme's at M2.05, work's at M2.11 (each when it mounts auth); `Identity`, `AuthKit` and the `auth` key itself at M2.11, with their last reader | `AuthKit` is read by nothing (`config/types.ts:1-12`); 33 files name `Identity.` |
 | the work app's `person` | `examples/work/blueprint/things/person/thing.ts` | deleted; work mounts auth | M2.11 | work's ids stay `per_`; organizations is **not** mounted (small calls, 13); no check-owned file reads work's `generated/` (`git grep -E "examples/work" -- e2e` finds only a build directory name at `e2e/m1/packages.ts:74`), so M2.11 is not a pair |
 | the starter | `examples/starter/**` | replaced by Plugged In at stage 1 | M2.09, with M2.27 | `packages/preset` reads `examples/starter` (`main.ts:10`); the scaffold gate; the starter's journeys and planted fixtures are protected, so M2.27 deletes or replaces them |
 
@@ -614,8 +614,8 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   `api-key/verbs/create.ts` and `.notVia(Via.agent)` on `invitation/verbs/accept.ts`; `a service is nobody signed in` in `e2e/m2` with the adapter
   fixture. Red for the missing surface only: `.via`, `.tools()`, `lacks`, `Blueprint.system`, the `service` role, and
   `via` in the answer.
-- *Builder.* the runtime, `issues:` in acme's four environment files and `ortho.config.ts` and in every other app's
-  (`examples/{starter,plugged-in,signup,work}/blueprint/environments/*.ts`, unprotected, with their `generated/`), the 15
+- *Builder.* the runtime, `issues:` for `identity:` in acme's four environment files (`ortho.config.ts` keeps `auth` until M2.05, Smaller calls 4) and in work's; the
+  other apps' environments (`examples/{starter,plugged-in,signup}/blueprint/environments/*.ts`, unprotected, with their `generated/`) drop `identity:` and write no `issues:`, the 15
   unprotected guards (the sixteenth, `examples/starter/test/fixtures/journeys/owner-step-skipped/organization/create.ts:11`,
   is a protected fixture that dies with the starter at M2.09: left alone), acme's `src/session/show.ts`
   answering `via`, `generated/`, and every package test that writes a `Principal` (`git grep -n 'kind: "person"' -- packages`
@@ -633,7 +633,7 @@ real output, and one green merge into `goal/stage-1`. The whole trace of which s
   (`e2e/m1/00-controls.test.ts:112-113`, `e2e/layer1/02-acme-proves.test.ts:20`, `e2e/m1/29-st1-23-prove-changed.test.ts:138,268,618`). Red for one reason:
   with its copy gone and auth not mounted, the coverage eval names `PersonEmailTaken` and `SessionCredentialsWrong` as
   reached by no journey.
-- *Builder.* acme's mount file `blueprint/features/auth.ts`, the identity entry, the server generator, the world, the move
+- *Builder.* acme's mount file `blueprint/features/auth.ts`, `auth` out of acme's `ortho.config.ts`, the `check` error for `issues` with no identity mounted (Smaller calls 4), the identity entry, the server generator, the world, the move
   of Better Auth, deleting acme's `person` and `session` and their handlers, `generated/`, and the package tests that move
   with Better Auth (`host-cloudflare/.../auth/auth.test.ts`, `world/world.test.ts`).
 - *Author, final commits.* the three baselines, the snapshot and `who-may-call/main.ts`. The diff must show: the server's
@@ -707,7 +707,7 @@ too, from the real output.
 | 1 | **A request key is kept per caller's own id**, for every kind: `person:<id>`, `agent:<id>`, `service:<mount>`, `system`, `anonymous`. An agent's retries never answer its person's call. Closes ledger OPS-07 and the canon question at `docs/canon/operations.mdx:514-518` | `handler/service.ts:161-162` keys by person, and "anonymous" for the rest |
 | 2 | **Spans carry `principal.kind` and `principal.via` on every call**, and `principal.person` on accepted calls of a person or an agent. A refused call names its kind and way in, never the person (G8) | `handler/internal/attributes.ts:17-18`; `G8-refused-span.md` |
 | 3 | `Principals.of` takes the door: `{ authorization, door: "api" \| "mcp" }`; at `/mcp` every credential makes an agent | `principals/types.ts:7`; `server.ts:125`, `:208` |
-| 4 | **`identity:` leaves the environment; `issues: [Via…]` replaces it.** Absent means all four. An environment that deploys `mcp` must issue `Via.agent`; one that publishes a CLI must issue `Via.device` or `Via.key`; `issues` with no identity mounted is a `check` error naming both files. The identity entry refuses a credential of a kind the environment does not issue (it reads as anonymous) | `orthograph/src/modules/environments/types.ts:14`; ledger ENV-20; `design/docs/index.html:636` |
+| 4 | **`identity:` leaves the environment; `issues: [Via…]` replaces it.** Absent means all four. An environment that deploys `mcp` must issue `Via.agent`; one that publishes a CLI must issue `Via.device` or `Via.key`; `issues` with no identity mounted is a `check` error naming both files. That check lands with M2.05, the first slice that can mount an identity; until an app mounts auth, its `ortho.config.ts` `auth` counts as its identity (acme until M2.05, work until M2.11), and an app with neither (starter, plugged-in, signup) writes no `issues:`. The identity entry refuses a credential of a kind the environment does not issue (it reads as anonymous) | `orthograph/src/modules/environments/types.ts:14`; ledger ENV-20; `design/docs/index.html:636` |
 | 5 | **`ortho.config.ts` loses `auth`.** The project's name stays (`ENV-14`/`FOR-02`'s concern is M1.11's, not this) | `orthograph/src/modules/config/types.ts:1-12` |
 | 6 | **The staging cast calls `person.sign-up` and `session.sign-in`**, the plugin's own operations, not Better Auth's routes, so `prove` knows nothing of Better Auth | `prove/src/modules/journeys/internal/world.ts:46-66` |
 | 7 | **A secret is named from the mount and the export**: `secret` in the plugin mounted as `blueprint/features/auth.ts` is `AUTH_SECRET`, so the binding does not change. Mounted as `identity.ts` it would be `IDENTITY_SECRET` | `frame/secrets.md:78-81` |
@@ -995,12 +995,12 @@ that slice is a pair under G12, and its author says so in its first commit.
 | M2.03 | the five kinds and `acting`; `Narrowed`, `.via`, `.notVia`; `Blueprint.system`; the `service` role; `agentTool`; `issues:` for `identity:`; `Principals.of` with a door; the request key and span attributes; the world's `/_world/credential`; the journey API's `.via` and `.tools()`; the 15 unprotected guards; canon quotes re-quoted. A pair with M2.02's principal part | the four principal journeys of M2.02 pass in acme, `a service is nobody signed in` passes in the adapter fixture, and the pair merges green |
 | M2.04 | `Blueprint.secret`, names from mount and export, `Redacted`, `Blueprint.layer(plugin, { secrets, settings, db })` | as written, and acme's `generated/` is byte for byte what it was: checks 12, 14 and 21 stay green with no baseline recaptured |
 | M2.24 | the two skeletons, the plugins' journeys placed, the `e2e/m2` checks pointed at the packages | the checks fail on blank handlers only |
-| M2.05 | the identity entry, the worker's move of Better Auth, the `auth` store, `provides`, the server generator, the world, acme's mount, the handlers of `packages/auth`. A pair with M2.25 | the identity journeys pass with acme mounting it |
+| M2.05 | the identity entry, `auth` out of acme's `ortho.config.ts` and the no-identity `check` error, the worker's move of Better Auth, the `auth` store, `provides`, the server generator, the world, acme's mount, the handlers of `packages/auth`. A pair with M2.25 | the identity journeys pass with acme mounting it |
 | M2.06 | device flow and its mark, OAuth for MCP, the pages, `signIn`/`keys`, settings | `acme login` and MCP sign-in journeys pass, through the real pages |
 | M2.07 | the handlers of `packages/organizations`; `holds` roles; acme's `allowance-policy` handlers, so M2.23's worlds and journeys pass; `api-key`. A pair with M2.23 | the tenancy journeys pass from the plugin; acme has no `organization/` folder |
 | M2.09, ST1.07 | `ortho new` writes Plugged In at stage 1 with auth and handles mounted; M2.09 is a pair with M2.27 | as written |
 | M2.10 | `ortho new feature`, `example/`, the three targets, the `plugins` job, `ortho publish --local` for plugins; the example mounts the plugin and has no journeys of its own (a plugin's journeys run in the app that mounts it, M1-plugins section 10) | as written |
-| M2.11 | the work app mounts auth | `ortho prove --root examples/work` passes with no copied identity |
+| M2.11 | the work app mounts auth; `auth` leaves work's `ortho.config.ts`, and `Identity` and `AuthKit` go | `ortho prove --root examples/work` passes with no copied identity |
 | M2.13 | SIWE linking: `challenge`, `complete`, `link` are `.notVia(Via.agent)`; `list` is open to agents | an agent's link is refused |
 
 ## Evidence
