@@ -40,6 +40,11 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 > You lead Goal 5 in this repository. Run it as one autonomous goal until the done check below passes on
 > `goal/ui-layer`, or until you are truly blocked as `AGENTS.md` defines it.
 >
+> This file is the whole brief: it holds every agreement this goal depends on (below, "The agreements"), so a lead
+> starting cold, on any account or session, needs only the repository. Read "Where it stands" at the end first, and
+> rewrite it at every slice merge. The conductor is whichever session runs the `conductor` skill;
+> `.agents/skills/kanban/STATE.md` says where the whole project stands.
+>
 > Read first:
 > - `AGENTS.md`, and this file word for word;
 > - `design/decisions/K29-ui-layer.md` (the whole shape, with sketches), K31 (the app's map), K24, K13 and K28;
@@ -59,6 +64,7 @@ A blueprint gives a web app its interface the way it gives the CLI and MCP their
 >   other in the same change, and record it.
 > - **The handoff:** keep `design/handoff.md` and `STATE.md` current after every merge, and move each slice's card on
 >   the board (the `kanban` skill), so a fresh or compacted session continues where you stopped.
+>   Rewrite "Where it stands" in the same pull request.
 > - **Reporting:** each time a slice merges, report to the conductor session (the `threads` skill names it), in two or
 >   three lines: the slice, its check, its snags. Write for Aaron's ear.
 > - **Branch protection:** ask the conductor to protect `goal/ui-layer` like `goal/stage-1` before the first pull
@@ -117,6 +123,29 @@ moves on. It never writes a fetch or a hand-made form to get round a piece. The 
 - Fix: framework, the refusal part renders the declared fields an agent may see (PR #…). Docs: the piece's page.
 - Status: fixed
 ```
+
+## The agreements (21 November 2026)
+
+Made by the conductor and the 📐 designer thread, under Aaron's standing authority, when Goal 6 was split off. They
+hold whoever leads either goal; changing one goes through the conductor and is written here and in Goal 6's brief.
+
+1. **The theme is Goal 6's.** `@orthograph/theme` is Goal 6's first slice, landed in `goal/stage-1` on its own. Until
+   it lands, the pieces use UI SDK's default tokens; this goal's screens slice (slice 5) takes it up.
+2. **The app-map language is additive.** Goal 6 brings it in as new modules, registered in a few named files, and a
+   blueprint that declares no app and no pages generates byte-identical output, which Goal 6's check proves. So this
+   goal's "existing generated files unchanged" keeps holding while Goal 6 lands.
+3. **Neither goal edits the other's packages.** This goal owns the actions module in `orthograph`, `packages/web`, the
+   actions and web projections and `examples/plugged-in/src/web/`. Goal 6 owns `packages/theme`, `packages/shell`,
+   `packages/portal-next`, the app projection and the `app` modules. A need on the other side is a snag sent to its
+   owner through the conductor.
+4. **This done check never waits on the map.** Plugged In's pages are declared in the map language as a follow-on,
+   once Goal 6's map landing reaches `goal/stage-1` (see "Where it meets Goal 6").
+5. **The waits.** The screens (slice 5) wait on ST1.03, Goal 3's handles plugin. The sign-in piece waits on M2.05 and
+   M2.06, Goal 3's auth plugin; until then the screens use the test people Plugged In's journeys use, and ST1.06 is not
+   in this done check.
+6. **The portal is Goal 6's.** It is rebuilt beside the old one; a list of the portal checks the new client fails only
+   shrinks; cutover lands in `goal/stage-1` only with Goal 3's lead's yes and a 🔍 pass, agreed through the conductor.
+   This goal never edits either client.
 
 ## The slices
 
@@ -199,3 +228,5 @@ From Goal 3's pace (a medium slice takes three to six hours from opening to merg
 - Part 1: about 4 to 8 hours. M1.23 is a small slice with agent-native's shape already spiked.
 - Part 2: about 16 to 24 hours. The web projection is the new machinery; #222 proved each part by hand.
 - Both: about 20 to 32 hours of continuous running, with slice 5 waiting on Goal 3's ST1.03.
+
+## Where it stands
