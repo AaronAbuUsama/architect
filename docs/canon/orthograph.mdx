@@ -159,8 +159,8 @@ Read it top to bottom; each band has its own page in this layer:
 2. **The model** is what `ortho check` compiles it to: one JSON, every declaration hashed. Every projection is made
    from it, never from the blueprint directly.
 3. **Languages** turn the model into frames, blanks and the enforcer for each place an operation can run. **Hosts**
-   are where that runs ([languages-and-hosts](languages-and-hosts.mdx)). The right-hand column, the chain, is
-   illustrative until K7 settles how an operation maps to a contract.
+   are where that runs ([languages-and-hosts](languages-and-hosts.mdx)). The right-hand column, the chain, is what K7
+   decided: an operation is one generated entry on a contract ([chains-and-wallets](chains-and-wallets.mdx)). Built in M6.
 4. **Data** lives in stores the framework owns, in sources it reaches through adapters, and in views kept from events
    ([data](data.mdx)).
 5. **The doors** all go through the generated SDK or straight to the served operation, so the one enforcer decides
@@ -273,6 +273,6 @@ pages say so when they are written.</Note>
 <Note kind="status" slice="M3.09">Today nothing turns a blank or a red verdict into a task. `ortho check` names every
 blank and `ortho prove` every red step; a person or an agent reads them and acts.</Note>
 
-<Note kind="status">The chain column of the picture waits on K7: how an operation maps to a contract, which functions
-clients may reach, and how Solidity, Noir and Solana fit together. Until K7 lands, nothing on this page about a chain
-is more than the picture.</Note>
+<Note kind="status" slice="M6.11">The chain column of the picture is K7's design: an operation is one generated entry on a
+contract, clients may reach every external function, and Solidity is built first while Noir and Solana are designed on the same
+port. The chain port and the wallet are built ([chains-and-wallets](chains-and-wallets.mdx)); the contract itself is M6.11.</Note>
