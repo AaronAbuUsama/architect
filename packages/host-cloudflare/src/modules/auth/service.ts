@@ -69,9 +69,19 @@ const layer: AuthD1Api["layer"] = (a) =>
     }),
   );
 
+/**
+ * A key is a credential for the API and the MCP door, never for Better Auth's own routes (M2-auth, fork 2; snag 446). With
+ * `enableSessionForAPIKeys` a key stands for its person's session at every route Better Auth serves, so an agent's key could mint a key
+ * with no agent mark, or upgrade one. The one door to `/api/auth/*` refuses any request that carries a key, whatever the route: a person
+ * signs in to make a key, and the server reads keys itself, through `Principals`, never through this door.
+ */
+export const carriesAKey = (request: Request) =>
+  request.headers.has("x-api-key") || /^Bearer\s+ak_/i.test(request.headers.get("authorization") ?? "");
+
 // A registration is capped before Better Auth sees it (D3 #123); everything else is Better Auth's.
 const handle: AuthD1Api["handle"] = (a, request) =>
   Effect.gen(function* () {
+    if (carriesAKey(request)) return Response.json({ error: "a key is not a credential for the sign-in routes: sign in to use them" }, { status: 401 });
     // Better Auth's own tables must exist before the guard counts one.
     const refused = oauth.isRegistration(request) ? yield* Effect.tryPromise(() => held(a).auth()).pipe(Effect.andThen(oauth.registrationGuard(a))) : undefined;
     return refused ?? (yield* Effect.tryPromise(() => held(a).auth(originOf(request)).then((auth) => auth.handler(request))));

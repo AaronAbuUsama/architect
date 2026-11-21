@@ -70,6 +70,19 @@ describe("who a credential is (M2-auth, fork 2 and 3)", () => {
   });
 });
 
+describe("a key at Better Auth's own routes (snag 446)", () => {
+  it("is refused at every route, by header or by bearer, and a session is not", { timeout: 30_000 }, async () => {
+    const instance = AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET });
+    const ask = (path: string, headers: Record<string, string>) =>
+      Effect.runPromise(AuthD1.handle(instance, new Request(`http://ortho.local${path}`, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: "{}" }))).then((r) => r.status);
+    for (const path of ["/api/auth/api-key/create", "/api/auth/api-key/update", "/api/auth/get-session", "/api/auth/device/approve", "/api/auth/sign-out"]) {
+      expect(await ask(path, { "x-api-key": "ak_anything" }), path).toBe(401);
+      expect(await ask(path, { authorization: "Bearer ak_anything" }), path).toBe(401);
+    }
+    expect(await ask("/api/auth/get-session", { authorization: "Bearer not-a-key" })).not.toBe(401);
+  });
+});
+
 describe("dynamic client registration (D3 #123)", () => {
   const register = (origin: string) =>
     Effect.runPromise(AuthD1.handle(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "cli" }), new Request(`${origin}/api/auth/oauth2/register`, {
