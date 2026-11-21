@@ -30,7 +30,7 @@ that lives as an actor adds the `Actor` namespace, a second adds none, a thing i
 `ortho generate` and its plan judged against its own model; a plan typed out for Plugged In fails each variant that changes what is needed.
 
 Red today on one reason: `ortho env` has `up`, `down` and `status` for a long-lived local environment, and no `--plan`, no `--run` and no `destroy`; and Plugged In has no
-`blueprint/environments/staging.ts` (spike snag 3). The 30 red tests are in `e2e/m1/expected-failing/37-m7-03-staging-plan.txt`; the 45 controls pass today.
+`blueprint/environments/staging.ts` (spike snag 3). The 34 red tests are in `e2e/m1/expected-failing/37-m7-03-staging-plan.txt`; the 47 controls pass today.
 
 ## The CI-only half (touches the cloud, runs only by hand)
 
