@@ -59,6 +59,10 @@ adds the slices no milestone had (ids `ST<stage>.<n>`), and gives each stage its
 **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. This file is updated in place: `examples/plugged-in`, the tags `plugged-in/stage-<n>`, the command `plugged-in`.
 Codex's branch `links/stage-1` (#56) keeps its name. [`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md).
 
+**Three releases** ([`decisions/K28-releases.md`](decisions/K28-releases.md), Aaron, 21 November 2026). The **preview** is Gate M1 on `main` and
+the `@orthograph/*` packages, `orthograph` and the preset on npm under `next` (M1.51). The **beta** is stage 1: Gate M2 (M2.12) and Goal 3's staging run. **v1.0** is
+the beta plus stages 2 to 4 and the release, as the next paragraph says.
+
 **v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04, M7.06 and M7.13 (the cloud passes for staging and for the release, the npm
 release, the infra projection, a deploy and destroy that leaves nothing, real releases), each credential with Aaron's
 written yes.
@@ -165,7 +169,7 @@ evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 bu
 
 **Gate M0 proof:** a clean clone of `m0` at `091cc86` passes the workspace check, `sync:check`, `docs:check` and `nx run e2e:m0` ([`evidence/M0.06/`](evidence/M0.06/)); CI runs the same on [#32](https://github.com/AaronAbuUsama/architect/pull/32) and on `main` (jobs `check`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`).
 
-The npm org `@orthograph` is not needed until M7: every milestone before it publishes to the local Verdaccio.
+The npm org `@orthograph` is not needed until the preview (M1.51, K28): every milestone before it publishes to the local Verdaccio.
 
 ## M1: The complete model and plugins
 
@@ -234,6 +238,7 @@ real `ortho` binary, and the portal opens on Plugged In's things (K13).
 | M1.49 ∥ | Monitor, derived ([`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md)): the compiler derives the alert rules (a latency objective per `budget`, a defect objective per operation, an anomaly per refusal code, a verdict per journey and environment) and adds them to the portal's data with their labels; issues keyed by (operation, step, error tag) with first and last seen by the operation's declaration hash; the portal evaluates both over `TraceSource.window` at a fixed `now`; the Issues and Alerts pages and the worst-first list on home, from `@orthograph/portal-ui`; nothing is sent from local | M1.13, M1.20, M1.36 | build | in a local world: 20 calls slowed past `profile.get`'s budget fire its fast burn; one call does not; a planted defect in `link.add`'s `record` step opens one issue and a second joins it; a refusal opens none; the same defect after its operation's declaration changes shows regressed; screenshots are byte-identical at the same `now` | M |
 | M1.50 ∥ | One `Graph` in `@orthograph/portal-ui` (`spikes/react-flow-graphs`, accepted 19 November 2026):<br>• over `@xyflow/react`, pinned at the time;<br>• laid out by `elkjs` in the generator (positions in the portal's data, never in the browser bundle);<br>• our components as nodes.<br>Views from the model: each machine (structure, live counts on moves, a trace from a journey's run), the blueprint map (things in their app or plugin; refs, payload refs, `on:` handlers, mounts, needs), and the worlds' `from` chain with the journeys on each.<br>Replaces M1.13's lifecycle strip. The journey sequence stays. | M1.13, M1.34, M1.42 | build | Plugged In's portal draws its map, both machines and the worlds chain with no position written by hand; two generations give byte-identical layouts; a journey's run lights its path on the machine and no state shows a count; the portal bundle holds no elk | M |
 | M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.21, M1.25 to M1.36, M1.38 to M1.50 | e2e | `nx run e2e:m1` passes on `main`, M1.41 included | S |
+| M1.51 | The npm preview ([`decisions/K28-releases.md`](decisions/K28-releases.md)): `publish` may target npmjs for the `@orthograph/*` packages, `orthograph` and the preset, under the `next` tag only, the dry run is prepared by the conductor, and Aaron signs in and runs `npm publish` (direction 12) | M1.15 | build | `npm view orthograph@next` and `npm view @orthograph/cli@next` show the preview, and a fresh folder that installs it from npm proves a copy of `examples/acme` green locally (Plugged In reaches `main` with the beta; `npm create orthograph` is M2.09, the beta) | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -443,7 +448,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 the spend under $10 a day; then Capxul's first feature running on Orthograph.
 **Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on a dedicated
 Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03,
-M7.04 and M7.08 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
+M7.04 and M7.08 for staging alone. npm's `latest` tag, Homebrew and the rest of M7 still wait on the stage 4 gate; the preview under `next` is M1.51 (K28).
 **Gate.** `nx run e2e:m7`: acme goes from a pull request to test, staging and production on Cloudflare with a verdict
 in each, Orthograph's packages are released under `@orthograph` on npm, and everything the gate made is destroyed after.
 Capxul's first feature runs in its staging.
