@@ -136,7 +136,7 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 
 ## 4. Holes no slice owns
 
-1. The repository's `README.md` is empty, yet `AGENTS.md` serves "the goal in `README.md`".
+1. ~~The repository's `README.md` is empty, yet `AGENTS.md` serves "the goal in `README.md`"~~: it now holds the goal, from [`model/README.md`](model/README.md) (K30).
 2. ~~The npm preview has no slice~~: M1.51 now owns it (K28). The publish code still refuses npmjs.
 3. No Node host.
 4. Proving against a deployed address (staging) has no slice.
