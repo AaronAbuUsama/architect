@@ -262,7 +262,7 @@ A plugin is one of five kinds (`design/decisions/K27-three-plugin-kinds.md`, dec
 | `@orthograph/handles` | a public name one person holds | **designed** (ST1.03); built today as Plugged In's own thing |
 | `@orthograph/wallets` | keys on a device or a server: make, import, sign, send | **built** (`packages/wallets/README.md:3`) |
 | `@orthograph/react` | one hook per operation and per read | **designed** (ST1.01) |
-| docs and the portal | the readers' projections; the portal's components move from HeroUI Pro to UI SDK (`design/decisions/K24-ui-sdk.md`) | **built** in, to become standard projections (K30, section 1) |
+| docs and the portal | the readers' projections; the portal's components move from HeroUI Pro to UI SDK ([K24](../decisions/K24-ui-sdk.md)) | **built** in, to become standard projections (K30, section 1) |
 | the Safe, budgets and hats plugins | a multisig vault with budgets, for stage 3 | **designed** (`design/milestones.md`, stage 3) |
 | `@orthograph/stripe`, `@orthograph/resend` | payments and email adapters | **designed** (M5) |
 | `@orthograph/agents`, `@orthograph/work` | durable agents; the factory | **designed** (M3, M4) |
@@ -316,7 +316,7 @@ Every package in `packages/`, by bucket:
 | `preset` | core, for now | makes a new project until `ortho new` (M2.09) |
 | `projections` | core for model, API and server; standard library for SDK, CLI and MCP | one package today; the split is by tag, not by package |
 | `portal` | standard library | a projection by design (`design/frame/projections.md`, 3.8); built in today |
-| `portal-ui` | standard library | the portal's components behind one seam; HeroUI Pro today, UI SDK next (K24) |
+| `portal-ui` | standard library | the portal's components behind one seam; HeroUI Pro today, UI SDK next ([K24](../decisions/K24-ui-sdk.md)) |
 | `wallets` | standard library | the first feature plugin |
 | `chain-evm` | standard library | the EVM chain port wallets is built on; not an Orthograph adapter plugin |
 | `language-solidity` | standard library, later | a placeholder until on-chain work |

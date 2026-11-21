@@ -43,7 +43,7 @@ If nobody decides, each slice that moves a projection picks its own home, and th
 | the edges that cross the line today | the generators import `@orthograph/portal` (`packages/generators/package.json:8`); prove imports `@orthograph/chain-evm` (`packages/prove/package.json:14`); the command depends on all of `@orthograph/projections` (`packages/cli/package.json:9`) |
 | `packages/projections` | one package holds core and standard projections today |
 | the repositories (section 2) | the core's edge is the split's edge |
-| the portal's components (K24) | HeroUI Pro today, UI SDK next; neither should be a core dependency |
+| the portal's components ([K24](K24-ui-sdk.md)) | HeroUI Pro today, UI SDK next; neither should be a core dependency |
 
 **The options**
 
