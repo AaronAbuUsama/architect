@@ -23,7 +23,8 @@ when you write any of these:
 - **A component of the app's own** that nothing generated fits, like an editor. Path 2, "Build a component", applies:
   one `definePrimitive`, its agent-readable state listed in `controlled`, its `agent.actions` named. Anything it saves
   goes through a generated action, never a fetch of its own.
-- **`@orthograph/portal-ui`'s insides**, as they move from HeroUI to UI SDK.
+- **`@orthograph/shell`'s and the new portal's components** (`packages/portal-next`, K31 and Goal 6), built on UI SDK
+  from the start. `@orthograph/portal-ui` is not ported: it is deleted at cutover (K29 section 7).
 
 Where this skill and Orthograph's rules disagree, ours win: `AGENTS.md` (Effect, no `async` outside entry files,
 pinned versions, the six-slot module shape) and the generated-file header. The skill's own docs live in each
