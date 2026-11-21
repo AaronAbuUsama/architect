@@ -17,7 +17,7 @@ shared Whiteboard runtime for all of them, saved once as `_whiteboard-shell.html
 - UI on Orthograph (W), `ui-on-orthograph`, https://claude.ai/artifact/H13DfQTeCaBK2XLWe28hZk, read 21 November 2026: how UI sits on Orthograph. Data: `ui-on-orthograph.data.json`.
 - Orthograph On Chain (W), `on-chain`, https://claude.ai/artifact/Awa6ahjAfYiLQXsUyXY9Ht, read 21 November 2026: the on-chain milestone board. Data: `on-chain.data.json`.
 - Capxul Next on Orthograph (W), `capxul-next`, https://claude.ai/artifact/CFsgUxsQbienHAaEkYTcBw, read 21 November 2026: Capxul rebuilt on Orthograph. Data: `capxul-next.data.json`.
-- Plugged In Walkthrough, `plugged-in-walkthrough`, https://claude.ai/artifact/FVQjGCEVzYj3ThNzYGdX75, read 21 November 2026: an editor-style walkthrough of building Plugged In from blueprint to generated files. Page: `plugged-in-walkthrough.html` plus `plugged-in-walkthrough/` (scripts, CSS, `walkthrough.json`, `detail.html`).
+- Plugged In Walkthrough, `plugged-in-walkthrough`, https://claude.ai/artifact/FVQjGCEVzYj3ThNzYGdX75, read 21 November 2026: an editor-style walkthrough of building Plugged In from blueprint to generated files. Page: `plugged-in-walkthrough/index.html`, beside its scripts, CSS, `walkthrough.json` and `detail.html`, so it opens served from that folder.
 - Orthograph Storyboard Canvas (W), `storyboard-canvas`, https://claude.ai/artifact/5HibrP24YgknKMeVzbDajT, read 21 November 2026: the storyboard board. Data: `storyboard-canvas.data.json`.
 - Orthograph Map (W), `orthograph-map`, https://claude.ai/artifact/3EU4zQS1uQeSkbXZBxfGkL, read 21 November 2026: the map of Orthograph. Data: `orthograph-map.data.json`.
 
