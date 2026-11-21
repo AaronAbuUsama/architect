@@ -90,6 +90,25 @@
       },
       "cache": false
     },
+    "stage1-ratchet": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          "mkdir -p tmp && rm -f tmp/stage1-report.json tmp/stage1-errors.json",
+          "RATCHET_ERRORS_FILE=tmp/stage1-errors.json vitest run --root e2e --config vitest.stage1.config.ts stage1 --reporter=default --reporter=json --reporter=./e2e/ratchet/reporter.ts --outputFile.json=../tmp/stage1-report.json; node e2e/ratchet/check.ts tmp/stage1-report.json e2e/stage1/expected-failing tmp/stage1-errors.json"
+        ]
+      },
+      "cache": false
+    },
+    "stage1": {
+      "metadata": {
+        "description": "The done check of Goal 3, begun: Plugged In's journeys in local and test. Still needs, per e2e/stage1/README.md: e2e:climb as a step, the grid cells with their logbook verdicts, the latest staging run, a snags check, the story through CLI/SDK/MCP/HTTP from ortho new, and test read from a report."
+      },
+      "executor": "nx:run-commands",
+      "options": { "command": "nx run e2e:stage1-ratchet" },
+      "cache": false
+    },
     "m1": {
       "executor": "nx:run-commands",
       "options": { "command": "nx run e2e:m1-checks" },
