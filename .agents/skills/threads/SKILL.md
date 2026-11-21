@@ -19,7 +19,7 @@ its agent can, but anything a message settles is written into a file or an issue
 `AGENTS.md` binds every type. That covers its standing rules, the gate, and "Lanes, leads and the conductor".
 
 | Emoji | Type | Job | Finished when |
-|---|---|---|---|---|
+|---|---|---|---|
 | 🎼 | Conductor | Starts, briefs, lands and archives threads; keeps `main` green; routes Aaron's decisions; keeps his view current | Never; a fresh conductor can take over from `design/`, the build plan's step states and the threads |
 | 🧭 | Lead | Runs one layer on `layer/<n>`: has authors and builders do its steps, merges their pull requests into the layer, lands the layer on `main` when its gate passes | Every step of the layer is done on `main`, with its gate passing |
 | 🧪 | Spike | Answers one question in throwaway code under `spikes/<name>/` (the `spike` skill) | Its README is merged into `main`, with the decision it supports |
