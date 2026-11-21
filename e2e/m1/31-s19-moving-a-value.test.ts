@@ -128,7 +128,6 @@ describe("31 S-19: a value moving between holders in one call", () => {
     expect(seen.defect, "the defect's first line says which rule").toMatch(/unique rule handle\.oneHolderPerName\b/);
     expect(seen.defect, "the app's own bug and the compiler's list are other defects").not.toMatch(/names no refusal|did not list/);
     expect(seen.defect).not.toMatch(/version race/);
-    expect(seen.defect, "not the other defects").not.toMatch(/names no refusal|did not list/);
     expect(seen.commits, "no retry").toBeLessThanOrEqual(1);
     expect((await call("handle/claim", { name: "clash-n" })).status, "nothing of that call was written").toBe(200);
   });
