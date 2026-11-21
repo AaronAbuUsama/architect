@@ -25,8 +25,10 @@
 //   2. HARD, isolation: a fixture journey (`a run leaves a record`: a person signs up with one fixed email, which a world refuses a second
 //      time) is run three times in a row against one warm world; each run must pass and each must reuse the world. A world that kept the
 //      last run's person would refuse the second.
-//   3. RATIO, speed: the warm run is timed after a warm-up, three times, and the fastest is at most 70% of the cold run of the same project
-//      measured on the same machine at the start of this file (a cold run twice as slow on a loaded runner has a warm run twice as slow).
+//   3. RATIO, speed: the warm run of one fixed journey, `health is up` (`--only`), is timed after a warm-up, three times, and the fastest is at most 70% of
+//      the cold run of that same journey measured on the same machine in the same test (a cold run twice as slow on a loaded runner has a warm run twice as
+//      slow). One journey, because the saving is a fixed start-up of about 5 s: on the whole project the ratio would move with acme's journey count
+//      (`design/decisions/ST1-24-timing.md`, addendum of 21 November 2026). Rows 1 and 2 keep the whole project's verdict and spans covered.
 //      Row 1 says the speed-up is real; this row says it is enough. It prints every time it measured, and whether the fastest warm run was
 //      under 6 s, which is the target on a developer's machine and information only here (design/decisions/ST1-24-timing.md). It runs
 //      only if the warm-up reused dev's world.
