@@ -130,6 +130,8 @@ K25 item 5 gave each value its Solidity type. Across the three places a value tr
   round. Goal 4 does not need it to prove the chain: an allowance names its token as an account, and its amounts are
   `uint(128)` in the token's base units, with no decimals in the value. The Safe pays with the token's
   `transfer(to, amount)` through the account adapter. When THI-07 is designed, its amount wraps this.
+  Superseded by M6-money, 21 November 2026: Aaron decided THI-07 (every amount names its asset, `Blueprint.money.of`
+  the allowance's token for budgets, still `uint128` in base units), built in slice 3.
 
 ### 3. `generated/solidity/surface.json`
 
@@ -375,7 +377,7 @@ account until then.
 - **The fuzz's oracle for the developer's body.** The reference machine is generated from the blueprint, but the
   body (`_spend`'s limit check) is written only in Solidity. How the fuzz judges what the body decides (the blueprint's
   declared outcomes only, or a TypeScript body beside it) is slice 6's decision step, with its checks author.
-- **Money** (THI-07): Aaron's round, unchanged.
+- **Money** (THI-07): Aaron's round, unchanged. Superseded by M6-money, 21 November 2026: decided.
 - **Unordered nonces, ERC-7579 accounts, Solana and Aztec signing:** later, as above and in K7.
 
 ## Not chosen, and why

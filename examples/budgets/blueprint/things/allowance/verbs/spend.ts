@@ -3,8 +3,10 @@ import { Allowance } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { grantee } from "../roles.ts";
 import { AllowanceExceeded } from "../errors.ts";
-import { Amount } from "../../../values/money.ts";
 import { Recipient } from "../../../values/accounts.ts";
+
+// Every amount counts the allowance's token (M6-money item 1).
+const Amount = Blueprint.money.of(Allowance.fields.token);
 
 export default Blueprint.operation(Allowance, {
   description: "Spend from what is left of the allowance: the Safe pays the token to the recipient.",
