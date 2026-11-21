@@ -78,7 +78,7 @@ export default Blueprint.thing({ description: "An entry in the ledger.", fields:
 A handler never writes to a store. It writes to `Records`, which holds every write back until the call ends. Then
 the handler wrapper makes one commit and looks at the one thing it returns:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=125-134
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=132-141
 const writes = yield* unit.writes;
 const committed = yield* store.commit({ writes, entries, ...request }).pipe(
   Effect.tap((outcome) => Effect.annotateCurrentSpan({
@@ -106,9 +106,11 @@ export interface Commit {
 export type Committed = "committed" | "conflict";
 ```
 
-```ts file=packages/language-effect/src/modules/records/types.ts name=Store lines=61-70
+```ts file=packages/language-effect/src/modules/records/types.ts name=Store lines=67-78
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
+  /** The rules this store enforces at commit (G5), as the model carries them; a unit made over it looks through the same ones. Absent when the project declares none. */
+  readonly rules?: ReadonlyArray<NamedRule>;
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
   /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
   readonly list: (query: ListQuery) => Effect.Effect<Listed>;
@@ -143,7 +145,7 @@ return Effect.gen(function* () {
   if (statements.length === 0) return "committed" as const;
   return yield* d1.batch(statements).pipe(
     Effect.as("committed" as const),
-    Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf) ? Effect.succeed("conflict" as const) : Effect.die(e))),
+    Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf, rules) ? Effect.succeed("conflict" as const) : Effect.die(e))),
   );
 });
 ```
@@ -164,7 +166,7 @@ return this.ctx.storage.transactionSync((): Committed => {
 A `conflict` never reaches the caller. The wrapper runs the whole call again from the top, reading fresh, up to 64
 times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=158-165
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=165-172
 const loop = (number: number, callId: string): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number, callId).pipe(
     Effect.catch((e) =>
@@ -197,7 +199,7 @@ The rule isn't about which software it is. It is about whether a place can take 
 A call's writes all land in its thing's store. The host refuses a commit that writes to more than one store, at run
 time:
 
-```ts file=packages/host-cloudflare/src/modules/store/service.ts name=StoreD1 lines=57-58
+```ts file=packages/host-cloudflare/src/modules/store/service.ts name=StoreD1 lines=58-59
 const owners = new Set(commit.writes.map((w) => ownerOf(w.thing)));
 if (owners.size > 1) return Effect.die(new Error("a call wrote to more than one store: one call commits to one store, and work across stores is a workflow (K3 item 5)"));
 ```
@@ -210,7 +212,7 @@ runs as a workflow: each step commits to one store, and the workflow remembers w
 A kind declares what it can serve, and the compiler refuses a read the kind can't. An actor holds one instance, so it
 has nothing to list, and the compiler already says so:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts name=describe lines=222
+```ts file=packages/compiler/src/modules/model/internal/describe.ts name=describe lines=230
 if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
 ```
 
@@ -226,13 +228,13 @@ things.map((t) => {
   const columns = Object.keys(t.fields).map((f) => (f === "id" ? `  "id" TEXT PRIMARY KEY` : `  "${f}" TEXT NOT NULL`));
   // Empty until the thing's first move sets it.
   if (t.machine) columns.push(`  "state" TEXT`);
-    columns.push(`  "version" INTEGER NOT NULL DEFAULT 0`);
-    // A unique field (G4) is a partial unique index over its scope: the store refuses a second holder at commit.
-    const indexes = Object.entries(t.unique ?? {}).map(([field, { while: states }]) => {
-      const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
-      return `CREATE UNIQUE INDEX "${t.name}_${field}_unique" ON "${t.name}" ("${field}")${scope};`;
-    });
-    return [`CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`, ...indexes].join("\n");
+  columns.push(`  "version" INTEGER NOT NULL DEFAULT 0`);
+  // A unique field (G4) is a partial unique index over its scope: the store refuses a second holder at commit.
+  const indexes = Object.entries(t.unique ?? {}).map(([field, { while: states }]) => {
+    const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
+    return `CREATE UNIQUE INDEX "${t.name}_${field}_unique" ON "${t.name}" ("${field}")${scope};`;
+  });
+  // A rule (G5) is one partial unique index too, named after it (`<table>_<rule>`) so two rules over one field keep two: over the rule's key, within its `while` states.
 ```
 
 ### Binding a store in an environment

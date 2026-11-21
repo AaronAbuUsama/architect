@@ -66,7 +66,12 @@ const tablesOf = (things: ReadonlyArray<ThingModel>) =>
       const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
       return `CREATE UNIQUE INDEX "${t.name}_${field}_unique" ON "${t.name}" ("${field}")${scope};`;
     });
-    return [`CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`, ...indexes].join("\n");
+    // A rule (G5) is one partial unique index too, named after it (`<table>_<rule>`) so two rules over one field keep two: over the rule's key, within its `while` states.
+    const ruleIndexes = Object.entries(t.invariants ?? {}).map(([rule, { fields, while: states }]) => {
+      const scope = states ? ` WHERE "state" IN (${states.map((s) => `'${s.replaceAll("'", "''")}'`).join(", ")})` : "";
+      return `CREATE UNIQUE INDEX "${t.name}_${rule}" ON "${t.name}" (${fields.map((f) => `"${f}"`).join(", ")})${scope};`;
+    });
+    return [`CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`, ...indexes, ...ruleIndexes].join("\n");
   });
 
 const header = (...extra: ReadonlyArray<string>) => [

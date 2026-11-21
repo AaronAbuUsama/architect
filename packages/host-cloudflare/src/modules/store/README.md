@@ -26,3 +26,7 @@ its column and is read back by the field's schema (`internal/rows.ts`, STO-23; `
 The thing the identity keeps (`people`: the `per_`-id thing and the identity's users table, both named by the generated
 server) is read by id from that table, only its own fields decoded, never from a table of its own, so the runtime finds
 the person a payload names (K16, M1.46). A list read of it dies; the identity plugin (M2.05) owns the rest.
+
+`StoreD1.layer({ tables, rules })` (G5): the model's rules, each by its full name. The generated migration makes one partial
+unique index per rule, `<table>_<rule>`; a commit it refuses is a `conflict` (D1 names the key's columns, never the index,
+so the store reads them from the rules), and the store hands the rules to the runtime's `findBy` and before-commit check.

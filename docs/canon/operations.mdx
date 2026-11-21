@@ -189,7 +189,7 @@ Three rules decide what a step is (K5, seam 3):
   and all, up to a fixed number of times. The call is named once, before its first attempt, and each attempt's span carries that name
   as `call.id`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=158-166
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=165-173
 const loop = (number: number, callId: string): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number, callId).pipe(
     Effect.catch((e) =>
@@ -286,7 +286,7 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=98-106
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=102-110
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -300,7 +300,7 @@ answers what it answered the first time and changes nothing. No step runs, no ev
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=153-155
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=160-162
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;

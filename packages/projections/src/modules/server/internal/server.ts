@@ -15,7 +15,9 @@ const notFromOf = (model: Model, o: OperationModel) => {
   const notFrom = o.move && o.move.from.length > 0 && machine ? `, notFrom: "${machine.notFrom.error}"` : "";
   // Each payload field no role check reads, and the `<Thing>NotFound` a missing one is refused with (K16, M1.46).
   const missing = Object.entries(o.notFound ?? {});
-  return `${notFrom}${missing.length > 0 ? `, notFound: { ${missing.map(([k, e]) => `${k}: "${e}"`).join(", ")} }` : ""}`;
+  // Each refusal the runtime makes for a rule this operation can break (G5), and the rule it is for.
+  const ruled = Object.entries(o.invariants ?? {});
+  return `${notFrom}${missing.length > 0 ? `, notFound: { ${missing.map(([k, e]) => `${k}: "${e}"`).join(", ")} }` : ""}${ruled.length > 0 ? `, invariants: { ${ruled.map(([tag, rule]) => `${tag}: "${rule}"`).join(", ")} }` : ""}`;
 };
 
 /**
@@ -39,6 +41,9 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
   const handled = ops.filter((o) => o.kind === "operation");
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
+  // The things with rules (G5): their `invariants.ts` is imported, and the store and the runtime are handed each rule under its full name.
+  const ruled = things.filter((t) => Object.keys(t.invariants ?? {}).length > 0);
+  const rulesOption = ruled.length > 0 ? ", rules" : "";
   // Each mount a served operation came from, imported once: its plugin's handlers run under it (Mount.serving).
   const mounted = [...new Set(handled.flatMap((o) => (o.from.kind !== "app" ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
   const mountVar = (mount: string) => `${camel(mount)}Mount`;
@@ -82,7 +87,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       `import { SqlClient } from "effect/sql";`,
       `import type { Principal } from "${Names.frontDoor}";`,
       `import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "${Names.pkg("host-cloudflare")}";`,
-      `import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, ${mounted.length > 0 ? "Mount, " : ""}Principals, Reads, Store, Wire, thingIn } from "${Names.pkg("language-effect")}";`,
+      `import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, ${mounted.length > 0 ? "Mount, " : ""}Principals, Reads, Store, Wire, ${ruled.length > 0 ? "invariantsIn, " : ""}thingIn } from "${Names.pkg("language-effect")}";`,
       `import { Mcp, type McpResult, type ShownOperation } from "${Names.pkg("language-effect")}";`,
       `import { Api, Errors } from "../api/src/index.ts";`,
       `import * as portal from "../portal/main.ts";`,
@@ -93,6 +98,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       callImports(model),
       mounted.map((m) => `import ${mountVar(m)} from "${toRoot("generated/server/main.ts")}${model.mounts![m]!.file}";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
+      ruled.map((t) => `import * as ${camel(t.name)}Invariants from "${thingFileAt("generated/server/main.ts", t, "invariants")}";`),
       stores.map((s) => `import ${camel(s.name)}Store from "${storeFileAt("generated/server/main.ts", s)}";`),
       "",
       actors ? `export { Actor, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
@@ -105,6 +111,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "",
       "/** Each thing and its table: a D1 table, or the name its actors go by. */",
       `const tables = [${things.map((t) => `[thingIn(${camel(t.name)}Thing), "${t.name}"]`).join(", ")}] as const;`,
+      ruled.length > 0 ? ["", "/** Each rule (G5) under its full name, `<thing>.<rule>`: the store's index refuses a second holder at commit, and the runtime refuses before it. */", `const rules = [${ruled.map((t) => `...invariantsIn("${t.name}", ${camel(t.name)}Invariants)`).join(", ")}] as const;`] : [],
       "",
       "const refusals = Wire.refusals(Errors.wire);",
       "const CallApi = Api.middleware(CallTelemetry);",
@@ -160,7 +167,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "    HttpApiBuilder.layer(CallApi).pipe(",
       `      Layer.provide([${groups.map((t) => `${pascal(t)}Live`).join(", ")}]),`,
       "      Layer.provideMerge(CallTelemetry.layer),",
-      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
+      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)}${rulesOption} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
       "      Layer.provideMerge(Database.d1(env.DB)),",
       "      Layer.provide(HttpServer.layerServices),",
       "    ),",
@@ -191,7 +198,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;",
       "const runtimeOf = (env: Env) =>",
       "  (mcpRuntime ??= ManagedRuntime.make(",
-      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
+      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption}${peopleOf(model)}${rulesOption} }), ${journal}, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
       "  ));",
       "",
       "const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;",

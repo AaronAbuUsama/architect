@@ -16,6 +16,7 @@ import { Environment } from "./internal/environment.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { prehandle, type Prehandled } from "./internal/prehandle.ts";
 import { recordingLogs } from "./internal/decided.ts";
+import { settleViolation } from "./internal/invariants.ts";
 import { signalled, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 export { Environment } from "./internal/environment.ts";
@@ -44,9 +45,11 @@ interface Spec {
   readonly notFound?: Readonly<Record<string, string>>;
   readonly calls?: Readonly<Record<string, CallWiring>>;
   readonly codes?: Readonly<Record<string, string>>;
+  /** The refusals the runtime makes for this operation's writes (G5): each error's tag to the full name of the rule it refuses for. From the model's `operations.<op>.invariants`. */
+  readonly invariants?: Readonly<Record<string, string>>;
 }
 
-const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes }: Spec) => {
+const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes, invariants = {} }: Spec) => {
   const op = operation as Operation;
   const budgetMs = op.budget === undefined ? undefined : Duration.toMillis(op.budget.p95);
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
@@ -54,6 +57,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
   const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
   if (notFrom !== undefined) refusals.add(notFrom);
   for (const tag of Object.values(notFound)) refusals.add(tag);
+  for (const tag of Object.keys(invariants)) refusals.add(tag);
   if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
   if (op.idempotent === "request") refusals.add("IdempotencyConflict");
   const callRefusals = new Set([...refusals, "InvalidPayload"]);
@@ -122,6 +126,9 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
         // The state the subject was in, written once the move is made: a refused call made no move.
         if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
         const request = key === undefined ? {} : { request: { key, answer: JSON.stringify({ payload: sha256(canonical(payload)), answer: wire }) } };
+        // Every rule this call's rows could break, after the move and before the commit: the store's own index then catches the race.
+        const broken = yield* unit.check;
+        if (broken !== undefined) return yield* settleViolation(name, invariants, logs)(broken);
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(
           Effect.tap((outcome) => Effect.annotateCurrentSpan({

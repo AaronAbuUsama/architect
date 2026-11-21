@@ -2,7 +2,7 @@
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
-import type { Commit, Entry, Write } from "@orthograph/language-effect";
+import type { Commit, Entry, NamedRule, Write } from "@orthograph/language-effect";
 import { encodeFields, lostGuard } from "./rows.ts";
 import { lostUnique } from "./unique.ts";
 
@@ -12,7 +12,7 @@ export interface Db {
   readonly d1: D1Client.D1Client;
 }
 
-export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => string, { writes, entries, request }: Commit) => {
+export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => string, { writes, entries, request }: Commit, rules: ReadonlyArray<NamedRule> = []) => {
   const statementOf = (w: Write) =>
     Effect.gen(function* () {
       const table = sql(tableOf(w.thing));
@@ -36,7 +36,7 @@ export const commitD1 = ({ sql, d1 }: Db, tableOf: (thing: Write["thing"]) => st
     if (statements.length === 0) return "committed" as const;
     return yield* d1.batch(statements).pipe(
       Effect.as("committed" as const),
-      Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf) ? Effect.succeed("conflict" as const) : Effect.die(e))),
+      Effect.catch((e) => (lostGuard(e) || lostUnique(e, writes, tableOf, rules) ? Effect.succeed("conflict" as const) : Effect.die(e))),
     );
   });
 };
