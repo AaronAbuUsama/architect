@@ -2,6 +2,9 @@
 // or not the rule owns a refusal. `operations.<op>.breaks` is a list of full rule names ("<thing>.<rule>"), each once; `operations.<op>.invariants`
 // stays what it is (refusal to rule, only for rules that refuse). The compiler already computes the set (`breakersOf`, internal/invariants.ts:102, as
 // `breaks`) and `describe.ts:170` drops it; these checks pin what the model keeps.
+// The amendment of 21 November 2026 (S31-breaks.md, point 4): a database step that leaves `writes` unset is "unknown", and G5 section 3's rule 3 (a thing with no
+// machine, an operation on it with a database step) still catches it, so a missed write stays loud; `writes: []` is "reads only" and breaks nothing. So `profile.get`
+// declares `writes: []`, and breaks no rule. Rule 3 has its own synthetic cases below (a machine-less thing, one verb each way): Plugged In alone cannot hold it.
 // Written by the checks author; the builder never edits this file. Every case but the controls fails today: `breaks` is not in the model.
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -131,21 +134,65 @@ describe("S-31: the model carries every rule an operation can break, with or wit
   });
 });
 
+const PAGE_VERB = (name: string, steps: string) => `import { Blueprint } from "orthograph";
+import { Page } from "../thing.ts";
+export default Blueprint.operation(Page, {
+  description: "${name}",
+  payload: { handle: Page.fields.handle },
+  answer: {},
+  allowed: [Blueprint.anyone],
+  steps: { ${steps} },
+});\n`;
+const PAGE_FILES = {
+  "things/page/thing.ts": PAGE,
+  "things/page/invariants.ts": PAGE_RULES,
+  // `Page` has no machine, so section 3's rule 3 is all there is to go on: a database step that says nothing about `writes` is unknown, so it may break the rule; `writes: []` says "reads only".
+  "things/page/verbs/unset.ts": PAGE_VERB("unset", "s: Blueprint.step.database()"),
+  "things/page/verbs/reads.ts": PAGE_VERB("reads", "s: Blueprint.step.database({ writes: [] })"),
+  "things/page/verbs/mixed.ts": PAGE_VERB("mixed", "a: Blueprint.step.database({ writes: [] }), b: Blueprint.step.database()"),
+  "things/page/verbs/named.ts": PAGE_VERB("named", "s: Blueprint.step.database({ writes: [Page] })"),
+};
+
+describe("S-31 amendment: a database step with `writes` unset is unknown, `writes: []` is reads only (G5 section 3, rule 3)", () => {
+  it("a database step with `writes: []` compiles, and the model keeps the empty list (not an absent one), so unset and none stay apart", async () => {
+    const m = await modelOf(project(PAGE_FILES));
+    const steps = (op: string) => (m as unknown as { operations: Record<string, { steps: Record<string, { writes?: ReadonlyArray<string> }> }> }).operations[op]?.steps ?? {};
+    expect(steps("page.reads")["s"]?.writes, "writes: [] is kept as []").toEqual([]);
+    expect(steps("page.unset")["s"] !== undefined && "writes" in steps("page.unset")["s"]!, "an unset `writes` stays absent").toBe(false);
+    expect(steps("page.named")["s"]?.writes).toEqual(["page"]);
+  });
+
+  it("on a thing with no machine, an operation whose database step leaves `writes` unset breaks the rule; one with `writes: []` breaks nothing", async () => {
+    const m = await modelOf(project(PAGE_FILES));
+    expect(breaksOf(m, "page.unset"), "unknown: rule 3's coarse catch still applies").toEqual(["page.onePerHandle"]);
+    expect(m.operations["page.reads"]?.breaks, "reads only: nothing to break, and an empty list, not an absent one").toEqual([]);
+  });
+
+  it("an operation with one step that reads and one that is unknown breaks the rule, and one that names the thing in `writes` breaks it too", async () => {
+    const m = await modelOf(project(PAGE_FILES));
+    expect(breaksOf(m, "page.mixed"), "one unknown step is enough").toEqual(["page.onePerHandle"]);
+    expect(breaksOf(m, "page.named"), "named in writes: section 3's rule 2, whatever rule 3 says").toEqual(["page.onePerHandle"]);
+  });
+});
+
 describe("S-31: Plugged In", () => {
   // `profile.onePagePerHandle` refuses nothing. `handle.claim` makes a profile, so it breaks it (the runtime checks the rule before the commit), but
   // today its step names no `writes: [Profile]`, so `breakersOf` finds only handle's two rules for it (G5 section 3, "misses handle.claim"). The builder
-  // names the write in blueprint/things/handle/verbs/claim.ts. `profile.get` stays a breaker by section 3's rule 3 (a thing with no machine, a database
-  // step): coarse on purpose, and pinned here so the portal's fixture (e2e/m1/rules-fixture.ts) tells the truth about it.
+  // names the write in blueprint/things/handle/verbs/claim.ts. `profile.get` is a read: the builder declares `Blueprint.step.database({ writes: [] })` on its
+  // step, and it breaks nothing (the runtime's `unit.check` looks only at rows the call writes), so the portal shows it no rules stop. Pinned here, so the
+  // portal's fixture (e2e/m1/rules-fixture.ts) tells the truth about it.
   it("handle.claim breaks all three rules, and handle.release breaks none", async () => {
     const m = await modelOf(pluggedIn);
     expect(breaksOf(m, "handle.claim")).toEqual(["handle.oneHolderPerName", "handle.oneNamePerPerson", "profile.onePagePerHandle"]);
     expect(m.operations["handle.release"]?.breaks).toEqual([]);
   });
 
-  it("claim's refusals still map to handle's two rules only, and no other operation breaks a rule but profile.get (a read of a thing with no machine)", async () => {
+  it("claim's refusals still map to handle's two rules only, and no other operation breaks a rule: profile.get is a read and declares `writes: []`", async () => {
     const m = await modelOf(pluggedIn);
     expect(m.operations["handle.claim"]?.invariants).toEqual({ HandleTaken: "handle.oneHolderPerName", HandleAlreadyOwned: "handle.oneNamePerPerson" });
-    expect(breaksOf(m, "profile.get")).toEqual(["profile.onePagePerHandle"]);
+    expect(m.operations["profile.get"]?.breaks, "a read writes nothing: no rule to break, and no rules stop").toEqual([]);
+    expect(m.operations["profile.get"]?.invariants ?? {}).toEqual({});
     for (const quiet of ["handle.resolve", "link.add", "link.order", "link.remove"]) expect(m.operations[quiet]?.breaks, quiet).toEqual([]);
+    for (const [op, entry] of Object.entries(m.operations)) if (op !== "handle.claim") expect(entry.breaks, `${op}: only claim writes a rule's records`).toEqual([]);
   });
 });

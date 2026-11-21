@@ -138,7 +138,7 @@ The rule owns its refusal, once. (A rule with no `refuse` attaches nothing: a br
   default step). The model can't see which fields a step changes, so an operation with no move that rewrites a key on
   a record in scope is missed; the runtime then dies naming the rule and the operation (5), so the blind spot is
   loud, and the author's fix is `writes: [Handle]` on that step, until field-level `writes` (7) make breakers exact.
-  Rule 3 is coarse on purpose: it makes `profile.get` (a read) a breaker of `onePagePerHandle`, and misses
+  Rule 3 is coarse on purpose (_Superseded by S31, 21 November 2026 amendment: it applies only to a database step that leaves `writes` unset, and `writes: []` means reads only, so `profile.get` declares it and breaks nothing_): it makes `profile.get` (a read) a breaker of `onePagePerHandle`, and misses
   `handle.claim`, which makes a profile without `writes: [Profile]`. Both are accepted for a rule with no `refuse` (_Superseded by S31, 21 November 2026: `handle.claim` names its `writes: [Profile]`, and the model carries each operation's `breaks`_),
   where a breaker attaches no refusal and the runtime's check dies on a break whichever operation made it.
 
