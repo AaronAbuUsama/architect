@@ -2,7 +2,7 @@
 
 Read from the code on `goal/stage-1` (at `f7d28a42`) and `goal/on-chain`, 21 November 2026, by four read-only passes
 the conductor ran. Status is judged by the code and the tests, never by the ticks in `milestones.md`, which are behind.
-The release lines in section 2 are the conductor's draft and wait on Aaron's answer about what "preview" means.
+The release lines in section 2 are decided: K28, Aaron, 21 November 2026.
 
 Status words: **Built** (in `packages/`, with a test that passes), **Partial** (built, with a named piece missing),
 **Spiked** (only throwaway code in `spikes/` proves it), **None** (nothing yet).
@@ -16,14 +16,14 @@ them until they are green.
 
 What it is not: two products, a fork of agent-native, or (today) anything in the cloud or on public npm.
 
-## 2. The releases (draft)
+## 2. The releases (K28)
 
-No document defined an alpha or a beta before this one. v1.0 is defined (`milestones.md`): the four stage gates on
-`main`, plus the release slices. The conductor's proposal puts two releases before it:
+No document defined an alpha or a beta before this one. v1.0 was defined (`milestones.md`); K28 puts two releases
+before it:
 
 | Release | A person outside can… | Done when | Left to build |
 |---|---|---|---|
-| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | Gate M1's leftovers (M1.39, M1.49, M1.50, M1.12a, MCP's output schema); a slice for the npm preview itself (none owns it; publish refuses npmjs today); Goal 3's branch landing on `main` |
+| **Preview** (`next` on npm) | install Orthograph, write a blueprint, get the server, SDK, CLI, MCP, docs and portal, and prove journeys on their own machine | Gate M1 passes on `main`, and `@orthograph/*` is on npm under `next` | Gate M1's leftovers (M1.39, M1.49, M1.50, M1.12a, MCP's output schema); the npm preview itself (M1.51, added by K28; publish refuses npmjs today); Goal 3's branch landing on `main` |
 | **Beta** (stage 1, "workable") | start an app with `npm create orthograph`, sign people in, claim `@name` on a real page, and deploy it to Cloudflare and tear it down | Gate M2 (M2.12) and Goal 3's done check (`e2e:stage1`, staging included) | all of M2 (principals, auth and organizations as plugins, secrets, `ortho new`), the handles plugin, React hooks, the three screens, staging deploy and destroy |
 | **1.0** (stages 2 to 4) | wallets and pay by handle; a Safe with budgets, agents and time; a private club on Aztec | the stage 2, 3 and 4 gates on `main`, plus M7.01 to M7.04, M7.06 and M7.13 | most of M6 (on chain), M5.01 and M5.03 (webhooks), M3.01 to M3.03 (workflows), M4 (agents), M8 (time), stage 4 entire, the real release |
 
@@ -137,7 +137,7 @@ Capxul on Orthograph (M7.07 to M7.11). Most are None; the work board and E2B wor
 ## 4. Holes no slice owns
 
 1. The repository's `README.md` is empty, yet `AGENTS.md` serves "the goal in `README.md`".
-2. The npm preview has no slice, and the publish code refuses npmjs.
+2. ~~The npm preview has no slice~~: M1.51 now owns it (K28). The publish code still refuses npmjs.
 3. No Node host.
 4. Proving against a deployed address (staging) has no slice.
 5. Generated screens on UI SDK have no slice, and the blueprint can't declare an approval or a hidden payload field.
