@@ -251,7 +251,7 @@ Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "
   `earlier`, so a client still decodes an older contract (`evm#19`). `chain-evm`'s `RefusalLockEntry` is one EVM wire
   identity, current or earlier, read from this file.
 - **A rename of a declared error is a new code.** An error whose name leaves the blueprint moves to `retired`, and its code is never given
-  again; a renamed error takes a new code, and `ortho check` reports the change as major. This replaces K7 Q5's "a
+  to another name; a renamed error takes a new code, and `ortho check` reports the change as major. This replaces K7 Q5's "a
   rename of a published code is refused": the lock can't tell a rename from a removal and an addition, and refusing
   either would stop a developer renaming an error before anything is published.
 - **A name that comes back takes its own code back** (built in slice 3, 21 November 2026). An entry is keyed by its
@@ -265,7 +265,7 @@ Superseded by M6-money, 21 November 2026: a money field is written `{ "value": "
   `{ "value": "text", "max": 64 }`, which is right for the Effect wire, where it carries the state's name, but would give
   a `string` in a Solidity signature where item 2 gives a state as `uint8`. Slice 4, which adds the Solidity wire,
   gives the lock a `{ "value": "state", "of": "<thing>" }` field: the name on the Effect and JSON wires, the `uint8` of
-  item 2's table on chain. The Effect tag does not change, so nothing moves to `earlier`. Slice 4's checks author
+  item 2's table on chain. The Effect tag does not change, and no Solidity signature existed before slice 4, so this retype leaves no older wire to keep decoding and nothing moves to `earlier`. Slice 4's checks author
   extends `lockProblems` to read it. Not-found's `id` is the thing's id (`{ "value": "id", "prefix": … }`), as built.
 - **The runtime's codes are fixed by the lock too.** `AR-001` `NotAllowed` and `AR-002` `IdempotencyConflict` as today;
   the chain adds `AR-003` `SignatureExpired { deadline }`, `AR-004` `InvalidNonce { expected, got }`, `AR-005`
