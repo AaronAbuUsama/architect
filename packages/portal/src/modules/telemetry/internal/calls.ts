@@ -56,7 +56,7 @@ const moved = (attempts: ReadonlyArray<WindowSpan>, all: ReadonlyArray<WindowSpa
 /** Calls with a span that were refused, per operation and refusal name, with the newest such trace. */
 export type SpanRefusals = ReadonlyMap<string, { readonly operation: string; readonly name: string; readonly count: number; readonly trace: string; readonly start: number }>;
 
-export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds, window: { readonly since: number; readonly now: number }): { readonly view: CallsView; readonly refusals: SpanRefusals } => {
+export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: string, budgets: Readonly<Record<string, number | undefined>>, kinds: OperationKinds, window: { readonly since: number; readonly now: number }): { readonly view: CallsView; readonly refusals: SpanRefusals; readonly all: ReadonlyArray<TelemetryCall> } => {
   const all: Array<TelemetryCall> = [];
   const moves: Record<string, number> = {};
   const journeys: Record<string, Set<string>> = {};
@@ -90,5 +90,6 @@ export const callsOf = (traces: ReadonlyMap<string, WindowTrace>, environment: s
       journeys: Object.fromEntries(Object.entries(journeys).map(([op, set]) => [op, [...set].sort()])),
     },
     refusals,
+    all,
   };
 };

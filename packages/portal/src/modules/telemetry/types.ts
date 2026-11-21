@@ -155,6 +155,8 @@ export interface TraceView { readonly trace: string; readonly spans: ReadonlyArr
 export interface TelemetryApi {
   /** Never fails: a source that cannot be read is a value inside the answer. */
   readonly read: (blueprint: BlueprintWire, live: PortalLive) => Effect.Effect<PortalTelemetry>;
+  /** Every call the traces hold that started in `[since, now]`, newest first, with no row limit: what the monitor counts (M1.49). */
+  readonly calls: (blueprint: BlueprintWire, traces: ReadonlyMap<string, WindowTrace>, environment: string, window: { readonly since: number; readonly now: number }) => ReadonlyArray<TelemetryCall>;
   /** One trace, scrubbed: `undefined` when the source has none of it. */
   readonly trace: (live: PortalLive, trace: string) => Effect.Effect<Availability<TraceView | undefined>>;
 }

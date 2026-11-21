@@ -2,6 +2,7 @@
 // never a guess; the page says what it could not read.
 import { Effect } from "effect";
 import type { TraceView } from "#modules/telemetry/types.js";
+import type { MonitorView } from "#modules/monitor/types.js";
 import type { Availability, BlueprintWire } from "#modules/wire/types.js";
 import type { DataFailed, PortalData } from "../types.ts";
 
@@ -35,9 +36,22 @@ export const loadTrace = (id: string): Effect.Effect<TraceAnswer, DataFailed> =>
   return Effect.tryPromise({ try: () => fetch(request), catch: (error) => failed(request, String(error)) }).pipe(Effect.flatMap(answer));
 };
 
+const isMonitor = (value: unknown): value is MonitorView => {
+  const view = value as Partial<MonitorView> | null;
+  return typeof view === "object" && view !== null && typeof view.environment === "string" && typeof view.now === "number" && Array.isArray(view.alerts) && Array.isArray(view.issues);
+};
+
+/** The monitor's answer, or `null`: a portal with no live source answers 404, and one that cannot be read leaves the pages saying so, never an alert it did not evaluate. */
+const loadMonitor = (digest: string): Effect.Effect<MonitorView | null> =>
+  read<unknown>(`/_portal/v1/monitor?digest=${encodeURIComponent(digest)}`).pipe(
+    Effect.map((view) => (isMonitor(view) ? view : null)),
+    Effect.catch(() => Effect.succeed(null)),
+  );
+
 export const load = (): Effect.Effect<PortalData, DataFailed> =>
   Effect.gen(function* () {
     const blueprint = yield* read<BlueprintWire>("/_portal/v1/blueprint");
     const snapshot = yield* read<PortalData["snapshot"]>(`/_portal/v1/snapshot?digest=${encodeURIComponent(blueprint.digest)}`);
-    return { blueprint, snapshot };
+    const monitor = yield* loadMonitor(blueprint.digest);
+    return { blueprint, snapshot, monitor };
   });

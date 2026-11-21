@@ -31,6 +31,13 @@ describe("routeOf", () => {
     expect(routeOf("/portal/traces/xyz")).toEqual({ page: "missing" });
   });
 
+  it("the monitor's pages: Alerts and Issues under it, and nothing else under it", () => {
+    expect(routeOf("/portal/monitor")).toEqual({ page: "monitor" });
+    expect(routeOf("/portal/monitor/alerts")).toEqual({ page: "alerts" });
+    expect(routeOf("/portal/monitor/issues/")).toEqual({ page: "issues" });
+    expect(routeOf("/portal/monitor/other")).toEqual({ page: "missing" });
+  });
+
   it("anything else is not a page, and a name with a path in it is no name", () => {
     for (const path of ["/portal/nothing", "/portal/things", "/portal/things/a/b", "/portal/things/..%2Fsecret", "/portal/things/%E0%A4%A", "/portal/things/Handle", "/elsewhere"]) {
       expect(routeOf(path), path).toEqual({ page: "missing" });
@@ -45,8 +52,19 @@ describe("load", () => {
       asked.push(path);
       return Promise.resolve(Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked" }));
     });
-    expect(await Effect.runPromise(load())).toEqual({ blueprint: { digest: "abc" }, snapshot: { consistency: "checked" } });
-    expect(asked).toEqual(["/_portal/v1/blueprint", "/_portal/v1/snapshot?digest=abc"]);
+    expect(await Effect.runPromise(load())).toEqual({ blueprint: { digest: "abc" }, snapshot: { consistency: "checked" }, monitor: null });
+    expect(asked).toEqual(["/_portal/v1/blueprint", "/_portal/v1/snapshot?digest=abc", "/_portal/v1/monitor?digest=abc"]);
+  });
+
+  it("reads the monitor for the digest too, and a portal with none (404, or an answer that is not a monitor) draws no alert it did not evaluate", async () => {
+    const view = { environment: "local", now: 1, alerts: [], issues: [] };
+    const answering = (monitor: Response) => (path: string) => Promise.resolve(path.includes("monitor") ? monitor : Response.json(path.includes("blueprint") ? { digest: "abc" } : { consistency: "checked" }));
+    vi.stubGlobal("fetch", answering(Response.json(view)));
+    expect((await Effect.runPromise(load())).monitor).toEqual(view);
+    vi.stubGlobal("fetch", answering(Response.json({ _tag: "NotFound" }, { status: 404 })));
+    expect((await Effect.runPromise(load())).monitor).toBeNull();
+    vi.stubGlobal("fetch", answering(Response.json({})));
+    expect((await Effect.runPromise(load())).monitor).toBeNull();
   });
 
   it("fails naming the request it could not read, and never invents a snapshot", async () => {
