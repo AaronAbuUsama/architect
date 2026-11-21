@@ -13,9 +13,9 @@ Lives in the database.
 | handle | handle.id | The handle the page belongs to. |
 | links | schema | The ids of the page's links, in the order they show. |
 
-## Unique
+## Invariants
 
-- handle: unique in every state
+- `profile.onePagePerHandle`: another profile holds this handle. Unique on handle, in every state; refuses nothing, a break is a defect.
 
 ## Operations
 

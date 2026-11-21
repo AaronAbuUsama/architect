@@ -57,16 +57,27 @@
         }
       },
       "lives": "database",
-      "unique": {
-        "name": {
+      "invariants": {
+        "oneHolderPerName": {
+          "kind": "unique",
+          "fields": [
+            "name"
+          ],
           "while": [
             "claimed"
-          ]
+          ],
+          "refuse": "HandleTaken"
         },
-        "owner": {
+        "oneNamePerPerson": {
+          "kind": "unique",
+          "fields": [
+            "owner"
+          ],
           "while": [
             "claimed"
-          ]
+          ],
+          "refuse": "HandleAlreadyOwned",
+          "description": "you already hold a name"
         }
       },
       "machine": {
@@ -162,7 +173,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "946e824182d49eb9"
+      "hash": "d9dcca222783bbef"
     },
     "link": {
       "name": "link",
@@ -313,8 +324,13 @@
         }
       },
       "lives": "database",
-      "unique": {
-        "handle": {}
+      "invariants": {
+        "onePagePerHandle": {
+          "kind": "unique",
+          "fields": [
+            "handle"
+          ]
+        }
       },
       "machine": null,
       "events": {},
@@ -330,7 +346,7 @@
       "from": {
         "kind": "app"
       },
-      "hash": "26f5277746d573c1"
+      "hash": "b6fe73c29fc30ccb"
     }
   },
   "operations": {
@@ -373,10 +389,11 @@
         ],
         "emits": "HandleClaimed"
       },
-      "errors": [
-        "HandleTaken",
-        "HandleAlreadyOwned"
-      ],
+      "errors": [],
+      "invariants": {
+        "HandleTaken": "handle.oneHolderPerName",
+        "HandleAlreadyOwned": "handle.oneNamePerPerson"
+      },
       "refusals": [
         "HandleTaken",
         "HandleAlreadyOwned",
@@ -390,10 +407,6 @@
       ],
       "mints": "handle",
       "steps": {
-        "load": {
-          "name": "handle.claim.load",
-          "type": "database"
-        },
         "record": {
           "name": "handle.claim.record",
           "type": "database"
@@ -405,7 +418,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "2c184f936278b420"
+      "hash": "ec57bf4d03bb379c"
     },
     "handle.release": {
       "kind": "operation",

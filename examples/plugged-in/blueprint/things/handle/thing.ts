@@ -10,5 +10,4 @@ export const Handle = Blueprint.thing({
     name: HandleName,
     owner: Blueprint.described(Blueprint.id("per"), "The person who holds the name."),
   },
-  unique: { name: { while: ["claimed"] }, owner: { while: ["claimed"] } },
 });

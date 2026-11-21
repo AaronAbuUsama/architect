@@ -3,9 +3,10 @@ import { Effect } from "effect";
 import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/link/add.handler.ts";
-import { Handle } from "../../blueprint/things/handle/thing.ts";
+import { oneNamePerPerson } from "../../blueprint/things/handle/invariants.ts";
 import { Link } from "../../blueprint/things/link/thing.ts";
 import { Profile } from "../../blueprint/things/profile/thing.ts";
+import { onePagePerHandle } from "../../blueprint/things/profile/invariants.ts";
 
 const { LinkNeedsHandle } = Errors.declared;
 
@@ -47,7 +48,7 @@ const add: Handler = ({ title, url }, { principal, steps, move, id }) =>
     if (principal.kind !== "person") return yield* Effect.die(new Error("reached without a signed-in person"));
     const records = yield* Records;
     // Step load: database, span link.add.load.
-    const page = yield* steps.load(records.findBy(Handle, "owner", principal.person as never));
+    const page = yield* steps.load(records.findBy(oneNamePerPerson, principal.person as never));
 
     // LinkNeedsHandle: exit 30, LN-001. The caller holds no claimed name.
     if (!page) {
@@ -56,7 +57,7 @@ const add: Handler = ({ title, url }, { principal, steps, move, id }) =>
     }
 
     // The page is the profile the claim made with the handle; the link goes last in its order.
-    const profile = yield* steps.load(records.findBy(Profile, "handle", page["id"] as never));
+    const profile = yield* steps.load(records.findBy(onePagePerHandle, page["id"] as never));
     if (!profile) return yield* Effect.die(new Error(`handle ${String(page["id"])} holds a name but has no profile`));
 
     // Step record: database, span link.add.record.

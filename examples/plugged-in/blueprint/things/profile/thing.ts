@@ -9,5 +9,4 @@ export const Profile = Blueprint.thing({
     handle: Blueprint.described(Handle.fields.id, "The handle the page belongs to."),
     links: Blueprint.described(Blueprint.value(Schema.fromJsonString(Schema.Array(Schema.String))), "The ids of the page's links, in the order they show."),
   },
-  unique: { handle: {} },
 });

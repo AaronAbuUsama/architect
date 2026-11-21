@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/handle/resolve.handler.ts";
-import { Handle } from "../../blueprint/things/handle/thing.ts";
+import { oneHolderPerName } from "../../blueprint/things/handle/invariants.ts";
 
 const { HandleNotFound } = Errors.declared;
 
@@ -36,7 +36,7 @@ const { HandleNotFound } = Errors.declared;
 const resolve: Handler = ({ name }, { steps }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    const held = yield* steps.load(records.findBy(Handle, "name", name));
+    const held = yield* steps.load(records.findBy(oneHolderPerName, name));
 
     // HandleNotFound: exit 13, HN-003. A released or unclaimed name has no holder.
     if (!held) {
